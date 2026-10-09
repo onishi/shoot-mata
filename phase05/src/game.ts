@@ -49,9 +49,10 @@ export function activateBurst(state: GameState): boolean {
 
 function spawnEnemy(state: GameState): void {
   const heavy = state.wave % 5 === 4;
+  const lanes = [270, 190, 350, 270, 270, 130, 410];
   state.enemies.push({
     kind: heavy ? 'heavy' : 'light', x: WIDTH + 30,
-    y: 90 + ((state.wave * 113) % 350), hp: heavy ? 8 : 2,
+    y: lanes[state.wave % lanes.length], hp: heavy ? 8 : 2,
     radius: heavy ? 26 : 18, shotTimer: heavy ? 0.5 : 1.5, phase: state.wave * 0.7,
   });
   state.wave++;
@@ -87,7 +88,7 @@ export function updateGame(state: GameState, input: Input, dt: number): void {
 
   if (!state.bossSpawned && state.time >= 43) {
     state.bossSpawned = true;
-    state.enemies.push({ kind: 'boss', x: WIDTH + 70, y: HEIGHT / 2, hp: 60, radius: 53, shotTimer: 1, phase: 0 });
+    state.enemies.push({ kind: 'boss', x: WIDTH + 70, y: HEIGHT / 2, hp: 28, radius: 53, shotTimer: 1.2, phase: 0 });
   }
   if (!state.bossSpawned) {
     state.spawnTimer -= step;
@@ -107,7 +108,7 @@ export function updateGame(state: GameState, input: Input, dt: number): void {
       const distance = Math.hypot(dx, dy) || 1;
       const speed = e.kind === 'boss' ? 210 : 155;
       state.enemyBullets.push({ x: e.x - e.radius, y: e.y, vx: dx / distance * speed, vy: dy / distance * speed, radius: e.kind === 'boss' ? 9 : 7, damage: 1 });
-      e.shotTimer = e.kind === 'boss' ? 0.55 : e.kind === 'heavy' ? 1.2 : 2.1;
+      e.shotTimer = e.kind === 'boss' ? 0.9 : e.kind === 'heavy' ? 1.2 : 2.1;
     }
   }
 

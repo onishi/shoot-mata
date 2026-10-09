@@ -18,6 +18,12 @@ test('player cannot leave the playable area', () => {
   assert.equal(game.player.y, 62);
 });
 
+test('first enemy appears in the initial firing lane', () => {
+  const game = startGame();
+  updateGame(game, idle, 0.01);
+  assert.equal(game.enemies[0].y, 270);
+});
+
 test('losing all lives ends the game and retry resets state', () => {
   const game = startGame();
   game.lives = 1;

@@ -35,7 +35,10 @@ window.addEventListener('keydown', event => {
   }
 });
 window.addEventListener('keyup', event => keys.delete(event.code));
-window.addEventListener('blur', () => keys.clear());
+window.addEventListener('blur', () => {
+  keys.clear();
+  if (state.scene === 'play') { state.scene = 'pause'; showOverlay('PAUSED', '画面に戻ったら再開してください', 'RESUME'); }
+});
 document.addEventListener('visibilitychange', () => {
   if (document.hidden && state.scene === 'play') { state.scene = 'pause'; showOverlay('PAUSED', 'タブに戻ったら再開してください', 'RESUME'); }
 });
