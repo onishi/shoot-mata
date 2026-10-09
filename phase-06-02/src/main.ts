@@ -3,12 +3,19 @@ import { activateBurst, createGame, drainEvents, startGame, toggleMode, updateGa
 import { chooseBotInput } from './bot';
 import { Effects } from './effects';
 import { Sound } from './sound';
+import { combineInput, TouchControls } from './touch';
 
 const canvas = document.querySelector<HTMLCanvasElement>('#game');
 const overlay = document.querySelector<HTMLDivElement>('#overlay');
 const primary = document.querySelector<HTMLButtonElement>('#primary');
 const soundToggle = document.querySelector<HTMLButtonElement>('#sound-toggle');
-if (!canvas || !overlay || !primary || !soundToggle) throw new Error('Required game elements are missing');
+const touchStick = document.querySelector<HTMLElement>('#touch-stick');
+const stickKnob = document.querySelector<HTMLElement>('#stick-knob');
+const touchFire = document.querySelector<HTMLButtonElement>('#touch-fire');
+const touchSwitch = document.querySelector<HTMLButtonElement>('#touch-switch');
+const touchBurst = document.querySelector<HTMLButtonElement>('#touch-burst');
+const touchPause = document.querySelector<HTMLButtonElement>('#touch-pause');
+if (!canvas || !overlay || !primary || !soundToggle || !touchStick || !stickKnob || !touchFire || !touchSwitch || !touchBurst || !touchPause) throw new Error('Required game elements are missing');
 const context = canvas.getContext('2d');
 if (!context) throw new Error('Canvas 2D is unavailable');
 const ctx: CanvasRenderingContext2D = context;
@@ -20,18 +27,34 @@ const autoplay = import.meta.env.DEV && new URLSearchParams(location.search).has
 let state = autoplay ? startGame() : createGame();
 if (autoplay) ui.hidden = true;
 let lastFrame = 0;
+const touch = new TouchControls(touchStick, stickKnob, touchFire, touchSwitch, touchBurst, touchPause, {
+  switchMode: () => toggleMode(state),
+  burst: () => { activateBurst(state); },
+  pause: () => togglePause(),
+});
+
+function togglePause(): void {
+  if (state.scene === 'play') {
+    state.scene = 'pause';
+    touch.reset();
+    showOverlay('PAUSED', 'P またはポーズボタンで再開', 'RESUME');
+  } else if (state.scene === 'pause') {
+    state.scene = 'play';
+    ui.hidden = true;
+  }
+}
 
 function showOverlay(title: string, detail: string, action: string): void {
   ui.hidden = false;
   ui.innerHTML = `<h2>${title}</h2><p>${detail}</p><button id="primary">${action}</button>`;
   ui.querySelector('button')?.addEventListener('click', () => {
     if (state.scene === 'pause') state.scene = 'play';
-    else { state = startGame(); effects.clear(); }
+    else { state = startGame(); effects.clear(); touch.reset(); keys.clear(); }
     ui.hidden = true;
   });
 }
 
-primary.addEventListener('click', () => { state = startGame(); effects.clear(); ui.hidden = true; });
+primary.addEventListener('click', () => { state = startGame(); effects.clear(); touch.reset(); keys.clear(); ui.hidden = true; });
 soundToggle.addEventListener('click', async () => {
   const enabled = await sound.toggle();
   soundToggle.textContent = enabled ? 'SOUND ON' : 'SOUND OFF';
@@ -42,18 +65,16 @@ window.addEventListener('keydown', event => {
   keys.add(event.code);
   if (!event.repeat && ['ShiftLeft', 'ShiftRight', 'KeyX'].includes(event.code)) toggleMode(state);
   if (!event.repeat && event.code === 'KeyZ') activateBurst(state);
-  if (!event.repeat && ['KeyP', 'Escape'].includes(event.code)) {
-    if (state.scene === 'play') { state.scene = 'pause'; showOverlay('PAUSED', 'P または Escape で再開', 'RESUME'); }
-    else if (state.scene === 'pause') { state.scene = 'play'; ui.hidden = true; }
-  }
+  if (!event.repeat && ['KeyP', 'Escape'].includes(event.code)) togglePause();
 });
 window.addEventListener('keyup', event => keys.delete(event.code));
 window.addEventListener('blur', () => {
   keys.clear();
+  touch.reset();
   if (state.scene === 'play') { state.scene = 'pause'; showOverlay('PAUSED', '画面に戻ったら再開してください', 'RESUME'); }
 });
 document.addEventListener('visibilitychange', () => {
-  if (document.hidden && state.scene === 'play') { state.scene = 'pause'; showOverlay('PAUSED', 'タブに戻ったら再開してください', 'RESUME'); }
+  if (document.hidden && state.scene === 'play') { touch.reset(); state.scene = 'pause'; showOverlay('PAUSED', 'タブに戻ったら再開してください', 'RESUME'); }
 });
 
 function drawEnemy(enemy: Enemy): void {
@@ -161,12 +182,13 @@ function frame(now: number): void {
     y: Number(keys.has('ArrowDown') || keys.has('KeyS')) - Number(keys.has('ArrowUp') || keys.has('KeyW')),
     fire: keys.has('Space'),
   };
-  updateGame(state, autoplay ? chooseBotInput(state) : manualInput, dt);
+  updateGame(state, autoplay ? chooseBotInput(state) : combineInput(manualInput, touch.input), dt);
   const events = drainEvents(state);
   for (const event of events) effects.add(event);
   sound.play(events);
   if (state.scene === 'play') effects.update(dt);
   if (previousScene === 'play' && state.scene === 'result') {
+    touch.reset();
     showOverlay(state.outcome === 'clear' ? 'STAGE CLEAR' : 'GAME OVER',
       `SCORE ${state.score} · KILLS ${state.kills} · HITS ${state.hits}`, 'RETRY');
   }
