@@ -1,0 +1,18 @@
+:root { font-family: system-ui, sans-serif; color: #f4f7ff; background: #090e20; }
+* { box-sizing: border-box; }
+body { margin: 0; }
+#app { width: min(100%, 1080px); margin: auto; padding: 12px; }
+header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+header h1 { margin: 4px 0 12px; font-size: clamp(20px, 3vw, 30px); letter-spacing: .12em; }
+header small { font-size: .45em; color: #a7b5d5; }
+header button { min-width: 120px; min-height: 40px; font-size: 13px; }
+.game-shell { position: relative; width: 100%; aspect-ratio: 16 / 9; border: 2px solid #456189; overflow: hidden; }
+canvas { display: block; width: 100%; height: 100%; }
+.overlay { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 24px; text-align: center; background: #090e20dc; }
+.overlay[hidden] { display: none; }
+.overlay h2 { margin: 0; font-size: clamp(24px, 5vw, 52px); letter-spacing: .14em; }
+.overlay p { max-width: 700px; line-height: 1.7; color: #d9e5ff; }
+button { min-width: 160px; min-height: 48px; border: 2px solid #55e2ef; border-radius: 6px; background: #173b59; color: white; font: inherit; font-weight: 700; cursor: pointer; }
+button:hover, button:focus-visible { background: #276083; }
+.note { color: #a7b5d5; font-size: 14px; }
+@media (max-width: 650px) { header h1 { letter-spacing: .04em; } header small { display: block; } header button { min-width: 100px; } }
