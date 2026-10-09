@@ -2,17 +2,20 @@ import './style.css';
 import { activateBurst, createGame, drainEvents, startGame, toggleMode, updateGame, WIDTH, HEIGHT, type Enemy } from './game';
 import { chooseBotInput } from './bot';
 import { Effects } from './effects';
+import { Sound } from './sound';
 
 const canvas = document.querySelector<HTMLCanvasElement>('#game');
 const overlay = document.querySelector<HTMLDivElement>('#overlay');
 const primary = document.querySelector<HTMLButtonElement>('#primary');
-if (!canvas || !overlay || !primary) throw new Error('Required game elements are missing');
+const soundToggle = document.querySelector<HTMLButtonElement>('#sound-toggle');
+if (!canvas || !overlay || !primary || !soundToggle) throw new Error('Required game elements are missing');
 const context = canvas.getContext('2d');
 if (!context) throw new Error('Canvas 2D is unavailable');
 const ctx: CanvasRenderingContext2D = context;
 const ui: HTMLDivElement = overlay;
 const keys = new Set<string>();
 const effects = new Effects();
+const sound = new Sound();
 const autoplay = import.meta.env.DEV && new URLSearchParams(location.search).has('autoplay');
 let state = autoplay ? startGame() : createGame();
 if (autoplay) ui.hidden = true;
@@ -29,6 +32,11 @@ function showOverlay(title: string, detail: string, action: string): void {
 }
 
 primary.addEventListener('click', () => { state = startGame(); effects.clear(); ui.hidden = true; });
+soundToggle.addEventListener('click', async () => {
+  const enabled = await sound.toggle();
+  soundToggle.textContent = enabled ? 'SOUND ON' : 'SOUND OFF';
+  soundToggle.setAttribute('aria-pressed', String(enabled));
+});
 window.addEventListener('keydown', event => {
   if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.code)) event.preventDefault();
   keys.add(event.code);
@@ -112,7 +120,9 @@ function frame(now: number): void {
     fire: keys.has('Space'),
   };
   updateGame(state, autoplay ? chooseBotInput(state) : manualInput, dt);
-  for (const event of drainEvents(state)) effects.add(event);
+  const events = drainEvents(state);
+  for (const event of events) effects.add(event);
+  sound.play(events);
   if (state.scene === 'play') effects.update(dt);
   if (previousScene === 'play' && state.scene === 'result') {
     showOverlay(state.outcome === 'clear' ? 'STAGE CLEAR' : 'GAME OVER',
