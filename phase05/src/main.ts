@@ -1,5 +1,6 @@
 import './style.css';
 import { activateBurst, createGame, startGame, toggleMode, updateGame, WIDTH, HEIGHT, type Enemy } from './game';
+import { chooseBotInput } from './bot';
 
 const canvas = document.querySelector<HTMLCanvasElement>('#game');
 const overlay = document.querySelector<HTMLDivElement>('#overlay');
@@ -10,7 +11,9 @@ if (!context) throw new Error('Canvas 2D is unavailable');
 const ctx: CanvasRenderingContext2D = context;
 const ui: HTMLDivElement = overlay;
 const keys = new Set<string>();
-let state = createGame();
+const autoplay = import.meta.env.DEV && new URLSearchParams(location.search).has('autoplay');
+let state = autoplay ? startGame() : createGame();
+if (autoplay) ui.hidden = true;
 let lastFrame = 0;
 
 function showOverlay(title: string, detail: string, action: string): void {
@@ -100,11 +103,12 @@ function frame(now: number): void {
   const dt = lastFrame ? (now - lastFrame) / 1000 : 0;
   lastFrame = now;
   const previousScene = state.scene;
-  updateGame(state, {
+  const manualInput = {
     x: Number(keys.has('ArrowRight') || keys.has('KeyD')) - Number(keys.has('ArrowLeft') || keys.has('KeyA')),
     y: Number(keys.has('ArrowDown') || keys.has('KeyS')) - Number(keys.has('ArrowUp') || keys.has('KeyW')),
     fire: keys.has('Space'),
-  }, dt);
+  };
+  updateGame(state, autoplay ? chooseBotInput(state) : manualInput, dt);
   if (previousScene === 'play' && state.scene === 'result') {
     showOverlay(state.outcome === 'clear' ? 'STAGE CLEAR' : 'GAME OVER',
       `SCORE ${state.score} · KILLS ${state.kills} · HITS ${state.hits}`, 'RETRY');
