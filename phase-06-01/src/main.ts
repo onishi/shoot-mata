@@ -71,12 +71,63 @@ function drawEnemy(enemy: Enemy): void {
   ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore();
 }
 
+function drawBackdrop(time: number): void {
+  const sky = ctx.createLinearGradient(0, 0, 0, HEIGHT);
+  sky.addColorStop(0, '#090e20'); sky.addColorStop(1, '#111d39');
+  ctx.fillStyle = sky; ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+  ctx.fillStyle = '#7894c8';
+  for (let index = 0; index < 34; index++) {
+    const x = (index * 277 + 53 - time * (8 + index % 3) + WIDTH * 20) % WIDTH;
+    const y = 66 + (index * 137) % (HEIGHT - 92);
+    ctx.globalAlpha = index % 4 === 0 ? 0.35 : 0.17;
+    ctx.fillRect(x, y, index % 5 === 0 ? 3 : 2, 2);
+  }
+  ctx.globalAlpha = 1;
+
+  const farOffset = (time * 15) % 240;
+  for (let index = -1; index < 6; index++) {
+    const x = index * 240 - farOffset;
+    ctx.fillStyle = '#142544'; ctx.fillRect(x + 25, 205, 26, 180);
+    ctx.fillRect(x + 4, 375, 118, 70);
+    ctx.fillStyle = '#29466f'; ctx.fillRect(x + 31, 244, 4, 52);
+    ctx.fillRect(x + 60, 390, 32, 3);
+  }
+
+  ctx.strokeStyle = '#263a60'; ctx.lineWidth = 1;
+  const gridOffset = (time * 28) % 80;
+  for (let x = -80; x <= WIDTH + 80; x += 80) {
+    ctx.beginPath(); ctx.moveTo(x - gridOffset, 54); ctx.lineTo(x - gridOffset, HEIGHT); ctx.stroke();
+  }
+  for (let y = 135; y <= HEIGHT; y += 88) {
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(WIDTH, y); ctx.stroke();
+  }
+}
+
+function drawHud(): void {
+  ctx.fillStyle = '#070c1ce8'; ctx.fillRect(0, 0, WIDTH, 54);
+  ctx.fillStyle = '#38557c'; ctx.fillRect(0, 53, WIDTH, 1);
+  ctx.fillStyle = '#f4f7ff'; ctx.font = 'bold 19px monospace';
+  ctx.fillText(`LIVES ${state.lives.toString().padStart(2, '0')}`, 25, 32);
+  ctx.fillText(`SCORE ${state.score.toString().padStart(6, '0')}`, 205, 32);
+  ctx.fillStyle = state.mode === 'focus' ? '#6a552d' : '#194858';
+  ctx.fillRect(432, 8, 135, 36);
+  ctx.strokeStyle = state.mode === 'focus' ? '#ffe084' : '#55e2ef';
+  ctx.strokeRect(432, 8, 135, 36);
+  ctx.fillStyle = state.mode === 'focus' ? '#ffe084' : '#55e2ef';
+  ctx.fillText(state.mode.toUpperCase(), 449, 32);
+  ctx.fillStyle = state.energy >= 5 || state.burstTimer > 0 ? '#7ef2aa' : '#a7b5d5';
+  ctx.fillText(state.burstTimer > 0 ? 'BURST!' : `BURST ${state.energy}/5`, 587, 27);
+  for (let index = 0; index < 5; index++) {
+    ctx.fillStyle = index < state.energy || state.burstTimer > 0 ? '#7ef2aa' : '#2d4565';
+    ctx.fillRect(588 + index * 25, 37, 19, 5);
+  }
+  ctx.fillStyle = '#f4f7ff';
+  ctx.fillText(`TIME ${Math.floor(state.time).toString().padStart(2, '0')}`, 775, 32);
+}
+
 function render(): void {
-  ctx.fillStyle = '#090e20'; ctx.fillRect(0, 0, WIDTH, HEIGHT);
-  ctx.strokeStyle = '#172344'; ctx.lineWidth = 1;
-  const offset = (state.time * 18) % 80;
-  for (let x = -80; x <= WIDTH; x += 80) { ctx.beginPath(); ctx.moveTo(x - offset, 0); ctx.lineTo(x - offset, HEIGHT); ctx.stroke(); }
-  for (let y = 80; y <= HEIGHT; y += 80) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(WIDTH, y); ctx.stroke(); }
+  drawBackdrop(state.time);
   for (const enemy of state.enemies) drawEnemy(enemy);
   effects.draw(ctx);
   for (const pickup of state.pickups) {
@@ -98,16 +149,7 @@ function render(): void {
     ctx.lineTo(state.player.x - 22, state.player.y - 19); ctx.lineTo(state.player.x - 13, state.player.y);
     ctx.lineTo(state.player.x - 22, state.player.y + 19); ctx.closePath(); ctx.fill(); ctx.stroke();
   }
-  ctx.fillStyle = '#090e20d9'; ctx.fillRect(0, 0, WIDTH, 48);
-  ctx.fillStyle = '#f4f7ff'; ctx.font = 'bold 19px monospace';
-  ctx.fillText(`LIVES ${state.lives.toString().padStart(2, '0')}`, 25, 31);
-  ctx.fillText(`SCORE ${state.score.toString().padStart(6, '0')}`, 215, 31);
-  ctx.fillStyle = state.mode === 'focus' ? '#ffe084' : '#55e2ef';
-  ctx.fillText(state.mode.toUpperCase(), 450, 31);
-  ctx.fillStyle = state.energy >= 5 || state.burstTimer > 0 ? '#7ef2aa' : '#a7b5d5';
-  ctx.fillText(state.burstTimer > 0 ? 'BURST!' : `BURST ${state.energy}/5`, 590, 31);
-  ctx.fillStyle = '#f4f7ff';
-  ctx.fillText(`TIME ${Math.floor(state.time).toString().padStart(2, '0')}`, 750, 31);
+  drawHud();
 }
 
 function frame(now: number): void {
