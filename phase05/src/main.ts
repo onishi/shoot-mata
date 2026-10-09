@@ -1,5 +1,5 @@
 import './style.css';
-import { createGame, startGame, updateGame, WIDTH, HEIGHT, type Enemy } from './game';
+import { activateBurst, createGame, startGame, toggleMode, updateGame, WIDTH, HEIGHT, type Enemy } from './game';
 
 const canvas = document.querySelector<HTMLCanvasElement>('#game');
 const overlay = document.querySelector<HTMLDivElement>('#overlay');
@@ -27,6 +27,8 @@ primary.addEventListener('click', () => { state = startGame(); ui.hidden = true;
 window.addEventListener('keydown', event => {
   if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.code)) event.preventDefault();
   keys.add(event.code);
+  if (!event.repeat && ['ShiftLeft', 'ShiftRight', 'KeyX'].includes(event.code)) toggleMode(state);
+  if (!event.repeat && event.code === 'KeyZ') activateBurst(state);
   if (!event.repeat && ['KeyP', 'Escape'].includes(event.code)) {
     if (state.scene === 'play') { state.scene = 'pause'; showOverlay('PAUSED', 'P または Escape で再開', 'RESUME'); }
     else if (state.scene === 'pause') { state.scene = 'play'; ui.hidden = true; }
@@ -60,13 +62,21 @@ function render(): void {
   for (let x = -80; x <= WIDTH; x += 80) { ctx.beginPath(); ctx.moveTo(x - offset, 0); ctx.lineTo(x - offset, HEIGHT); ctx.stroke(); }
   for (let y = 80; y <= HEIGHT; y += 80) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(WIDTH, y); ctx.stroke(); }
   for (const enemy of state.enemies) drawEnemy(enemy);
-  for (const bullet of state.bullets) { ctx.fillStyle = '#55e2ef'; ctx.fillRect(bullet.x - 8, bullet.y - 3, 18, 6); }
+  for (const pickup of state.pickups) {
+    ctx.fillStyle = '#7ef2aa'; ctx.strokeStyle = '#f4f7ff'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(pickup.x, pickup.y - 13); ctx.lineTo(pickup.x + 13, pickup.y);
+    ctx.lineTo(pickup.x, pickup.y + 13); ctx.lineTo(pickup.x - 13, pickup.y); ctx.closePath(); ctx.fill(); ctx.stroke();
+  }
+  for (const bullet of state.bullets) {
+    ctx.fillStyle = bullet.mode === 'burst' ? '#7ef2aa' : bullet.mode === 'focus' ? '#ffe084' : '#55e2ef';
+    ctx.fillRect(bullet.x - 8, bullet.y - (bullet.radius / 2), 18, bullet.radius);
+  }
   for (const bullet of state.enemyBullets) {
     ctx.beginPath(); ctx.arc(bullet.x, bullet.y, bullet.radius, 0, Math.PI * 2);
     ctx.fillStyle = '#ff627e'; ctx.fill(); ctx.strokeStyle = '#ffd6dc'; ctx.stroke();
   }
   if (state.player.invulnerable <= 0 || Math.floor(state.player.invulnerable * 12) % 2 === 0) {
-    ctx.fillStyle = '#55e2ef'; ctx.strokeStyle = '#f4f7ff'; ctx.lineWidth = 3;
+    ctx.fillStyle = state.mode === 'focus' ? '#ffe084' : '#55e2ef'; ctx.strokeStyle = '#f4f7ff'; ctx.lineWidth = 3;
     ctx.beginPath(); ctx.moveTo(state.player.x + 23, state.player.y);
     ctx.lineTo(state.player.x - 22, state.player.y - 19); ctx.lineTo(state.player.x - 13, state.player.y);
     ctx.lineTo(state.player.x - 22, state.player.y + 19); ctx.closePath(); ctx.fill(); ctx.stroke();
@@ -75,6 +85,11 @@ function render(): void {
   ctx.fillStyle = '#f4f7ff'; ctx.font = 'bold 19px monospace';
   ctx.fillText(`LIVES ${state.lives.toString().padStart(2, '0')}`, 25, 31);
   ctx.fillText(`SCORE ${state.score.toString().padStart(6, '0')}`, 215, 31);
+  ctx.fillStyle = state.mode === 'focus' ? '#ffe084' : '#55e2ef';
+  ctx.fillText(state.mode.toUpperCase(), 450, 31);
+  ctx.fillStyle = state.energy >= 5 || state.burstTimer > 0 ? '#7ef2aa' : '#a7b5d5';
+  ctx.fillText(state.burstTimer > 0 ? 'BURST!' : `BURST ${state.energy}/5`, 590, 31);
+  ctx.fillStyle = '#f4f7ff';
   ctx.fillText(`TIME ${Math.floor(state.time).toString().padStart(2, '0')}`, 750, 31);
 }
 
