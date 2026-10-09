@@ -66,7 +66,7 @@ button:hover, button:focus-visible { background: #276083; }
   .stick-area::before { height: 68px; top: 17px; }
   .stick-area::after { width: 68px; left: 17px; }
   .stick-knob { width: 40px; height: 40px; }
-  .touch-actions { grid-template-columns: 48px 56px; grid-template-rows: 48px 48px; gap: 4px; pointer-events: auto; }
+  .touch-actions { grid-template-columns: 48px 56px; grid-template-rows: 48px 48px; gap: 8px; pointer-events: auto; }
   .touch-actions button { min-height: 44px; font-size: 11px; }
   #touch-pause { right: 6px; top: -55px; }
   .keyboard-help { display: none; }
