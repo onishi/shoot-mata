@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540" role="img" aria-labelledby="title desc">
+  <title id="title">SWITCHBACK アートボード</title>
+  <desc id="desc">紺の背景、シアンの自機とワイド弾、黄色のフォーカス弾、赤の敵弾、緑のエネルギー、HUD配置の方向性。</desc>
+  <rect width="960" height="540" fill="#090e20"/>
+  <path d="M0 130H960M0 280H960M0 430H960" stroke="#172344" stroke-width="2"/>
+  <g fill="#f4f7ff" font-family="sans-serif"><text x="32" y="48" font-size="25" font-weight="700">SWITCHBACK / ART DIRECTION</text><text x="32" y="84" font-size="15" fill="#a7b5d5">clear silhouettes · restrained glow · fast arcade rhythm</text></g>
+  <rect x="28" y="111" width="904" height="317" rx="10" fill="#101a34" stroke="#456189" stroke-width="2"/>
+  <rect x="40" y="124" width="880" height="42" fill="#090e20" opacity=".85"/>
+  <g fill="#f4f7ff" font-family="monospace" font-size="18"><text x="55" y="151">LIVES 03</text><text x="245" y="151">SCORE 001200</text><text x="510" y="151" fill="#55e2ef">WIDE</text><text x="645" y="151" fill="#7ef2aa">BURST ▰▰▱▱</text></g>
+  <g fill="#456189" opacity=".4"><circle cx="720" cy="255" r="2"/><circle cx="181" cy="203" r="2"/><circle cx="428" cy="381" r="2"/><circle cx="834" cy="332" r="2"/></g>
+  <path d="M155 285L106 261L115 285L106 309Z" fill="#55e2ef" stroke="#f4f7ff" stroke-width="3"/>
+  <path d="M175 271L251 244M177 285H267M175 299L251 326" stroke="#55e2ef" stroke-width="5" stroke-linecap="round"/>
+  <path d="M375 235H475" stroke="#ffe084" stroke-width="9" stroke-linecap="round"/>
+  <path d="M660 246L688 260L660 274L632 260Z" fill="#ff627e" stroke="#ffd6dc" stroke-width="3"/>
+  <circle cx="565" cy="310" r="9" fill="#ff627e" stroke="#ffd6dc" stroke-width="3"/>
+  <path d="M541 360L557 376L541 392L525 376Z" fill="#7ef2aa" stroke="#f4f7ff" stroke-width="3"/>
+  <g font-family="sans-serif" font-size="16" fill="#a7b5d5"><text x="53" y="460">PLAYER / WIDE</text><text x="313" y="460">FOCUS</text><text x="520" y="460">ENERGY</text><text x="724" y="460">DANGER</text></g>
+  <g><rect x="53" y="478" width="120" height="21" fill="#55e2ef"/><rect x="313" y="478" width="120" height="21" fill="#ffe084"/><rect x="520" y="478" width="120" height="21" fill="#7ef2aa"/><rect x="724" y="478" width="120" height="21" fill="#ff627e"/></g>
+</svg>
