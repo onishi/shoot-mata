@@ -1,6 +1,7 @@
 import './style.css';
-import { activateBurst, createGame, startGame, toggleMode, updateGame, WIDTH, HEIGHT, type Enemy } from './game';
+import { activateBurst, createGame, drainEvents, startGame, toggleMode, updateGame, WIDTH, HEIGHT, type Enemy } from './game';
 import { chooseBotInput } from './bot';
+import { Effects } from './effects';
 
 const canvas = document.querySelector<HTMLCanvasElement>('#game');
 const overlay = document.querySelector<HTMLDivElement>('#overlay');
@@ -11,6 +12,7 @@ if (!context) throw new Error('Canvas 2D is unavailable');
 const ctx: CanvasRenderingContext2D = context;
 const ui: HTMLDivElement = overlay;
 const keys = new Set<string>();
+const effects = new Effects();
 const autoplay = import.meta.env.DEV && new URLSearchParams(location.search).has('autoplay');
 let state = autoplay ? startGame() : createGame();
 if (autoplay) ui.hidden = true;
@@ -21,12 +23,12 @@ function showOverlay(title: string, detail: string, action: string): void {
   ui.innerHTML = `<h2>${title}</h2><p>${detail}</p><button id="primary">${action}</button>`;
   ui.querySelector('button')?.addEventListener('click', () => {
     if (state.scene === 'pause') state.scene = 'play';
-    else state = startGame();
+    else { state = startGame(); effects.clear(); }
     ui.hidden = true;
   });
 }
 
-primary.addEventListener('click', () => { state = startGame(); ui.hidden = true; });
+primary.addEventListener('click', () => { state = startGame(); effects.clear(); ui.hidden = true; });
 window.addEventListener('keydown', event => {
   if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.code)) event.preventDefault();
   keys.add(event.code);
@@ -68,6 +70,7 @@ function render(): void {
   for (let x = -80; x <= WIDTH; x += 80) { ctx.beginPath(); ctx.moveTo(x - offset, 0); ctx.lineTo(x - offset, HEIGHT); ctx.stroke(); }
   for (let y = 80; y <= HEIGHT; y += 80) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(WIDTH, y); ctx.stroke(); }
   for (const enemy of state.enemies) drawEnemy(enemy);
+  effects.draw(ctx);
   for (const pickup of state.pickups) {
     ctx.fillStyle = '#7ef2aa'; ctx.strokeStyle = '#f4f7ff'; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.moveTo(pickup.x, pickup.y - 13); ctx.lineTo(pickup.x + 13, pickup.y);
@@ -109,6 +112,8 @@ function frame(now: number): void {
     fire: keys.has('Space'),
   };
   updateGame(state, autoplay ? chooseBotInput(state) : manualInput, dt);
+  for (const event of drainEvents(state)) effects.add(event);
+  if (state.scene === 'play') effects.update(dt);
   if (previousScene === 'play' && state.scene === 'result') {
     showOverlay(state.outcome === 'clear' ? 'STAGE CLEAR' : 'GAME OVER',
       `SCORE ${state.score} · KILLS ${state.kills} · HITS ${state.hits}`, 'RETRY');

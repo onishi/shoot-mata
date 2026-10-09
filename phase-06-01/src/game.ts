@@ -6,12 +6,14 @@ export interface Point { x: number; y: number }
 export interface Bullet extends Point { vx: number; vy: number; radius: number; damage: number; mode?: 'wide' | 'focus' | 'burst' }
 export interface Enemy extends Point { kind: Kind; hp: number; radius: number; shotTimer: number; phase: number }
 export interface Pickup extends Point { value: number; ttl: number }
+export type GameEventKind = 'shot' | 'kill' | 'collect' | 'damage' | 'burst' | 'switch';
+export interface GameEvent extends Point { kind: GameEventKind; value?: number }
 export interface GameState {
   scene: Scene; outcome: 'clear' | 'gameover' | null; time: number; score: number;
   lives: number; kills: number; hits: number; wave: number; spawnTimer: number; bossSpawned: boolean;
   mode: 'wide' | 'focus'; energy: number; burstTimer: number;
   player: Point & { invulnerable: number; shotTimer: number };
-  bullets: Bullet[]; enemyBullets: Bullet[]; enemies: Enemy[]; pickups: Pickup[];
+  bullets: Bullet[]; enemyBullets: Bullet[]; enemies: Enemy[]; pickups: Pickup[]; events: GameEvent[];
 }
 export interface Input { x: number; y: number; fire: boolean }
 
@@ -20,7 +22,7 @@ export function createGame(): GameState {
     scene: 'title', outcome: null, time: 0, score: 0, lives: 3, kills: 0, hits: 0,
     wave: 0, spawnTimer: 0, bossSpawned: false, mode: 'wide', energy: 0, burstTimer: 0,
     player: { x: 145, y: HEIGHT / 2, invulnerable: 0, shotTimer: 0 },
-    bullets: [], enemyBullets: [], enemies: [], pickups: [],
+    bullets: [], enemyBullets: [], enemies: [], pickups: [], events: [],
   };
 }
 
@@ -36,7 +38,10 @@ export function circlesTouch(a: Point, ar: number, b: Point, br: number): boolea
 }
 
 export function toggleMode(state: GameState): void {
-  if (state.scene === 'play') state.mode = state.mode === 'wide' ? 'focus' : 'wide';
+  if (state.scene === 'play') {
+    state.mode = state.mode === 'wide' ? 'focus' : 'wide';
+    state.events.push({ kind: 'switch', x: state.player.x, y: state.player.y });
+  }
 }
 
 export function activateBurst(state: GameState): boolean {
@@ -44,7 +49,12 @@ export function activateBurst(state: GameState): boolean {
   state.energy = 0;
   state.burstTimer = 1.6;
   state.enemyBullets = [];
+  state.events.push({ kind: 'burst', x: state.player.x, y: state.player.y });
   return true;
+}
+
+export function drainEvents(state: GameState): GameEvent[] {
+  return state.events.splice(0);
 }
 
 function spawnEnemy(state: GameState): void {
@@ -61,6 +71,7 @@ function spawnEnemy(state: GameState): void {
 function hitPlayer(state: GameState): void {
   if (state.player.invulnerable > 0) return;
   state.lives--; state.hits++; state.player.invulnerable = 1.5;
+  state.events.push({ kind: 'damage', x: state.player.x, y: state.player.y });
   if (state.lives <= 0) { state.scene = 'result'; state.outcome = 'gameover'; }
 }
 
@@ -83,6 +94,7 @@ export function updateGame(state: GameState, input: Input, dt: number): void {
       x: p.x + 23, y: p.y, vx: 650, vy, radius: burst ? 8 : 5,
       damage: burst ? 3 : state.mode === 'focus' ? 2 : 1, mode: burst ? 'burst' : state.mode,
     });
+    state.events.push({ kind: 'shot', x: p.x + 23, y: p.y });
     p.shotTimer = burst ? 0.09 : state.mode === 'focus' ? 0.12 : 0.25;
   }
 
@@ -117,6 +129,7 @@ export function updateGame(state: GameState, input: Input, dt: number): void {
     if (e.hp <= 0 || spent.has(b) || !circlesTouch(b, b.radius, e, e.radius)) continue;
     e.hp -= b.damage; spent.add(b);
     if (e.hp <= 0) {
+      state.events.push({ kind: 'kill', x: e.x, y: e.y, value: e.kind === 'boss' ? 3 : e.kind === 'heavy' ? 2 : 1 });
       state.kills++;
       state.score += e.kind === 'boss' ? 2000 : e.kind === 'heavy' ? 300 : 100;
       if (e.kind !== 'boss') state.pickups.push({ x: e.x, y: e.y, value: e.kind === 'heavy' ? 2 : 1, ttl: 8 });
@@ -136,6 +149,7 @@ export function updateGame(state: GameState, input: Input, dt: number): void {
     if (circlesTouch(pickup, 14, p, 18)) {
       state.energy = Math.min(5, state.energy + pickup.value);
       state.score += 50;
+      state.events.push({ kind: 'collect', x: pickup.x, y: pickup.y, value: pickup.value });
       return false;
     }
     return pickup.ttl > 0 && pickup.x > -20;
