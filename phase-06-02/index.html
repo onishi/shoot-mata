@@ -12,9 +12,16 @@
         <canvas id="game" width="960" height="540" aria-label="横スクロールシューティングのゲーム画面"></canvas>
         <div id="overlay" class="overlay">
           <h2>SWITCHBACK</h2>
-          <p>WASD / 矢印: 移動　 Space: 射撃　 Shift / X: 切替　 Z: バースト　 P: ポーズ</p>
+          <p><span class="keyboard-help">WASD / 矢印: 移動　 Space: 射撃　 Shift / X: 切替　 Z: バースト　 P: ポーズ</span><span class="touch-help">左のスティックで移動。右のボタンで射撃・切替・バースト。</span></p>
           <button id="primary">START</button>
         </div>
+      </div>
+      <div class="mobile-hud" aria-label="ゲーム状態">
+        <div><small>LIVES</small><strong id="mobile-lives">03</strong></div>
+        <div><small>SCORE</small><strong id="mobile-score">000000</strong></div>
+        <div><small>TIME</small><strong id="mobile-time">00</strong></div>
+        <div class="mode-cell"><small>MODE</small><strong id="mobile-mode">WIDE</strong></div>
+        <div class="burst-cell"><small>BURST</small><strong id="mobile-burst">0 / 5</strong></div>
       </div>
       <section class="touch-controls" aria-label="タッチ操作">
         <div class="stick-area" id="touch-stick" aria-label="移動スティック"><div class="stick-knob" id="stick-knob"></div></div>

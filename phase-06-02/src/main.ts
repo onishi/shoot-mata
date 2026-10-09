@@ -15,7 +15,13 @@ const touchFire = document.querySelector<HTMLButtonElement>('#touch-fire');
 const touchSwitch = document.querySelector<HTMLButtonElement>('#touch-switch');
 const touchBurst = document.querySelector<HTMLButtonElement>('#touch-burst');
 const touchPause = document.querySelector<HTMLButtonElement>('#touch-pause');
-if (!canvas || !overlay || !primary || !soundToggle || !touchStick || !stickKnob || !touchFire || !touchSwitch || !touchBurst || !touchPause) throw new Error('Required game elements are missing');
+const mobileLives = document.querySelector<HTMLElement>('#mobile-lives');
+const mobileScore = document.querySelector<HTMLElement>('#mobile-score');
+const mobileTime = document.querySelector<HTMLElement>('#mobile-time');
+const mobileMode = document.querySelector<HTMLElement>('#mobile-mode');
+const mobileBurst = document.querySelector<HTMLElement>('#mobile-burst');
+if (!canvas || !overlay || !primary || !soundToggle || !touchStick || !stickKnob || !touchFire || !touchSwitch || !touchBurst || !touchPause || !mobileLives || !mobileScore || !mobileTime || !mobileMode || !mobileBurst) throw new Error('Required game elements are missing');
+const mobileHud = { lives: mobileLives, score: mobileScore, time: mobileTime, mode: mobileMode, burst: mobileBurst };
 const context = canvas.getContext('2d');
 if (!context) throw new Error('Canvas 2D is unavailable');
 const ctx: CanvasRenderingContext2D = context;
@@ -147,6 +153,16 @@ function drawHud(): void {
   ctx.fillText(`TIME ${Math.floor(state.time).toString().padStart(2, '0')}`, 775, 32);
 }
 
+function updateMobileHud(): void {
+  mobileHud.lives.textContent = state.lives.toString().padStart(2, '0');
+  mobileHud.score.textContent = state.score.toString().padStart(6, '0');
+  mobileHud.time.textContent = Math.floor(state.time).toString().padStart(2, '0');
+  mobileHud.mode.textContent = state.mode.toUpperCase();
+  mobileHud.mode.style.color = state.mode === 'focus' ? '#ffe084' : '#55e2ef';
+  mobileHud.burst.textContent = state.burstTimer > 0 ? 'ACTIVE' : `${state.energy} / 5`;
+  mobileHud.burst.style.color = state.energy >= 5 || state.burstTimer > 0 ? '#7ef2aa' : '#f4f7ff';
+}
+
 function render(): void {
   drawBackdrop(state.time);
   for (const enemy of state.enemies) drawEnemy(enemy);
@@ -193,5 +209,6 @@ function frame(now: number): void {
       `SCORE ${state.score} · KILLS ${state.kills} · HITS ${state.hits}`, 'RETRY');
   }
   render(); requestAnimationFrame(frame);
+  updateMobileHud();
 }
 requestAnimationFrame(frame);
