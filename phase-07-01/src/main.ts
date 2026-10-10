@@ -4,6 +4,7 @@ import { chooseBotInput } from './bot';
 import { Effects } from './effects';
 import { Sound } from './sound';
 import { combineInput, TouchControls } from './touch';
+import { BOSS_TIME, STAGE_SECTIONS } from './stage';
 
 const canvas = document.querySelector<HTMLCanvasElement>('#game');
 const overlay = document.querySelector<HTMLDivElement>('#overlay');
@@ -131,6 +132,18 @@ function drawBackdrop(time: number): void {
   }
 }
 
+function drawStageCue(time: number): void {
+  const section = [...STAGE_SECTIONS].reverse().find(item => time >= item.start);
+  if (section && time < section.start + 3.5) {
+    ctx.fillStyle = '#a7b5d5'; ctx.font = 'bold 20px monospace';
+    ctx.fillText(`STAGE 01 / ${section.label}`, 35, 93);
+  }
+  if (time >= BOSS_TIME - 3 && time < BOSS_TIME) {
+    ctx.fillStyle = '#ff627e'; ctx.font = 'bold 28px monospace';
+    ctx.fillText('WARNING / LARGE HOSTILE', 270, 110);
+  }
+}
+
 function drawHud(): void {
   ctx.fillStyle = '#070c1ce8'; ctx.fillRect(0, 0, WIDTH, 54);
   ctx.fillStyle = '#38557c'; ctx.fillRect(0, 53, WIDTH, 1);
@@ -165,6 +178,7 @@ function updateMobileHud(): void {
 
 function render(): void {
   drawBackdrop(state.time);
+  drawStageCue(state.time);
   for (const enemy of state.enemies) drawEnemy(enemy);
   effects.draw(ctx);
   for (const pickup of state.pickups) {
