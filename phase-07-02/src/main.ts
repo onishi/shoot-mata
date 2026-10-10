@@ -1,5 +1,5 @@
 import './style.css';
-import { activateBurst, createGame, drainEvents, startGame, toggleMode, updateGame, WIDTH, HEIGHT, type Enemy } from './game';
+import { activateBurst, createGame, drainEvents, startGame, toggleMode, transitionGame, updateGame, WIDTH, HEIGHT, type Enemy } from './game';
 import { chooseBotInput } from './bot';
 import { Effects } from './effects';
 import { Sound } from './sound';
@@ -44,26 +44,38 @@ const touch = new TouchControls(touchStick, stickKnob, touchFire, touchSwitch, t
 
 function togglePause(): void {
   if (state.scene === 'play') {
-    state.scene = 'pause';
-    touch.reset();
+    state = transitionGame(state, 'pause');
+    clearInputs();
     showOverlay('PAUSED', 'P またはポーズボタンで再開', 'RESUME');
   } else if (state.scene === 'pause') {
-    state.scene = 'play';
+    state = transitionGame(state, 'resume');
+    clearInputs();
     ui.hidden = true;
   }
+}
+
+function clearInputs(): void {
+  touch.reset();
+  keys.clear();
+}
+
+function restartRun(): void {
+  state = transitionGame(state, state.scene === 'title' ? 'start' : 'retry');
+  effects.clear();
+  clearInputs();
+  ui.hidden = true;
 }
 
 function showOverlay(title: string, detail: string, action: string): void {
   ui.hidden = false;
   ui.innerHTML = `<h2>${title}</h2><p>${detail}</p><button id="primary">${action}</button>`;
   ui.querySelector('button')?.addEventListener('click', () => {
-    if (state.scene === 'pause') state.scene = 'play';
-    else { state = startGame(); effects.clear(); touch.reset(); keys.clear(); }
-    ui.hidden = true;
+    if (state.scene === 'pause') togglePause();
+    else restartRun();
   });
 }
 
-primary.addEventListener('click', () => { state = startGame(); effects.clear(); touch.reset(); keys.clear(); ui.hidden = true; });
+primary.addEventListener('click', restartRun);
 soundToggle.addEventListener('click', async () => {
   const enabled = await sound.toggle();
   soundToggle.textContent = enabled ? 'SOUND ON' : 'SOUND OFF';
@@ -78,12 +90,11 @@ window.addEventListener('keydown', event => {
 });
 window.addEventListener('keyup', event => keys.delete(event.code));
 window.addEventListener('blur', () => {
-  keys.clear();
-  touch.reset();
-  if (state.scene === 'play') { state.scene = 'pause'; showOverlay('PAUSED', '画面に戻ったら再開してください', 'RESUME'); }
+  clearInputs();
+  if (state.scene === 'play') { state = transitionGame(state, 'pause'); showOverlay('PAUSED', '画面に戻ったら再開してください', 'RESUME'); }
 });
 document.addEventListener('visibilitychange', () => {
-  if (document.hidden && state.scene === 'play') { touch.reset(); state.scene = 'pause'; showOverlay('PAUSED', 'タブに戻ったら再開してください', 'RESUME'); }
+  if (document.hidden && state.scene === 'play') { clearInputs(); state = transitionGame(state, 'pause'); showOverlay('PAUSED', 'タブに戻ったら再開してください', 'RESUME'); }
 });
 
 function drawEnemy(enemy: Enemy): void {
@@ -226,7 +237,7 @@ function frame(now: number): void {
   sound.play(events);
   if (state.scene === 'play') effects.update(autoplay ? 0.016 * autoplaySpeed : dt);
   if (previousScene === 'play' && state.scene === 'result') {
-    touch.reset();
+    clearInputs();
     showOverlay(state.outcome === 'clear' ? 'STAGE CLEAR' : 'GAME OVER',
       `SCORE ${state.score} · KILLS ${state.kills} · HITS ${state.hits}`, 'RETRY');
   }

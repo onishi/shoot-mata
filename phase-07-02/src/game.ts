@@ -34,6 +34,17 @@ export function startGame(): GameState {
   return state;
 }
 
+export type GameAction = 'start' | 'pause' | 'resume' | 'retry' | 'title';
+
+export function transitionGame(state: GameState, action: GameAction): GameState {
+  if (action === 'start' && state.scene === 'title') return startGame();
+  if (action === 'pause' && state.scene === 'play') { state.scene = 'pause'; return state; }
+  if (action === 'resume' && state.scene === 'pause') { state.scene = 'play'; return state; }
+  if (action === 'retry' && (state.scene === 'pause' || state.scene === 'result')) return startGame();
+  if (action === 'title' && (state.scene === 'pause' || state.scene === 'result')) return createGame();
+  return state;
+}
+
 export function circlesTouch(a: Point, ar: number, b: Point, br: number): boolean {
   const dx = a.x - b.x, dy = a.y - b.y;
   return dx * dx + dy * dy < (ar + br) ** 2;
