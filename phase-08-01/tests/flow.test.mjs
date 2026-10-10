@@ -48,3 +48,16 @@ test('retry and title clear progress only from supported screens', () => {
   assert.equal(title.score, 0);
   assert.equal(transitionGame(title, 'resume'), title);
 });
+
+test('a lethal hit locks the result before a same-frame pickup', () => {
+  const game = transitionGame(createGame(), 'start');
+  game.lives = 1;
+  game.score = 200;
+  game.enemyBullets.push({ x: game.player.x, y: game.player.y, vx: 0, vy: 0, radius: 7, damage: 1 });
+  game.pickups.push({ x: game.player.x, y: game.player.y, value: 2, ttl: 8 });
+  updateGame(game, { x: 0, y: 0, fire: false }, 0.016);
+  assert.equal(game.scene, 'result');
+  assert.equal(game.outcome, 'gameover');
+  assert.equal(game.score, 200);
+  assert.equal(game.energy, 0);
+});

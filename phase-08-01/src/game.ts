@@ -163,6 +163,7 @@ export function updateGame(state: GameState, input: Input, dt: number): void {
     if (circlesTouch(b, b.radius, p, 13)) { hitPlayer(state); return false; }
     return b.x > -20 && b.x < WIDTH + 20 && b.y > -20 && b.y < HEIGHT + 20;
   });
+  if (state.lives <= 0) return;
   state.pickups = state.pickups.filter(pickup => {
     if (circlesTouch(pickup, 14, p, 18)) {
       state.energy = Math.min(5, state.energy + pickup.value);
