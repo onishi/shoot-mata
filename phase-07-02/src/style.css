@@ -12,6 +12,10 @@ canvas { display: block; width: 100%; height: 100%; }
 .overlay[hidden] { display: none; }
 .overlay h2 { margin: 0; font-size: clamp(24px, 5vw, 52px); letter-spacing: .14em; }
 .overlay p { max-width: 700px; line-height: 1.7; color: #d9e5ff; }
+.overlay-actions { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px; width: 100%; }
+.overlay-actions button { min-width: 132px; }
+.overlay-actions .secondary-action { border-color: #7894c8; background: #162540; }
+.overlay-actions .secondary-action:hover, .overlay-actions .secondary-action:focus-visible { background: #29466f; }
 button { min-width: 160px; min-height: 48px; border: 2px solid #55e2ef; border-radius: 6px; background: #173b59; color: white; font: inherit; font-weight: 700; cursor: pointer; }
 button:hover, button:focus-visible { background: #276083; }
 .note { color: #a7b5d5; font-size: 14px; }
@@ -30,6 +34,7 @@ button:hover, button:focus-visible { background: #276083; }
 #touch-switch { grid-column: 1; grid-row: 1; }
 #touch-burst { grid-column: 1; grid-row: 2; border-color: #7ef2aa; }
 #touch-pause { position: absolute; right: 14px; top: 84px; z-index: 2; width: 48px; height: 48px; font-size: 20px; }
+#touch-pause[hidden] { display: none; }
 @media (pointer: coarse), (max-width: 700px) { .touch-controls { display: flex; } }
 @media (max-width: 650px) { header h1 { letter-spacing: .04em; } header small { display: block; } header button { min-width: 100px; } }
 @media (max-width: 700px) and (orientation: portrait) {
@@ -49,6 +54,8 @@ button:hover, button:focus-visible { background: #276083; }
   .overlay h2 { font-size: 24px; }
   .overlay p { font-size: 13px; margin: 4px 0; }
   .overlay button { min-height: 44px; }
+  .overlay-actions { flex-wrap: nowrap; gap: 6px; }
+  .overlay-actions button { min-width: 0; flex: 1; padding: 0 4px; font-size: 12px; }
   .note { display: none; }
 }
 @media (orientation: landscape) and (max-height: 500px) {

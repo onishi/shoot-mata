@@ -1,5 +1,5 @@
 import './style.css';
-import { activateBurst, createGame, drainEvents, startGame, toggleMode, transitionGame, updateGame, WIDTH, HEIGHT, type Enemy } from './game';
+import { activateBurst, createGame, drainEvents, startGame, toggleMode, transitionGame, updateGame, WIDTH, HEIGHT, type Enemy, type GameAction } from './game';
 import { chooseBotInput } from './bot';
 import { Effects } from './effects';
 import { Sound } from './sound';
@@ -8,7 +8,6 @@ import { BOSS_TIME, STAGE_SECTIONS } from './stage';
 
 const canvas = document.querySelector<HTMLCanvasElement>('#game');
 const overlay = document.querySelector<HTMLDivElement>('#overlay');
-const primary = document.querySelector<HTMLButtonElement>('#primary');
 const soundToggle = document.querySelector<HTMLButtonElement>('#sound-toggle');
 const touchStick = document.querySelector<HTMLElement>('#touch-stick');
 const stickKnob = document.querySelector<HTMLElement>('#stick-knob');
@@ -21,8 +20,9 @@ const mobileScore = document.querySelector<HTMLElement>('#mobile-score');
 const mobileTime = document.querySelector<HTMLElement>('#mobile-time');
 const mobileMode = document.querySelector<HTMLElement>('#mobile-mode');
 const mobileBurst = document.querySelector<HTMLElement>('#mobile-burst');
-if (!canvas || !overlay || !primary || !soundToggle || !touchStick || !stickKnob || !touchFire || !touchSwitch || !touchBurst || !touchPause || !mobileLives || !mobileScore || !mobileTime || !mobileMode || !mobileBurst) throw new Error('Required game elements are missing');
+if (!canvas || !overlay || !soundToggle || !touchStick || !stickKnob || !touchFire || !touchSwitch || !touchBurst || !touchPause || !mobileLives || !mobileScore || !mobileTime || !mobileMode || !mobileBurst) throw new Error('Required game elements are missing');
 const mobileHud = { lives: mobileLives, score: mobileScore, time: mobileTime, mode: mobileMode, burst: mobileBurst };
+const pauseControl: HTMLButtonElement = touchPause;
 const context = canvas.getContext('2d');
 if (!context) throw new Error('Canvas 2D is unavailable');
 const ctx: CanvasRenderingContext2D = context;
@@ -44,13 +44,10 @@ const touch = new TouchControls(touchStick, stickKnob, touchFire, touchSwitch, t
 
 function togglePause(): void {
   if (state.scene === 'play') {
-    state = transitionGame(state, 'pause');
-    clearInputs();
-    showOverlay('PAUSED', 'P またはポーズボタンで再開', 'RESUME');
+    pauseDetail = 'P またはポーズボタンで再開';
+    runAction('pause');
   } else if (state.scene === 'pause') {
-    state = transitionGame(state, 'resume');
-    clearInputs();
-    ui.hidden = true;
+    runAction('resume');
   }
 }
 
@@ -59,23 +56,48 @@ function clearInputs(): void {
   keys.clear();
 }
 
-function restartRun(): void {
-  state = transitionGame(state, state.scene === 'title' ? 'start' : 'retry');
-  effects.clear();
+let pauseDetail = 'P またはポーズボタンで再開';
+
+function runAction(action: GameAction): void {
+  const previousScene = state.scene;
+  const next = transitionGame(state, action);
+  if (next === state && next.scene === previousScene) return;
+  state = next;
   clearInputs();
-  ui.hidden = true;
+  if (action === 'start' || action === 'retry' || action === 'title') effects.clear();
+  if (state.scene === 'play') ui.hidden = true;
+  else showOverlay();
 }
 
-function showOverlay(title: string, detail: string, action: string): void {
+function showOverlay(): void {
+  if (state.scene === 'play') { ui.hidden = true; return; }
+  const button = (action: GameAction, label: string, primary = false): string =>
+    `<button type="button" data-action="${action}" class="${primary ? 'primary-action' : 'secondary-action'}">${label}</button>`;
+  let title: string;
+  let detail: string;
+  let actions: string;
+  if (state.scene === 'title') {
+    title = 'SWITCHBACK';
+    detail = '<span class="keyboard-help">WASD / 矢印: 移動　Space: 射撃　Shift / X: 切替　Z: バースト　P: ポーズ</span><span class="touch-help">左のスティックで移動。右のボタンで射撃・切替・バースト。</span>';
+    actions = button('start', 'START', true);
+  } else if (state.scene === 'pause') {
+    title = 'PAUSED';
+    detail = pauseDetail;
+    actions = button('resume', 'RESUME', true) + button('retry', 'RETRY') + button('title', 'TITLE');
+  } else {
+    title = state.outcome === 'clear' ? 'STAGE CLEAR' : 'GAME OVER';
+    detail = `SCORE ${state.score} · KILLS ${state.kills} · HITS ${state.hits}`;
+    actions = button('retry', 'RETRY', true) + button('title', 'TITLE');
+  }
+  ui.innerHTML = `<h2>${title}</h2><p>${detail}</p><div class="overlay-actions">${actions}</div>`;
   ui.hidden = false;
-  ui.innerHTML = `<h2>${title}</h2><p>${detail}</p><button id="primary">${action}</button>`;
-  ui.querySelector('button')?.addEventListener('click', () => {
-    if (state.scene === 'pause') togglePause();
-    else restartRun();
-  });
 }
 
-primary.addEventListener('click', restartRun);
+ui.addEventListener('click', event => {
+  const button = (event.target as HTMLElement).closest<HTMLButtonElement>('[data-action]');
+  if (button?.dataset.action) runAction(button.dataset.action as GameAction);
+});
+if (!autoplay) showOverlay();
 soundToggle.addEventListener('click', async () => {
   const enabled = await sound.toggle();
   soundToggle.textContent = enabled ? 'SOUND ON' : 'SOUND OFF';
@@ -91,10 +113,10 @@ window.addEventListener('keydown', event => {
 window.addEventListener('keyup', event => keys.delete(event.code));
 window.addEventListener('blur', () => {
   clearInputs();
-  if (state.scene === 'play') { state = transitionGame(state, 'pause'); showOverlay('PAUSED', '画面に戻ったら再開してください', 'RESUME'); }
+  if (state.scene === 'play') { pauseDetail = '画面に戻ったら再開してください'; runAction('pause'); }
 });
 document.addEventListener('visibilitychange', () => {
-  if (document.hidden && state.scene === 'play') { clearInputs(); state = transitionGame(state, 'pause'); showOverlay('PAUSED', 'タブに戻ったら再開してください', 'RESUME'); }
+  if (document.hidden && state.scene === 'play') { pauseDetail = 'タブに戻ったら再開してください'; runAction('pause'); }
 });
 
 function drawEnemy(enemy: Enemy): void {
@@ -190,6 +212,7 @@ function updateMobileHud(): void {
 }
 
 function render(): void {
+  pauseControl.hidden = state.scene === 'title' || state.scene === 'result';
   drawBackdrop(state.time);
   drawStageCue(state.time);
   for (const enemy of state.enemies) drawEnemy(enemy);
@@ -238,8 +261,7 @@ function frame(now: number): void {
   if (state.scene === 'play') effects.update(autoplay ? 0.016 * autoplaySpeed : dt);
   if (previousScene === 'play' && state.scene === 'result') {
     clearInputs();
-    showOverlay(state.outcome === 'clear' ? 'STAGE CLEAR' : 'GAME OVER',
-      `SCORE ${state.score} · KILLS ${state.kills} · HITS ${state.hits}`, 'RETRY');
+    showOverlay();
   }
   render(); requestAnimationFrame(frame);
   updateMobileHud();
