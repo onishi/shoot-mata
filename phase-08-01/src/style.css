@@ -1,0 +1,83 @@
+:root { font-family: system-ui, sans-serif; color: #f4f7ff; background: #090e20; }
+* { box-sizing: border-box; }
+body { margin: 0; }
+#app { position: relative; width: min(100%, 1080px); margin: auto; padding: 12px; }
+header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+header h1 { margin: 4px 0 12px; font-size: clamp(20px, 3vw, 30px); letter-spacing: .12em; }
+header small { font-size: .45em; color: #a7b5d5; }
+header button { min-width: 120px; min-height: 40px; font-size: 13px; }
+.game-shell { position: relative; width: 100%; aspect-ratio: 16 / 9; border: 2px solid #456189; overflow: hidden; }
+canvas { display: block; width: 100%; height: 100%; }
+.overlay { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 24px; text-align: center; background: #090e20dc; }
+.overlay[hidden] { display: none; }
+.overlay h2 { margin: 0; font-size: clamp(24px, 5vw, 52px); letter-spacing: .14em; }
+.overlay p { max-width: 700px; line-height: 1.7; color: #d9e5ff; }
+.overlay-actions { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px; width: 100%; }
+.overlay-actions button { min-width: 132px; }
+.overlay-actions .secondary-action { border-color: #7894c8; background: #162540; }
+.overlay-actions .secondary-action:hover, .overlay-actions .secondary-action:focus-visible { background: #29466f; }
+button { min-width: 160px; min-height: 48px; border: 2px solid #55e2ef; border-radius: 6px; background: #173b59; color: white; font: inherit; font-weight: 700; cursor: pointer; }
+button:hover, button:focus-visible { background: #276083; }
+.note { color: #a7b5d5; font-size: 14px; }
+.mobile-hud { display: none; }
+.touch-help { display: none; }
+.touch-controls { display: none; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 6px; touch-action: none; user-select: none; }
+.stick-area { width: 132px; height: 132px; flex: 0 0 132px; position: relative; border: 3px solid #456189; border-radius: 50%; background: #142b48; touch-action: none; }
+.stick-area::before, .stick-area::after { content: ''; position: absolute; background: #456189; opacity: .65; pointer-events: none; }
+.stick-area::before { width: 2px; height: 88px; left: calc(50% - 1px); top: 19px; }
+.stick-area::after { height: 2px; width: 88px; top: calc(50% - 1px); left: 19px; }
+.stick-knob { position: absolute; z-index: 1; left: 50%; top: 50%; width: 48px; height: 48px; transform: translate(-50%, -50%); border: 3px solid #55e2ef; border-radius: 50%; background: #276083; pointer-events: none; }
+.touch-actions { display: grid; grid-template-columns: repeat(2, minmax(66px, 88px)); grid-template-rows: repeat(2, 58px); gap: 10px; align-items: stretch; }
+.touch-actions button { min-width: 0; min-height: 48px; padding: 4px; font-size: 13px; touch-action: none; }
+#touch-fire { grid-column: 2; grid-row: 1 / 3; border-color: #ffe084; background: #664e2b; }
+#touch-fire.pressed { background: #a87b39; }
+#touch-switch { grid-column: 1; grid-row: 1; }
+#touch-burst { grid-column: 1; grid-row: 2; border-color: #7ef2aa; }
+#touch-pause { position: absolute; right: 14px; top: 84px; z-index: 2; width: 48px; height: 48px; font-size: 20px; }
+#touch-pause[hidden] { display: none; }
+@media (pointer: coarse), (max-width: 700px) { .touch-controls { display: flex; } }
+@media (max-width: 650px) { header h1 { letter-spacing: .04em; } header small { display: block; } header button { min-width: 100px; } }
+@media (max-width: 700px) and (orientation: portrait) {
+  #app { width: 100%; min-height: 100dvh; display: flex; flex-direction: column; padding: 10px 12px max(12px, env(safe-area-inset-bottom)); }
+  header { flex: none; }
+  .game-shell { flex: none; }
+  .mobile-hud { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; margin-top: 8px; padding: 8px 4px; border: 1px solid #38557c; background: #101a34; text-align: center; }
+  .mobile-hud div { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+  .mobile-hud small { color: #a7b5d5; font-size: 11px; letter-spacing: .04em; }
+  .mobile-hud strong { font: bold 16px ui-monospace, monospace; white-space: nowrap; }
+  .mobile-hud .mode-cell { grid-column: 1 / 2; }
+  .mobile-hud .burst-cell { grid-column: 2 / 4; }
+  .touch-controls { margin-top: auto; padding: 18px 6px 0; }
+  .keyboard-help { display: none; }
+  .touch-help { display: inline; }
+  .overlay { gap: 8px; padding: 12px; }
+  .overlay h2 { font-size: 24px; }
+  .overlay p { font-size: 13px; margin: 4px 0; }
+  .overlay button { min-height: 44px; }
+  .overlay-actions { flex-wrap: nowrap; gap: 6px; }
+  .overlay-actions button { min-width: 0; flex: 1; padding: 0 4px; font-size: 12px; }
+  .note { display: none; }
+}
+@media (orientation: landscape) and (max-height: 500px) {
+  #app { width: 100%; height: 100dvh; display: flex; flex-direction: column; padding: 4px; overflow: hidden; }
+  header { flex: 0 0 38px; }
+  header h1 { font-size: 18px; margin: 0; white-space: nowrap; }
+  header small { display: inline; font-size: .4em; }
+  header button { min-width: 100px; min-height: 32px; }
+  .mobile-hud { display: flex; justify-content: space-around; align-items: center; align-self: center; flex: 0 0 27px; width: min(68vw, calc((100dvh - 70px) * 1.77778)); border: 1px solid #38557c; background: #101a34; }
+  .mobile-hud div { display: flex; align-items: center; gap: 4px; font: 12px ui-monospace, monospace; }
+  .mobile-hud small { color: #a7b5d5; }
+  .game-shell { width: min(68vw, calc((100dvh - 70px) * 1.77778)); margin: 0 auto; flex: none; }
+  .touch-controls { display: flex; position: absolute; inset: auto 0 4px; height: 112px; padding: 0 4px; margin: 0; pointer-events: none; }
+  .stick-area { width: 108px; height: 108px; flex-basis: 108px; pointer-events: auto; }
+  .stick-area::before { height: 68px; top: 17px; }
+  .stick-area::after { width: 68px; left: 17px; }
+  .stick-knob { width: 40px; height: 40px; }
+  .touch-actions { grid-template-columns: 48px 56px; grid-template-rows: 48px 48px; gap: 8px; pointer-events: auto; }
+  .touch-actions button { min-height: 44px; font-size: 11px; }
+  #touch-pause { right: 6px; top: -55px; }
+  .keyboard-help { display: none; }
+  .touch-help { display: inline; }
+  .overlay p { font-size: 14px; }
+  .note { display: none; }
+}
