@@ -1,16 +1,18 @@
+import { BOSS_TIME, STAGE_WAVES, type StageWave } from './stage.ts';
+
 export const WIDTH = 960;
 export const HEIGHT = 540;
 export type Scene = 'title' | 'play' | 'pause' | 'result';
 export type Kind = 'light' | 'heavy' | 'boss';
 export interface Point { x: number; y: number }
 export interface Bullet extends Point { vx: number; vy: number; radius: number; damage: number; mode?: 'wide' | 'focus' | 'burst' }
-export interface Enemy extends Point { kind: Kind; hp: number; radius: number; shotTimer: number; phase: number }
+export interface Enemy extends Point { kind: Kind; hp: number; radius: number; shotTimer: number; phase: number; section?: 1 | 2 | 3; baseY?: number }
 export interface Pickup extends Point { value: number; ttl: number }
 export type GameEventKind = 'shot' | 'kill' | 'collect' | 'damage' | 'burst' | 'switch';
 export interface GameEvent extends Point { kind: GameEventKind; value?: number }
 export interface GameState {
   scene: Scene; outcome: 'clear' | 'gameover' | null; time: number; score: number;
-  lives: number; kills: number; hits: number; wave: number; spawnTimer: number; bossSpawned: boolean;
+  lives: number; kills: number; hits: number; wave: number; bossSpawned: boolean;
   mode: 'wide' | 'focus'; energy: number; burstTimer: number;
   player: Point & { invulnerable: number; shotTimer: number };
   bullets: Bullet[]; enemyBullets: Bullet[]; enemies: Enemy[]; pickups: Pickup[]; events: GameEvent[];
@@ -20,7 +22,7 @@ export interface Input { x: number; y: number; fire: boolean }
 export function createGame(): GameState {
   return {
     scene: 'title', outcome: null, time: 0, score: 0, lives: 3, kills: 0, hits: 0,
-    wave: 0, spawnTimer: 0, bossSpawned: false, mode: 'wide', energy: 0, burstTimer: 0,
+    wave: 0, bossSpawned: false, mode: 'wide', energy: 0, burstTimer: 0,
     player: { x: 145, y: HEIGHT / 2, invulnerable: 0, shotTimer: 0 },
     bullets: [], enemyBullets: [], enemies: [], pickups: [], events: [],
   };
@@ -57,13 +59,13 @@ export function drainEvents(state: GameState): GameEvent[] {
   return state.events.splice(0);
 }
 
-function spawnEnemy(state: GameState): void {
-  const heavy = state.wave % 5 === 4;
-  const lanes = [270, 190, 350, 270, 270, 130, 410];
+function spawnEnemy(state: GameState, wave: StageWave): void {
+  const heavy = wave.kind === 'heavy';
   state.enemies.push({
-    kind: heavy ? 'heavy' : 'light', x: WIDTH + 30,
-    y: lanes[state.wave % lanes.length], hp: heavy ? 8 : 2,
+    kind: wave.kind, x: WIDTH + 30,
+    y: wave.y, hp: heavy ? 8 : 2,
     radius: heavy ? 26 : 18, shotTimer: heavy ? 0.5 : 1.5, phase: state.wave * 0.7,
+    section: wave.section, baseY: wave.y,
   });
   state.wave++;
 }
@@ -98,13 +100,14 @@ export function updateGame(state: GameState, input: Input, dt: number): void {
     p.shotTimer = burst ? 0.09 : state.mode === 'focus' ? 0.12 : 0.25;
   }
 
-  if (!state.bossSpawned && state.time >= 43) {
+  if (!state.bossSpawned && state.time >= BOSS_TIME) {
     state.bossSpawned = true;
-    state.enemies.push({ kind: 'boss', x: WIDTH + 70, y: HEIGHT / 2, hp: 28, radius: 53, shotTimer: 1.2, phase: 0 });
+    state.enemies.push({ kind: 'boss', x: WIDTH + 70, y: HEIGHT / 2, hp: 48, radius: 53, shotTimer: 1.2, phase: 0 });
   }
   if (!state.bossSpawned) {
-    state.spawnTimer -= step;
-    if (state.spawnTimer <= 0) { spawnEnemy(state); state.spawnTimer = state.time < 10 ? 1.7 : 1.1; }
+    while (state.wave < STAGE_WAVES.length && STAGE_WAVES[state.wave].at <= state.time) {
+      spawnEnemy(state, STAGE_WAVES[state.wave]);
+    }
   }
 
   for (const b of state.bullets) { b.x += b.vx * step; b.y += b.vy * step; }
@@ -114,6 +117,10 @@ export function updateGame(state: GameState, input: Input, dt: number): void {
     e.phase += step;
     e.x -= (e.kind === 'boss' ? (e.x > 800 ? 100 : 0) : e.kind === 'heavy' ? 95 : 145) * step;
     if (e.kind === 'boss') e.y = HEIGHT / 2 + Math.sin(e.phase) * 110;
+    else if (e.kind === 'light' && e.section && e.section > 1) {
+      const amplitude = e.section === 2 ? 25 : 38;
+      e.y = Math.max(82, Math.min(HEIGHT - 35, (e.baseY ?? e.y) + Math.sin(e.phase * 2.4) * amplitude));
+    }
     e.shotTimer -= step;
     if (e.x < WIDTH - 20 && e.shotTimer <= 0) {
       const dx = p.x - e.x, dy = p.y - e.y;

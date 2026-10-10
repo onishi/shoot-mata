@@ -6,7 +6,7 @@ import { chooseBotInput } from '../src/bot.ts';
 test('scripted player collects energy, bursts, switches, and clears', () => {
   const game = startGame();
   let bursts = 0, switches = 0, collections = 0;
-  for (let frame = 0; frame < 6000 && game.scene === 'play'; frame++) {
+  for (let frame = 0; frame < 13000 && game.scene === 'play'; frame++) {
     const priorMode = game.mode, priorBurst = game.burstTimer, priorScore = game.score;
     const input = chooseBotInput(game);
     if (game.mode !== priorMode) switches++;
@@ -15,6 +15,7 @@ test('scripted player collects energy, bursts, switches, and clears', () => {
     if (game.score - priorScore === 50) collections++;
   }
   assert.equal(game.outcome, 'clear');
+  assert.ok(game.time >= 165 && game.time <= 190, `clear time: ${game.time}`);
   assert.ok(game.hits < 3);
   assert.ok(collections > 0);
   assert.ok(bursts > 0);
