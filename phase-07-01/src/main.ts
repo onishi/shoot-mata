@@ -31,6 +31,8 @@ const keys = new Set<string>();
 const effects = new Effects();
 const sound = new Sound();
 const autoplay = import.meta.env.DEV && new URLSearchParams(location.search).has('autoplay');
+const requestedSpeed = Number(new URLSearchParams(location.search).get('speed'));
+const autoplaySpeed = autoplay && Number.isInteger(requestedSpeed) ? Math.max(1, Math.min(8, requestedSpeed)) : 1;
 let state = autoplay ? startGame() : createGame();
 if (autoplay) ui.hidden = true;
 let lastFrame = 0;
@@ -212,11 +214,17 @@ function frame(now: number): void {
     y: Number(keys.has('ArrowDown') || keys.has('KeyS')) - Number(keys.has('ArrowUp') || keys.has('KeyW')),
     fire: keys.has('Space'),
   };
-  updateGame(state, autoplay ? chooseBotInput(state) : combineInput(manualInput, touch.input), dt);
+  if (autoplay) {
+    for (let index = 0; index < autoplaySpeed && state.scene === 'play'; index++) {
+      updateGame(state, chooseBotInput(state), 0.016);
+    }
+  } else {
+    updateGame(state, combineInput(manualInput, touch.input), dt);
+  }
   const events = drainEvents(state);
   for (const event of events) effects.add(event);
   sound.play(events);
-  if (state.scene === 'play') effects.update(dt);
+  if (state.scene === 'play') effects.update(autoplay ? 0.016 * autoplaySpeed : dt);
   if (previousScene === 'play' && state.scene === 'result') {
     touch.reset();
     showOverlay(state.outcome === 'clear' ? 'STAGE CLEAR' : 'GAME OVER',
