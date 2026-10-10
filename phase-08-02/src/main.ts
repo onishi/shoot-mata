@@ -21,19 +21,36 @@ const mobileTime = document.querySelector<HTMLElement>('#mobile-time');
 const mobileMode = document.querySelector<HTMLElement>('#mobile-mode');
 const mobileBurst = document.querySelector<HTMLElement>('#mobile-burst');
 if (!canvas || !overlay || !soundToggle || !touchStick || !stickKnob || !touchFire || !touchSwitch || !touchBurst || !touchPause || !mobileLives || !mobileScore || !mobileTime || !mobileMode || !mobileBurst) throw new Error('Required game elements are missing');
+const gameCanvas: HTMLCanvasElement = canvas;
 const mobileHud = { lives: mobileLives, score: mobileScore, time: mobileTime, mode: mobileMode, burst: mobileBurst };
 const pauseControl: HTMLButtonElement = touchPause;
 const context = canvas.getContext('2d');
 if (!context) throw new Error('Canvas 2D is unavailable');
 const ctx: CanvasRenderingContext2D = context;
+function syncCanvasResolution(): void {
+  const bounds = gameCanvas.getBoundingClientRect();
+  const ratio = window.devicePixelRatio || 1;
+  const width = Math.max(1, Math.round(bounds.width * ratio));
+  const height = Math.max(1, Math.round(bounds.height * ratio));
+  if (gameCanvas.width === width && gameCanvas.height === height) return;
+  gameCanvas.width = width;
+  gameCanvas.height = height;
+  ctx.setTransform(width / WIDTH, 0, 0, height / HEIGHT, 0, 0);
+}
+syncCanvasResolution();
+new ResizeObserver(syncCanvasResolution).observe(gameCanvas);
+window.addEventListener('resize', syncCanvasResolution);
 const ui: HTMLDivElement = overlay;
 const keys = new Set<string>();
 const effects = new Effects();
 const sound = new Sound();
 const autoplay = import.meta.env.DEV && new URLSearchParams(location.search).has('autoplay');
+const profileFrames = import.meta.env.DEV && new URLSearchParams(location.search).has('profile');
 const requestedSpeed = Number(new URLSearchParams(location.search).get('speed'));
 const autoplaySpeed = autoplay && Number.isInteger(requestedSpeed) ? Math.max(1, Math.min(8, requestedSpeed)) : 1;
 let state = autoplay ? startGame() : createGame();
+const frameSamples: number[] = [];
+const frameGapSamples: number[] = [];
 if (autoplay) ui.hidden = true;
 let lastFrame = 0;
 const touch = new TouchControls(touchStick, stickKnob, touchFire, touchSwitch, touchBurst, touchPause, {
@@ -240,7 +257,9 @@ function render(): void {
 }
 
 function frame(now: number): void {
+  const frameStartedAt = profileFrames && frameSamples.length < 1500 && state.scene === 'play' ? performance.now() : null;
   const dt = lastFrame ? (now - lastFrame) / 1000 : 0;
+  if (frameStartedAt !== null && lastFrame) frameGapSamples.push(now - lastFrame);
   lastFrame = now;
   const previousScene = state.scene;
   const manualInput = {
@@ -265,5 +284,19 @@ function frame(now: number): void {
   }
   render(); requestAnimationFrame(frame);
   updateMobileHud();
+  if (frameStartedAt !== null) {
+    frameSamples.push(performance.now() - frameStartedAt);
+    if (frameSamples.length % 120 === 0 || frameSamples.length === 1500 || state.scene === 'result') {
+      const sorted = [...frameSamples].sort((a, b) => a - b);
+      const sortedGaps = [...frameGapSamples].sort((a, b) => a - b);
+      gameCanvas.dataset.frameProfile = JSON.stringify({
+        count: sorted.length,
+        meanMs: Number((sorted.reduce((sum, value) => sum + value, 0) / sorted.length).toFixed(2)),
+        p95Ms: Number(sorted[Math.ceil(sorted.length * 0.95) - 1].toFixed(2)),
+        maxMs: Number(sorted[sorted.length - 1].toFixed(2)),
+        gapP95Ms: sortedGaps.length ? Number(sortedGaps[Math.ceil(sortedGaps.length * 0.95) - 1].toFixed(2)) : null,
+      });
+    }
+  }
 }
 requestAnimationFrame(frame);
