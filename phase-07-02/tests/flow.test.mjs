@@ -33,7 +33,16 @@ test('retry and title clear progress only from supported screens', () => {
   assert.equal(retry.lives, 3);
   retry.scene = 'result';
   retry.outcome = 'gameover';
-  const title = transitionGame(retry, 'title');
+  retry.time = 168;
+  retry.score = 8900;
+  const nextRun = transitionGame(retry, 'retry');
+  assert.equal(nextRun.scene, 'play');
+  assert.equal(nextRun.time, 0);
+  assert.equal(nextRun.score, 0);
+  assert.equal(nextRun.outcome, null);
+  nextRun.scene = 'result';
+  nextRun.outcome = 'clear';
+  const title = transitionGame(nextRun, 'title');
   assert.equal(title.scene, 'title');
   assert.equal(title.outcome, null);
   assert.equal(title.score, 0);
