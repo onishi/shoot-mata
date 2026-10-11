@@ -84,6 +84,12 @@ export class TouchControls {
   get input(): Input { return { ...this.vector, fire: this.firing }; }
 
   reset(): void {
+    if (this.stickPointer !== null && this.stick.hasPointerCapture(this.stickPointer)) {
+      this.stick.releasePointerCapture(this.stickPointer);
+    }
+    if (this.firePointer !== null && this.fire.hasPointerCapture(this.firePointer)) {
+      this.fire.releasePointerCapture(this.firePointer);
+    }
     this.stickPointer = null;
     this.firePointer = null;
     this.vector = { x: 0, y: 0 };

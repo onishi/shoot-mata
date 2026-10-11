@@ -128,13 +128,17 @@ window.addEventListener('keydown', event => {
   if (!event.repeat && ['KeyP', 'Escape'].includes(event.code)) togglePause();
 });
 window.addEventListener('keyup', event => keys.delete(event.code));
-window.addEventListener('blur', () => {
-  clearInputs();
-  if (state.scene === 'play') { pauseDetail = '画面に戻ったら再開してください'; runAction('pause'); }
-});
+function suspendGame(detail: string): void {
+  if (state.scene !== 'play') { clearInputs(); return; }
+  pauseDetail = detail;
+  runAction('pause');
+}
+
+window.addEventListener('blur', () => suspendGame('画面に戻ったら再開してください'));
 document.addEventListener('visibilitychange', () => {
-  if (document.hidden && state.scene === 'play') { pauseDetail = 'タブに戻ったら再開してください'; runAction('pause'); }
+  if (document.hidden) suspendGame('タブに戻ったら再開してください');
 });
+window.addEventListener('pagehide', () => suspendGame('ページに戻ったら再開してください'));
 
 function drawEnemy(enemy: Enemy): void {
   ctx.save(); ctx.translate(enemy.x, enemy.y);
