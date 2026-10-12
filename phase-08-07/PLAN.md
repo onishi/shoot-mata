@@ -11,12 +11,12 @@
 
 ## タスク
 1. [x] 08-06から独立した成果物を作り、受け入れ条件を記録する。
-2. [ ] 音声切替中の重複操作と失敗時の状態を扱う。
-3. [ ] ChromeでON/OFF表示と画面操作を確認する。
+2. [x] 音声切替中の重複操作と失敗時の状態を扱う。
+3. [x] ChromeでON/OFF表示と画面操作を確認する。
 4. [ ] 型チェック・テスト・ビルド・CIとQA記録を更新する。
 
 ## 確認方法
-`npm run typecheck`、`npm test`、`npm run build`。ChromeでSOUNDをON/OFFし、`aria-pressed` と操作中の表示を確認する。遅延・失敗する音声コンテキストは自動テストで再現する。
+`npm run typecheck`、`npm test`、`npm run build`。ChromeでSOUNDをON/OFFし、`aria-pressed` を確認する。処理中の重複操作と開始失敗は遅延・失敗する音声コンテキストの自動テストで再現する。
 
 ## 判定
-進行中。
+進行中。遅延する音声開始を模したテストは修正前に `resume()` が2回呼ばれて失敗し、修正後は1回となった。ChromeでSOUND OFF→ON→OFF、`aria-pressed` のfalse→true→false、切替後にボタンが再操作可能なこととコンソールエラー0件を確認。音の聴感・音量は未評価。

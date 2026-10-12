@@ -132,9 +132,16 @@ ui.addEventListener('click', event => {
 });
 if (!autoplay) showOverlay();
 soundToggle.addEventListener('click', async () => {
-  const enabled = await sound.toggle();
-  soundToggle.textContent = enabled ? 'SOUND ON' : 'SOUND OFF';
-  soundToggle.setAttribute('aria-pressed', String(enabled));
+  soundToggle.disabled = true;
+  soundToggle.setAttribute('aria-busy', 'true');
+  try {
+    const enabled = await sound.toggle();
+    soundToggle.textContent = enabled ? 'SOUND ON' : 'SOUND OFF';
+    soundToggle.setAttribute('aria-pressed', String(enabled));
+  } finally {
+    soundToggle.disabled = false;
+    soundToggle.setAttribute('aria-busy', 'false');
+  }
 });
 window.addEventListener('keydown', event => {
   if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.code)) event.preventDefault();

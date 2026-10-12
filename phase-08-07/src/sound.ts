@@ -13,9 +13,12 @@ const tones: Partial<Record<GameEvent['kind'], Tone>> = {
 export class Sound {
   private context: AudioContext | null = null;
   private enabled = false;
+  private changing = false;
   private lastShot = -1;
 
   async toggle(): Promise<boolean> {
+    if (this.changing) return this.enabled;
+    this.changing = true;
     try {
       if (this.enabled) {
         this.enabled = false;
@@ -27,6 +30,8 @@ export class Sound {
       }
     } catch {
       this.enabled = false;
+    } finally {
+      this.changing = false;
     }
     return this.enabled;
   }

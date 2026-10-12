@@ -18,6 +18,7 @@ canvas { display: block; width: 100%; height: 100%; }
 .overlay-actions .secondary-action:hover, .overlay-actions .secondary-action:focus-visible { background: #29466f; }
 button { min-width: 160px; min-height: 48px; border: 2px solid #55e2ef; border-radius: 6px; background: #173b59; color: white; font: inherit; font-weight: 700; cursor: pointer; }
 button:hover, button:focus-visible { background: #276083; }
+button:disabled { opacity: .65; cursor: wait; }
 .note { color: #a7b5d5; font-size: 14px; }
 .mobile-hud { display: none; }
 .touch-help { display: none; }
