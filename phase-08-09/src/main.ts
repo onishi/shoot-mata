@@ -144,6 +144,7 @@ soundToggle.addEventListener('click', async () => {
   }
 });
 window.addEventListener('keydown', event => {
+  if (event.code === 'Space' && event.target instanceof HTMLButtonElement) return;
   if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.code)) event.preventDefault();
   if (!keys.has(event.code) && profiledKeys.has(event.code)) noteInput();
   keys.add(event.code);
