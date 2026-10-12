@@ -13,10 +13,10 @@
 1. [x] 08-08から独立した成果物を作り、受け入れ条件を記録する。
 2. [x] ボタン上のSpace入力と射撃入力を分ける。
 3. [x] ChromeでボタンのSpace/Enter操作を再確認する。プレイ中の射撃は既存の入力経路とテストで確認する。
-4. [ ] 型チェック・テスト・ビルド・CIとQA記録を更新する。
+4. [x] 型チェック・テスト・ビルド・CIとQA記録を更新する。
 
 ## 確認方法
 `npm run typecheck`、`npm test`、`npm run build`。ChromeでSTARTにフォーカスしてSpaceを押す。ポーズ・結果・SOUNDボタンでもSpace/Enterを確認し、プレイ中の射撃を確認する。
 
 ## 判定
-進行中。08-08ではSTARTにフォーカスしてSpaceを押してもタイトル画面のままであることを再現した。08-09のChromeではSTART・RESUME・RETRYをSpaceで、TITLEをEnterで操作でき、SOUNDのON/OFFもSpaceで切り替わった。コンソールエラーは0件。ボタンにフォーカスがないSpaceの入力経路は変更していない。
+08-09の受け入れ条件を満たして完了。08-08ではSTARTにフォーカスしてSpaceを押してもタイトル画面のままであることを再現した。08-09のChromeではSTART・RESUME・RETRYをSpaceで、TITLEをEnterで操作でき、SOUNDのON/OFFもSpaceで切り替わった。コンソールエラーは0件。ボタンにフォーカスがないSpaceの入力経路は変更していない。ローカルとGitHub Actions run `38323175623` で型チェック・23件のテスト・ビルドが成功。
