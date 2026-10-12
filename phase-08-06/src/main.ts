@@ -7,6 +7,14 @@ import { combineInput, TouchControls } from './touch';
 import { BOSS_TIME, STAGE_SECTIONS } from './stage';
 import { InputFrameProfiler } from './input-profile';
 
+if (import.meta.env.DEV && new URLSearchParams(location.search).has('safearea')) {
+  const root = document.documentElement.style;
+  root.setProperty('--safe-top', '24px');
+  root.setProperty('--safe-right', '36px');
+  root.setProperty('--safe-bottom', '20px');
+  root.setProperty('--safe-left', '36px');
+}
+
 const canvas = document.querySelector<HTMLCanvasElement>('#game');
 const overlay = document.querySelector<HTMLDivElement>('#overlay');
 const soundToggle = document.querySelector<HTMLButtonElement>('#sound-toggle');
