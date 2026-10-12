@@ -35,7 +35,7 @@ export class TouchControls {
     switchButton: HTMLButtonElement,
     burstButton: HTMLButtonElement,
     pauseButton: HTMLButtonElement,
-    actions: { switchMode: () => void; burst: () => void; pause: () => void },
+    actions: { switchMode: () => void; burst: () => void; pause: () => void; onInput?: () => void },
   ) {
     this.stick = stick;
     this.knob = knob;
@@ -46,15 +46,17 @@ export class TouchControls {
       this.stickPointer = event.pointerId;
       stick.setPointerCapture(event.pointerId);
       this.move(event);
+      actions.onInput?.();
     });
     stick.addEventListener('pointermove', event => {
-      if (event.pointerId === this.stickPointer) this.move(event);
+      if (event.pointerId === this.stickPointer) { this.move(event); actions.onInput?.(); }
     });
     const stopStick = (event: PointerEvent) => {
       if (event.pointerId !== this.stickPointer) return;
       this.stickPointer = null;
       this.vector = { x: 0, y: 0 };
       this.showKnob();
+      actions.onInput?.();
     };
     stick.addEventListener('pointerup', stopStick);
     stick.addEventListener('pointercancel', stopStick);
@@ -66,18 +68,20 @@ export class TouchControls {
       this.firing = true;
       fire.setPointerCapture(event.pointerId);
       fire.classList.add('pressed');
+      actions.onInput?.();
     });
     const stopFire = (event: PointerEvent) => {
       if (event.pointerId !== this.firePointer) return;
       this.firePointer = null;
       this.firing = false;
       fire.classList.remove('pressed');
+      actions.onInput?.();
     };
     fire.addEventListener('pointerup', stopFire);
     fire.addEventListener('pointercancel', stopFire);
 
-    switchButton.addEventListener('pointerdown', event => { event.preventDefault(); actions.switchMode(); });
-    burstButton.addEventListener('pointerdown', event => { event.preventDefault(); actions.burst(); });
+    switchButton.addEventListener('pointerdown', event => { event.preventDefault(); actions.onInput?.(); actions.switchMode(); });
+    burstButton.addEventListener('pointerdown', event => { event.preventDefault(); actions.onInput?.(); actions.burst(); });
     pauseButton.addEventListener('click', actions.pause);
   }
 

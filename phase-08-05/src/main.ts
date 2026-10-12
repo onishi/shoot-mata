@@ -5,6 +5,7 @@ import { Effects } from './effects';
 import { Sound } from './sound';
 import { combineInput, TouchControls } from './touch';
 import { BOSS_TIME, STAGE_SECTIONS } from './stage';
+import { InputFrameProfiler } from './input-profile';
 
 const canvas = document.querySelector<HTMLCanvasElement>('#game');
 const overlay = document.querySelector<HTMLDivElement>('#overlay');
@@ -51,12 +52,18 @@ const autoplaySpeed = autoplay && Number.isInteger(requestedSpeed) ? Math.max(1,
 let state = autoplay ? startGame() : createGame();
 const frameSamples: number[] = [];
 const frameGapSamples: number[] = [];
+const inputProfiler = profileFrames ? new InputFrameProfiler() : null;
+const profiledKeys = new Set(['KeyW', 'KeyA', 'KeyS', 'KeyD', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space', 'ShiftLeft', 'ShiftRight', 'KeyX', 'KeyZ']);
 if (autoplay) ui.hidden = true;
 let lastFrame = 0;
+function noteInput(): void {
+  if (state.scene === 'play') inputProfiler?.input(performance.now());
+}
 const touch = new TouchControls(touchStick, stickKnob, touchFire, touchSwitch, touchBurst, touchPause, {
   switchMode: () => toggleMode(state),
   burst: () => { activateBurst(state); },
   pause: () => togglePause(),
+  onInput: noteInput,
 });
 
 function togglePause(): void {
@@ -71,6 +78,7 @@ function togglePause(): void {
 function clearInputs(): void {
   touch.reset();
   keys.clear();
+  inputProfiler?.clearPending();
 }
 
 let pauseDetail = 'P またはポーズボタンで再開';
@@ -122,12 +130,16 @@ soundToggle.addEventListener('click', async () => {
 });
 window.addEventListener('keydown', event => {
   if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.code)) event.preventDefault();
+  if (!keys.has(event.code) && profiledKeys.has(event.code)) noteInput();
   keys.add(event.code);
   if (!event.repeat && ['ShiftLeft', 'ShiftRight', 'KeyX'].includes(event.code)) toggleMode(state);
   if (!event.repeat && event.code === 'KeyZ') activateBurst(state);
   if (!event.repeat && ['KeyP', 'Escape'].includes(event.code)) togglePause();
 });
-window.addEventListener('keyup', event => keys.delete(event.code));
+window.addEventListener('keyup', event => {
+  if (keys.has(event.code) && profiledKeys.has(event.code)) noteInput();
+  keys.delete(event.code);
+});
 function suspendGame(detail: string): void {
   if (state.scene !== 'play') { clearInputs(); return; }
   pauseDetail = detail;
@@ -287,6 +299,8 @@ function frame(now: number): void {
     showOverlay();
   }
   render(); requestAnimationFrame(frame);
+  const inputSummary = inputProfiler?.frame(performance.now());
+  if (inputSummary) gameCanvas.dataset.inputFrameProfile = JSON.stringify(inputSummary);
   updateMobileHud();
   if (frameStartedAt !== null) {
     frameSamples.push(performance.now() - frameStartedAt);
