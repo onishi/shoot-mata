@@ -27,6 +27,7 @@ export class TouchControls {
   private firePointer: number | null = null;
   private vector: Vector = { x: 0, y: 0 };
   private firing = false;
+  private keyboardFire = false;
 
   constructor(
     stick: HTMLElement,
@@ -67,25 +68,51 @@ export class TouchControls {
       this.firePointer = event.pointerId;
       this.firing = true;
       fire.setPointerCapture(event.pointerId);
-      fire.classList.add('pressed');
+      this.showFire();
       actions.onInput?.();
     });
     const stopFire = (event: PointerEvent) => {
       if (event.pointerId !== this.firePointer) return;
       this.firePointer = null;
       this.firing = false;
-      fire.classList.remove('pressed');
+      this.showFire();
       actions.onInput?.();
     };
     fire.addEventListener('pointerup', stopFire);
     fire.addEventListener('pointercancel', stopFire);
+    fire.addEventListener('keydown', event => {
+      if (event.code !== 'Space' && event.code !== 'Enter') return;
+      event.preventDefault();
+      if (this.keyboardFire) return;
+      this.keyboardFire = true;
+      this.showFire();
+      actions.onInput?.();
+    });
+    const stopKeyboardFire = (event?: KeyboardEvent) => {
+      if (event && event.code !== 'Space' && event.code !== 'Enter') return;
+      if (!this.keyboardFire) return;
+      this.keyboardFire = false;
+      this.showFire();
+      actions.onInput?.();
+    };
+    fire.addEventListener('keyup', stopKeyboardFire);
+    fire.addEventListener('blur', () => stopKeyboardFire());
 
     switchButton.addEventListener('pointerdown', event => { event.preventDefault(); actions.onInput?.(); actions.switchMode(); });
     burstButton.addEventListener('pointerdown', event => { event.preventDefault(); actions.onInput?.(); actions.burst(); });
+    const keyboardAction = (button: HTMLButtonElement, action: () => void) => button.addEventListener('keydown', event => {
+      if (event.code !== 'Space' && event.code !== 'Enter') return;
+      event.preventDefault();
+      if (event.repeat) return;
+      actions.onInput?.();
+      action();
+    });
+    keyboardAction(switchButton, actions.switchMode);
+    keyboardAction(burstButton, actions.burst);
     pauseButton.addEventListener('click', actions.pause);
   }
 
-  get input(): Input { return { ...this.vector, fire: this.firing }; }
+  get input(): Input { return { ...this.vector, fire: this.firing || this.keyboardFire }; }
 
   reset(): void {
     if (this.stickPointer !== null && this.stick.hasPointerCapture(this.stickPointer)) {
@@ -98,8 +125,14 @@ export class TouchControls {
     this.firePointer = null;
     this.vector = { x: 0, y: 0 };
     this.firing = false;
+    this.keyboardFire = false;
     this.showKnob();
-    this.fire.classList.remove('pressed');
+    this.showFire();
+  }
+
+  private showFire(): void {
+    if (this.firing || this.keyboardFire) this.fire.classList.add('pressed');
+    else this.fire.classList.remove('pressed');
   }
 
   private move(event: PointerEvent): void {
