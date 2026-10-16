@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="description" content="武器を切り替え、エネルギーを回収して突破する約3分の横スクロールシューティング。キーボードとタッチでプレイできます。" />
+    <meta name="theme-color" content="#090e20" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:site_name" content="SWITCHBACK" />
+    <meta property="og:title" content="SWITCHBACK — Stage 01" />
+    <meta property="og:description" content="武器を切り替え、エネルギーを回収して突破する横スクロールシューティング。" />
+    <meta property="og:url" content="https://onishi.github.io/shoot-mata/" />
+    <meta property="og:image" content="https://onishi.github.io/shoot-mata/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="SWITCHBACKの自機と敵機がネオンの弾幕で向き合うゲームアート" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="canonical" href="https://onishi.github.io/shoot-mata/" />
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <title>SWITCHBACK — Stage 01</title>
+  </head>
+  <body>
+    <main id="app">
+      <header><h1>SWITCHBACK <small>STAGE 01</small></h1><div class="header-actions"><button id="share" type="button">SHARE</button><button id="sound-toggle" type="button" aria-pressed="false">SOUND OFF</button></div></header>
+      <div class="game-shell">
+        <canvas id="game" width="960" height="540" aria-label="横スクロールシューティングのゲーム画面"></canvas>
+        <div id="overlay" class="overlay">
+          <h2>SWITCHBACK</h2>
+          <p><span class="keyboard-help">WASD / 矢印: 移動　 Space: 射撃　 Shift / X: 切替　 Z: バースト　 P: ポーズ</span><span class="touch-help">左のスティックで移動。右のボタンで射撃・切替・バースト。</span></p>
+          <div class="overlay-actions"><button type="button" data-action="start" class="primary-action">START</button></div>
+        </div>
+      </div>
+      <div class="mobile-hud" aria-label="ゲーム状態">
+        <div><small>LIVES</small><strong id="mobile-lives">03</strong></div>
+        <div><small>SCORE</small><strong id="mobile-score">000000</strong></div>
+        <div><small>TIME</small><strong id="mobile-time">00</strong></div>
+        <div class="mode-cell"><small>MODE</small><strong id="mobile-mode">WIDE</strong></div>
+        <div class="burst-cell"><small>BURST</small><strong id="mobile-burst">0 / 5</strong></div>
+      </div>
+      <section class="touch-controls" aria-label="タッチ操作">
+        <div class="stick-area" id="touch-stick" aria-label="移動スティック"><div class="stick-knob" id="stick-knob"></div></div>
+        <div class="touch-actions">
+          <button type="button" id="touch-pause" aria-label="ポーズ">Ⅱ</button>
+          <button type="button" id="touch-switch">SWITCH</button>
+          <button type="button" id="touch-burst">BURST</button>
+          <button type="button" id="touch-fire">FIRE</button>
+        </div>
+      </section>
+      <p class="note">公開版 v1.0.0。キーボードまたはタッチで操作します。</p>
+    </main>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
