@@ -1,6 +1,6 @@
 # フェーズ11 公開記録
 
-公開対象：`phase-11-01/`。公開予定URL：<https://onishi.github.io/shoot-mata/>。
+公開対象：`phase-11-01/`。公開URL：<https://onishi.github.io/shoot-mata/>。
 
 ## 公開構成
 
@@ -13,11 +13,21 @@
 
 - [x] `phase-11-01` の型チェック・テスト・方針比較・ビルドが成功
 - [x] OGP、favicon、description、canonical URL、共有導線を確認
-- [ ] GitHub PagesをGitHub Actions方式で有効化
-- [ ] Pagesのbuild・deployジョブが成功
-- [ ] 公開URLでHTML、CSS、JavaScript、OGP画像、favicon、第三者通知が200応答
-- [ ] PC・縦長・横長で開始、切替、バースト、ポーズ、結果、再挑戦を確認
-- [ ] ブラウザのコンソールエラーと意図しない外部通信がない
+- [x] GitHub PagesをGitHub Actions方式で有効化
+- [x] Pagesのbuild・deployジョブが成功
+- [x] 公開URLでHTML、CSS、JavaScript、OGP画像、favicon、第三者通知が200応答
+- [x] PC・縦長・横長で開始、切替、バースト、ポーズ、結果、再挑戦を確認
+- [x] ブラウザのコンソールエラーと意図しない外部通信がない
+
+## 公開結果
+
+- 2026-10-17にコミット `02b2dc7` を公開した。
+- GitHub Actionsの `Deploy GitHub Pages` run `39037414224` はbuild・deployとも成功した。
+- `Game checks` run `39037414207` は `phase11_01` を含む全ジョブが成功した。
+- ルートHTMLはHTTPSで200応答し、`Content-Type: text/html`、`Cache-Control: max-age=600` を確認した。CSSとJavaScriptは相対パスかつ内容ハッシュ付きで参照される。
+- `og-image.png`、`favicon.svg`、`THIRD_PARTY_NOTICES.md` は200応答し、それぞれPNG、SVG、Markdownとして配信された。
+- Chromeの960×700、390×844、844×390で操作した。開始、WIDE／FOCUS切替、バースト、ポーズ・再開、GAME OVER、RETRY、音声OFF／ONを確認し、縦長・横長のdocument幅はviewport幅と一致した。
+- 確認中のブラウザ警告・エラーは0件。ゲームが要求した通信はGitHub Pages上の同一オリジン静的アセットだけで、解析、Cookie、外部APIは追加していない。
 
 ## 更新手順
 
@@ -46,4 +56,4 @@
 
 ## 未確認事項・制約
 
-公開前のため、本番URLとGitHub Pages固有の応答は未確認。物理端末の操作感、実ノッチ、表示完了までの遅延、主観的な聴感・楽しさ、押下中の実タブ切替はフェーズ10までと同じく測定していない。
+物理端末の操作感、実ノッチ、表示完了までの遅延、主観的な聴感・楽しさ、押下中の実タブ切替はフェーズ10までと同じく測定していない。SHAREの分岐は自動テスト済みだが、公開確認では第三者への送信を伴わないようOS共有画面での送信確定とクリップボード内容の実確認は行っていない。
