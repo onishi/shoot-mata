@@ -1,0 +1,25 @@
+name: Production smoke check
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - phase12/check-production.mjs
+      - .github/workflows/production-smoke.yml
+  schedule:
+    - cron: '17 0 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  production_smoke:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+      - run: node phase12/check-production.mjs
