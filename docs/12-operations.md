@@ -14,6 +14,8 @@
 
 GitHub Actionsの `Production smoke check` は毎週月曜00:17 UTC（日本時間09:17）と手動実行で確認する。失敗時は対象URLを手元で再実行し、GitHub Pagesの状態、直前のデプロイ、同じコミットのGame checksを確認する。再現する場合は不具合としてバックログへ追加し、`docs/11-release.md` の手順で修正またはロールバックする。
 
+初回の `Production smoke check` run `39088657152` と同じコミットの `Game checks` run `39088657158` は成功した。
+
 ```sh
 node phase12/check-production.mjs
 ```
