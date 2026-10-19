@@ -1,7 +1,10 @@
 import {
+  COMPARISON_TARGET,
   CORE_TYPES,
   MODE_INFO,
   collectCore,
+  comparisonProgress,
+  createSessionRecord,
   createPowerState,
   getBuild,
   weaponLabel,
@@ -11,6 +14,11 @@ const canvas = document.querySelector("#stage");
 const ctx = canvas.getContext("2d");
 const startButton = document.querySelector("#start");
 const countdown = document.querySelector("#countdown");
+const reflectionForm = document.querySelector("#reflection-form");
+const resultsBody = document.querySelector("#results-body");
+const progress = document.querySelector("#comparison-progress");
+const exportButton = document.querySelector("#export-results");
+const clearButton = document.querySelector("#clear-results");
 const ui = Object.fromEntries(
   ["weapon", "level", "slots", "collections", "switches", "tradeoffs", "kills", "hits", "level3", "mode-summary"]
     .map((id) => [id, document.querySelector(`#${id}`)]),
@@ -36,6 +44,8 @@ let enemyShots = [];
 const keys = new Set();
 let pointerId = null;
 let pointerTarget = null;
+let pendingSession = null;
+let records = loadRecords();
 
 const colors = { red: "#ff4e5a", blue: "#4ba5ff", yellow: "#ffda3e" };
 const glyphs = { red: "◆", blue: "●", yellow: "▲" };
@@ -56,7 +66,37 @@ function reset() {
   updateUI();
 }
 
+function loadRecords() {
+  try {
+    const value = JSON.parse(localStorage.getItem("shoot-mata-phase03-comparison") ?? "[]");
+    return Array.isArray(value) ? value : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveRecords() {
+  try {
+    localStorage.setItem("shoot-mata-phase03-comparison", JSON.stringify(records));
+  } catch {
+    // The in-memory comparison remains usable when storage is blocked.
+  }
+}
+
+function sessionMetrics() {
+  return {
+    collections: power.collections,
+    switches: power.switches,
+    tradeoffs: power.tradeoffs,
+    kills: stats.kills,
+    hits: stats.hits,
+    level3: Number(stats.level3.toFixed(1)),
+  };
+}
+
 function start() {
+  reflectionForm.hidden = true;
+  pendingSession = null;
   reset();
   running = true;
   startButton.hidden = true;
@@ -172,8 +212,13 @@ function update(dt) {
   if (elapsed >= SESSION_SECONDS) {
     elapsed = SESSION_SECONDS;
     running = false;
-    startButton.hidden = false;
+    startButton.hidden = true;
     startButton.textContent = "同じ方式でもう一度";
+    pendingSession = { mode: selectedMode, metrics: sessionMetrics() };
+    document.querySelectorAll(".mode").forEach((button) => { button.disabled = true; });
+    reflectionForm.hidden = false;
+    reflectionForm.querySelector("legend").textContent = `${MODE_INFO[selectedMode].label} — 完走直後の記録`;
+    reflectionForm.scrollIntoView({ block: "nearest", behavior: "smooth" });
   }
   movePlayer(dt);
   player.invulnerable = Math.max(0, player.invulnerable - dt);
@@ -229,6 +274,73 @@ function update(dt) {
   projectiles = projectiles.filter((item) => !item.dead && item.x < 1020 && item.y > -30 && item.y < 570);
   enemyShots = enemyShots.filter((item) => !item.dead && item.x > -30 && item.y > -30 && item.y < 570);
   updateUI();
+}
+
+
+reflectionForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  if (!pendingSession) return;
+  const data = new FormData(reflectionForm);
+  records.push(createSessionRecord({
+    mode: pendingSession.mode,
+    metrics: pendingSession.metrics,
+    reflection: {
+      prediction: Number(data.get("prediction")),
+      choice: Number(data.get("choice")),
+      retry: Number(data.get("retry")),
+      note: data.get("note"),
+    },
+  }));
+  saveRecords();
+  pendingSession = null;
+  reflectionForm.reset();
+  reflectionForm.hidden = true;
+  startButton.hidden = false;
+  document.querySelectorAll(".mode").forEach((button) => { button.disabled = false; });
+  renderResults();
+});
+
+exportButton.addEventListener("click", async () => {
+  const payload = JSON.stringify({ exportedAt: new Date().toISOString(), records }, null, 2);
+  try {
+    await navigator.clipboard.writeText(payload);
+    exportButton.textContent = "JSONをコピー済み";
+  } catch {
+    const blob = new Blob([payload], { type: "application/json" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "phase-03-comparison.json";
+    link.click();
+    URL.revokeObjectURL(link.href);
+  }
+});
+
+clearButton.addEventListener("click", () => {
+  if (!confirm("保存した比較記録をすべて消去しますか？")) return;
+  records = [];
+  saveRecords();
+  renderResults();
+});
+
+function renderResults() {
+  const coverage = comparisonProgress(records);
+  progress.textContent = Object.entries(coverage)
+    .map(([mode, state]) => `${MODE_INFO[mode].label} ${state.count}/${COMPARISON_TARGET}`)
+    .join(" / ");
+  resultsBody.replaceChildren(...records.map((record, index) => {
+    const row = document.createElement("tr");
+    const values = [index + 1, MODE_INFO[record.mode].label, record.metrics.collections,
+      record.metrics.switches, record.metrics.tradeoffs, record.metrics.kills,
+      record.metrics.hits, record.metrics.level3.toFixed(1), record.reflection.prediction,
+      record.reflection.choice, record.reflection.retry, record.reflection.note || "—"];
+    row.replaceChildren(...values.map((value) => {
+      const cell = document.createElement("td");
+      cell.textContent = value;
+      return cell;
+    }));
+    return row;
+  }));
+  document.querySelector("#comparison-results").classList.toggle("empty", records.length === 0);
 }
 
 function updateUI() {
@@ -321,4 +433,5 @@ function frame(time) {
 }
 
 reset();
+renderResults();
 requestAnimationFrame(frame);

@@ -1,4 +1,5 @@
 export const CORE_TYPES = Object.freeze(["red", "blue", "yellow"]);
+export const COMPARISON_TARGET = 3;
 
 export const MODE_INFO = Object.freeze({
   queue: {
@@ -108,4 +109,37 @@ export function weaponLabel(type) {
     blue: "青・スプレッド",
     yellow: "黄・シーカー",
   }[type] ?? "未装填";
+}
+
+export function createSessionRecord({ mode, metrics, reflection, completedAt = new Date().toISOString() }) {
+  if (!MODE_INFO[mode]) throw new Error(`Unknown mode: ${mode}`);
+  const requiredMetrics = ["collections", "switches", "tradeoffs", "kills", "hits", "level3"];
+  for (const key of requiredMetrics) {
+    if (!Number.isFinite(metrics[key]) || metrics[key] < 0) throw new Error(`Invalid metric: ${key}`);
+  }
+  const ratings = ["prediction", "choice", "retry"];
+  for (const key of ratings) {
+    if (!Number.isInteger(reflection[key]) || reflection[key] < 1 || reflection[key] > 5) {
+      throw new Error(`Invalid rating: ${key}`);
+    }
+  }
+  return {
+    version: 1,
+    mode,
+    completedAt,
+    metrics: Object.fromEntries(requiredMetrics.map((key) => [key, metrics[key]])),
+    reflection: {
+      prediction: reflection.prediction,
+      choice: reflection.choice,
+      retry: reflection.retry,
+      note: String(reflection.note ?? "").trim().slice(0, 500),
+    },
+  };
+}
+
+export function comparisonProgress(records, target = COMPARISON_TARGET) {
+  return Object.fromEntries(Object.keys(MODE_INFO).map((mode) => {
+    const count = records.filter((record) => record?.mode === mode).length;
+    return [mode, { count, remaining: Math.max(0, target - count), complete: count >= target }];
+  }));
 }

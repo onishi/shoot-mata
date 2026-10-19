@@ -2,6 +2,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   collectCore,
+  comparisonProgress,
+  createSessionRecord,
   createPowerState,
   getBuild,
   previewCollection,
@@ -18,6 +20,28 @@ test("FIFO三連装は先頭色と同色数から武器とレベルを得る", (
     supports: ["blue"],
     slots: ["red", "blue", "red"],
   });
+});
+
+test("比較記録は定量値と主観値を分離し、方式ごとの不足数を返す", () => {
+  const base = {
+    mode: "queue",
+    metrics: { collections: 8, switches: 2, tradeoffs: 3, kills: 20, hits: 1, level3: 4.2 },
+    reflection: { prediction: 4, choice: 3, retry: 5, note: " mixed build " },
+    completedAt: "2026-10-19T00:00:00.000Z",
+  };
+  const record = createSessionRecord(base);
+  assert.equal(record.reflection.note, "mixed build");
+  assert.deepEqual(comparisonProgress([record]), {
+    queue: { count: 1, remaining: 2, complete: false },
+    armory: { count: 0, remaining: 3, complete: false },
+    chain: { count: 0, remaining: 3, complete: false },
+  });
+});
+
+test("比較記録は範囲外の主観評価と不正な指標を拒否する", () => {
+  const metrics = { collections: 1, switches: 0, tradeoffs: 0, kills: 1, hits: 0, level3: 0 };
+  assert.throws(() => createSessionRecord({ mode: "queue", metrics, reflection: { prediction: 0, choice: 3, retry: 3 } }), /Invalid rating/);
+  assert.throws(() => createSessionRecord({ mode: "queue", metrics: { ...metrics, hits: -1 }, reflection: { prediction: 3, choice: 3, retry: 3 } }), /Invalid metric/);
 });
 
 test("FIFO三連装は4個目で最古を押し出し主武器を変更する", () => {

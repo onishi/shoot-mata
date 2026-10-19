@@ -69,6 +69,37 @@
         <div><strong>TOUCH</strong><span>戦闘画面をドラッグ。複数指は不要。</span></div>
         <div><strong>TEST</strong><span>形の違うコアへ寄るか、安全を取るか選ぶ。</span></div>
       </section>
+
+      <form id="reflection-form" class="reflection" hidden>
+        <fieldset>
+          <legend>完走直後の記録</legend>
+          <p>1（いいえ）〜5（はい）。数値結果とは分けて、人が操作した直後に回答します。</p>
+          <label>次の取得結果を予測できた
+            <select name="prediction" required><option value="">選択</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+          </label>
+          <label>安全と構成を意識して選べた
+            <select name="choice" required><option value="">選択</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+          </label>
+          <label>別の取り方を再試行したい
+            <select name="retry" required><option value="">選択</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+          </label>
+          <label class="note">迷い・狙った構成・気づき
+            <textarea name="note" maxlength="500" rows="3"></textarea>
+          </label>
+          <button type="submit">この完走を保存</button>
+        </fieldset>
+      </form>
+
+      <section id="comparison-results" class="results empty" aria-labelledby="results-title">
+        <div class="results-heading">
+          <div><h2 id="results-title">比較ログ</h2><p id="comparison-progress"></p></div>
+          <div><button id="export-results" type="button">JSONをコピー</button><button id="clear-results" type="button">記録を消去</button></div>
+        </div>
+        <div class="table-wrap">
+          <table><thead><tr><th>#</th><th>方式</th><th>回収</th><th>切替</th><th>代償</th><th>撃破</th><th>被弾</th><th>Lv3秒</th><th>予測</th><th>選択</th><th>再試行</th><th>メモ</th></tr></thead><tbody id="results-body"></tbody></table>
+        </div>
+        <p class="empty-message">まだ完走記録はありません。各方式を3回ずつ完走してください。</p>
+      </section>
     </main>
     <script type="module" src="./app.mjs"></script>
   </body>
