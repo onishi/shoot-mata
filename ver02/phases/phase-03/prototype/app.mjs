@@ -9,7 +9,9 @@ import {
   createPowerState,
   getBuild,
   getSupportEffects,
+  recommendedMode,
   restoreSessionRecords,
+  summarizeComparison,
   weaponLabel,
 } from "./model.mjs";
 
@@ -22,6 +24,7 @@ const resultsBody = document.querySelector("#results-body");
 const progress = document.querySelector("#comparison-progress");
 const exportButton = document.querySelector("#export-results");
 const clearButton = document.querySelector("#clear-results");
+const nextSession = document.querySelector("#next-session");
 const ui = Object.fromEntries(
   ["weapon", "level", "support", "slots", "collections", "switches", "tradeoffs", "kills", "hits", "level3", "mode-summary"]
     .map((id) => [id, document.querySelector(`#${id}`)]),
@@ -318,7 +321,11 @@ reflectionForm.addEventListener("submit", (event) => {
 });
 
 exportButton.addEventListener("click", async () => {
-  const payload = JSON.stringify({ exportedAt: new Date().toISOString(), records }, null, 2);
+  const payload = JSON.stringify({
+    exportedAt: new Date().toISOString(),
+    summary: summarizeComparison(records),
+    records,
+  }, null, 2);
   try {
     await navigator.clipboard.writeText(payload);
     exportButton.textContent = "JSONをコピー済み";
@@ -341,9 +348,16 @@ clearButton.addEventListener("click", () => {
 
 function renderResults() {
   const coverage = comparisonProgress(records);
+  const nextMode = recommendedMode(records);
   progress.textContent = Object.entries(coverage)
     .map(([mode, state]) => `${MODE_INFO[mode].label} ${state.count}/${COMPARISON_TARGET}`)
     .join(" / ");
+  nextSession.textContent = nextMode
+    ? `次の推奨: ${MODE_INFO[nextMode].label}（順序による慣れ・疲労の偏りを減らすため、3セットで開始方式をずらします）`
+    : "必要な9完走が揃いました。JSONを出力して、人の観察と数値を分けてレビューしてください。";
+  document.querySelectorAll(".mode").forEach((button) => {
+    button.classList.toggle("recommended", button.dataset.mode === nextMode);
+  });
   resultsBody.replaceChildren(...records.map((record, index) => {
     const row = document.createElement("tr");
     const values = [index + 1, MODE_INFO[record.mode].label, record.metrics.collections,

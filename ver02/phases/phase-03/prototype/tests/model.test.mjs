@@ -8,7 +8,9 @@ import {
   getBuild,
   getSupportEffects,
   previewCollection,
+  recommendedMode,
   restoreSessionRecords,
+  summarizeComparison,
 } from "../model.mjs";
 
 test("FIFO三連装は先頭色と同色数から武器とレベルを得る", () => {
@@ -38,6 +40,46 @@ test("比較記録は定量値と主観値を分離し、方式ごとの不足�
     armory: { count: 0, remaining: 3, complete: false },
     chain: { count: 0, remaining: 3, complete: false },
   });
+});
+
+test("比較順は各セットの開始方式をずらし、9回で各方式3回になる", () => {
+  const records = [];
+  const modes = [];
+  for (let index = 0; index < 9; index += 1) {
+    const mode = recommendedMode(records);
+    modes.push(mode);
+    records.push(createSessionRecord({
+      mode,
+      metrics: { collections: 1, switches: 0, tradeoffs: 0, kills: 1, hits: 0, level3: 0 },
+      reflection: { prediction: 3, choice: 3, retry: 3 },
+      completedAt: `2026-10-19T00:00:0${index}.000Z`,
+    }));
+  }
+  assert.deepEqual(modes, ["queue", "armory", "chain", "armory", "chain", "queue", "chain", "queue", "armory"]);
+  assert.equal(recommendedMode(records), null);
+  assert.deepEqual(Object.fromEntries(Object.entries(comparisonProgress(records)).map(([mode, state]) => [mode, state.count])), {
+    queue: 3, armory: 3, chain: 3,
+  });
+});
+
+test("比較集計は方式別の定量値と主観値を平均し、完了前後を区別する", () => {
+  const makeRecord = (mode, kills, retry, second) => createSessionRecord({
+    mode,
+    metrics: { collections: 6, switches: 2, tradeoffs: 1, kills, hits: 1, level3: 2.5 },
+    reflection: { prediction: 3, choice: 4, retry },
+    completedAt: `2026-10-19T00:00:${second}.000Z`,
+  });
+  const partial = [makeRecord("queue", 10, 4, "00"), makeRecord("queue", 14, 5, "01")];
+  const summary = summarizeComparison(partial);
+  assert.equal(summary.complete, false);
+  assert.equal(summary.byMode.queue.metrics.kills, 12);
+  assert.equal(summary.byMode.queue.reflection.retry, 4.5);
+  assert.equal(summary.byMode.armory.metrics.kills, null);
+
+  const complete = ["queue", "armory", "chain"].flatMap((mode, modeIndex) =>
+    [0, 1, 2].map((offset) => makeRecord(mode, 10, 4, String(10 + modeIndex * 3 + offset))),
+  );
+  assert.equal(summarizeComparison(complete).complete, true);
 });
 
 test("比較記録は範囲外の主観評価と不正な指標を拒否する", () => {

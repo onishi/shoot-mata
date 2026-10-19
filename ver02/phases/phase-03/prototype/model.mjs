@@ -1,5 +1,10 @@
 export const CORE_TYPES = Object.freeze(["red", "blue", "yellow"]);
 export const COMPARISON_TARGET = 3;
+export const COMPARISON_ORDER = Object.freeze([
+  "queue", "armory", "chain",
+  "armory", "chain", "queue",
+  "chain", "queue", "armory",
+]);
 
 export const MODE_INFO = Object.freeze({
   queue: {
@@ -172,4 +177,40 @@ export function comparisonProgress(records, target = COMPARISON_TARGET) {
     const count = records.filter((record) => record?.mode === mode).length;
     return [mode, { count, remaining: Math.max(0, target - count), complete: count >= target }];
   }));
+}
+
+export function recommendedMode(records) {
+  const coverage = comparisonProgress(records);
+  if (records.length < COMPARISON_ORDER.length) return COMPARISON_ORDER[records.length];
+  return Object.entries(coverage)
+    .filter(([, state]) => !state.complete)
+    .sort(([, left], [, right]) => left.count - right.count)[0]?.[0] ?? null;
+}
+
+function mean(records, read) {
+  if (records.length === 0) return null;
+  return Number((records.reduce((total, record) => total + read(record), 0) / records.length).toFixed(2));
+}
+
+export function summarizeComparison(records) {
+  const progress = comparisonProgress(records);
+  const byMode = Object.fromEntries(Object.keys(MODE_INFO).map((mode) => {
+    const modeRecords = records.filter((record) => record.mode === mode);
+    return [mode, {
+      count: modeRecords.length,
+      metrics: Object.fromEntries(
+        ["collections", "switches", "tradeoffs", "kills", "hits", "level3"]
+          .map((key) => [key, mean(modeRecords, (record) => record.metrics[key])]),
+      ),
+      reflection: Object.fromEntries(
+        ["prediction", "choice", "retry"]
+          .map((key) => [key, mean(modeRecords, (record) => record.reflection[key])]),
+      ),
+    }];
+  }));
+  return {
+    complete: Object.values(progress).every((state) => state.complete),
+    progress,
+    byMode,
+  };
 }
