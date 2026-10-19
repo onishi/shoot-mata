@@ -15,6 +15,7 @@ import {
   recommendedMode,
   removeLastSessionRecord,
   restoreSessionRecords,
+  sessionStepSeconds,
   summarizeComparison,
 } from "../model.mjs";
 
@@ -241,6 +242,13 @@ test("敵は同じ発射時間帯に1発だけ撃つ", () => {
   assert.equal(enemyFireTick(1, 18.1, firstTick), null);
   assert.equal(enemyFireTick(1, 18.49, firstTick), null);
   assert.equal(enemyFireTick(1, 18.5, firstTick), null);
+});
+
+test("セッション最終更新は残り時間に収め、完了後は進めない", () => {
+  assert.ok(Math.abs(sessionStepSeconds(44.99, 1 / 60, 45) - 0.01) < 1e-12);
+  assert.equal(sessionStepSeconds(45, 1 / 60, 45), 0);
+  assert.equal(sessionStepSeconds(10, 1 / 60, 45), 1 / 60);
+  assert.throws(() => sessionStepSeconds(0, -1, 45), /Invalid session timing/);
 });
 
 test("独立兵装庫は各色レベルを保存し取得色へ切り替える", () => {

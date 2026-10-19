@@ -175,6 +175,14 @@ export function enemyFireTick(enemyId, elapsed, lastFireTick = null) {
   return tick;
 }
 
+export function sessionStepSeconds(elapsed, requestedStep, sessionSeconds) {
+  if (![elapsed, requestedStep, sessionSeconds].every(Number.isFinite)
+    || elapsed < 0 || requestedStep < 0 || sessionSeconds <= 0) {
+    throw new Error("Invalid session timing");
+  }
+  return Math.min(requestedStep, Math.max(0, sessionSeconds - elapsed));
+}
+
 export function weaponLabel(type) {
   const info = CORE_INFO[type];
   return info ? `${info.colorLabel}・${info.weapon}` : "未装填";

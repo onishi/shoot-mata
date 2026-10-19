@@ -16,6 +16,7 @@ import {
   recommendedMode,
   removeLastSessionRecord,
   restoreSessionRecords,
+  sessionStepSeconds,
   summarizeComparison,
   weaponLabel,
 } from "./model.mjs";
@@ -207,32 +208,22 @@ function distance(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
 
 function update(dt) {
   if (!running) return;
-  elapsed += dt;
-  if (elapsed >= SESSION_SECONDS) {
-    elapsed = SESSION_SECONDS;
-    running = false;
-    startButton.hidden = true;
-    startButton.textContent = "同じ方式でもう一度";
-    pendingSession = { mode: selectedMode, metrics: sessionMetrics() };
-    document.querySelectorAll(".mode").forEach((button) => { button.disabled = true; });
-    reflectionForm.hidden = false;
-    reflectionForm.querySelector("legend").textContent = `${MODE_INFO[selectedMode].label} — 完走直後の記録`;
-    reflectionForm.scrollIntoView({ block: "nearest", behavior: "smooth" });
-  }
-  movePlayer(dt);
-  player.invulnerable = Math.max(0, player.invulnerable - dt);
-  spawnClock += dt;
-  pickupClock += dt;
-  shotClock += dt;
+  const step = sessionStepSeconds(elapsed, dt, SESSION_SECONDS);
+  elapsed += step;
+  movePlayer(step);
+  player.invulnerable = Math.max(0, player.invulnerable - step);
+  spawnClock += step;
+  pickupClock += step;
+  shotClock += step;
   if (spawnClock >= .85) { spawnClock -= .85; spawnEnemy(); }
   if (pickupClock >= 2.4) { pickupClock -= 2.4; spawnPickup(); }
   if (shotClock >= .16) { shotClock -= .16; fire(); }
 
-  if (getBuild(power).level === 3) stats.level3 += dt;
+  if (getBuild(power).level === 3) stats.level3 += step;
 
   enemies.forEach((enemy) => {
-    enemy.x -= (105 + elapsed * .7) * dt;
-    enemy.y += Math.sin(elapsed * 2 + enemy.phase) * 18 * dt;
+    enemy.x -= (105 + elapsed * .7) * step;
+    enemy.y += Math.sin(elapsed * 2 + enemy.phase) * 18 * step;
     const fireTick = enemyFireTick(enemy.id, elapsed, enemy.lastFireTick);
     if (fireTick !== null) {
       enemy.lastFireTick = fireTick;
@@ -240,16 +231,16 @@ function update(dt) {
       enemyShots.push({ x: enemy.x, y: enemy.y, vx: Math.cos(angle) * 170, vy: Math.sin(angle) * 170, radius: 6 });
     }
   });
-  pickups.forEach((pickup) => { pickup.x -= 120 * dt; });
+  pickups.forEach((pickup) => { pickup.x -= 120 * step; });
   projectiles.forEach((shot) => {
     if (shot.seeking && enemies.length) {
       const target = enemies.reduce((best, enemy) => distance(shot, enemy) < distance(shot, best) ? enemy : best, enemies[0]);
-      shot.vy += Math.sign(target.y - shot.y) * 520 * dt;
+      shot.vy += Math.sign(target.y - shot.y) * 520 * step;
       shot.vy = Math.max(-190, Math.min(190, shot.vy));
     }
-    shot.x += shot.vx * dt; shot.y += shot.vy * dt;
+    shot.x += shot.vx * step; shot.y += shot.vy * step;
   });
-  enemyShots.forEach((shot) => { shot.x += shot.vx * dt; shot.y += shot.vy * dt; });
+  enemyShots.forEach((shot) => { shot.x += shot.vx * step; shot.y += shot.vy * step; });
 
   for (const shot of projectiles) {
     for (const enemy of enemies) {
@@ -278,6 +269,16 @@ function update(dt) {
   pickups = pickups.filter((item) => !item.dead && item.x > -50);
   projectiles = projectiles.filter((item) => !item.dead && item.x < 1020 && item.y > -30 && item.y < 570);
   enemyShots = enemyShots.filter((item) => !item.dead && item.x > -30 && item.y > -30 && item.y < 570);
+  if (elapsed >= SESSION_SECONDS) {
+    running = false;
+    startButton.hidden = true;
+    startButton.textContent = "同じ方式でもう一度";
+    pendingSession = { mode: selectedMode, metrics: sessionMetrics() };
+    document.querySelectorAll(".mode").forEach((button) => { button.disabled = true; });
+    reflectionForm.hidden = false;
+    reflectionForm.querySelector("legend").textContent = `${MODE_INFO[selectedMode].label} — 完走直後の記録`;
+    reflectionForm.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }
   updateUI();
 }
 
