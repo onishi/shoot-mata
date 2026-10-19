@@ -274,7 +274,9 @@ test("セッション最終更新は残り時間に収め、完了後は進め�
   assert.ok(Math.abs(sessionStepSeconds(44.99, 1 / 60, 45) - 0.01) < 1e-12);
   assert.equal(sessionStepSeconds(45, 1 / 60, 45), 0);
   assert.equal(sessionStepSeconds(10, 1 / 60, 45), 1 / 60);
+  assert.equal(sessionStepSeconds(10, 1 / 60, 45, true), 0);
   assert.throws(() => sessionStepSeconds(0, -1, 45), /Invalid session timing/);
+  assert.throws(() => sessionStepSeconds(0, 1 / 60, 45, "yes"), /Invalid session timing/);
 });
 
 test("ゲーム入力は移動キーだけを正規化し、フォーム操作キーを奪わない", () => {

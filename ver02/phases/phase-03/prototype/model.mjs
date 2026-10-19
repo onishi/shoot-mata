@@ -209,11 +209,13 @@ export function enemyFireTick(enemyId, elapsed, lastFireTick = null) {
   return tick;
 }
 
-export function sessionStepSeconds(elapsed, requestedStep, sessionSeconds) {
+export function sessionStepSeconds(elapsed, requestedStep, sessionSeconds, suspended = false) {
   if (![elapsed, requestedStep, sessionSeconds].every(Number.isFinite)
-    || elapsed < 0 || requestedStep < 0 || sessionSeconds <= 0) {
+    || elapsed < 0 || requestedStep < 0 || sessionSeconds <= 0
+    || typeof suspended !== "boolean") {
     throw new Error("Invalid session timing");
   }
+  if (suspended) return 0;
   return Math.min(requestedStep, Math.max(0, sessionSeconds - elapsed));
 }
 

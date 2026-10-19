@@ -47,6 +47,7 @@ const SESSION_SECONDS = 45;
 const COMPARISON_STORAGE_KEY = `shoot-mata-phase03-comparison-p${COMPARISON_PROTOCOL}`;
 let selectedMode = "queue";
 let running = false;
+let suspended = false;
 let lastTime = 0;
 let accumulator = 0;
 let elapsed = 0;
@@ -119,6 +120,7 @@ function start() {
   reflectionForm.hidden = true;
   pendingSession = null;
   reset();
+  suspended = false;
   running = true;
   startButton.hidden = true;
   modeButtons.forEach((button) => { button.disabled = true; });
@@ -146,9 +148,26 @@ window.addEventListener("keyup", (event) => {
   const key = normalizeGameplayKey(event.key);
   if (key) interaction.keys.delete(key);
 });
-window.addEventListener("blur", () => clearInteractionState(interaction));
+function suspendSession() {
+  clearInteractionState(interaction);
+  if (!running) return;
+  suspended = true;
+  updateUI();
+}
+
+function resumeSession() {
+  if (!running || document.hidden) return;
+  suspended = false;
+  accumulator = 0;
+  lastTime = performance.now();
+  updateUI();
+}
+
+window.addEventListener("blur", suspendSession);
+window.addEventListener("focus", resumeSession);
 document.addEventListener("visibilitychange", () => {
-  if (document.hidden) clearInteractionState(interaction);
+  if (document.hidden) suspendSession();
+  else if (document.hasFocus()) resumeSession();
 });
 
 function pointerPosition(event) {
@@ -221,7 +240,8 @@ function distance(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
 
 function update(dt) {
   if (!running) return;
-  const step = sessionStepSeconds(elapsed, dt, SESSION_SECONDS);
+  const step = sessionStepSeconds(elapsed, dt, SESSION_SECONDS, suspended);
+  if (step === 0) return;
   elapsed += step;
   movePlayer(step);
   player.invulnerable = Math.max(0, player.invulnerable - step);
@@ -399,7 +419,9 @@ function updateUI() {
   ui.kills.textContent = stats.kills;
   ui.hits.textContent = stats.hits;
   ui.level3.textContent = stats.level3.toFixed(1);
-  countdown.textContent = running ? `${Math.ceil(SESSION_SECONDS - elapsed)} SEC` : elapsed ? "RESULT" : "READY";
+  countdown.textContent = suspended
+    ? "PAUSED"
+    : running ? `${Math.ceil(SESSION_SECONDS - elapsed)} SEC` : elapsed ? "RESULT" : "READY";
   ui.slots.replaceChildren();
   if (selectedMode === "armory") {
     build.slots.forEach(({ core, level }) => addSlot(core, `${CORE_INFO[core].glyph}${level}`, core === build.weapon));
