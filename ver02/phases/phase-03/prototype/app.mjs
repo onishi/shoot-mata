@@ -7,6 +7,7 @@ import {
   createSessionRecord,
   createPowerState,
   getBuild,
+  restoreSessionRecords,
   weaponLabel,
 } from "./model.mjs";
 
@@ -69,7 +70,7 @@ function reset() {
 function loadRecords() {
   try {
     const value = JSON.parse(localStorage.getItem("shoot-mata-phase03-comparison") ?? "[]");
-    return Array.isArray(value) ? value : [];
+    return restoreSessionRecords(value);
   } catch {
     return [];
   }

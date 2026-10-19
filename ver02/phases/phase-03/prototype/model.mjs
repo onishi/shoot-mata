@@ -113,6 +113,9 @@ export function weaponLabel(type) {
 
 export function createSessionRecord({ mode, metrics, reflection, completedAt = new Date().toISOString() }) {
   if (!MODE_INFO[mode]) throw new Error(`Unknown mode: ${mode}`);
+  if (typeof completedAt !== "string" || !Number.isFinite(Date.parse(completedAt))) {
+    throw new Error("Invalid completion date");
+  }
   const requiredMetrics = ["collections", "switches", "tradeoffs", "kills", "hits", "level3"];
   for (const key of requiredMetrics) {
     if (!Number.isFinite(metrics[key]) || metrics[key] < 0) throw new Error(`Invalid metric: ${key}`);
@@ -135,6 +138,18 @@ export function createSessionRecord({ mode, metrics, reflection, completedAt = n
       note: String(reflection.note ?? "").trim().slice(0, 500),
     },
   };
+}
+
+export function restoreSessionRecords(value) {
+  if (!Array.isArray(value)) return [];
+  return value.flatMap((record) => {
+    try {
+      if (record?.version !== 1) return [];
+      return [createSessionRecord(record)];
+    } catch {
+      return [];
+    }
+  });
 }
 
 export function comparisonProgress(records, target = COMPARISON_TARGET) {
