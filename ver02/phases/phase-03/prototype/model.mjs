@@ -223,6 +223,14 @@ export function normalizeGameplayKey(key) {
   return GAMEPLAY_KEYS.includes(normalized) ? normalized : null;
 }
 
+export function createInteractionState() {
+  return {
+    keys: new Set(),
+    pointerId: null,
+    pointerTarget: null,
+  };
+}
+
 export function weaponLabel(type) {
   const info = CORE_INFO[type];
   return info ? `${info.colorLabel}・${info.weapon}` : "未装填";

@@ -7,6 +7,7 @@ import {
   collectCore,
   comparisonProgress,
   createEnemySpawn,
+  createInteractionState,
   createPickupSpawn,
   createSessionRecord,
   createPowerState,
@@ -59,15 +60,15 @@ let enemies = [];
 let pickups = [];
 let projectiles = [];
 let enemyShots = [];
-const keys = new Set();
-let pointerId = null;
-let pointerTarget = null;
+let interaction = createInteractionState();
 let pendingSession = null;
 let records = loadRecords();
 
 const colors = { red: "#ff4e5a", blue: "#4ba5ff", yellow: "#ffda3e" };
 
 function reset() {
+  interaction = createInteractionState();
+  accumulator = 0;
   power = createPowerState(selectedMode);
   stats = { kills: 0, hits: 0, level3: 0 };
   player = { x: 155, y: 270, radius: 16, invulnerable: 0 };
@@ -136,13 +137,13 @@ window.addEventListener("keydown", (event) => {
   const key = normalizeGameplayKey(event.key);
   if (!running || !key) return;
   event.preventDefault();
-  keys.add(key);
+  interaction.keys.add(key);
 });
 window.addEventListener("keyup", (event) => {
   const key = normalizeGameplayKey(event.key);
-  if (key) keys.delete(key);
+  if (key) interaction.keys.delete(key);
 });
-window.addEventListener("blur", () => keys.clear());
+window.addEventListener("blur", () => interaction.keys.clear());
 
 function pointerPosition(event) {
   const rect = canvas.getBoundingClientRect();
@@ -152,18 +153,18 @@ function pointerPosition(event) {
   };
 }
 canvas.addEventListener("pointerdown", (event) => {
-  if (pointerId !== null) return;
-  pointerId = event.pointerId;
-  pointerTarget = pointerPosition(event);
+  if (!running || interaction.pointerId !== null) return;
+  interaction.pointerId = event.pointerId;
+  interaction.pointerTarget = pointerPosition(event);
   canvas.setPointerCapture(event.pointerId);
 });
 canvas.addEventListener("pointermove", (event) => {
-  if (event.pointerId === pointerId) pointerTarget = pointerPosition(event);
+  if (event.pointerId === interaction.pointerId) interaction.pointerTarget = pointerPosition(event);
 });
 function releasePointer(event) {
-  if (event.pointerId === pointerId) {
-    pointerId = null;
-    pointerTarget = null;
+  if (event.pointerId === interaction.pointerId) {
+    interaction.pointerId = null;
+    interaction.pointerTarget = null;
   }
 }
 canvas.addEventListener("pointerup", releasePointer);
@@ -172,17 +173,17 @@ canvas.addEventListener("lostpointercapture", releasePointer);
 
 function movePlayer(dt) {
   let dx = 0, dy = 0;
-  if (keys.has("arrowleft") || keys.has("a")) dx -= 1;
-  if (keys.has("arrowright") || keys.has("d")) dx += 1;
-  if (keys.has("arrowup") || keys.has("w")) dy -= 1;
-  if (keys.has("arrowdown") || keys.has("s")) dy += 1;
+  if (interaction.keys.has("arrowleft") || interaction.keys.has("a")) dx -= 1;
+  if (interaction.keys.has("arrowright") || interaction.keys.has("d")) dx += 1;
+  if (interaction.keys.has("arrowup") || interaction.keys.has("w")) dy -= 1;
+  if (interaction.keys.has("arrowdown") || interaction.keys.has("s")) dy += 1;
   if (dx || dy) {
     const length = Math.hypot(dx, dy);
     player.x += dx / length * 260 * dt;
     player.y += dy / length * 260 * dt;
-  } else if (pointerTarget) {
-    const px = pointerTarget.x - player.x;
-    const py = pointerTarget.y - player.y;
+  } else if (interaction.pointerTarget) {
+    const px = interaction.pointerTarget.x - player.x;
+    const py = interaction.pointerTarget.y - player.y;
     const distance = Math.hypot(px, py);
     if (distance > 4) {
       const amount = Math.min(distance, 340 * dt);

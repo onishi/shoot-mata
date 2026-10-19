@@ -7,6 +7,7 @@ import {
   collectCore,
   comparisonProgress,
   createEnemySpawn,
+  createInteractionState,
   createPickupSpawn,
   createSessionRecord,
   createPowerState,
@@ -281,6 +282,19 @@ test("ゲーム入力は移動キーだけを正規化し、フォーム操作�
   assert.equal(normalizeGameplayKey(" "), null);
   assert.equal(normalizeGameplayKey("Enter"), null);
   assert.equal(normalizeGameplayKey(null), null);
+});
+
+test("各セッションはキーとポインターを持ち越さない新しい入力状態で始まる", () => {
+  const previous = createInteractionState();
+  previous.keys.add("arrowright");
+  previous.pointerId = 7;
+  previous.pointerTarget = { x: 800, y: 200 };
+
+  const next = createInteractionState();
+  assert.deepEqual([...next.keys], []);
+  assert.equal(next.pointerId, null);
+  assert.equal(next.pointerTarget, null);
+  assert.notEqual(next.keys, previous.keys);
 });
 
 test("独立兵装庫は各色レベルを保存し取得色へ切り替える", () => {
