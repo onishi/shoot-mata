@@ -16,6 +16,12 @@ export const MODE_INFO = Object.freeze({
   },
 });
 
+export const SUPPORT_INFO = Object.freeze({
+  red: { label: "赤 / 貫通", summary: "弾が追加で1体を貫く" },
+  blue: { label: "青 / 防御", summary: "被弾後の無敵時間を延ばす" },
+  yellow: { label: "黄 / 回収", summary: "コアの回収範囲を広げる" },
+});
+
 export function createPowerState(mode = "queue") {
   if (!MODE_INFO[mode]) throw new Error(`Unknown mode: ${mode}`);
   return {
@@ -101,6 +107,15 @@ export function collectCore(state, type) {
 export function previewCollection(state, type) {
   const clone = structuredClone(state);
   return collectCore(clone, type);
+}
+
+export function getSupportEffects(state) {
+  const supports = getBuild(state).supports;
+  return {
+    pierceBonus: supports.includes("red") ? 1 : 0,
+    invulnerabilitySeconds: supports.includes("blue") ? 1.6 : 0.8,
+    collectionRadiusBonus: supports.includes("yellow") ? 64 : 0,
+  };
 }
 
 export function weaponLabel(type) {

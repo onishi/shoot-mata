@@ -88,6 +88,8 @@ canvas { display: block; width: 100%; aspect-ratio: 16 / 9; touch-action: none; 
 .readout { padding-bottom: 12px; border-bottom: 1px solid var(--line); }
 .readout strong { display: block; margin-top: 4px; font-size: 20px; }
 .readout b { display: inline-block; margin-top: 6px; color: #ffdf78; }
+.readout small { display: block; margin-top: 6px; color: #b6c5dc; font-size: 10px; }
+.readout small span { color: #fff; letter-spacing: 0; }
 .slots { display: flex; gap: 6px; min-height: 50px; margin-top: 8px; }
 .slot {
   display: grid;
@@ -174,6 +176,7 @@ th { color: var(--cyan); background: #0b1427; }
   .readout { padding: 0; border: 0; }
   .readout strong { margin-top: 1px; font-size: 12px; }
   .readout b { margin-top: 2px; font-size: 11px; }
+  .readout small { margin-top: 2px; font-size: 8px; }
   .slots { min-height: 28px; margin-top: 2px; gap: 3px; }
   .slot { min-width: 27px; height: 27px; font-size: 11px; }
   .mode-summary, .legend { display: none; }

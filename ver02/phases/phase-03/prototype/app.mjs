@@ -2,11 +2,13 @@ import {
   COMPARISON_TARGET,
   CORE_TYPES,
   MODE_INFO,
+  SUPPORT_INFO,
   collectCore,
   comparisonProgress,
   createSessionRecord,
   createPowerState,
   getBuild,
+  getSupportEffects,
   restoreSessionRecords,
   weaponLabel,
 } from "./model.mjs";
@@ -21,7 +23,7 @@ const progress = document.querySelector("#comparison-progress");
 const exportButton = document.querySelector("#export-results");
 const clearButton = document.querySelector("#clear-results");
 const ui = Object.fromEntries(
-  ["weapon", "level", "slots", "collections", "switches", "tradeoffs", "kills", "hits", "level3", "mode-summary"]
+  ["weapon", "level", "support", "slots", "collections", "switches", "tradeoffs", "kills", "hits", "level3", "mode-summary"]
     .map((id) => [id, document.querySelector(`#${id}`)]),
 );
 
@@ -190,17 +192,27 @@ function fire() {
   const build = getBuild(power);
   if (!build.weapon) return;
   const level = Math.max(1, build.level);
+  const support = getSupportEffects(power);
+  const createShot = (shot, basePierce = 0) => ({
+    ...shot,
+    pierce: basePierce + support.pierceBonus,
+    supportPiercing: support.pierceBonus > 0,
+    hitIds: new Set(),
+  });
   if (build.weapon === "red") {
-    projectiles.push({ x: player.x + 18, y: player.y, vx: 620, vy: 0, damage: level, radius: 4 + level });
+    projectiles.push(createShot(
+      { x: player.x + 18, y: player.y, vx: 620, vy: 0, damage: level, radius: 4 + level },
+      level - 1,
+    ));
   } else if (build.weapon === "blue") {
     const count = 1 + level * 2;
     for (let i = 0; i < count; i++) {
       const angle = (i - (count - 1) / 2) * .11;
-      projectiles.push({ x: player.x + 15, y: player.y, vx: 500, vy: 500 * angle, damage: 1, radius: 4 });
+      projectiles.push(createShot({ x: player.x + 15, y: player.y, vx: 500, vy: 500 * angle, damage: 1, radius: 4 }));
     }
   } else {
     for (let i = 0; i < level; i++) {
-      projectiles.push({ x: player.x + 12, y: player.y + (i - (level - 1) / 2) * 9, vx: 430, vy: 0, damage: 1, radius: 5, seeking: true });
+      projectiles.push(createShot({ x: player.x + 12, y: player.y + (i - (level - 1) / 2) * 9, vx: 430, vy: 0, damage: 1, radius: 5, seeking: true }));
     }
   }
 }
@@ -253,20 +265,24 @@ function update(dt) {
 
   for (const shot of projectiles) {
     for (const enemy of enemies) {
-      if (!shot.dead && !enemy.dead && distance(shot, enemy) < shot.radius + enemy.radius) {
-        enemy.hp -= shot.damage; shot.dead = true;
+      if (!shot.dead && !enemy.dead && !shot.hitIds.has(enemy.id) && distance(shot, enemy) < shot.radius + enemy.radius) {
+        shot.hitIds.add(enemy.id);
+        enemy.hp -= shot.damage;
+        if (shot.pierce > 0) shot.pierce -= 1;
+        else shot.dead = true;
         if (enemy.hp <= 0) { enemy.dead = true; stats.kills += 1; }
       }
     }
   }
+  const support = getSupportEffects(power);
   for (const pickup of pickups) {
-    if (!pickup.dead && distance(player, pickup) < player.radius + pickup.radius) {
+    if (!pickup.dead && distance(player, pickup) < player.radius + pickup.radius + support.collectionRadiusBonus) {
       collectCore(power, pickup.type); pickup.dead = true;
     }
   }
   for (const shot of enemyShots) {
     if (!shot.dead && player.invulnerable === 0 && distance(player, shot) < player.radius + shot.radius) {
-      shot.dead = true; player.invulnerable = .8; stats.hits += 1;
+      shot.dead = true; player.invulnerable = support.invulnerabilitySeconds; stats.hits += 1;
     }
   }
 
@@ -348,6 +364,9 @@ function updateUI() {
   const build = getBuild(power);
   ui.weapon.textContent = weaponLabel(build.weapon);
   ui.level.textContent = `LV ${build.level}`;
+  ui.support.textContent = build.supports.length
+    ? build.supports.map((type) => SUPPORT_INFO[type].label).join(" + ")
+    : "なし";
   ui["mode-summary"].textContent = MODE_INFO[selectedMode].summary;
   ui.collections.textContent = power.collections;
   ui.switches.textContent = power.switches;
@@ -407,11 +426,20 @@ function draw() {
     ctx.fillStyle = "#cf72ff"; ctx.strokeStyle = "#ffd4ff"; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.moveTo(enemy.x - 18, enemy.y); ctx.lineTo(enemy.x + 16, enemy.y - 14); ctx.lineTo(enemy.x + 10, enemy.y + 14); ctx.closePath(); ctx.fill(); ctx.stroke();
   });
-  projectiles.forEach((shot) => { ctx.fillStyle = "#dffaff"; ctx.fillRect(shot.x - 3, shot.y - 2, 13, 4); });
+  projectiles.forEach((shot) => { ctx.fillStyle = shot.supportPiercing ? "#ff9ca2" : "#dffaff"; ctx.fillRect(shot.x - 3, shot.y - 2, 13, 4); });
   enemyShots.forEach((shot) => { ctx.fillStyle = "#ff72bd"; ctx.beginPath(); ctx.arc(shot.x, shot.y, shot.radius, 0, Math.PI * 2); ctx.fill(); });
 
   ctx.save();
   ctx.translate(player.x, player.y);
+  const support = getSupportEffects(power);
+  if (support.collectionRadiusBonus > 0) {
+    ctx.strokeStyle = "rgba(255, 226, 109, .55)"; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(0, 0, player.radius + support.collectionRadiusBonus, 0, Math.PI * 2); ctx.stroke();
+  }
+  if (support.invulnerabilitySeconds > .8) {
+    ctx.strokeStyle = "rgba(114, 186, 255, .8)"; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.arc(0, 0, player.radius + 8, 0, Math.PI * 2); ctx.stroke();
+  }
   if (player.invulnerable && Math.floor(player.invulnerable * 12) % 2) ctx.globalAlpha = .25;
   ctx.fillStyle = "#7ef3ff"; ctx.strokeStyle = "#fff"; ctx.lineWidth = 2;
   ctx.beginPath(); ctx.moveTo(22, 0); ctx.lineTo(-15, -13); ctx.lineTo(-8, 0); ctx.lineTo(-15, 13); ctx.closePath(); ctx.fill(); ctx.stroke();

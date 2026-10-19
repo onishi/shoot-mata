@@ -6,6 +6,7 @@ import {
   createSessionRecord,
   createPowerState,
   getBuild,
+  getSupportEffects,
   previewCollection,
   restoreSessionRecords,
 } from "../model.mjs";
@@ -74,6 +75,34 @@ test("FIFO三連装は4個目で最古を押し出し主武器を変更する", 
   });
   assert.equal(state.switches, 1);
   assert.equal(state.tradeoffs, 1);
+});
+
+test("FIFO三連装の異色は貫通・防御・回収の機能的な補助になる", () => {
+  const state = createPowerState("queue");
+  ["red", "blue", "yellow"].forEach((core) => collectCore(state, core));
+  assert.deepEqual(getSupportEffects(state), {
+    pierceBonus: 0,
+    invulnerabilitySeconds: 1.6,
+    collectionRadiusBonus: 64,
+  });
+
+  collectCore(state, "red");
+  assert.deepEqual(getBuild(state).supports, ["red", "yellow"]);
+  assert.deepEqual(getSupportEffects(state), {
+    pierceBonus: 1,
+    invulnerabilitySeconds: 0.8,
+    collectionRadiusBonus: 64,
+  });
+});
+
+test("FIFO以外の比較方式には異色補助を混入させない", () => {
+  const state = createPowerState("armory");
+  ["red", "blue", "yellow"].forEach((core) => collectCore(state, core));
+  assert.deepEqual(getSupportEffects(state), {
+    pierceBonus: 0,
+    invulnerabilitySeconds: 0.8,
+    collectionRadiusBonus: 0,
+  });
 });
 
 test("独立兵装庫は各色レベルを保存し取得色へ切り替える", () => {
