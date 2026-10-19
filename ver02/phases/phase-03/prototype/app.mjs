@@ -6,6 +6,7 @@ import {
   SUPPORT_INFO,
   collectCore,
   comparisonProgress,
+  clearInteractionState,
   createEnemySpawn,
   createInteractionState,
   createPickupSpawn,
@@ -145,7 +146,10 @@ window.addEventListener("keyup", (event) => {
   const key = normalizeGameplayKey(event.key);
   if (key) interaction.keys.delete(key);
 });
-window.addEventListener("blur", () => interaction.keys.clear());
+window.addEventListener("blur", () => clearInteractionState(interaction));
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) clearInteractionState(interaction);
+});
 
 function pointerPosition(event) {
   const rect = canvas.getBoundingClientRect();

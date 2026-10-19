@@ -4,6 +4,7 @@ import {
   COMPARISON_PROTOCOL,
   CORE_INFO,
   CORE_TYPES,
+  clearInteractionState,
   collectCore,
   comparisonProgress,
   createEnemySpawn,
@@ -295,6 +296,19 @@ test("各セッションはキーとポインターを持ち越さない新し�
   assert.equal(next.pointerId, null);
   assert.equal(next.pointerTarget, null);
   assert.notEqual(next.keys, previous.keys);
+});
+
+test("フォーカス喪失時はキーとポインター追従をまとめて解除する", () => {
+  const interaction = createInteractionState();
+  interaction.keys.add("arrowright");
+  interaction.pointerId = 7;
+  interaction.pointerTarget = { x: 800, y: 200 };
+
+  clearInteractionState(interaction);
+
+  assert.deepEqual([...interaction.keys], []);
+  assert.equal(interaction.pointerId, null);
+  assert.equal(interaction.pointerTarget, null);
 });
 
 test("独立兵装庫は各色レベルを保存し取得色へ切り替える", () => {

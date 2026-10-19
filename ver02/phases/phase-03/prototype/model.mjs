@@ -231,6 +231,12 @@ export function createInteractionState() {
   };
 }
 
+export function clearInteractionState(state) {
+  state.keys.clear();
+  state.pointerId = null;
+  state.pointerTarget = null;
+}
+
 export function weaponLabel(type) {
   const info = CORE_INFO[type];
   return info ? `${info.colorLabel}・${info.weapon}` : "未装填";
