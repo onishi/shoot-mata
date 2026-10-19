@@ -1,10 +1,13 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
+  COMPARISON_PROTOCOL,
   CORE_INFO,
   CORE_TYPES,
   collectCore,
   comparisonProgress,
+  createEnemySpawn,
+  createPickupSpawn,
   createSessionRecord,
   createPowerState,
   createWeaponProjectiles,
@@ -49,6 +52,7 @@ test("比較記録は定量値と主観値を分離し、方式ごとの不足�
     completedAt: "2026-10-19T00:00:00.000Z",
   };
   const record = createSessionRecord(base);
+  assert.equal(record.protocol, COMPARISON_PROTOCOL);
   assert.equal(record.reflection.note, "mixed build");
   assert.deepEqual(comparisonProgress([record]), {
     queue: { count: 1, remaining: 2, complete: false },
@@ -132,7 +136,7 @@ test("比較記録は範囲外の主観評価と不正な指標を拒否する",
   assert.throws(() => createSessionRecord({ mode: "queue", metrics, reflection: { prediction: 3, choice: 3, retry: 3 }, completedAt: "invalid" }), /Invalid completion date/);
 });
 
-test("保存済み比較記録の破損行と旧versionを除外する", () => {
+test("保存済み比較記録の破損行と旧version・旧protocolを除外する", () => {
   const valid = createSessionRecord({
     mode: "chain",
     metrics: { collections: 7, switches: 2, tradeoffs: 2, kills: 18, hits: 1, level3: 3.4 },
@@ -142,6 +146,8 @@ test("保存済み比較記録の破損行と旧versionを除外する", () => {
   const restored = restoreSessionRecords([
     valid,
     { ...valid, version: 0 },
+    { ...valid, protocol: COMPARISON_PROTOCOL - 1 },
+    { ...valid, protocol: undefined },
     { ...valid, metrics: { ...valid.metrics, kills: "18" } },
     null,
   ]);
@@ -235,6 +241,23 @@ test("未装填では射撃せず、武器レベルは試作上限へ収める",
   const origin = { x: 100, y: 200 };
   assert.deepEqual(createWeaponProjectiles({ weapon: null, level: 0 }, origin), []);
   assert.equal(createWeaponProjectiles({ weapon: "yellow", level: 99 }, origin).length, 3);
+});
+
+test("敵とコアの生成列は独立した連番から毎回同じ条件を再現する", () => {
+  const enemies = [0, 1, 2].map((index) => createEnemySpawn(index, 12));
+  const pickups = [0, 1, 2, 3].map((index) => createPickupSpawn(index, 12));
+
+  assert.deepEqual(enemies, [0, 1, 2].map((index) => createEnemySpawn(index, 12)));
+  assert.deepEqual(pickups, [0, 1, 2, 3].map((index) => createPickupSpawn(index, 12)));
+  assert.deepEqual(pickups.map((pickup) => pickup.type), ["red", "blue", "yellow", "red"]);
+  assert.deepEqual(enemies.map((enemy) => enemy.id), [0, 1, 2]);
+  assert.deepEqual(pickups.map((pickup) => pickup.id), [0, 1, 2, 3]);
+});
+
+test("生成規則は不正な連番と時刻を拒否する", () => {
+  assert.throws(() => createEnemySpawn(-1, 0), /Invalid spawn input/);
+  assert.throws(() => createPickupSpawn(.5, 0), /Invalid spawn input/);
+  assert.throws(() => createPickupSpawn(0, Number.NaN), /Invalid spawn input/);
 });
 
 test("敵は同じ発射時間帯に1発だけ撃つ", () => {

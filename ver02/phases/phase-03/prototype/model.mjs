@@ -5,6 +5,7 @@ export const CORE_INFO = Object.freeze({
   yellow: Object.freeze({ colorLabel: "黄", shape: "triangle", glyph: "◎", weapon: "シーカー" }),
 });
 export const COMPARISON_TARGET = 3;
+export const COMPARISON_PROTOCOL = 2;
 const GAMEPLAY_KEYS = Object.freeze([
   "arrowleft", "arrowright", "arrowup", "arrowdown", "a", "d", "w", "s",
 ]);
@@ -172,6 +173,36 @@ export function createWeaponProjectiles(build, origin, supportEffects = {
   }));
 }
 
+function assertSpawnInput(index, elapsed) {
+  if (!Number.isInteger(index) || index < 0 || !Number.isFinite(elapsed) || elapsed < 0) {
+    throw new Error("Invalid spawn input");
+  }
+}
+
+export function createEnemySpawn(index, elapsed) {
+  assertSpawnInput(index, elapsed);
+  return {
+    id: index,
+    x: 990,
+    y: 70 + (index % 5) * 100 + Math.sin((index + 1) * 2.1) * 20,
+    radius: 18,
+    hp: 2 + Math.floor(elapsed / 15),
+    phase: (index + 1) * .7,
+    lastFireTick: null,
+  };
+}
+
+export function createPickupSpawn(index, elapsed) {
+  assertSpawnInput(index, elapsed);
+  return {
+    id: index,
+    type: CORE_TYPES[index % CORE_TYPES.length],
+    x: 990,
+    y: 70 + ((index * 2 + Math.floor(elapsed / 9)) % 5) * 100,
+    radius: 17,
+  };
+}
+
 export function enemyFireTick(enemyId, elapsed, lastFireTick = null) {
   const tick = Math.floor(elapsed * 2);
   if ((enemyId + tick) % 37 !== 0 || tick === lastFireTick) return null;
@@ -214,6 +245,7 @@ export function createSessionRecord({ mode, metrics, reflection, completedAt = n
   }
   return {
     version: 1,
+    protocol: COMPARISON_PROTOCOL,
     mode,
     completedAt,
     metrics: Object.fromEntries(requiredMetrics.map((key) => [key, metrics[key]])),
@@ -230,7 +262,7 @@ export function restoreSessionRecords(value) {
   if (!Array.isArray(value)) return [];
   return value.flatMap((record) => {
     try {
-      if (record?.version !== 1) return [];
+      if (record?.version !== 1 || record?.protocol !== COMPARISON_PROTOCOL) return [];
       return [createSessionRecord(record)];
     } catch {
       return [];

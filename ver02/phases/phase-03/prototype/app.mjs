@@ -1,11 +1,13 @@
 import {
+  COMPARISON_PROTOCOL,
   COMPARISON_TARGET,
   CORE_INFO,
-  CORE_TYPES,
   MODE_INFO,
   SUPPORT_INFO,
   collectCore,
   comparisonProgress,
+  createEnemySpawn,
+  createPickupSpawn,
   createSessionRecord,
   createPowerState,
   createWeaponProjectiles,
@@ -39,6 +41,7 @@ const ui = Object.fromEntries(
 );
 
 const SESSION_SECONDS = 45;
+const COMPARISON_STORAGE_KEY = `shoot-mata-phase03-comparison-p${COMPARISON_PROTOCOL}`;
 let selectedMode = "queue";
 let running = false;
 let lastTime = 0;
@@ -47,7 +50,8 @@ let elapsed = 0;
 let spawnClock = 0;
 let pickupClock = 0;
 let shotClock = 0;
-let idCounter = 0;
+let enemySpawnCount = 0;
+let pickupSpawnCount = 0;
 let power = createPowerState(selectedMode);
 let stats = { kills: 0, hits: 0, level3: 0 };
 let player = { x: 155, y: 270, radius: 16, invulnerable: 0 };
@@ -75,13 +79,14 @@ function reset() {
   spawnClock = 0;
   pickupClock = 0;
   shotClock = 0;
-  idCounter = 0;
+  enemySpawnCount = 0;
+  pickupSpawnCount = 0;
   updateUI();
 }
 
 function loadRecords() {
   try {
-    const value = JSON.parse(localStorage.getItem("shoot-mata-phase03-comparison") ?? "[]");
+    const value = JSON.parse(localStorage.getItem(COMPARISON_STORAGE_KEY) ?? "[]");
     return restoreSessionRecords(value);
   } catch {
     return [];
@@ -90,7 +95,7 @@ function loadRecords() {
 
 function saveRecords() {
   try {
-    localStorage.setItem("shoot-mata-phase03-comparison", JSON.stringify(records));
+    localStorage.setItem(COMPARISON_STORAGE_KEY, JSON.stringify(records));
   } catch {
     // The in-memory comparison remains usable when storage is blocked.
   }
@@ -190,18 +195,13 @@ function movePlayer(dt) {
 }
 
 function spawnEnemy() {
-  const band = idCounter % 5;
-  enemies.push({
-    id: idCounter++, x: 990, y: 70 + band * 100 + Math.sin(idCounter * 2.1) * 20,
-    radius: 18, hp: 2 + Math.floor(elapsed / 15), phase: idCounter * .7,
-    lastFireTick: null,
-  });
+  enemies.push(createEnemySpawn(enemySpawnCount, elapsed));
+  enemySpawnCount += 1;
 }
 
 function spawnPickup() {
-  const type = CORE_TYPES[idCounter % CORE_TYPES.length];
-  const lane = (idCounter * 2 + Math.floor(elapsed / 9)) % 5;
-  pickups.push({ id: idCounter++, type, x: 990, y: 70 + lane * 100, radius: 17 });
+  pickups.push(createPickupSpawn(pickupSpawnCount, elapsed));
+  pickupSpawnCount += 1;
 }
 
 function fire() {
@@ -314,6 +314,7 @@ reflectionForm.addEventListener("submit", (event) => {
 
 exportButton.addEventListener("click", async () => {
   const payload = JSON.stringify({
+    protocol: COMPARISON_PROTOCOL,
     exportedAt: new Date().toISOString(),
     summary: summarizeComparison(records),
     records,
