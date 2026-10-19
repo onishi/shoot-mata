@@ -36,6 +36,7 @@ const exportButton = document.querySelector("#export-results");
 const undoButton = document.querySelector("#undo-result");
 const clearButton = document.querySelector("#clear-results");
 const nextSession = document.querySelector("#next-session");
+const modeButtons = [...document.querySelectorAll(".mode")];
 const ui = Object.fromEntries(
   ["weapon", "level", "support", "slots", "next-core", "next-result", "collections", "switches", "tradeoffs", "kills", "hits", "level3", "mode-summary"]
     .map((id) => [id, document.querySelector(`#${id}`)]),
@@ -119,12 +120,13 @@ function start() {
   reset();
   running = true;
   startButton.hidden = true;
+  modeButtons.forEach((button) => { button.disabled = true; });
 }
 
-document.querySelectorAll(".mode").forEach((button) => {
+modeButtons.forEach((button) => {
   button.addEventListener("click", () => {
     selectedMode = button.dataset.mode;
-    document.querySelectorAll(".mode").forEach((item) => item.classList.toggle("active", item === button));
+    modeButtons.forEach((item) => item.classList.toggle("active", item === button));
     running = false;
     startButton.hidden = false;
     startButton.textContent = "45秒テストを開始";
@@ -281,7 +283,7 @@ function update(dt) {
     startButton.hidden = true;
     startButton.textContent = "同じ方式でもう一度";
     pendingSession = { mode: selectedMode, metrics: sessionMetrics() };
-    document.querySelectorAll(".mode").forEach((button) => { button.disabled = true; });
+    modeButtons.forEach((button) => { button.disabled = true; });
     reflectionForm.hidden = false;
     reflectionForm.querySelector("legend").textContent = `${MODE_INFO[selectedMode].label} — 完走直後の記録`;
     reflectionForm.scrollIntoView({ block: "nearest", behavior: "smooth" });
@@ -309,7 +311,7 @@ reflectionForm.addEventListener("submit", (event) => {
   reflectionForm.reset();
   reflectionForm.hidden = true;
   startButton.hidden = false;
-  document.querySelectorAll(".mode").forEach((button) => { button.disabled = false; });
+  modeButtons.forEach((button) => { button.disabled = false; });
   renderResults();
 });
 
@@ -358,7 +360,7 @@ function renderResults() {
   nextSession.textContent = nextMode
     ? `次の推奨: ${MODE_INFO[nextMode].label}（順序による慣れ・疲労の偏りを減らすため、3セットで開始方式をずらします）`
     : "必要な9完走が揃いました。JSONを出力して、人の観察と数値を分けてレビューしてください。";
-  document.querySelectorAll(".mode").forEach((button) => {
+  modeButtons.forEach((button) => {
     button.classList.toggle("recommended", button.dataset.mode === nextMode);
   });
   undoButton.disabled = records.length === 0;
