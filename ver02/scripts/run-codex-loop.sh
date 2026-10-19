@@ -47,7 +47,6 @@ while [ "$run_no" -le "$run_limit" ]; do
 
   codex exec \
     -C "$repo_dir" \
-    --sandbox workspace-write \
     --approve-for-me \
     'README.md および各種ドキュメントに沿って開発を進めて' \
     || exit $?
