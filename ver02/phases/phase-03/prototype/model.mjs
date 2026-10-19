@@ -298,6 +298,11 @@ export function comparisonProgress(records, target = COMPARISON_TARGET) {
   }));
 }
 
+export function canStartMode(records, mode, target = COMPARISON_TARGET) {
+  if (!MODE_INFO[mode]) throw new Error(`Unknown mode: ${mode}`);
+  return !comparisonProgress(records, target)[mode].complete;
+}
+
 export function recommendedMode(records) {
   const recordedCounts = Object.fromEntries(
     Object.keys(MODE_INFO).map((mode) => [

@@ -5,6 +5,7 @@ import {
   CORE_INFO,
   CORE_TYPES,
   clearInteractionState,
+  canStartMode,
   collectCore,
   comparisonProgress,
   createEnemySpawn,
@@ -109,6 +110,20 @@ test("同じ方式の過剰記録は他方式の不足を完了扱いにしな�
 
   assert.equal(recommendedMode(records), "armory");
   assert.equal(summarizeComparison(records).complete, false);
+});
+
+test("目標回数を完了した方式は追加セッションを開始できない", () => {
+  const makeRecord = (mode, second) => createSessionRecord({
+    mode,
+    metrics: { collections: 1, switches: 0, tradeoffs: 0, kills: 1, hits: 0, level3: 0 },
+    reflection: { prediction: 3, choice: 3, retry: 3 },
+    completedAt: `2026-10-19T00:03:0${second}.000Z`,
+  });
+  const records = [0, 1, 2].map((second) => makeRecord("queue", second));
+
+  assert.equal(canStartMode(records, "queue"), false);
+  assert.equal(canStartMode(records, "armory"), true);
+  assert.throws(() => canStartMode(records, "unknown"), /Unknown mode/);
 });
 
 test("比較集計は方式別の定量値と主観値を平均し、完了前後を区別する", () => {

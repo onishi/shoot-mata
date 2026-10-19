@@ -5,6 +5,7 @@ import {
   MODE_INFO,
   SUPPORT_INFO,
   collectCore,
+  canStartMode,
   comparisonProgress,
   clearInteractionState,
   createEnemySpawn,
@@ -117,6 +118,7 @@ function sessionMetrics() {
 }
 
 function start() {
+  if (!canStartMode(records, selectedMode)) return;
   reflectionForm.hidden = true;
   pendingSession = null;
   reset();
@@ -378,6 +380,7 @@ clearButton.addEventListener("click", () => {
 function renderResults() {
   const coverage = comparisonProgress(records);
   const nextMode = recommendedMode(records);
+  const controlsLocked = running || pendingSession !== null;
   progress.textContent = Object.entries(coverage)
     .map(([mode, state]) => `${MODE_INFO[mode].label} ${state.count}/${COMPARISON_TARGET}`)
     .join(" / ");
@@ -386,7 +389,11 @@ function renderResults() {
     : "必要な9完走が揃いました。JSONを出力して、人の観察と数値を分けてレビューしてください。";
   modeButtons.forEach((button) => {
     button.classList.toggle("recommended", button.dataset.mode === nextMode);
+    button.disabled = controlsLocked || coverage[button.dataset.mode].complete;
   });
+  const selectedComplete = coverage[selectedMode].complete;
+  startButton.disabled = controlsLocked || selectedComplete;
+  if (!controlsLocked && selectedComplete) startButton.textContent = "この方式は3/3完了";
   undoButton.disabled = records.length === 0;
   clearButton.disabled = records.length === 0;
   resultsBody.replaceChildren(...records.map((record, index) => {
