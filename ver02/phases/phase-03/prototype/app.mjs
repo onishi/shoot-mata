@@ -9,6 +9,7 @@ import {
   createPowerState,
   getBuild,
   getSupportEffects,
+  previewCollection,
   recommendedMode,
   restoreSessionRecords,
   summarizeComparison,
@@ -26,7 +27,7 @@ const exportButton = document.querySelector("#export-results");
 const clearButton = document.querySelector("#clear-results");
 const nextSession = document.querySelector("#next-session");
 const ui = Object.fromEntries(
-  ["weapon", "level", "support", "slots", "collections", "switches", "tradeoffs", "kills", "hits", "level3", "mode-summary"]
+  ["weapon", "level", "support", "slots", "next-core", "next-result", "collections", "switches", "tradeoffs", "kills", "hits", "level3", "mode-summary"]
     .map((id) => [id, document.querySelector(`#${id}`)]),
 );
 
@@ -398,6 +399,25 @@ function updateUI() {
       addSlot(core, core ? glyphs[core] : "—", i === 0 && Boolean(core));
     }
   }
+  updatePickupPreview();
+}
+
+function updatePickupPreview() {
+  const nextPickup = pickups.reduce(
+    (next, pickup) => !pickup.dead && (!next || pickup.x < next.x) ? pickup : next,
+    null,
+  );
+  if (!nextPickup) {
+    ui["next-core"].textContent = "待機中";
+    ui["next-result"].textContent = "取得後の構成を表示";
+    return;
+  }
+  const preview = previewCollection(power, nextPickup.type);
+  const support = preview.supports.length
+    ? ` / 補助 ${preview.supports.map((type) => SUPPORT_INFO[type].label).join(" + ")}`
+    : " / 補助なし";
+  ui["next-core"].textContent = `${glyphs[nextPickup.type]} ${weaponLabel(nextPickup.type)}コア`;
+  ui["next-result"].textContent = `${weaponLabel(preview.weapon)} LV ${preview.level}${support}`;
 }
 
 function addSlot(core, text, front) {
