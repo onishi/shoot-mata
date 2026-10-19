@@ -12,6 +12,7 @@ import {
   getSupportEffects,
   previewCollection,
   recommendedMode,
+  removeLastSessionRecord,
   restoreSessionRecords,
   summarizeComparison,
 } from "../model.mjs";
@@ -143,6 +144,14 @@ test("保存済み比較記録の破損行と旧versionを除外する", () => {
   ]);
   assert.deepEqual(restored, [valid]);
   assert.deepEqual(restoreSessionRecords({ records: [valid] }), []);
+});
+
+test("直前の比較記録だけを元の配列を変えずに取り消す", () => {
+  const records = ["first", "second", "third"];
+  assert.deepEqual(removeLastSessionRecord(records), ["first", "second"]);
+  assert.deepEqual(records, ["first", "second", "third"]);
+  assert.deepEqual(removeLastSessionRecord([]), []);
+  assert.deepEqual(removeLastSessionRecord(null), []);
 });
 
 test("FIFO三連装は4個目で最古を押し出し主武器を変更する", () => {

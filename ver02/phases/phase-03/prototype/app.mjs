@@ -13,6 +13,7 @@ import {
   getSupportEffects,
   previewCollection,
   recommendedMode,
+  removeLastSessionRecord,
   restoreSessionRecords,
   summarizeComparison,
   weaponLabel,
@@ -26,6 +27,7 @@ const reflectionForm = document.querySelector("#reflection-form");
 const resultsBody = document.querySelector("#results-body");
 const progress = document.querySelector("#comparison-progress");
 const exportButton = document.querySelector("#export-results");
+const undoButton = document.querySelector("#undo-result");
 const clearButton = document.querySelector("#clear-results");
 const nextSession = document.querySelector("#next-session");
 const ui = Object.fromEntries(
@@ -318,6 +320,15 @@ exportButton.addEventListener("click", async () => {
   }
 });
 
+undoButton.addEventListener("click", () => {
+  const lastRecord = records.at(-1);
+  if (!lastRecord) return;
+  if (!confirm(`${MODE_INFO[lastRecord.mode].label} の直前記録だけを取り消しますか？`)) return;
+  records = removeLastSessionRecord(records);
+  saveRecords();
+  renderResults();
+});
+
 clearButton.addEventListener("click", () => {
   if (!confirm("保存した比較記録をすべて消去しますか？")) return;
   records = [];
@@ -337,6 +348,8 @@ function renderResults() {
   document.querySelectorAll(".mode").forEach((button) => {
     button.classList.toggle("recommended", button.dataset.mode === nextMode);
   });
+  undoButton.disabled = records.length === 0;
+  clearButton.disabled = records.length === 0;
   resultsBody.replaceChildren(...records.map((record, index) => {
     const row = document.createElement("tr");
     const values = [index + 1, MODE_INFO[record.mode].label, record.metrics.collections,

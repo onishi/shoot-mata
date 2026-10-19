@@ -147,7 +147,7 @@ canvas { display: block; width: 100%; aspect-ratio: 16 / 9; touch-action: none; 
 .results-heading p { margin-top: 4px; color: #b6c5dc; font-size: 11px; }
 .next-session { margin: 10px 0 0; color: #ffdf78; font-size: 11px; line-height: 1.5; }
 .results-heading > div:last-child { display: flex; gap: 6px; }
-.results #clear-results { color: #dbe8fa; background: transparent; border-color: #526788; }
+.results #undo-result, .results #clear-results { color: #dbe8fa; background: transparent; border-color: #526788; }
 .table-wrap { margin-top: 10px; overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; font-size: 11px; }
 th, td { padding: 6px; border: 1px solid #2c3e5f; text-align: left; white-space: nowrap; }
@@ -184,6 +184,7 @@ th { color: var(--cyan); background: #0b1427; }
   .reflection fieldset { grid-template-columns: 1fr; }
   .reflection p, .reflection .note { grid-column: auto; }
   .results-heading { align-items: stretch; flex-direction: column; }
+  .results-heading > div:last-child button { flex: 1; min-width: 0; padding-inline: 4px; font-size: 10px; white-space: nowrap; }
 }
 
 @media (max-height: 500px) and (orientation: landscape) {

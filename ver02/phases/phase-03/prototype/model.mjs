@@ -215,6 +215,11 @@ export function restoreSessionRecords(value) {
   });
 }
 
+export function removeLastSessionRecord(records) {
+  if (!Array.isArray(records) || records.length === 0) return [];
+  return records.slice(0, -1);
+}
+
 export function comparisonProgress(records, target = COMPARISON_TARGET) {
   return Object.fromEntries(Object.keys(MODE_INFO).map((mode) => {
     const count = records.filter((record) => record?.mode === mode).length;
