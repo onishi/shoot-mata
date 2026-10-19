@@ -11,6 +11,7 @@ import {
   enemyFireTick,
   getBuild,
   getSupportEffects,
+  normalizeGameplayKey,
   previewCollection,
   recommendedMode,
   removeLastSessionRecord,
@@ -249,6 +250,14 @@ test("セッション最終更新は残り時間に収め、完了後は進め�
   assert.equal(sessionStepSeconds(45, 1 / 60, 45), 0);
   assert.equal(sessionStepSeconds(10, 1 / 60, 45), 1 / 60);
   assert.throws(() => sessionStepSeconds(0, -1, 45), /Invalid session timing/);
+});
+
+test("ゲーム入力は移動キーだけを正規化し、フォーム操作キーを奪わない", () => {
+  assert.equal(normalizeGameplayKey("ArrowDown"), "arrowdown");
+  assert.equal(normalizeGameplayKey("W"), "w");
+  assert.equal(normalizeGameplayKey(" "), null);
+  assert.equal(normalizeGameplayKey("Enter"), null);
+  assert.equal(normalizeGameplayKey(null), null);
 });
 
 test("独立兵装庫は各色レベルを保存し取得色へ切り替える", () => {

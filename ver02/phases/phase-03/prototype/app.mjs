@@ -12,6 +12,7 @@ import {
   enemyFireTick,
   getBuild,
   getSupportEffects,
+  normalizeGameplayKey,
   previewCollection,
   recommendedMode,
   removeLastSessionRecord,
@@ -127,10 +128,15 @@ document.querySelectorAll(".mode").forEach((button) => {
 startButton.addEventListener("click", start);
 
 window.addEventListener("keydown", (event) => {
-  if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", " "].includes(event.key)) event.preventDefault();
-  keys.add(event.key.toLowerCase());
+  const key = normalizeGameplayKey(event.key);
+  if (!running || !key) return;
+  event.preventDefault();
+  keys.add(key);
 });
-window.addEventListener("keyup", (event) => keys.delete(event.key.toLowerCase()));
+window.addEventListener("keyup", (event) => {
+  const key = normalizeGameplayKey(event.key);
+  if (key) keys.delete(key);
+});
 window.addEventListener("blur", () => keys.clear());
 
 function pointerPosition(event) {

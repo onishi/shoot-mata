@@ -5,6 +5,9 @@ export const CORE_INFO = Object.freeze({
   yellow: Object.freeze({ colorLabel: "黄", shape: "triangle", glyph: "◎", weapon: "シーカー" }),
 });
 export const COMPARISON_TARGET = 3;
+const GAMEPLAY_KEYS = Object.freeze([
+  "arrowleft", "arrowright", "arrowup", "arrowdown", "a", "d", "w", "s",
+]);
 export const COMPARISON_ORDER = Object.freeze([
   "queue", "armory", "chain",
   "armory", "chain", "queue",
@@ -181,6 +184,12 @@ export function sessionStepSeconds(elapsed, requestedStep, sessionSeconds) {
     throw new Error("Invalid session timing");
   }
   return Math.min(requestedStep, Math.max(0, sessionSeconds - elapsed));
+}
+
+export function normalizeGameplayKey(key) {
+  if (typeof key !== "string") return null;
+  const normalized = key.toLowerCase();
+  return GAMEPLAY_KEYS.includes(normalized) ? normalized : null;
 }
 
 export function weaponLabel(type) {
