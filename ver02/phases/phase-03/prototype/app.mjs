@@ -1,5 +1,6 @@
 import {
   COMPARISON_TARGET,
+  CORE_INFO,
   CORE_TYPES,
   MODE_INFO,
   SUPPORT_INFO,
@@ -56,7 +57,6 @@ let pendingSession = null;
 let records = loadRecords();
 
 const colors = { red: "#ff4e5a", blue: "#4ba5ff", yellow: "#ffda3e" };
-const glyphs = { red: "◆", blue: "●", yellow: "▲" };
 
 function reset() {
   power = createPowerState(selectedMode);
@@ -370,11 +370,11 @@ function updateUI() {
   countdown.textContent = running ? `${Math.ceil(SESSION_SECONDS - elapsed)} SEC` : elapsed ? "RESULT" : "READY";
   ui.slots.replaceChildren();
   if (selectedMode === "armory") {
-    build.slots.forEach(({ core, level }) => addSlot(core, `${glyphs[core]}${level}`, core === build.weapon));
+    build.slots.forEach(({ core, level }) => addSlot(core, `${CORE_INFO[core].glyph}${level}`, core === build.weapon));
   } else {
     for (let i = 0; i < 3; i++) {
       const core = build.slots[i];
-      addSlot(core, core ? glyphs[core] : "—", i === 0 && Boolean(core));
+      addSlot(core, core ? CORE_INFO[core].glyph : "—", i === 0 && Boolean(core));
     }
   }
   updatePickupPreview();
@@ -394,7 +394,7 @@ function updatePickupPreview() {
   const support = preview.supports.length
     ? ` / 補助 ${preview.supports.map((type) => SUPPORT_INFO[type].label).join(" + ")}`
     : " / 補助なし";
-  ui["next-core"].textContent = `${glyphs[nextPickup.type]} ${weaponLabel(nextPickup.type)}コア`;
+  ui["next-core"].textContent = `${CORE_INFO[nextPickup.type].glyph} ${weaponLabel(nextPickup.type)}コア`;
   ui["next-result"].textContent = `${weaponLabel(preview.weapon)} LV ${preview.level}${support}`;
 }
 
@@ -406,20 +406,27 @@ function addSlot(core, text, front) {
 }
 
 function drawCore(x, y, type, radius) {
+  const info = CORE_INFO[type];
   ctx.save();
   ctx.translate(x, y);
   ctx.fillStyle = colors[type];
   ctx.strokeStyle = "#fff";
   ctx.lineWidth = 2;
   ctx.beginPath();
-  if (type === "red") {
+  if (info.shape === "diamond") {
     ctx.moveTo(0, -radius); ctx.lineTo(radius, 0); ctx.lineTo(0, radius); ctx.lineTo(-radius, 0); ctx.closePath();
-  } else if (type === "blue") {
+  } else if (info.shape === "circle") {
     ctx.arc(0, 0, radius, 0, Math.PI * 2);
   } else {
     ctx.moveTo(0, -radius); ctx.lineTo(radius, radius); ctx.lineTo(-radius, radius); ctx.closePath();
   }
-  ctx.fill(); ctx.stroke(); ctx.restore();
+  ctx.fill(); ctx.stroke();
+  ctx.fillStyle = "#07101e";
+  ctx.font = `900 ${Math.round(radius * 1.15)}px ui-monospace, monospace`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(info.glyph, 0, 1);
+  ctx.restore();
 }
 
 function draw() {

@@ -113,8 +113,20 @@ canvas { display: block; width: 100%; aspect-ratio: 16 / 9; touch-action: none; 
 .metrics dt { color: #92a4c1; font-size: 10px; }
 .metrics dd { margin: 2px 0 0; font-size: 18px; }
 .legend { display: grid; gap: 8px; margin-top: 14px; color: #b6c5dc; font-size: 11px; }
-.legend i { display: inline-block; width: 10px; height: 10px; margin-right: 6px; }
-.legend .red { background: #ff4e5a; }.legend .blue { background: #4ba5ff; }.legend .yellow { background: #ffda3e; }
+.legend .core-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  margin-right: 6px;
+  color: #07101e;
+  font-style: normal;
+  font-weight: 900;
+  line-height: 1;
+}
+.legend .red { background: #ff4e5a; clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); }
+.legend .blue { background: #4ba5ff; border-radius: 50%; }
+.legend .yellow { background: #ffda3e; clip-path: polygon(50% 0, 100% 100%, 0 100%); }
 
 .instructions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 8px; }
 .instructions div { min-height: 50px; border: 1px solid #263858; padding: 9px; background: rgba(8, 14, 29, .74); }

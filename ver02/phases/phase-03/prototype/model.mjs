@@ -1,4 +1,9 @@
 export const CORE_TYPES = Object.freeze(["red", "blue", "yellow"]);
+export const CORE_INFO = Object.freeze({
+  red: Object.freeze({ colorLabel: "赤", shape: "diamond", glyph: "I", weapon: "ランス" }),
+  blue: Object.freeze({ colorLabel: "青", shape: "circle", glyph: "+", weapon: "スプレッド" }),
+  yellow: Object.freeze({ colorLabel: "黄", shape: "triangle", glyph: "◎", weapon: "シーカー" }),
+});
 export const COMPARISON_TARGET = 3;
 export const COMPARISON_ORDER = Object.freeze([
   "queue", "armory", "chain",
@@ -165,11 +170,8 @@ export function createWeaponProjectiles(build, origin, supportEffects = {
 }
 
 export function weaponLabel(type) {
-  return {
-    red: "赤・ランス",
-    blue: "青・スプレッド",
-    yellow: "黄・シーカー",
-  }[type] ?? "未装填";
+  const info = CORE_INFO[type];
+  return info ? `${info.colorLabel}・${info.weapon}` : "未装填";
 }
 
 export function createSessionRecord({ mode, metrics, reflection, completedAt = new Date().toISOString() }) {

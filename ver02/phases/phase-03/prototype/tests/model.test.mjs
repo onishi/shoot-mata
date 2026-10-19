@@ -1,6 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
+  CORE_INFO,
+  CORE_TYPES,
   collectCore,
   comparisonProgress,
   createSessionRecord,
@@ -13,6 +15,14 @@ import {
   restoreSessionRecords,
   summarizeComparison,
 } from "../model.mjs";
+
+test("3コアは色・外形・内部記号を重複させず取得前に識別できる", () => {
+  for (const key of ["colorLabel", "shape", "glyph"]) {
+    const values = CORE_TYPES.map((type) => CORE_INFO[type][key]);
+    assert.equal(new Set(values).size, CORE_TYPES.length);
+    assert.ok(values.every(Boolean));
+  }
+});
 
 test("FIFO三連装は先頭色と同色数から武器とレベルを得る", () => {
   const state = createPowerState("queue");
