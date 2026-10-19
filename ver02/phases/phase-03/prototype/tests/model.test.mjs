@@ -8,6 +8,7 @@ import {
   createSessionRecord,
   createPowerState,
   createWeaponProjectiles,
+  enemyFireTick,
   getBuild,
   getSupportEffects,
   previewCollection,
@@ -232,6 +233,14 @@ test("未装填では射撃せず、武器レベルは試作上限へ収める",
   const origin = { x: 100, y: 200 };
   assert.deepEqual(createWeaponProjectiles({ weapon: null, level: 0 }, origin), []);
   assert.equal(createWeaponProjectiles({ weapon: "yellow", level: 99 }, origin).length, 3);
+});
+
+test("敵は同じ発射時間帯に1発だけ撃つ", () => {
+  const firstTick = enemyFireTick(1, 18, null);
+  assert.equal(firstTick, 36);
+  assert.equal(enemyFireTick(1, 18.1, firstTick), null);
+  assert.equal(enemyFireTick(1, 18.49, firstTick), null);
+  assert.equal(enemyFireTick(1, 18.5, firstTick), null);
 });
 
 test("独立兵装庫は各色レベルを保存し取得色へ切り替える", () => {

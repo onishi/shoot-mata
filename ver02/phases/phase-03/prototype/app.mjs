@@ -9,6 +9,7 @@ import {
   createSessionRecord,
   createPowerState,
   createWeaponProjectiles,
+  enemyFireTick,
   getBuild,
   getSupportEffects,
   previewCollection,
@@ -186,6 +187,7 @@ function spawnEnemy() {
   enemies.push({
     id: idCounter++, x: 990, y: 70 + band * 100 + Math.sin(idCounter * 2.1) * 20,
     radius: 18, hp: 2 + Math.floor(elapsed / 15), phase: idCounter * .7,
+    lastFireTick: null,
   });
 }
 
@@ -231,7 +233,9 @@ function update(dt) {
   enemies.forEach((enemy) => {
     enemy.x -= (105 + elapsed * .7) * dt;
     enemy.y += Math.sin(elapsed * 2 + enemy.phase) * 18 * dt;
-    if ((enemy.id + Math.floor(elapsed * 2)) % 37 === 0) {
+    const fireTick = enemyFireTick(enemy.id, elapsed, enemy.lastFireTick);
+    if (fireTick !== null) {
+      enemy.lastFireTick = fireTick;
       const angle = Math.atan2(player.y - enemy.y, player.x - enemy.x);
       enemyShots.push({ x: enemy.x, y: enemy.y, vx: Math.cos(angle) * 170, vy: Math.sin(angle) * 170, radius: 6 });
     }

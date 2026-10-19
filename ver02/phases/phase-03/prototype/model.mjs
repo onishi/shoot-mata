@@ -169,6 +169,12 @@ export function createWeaponProjectiles(build, origin, supportEffects = {
   }));
 }
 
+export function enemyFireTick(enemyId, elapsed, lastFireTick = null) {
+  const tick = Math.floor(elapsed * 2);
+  if ((enemyId + tick) % 37 !== 0 || tick === lastFireTick) return null;
+  return tick;
+}
+
 export function weaponLabel(type) {
   const info = CORE_INFO[type];
   return info ? `${info.colorLabel}・${info.weapon}` : "未装填";
