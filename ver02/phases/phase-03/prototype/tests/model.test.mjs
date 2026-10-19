@@ -5,6 +5,7 @@ import {
   comparisonProgress,
   createSessionRecord,
   createPowerState,
+  createWeaponProjectiles,
   getBuild,
   getSupportEffects,
   previewCollection,
@@ -173,6 +174,45 @@ test("FIFO以外の比較方式には異色補助を混入させない", () => {
     invulnerabilitySeconds: 0.8,
     collectionRadiusBonus: 0,
   });
+});
+
+test("赤ランスはLvごとに威力と基本貫通数が増える", () => {
+  const origin = { x: 100, y: 200 };
+  for (const level of [1, 2, 3]) {
+    const [shot] = createWeaponProjectiles({ weapon: "red", level }, origin);
+    assert.equal(shot.damage, level);
+    assert.equal(shot.pierce, level - 1);
+    assert.equal(shot.radius, 4 + level);
+  }
+});
+
+test("青スプレッドはLvごとに弾数と拡散範囲が増える", () => {
+  const origin = { x: 100, y: 200 };
+  const shotsByLevel = [1, 2, 3].map((level) =>
+    createWeaponProjectiles({ weapon: "blue", level }, origin));
+  assert.deepEqual(shotsByLevel.map((shots) => shots.length), [3, 5, 7]);
+  assert.deepEqual(shotsByLevel.map((shots) => Math.max(...shots.map((shot) => Math.abs(shot.vy)))), [55, 110, 165]);
+});
+
+test("黄シーカーはLvと同数の追尾弾を異なる位置から発射する", () => {
+  const origin = { x: 100, y: 200 };
+  const shots = createWeaponProjectiles({ weapon: "yellow", level: 3 }, origin);
+  assert.equal(shots.length, 3);
+  assert.ok(shots.every((shot) => shot.seeking));
+  assert.deepEqual(shots.map((shot) => shot.y), [191, 200, 209]);
+});
+
+test("FIFOの赤補助は全武器へ追加貫通を1だけ与える", () => {
+  const state = createPowerState("queue");
+  ["blue", "red"].forEach((core) => collectCore(state, core));
+  const shots = createWeaponProjectiles(getBuild(state), { x: 100, y: 200 }, getSupportEffects(state));
+  assert.ok(shots.every((shot) => shot.pierce === 1 && shot.supportPiercing));
+});
+
+test("未装填では射撃せず、武器レベルは試作上限へ収める", () => {
+  const origin = { x: 100, y: 200 };
+  assert.deepEqual(createWeaponProjectiles({ weapon: null, level: 0 }, origin), []);
+  assert.equal(createWeaponProjectiles({ weapon: "yellow", level: 99 }, origin).length, 3);
 });
 
 test("独立兵装庫は各色レベルを保存し取得色へ切り替える", () => {

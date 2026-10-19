@@ -7,6 +7,7 @@ import {
   comparisonProgress,
   createSessionRecord,
   createPowerState,
+  createWeaponProjectiles,
   getBuild,
   getSupportEffects,
   previewCollection,
@@ -194,31 +195,8 @@ function spawnPickup() {
 
 function fire() {
   const build = getBuild(power);
-  if (!build.weapon) return;
-  const level = Math.max(1, build.level);
   const support = getSupportEffects(power);
-  const createShot = (shot, basePierce = 0) => ({
-    ...shot,
-    pierce: basePierce + support.pierceBonus,
-    supportPiercing: support.pierceBonus > 0,
-    hitIds: new Set(),
-  });
-  if (build.weapon === "red") {
-    projectiles.push(createShot(
-      { x: player.x + 18, y: player.y, vx: 620, vy: 0, damage: level, radius: 4 + level },
-      level - 1,
-    ));
-  } else if (build.weapon === "blue") {
-    const count = 1 + level * 2;
-    for (let i = 0; i < count; i++) {
-      const angle = (i - (count - 1) / 2) * .11;
-      projectiles.push(createShot({ x: player.x + 15, y: player.y, vx: 500, vy: 500 * angle, damage: 1, radius: 4 }));
-    }
-  } else {
-    for (let i = 0; i < level; i++) {
-      projectiles.push(createShot({ x: player.x + 12, y: player.y + (i - (level - 1) / 2) * 9, vx: 430, vy: 0, damage: 1, radius: 5, seeking: true }));
-    }
-  }
+  projectiles.push(...createWeaponProjectiles(build, player, support));
 }
 
 function distance(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }

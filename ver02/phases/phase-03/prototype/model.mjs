@@ -123,6 +123,47 @@ export function getSupportEffects(state) {
   };
 }
 
+export function createWeaponProjectiles(build, origin, supportEffects = {
+  pierceBonus: 0,
+  invulnerabilitySeconds: 0.8,
+  collectionRadiusBonus: 0,
+}) {
+  if (!build.weapon) return [];
+  assertCore(build.weapon);
+  const level = Math.max(1, Math.min(3, build.level));
+  const createShot = (shot, basePierce = 0) => ({
+    ...shot,
+    pierce: basePierce + supportEffects.pierceBonus,
+    supportPiercing: supportEffects.pierceBonus > 0,
+    hitIds: new Set(),
+  });
+
+  if (build.weapon === "red") {
+    return [createShot(
+      { x: origin.x + 18, y: origin.y, vx: 620, vy: 0, damage: level, radius: 4 + level },
+      level - 1,
+    )];
+  }
+
+  if (build.weapon === "blue") {
+    const count = 1 + level * 2;
+    return Array.from({ length: count }, (_, index) => {
+      const angle = (index - (count - 1) / 2) * .11;
+      return createShot({ x: origin.x + 15, y: origin.y, vx: 500, vy: 500 * angle, damage: 1, radius: 4 });
+    });
+  }
+
+  return Array.from({ length: level }, (_, index) => createShot({
+    x: origin.x + 12,
+    y: origin.y + (index - (level - 1) / 2) * 9,
+    vx: 430,
+    vy: 0,
+    damage: 1,
+    radius: 5,
+    seeking: true,
+  }));
+}
+
 export function weaponLabel(type) {
   return {
     red: "赤・ランス",
