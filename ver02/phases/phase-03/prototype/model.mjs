@@ -180,11 +180,22 @@ export function comparisonProgress(records, target = COMPARISON_TARGET) {
 }
 
 export function recommendedMode(records) {
-  const coverage = comparisonProgress(records);
-  if (records.length < COMPARISON_ORDER.length) return COMPARISON_ORDER[records.length];
-  return Object.entries(coverage)
-    .filter(([, state]) => !state.complete)
-    .sort(([, left], [, right]) => left.count - right.count)[0]?.[0] ?? null;
+  const recordedCounts = Object.fromEntries(
+    Object.keys(MODE_INFO).map((mode) => [
+      mode,
+      records.filter((record) => record?.mode === mode).length,
+    ]),
+  );
+
+  for (const mode of COMPARISON_ORDER) {
+    if (recordedCounts[mode] > 0) {
+      recordedCounts[mode] -= 1;
+    } else {
+      return mode;
+    }
+  }
+
+  return null;
 }
 
 function mean(records, read) {

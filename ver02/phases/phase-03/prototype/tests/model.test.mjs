@@ -62,6 +62,34 @@ test("比較順は各セットの開始方式をずらし、9回で各方式3回
   });
 });
 
+test("推奨外の方式を記録しても、未消化の予定枠を飛ばさない", () => {
+  const makeRecord = (mode, second) => createSessionRecord({
+    mode,
+    metrics: { collections: 1, switches: 0, tradeoffs: 0, kills: 1, hits: 0, level3: 0 },
+    reflection: { prediction: 3, choice: 3, retry: 3 },
+    completedAt: `2026-10-19T00:01:${second}.000Z`,
+  });
+  const records = [makeRecord("armory", "00")];
+
+  assert.equal(recommendedMode(records), "queue");
+  records.push(makeRecord("queue", "01"));
+  assert.equal(recommendedMode(records), "chain");
+  records.push(makeRecord("armory", "02"));
+  assert.equal(recommendedMode(records), "chain");
+});
+
+test("同じ方式の過剰記録は他方式の不足を完了扱いにしない", () => {
+  const records = Array.from({ length: 9 }, (_, index) => createSessionRecord({
+    mode: "queue",
+    metrics: { collections: 1, switches: 0, tradeoffs: 0, kills: 1, hits: 0, level3: 0 },
+    reflection: { prediction: 3, choice: 3, retry: 3 },
+    completedAt: `2026-10-19T00:02:0${index}.000Z`,
+  }));
+
+  assert.equal(recommendedMode(records), "armory");
+  assert.equal(summarizeComparison(records).complete, false);
+});
+
 test("比較集計は方式別の定量値と主観値を平均し、完了前後を区別する", () => {
   const makeRecord = (mode, kills, retry, second) => createSessionRecord({
     mode,
