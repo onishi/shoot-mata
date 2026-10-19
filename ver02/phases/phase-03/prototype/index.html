@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#080d1a" />
+    <title>shoot-mata v02 — Phase 03 比較試作</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main>
+      <header class="hero">
+        <div>
+          <p class="eyebrow">PHASE 03 / THROWAWAY PROTOTYPE</p>
+          <h1>POWER CORE LAB</h1>
+          <p>同じ敵・ドロップ・入力で、3つの成長ルールだけを比較します。</p>
+        </div>
+        <p class="notice">仮図形・無音。完成アートではありません。</p>
+      </header>
+
+      <section class="mode-picker" aria-label="比較するパワーアップ方式">
+        <button class="mode active" data-mode="queue">
+          <strong>A / FIFO三連装</strong><span>最古が主武器。4個目で押し出し。</span>
+        </button>
+        <button class="mode" data-mode="armory">
+          <strong>B / 独立兵装庫</strong><span>各色を保存。取得色へ即時切替。</span>
+        </button>
+        <button class="mode" data-mode="chain">
+          <strong>C / 連鎖過給</strong><span>同色連鎖で成長。異色でLv1。</span>
+        </button>
+      </section>
+
+      <section class="lab">
+        <div class="stage-wrap">
+          <canvas id="stage" width="960" height="540" aria-label="パワーアップ比較戦闘画面"></canvas>
+          <div id="countdown" class="countdown" aria-live="polite"></div>
+          <button id="start" class="start">45秒テストを開始</button>
+        </div>
+
+        <aside class="telemetry" aria-live="polite">
+          <div class="readout primary">
+            <span>MAIN WEAPON</span>
+            <strong id="weapon">未装填</strong>
+            <b id="level">LV 0</b>
+          </div>
+          <div>
+            <span class="label">CORE STATE</span>
+            <div id="slots" class="slots"></div>
+          </div>
+          <p id="mode-summary" class="mode-summary"></p>
+          <dl class="metrics">
+            <div><dt>回収</dt><dd id="collections">0</dd></div>
+            <div><dt>切替</dt><dd id="switches">0</dd></div>
+            <div><dt>代償</dt><dd id="tradeoffs">0</dd></div>
+            <div><dt>撃破</dt><dd id="kills">0</dd></div>
+            <div><dt>被弾</dt><dd id="hits">0</dd></div>
+            <div><dt>Lv3秒</dt><dd id="level3">0.0</dd></div>
+          </dl>
+          <div class="legend">
+            <span><i class="red"></i>ランス / 正面貫通</span>
+            <span><i class="blue"></i>スプレッド / 広範囲</span>
+            <span><i class="yellow"></i>シーカー / 追尾</span>
+          </div>
+        </aside>
+      </section>
+
+      <section class="instructions">
+        <div><strong>PC</strong><span>矢印 / WASDで移動。射撃は自動。</span></div>
+        <div><strong>TOUCH</strong><span>戦闘画面をドラッグ。複数指は不要。</span></div>
+        <div><strong>TEST</strong><span>形の違うコアへ寄るか、安全を取るか選ぶ。</span></div>
+      </section>
+    </main>
+    <script type="module" src="./app.mjs"></script>
+  </body>
+</html>
