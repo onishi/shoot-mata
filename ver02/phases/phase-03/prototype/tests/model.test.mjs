@@ -58,11 +58,17 @@ test("比較記録は定量値と主観値を分離し、方式ごとの不足�
     mode: "queue",
     metrics: { collections: 8, switches: 2, tradeoffs: 3, kills: 20, hits: 1, level3: 4.2 },
     reflection: { prediction: 4, choice: 3, retry: 5, note: " mixed build " },
+    environment: { viewportWidth: 390, viewportHeight: 844, inputMethods: ["touch"] },
     completedAt: "2026-10-19T00:00:00.000Z",
   };
   const record = createSessionRecord(base);
   assert.equal(record.protocol, COMPARISON_PROTOCOL);
   assert.equal(record.reflection.note, "mixed build");
+  assert.deepEqual(record.environment, {
+    viewportWidth: 390,
+    viewportHeight: 844,
+    inputMethods: ["touch"],
+  });
   assert.deepEqual(comparisonProgress([record]), {
     queue: { count: 1, remaining: 2, complete: false },
     armory: { count: 0, remaining: 3, complete: false },
@@ -186,6 +192,36 @@ test("比較記録は範囲外の主観評価と不正な指標を拒否する",
   assert.throws(() => createSessionRecord({ mode: "queue", metrics, reflection: { prediction: 0, choice: 3, retry: 3 } }), /Invalid rating/);
   assert.throws(() => createSessionRecord({ mode: "queue", metrics: { ...metrics, hits: -1 }, reflection: { prediction: 3, choice: 3, retry: 3 } }), /Invalid metric/);
   assert.throws(() => createSessionRecord({ mode: "queue", metrics, reflection: { prediction: 3, choice: 3, retry: 3 }, completedAt: "invalid" }), /Invalid completion date/);
+  assert.throws(() => createSessionRecord({
+    mode: "queue", metrics, reflection: { prediction: 3, choice: 3, retry: 3 },
+    environment: { viewportWidth: 0, viewportHeight: 844, inputMethods: ["touch"] },
+  }), /Invalid session environment/);
+  assert.throws(() => createSessionRecord({
+    mode: "queue", metrics, reflection: { prediction: 3, choice: 3, retry: 3 },
+    environment: { viewportWidth: 390, viewportHeight: 844, inputMethods: ["gamepad"] },
+  }), /Invalid session environment/);
+});
+
+test("比較記録は画面サイズと実使用入力を正規化し、旧記録も復元する", () => {
+  const base = {
+    mode: "queue",
+    metrics: { collections: 1, switches: 0, tradeoffs: 0, kills: 1, hits: 0, level3: 0 },
+    reflection: { prediction: 3, choice: 3, retry: 3 },
+    completedAt: "2026-10-20T00:00:00.000Z",
+  };
+  const current = createSessionRecord({
+    ...base,
+    environment: { viewportWidth: 844, viewportHeight: 390, inputMethods: ["touch", "keyboard", "touch"] },
+  });
+  assert.deepEqual(current.environment, {
+    viewportWidth: 844,
+    viewportHeight: 390,
+    inputMethods: ["keyboard", "touch"],
+  });
+
+  const legacy = { ...createSessionRecord(base) };
+  delete legacy.environment;
+  assert.deepEqual(restoreSessionRecords([legacy])[0].environment, null);
 });
 
 test("保存済み比較記録の破損行と旧version・旧protocolを除外する", () => {
@@ -412,12 +448,15 @@ test("各セッションはキーとポインターを持ち越さない新し�
   previous.keys.add("arrowright");
   previous.pointerId = 7;
   previous.pointerTarget = { x: 800, y: 200 };
+  previous.inputMethods.add("touch");
 
   const next = createInteractionState();
   assert.deepEqual([...next.keys], []);
   assert.equal(next.pointerId, null);
   assert.equal(next.pointerTarget, null);
+  assert.deepEqual([...next.inputMethods], []);
   assert.notEqual(next.keys, previous.keys);
+  assert.notEqual(next.inputMethods, previous.inputMethods);
 });
 
 test("フォーカス喪失時はキーとポインター追従をまとめて解除する", () => {
@@ -425,12 +464,14 @@ test("フォーカス喪失時はキーとポインター追従をまとめて�
   interaction.keys.add("arrowright");
   interaction.pointerId = 7;
   interaction.pointerTarget = { x: 800, y: 200 };
+  interaction.inputMethods.add("touch");
 
   clearInteractionState(interaction);
 
   assert.deepEqual([...interaction.keys], []);
   assert.equal(interaction.pointerId, null);
   assert.equal(interaction.pointerTarget, null);
+  assert.deepEqual([...interaction.inputMethods], ["touch"]);
 });
 
 test("独立兵装庫は各色レベルを保存し取得色へ切り替える", () => {

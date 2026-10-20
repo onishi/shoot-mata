@@ -119,6 +119,14 @@ function sessionMetrics() {
   };
 }
 
+function sessionEnvironment() {
+  return {
+    viewportWidth: window.innerWidth,
+    viewportHeight: window.innerHeight,
+    inputMethods: [...interaction.inputMethods],
+  };
+}
+
 function start() {
   if (!canStartMode(records, selectedMode)) return;
   reflectionForm.hidden = true;
@@ -155,6 +163,7 @@ window.addEventListener("keydown", (event) => {
   const key = normalizeGameplayKey(event.key);
   if (!running || !key) return;
   event.preventDefault();
+  interaction.inputMethods.add("keyboard");
   interaction.keys.add(key);
 });
 window.addEventListener("keyup", (event) => {
@@ -199,6 +208,9 @@ canvas.addEventListener("pointerdown", (event) => {
   if (!running || interaction.pointerId !== null) return;
   interaction.pointerId = event.pointerId;
   interaction.pointerTarget = pointerPosition(event);
+  interaction.inputMethods.add(["mouse", "touch", "pen"].includes(event.pointerType)
+    ? event.pointerType
+    : "pointer");
   canvas.setPointerCapture(event.pointerId);
 });
 canvas.addEventListener("pointermove", (event) => {
@@ -324,7 +336,11 @@ function update(dt) {
     running = false;
     startButton.hidden = true;
     startButton.textContent = "同じ方式でもう一度";
-    pendingSession = { mode: selectedMode, metrics: sessionMetrics() };
+    pendingSession = {
+      mode: selectedMode,
+      metrics: sessionMetrics(),
+      environment: sessionEnvironment(),
+    };
     modeButtons.forEach((button) => { button.disabled = true; });
     reflectionForm.hidden = false;
     reflectionForm.querySelector("legend").textContent = `${MODE_INFO[selectedMode].label} — 完走直後の記録`;
@@ -342,6 +358,7 @@ reflectionForm.addEventListener("submit", (event) => {
   records.push(createSessionRecord({
     mode: pendingSession.mode,
     metrics: pendingSession.metrics,
+    environment: pendingSession.environment,
     reflection: {
       prediction: Number(data.get("prediction")),
       choice: Number(data.get("choice")),
@@ -421,7 +438,10 @@ function renderResults() {
   clearButton.disabled = controlsLocked || records.length === 0;
   resultsBody.replaceChildren(...records.map((record, index) => {
     const row = document.createElement("tr");
-    const values = [index + 1, MODE_INFO[record.mode].label, record.metrics.collections,
+    const environment = record.environment
+      ? `${record.environment.viewportWidth}×${record.environment.viewportHeight} / ${record.environment.inputMethods.join("+") || "入力記録なし"}`
+      : "旧記録 / 環境なし";
+    const values = [index + 1, MODE_INFO[record.mode].label, environment, record.metrics.collections,
       record.metrics.switches, record.metrics.tradeoffs, record.metrics.kills,
       record.metrics.hits, record.metrics.level3.toFixed(1), record.reflection.prediction,
       record.reflection.choice, record.reflection.retry, record.reflection.note || "—"];

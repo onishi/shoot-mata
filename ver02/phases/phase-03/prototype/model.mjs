@@ -230,6 +230,7 @@ export function createInteractionState() {
     keys: new Set(),
     pointerId: null,
     pointerTarget: null,
+    inputMethods: new Set(),
   };
 }
 
@@ -244,7 +245,23 @@ export function weaponLabel(type) {
   return info ? `${info.colorLabel}・${info.weapon}` : "未装填";
 }
 
-export function createSessionRecord({ mode, metrics, reflection, completedAt = new Date().toISOString() }) {
+function normalizeSessionEnvironment(environment) {
+  if (environment === undefined || environment === null) return null;
+  const { viewportWidth, viewportHeight, inputMethods } = environment;
+  if (!Number.isInteger(viewportWidth) || viewportWidth <= 0
+    || !Number.isInteger(viewportHeight) || viewportHeight <= 0
+    || !Array.isArray(inputMethods)) {
+    throw new Error("Invalid session environment");
+  }
+  const allowedMethods = ["keyboard", "mouse", "touch", "pen", "pointer"];
+  const normalizedMethods = [...new Set(inputMethods)].sort();
+  if (normalizedMethods.some((method) => !allowedMethods.includes(method))) {
+    throw new Error("Invalid session environment");
+  }
+  return { viewportWidth, viewportHeight, inputMethods: normalizedMethods };
+}
+
+export function createSessionRecord({ mode, metrics, reflection, environment, completedAt = new Date().toISOString() }) {
   if (!MODE_INFO[mode]) throw new Error(`Unknown mode: ${mode}`);
   if (typeof completedAt !== "string" || !Number.isFinite(Date.parse(completedAt))) {
     throw new Error("Invalid completion date");
@@ -271,6 +288,7 @@ export function createSessionRecord({ mode, metrics, reflection, completedAt = n
       retry: reflection.retry,
       note: String(reflection.note ?? "").trim().slice(0, 500),
     },
+    environment: normalizeSessionEnvironment(environment),
   };
 }
 
