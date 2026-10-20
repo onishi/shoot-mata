@@ -25,6 +25,7 @@ import {
   removeLastSessionRecord,
   restoreSessionRecords,
   sessionStepSeconds,
+  shouldWarnBeforeUnload,
   summarizeComparison,
 } from "../model.mjs";
 
@@ -134,6 +135,14 @@ test("比較記録は待機中だけ変更でき、実行中と完走後の回�
   assert.equal(canEditComparisonRecords(false, true), false);
   assert.equal(canEditComparisonRecords(true, true), false);
   assert.throws(() => canEditComparisonRecords("yes", false), /Invalid comparison state/);
+});
+
+test("実行中と完走後の回答待ちは画面離脱前に警告する", () => {
+  assert.equal(shouldWarnBeforeUnload(false, false), false);
+  assert.equal(shouldWarnBeforeUnload(true, false), true);
+  assert.equal(shouldWarnBeforeUnload(false, true), true);
+  assert.equal(shouldWarnBeforeUnload(true, true), true);
+  assert.throws(() => shouldWarnBeforeUnload(false, null), /Invalid comparison state/);
 });
 
 test("比較集計は方式別の定量値と主観値を平均し、完了前後を区別する", () => {

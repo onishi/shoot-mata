@@ -25,6 +25,7 @@ import {
   removeLastSessionRecord,
   restoreSessionRecords,
   sessionStepSeconds,
+  shouldWarnBeforeUnload,
   summarizeComparison,
   weaponLabel,
 } from "./model.mjs";
@@ -177,6 +178,11 @@ window.addEventListener("focus", resumeSession);
 document.addEventListener("visibilitychange", () => {
   if (document.hidden) suspendSession();
   else if (document.hasFocus()) resumeSession();
+});
+window.addEventListener("beforeunload", (event) => {
+  if (!shouldWarnBeforeUnload(running, pendingSession !== null)) return;
+  event.preventDefault();
+  event.returnValue = "";
 });
 
 function pointerPosition(event) {
