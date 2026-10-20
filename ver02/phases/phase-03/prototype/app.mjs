@@ -18,12 +18,12 @@ import {
   enemyFireTick,
   getBuild,
   getSupportEffects,
+  initializeSessionRecords,
   normalizeGameplayKey,
   persistSessionRecords,
   previewCollection,
   recommendedMode,
   removeLastSessionRecord,
-  restoreSessionRecords,
   sessionStepSeconds,
   shouldWarnBeforeUnload,
   startButtonLabel,
@@ -71,8 +71,9 @@ let projectiles = [];
 let enemyShots = [];
 let interaction = createInteractionState();
 let pendingSession = null;
-let records = loadRecords();
-let recordsPersisted = true;
+const initialRecords = initializeSessionRecords(localStorage, COMPARISON_STORAGE_KEY);
+let records = initialRecords.records;
+let recordsPersisted = initialRecords.persisted;
 
 const colors = { red: "#ff4e5a", blue: "#4ba5ff", yellow: "#ffda3e" };
 
@@ -93,15 +94,6 @@ function reset() {
   enemySpawnCount = 0;
   pickupSpawnCount = 0;
   updateUI();
-}
-
-function loadRecords() {
-  try {
-    const value = JSON.parse(localStorage.getItem(COMPARISON_STORAGE_KEY) ?? "[]");
-    return restoreSessionRecords(value);
-  } catch {
-    return [];
-  }
 }
 
 function saveRecords() {

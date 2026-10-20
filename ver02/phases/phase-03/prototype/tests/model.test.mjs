@@ -18,6 +18,7 @@ import {
   enemyFireTick,
   getBuild,
   getSupportEffects,
+  initializeSessionRecords,
   normalizeGameplayKey,
   persistSessionRecords,
   previewCollection,
@@ -228,6 +229,39 @@ test("比較記録の保存拒否と読み戻し不一致を失敗として返�
   assert.equal(persistSessionRecords(ignored, "comparison", []), false);
   assert.throws(() => persistSessionRecords(ignored, "", []), /Invalid persistence input/);
   assert.throws(() => persistSessionRecords(ignored, "comparison", null), /Invalid persistence input/);
+});
+
+test("起動時に有効な比較記録を復元し、保存可否を完走前に確認する", () => {
+  const values = new Map();
+  const storage = {
+    setItem: (key, value) => values.set(key, value),
+    getItem: (key) => values.get(key) ?? null,
+  };
+  const record = createSessionRecord({
+    mode: "queue",
+    metrics: { collections: 8, switches: 2, tradeoffs: 3, kills: 20, hits: 1, level3: 4.2 },
+    reflection: { prediction: 4, choice: 3, retry: 5 },
+    completedAt: "2026-10-20T00:00:00.000Z",
+  });
+  values.set("comparison", JSON.stringify([record, { ...record, protocol: 1 }]));
+
+  const initialized = initializeSessionRecords(storage, "comparison");
+
+  assert.deepEqual(initialized, { records: [record], persisted: true });
+  assert.equal(values.get("comparison"), JSON.stringify([record]));
+});
+
+test("起動時にブラウザ保存が拒否された場合は警告用の失敗状態を返す", () => {
+  const blocked = {
+    getItem: () => { throw new DOMException("blocked"); },
+    setItem: () => { throw new DOMException("blocked"); },
+  };
+
+  assert.deepEqual(initializeSessionRecords(blocked, "comparison"), {
+    records: [],
+    persisted: false,
+  });
+  assert.throws(() => initializeSessionRecords(blocked, ""), /Invalid persistence input/);
 });
 
 test("直前の比較記録だけを元の配列を変えずに取り消す", () => {

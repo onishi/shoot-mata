@@ -299,6 +299,22 @@ export function persistSessionRecords(storage, key, records) {
   }
 }
 
+export function initializeSessionRecords(storage, key) {
+  if (typeof key !== "string" || key.length === 0) {
+    throw new Error("Invalid persistence input");
+  }
+  let records = [];
+  try {
+    records = restoreSessionRecords(JSON.parse(storage.getItem(key) ?? "[]"));
+  } catch {
+    records = [];
+  }
+  return {
+    records,
+    persisted: persistSessionRecords(storage, key, records),
+  };
+}
+
 export function removeLastSessionRecord(records) {
   if (!Array.isArray(records) || records.length === 0) return [];
   return records.slice(0, -1);
