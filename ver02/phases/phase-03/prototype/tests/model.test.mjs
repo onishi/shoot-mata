@@ -319,6 +319,29 @@ test("別端末の記録は重複を除き方式ごと3件まで既存記録へ�
   assert.throws(() => mergeSessionRecords(existing, imported, 0), /Invalid merge input/);
 });
 
+test("同じ完走記録は正式・QA区分が異なっても二重に統合しない", () => {
+  const official = createSessionRecord({
+    mode: "queue",
+    metrics: { collections: 7, switches: 2, tradeoffs: 1, kills: 18, hits: 1, level3: 3.4 },
+    reflection: { prediction: 3, choice: 4, retry: 5 },
+    environment: { viewportWidth: 390, viewportHeight: 844, inputMethods: ["touch"] },
+    completedAt: "2026-10-20T01:00:00.000Z",
+  });
+  const qaCopy = {
+    ...official,
+    included: false,
+    legacyExcluded: false,
+    classificationReviewed: true,
+  };
+
+  const merged = mergeSessionRecords([official], [qaCopy]);
+
+  assert.equal(merged.added, 0);
+  assert.equal(merged.duplicates, 1);
+  assert.equal(merged.excess, 0);
+  assert.deepEqual(merged.records, [official]);
+});
+
 test("QA記録を正式へ戻しても方式ごとの3件上限を超えない", () => {
   const makeQueueRecord = (second, included = true) => createSessionRecord({
     mode: "queue",

@@ -349,13 +349,23 @@ export function parseComparisonExport(source) {
   return records;
 }
 
+function sessionRecordIdentity(record) {
+  const {
+    included: _included,
+    legacyExcluded: _legacyExcluded,
+    classificationReviewed: _classificationReviewed,
+    ...session
+  } = record;
+  return JSON.stringify(session);
+}
+
 export function mergeSessionRecords(current, imported, target = COMPARISON_TARGET) {
   if (!Array.isArray(current) || !Array.isArray(imported)
     || !Number.isInteger(target) || target <= 0) {
     throw new Error("Invalid merge input");
   }
   const records = [...current];
-  const seen = new Set(records.map((record) => JSON.stringify(record)));
+  const seen = new Set(records.map(sessionRecordIdentity));
   const counts = Object.fromEntries(Object.keys(MODE_INFO).map((mode) => [
     mode,
     records.filter((record) => record?.mode === mode && record.included !== false).length,
@@ -365,7 +375,7 @@ export function mergeSessionRecords(current, imported, target = COMPARISON_TARGE
   let excess = 0;
 
   for (const record of imported) {
-    const key = JSON.stringify(record);
+    const key = sessionRecordIdentity(record);
     if (seen.has(key)) {
       duplicates += 1;
       continue;

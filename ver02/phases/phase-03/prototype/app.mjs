@@ -35,7 +35,7 @@ import {
   startButtonLabel,
   summarizeComparison,
   weaponLabel,
-} from "./model.mjs?v=20261021-inclusion-cap";
+} from "./model.mjs?v=20261021-session-dedupe";
 
 const canvas = document.querySelector("#stage");
 const ctx = canvas.getContext("2d");
