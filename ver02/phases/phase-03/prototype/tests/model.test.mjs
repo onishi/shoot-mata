@@ -26,6 +26,7 @@ import {
   restoreSessionRecords,
   sessionStepSeconds,
   shouldWarnBeforeUnload,
+  startButtonLabel,
   summarizeComparison,
 } from "../model.mjs";
 
@@ -127,6 +128,19 @@ test("目標回数を完了した方式は追加セッションを開始でき�
   assert.equal(canStartMode(records, "queue"), false);
   assert.equal(canStartMode(records, "armory"), true);
   assert.throws(() => canStartMode(records, "unknown"), /Unknown mode/);
+});
+
+test("完了方式の直前記録を取り消すと開始ボタンの案内も再試行へ戻る", () => {
+  const makeRecord = (second) => createSessionRecord({
+    mode: "queue",
+    metrics: { collections: 1, switches: 0, tradeoffs: 0, kills: 1, hits: 0, level3: 0 },
+    reflection: { prediction: 3, choice: 3, retry: 3 },
+    completedAt: `2026-10-19T00:04:0${second}.000Z`,
+  });
+  const complete = [0, 1, 2].map(makeRecord);
+
+  assert.equal(startButtonLabel(complete, "queue"), "この方式は3/3完了");
+  assert.equal(startButtonLabel(removeLastSessionRecord(complete), "queue"), "45秒テストを開始");
 });
 
 test("比較記録は待機中だけ変更でき、実行中と完走後の回答待ちはロックする", () => {

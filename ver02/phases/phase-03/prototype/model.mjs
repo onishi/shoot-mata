@@ -316,6 +316,12 @@ export function canStartMode(records, mode, target = COMPARISON_TARGET) {
   return !comparisonProgress(records, target)[mode].complete;
 }
 
+export function startButtonLabel(records, mode, target = COMPARISON_TARGET) {
+  return canStartMode(records, mode, target)
+    ? "45秒テストを開始"
+    : "この方式は3/3完了";
+}
+
 export function canEditComparisonRecords(running, hasPendingSession) {
   if (typeof running !== "boolean" || typeof hasPendingSession !== "boolean") {
     throw new Error("Invalid comparison state");

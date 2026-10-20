@@ -26,6 +26,7 @@ import {
   restoreSessionRecords,
   sessionStepSeconds,
   shouldWarnBeforeUnload,
+  startButtonLabel,
   summarizeComparison,
   weaponLabel,
 } from "./model.mjs";
@@ -421,7 +422,7 @@ function renderResults() {
   });
   const selectedComplete = coverage[selectedMode].complete;
   startButton.disabled = controlsLocked || selectedComplete;
-  if (!controlsLocked && selectedComplete) startButton.textContent = "この方式は3/3完了";
+  if (!controlsLocked) startButton.textContent = startButtonLabel(records, selectedMode);
   undoButton.disabled = controlsLocked || records.length === 0;
   clearButton.disabled = controlsLocked || records.length === 0;
   resultsBody.replaceChildren(...records.map((record, index) => {
