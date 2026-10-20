@@ -25,6 +25,7 @@ import {
   previewCollection,
   recommendedMode,
   removeLastSessionRecord,
+  removeSessionRecord,
   sessionStepSeconds,
   shouldWarnBeforeUnload,
   startButtonLabel,
@@ -445,11 +446,27 @@ function renderResults() {
       record.metrics.switches, record.metrics.tradeoffs, record.metrics.kills,
       record.metrics.hits, record.metrics.level3.toFixed(1), record.reflection.prediction,
       record.reflection.choice, record.reflection.retry, record.reflection.note || "—"];
-    row.replaceChildren(...values.map((value) => {
+    const cells = values.map((value) => {
       const cell = document.createElement("td");
       cell.textContent = value;
       return cell;
-    }));
+    });
+    const actionCell = document.createElement("td");
+    const removeButton = document.createElement("button");
+    removeButton.type = "button";
+    removeButton.className = "record-delete";
+    removeButton.textContent = "削除";
+    removeButton.setAttribute("aria-label", `${index + 1}件目、${MODE_INFO[record.mode].label}の記録を削除`);
+    removeButton.disabled = controlsLocked;
+    removeButton.addEventListener("click", () => {
+      if (!canEditComparisonRecords(running, pendingSession !== null)) return;
+      if (!confirm(`${index + 1}件目の ${MODE_INFO[record.mode].label} の記録を削除しますか？`)) return;
+      records = removeSessionRecord(records, index);
+      saveRecords();
+      renderResults();
+    });
+    actionCell.append(removeButton);
+    row.replaceChildren(...cells, actionCell);
     return row;
   }));
   document.querySelector("#comparison-results").classList.toggle("empty", records.length === 0);

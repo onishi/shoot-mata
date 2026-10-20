@@ -152,8 +152,16 @@ canvas { display: block; width: 100%; aspect-ratio: 16 / 9; touch-action: none; 
 .table-wrap { margin-top: 10px; overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; font-size: 11px; }
 th, td { padding: 6px; border: 1px solid #2c3e5f; text-align: left; white-space: nowrap; }
-td:last-child { min-width: 180px; white-space: normal; }
+td:nth-last-child(2) { min-width: 180px; white-space: normal; }
 th { color: var(--cyan); background: #0b1427; }
+.results .record-delete {
+  min-height: 30px;
+  padding: 3px 8px;
+  color: #ffd0c5;
+  background: transparent;
+  border-color: #9b534f;
+  font-size: 10px;
+}
 .empty-message { display: none; margin: 12px 0 0; color: #92a4c1; font-size: 12px; }
 .results.empty table { display: none; }
 .results.empty .empty-message { display: block; }

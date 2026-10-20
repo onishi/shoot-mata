@@ -25,6 +25,7 @@ import {
   previewCollection,
   recommendedMode,
   removeLastSessionRecord,
+  removeSessionRecord,
   restoreSessionRecords,
   sessionStepSeconds,
   shouldWarnBeforeUnload,
@@ -319,6 +320,16 @@ test("直前の比較記録だけを元の配列を変えずに取り消す", ()
   assert.deepEqual(records, ["first", "second", "third"]);
   assert.deepEqual(removeLastSessionRecord([]), []);
   assert.deepEqual(removeLastSessionRecord(null), []);
+});
+
+test("指定した比較記録だけを元の配列を変えずに削除する", () => {
+  const records = ["first", "validation", "third"];
+  assert.deepEqual(removeSessionRecord(records, 1), ["first", "third"]);
+  assert.deepEqual(records, ["first", "validation", "third"]);
+  assert.deepEqual(removeSessionRecord(records, -1), records);
+  assert.deepEqual(removeSessionRecord(records, 3), records);
+  assert.deepEqual(removeSessionRecord(records, 1.5), records);
+  assert.deepEqual(removeSessionRecord(null, 0), []);
 });
 
 test("FIFO三連装は4個目で最古を押し出し主武器を変更する", () => {

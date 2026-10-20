@@ -354,6 +354,12 @@ export function removeLastSessionRecord(records) {
   return records.slice(0, -1);
 }
 
+export function removeSessionRecord(records, index) {
+  if (!Array.isArray(records)) return [];
+  if (!Number.isInteger(index) || index < 0 || index >= records.length) return [...records];
+  return records.filter((_, recordIndex) => recordIndex !== index);
+}
+
 export function comparisonProgress(records, target = COMPARISON_TARGET) {
   return Object.fromEntries(Object.keys(MODE_INFO).map((mode) => {
     const count = records.filter((record) => record?.mode === mode).length;
