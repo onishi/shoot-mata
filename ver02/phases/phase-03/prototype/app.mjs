@@ -29,6 +29,7 @@ import {
   recommendedMode,
   removeLastSessionRecord,
   removeSessionRecord,
+  setSessionRecordInclusion,
   sessionStepSeconds,
   shouldWarnBeforeUnload,
   startButtonLabel,
@@ -367,6 +368,7 @@ reflectionForm.addEventListener("submit", (event) => {
     mode: pendingSession.mode,
     metrics: pendingSession.metrics,
     environment: pendingSession.environment,
+    included: data.get("exclude") !== "on",
     reflection: {
       prediction: Number(data.get("prediction")),
       choice: Number(data.get("choice")),
@@ -431,7 +433,7 @@ importFile.addEventListener("change", async () => {
     const merged = mergeSessionRecords(records, imported);
     records = merged.records;
     saveRecords();
-    importStatus.textContent = `${merged.added}件を追加しました（重複 ${merged.duplicates}件、方式上限による除外 ${merged.excess}件）。`;
+    importStatus.textContent = `${merged.added}件を追加しました（重複 ${merged.duplicates}件、正式比較の方式上限による除外 ${merged.excess}件）。`;
     importStatus.hidden = false;
     renderResults();
   } catch {
@@ -483,7 +485,7 @@ function renderResults() {
     const environment = record.environment
       ? `${record.environment.viewportWidth}×${record.environment.viewportHeight} / ${record.environment.inputMethods.join("+") || "入力記録なし"}`
       : "旧記録 / 環境なし";
-    const values = [index + 1, MODE_INFO[record.mode].label, environment, record.metrics.collections,
+    const values = [index + 1, record.included === false ? "QA除外" : "正式", MODE_INFO[record.mode].label, environment, record.metrics.collections,
       record.metrics.switches, record.metrics.tradeoffs, record.metrics.kills,
       record.metrics.hits, record.metrics.level3.toFixed(1), record.reflection.prediction,
       record.reflection.choice, record.reflection.retry, record.reflection.note || "—"];
@@ -493,6 +495,21 @@ function renderResults() {
       return cell;
     });
     const actionCell = document.createElement("td");
+    const inclusionButton = document.createElement("button");
+    inclusionButton.type = "button";
+    inclusionButton.className = "record-inclusion";
+    inclusionButton.textContent = record.included === false ? "正式に含める" : "QAとして除外";
+    inclusionButton.setAttribute("aria-label", `${index + 1}件目を${record.included === false ? "正式比較に含める" : "QA記録として除外"}`);
+    inclusionButton.disabled = controlsLocked;
+    inclusionButton.addEventListener("click", () => {
+      if (!canEditComparisonRecords(running, pendingSession !== null)) return;
+      const included = record.included === false;
+      const action = included ? "正式比較へ含め" : "QA記録として進捗・集計から除外し";
+      if (!confirm(`${index + 1}件目を${action}ますか？`)) return;
+      records = setSessionRecordInclusion(records, index, included);
+      saveRecords();
+      renderResults();
+    });
     const removeButton = document.createElement("button");
     removeButton.type = "button";
     removeButton.className = "record-delete";
@@ -506,7 +523,7 @@ function renderResults() {
       saveRecords();
       renderResults();
     });
-    actionCell.append(removeButton);
+    actionCell.append(inclusionButton, removeButton);
     row.replaceChildren(...cells, actionCell);
     return row;
   }));

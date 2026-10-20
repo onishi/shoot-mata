@@ -261,8 +261,9 @@ function normalizeSessionEnvironment(environment) {
   return { viewportWidth, viewportHeight, inputMethods: normalizedMethods };
 }
 
-export function createSessionRecord({ mode, metrics, reflection, environment, completedAt = new Date().toISOString() }) {
+export function createSessionRecord({ mode, metrics, reflection, environment, included = true, completedAt = new Date().toISOString() }) {
   if (!MODE_INFO[mode]) throw new Error(`Unknown mode: ${mode}`);
+  if (typeof included !== "boolean") throw new Error("Invalid comparison inclusion");
   if (typeof completedAt !== "string" || !Number.isFinite(Date.parse(completedAt))) {
     throw new Error("Invalid completion date");
   }
@@ -279,6 +280,7 @@ export function createSessionRecord({ mode, metrics, reflection, environment, co
   return {
     version: 1,
     protocol: COMPARISON_PROTOCOL,
+    included,
     mode,
     completedAt,
     metrics: Object.fromEntries(requiredMetrics.map((key) => [key, metrics[key]])),
@@ -332,7 +334,7 @@ export function mergeSessionRecords(current, imported, target = COMPARISON_TARGE
   const seen = new Set(records.map((record) => JSON.stringify(record)));
   const counts = Object.fromEntries(Object.keys(MODE_INFO).map((mode) => [
     mode,
-    records.filter((record) => record?.mode === mode).length,
+    records.filter((record) => record?.mode === mode && record.included !== false).length,
   ]));
   let added = 0;
   let duplicates = 0;
@@ -344,13 +346,13 @@ export function mergeSessionRecords(current, imported, target = COMPARISON_TARGE
       duplicates += 1;
       continue;
     }
-    if (!MODE_INFO[record?.mode] || counts[record.mode] >= target) {
+    if (!MODE_INFO[record?.mode] || (record.included !== false && counts[record.mode] >= target)) {
       excess += 1;
       continue;
     }
     records.push(record);
     seen.add(key);
-    counts[record.mode] += 1;
+    if (record.included !== false) counts[record.mode] += 1;
     added += 1;
   }
 
@@ -413,9 +415,18 @@ export function removeSessionRecord(records, index) {
   return records.filter((_, recordIndex) => recordIndex !== index);
 }
 
+export function setSessionRecordInclusion(records, index, included) {
+  if (!Array.isArray(records)) return [];
+  if (!Number.isInteger(index) || index < 0 || index >= records.length
+    || typeof included !== "boolean") return [...records];
+  return records.map((record, recordIndex) => recordIndex === index
+    ? { ...record, included }
+    : record);
+}
+
 export function comparisonProgress(records, target = COMPARISON_TARGET) {
   return Object.fromEntries(Object.keys(MODE_INFO).map((mode) => {
-    const count = records.filter((record) => record?.mode === mode).length;
+    const count = records.filter((record) => record?.mode === mode && record.included !== false).length;
     return [mode, { count, remaining: Math.max(0, target - count), complete: count >= target }];
   }));
 }
@@ -456,7 +467,7 @@ export function recommendedMode(records) {
   const recordedCounts = Object.fromEntries(
     Object.keys(MODE_INFO).map((mode) => [
       mode,
-      records.filter((record) => record?.mode === mode).length,
+      records.filter((record) => record?.mode === mode && record.included !== false).length,
     ]),
   );
 
@@ -479,7 +490,7 @@ function mean(records, read) {
 export function summarizeComparison(records) {
   const progress = comparisonProgress(records);
   const byMode = Object.fromEntries(Object.keys(MODE_INFO).map((mode) => {
-    const modeRecords = records.filter((record) => record.mode === mode);
+    const modeRecords = records.filter((record) => record.mode === mode && record.included !== false);
     return [mode, {
       count: modeRecords.length,
       metrics: Object.fromEntries(

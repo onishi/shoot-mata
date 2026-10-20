@@ -29,6 +29,7 @@ import {
   recommendedMode,
   removeLastSessionRecord,
   removeSessionRecord,
+  setSessionRecordInclusion,
   restoreSessionRecords,
   sessionStepSeconds,
   shouldWarnBeforeUnload,
@@ -67,6 +68,7 @@ test("比較記録は定量値と主観値を分離し、方式ごとの不足�
   };
   const record = createSessionRecord(base);
   assert.equal(record.protocol, COMPARISON_PROTOCOL);
+  assert.equal(record.included, true);
   assert.equal(record.reflection.note, "mixed build");
   assert.deepEqual(record.environment, {
     viewportWidth: 390,
@@ -78,6 +80,22 @@ test("比較記録は定量値と主観値を分離し、方式ごとの不足�
     armory: { count: 0, remaining: 3, complete: false },
     chain: { count: 0, remaining: 3, complete: false },
   });
+});
+
+test("QA記録は証拠として保持しても正式比較の進捗・推奨・集計へ含めない", () => {
+  const makeRecord = (included, second) => createSessionRecord({
+    mode: "queue",
+    included,
+    metrics: { collections: 8, switches: 2, tradeoffs: 3, kills: included ? 20 : 99, hits: 1, level3: 4.2 },
+    reflection: { prediction: 4, choice: 3, retry: 5 },
+    completedAt: `2026-10-19T00:02:0${second}.000Z`,
+  });
+  const records = [makeRecord(false, 0), makeRecord(true, 1)];
+
+  assert.equal(records.length, 2);
+  assert.equal(comparisonProgress(records).queue.count, 1);
+  assert.equal(recommendedMode(records), "armory");
+  assert.equal(summarizeComparison(records).byMode.queue.metrics.kills, 20);
 });
 
 test("比較順は各セットの開始方式をずらし、9回で各方式3回になる", () => {
@@ -204,6 +222,7 @@ test("比較記録は範囲外の主観評価と不正な指標を拒否する",
   assert.throws(() => createSessionRecord({ mode: "queue", metrics, reflection: { prediction: 0, choice: 3, retry: 3 } }), /Invalid rating/);
   assert.throws(() => createSessionRecord({ mode: "queue", metrics: { ...metrics, hits: -1 }, reflection: { prediction: 3, choice: 3, retry: 3 } }), /Invalid metric/);
   assert.throws(() => createSessionRecord({ mode: "queue", metrics, reflection: { prediction: 3, choice: 3, retry: 3 }, completedAt: "invalid" }), /Invalid completion date/);
+  assert.throws(() => createSessionRecord({ mode: "queue", metrics, reflection: { prediction: 3, choice: 3, retry: 3 }, included: "no" }), /Invalid comparison inclusion/);
   assert.throws(() => createSessionRecord({
     mode: "queue", metrics, reflection: { prediction: 3, choice: 3, retry: 3 },
     environment: { viewportWidth: 0, viewportHeight: 844, inputMethods: ["touch"] },
@@ -214,7 +233,7 @@ test("比較記録は範囲外の主観評価と不正な指標を拒否する",
   }), /Invalid session environment/);
 });
 
-test("比較記録は画面サイズと実使用入力を正規化し、旧記録も復元する", () => {
+test("比較記録は画面・入力を正規化し、旧記録を正式比較として復元する", () => {
   const base = {
     mode: "queue",
     metrics: { collections: 1, switches: 0, tradeoffs: 0, kills: 1, hits: 0, level3: 0 },
@@ -233,7 +252,10 @@ test("比較記録は画面サイズと実使用入力を正規化し、旧記�
 
   const legacy = { ...createSessionRecord(base) };
   delete legacy.environment;
-  assert.deepEqual(restoreSessionRecords([legacy])[0].environment, null);
+  delete legacy.included;
+  const [restoredLegacy] = restoreSessionRecords([legacy]);
+  assert.equal(restoredLegacy.environment, null);
+  assert.equal(restoredLegacy.included, true);
 });
 
 test("保存済み比較記録の破損行と旧version・旧protocolを除外する", () => {
@@ -376,6 +398,17 @@ test("指定した比較記録だけを元の配列を変えずに削除する",
   assert.deepEqual(removeSessionRecord(records, 3), records);
   assert.deepEqual(removeSessionRecord(records, 1.5), records);
   assert.deepEqual(removeSessionRecord(null, 0), []);
+});
+
+test("既存記録を非破壊で正式比較とQA除外へ切り替える", () => {
+  const records = [{ mode: "queue", included: true }, { mode: "armory", included: true }];
+  const excluded = setSessionRecordInclusion(records, 0, false);
+
+  assert.deepEqual(excluded, [{ mode: "queue", included: false }, { mode: "armory", included: true }]);
+  assert.equal(records[0].included, true);
+  assert.deepEqual(setSessionRecordInclusion(records, -1, false), records);
+  assert.deepEqual(setSessionRecordInclusion(records, 0, "no"), records);
+  assert.deepEqual(setSessionRecordInclusion(null, 0, false), []);
 });
 
 test("FIFO三連装は4個目で最古を押し出し主武器を変更する", () => {
