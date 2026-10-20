@@ -144,6 +144,7 @@ modeButtons.forEach((button) => {
     startButton.hidden = false;
     startButton.textContent = "45秒テストを開始";
     reset();
+    renderResults();
   });
 });
 startButton.addEventListener("click", start);
@@ -182,7 +183,7 @@ document.addEventListener("visibilitychange", () => {
 window.addEventListener("beforeunload", (event) => {
   if (!shouldWarnBeforeUnload(running, pendingSession !== null)) return;
   event.preventDefault();
-  event.returnValue = "";
+  event.returnValue = true;
 });
 
 function pointerPosition(event) {
