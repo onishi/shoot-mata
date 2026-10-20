@@ -35,7 +35,7 @@ import {
   startButtonLabel,
   summarizeComparison,
   weaponLabel,
-} from "./model.mjs?v=20261021-classification";
+} from "./model.mjs?v=20261021-inclusion-cap";
 
 const canvas = document.querySelector("#stage");
 const ctx = canvas.getContext("2d");
@@ -503,7 +503,11 @@ function renderResults() {
     inclusionButton.className = "record-inclusion";
     inclusionButton.textContent = record.included === false ? "正式に含める" : "QAとして除外";
     inclusionButton.setAttribute("aria-label", `${index + 1}件目を${record.included === false ? "正式比較に含める" : "QA記録として除外"}`);
-    inclusionButton.disabled = controlsLocked;
+    const inclusionLimitReached = record.included === false && coverage[record.mode].complete;
+    inclusionButton.disabled = controlsLocked || inclusionLimitReached;
+    if (inclusionLimitReached) {
+      inclusionButton.title = "この方式の正式比較は3/3完了しています";
+    }
     inclusionButton.addEventListener("click", () => {
       if (!canEditComparisonRecords(running, pendingSession !== null)) return;
       const included = record.included === false;

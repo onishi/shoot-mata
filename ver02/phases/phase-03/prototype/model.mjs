@@ -439,10 +439,18 @@ export function removeSessionRecord(records, index) {
   return records.filter((_, recordIndex) => recordIndex !== index);
 }
 
-export function setSessionRecordInclusion(records, index, included) {
+export function setSessionRecordInclusion(records, index, included, target = COMPARISON_TARGET) {
   if (!Array.isArray(records)) return [];
   if (!Number.isInteger(index) || index < 0 || index >= records.length
-    || typeof included !== "boolean") return [...records];
+    || typeof included !== "boolean"
+    || !Number.isInteger(target) || target <= 0) return [...records];
+  const selected = records[index];
+  const includedCount = records.filter(
+    (record, recordIndex) => recordIndex !== index
+      && record?.mode === selected?.mode
+      && record.included !== false,
+  ).length;
+  if (included && includedCount >= target) return [...records];
   return records.map((record, recordIndex) => recordIndex === index
     ? { ...record, included, legacyExcluded: false, classificationReviewed: true }
     : record);

@@ -319,6 +319,32 @@ test("別端末の記録は重複を除き方式ごと3件まで既存記録へ�
   assert.throws(() => mergeSessionRecords(existing, imported, 0), /Invalid merge input/);
 });
 
+test("QA記録を正式へ戻しても方式ごとの3件上限を超えない", () => {
+  const makeQueueRecord = (second, included = true) => createSessionRecord({
+    mode: "queue",
+    included,
+    metrics: { collections: 7, switches: 2, tradeoffs: 1, kills: 18, hits: 1, level3: 3.4 },
+    reflection: { prediction: 3, choice: 4, retry: 5 },
+    completedAt: `2026-10-20T01:01:0${second}.000Z`,
+  });
+  const records = [
+    makeQueueRecord(1),
+    makeQueueRecord(2),
+    makeQueueRecord(3),
+    makeQueueRecord(4, false),
+  ];
+
+  const unchanged = setSessionRecordInclusion(records, 3, true);
+  assert.deepEqual(unchanged, records);
+  assert.notEqual(unchanged, records);
+  assert.equal(comparisonProgress(unchanged).queue.count, 3);
+
+  const withCapacity = setSessionRecordInclusion(setSessionRecordInclusion(records, 0, false), 3, true);
+  assert.equal(withCapacity[0].included, false);
+  assert.equal(withCapacity[3].included, true);
+  assert.equal(comparisonProgress(withCapacity).queue.count, 3);
+});
+
 test("比較記録はブラウザ保存後の読み戻しまで確認する", () => {
   const values = new Map();
   const storage = {
