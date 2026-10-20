@@ -1,4 +1,5 @@
 import {
+  COMPARISON_BUILD,
   COMPARISON_PROTOCOL,
   COMPARISON_TARGET,
   CORE_INFO,
@@ -35,7 +36,7 @@ import {
   startButtonLabel,
   summarizeComparison,
   weaponLabel,
-} from "./model.mjs?v=20261021-session-dedupe";
+} from "./model.mjs?v=20261021-build-id";
 
 const canvas = document.querySelector("#stage");
 const ctx = canvas.getContext("2d");
@@ -45,6 +46,7 @@ const reflectionForm = document.querySelector("#reflection-form");
 const discardSessionButton = document.querySelector("#discard-session");
 const resultsBody = document.querySelector("#results-body");
 const progress = document.querySelector("#comparison-progress");
+const comparisonBuild = document.querySelector("#comparison-build");
 const exportButton = document.querySelector("#export-results");
 const importButton = document.querySelector("#import-results");
 const importFile = document.querySelector("#import-file");
@@ -60,7 +62,7 @@ const ui = Object.fromEntries(
 );
 
 const SESSION_SECONDS = 45;
-const COMPARISON_STORAGE_KEY = `shoot-mata-phase03-comparison-p${COMPARISON_PROTOCOL}`;
+const COMPARISON_STORAGE_KEY = `shoot-mata-phase03-comparison-p${COMPARISON_PROTOCOL}-${COMPARISON_BUILD}`;
 const comparisonStorage = acquireSessionStorage(() => window.localStorage);
 let selectedMode = "queue";
 let running = false;
@@ -87,6 +89,7 @@ let records = initialRecords.records;
 let recordsPersisted = initialRecords.persisted;
 
 const colors = { red: "#ff4e5a", blue: "#4ba5ff", yellow: "#ffda3e" };
+comparisonBuild.textContent = COMPARISON_BUILD;
 
 function reset() {
   interaction = createInteractionState();
@@ -402,6 +405,7 @@ discardSessionButton.addEventListener("click", () => {
 exportButton.addEventListener("click", async () => {
   const payload = JSON.stringify({
     protocol: COMPARISON_PROTOCOL,
+    build: COMPARISON_BUILD,
     exportedAt: new Date().toISOString(),
     summary: summarizeComparison(records),
     records,
@@ -437,7 +441,7 @@ importFile.addEventListener("change", async () => {
     importStatus.hidden = false;
     renderResults();
   } catch {
-    importStatus.textContent = "読込に失敗しました。現在のprotocolで書き出した未編集のJSONを選んでください。";
+    importStatus.textContent = "読込に失敗しました。現在の条件IDで書き出した未編集のJSONを選んでください。";
     importStatus.hidden = false;
   }
 });

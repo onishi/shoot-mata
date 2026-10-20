@@ -148,6 +148,7 @@ canvas { display: block; width: 100%; aspect-ratio: 16 / 9; touch-action: none; 
 .reflection-actions .secondary { color: #ffd0c5; background: transparent; border-color: #9b534f; }
 .results-heading { display: flex; justify-content: space-between; align-items: end; gap: 12px; }
 .results-heading h2, .results-heading p { margin: 0; }
+.results-heading h2 small { color: #92a4c1; font-size: 9px; font-weight: 400; }
 .results-heading p { margin-top: 4px; color: #b6c5dc; font-size: 11px; }
 .next-session { margin: 10px 0 0; color: #ffdf78; font-size: 11px; line-height: 1.5; }
 .import-status { margin: 10px 0 0; color: #bdeeff; font-size: 11px; line-height: 1.5; }

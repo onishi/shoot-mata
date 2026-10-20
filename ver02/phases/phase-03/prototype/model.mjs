@@ -6,6 +6,7 @@ export const CORE_INFO = Object.freeze({
 });
 export const COMPARISON_TARGET = 3;
 export const COMPARISON_PROTOCOL = 2;
+export const COMPARISON_BUILD = "phase03-20261021-1";
 const GAMEPLAY_KEYS = Object.freeze([
   "arrowleft", "arrowright", "arrowup", "arrowdown", "a", "d", "w", "s",
 ]);
@@ -296,6 +297,7 @@ export function createSessionRecord({
   return {
     version: 1,
     protocol: COMPARISON_PROTOCOL,
+    build: COMPARISON_BUILD,
     included,
     legacyExcluded,
     classificationReviewed,
@@ -316,7 +318,9 @@ export function restoreSessionRecords(value) {
   if (!Array.isArray(value)) return [];
   return value.flatMap((record) => {
     try {
-      if (record?.version !== 1 || record?.protocol !== COMPARISON_PROTOCOL) return [];
+      if (record?.version !== 1
+        || record?.protocol !== COMPARISON_PROTOCOL
+        || record?.build !== COMPARISON_BUILD) return [];
       const classificationReviewed = record.classificationReviewed === true;
       return [createSessionRecord({
         ...record,
@@ -339,6 +343,7 @@ export function parseComparisonExport(source) {
   }
   if (!payload || typeof payload !== "object"
     || payload.protocol !== COMPARISON_PROTOCOL
+    || payload.build !== COMPARISON_BUILD
     || !Array.isArray(payload.records)) {
     throw new Error("Invalid comparison export");
   }

@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
+  COMPARISON_BUILD,
   COMPARISON_PROTOCOL,
   CORE_INFO,
   CORE_TYPES,
@@ -68,6 +69,7 @@ test("比較記録は定量値と主観値を分離し、方式ごとの不足�
   };
   const record = createSessionRecord(base);
   assert.equal(record.protocol, COMPARISON_PROTOCOL);
+  assert.equal(record.build, COMPARISON_BUILD);
   assert.equal(record.included, true);
   assert.equal(record.legacyExcluded, false);
   assert.equal(record.classificationReviewed, true);
@@ -265,7 +267,7 @@ test("比較記録は画面・入力を正規化し、区分不明の旧記録�
   assert.equal(comparisonProgress([restoredLegacy]).queue.count, 0);
 });
 
-test("保存済み比較記録の破損行と旧version・旧protocolを除外する", () => {
+test("保存済み比較記録の破損行と旧version・旧protocol・異条件を除外する", () => {
   const valid = createSessionRecord({
     mode: "chain",
     metrics: { collections: 7, switches: 2, tradeoffs: 2, kills: 18, hits: 1, level3: 3.4 },
@@ -277,6 +279,8 @@ test("保存済み比較記録の破損行と旧version・旧protocolを除外�
     { ...valid, version: 0 },
     { ...valid, protocol: COMPARISON_PROTOCOL - 1 },
     { ...valid, protocol: undefined },
+    { ...valid, build: "different-build" },
+    { ...valid, build: undefined },
     { ...valid, metrics: { ...valid.metrics, kills: "18" } },
     null,
   ]);
@@ -284,19 +288,32 @@ test("保存済み比較記録の破損行と旧version・旧protocolを除外�
   assert.deepEqual(restoreSessionRecords({ records: [valid] }), []);
 });
 
-test("公式JSON出力だけを比較記録として読み込む", () => {
+test("同じ条件IDの公式JSON出力だけを比較記録として読み込む", () => {
   const record = createSessionRecord({
     mode: "queue",
     metrics: { collections: 7, switches: 2, tradeoffs: 1, kills: 18, hits: 1, level3: 3.4 },
     reflection: { prediction: 3, choice: 4, retry: 5 },
     completedAt: "2026-10-20T01:00:00.000Z",
   });
-  const payload = JSON.stringify({ protocol: COMPARISON_PROTOCOL, records: [record] });
+  const payload = JSON.stringify({
+    protocol: COMPARISON_PROTOCOL,
+    build: COMPARISON_BUILD,
+    records: [record],
+  });
 
   assert.deepEqual(parseComparisonExport(payload), [record]);
   assert.throws(() => parseComparisonExport("not-json"), /Invalid comparison export/);
   assert.throws(() => parseComparisonExport({ protocol: COMPARISON_PROTOCOL - 1, records: [record] }), /Invalid comparison export/);
-  assert.throws(() => parseComparisonExport({ protocol: COMPARISON_PROTOCOL, records: [{ ...record, version: 0 }] }), /Invalid comparison records/);
+  assert.throws(() => parseComparisonExport({
+    protocol: COMPARISON_PROTOCOL,
+    build: "different-build",
+    records: [record],
+  }), /Invalid comparison export/);
+  assert.throws(() => parseComparisonExport({
+    protocol: COMPARISON_PROTOCOL,
+    build: COMPARISON_BUILD,
+    records: [{ ...record, version: 0 }],
+  }), /Invalid comparison records/);
 });
 
 test("別端末の記録は重複を除き方式ごと3件まで既存記録へ統合する", () => {
