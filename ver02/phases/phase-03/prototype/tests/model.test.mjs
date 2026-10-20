@@ -19,6 +19,7 @@ import {
   getBuild,
   getSupportEffects,
   normalizeGameplayKey,
+  persistSessionRecords,
   previewCollection,
   recommendedMode,
   removeLastSessionRecord,
@@ -179,6 +180,31 @@ test("保存済み比較記録の破損行と旧version・旧protocolを除外�
   ]);
   assert.deepEqual(restored, [valid]);
   assert.deepEqual(restoreSessionRecords({ records: [valid] }), []);
+});
+
+test("比較記録はブラウザ保存後の読み戻しまで確認する", () => {
+  const values = new Map();
+  const storage = {
+    setItem: (key, value) => values.set(key, value),
+    getItem: (key) => values.get(key) ?? null,
+  };
+  const records = [{ mode: "queue" }];
+
+  assert.equal(persistSessionRecords(storage, "comparison", records), true);
+  assert.equal(values.get("comparison"), JSON.stringify(records));
+});
+
+test("比較記録の保存拒否と読み戻し不一致を失敗として返す", () => {
+  const rejected = {
+    setItem: () => { throw new DOMException("blocked"); },
+    getItem: () => null,
+  };
+  const ignored = { setItem: () => {}, getItem: () => null };
+
+  assert.equal(persistSessionRecords(rejected, "comparison", []), false);
+  assert.equal(persistSessionRecords(ignored, "comparison", []), false);
+  assert.throws(() => persistSessionRecords(ignored, "", []), /Invalid persistence input/);
+  assert.throws(() => persistSessionRecords(ignored, "comparison", null), /Invalid persistence input/);
 });
 
 test("直前の比較記録だけを元の配列を変えずに取り消す", () => {

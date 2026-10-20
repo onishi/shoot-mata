@@ -19,6 +19,7 @@ import {
   getBuild,
   getSupportEffects,
   normalizeGameplayKey,
+  persistSessionRecords,
   previewCollection,
   recommendedMode,
   removeLastSessionRecord,
@@ -39,6 +40,7 @@ const exportButton = document.querySelector("#export-results");
 const undoButton = document.querySelector("#undo-result");
 const clearButton = document.querySelector("#clear-results");
 const nextSession = document.querySelector("#next-session");
+const storageWarning = document.querySelector("#storage-warning");
 const modeButtons = [...document.querySelectorAll(".mode")];
 const ui = Object.fromEntries(
   ["weapon", "level", "support", "slots", "next-core", "next-result", "collections", "switches", "tradeoffs", "kills", "hits", "level3", "mode-summary"]
@@ -68,6 +70,7 @@ let enemyShots = [];
 let interaction = createInteractionState();
 let pendingSession = null;
 let records = loadRecords();
+let recordsPersisted = true;
 
 const colors = { red: "#ff4e5a", blue: "#4ba5ff", yellow: "#ffda3e" };
 
@@ -100,11 +103,13 @@ function loadRecords() {
 }
 
 function saveRecords() {
-  try {
-    localStorage.setItem(COMPARISON_STORAGE_KEY, JSON.stringify(records));
-  } catch {
-    // The in-memory comparison remains usable when storage is blocked.
-  }
+  recordsPersisted = persistSessionRecords(localStorage, COMPARISON_STORAGE_KEY, records);
+  renderStorageStatus();
+  return recordsPersisted;
+}
+
+function renderStorageStatus() {
+  storageWarning.hidden = recordsPersisted;
 }
 
 function sessionMetrics() {
@@ -415,6 +420,7 @@ function renderResults() {
     return row;
   }));
   document.querySelector("#comparison-results").classList.toggle("empty", records.length === 0);
+  renderStorageStatus();
 }
 
 function updateUI() {

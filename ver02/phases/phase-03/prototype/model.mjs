@@ -286,6 +286,19 @@ export function restoreSessionRecords(value) {
   });
 }
 
+export function persistSessionRecords(storage, key, records) {
+  if (typeof key !== "string" || key.length === 0 || !Array.isArray(records)) {
+    throw new Error("Invalid persistence input");
+  }
+  try {
+    const serialized = JSON.stringify(records);
+    storage.setItem(key, serialized);
+    return storage.getItem(key) === serialized;
+  } catch {
+    return false;
+  }
+}
+
 export function removeLastSessionRecord(records) {
   if (!Array.isArray(records) || records.length === 0) return [];
   return records.slice(0, -1);
