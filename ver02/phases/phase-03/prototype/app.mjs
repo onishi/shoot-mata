@@ -136,15 +136,22 @@ function start() {
   renderResults();
 }
 
+function selectMode(mode) {
+  if (!MODE_INFO[mode]) return;
+  selectedMode = mode;
+  modeButtons.forEach((button) => {
+    button.classList.toggle("active", button.dataset.mode === selectedMode);
+  });
+  running = false;
+  startButton.hidden = false;
+  startButton.textContent = "45秒テストを開始";
+  reset();
+  renderResults();
+}
+
 modeButtons.forEach((button) => {
   button.addEventListener("click", () => {
-    selectedMode = button.dataset.mode;
-    modeButtons.forEach((item) => item.classList.toggle("active", item === button));
-    running = false;
-    startButton.hidden = false;
-    startButton.textContent = "45秒テストを開始";
-    reset();
-    renderResults();
+    selectMode(button.dataset.mode);
   });
 });
 startButton.addEventListener("click", start);
@@ -351,9 +358,13 @@ reflectionForm.addEventListener("submit", (event) => {
   pendingSession = null;
   reflectionForm.reset();
   reflectionForm.hidden = true;
-  startButton.hidden = false;
   modeButtons.forEach((button) => { button.disabled = false; });
-  renderResults();
+  const nextMode = recommendedMode(records);
+  if (nextMode) selectMode(nextMode);
+  else {
+    startButton.hidden = false;
+    renderResults();
+  }
 });
 
 exportButton.addEventListener("click", async () => {
