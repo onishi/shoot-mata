@@ -6,6 +6,7 @@ import {
   CORE_INFO,
   CORE_TYPES,
   acquireSessionStorage,
+  canIncludeSessionRecord,
   canDiscardPendingSession,
   canEditComparisonRecords,
   clearInteractionState,
@@ -101,6 +102,31 @@ test("QA記録は証拠として保持しても正式比較の進捗・推奨・
   assert.equal(comparisonProgress(records).queue.count, 1);
   assert.equal(recommendedMode(records), "armory");
   assert.equal(summarizeComparison(records).byMode.queue.metrics.kills, 20);
+});
+
+test("操作入力のない現行記録はQA保存だけを許可する", () => {
+  const makeRecord = (included, inputMethods) => createSessionRecord({
+    mode: "queue",
+    included,
+    metrics: { collections: 8, switches: 2, tradeoffs: 3, kills: 20, hits: 1, level3: 4.2 },
+    reflection: { prediction: 4, choice: 3, retry: 5 },
+    environment: { viewportWidth: 390, viewportHeight: 844, inputMethods },
+    completedAt: "2026-10-21T03:00:00.000Z",
+  });
+  const qaWithoutInput = makeRecord(false, []);
+  const officialWithInput = makeRecord(true, ["touch"]);
+
+  assert.equal(canIncludeSessionRecord(qaWithoutInput), false);
+  assert.equal(canIncludeSessionRecord(officialWithInput), true);
+  assert.equal(setSessionRecordInclusion([qaWithoutInput], 0, true)[0].included, false);
+  assert.throws(() => serializeComparisonExport([
+    { ...qaWithoutInput, included: true },
+  ]), /Invalid comparison export/);
+  assert.throws(() => parseComparisonExport(JSON.stringify({
+    protocol: COMPARISON_PROTOCOL,
+    build: COMPARISON_BUILD,
+    records: [{ ...qaWithoutInput, included: true }],
+  })), /Invalid comparison records/);
 });
 
 test("比較順は各セットの開始方式をずらし、9回で各方式3回になる", () => {

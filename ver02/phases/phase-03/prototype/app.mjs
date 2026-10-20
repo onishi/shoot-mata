@@ -6,6 +6,7 @@ import {
   MODE_INFO,
   SUPPORT_INFO,
   acquireSessionStorage,
+  canIncludeSessionRecord,
   canDiscardPendingSession,
   canEditComparisonRecords,
   collectCore,
@@ -36,13 +37,14 @@ import {
   shouldWarnBeforeUnload,
   startButtonLabel,
   weaponLabel,
-} from "./model.mjs?v=20261021-json-download";
+} from "./model.mjs?v=20261021-input-evidence";
 
 const canvas = document.querySelector("#stage");
 const ctx = canvas.getContext("2d");
 const startButton = document.querySelector("#start");
 const countdown = document.querySelector("#countdown");
 const reflectionForm = document.querySelector("#reflection-form");
+const reflectionWarning = document.querySelector("#reflection-warning");
 const discardSessionButton = document.querySelector("#discard-session");
 const resultsBody = document.querySelector("#results-body");
 const progress = document.querySelector("#comparison-progress");
@@ -143,6 +145,7 @@ function sessionEnvironment() {
 function start() {
   if (!canStartMode(records, selectedMode)) return;
   reflectionForm.hidden = true;
+  reflectionWarning.hidden = true;
   pendingSession = null;
   reset();
   suspended = false;
@@ -368,7 +371,7 @@ reflectionForm.addEventListener("submit", (event) => {
   event.preventDefault();
   if (!pendingSession) return;
   const data = new FormData(reflectionForm);
-  records.push(createSessionRecord({
+  const record = createSessionRecord({
     mode: pendingSession.mode,
     metrics: pendingSession.metrics,
     environment: pendingSession.environment,
@@ -379,11 +382,19 @@ reflectionForm.addEventListener("submit", (event) => {
       retry: Number(data.get("retry")),
       note: data.get("note"),
     },
-  }));
+  });
+  if (record.included && !canIncludeSessionRecord(record)) {
+    reflectionWarning.hidden = false;
+    reflectionWarning.textContent = "正式比較に含めるには、セッション中にキーボードまたはポインターで操作してください。導線確認だけの場合はQA除外を選べます。";
+    return;
+  }
+  reflectionWarning.hidden = true;
+  records.push(record);
   saveRecords();
   pendingSession = null;
   reflectionForm.reset();
   reflectionForm.hidden = true;
+  reflectionWarning.hidden = true;
   modeButtons.forEach((button) => { button.disabled = false; });
   const nextMode = recommendedMode(records);
   if (nextMode) selectMode(nextMode);
@@ -524,9 +535,12 @@ function renderResults() {
     inclusionButton.textContent = record.included === false ? "正式に含める" : "QAとして除外";
     inclusionButton.setAttribute("aria-label", `${index + 1}件目を${record.included === false ? "正式比較に含める" : "QA記録として除外"}`);
     const inclusionLimitReached = record.included === false && coverage[record.mode].complete;
-    inclusionButton.disabled = controlsLocked || inclusionLimitReached;
+    const missingInputEvidence = record.included === false && !canIncludeSessionRecord(record);
+    inclusionButton.disabled = controlsLocked || inclusionLimitReached || missingInputEvidence;
     if (inclusionLimitReached) {
       inclusionButton.title = "この方式の正式比較は3/3完了しています";
+    } else if (missingInputEvidence) {
+      inclusionButton.title = "操作入力の記録がないため正式比較には含められません";
     }
     inclusionButton.addEventListener("click", () => {
       if (!canEditComparisonRecords(running, pendingSession !== null)) return;

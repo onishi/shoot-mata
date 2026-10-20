@@ -94,6 +94,7 @@
             <textarea name="note" maxlength="500" rows="3"></textarea>
           </label>
           <label class="exclude-record"><input name="exclude" type="checkbox"> QA・導線確認の完走として保存し、正式な3回比較と集計には含めない</label>
+          <p id="reflection-warning" class="reflection-warning" role="alert" hidden></p>
           <div class="reflection-actions">
             <button type="submit">この完走を保存</button>
             <button id="discard-session" class="secondary" type="button">この完走を破棄</button>
@@ -117,6 +118,6 @@
         <p class="empty-message">まだ完走記録はありません。各方式を3回ずつ完走してください。</p>
       </section>
     </main>
-    <script type="module" src="./app.mjs?v=20261021-json-download"></script>
+    <script type="module" src="./app.mjs?v=20261021-input-evidence"></script>
   </body>
 </html>

@@ -314,6 +314,13 @@ export function createSessionRecord({
   };
 }
 
+export function canIncludeSessionRecord(record) {
+  if (!record || typeof record !== "object") return false;
+  if (record.environment === null || record.environment === undefined) return true;
+  return Array.isArray(record.environment.inputMethods)
+    && record.environment.inputMethods.length > 0;
+}
+
 export function restoreSessionRecords(value) {
   if (!Array.isArray(value)) return [];
   return value.flatMap((record) => {
@@ -348,7 +355,8 @@ export function parseComparisonExport(source) {
     throw new Error("Invalid comparison export");
   }
   const records = restoreSessionRecords(payload.records);
-  if (records.length !== payload.records.length) {
+  if (records.length !== payload.records.length
+    || records.some((record) => record.included !== false && !canIncludeSessionRecord(record))) {
     throw new Error("Invalid comparison records");
   }
   return records;
@@ -357,6 +365,7 @@ export function parseComparisonExport(source) {
 export function serializeComparisonExport(records, exportedAt = new Date().toISOString()) {
   if (!Array.isArray(records)
     || restoreSessionRecords(records).length !== records.length
+    || records.some((record) => record.included !== false && !canIncludeSessionRecord(record))
     || typeof exportedAt !== "string"
     || !Number.isFinite(Date.parse(exportedAt))) {
     throw new Error("Invalid comparison export");
@@ -476,6 +485,7 @@ export function setSessionRecordInclusion(records, index, included, target = COM
     || typeof included !== "boolean"
     || !Number.isInteger(target) || target <= 0) return [...records];
   const selected = records[index];
+  if (included && !canIncludeSessionRecord(selected)) return [...records];
   const includedCount = records.filter(
     (record, recordIndex) => recordIndex !== index
       && record?.mode === selected?.mode
