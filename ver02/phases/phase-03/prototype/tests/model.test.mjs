@@ -4,6 +4,7 @@ import {
   COMPARISON_PROTOCOL,
   CORE_INFO,
   CORE_TYPES,
+  canEditComparisonRecords,
   clearInteractionState,
   canStartMode,
   collectCore,
@@ -124,6 +125,14 @@ test("目標回数を完了した方式は追加セッションを開始でき�
   assert.equal(canStartMode(records, "queue"), false);
   assert.equal(canStartMode(records, "armory"), true);
   assert.throws(() => canStartMode(records, "unknown"), /Unknown mode/);
+});
+
+test("比較記録は待機中だけ変更でき、実行中と完走後の回答待ちはロックする", () => {
+  assert.equal(canEditComparisonRecords(false, false), true);
+  assert.equal(canEditComparisonRecords(true, false), false);
+  assert.equal(canEditComparisonRecords(false, true), false);
+  assert.equal(canEditComparisonRecords(true, true), false);
+  assert.throws(() => canEditComparisonRecords("yes", false), /Invalid comparison state/);
 });
 
 test("比較集計は方式別の定量値と主観値を平均し、完了前後を区別する", () => {

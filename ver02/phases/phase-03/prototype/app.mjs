@@ -4,6 +4,7 @@ import {
   CORE_INFO,
   MODE_INFO,
   SUPPORT_INFO,
+  canEditComparisonRecords,
   collectCore,
   canStartMode,
   comparisonProgress,
@@ -126,6 +127,7 @@ function start() {
   running = true;
   startButton.hidden = true;
   modeButtons.forEach((button) => { button.disabled = true; });
+  renderResults();
 }
 
 modeButtons.forEach((button) => {
@@ -312,6 +314,7 @@ function update(dt) {
     modeButtons.forEach((button) => { button.disabled = true; });
     reflectionForm.hidden = false;
     reflectionForm.querySelector("legend").textContent = `${MODE_INFO[selectedMode].label} — 完走直後の記録`;
+    renderResults();
     reflectionForm.scrollIntoView({ block: "nearest", behavior: "smooth" });
   }
   updateUI();
@@ -362,6 +365,7 @@ exportButton.addEventListener("click", async () => {
 });
 
 undoButton.addEventListener("click", () => {
+  if (!canEditComparisonRecords(running, pendingSession !== null)) return;
   const lastRecord = records.at(-1);
   if (!lastRecord) return;
   if (!confirm(`${MODE_INFO[lastRecord.mode].label} の直前記録だけを取り消しますか？`)) return;
@@ -371,6 +375,7 @@ undoButton.addEventListener("click", () => {
 });
 
 clearButton.addEventListener("click", () => {
+  if (!canEditComparisonRecords(running, pendingSession !== null)) return;
   if (!confirm("保存した比較記録をすべて消去しますか？")) return;
   records = [];
   saveRecords();
@@ -380,7 +385,7 @@ clearButton.addEventListener("click", () => {
 function renderResults() {
   const coverage = comparisonProgress(records);
   const nextMode = recommendedMode(records);
-  const controlsLocked = running || pendingSession !== null;
+  const controlsLocked = !canEditComparisonRecords(running, pendingSession !== null);
   progress.textContent = Object.entries(coverage)
     .map(([mode, state]) => `${MODE_INFO[mode].label} ${state.count}/${COMPARISON_TARGET}`)
     .join(" / ");
@@ -394,8 +399,8 @@ function renderResults() {
   const selectedComplete = coverage[selectedMode].complete;
   startButton.disabled = controlsLocked || selectedComplete;
   if (!controlsLocked && selectedComplete) startButton.textContent = "この方式は3/3完了";
-  undoButton.disabled = records.length === 0;
-  clearButton.disabled = records.length === 0;
+  undoButton.disabled = controlsLocked || records.length === 0;
+  clearButton.disabled = controlsLocked || records.length === 0;
   resultsBody.replaceChildren(...records.map((record, index) => {
     const row = document.createElement("tr");
     const values = [index + 1, MODE_INFO[record.mode].label, record.metrics.collections,

@@ -303,6 +303,13 @@ export function canStartMode(records, mode, target = COMPARISON_TARGET) {
   return !comparisonProgress(records, target)[mode].complete;
 }
 
+export function canEditComparisonRecords(running, hasPendingSession) {
+  if (typeof running !== "boolean" || typeof hasPendingSession !== "boolean") {
+    throw new Error("Invalid comparison state");
+  }
+  return !running && !hasPendingSession;
+}
+
 export function recommendedMode(records) {
   const recordedCounts = Object.fromEntries(
     Object.keys(MODE_INFO).map((mode) => [
