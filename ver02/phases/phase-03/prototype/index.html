@@ -100,9 +100,10 @@
       <section id="comparison-results" class="results empty" aria-labelledby="results-title">
         <div class="results-heading">
           <div><h2 id="results-title">比較ログ</h2><p id="comparison-progress"></p></div>
-          <div><button id="export-results" type="button">JSONをコピー</button><button id="undo-result" type="button">直前を取消</button><button id="clear-results" type="button">全記録を消去</button></div>
+          <div><button id="export-results" type="button">JSONをコピー</button><button id="import-results" type="button">JSONを読込</button><input id="import-file" type="file" accept="application/json,.json" hidden><button id="undo-result" type="button">直前を取消</button><button id="clear-results" type="button">全記録を消去</button></div>
         </div>
         <p id="next-session" class="next-session"></p>
+        <p id="import-status" class="import-status" role="status" aria-live="polite" hidden></p>
         <p id="storage-warning" class="storage-warning" role="alert" hidden>
           ブラウザ保存を確認できません。この画面を閉じる前に「JSONをコピー」で比較記録を退避してください。
         </p>

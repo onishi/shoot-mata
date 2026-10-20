@@ -146,9 +146,10 @@ canvas { display: block; width: 100%; aspect-ratio: 16 / 9; touch-action: none; 
 .results-heading h2, .results-heading p { margin: 0; }
 .results-heading p { margin-top: 4px; color: #b6c5dc; font-size: 11px; }
 .next-session { margin: 10px 0 0; color: #ffdf78; font-size: 11px; line-height: 1.5; }
+.import-status { margin: 10px 0 0; color: #bdeeff; font-size: 11px; line-height: 1.5; }
 .storage-warning { margin: 10px 0 0; border: 1px solid #ff8d72; padding: 8px; color: #ffd0c5; background: rgba(95, 27, 24, .58); font-size: 11px; line-height: 1.5; }
 .results-heading > div:last-child { display: flex; gap: 6px; }
-.results #undo-result, .results #clear-results { color: #dbe8fa; background: transparent; border-color: #526788; }
+.results #import-results, .results #undo-result, .results #clear-results { color: #dbe8fa; background: transparent; border-color: #526788; }
 .table-wrap { margin-top: 10px; overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; font-size: 11px; }
 th, td { padding: 6px; border: 1px solid #2c3e5f; text-align: left; white-space: nowrap; }

@@ -304,6 +304,59 @@ export function restoreSessionRecords(value) {
   });
 }
 
+export function parseComparisonExport(source) {
+  let payload;
+  try {
+    payload = typeof source === "string" ? JSON.parse(source) : source;
+  } catch {
+    throw new Error("Invalid comparison export");
+  }
+  if (!payload || typeof payload !== "object"
+    || payload.protocol !== COMPARISON_PROTOCOL
+    || !Array.isArray(payload.records)) {
+    throw new Error("Invalid comparison export");
+  }
+  const records = restoreSessionRecords(payload.records);
+  if (records.length !== payload.records.length) {
+    throw new Error("Invalid comparison records");
+  }
+  return records;
+}
+
+export function mergeSessionRecords(current, imported, target = COMPARISON_TARGET) {
+  if (!Array.isArray(current) || !Array.isArray(imported)
+    || !Number.isInteger(target) || target <= 0) {
+    throw new Error("Invalid merge input");
+  }
+  const records = [...current];
+  const seen = new Set(records.map((record) => JSON.stringify(record)));
+  const counts = Object.fromEntries(Object.keys(MODE_INFO).map((mode) => [
+    mode,
+    records.filter((record) => record?.mode === mode).length,
+  ]));
+  let added = 0;
+  let duplicates = 0;
+  let excess = 0;
+
+  for (const record of imported) {
+    const key = JSON.stringify(record);
+    if (seen.has(key)) {
+      duplicates += 1;
+      continue;
+    }
+    if (!MODE_INFO[record?.mode] || counts[record.mode] >= target) {
+      excess += 1;
+      continue;
+    }
+    records.push(record);
+    seen.add(key);
+    counts[record.mode] += 1;
+    added += 1;
+  }
+
+  return { records, added, duplicates, excess };
+}
+
 export function persistSessionRecords(storage, key, records) {
   if (typeof key !== "string" || key.length === 0 || !Array.isArray(records)) {
     throw new Error("Invalid persistence input");

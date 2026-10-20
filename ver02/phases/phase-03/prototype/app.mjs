@@ -20,7 +20,9 @@ import {
   getBuild,
   getSupportEffects,
   initializeSessionRecords,
+  mergeSessionRecords,
   normalizeGameplayKey,
+  parseComparisonExport,
   persistSessionRecords,
   previewCollection,
   recommendedMode,
@@ -41,6 +43,9 @@ const reflectionForm = document.querySelector("#reflection-form");
 const resultsBody = document.querySelector("#results-body");
 const progress = document.querySelector("#comparison-progress");
 const exportButton = document.querySelector("#export-results");
+const importButton = document.querySelector("#import-results");
+const importFile = document.querySelector("#import-file");
+const importStatus = document.querySelector("#import-status");
 const undoButton = document.querySelector("#undo-result");
 const clearButton = document.querySelector("#clear-results");
 const nextSession = document.querySelector("#next-session");
@@ -400,6 +405,29 @@ exportButton.addEventListener("click", async () => {
   }
 });
 
+importButton.addEventListener("click", () => {
+  if (!canEditComparisonRecords(running, pendingSession !== null)) return;
+  importFile.click();
+});
+
+importFile.addEventListener("change", async () => {
+  const [file] = importFile.files;
+  importFile.value = "";
+  if (!file || !canEditComparisonRecords(running, pendingSession !== null)) return;
+  try {
+    const imported = parseComparisonExport(await file.text());
+    const merged = mergeSessionRecords(records, imported);
+    records = merged.records;
+    saveRecords();
+    importStatus.textContent = `${merged.added}件を追加しました（重複 ${merged.duplicates}件、方式上限による除外 ${merged.excess}件）。`;
+    importStatus.hidden = false;
+    renderResults();
+  } catch {
+    importStatus.textContent = "読込に失敗しました。現在のprotocolで書き出した未編集のJSONを選んでください。";
+    importStatus.hidden = false;
+  }
+});
+
 undoButton.addEventListener("click", () => {
   if (!canEditComparisonRecords(running, pendingSession !== null)) return;
   const lastRecord = records.at(-1);
@@ -437,6 +465,7 @@ function renderResults() {
   if (!controlsLocked) startButton.textContent = startButtonLabel(records, selectedMode);
   undoButton.disabled = controlsLocked || records.length === 0;
   clearButton.disabled = controlsLocked || records.length === 0;
+  importButton.disabled = controlsLocked;
   resultsBody.replaceChildren(...records.map((record, index) => {
     const row = document.createElement("tr");
     const environment = record.environment

@@ -20,7 +20,9 @@ import {
   getBuild,
   getSupportEffects,
   initializeSessionRecords,
+  mergeSessionRecords,
   normalizeGameplayKey,
+  parseComparisonExport,
   persistSessionRecords,
   previewCollection,
   recommendedMode,
@@ -242,6 +244,41 @@ test("保存済み比較記録の破損行と旧version・旧protocolを除外�
   ]);
   assert.deepEqual(restored, [valid]);
   assert.deepEqual(restoreSessionRecords({ records: [valid] }), []);
+});
+
+test("公式JSON出力だけを比較記録として読み込む", () => {
+  const record = createSessionRecord({
+    mode: "queue",
+    metrics: { collections: 7, switches: 2, tradeoffs: 1, kills: 18, hits: 1, level3: 3.4 },
+    reflection: { prediction: 3, choice: 4, retry: 5 },
+    completedAt: "2026-10-20T01:00:00.000Z",
+  });
+  const payload = JSON.stringify({ protocol: COMPARISON_PROTOCOL, records: [record] });
+
+  assert.deepEqual(parseComparisonExport(payload), [record]);
+  assert.throws(() => parseComparisonExport("not-json"), /Invalid comparison export/);
+  assert.throws(() => parseComparisonExport({ protocol: COMPARISON_PROTOCOL - 1, records: [record] }), /Invalid comparison export/);
+  assert.throws(() => parseComparisonExport({ protocol: COMPARISON_PROTOCOL, records: [{ ...record, version: 0 }] }), /Invalid comparison records/);
+});
+
+test("別端末の記録は重複を除き方式ごと3件まで既存記録へ統合する", () => {
+  const makeRecord = (mode, second) => createSessionRecord({
+    mode,
+    metrics: { collections: 7, switches: 2, tradeoffs: 1, kills: 18, hits: 1, level3: 3.4 },
+    reflection: { prediction: 3, choice: 4, retry: 5 },
+    completedAt: `2026-10-20T01:00:0${second}.000Z`,
+  });
+  const existing = [makeRecord("queue", 0), makeRecord("queue", 1)];
+  const imported = [existing[0], makeRecord("queue", 2), makeRecord("queue", 3), makeRecord("armory", 4)];
+
+  const merged = mergeSessionRecords(existing, imported);
+
+  assert.equal(merged.added, 2);
+  assert.equal(merged.duplicates, 1);
+  assert.equal(merged.excess, 1);
+  assert.deepEqual(merged.records.map((record) => record.mode), ["queue", "queue", "queue", "armory"]);
+  assert.equal(existing.length, 2);
+  assert.throws(() => mergeSessionRecords(existing, imported, 0), /Invalid merge input/);
 });
 
 test("比較記録はブラウザ保存後の読み戻しまで確認する", () => {
