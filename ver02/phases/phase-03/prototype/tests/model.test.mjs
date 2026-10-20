@@ -33,6 +33,7 @@ import {
   setSessionRecordInclusion,
   restoreSessionRecords,
   sessionStepSeconds,
+  serializeComparisonExport,
   shouldWarnBeforeUnload,
   startButtonLabel,
   summarizeComparison,
@@ -314,6 +315,25 @@ test("同じ条件IDの公式JSON出力だけを比較記録として読み込�
     build: COMPARISON_BUILD,
     records: [{ ...record, version: 0 }],
   }), /Invalid comparison records/);
+});
+
+test("比較記録の公式JSONは条件ID・集計・生記録を保って読込へ往復する", () => {
+  const record = createSessionRecord({
+    mode: "chain",
+    metrics: { collections: 9, switches: 3, tradeoffs: 2, kills: 21, hits: 1, level3: 5.2 },
+    reflection: { prediction: 4, choice: 5, retry: 4, note: "端末間で移動" },
+    completedAt: "2026-10-21T02:00:00.000Z",
+  });
+  const serialized = serializeComparisonExport([record], "2026-10-21T02:01:00.000Z");
+  const payload = JSON.parse(serialized);
+
+  assert.equal(payload.protocol, COMPARISON_PROTOCOL);
+  assert.equal(payload.build, COMPARISON_BUILD);
+  assert.equal(payload.exportedAt, "2026-10-21T02:01:00.000Z");
+  assert.equal(payload.summary.byMode.chain.metrics.kills, 21);
+  assert.deepEqual(parseComparisonExport(serialized), [record]);
+  assert.throws(() => serializeComparisonExport([{ ...record, build: "different-build" }]), /Invalid comparison export/);
+  assert.throws(() => serializeComparisonExport([record], "invalid"), /Invalid comparison export/);
 });
 
 test("別端末の記録は重複を除き方式ごと3件まで既存記録へ統合する", () => {

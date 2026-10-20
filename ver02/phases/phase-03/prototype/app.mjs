@@ -32,11 +32,11 @@ import {
   removeSessionRecord,
   setSessionRecordInclusion,
   sessionStepSeconds,
+  serializeComparisonExport,
   shouldWarnBeforeUnload,
   startButtonLabel,
-  summarizeComparison,
   weaponLabel,
-} from "./model.mjs?v=20261021-build-id";
+} from "./model.mjs?v=20261021-json-download";
 
 const canvas = document.querySelector("#stage");
 const ctx = canvas.getContext("2d");
@@ -48,6 +48,7 @@ const resultsBody = document.querySelector("#results-body");
 const progress = document.querySelector("#comparison-progress");
 const comparisonBuild = document.querySelector("#comparison-build");
 const exportButton = document.querySelector("#export-results");
+const downloadButton = document.querySelector("#download-results");
 const importButton = document.querySelector("#import-results");
 const importFile = document.querySelector("#import-file");
 const importStatus = document.querySelector("#import-status");
@@ -402,25 +403,40 @@ discardSessionButton.addEventListener("click", () => {
   selectMode(recommendedMode(records) ?? selectedMode);
 });
 
+function comparisonExport() {
+  return serializeComparisonExport(records);
+}
+
+function downloadComparison(payload) {
+  const blob = new Blob([payload], { type: "application/json" });
+  const link = document.createElement("a");
+  const objectUrl = URL.createObjectURL(blob);
+  link.href = objectUrl;
+  link.download = `phase-03-comparison-${COMPARISON_BUILD}.json`;
+  link.hidden = true;
+  document.body.append(link);
+  link.click();
+  link.remove();
+  window.setTimeout(() => URL.revokeObjectURL(objectUrl), 0);
+}
+
 exportButton.addEventListener("click", async () => {
-  const payload = JSON.stringify({
-    protocol: COMPARISON_PROTOCOL,
-    build: COMPARISON_BUILD,
-    exportedAt: new Date().toISOString(),
-    summary: summarizeComparison(records),
-    records,
-  }, null, 2);
+  const payload = comparisonExport();
   try {
     await navigator.clipboard.writeText(payload);
     exportButton.textContent = "JSONをコピー済み";
+    importStatus.textContent = "現在の条件IDを含むJSONをクリップボードへコピーしました。";
+    importStatus.hidden = false;
   } catch {
-    const blob = new Blob([payload], { type: "application/json" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "phase-03-comparison.json";
-    link.click();
-    URL.revokeObjectURL(link.href);
+    importStatus.textContent = "クリップボードへコピーできませんでした。「JSONを保存」を使ってください。";
+    importStatus.hidden = false;
   }
+});
+
+downloadButton.addEventListener("click", () => {
+  downloadComparison(comparisonExport());
+  importStatus.textContent = `条件ID ${COMPARISON_BUILD} のJSONファイルを保存しました。`;
+  importStatus.hidden = false;
 });
 
 importButton.addEventListener("click", () => {

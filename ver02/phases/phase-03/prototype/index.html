@@ -104,12 +104,12 @@
       <section id="comparison-results" class="results empty" aria-labelledby="results-title">
         <div class="results-heading">
           <div><h2 id="results-title">比較ログ <small>条件ID <span id="comparison-build"></span></small></h2><p id="comparison-progress"></p></div>
-          <div><button id="export-results" type="button">JSONをコピー</button><button id="import-results" type="button">JSONを読込</button><input id="import-file" type="file" accept="application/json,.json" hidden><button id="undo-result" type="button">直前を取消</button><button id="clear-results" type="button">全記録を消去</button></div>
+          <div><button id="export-results" type="button">JSONをコピー</button><button id="download-results" type="button">JSONを保存</button><button id="import-results" type="button">JSONを読込</button><input id="import-file" type="file" accept="application/json,.json" hidden><button id="undo-result" type="button">直前を取消</button><button id="clear-results" type="button">全記録を消去</button></div>
         </div>
         <p id="next-session" class="next-session"></p>
         <p id="import-status" class="import-status" role="status" aria-live="polite" hidden></p>
         <p id="storage-warning" class="storage-warning" role="alert" hidden>
-          ブラウザ保存を確認できません。この画面を閉じる前に「JSONをコピー」で比較記録を退避してください。
+          ブラウザ保存を確認できません。この画面を閉じる前に「JSONを保存」で比較記録を退避してください。
         </p>
         <div class="table-wrap">
           <table><thead><tr><th>#</th><th>扱い</th><th>方式</th><th>画面 / 入力</th><th>回収</th><th>切替</th><th>代償</th><th>撃破</th><th>被弾</th><th>Lv3秒</th><th>予測</th><th>選択</th><th>再試行</th><th>メモ</th><th>操作</th></tr></thead><tbody id="results-body"></tbody></table>
@@ -117,6 +117,6 @@
         <p class="empty-message">まだ完走記録はありません。各方式を3回ずつ完走してください。</p>
       </section>
     </main>
-    <script type="module" src="./app.mjs?v=20261021-build-id"></script>
+    <script type="module" src="./app.mjs?v=20261021-json-download"></script>
   </body>
 </html>

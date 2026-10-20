@@ -354,6 +354,22 @@ export function parseComparisonExport(source) {
   return records;
 }
 
+export function serializeComparisonExport(records, exportedAt = new Date().toISOString()) {
+  if (!Array.isArray(records)
+    || restoreSessionRecords(records).length !== records.length
+    || typeof exportedAt !== "string"
+    || !Number.isFinite(Date.parse(exportedAt))) {
+    throw new Error("Invalid comparison export");
+  }
+  return JSON.stringify({
+    protocol: COMPARISON_PROTOCOL,
+    build: COMPARISON_BUILD,
+    exportedAt,
+    summary: summarizeComparison(records),
+    records,
+  }, null, 2);
+}
+
 function sessionRecordIdentity(record) {
   const {
     included: _included,
