@@ -261,9 +261,25 @@ function normalizeSessionEnvironment(environment) {
   return { viewportWidth, viewportHeight, inputMethods: normalizedMethods };
 }
 
-export function createSessionRecord({ mode, metrics, reflection, environment, included = true, completedAt = new Date().toISOString() }) {
+export function createSessionRecord({
+  mode,
+  metrics,
+  reflection,
+  environment,
+  included = true,
+  legacyExcluded = false,
+  classificationReviewed = true,
+  completedAt = new Date().toISOString(),
+}) {
   if (!MODE_INFO[mode]) throw new Error(`Unknown mode: ${mode}`);
   if (typeof included !== "boolean") throw new Error("Invalid comparison inclusion");
+  if (typeof legacyExcluded !== "boolean" || (legacyExcluded && included)) {
+    throw new Error("Invalid legacy comparison state");
+  }
+  if (typeof classificationReviewed !== "boolean"
+    || (!classificationReviewed && (!legacyExcluded || included))) {
+    throw new Error("Invalid comparison classification");
+  }
   if (typeof completedAt !== "string" || !Number.isFinite(Date.parse(completedAt))) {
     throw new Error("Invalid completion date");
   }
@@ -281,6 +297,8 @@ export function createSessionRecord({ mode, metrics, reflection, environment, in
     version: 1,
     protocol: COMPARISON_PROTOCOL,
     included,
+    legacyExcluded,
+    classificationReviewed,
     mode,
     completedAt,
     metrics: Object.fromEntries(requiredMetrics.map((key) => [key, metrics[key]])),
@@ -299,7 +317,13 @@ export function restoreSessionRecords(value) {
   return value.flatMap((record) => {
     try {
       if (record?.version !== 1 || record?.protocol !== COMPARISON_PROTOCOL) return [];
-      return [createSessionRecord(record)];
+      const classificationReviewed = record.classificationReviewed === true;
+      return [createSessionRecord({
+        ...record,
+        included: classificationReviewed ? record.included : false,
+        legacyExcluded: !classificationReviewed,
+        classificationReviewed,
+      })];
     } catch {
       return [];
     }
@@ -420,7 +444,7 @@ export function setSessionRecordInclusion(records, index, included) {
   if (!Number.isInteger(index) || index < 0 || index >= records.length
     || typeof included !== "boolean") return [...records];
   return records.map((record, recordIndex) => recordIndex === index
-    ? { ...record, included }
+    ? { ...record, included, legacyExcluded: false, classificationReviewed: true }
     : record);
 }
 

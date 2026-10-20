@@ -69,6 +69,8 @@ test("比較記録は定量値と主観値を分離し、方式ごとの不足�
   const record = createSessionRecord(base);
   assert.equal(record.protocol, COMPARISON_PROTOCOL);
   assert.equal(record.included, true);
+  assert.equal(record.legacyExcluded, false);
+  assert.equal(record.classificationReviewed, true);
   assert.equal(record.reflection.note, "mixed build");
   assert.deepEqual(record.environment, {
     viewportWidth: 390,
@@ -233,7 +235,7 @@ test("比較記録は範囲外の主観評価と不正な指標を拒否する",
   }), /Invalid session environment/);
 });
 
-test("比較記録は画面・入力を正規化し、旧記録を正式比較として復元する", () => {
+test("比較記録は画面・入力を正規化し、区分不明の旧記録を集計から除外する", () => {
   const base = {
     mode: "queue",
     metrics: { collections: 1, switches: 0, tradeoffs: 0, kills: 1, hits: 0, level3: 0 },
@@ -253,9 +255,14 @@ test("比較記録は画面・入力を正規化し、旧記録を正式比較�
   const legacy = { ...createSessionRecord(base) };
   delete legacy.environment;
   delete legacy.included;
+  delete legacy.legacyExcluded;
+  delete legacy.classificationReviewed;
   const [restoredLegacy] = restoreSessionRecords([legacy]);
   assert.equal(restoredLegacy.environment, null);
-  assert.equal(restoredLegacy.included, true);
+  assert.equal(restoredLegacy.included, false);
+  assert.equal(restoredLegacy.legacyExcluded, true);
+  assert.equal(restoredLegacy.classificationReviewed, false);
+  assert.equal(comparisonProgress([restoredLegacy]).queue.count, 0);
 });
 
 test("保存済み比較記録の破損行と旧version・旧protocolを除外する", () => {
@@ -401,11 +408,21 @@ test("指定した比較記録だけを元の配列を変えずに削除する",
 });
 
 test("既存記録を非破壊で正式比較とQA除外へ切り替える", () => {
-  const records = [{ mode: "queue", included: true }, { mode: "armory", included: true }];
+  const records = [
+    { mode: "queue", included: true, legacyExcluded: false, classificationReviewed: true },
+    { mode: "armory", included: false, legacyExcluded: true, classificationReviewed: false },
+  ];
   const excluded = setSessionRecordInclusion(records, 0, false);
 
-  assert.deepEqual(excluded, [{ mode: "queue", included: false }, { mode: "armory", included: true }]);
+  assert.deepEqual(excluded, [
+    { mode: "queue", included: false, legacyExcluded: false, classificationReviewed: true },
+    { mode: "armory", included: false, legacyExcluded: true, classificationReviewed: false },
+  ]);
   assert.equal(records[0].included, true);
+  assert.deepEqual(setSessionRecordInclusion(records, 1, true), [
+    { mode: "queue", included: true, legacyExcluded: false, classificationReviewed: true },
+    { mode: "armory", included: true, legacyExcluded: false, classificationReviewed: true },
+  ]);
   assert.deepEqual(setSessionRecordInclusion(records, -1, false), records);
   assert.deepEqual(setSessionRecordInclusion(records, 0, "no"), records);
   assert.deepEqual(setSessionRecordInclusion(null, 0, false), []);

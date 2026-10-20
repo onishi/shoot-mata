@@ -35,7 +35,7 @@ import {
   startButtonLabel,
   summarizeComparison,
   weaponLabel,
-} from "./model.mjs";
+} from "./model.mjs?v=20261021-classification";
 
 const canvas = document.querySelector("#stage");
 const ctx = canvas.getContext("2d");
@@ -485,7 +485,10 @@ function renderResults() {
     const environment = record.environment
       ? `${record.environment.viewportWidth}×${record.environment.viewportHeight} / ${record.environment.inputMethods.join("+") || "入力記録なし"}`
       : "旧記録 / 環境なし";
-    const values = [index + 1, record.included === false ? "QA除外" : "正式", MODE_INFO[record.mode].label, environment, record.metrics.collections,
+    const handling = record.legacyExcluded
+      ? "旧記録除外"
+      : record.included === false ? "QA除外" : "正式";
+    const values = [index + 1, handling, MODE_INFO[record.mode].label, environment, record.metrics.collections,
       record.metrics.switches, record.metrics.tradeoffs, record.metrics.kills,
       record.metrics.hits, record.metrics.level3.toFixed(1), record.reflection.prediction,
       record.reflection.choice, record.reflection.retry, record.reflection.note || "—"];
