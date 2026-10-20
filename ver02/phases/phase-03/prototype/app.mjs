@@ -5,6 +5,7 @@ import {
   MODE_INFO,
   SUPPORT_INFO,
   acquireSessionStorage,
+  canDiscardPendingSession,
   canEditComparisonRecords,
   collectCore,
   canStartMode,
@@ -40,6 +41,7 @@ const ctx = canvas.getContext("2d");
 const startButton = document.querySelector("#start");
 const countdown = document.querySelector("#countdown");
 const reflectionForm = document.querySelector("#reflection-form");
+const discardSessionButton = document.querySelector("#discard-session");
 const resultsBody = document.querySelector("#results-body");
 const progress = document.querySelector("#comparison-progress");
 const exportButton = document.querySelector("#export-results");
@@ -383,6 +385,16 @@ reflectionForm.addEventListener("submit", (event) => {
     startButton.hidden = false;
     renderResults();
   }
+});
+
+discardSessionButton.addEventListener("click", () => {
+  if (!canDiscardPendingSession(running, pendingSession !== null)) return;
+  if (!confirm("この完走は比較記録へ保存されません。破棄しますか？")) return;
+  pendingSession = null;
+  reflectionForm.reset();
+  reflectionForm.hidden = true;
+  modeButtons.forEach((button) => { button.disabled = false; });
+  selectMode(recommendedMode(records) ?? selectedMode);
 });
 
 exportButton.addEventListener("click", async () => {

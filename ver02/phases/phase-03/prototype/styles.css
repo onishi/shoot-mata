@@ -142,6 +142,8 @@ canvas { display: block; width: 100%; aspect-ratio: 16 / 9; touch-action: none; 
 .reflection .note { grid-column: 1 / -1; }
 .reflection textarea { width: 100%; padding: 8px; resize: vertical; }
 .reflection button, .results button { min-height: 38px; border: 1px solid var(--cyan); border-radius: 3px; padding: 6px 10px; color: #06101e; background: var(--cyan); font-weight: 800; cursor: pointer; }
+.reflection-actions { grid-column: 1 / -1; display: flex; gap: 8px; }
+.reflection-actions .secondary { color: #ffd0c5; background: transparent; border-color: #9b534f; }
 .results-heading { display: flex; justify-content: space-between; align-items: end; gap: 12px; }
 .results-heading h2, .results-heading p { margin: 0; }
 .results-heading p { margin-top: 4px; color: #b6c5dc; font-size: 11px; }
@@ -192,7 +194,8 @@ th { color: var(--cyan); background: #0b1427; }
   .instructions { grid-template-columns: 1fr; }
   .instructions div { min-height: auto; }
   .reflection fieldset { grid-template-columns: 1fr; }
-  .reflection p, .reflection .note { grid-column: auto; }
+  .reflection p, .reflection .note, .reflection-actions { grid-column: auto; }
+  .reflection-actions { flex-direction: column; }
   .results-heading { align-items: stretch; flex-direction: column; }
   .results-heading > div:last-child button { flex: 1; min-width: 0; padding-inline: 4px; font-size: 10px; white-space: nowrap; }
 }

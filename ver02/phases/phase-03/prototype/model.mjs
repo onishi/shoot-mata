@@ -438,6 +438,13 @@ export function canEditComparisonRecords(running, hasPendingSession) {
   return !running && !hasPendingSession;
 }
 
+export function canDiscardPendingSession(running, hasPendingSession) {
+  if (typeof running !== "boolean" || typeof hasPendingSession !== "boolean") {
+    throw new Error("Invalid comparison state");
+  }
+  return !running && hasPendingSession;
+}
+
 export function shouldWarnBeforeUnload(running, hasPendingSession) {
   if (typeof running !== "boolean" || typeof hasPendingSession !== "boolean") {
     throw new Error("Invalid comparison state");

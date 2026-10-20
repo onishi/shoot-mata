@@ -5,6 +5,7 @@ import {
   CORE_INFO,
   CORE_TYPES,
   acquireSessionStorage,
+  canDiscardPendingSession,
   canEditComparisonRecords,
   clearInteractionState,
   canStartMode,
@@ -160,6 +161,14 @@ test("比較記録は待機中だけ変更でき、実行中と完走後の回�
   assert.equal(canEditComparisonRecords(false, true), false);
   assert.equal(canEditComparisonRecords(true, true), false);
   assert.throws(() => canEditComparisonRecords("yes", false), /Invalid comparison state/);
+});
+
+test("完走後の未保存セッションだけを明示的に破棄できる", () => {
+  assert.equal(canDiscardPendingSession(false, true), true);
+  assert.equal(canDiscardPendingSession(true, false), false);
+  assert.equal(canDiscardPendingSession(true, true), false);
+  assert.equal(canDiscardPendingSession(false, false), false);
+  assert.throws(() => canDiscardPendingSession("false", true), /Invalid comparison state/);
 });
 
 test("実行中と完走後の回答待ちは画面離脱前に警告する", () => {
