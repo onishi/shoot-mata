@@ -4,6 +4,7 @@ import {
   CORE_INFO,
   MODE_INFO,
   SUPPORT_INFO,
+  acquireSessionStorage,
   canEditComparisonRecords,
   collectCore,
   canStartMode,
@@ -51,6 +52,7 @@ const ui = Object.fromEntries(
 
 const SESSION_SECONDS = 45;
 const COMPARISON_STORAGE_KEY = `shoot-mata-phase03-comparison-p${COMPARISON_PROTOCOL}`;
+const comparisonStorage = acquireSessionStorage(() => window.localStorage);
 let selectedMode = "queue";
 let running = false;
 let suspended = false;
@@ -71,7 +73,7 @@ let projectiles = [];
 let enemyShots = [];
 let interaction = createInteractionState();
 let pendingSession = null;
-const initialRecords = initializeSessionRecords(localStorage, COMPARISON_STORAGE_KEY);
+const initialRecords = initializeSessionRecords(comparisonStorage, COMPARISON_STORAGE_KEY);
 let records = initialRecords.records;
 let recordsPersisted = initialRecords.persisted;
 
@@ -97,7 +99,7 @@ function reset() {
 }
 
 function saveRecords() {
-  recordsPersisted = persistSessionRecords(localStorage, COMPARISON_STORAGE_KEY, records);
+  recordsPersisted = persistSessionRecords(comparisonStorage, COMPARISON_STORAGE_KEY, records);
   renderStorageStatus();
   return recordsPersisted;
 }

@@ -4,6 +4,7 @@ import {
   COMPARISON_PROTOCOL,
   CORE_INFO,
   CORE_TYPES,
+  acquireSessionStorage,
   canEditComparisonRecords,
   clearInteractionState,
   canStartMode,
@@ -229,6 +230,18 @@ test("比較記録の保存拒否と読み戻し不一致を失敗として返�
   assert.equal(persistSessionRecords(ignored, "comparison", []), false);
   assert.throws(() => persistSessionRecords(ignored, "", []), /Invalid persistence input/);
   assert.throws(() => persistSessionRecords(ignored, "comparison", null), /Invalid persistence input/);
+});
+
+test("ブラウザ保存領域の取得自体が拒否されても比較器を起動できる", () => {
+  const storage = acquireSessionStorage(() => {
+    throw new DOMException("blocked");
+  });
+
+  assert.deepEqual(initializeSessionRecords(storage, "comparison"), {
+    records: [],
+    persisted: false,
+  });
+  assert.throws(() => acquireSessionStorage(null), /Invalid storage reader/);
 });
 
 test("起動時に有効な比較記録を復元し、保存可否を完走前に確認する", () => {

@@ -299,6 +299,22 @@ export function persistSessionRecords(storage, key, records) {
   }
 }
 
+export function acquireSessionStorage(readStorage) {
+  if (typeof readStorage !== "function") throw new Error("Invalid storage reader");
+  try {
+    const storage = readStorage();
+    if (!storage || typeof storage.getItem !== "function" || typeof storage.setItem !== "function") {
+      throw new Error("Invalid storage");
+    }
+    return storage;
+  } catch {
+    return Object.freeze({
+      getItem() { throw new Error("Storage unavailable"); },
+      setItem() { throw new Error("Storage unavailable"); },
+    });
+  }
+}
+
 export function initializeSessionRecords(storage, key) {
   if (typeof key !== "string" || key.length === 0) {
     throw new Error("Invalid persistence input");
