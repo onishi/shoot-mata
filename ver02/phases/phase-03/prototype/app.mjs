@@ -37,7 +37,8 @@ import {
   shouldWarnBeforeUnload,
   startButtonLabel,
   weaponLabel,
-} from "./model.mjs?v=20261021-viewport-evidence-2";
+  summarizeEnvironmentCoverage,
+} from "./model.mjs?v=20261021-environment-coverage-3";
 
 const canvas = document.querySelector("#stage");
 const ctx = canvas.getContext("2d");
@@ -48,6 +49,7 @@ const reflectionWarning = document.querySelector("#reflection-warning");
 const discardSessionButton = document.querySelector("#discard-session");
 const resultsBody = document.querySelector("#results-body");
 const progress = document.querySelector("#comparison-progress");
+const environmentCoverage = document.querySelector("#environment-coverage");
 const comparisonBuild = document.querySelector("#comparison-build");
 const exportButton = document.querySelector("#export-results");
 const downloadButton = document.querySelector("#download-results");
@@ -514,14 +516,24 @@ clearButton.addEventListener("click", () => {
 
 function renderResults() {
   const coverage = comparisonProgress(records);
+  const evidence = summarizeEnvironmentCoverage(records);
   const nextMode = recommendedMode(records);
   const controlsLocked = !canEditComparisonRecords(running, pendingSession !== null);
   progress.textContent = Object.entries(coverage)
     .map(([mode, state]) => `${MODE_INFO[mode].label} ${state.count}/${COMPARISON_TARGET}`)
     .join(" / ");
+  environmentCoverage.textContent = [
+    `PC ${evidence.pc ? "済" : "未"}`,
+    `縦長320〜390px ${evidence.portrait ? "済" : "未"}`,
+    `スマホ横長 ${evidence.landscape ? "済" : "未"}`,
+    `キーボード ${evidence.keyboard ? "済" : "未"}`,
+    `実タッチ ${evidence.touch ? "済" : "未"}`,
+  ].join(" / ");
   nextSession.textContent = nextMode
     ? `次の推奨: ${MODE_INFO[nextMode].label}（順序による慣れ・疲労の偏りを減らすため、3セットで開始方式をずらします）`
-    : "必要な9完走が揃いました。JSONを出力して、人の観察と数値を分けてレビューしてください。";
+    : evidence.complete
+      ? "必要な9完走と環境証拠が揃いました。JSONを出力して、人の観察と数値を分けてレビューしてください。"
+      : "必要な9完走は揃いましたが、環境証拠が未達です。未確認の画面・入力条件で追加確認し、正式3件が上限ならQA除外で保存してください。";
   modeButtons.forEach((button) => {
     button.classList.toggle("recommended", button.dataset.mode === nextMode);
     button.disabled = controlsLocked || coverage[button.dataset.mode].complete;

@@ -38,6 +38,7 @@ import {
   shouldWarnBeforeUnload,
   startButtonLabel,
   summarizeComparison,
+  summarizeEnvironmentCoverage,
 } from "../model.mjs";
 
 test("3コアは色・外形・内部記号を重複させず取得前に識別できる", () => {
@@ -249,6 +250,42 @@ test("比較集計は方式別の定量値と主観値を平均し、完了前�
     [0, 1, 2].map((offset) => makeRecord(mode, 10, 4, String(10 + modeIndex * 3 + offset))),
   );
   assert.equal(summarizeComparison(complete).complete, true);
+  assert.equal(summarizeComparison(complete).readyForReview, false);
+});
+
+test("正式比較の画面・入力条件を集計し、途中リサイズとQA記録を画面証拠から除く", () => {
+  const makeRecord = (mode, environment, included = true, second = 0) => createSessionRecord({
+    mode,
+    included,
+    metrics: { collections: 6, switches: 2, tradeoffs: 1, kills: 12, hits: 1, level3: 2.5 },
+    reflection: { prediction: 3, choice: 4, retry: 5 },
+    environment,
+    completedAt: `2026-10-21T04:00:0${second}.000Z`,
+  });
+  const records = [
+    makeRecord("queue", { viewportWidth: 1440, viewportHeight: 900, inputMethods: ["keyboard"] }, true, 0),
+    makeRecord("armory", { viewportWidth: 390, viewportHeight: 844, inputMethods: ["touch"] }, true, 1),
+    makeRecord("chain", { viewportWidth: 844, viewportHeight: 390, inputMethods: ["touch"] }, true, 2),
+    makeRecord("queue", {
+      viewportWidth: 390,
+      viewportHeight: 844,
+      viewportEndWidth: 844,
+      viewportEndHeight: 390,
+      viewportChanged: true,
+      inputMethods: ["touch"],
+    }, true, 3),
+    makeRecord("armory", { viewportWidth: 320, viewportHeight: 844, inputMethods: ["touch"] }, false, 4),
+  ];
+
+  assert.deepEqual(summarizeEnvironmentCoverage(records), {
+    pc: 1,
+    portrait: 1,
+    landscape: 1,
+    keyboard: 1,
+    touch: 3,
+    complete: true,
+  });
+  assert.throws(() => summarizeEnvironmentCoverage(null), /Invalid comparison records/);
 });
 
 test("比較記録は範囲外の主観評価と不正な指標を拒否する", () => {

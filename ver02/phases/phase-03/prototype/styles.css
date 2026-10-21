@@ -151,6 +151,7 @@ canvas { display: block; width: 100%; aspect-ratio: 16 / 9; touch-action: none; 
 .results-heading h2, .results-heading p { margin: 0; }
 .results-heading h2 small { color: #92a4c1; font-size: 9px; font-weight: 400; }
 .results-heading p { margin-top: 4px; color: #b6c5dc; font-size: 11px; }
+.results-heading .environment-coverage { color: #ffd88a; }
 .next-session { margin: 10px 0 0; color: #ffdf78; font-size: 11px; line-height: 1.5; }
 .import-status { margin: 10px 0 0; color: #bdeeff; font-size: 11px; line-height: 1.5; }
 .storage-warning { margin: 10px 0 0; border: 1px solid #ff8d72; padding: 8px; color: #ffd0c5; background: rgba(95, 27, 24, .58); font-size: 11px; line-height: 1.5; }

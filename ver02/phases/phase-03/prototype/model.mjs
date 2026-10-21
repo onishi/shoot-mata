@@ -578,6 +578,38 @@ function mean(records, read) {
   return Number((records.reduce((total, record) => total + read(record), 0) / records.length).toFixed(2));
 }
 
+export function summarizeEnvironmentCoverage(records) {
+  if (!Array.isArray(records)) throw new Error("Invalid comparison records");
+  const coverage = {
+    pc: 0,
+    portrait: 0,
+    landscape: 0,
+    keyboard: 0,
+    touch: 0,
+  };
+
+  for (const record of records) {
+    if (record?.included === false || !record?.environment) continue;
+    const environment = record.environment;
+    const inputMethods = Array.isArray(environment.inputMethods)
+      ? environment.inputMethods
+      : [];
+    if (inputMethods.includes("keyboard")) coverage.keyboard += 1;
+    if (inputMethods.includes("touch")) coverage.touch += 1;
+    if (environment.viewportChanged) continue;
+
+    const { viewportWidth: width, viewportHeight: height } = environment;
+    if (width >= 1024 && height >= 600) coverage.pc += 1;
+    if (width >= 320 && width <= 390 && height > width) coverage.portrait += 1;
+    if (width > height && height <= 500) coverage.landscape += 1;
+  }
+
+  return {
+    ...coverage,
+    complete: Object.values(coverage).every((count) => count > 0),
+  };
+}
+
 export function summarizeComparison(records) {
   const progress = comparisonProgress(records);
   const byMode = Object.fromEntries(Object.keys(MODE_INFO).map((mode) => {
@@ -594,9 +626,13 @@ export function summarizeComparison(records) {
       ),
     }];
   }));
+  const complete = Object.values(progress).every((state) => state.complete);
+  const environmentCoverage = summarizeEnvironmentCoverage(records);
   return {
-    complete: Object.values(progress).every((state) => state.complete),
+    complete,
+    readyForReview: complete && environmentCoverage.complete,
     progress,
+    environmentCoverage,
     byMode,
   };
 }
