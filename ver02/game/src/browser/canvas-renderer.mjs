@@ -1,0 +1,117 @@
+const HUD_BACKGROUND = "rgba(2, 7, 11, 0.9)";
+
+function requireContext(context) {
+  if (!context || typeof context.fillRect !== "function" || typeof context.drawImage !== "function") {
+    throw new TypeError("a 2D canvas context is required");
+  }
+}
+
+function drawContained(context, image, actor, width, height) {
+  const boxWidth = actor.width * width;
+  const boxHeight = actor.height * height;
+  const ratio = Math.min(boxWidth / image.naturalWidth, boxHeight / image.naturalHeight);
+  const drawWidth = image.naturalWidth * ratio;
+  const drawHeight = image.naturalHeight * ratio;
+  context.drawImage(
+    image,
+    (actor.x * width) - (drawWidth / 2),
+    (actor.y * height) - (drawHeight / 2),
+    drawWidth,
+    drawHeight,
+  );
+}
+
+function drawLayer(context, image, layer, width, height) {
+  const firstX = layer.offsetX;
+  context.drawImage(image, firstX, 0, width, height);
+  context.drawImage(image, firstX + width, 0, width, height);
+  if (firstX > 0) context.drawImage(image, firstX - width, 0, width, height);
+}
+
+function drawHudPanel(context, x, y, width, height, highContrast) {
+  context.fillStyle = highContrast ? "#000" : HUD_BACKGROUND;
+  context.fillRect(x, y, width, height);
+  context.strokeStyle = highContrast ? "#fff" : "#9bb7c8";
+  context.lineWidth = 2;
+  context.strokeRect(x, y, width, height);
+}
+
+function drawHud(context, view) {
+  const highContrast = view.display.highContrast;
+  drawHudPanel(context, 20, 566, 460, 132, highContrast);
+  drawHudPanel(context, 956, 566, 304, 132, highContrast);
+  context.textBaseline = "top";
+  context.font = "22px ui-monospace, monospace";
+  context.fillStyle = "#a9bfcc";
+  context.fillText("REACTOR / FIFO", 38, 582);
+  context.fillText("SCORE", 976, 582);
+  context.font = "bold 30px ui-monospace, monospace";
+  context.fillStyle = "#fff";
+  context.fillText(String(view.hud.score).padStart(8, "0"), 976, 612);
+  context.font = "20px ui-monospace, monospace";
+  context.fillText(`LIFE ${view.hud.lives}  ${view.hud.weapon.label} Lv${view.hud.weapon.level}`, 976, 660);
+
+  for (let index = 0; index < 3; index += 1) {
+    const core = view.hud.coreQueue[index];
+    const x = 38 + (index * 116);
+    context.fillStyle = "#101b25";
+    context.fillRect(x, 620, 92, 58);
+    context.strokeStyle = core?.color ?? "#52616d";
+    context.lineWidth = index === 0 && core ? 4 : 2;
+    context.strokeRect(x, 620, 92, 58);
+    context.fillStyle = core?.color ?? "#71808b";
+    context.font = "bold 30px ui-monospace, monospace";
+    context.fillText(core?.symbol ?? "—", x + 34, 633);
+  }
+  if (view.hud.boss) {
+    context.fillStyle = "#16090b";
+    context.fillRect(436, 28, 408, 28);
+    context.fillStyle = "#ff6c4b";
+    context.fillRect(440, 32, 400 * view.hud.boss.ratio, 20);
+    context.strokeStyle = "#fff";
+    context.lineWidth = 2;
+    context.strokeRect(436, 28, 408, 28);
+  }
+}
+
+export function missingAssetIds(view, assets) {
+  if (!view || typeof view !== "object") throw new TypeError("view is required");
+  const needed = new Set([
+    ...view.layers.map(({ assetId }) => assetId),
+    ...view.actors.map(({ assetId }) => assetId),
+  ]);
+  return Object.freeze([...needed].filter((id) => !assets?.[id]));
+}
+
+export function renderCanvasFrame(context, view, assets) {
+  requireContext(context);
+  if (!view || typeof view !== "object") throw new TypeError("view is required");
+  const missing = missingAssetIds(view, assets);
+  if (missing.length > 0) throw new Error(`missing canvas assets: ${missing.join(", ")}`);
+
+  context.save();
+  context.clearRect(0, 0, view.width, view.height);
+  context.fillStyle = "#071426";
+  context.fillRect(0, 0, view.width, view.height);
+  for (const layer of view.layers) drawLayer(context, assets[layer.assetId], layer, view.width, view.height);
+  if (view.display.highContrast) {
+    context.fillStyle = "rgba(0, 0, 0, 0.34)";
+    context.fillRect(0, 0, view.width, view.height);
+  }
+  for (const actor of view.actors) drawContained(context, assets[actor.assetId], actor, view.width, view.height);
+  drawHud(context, view);
+  context.restore();
+  return Object.freeze({ drawnAssets: view.layers.length + view.actors.length, missingAssets: missing });
+}
+
+export async function loadCanvasAssets(manifest, options = {}) {
+  if (!manifest || typeof manifest !== "object") throw new TypeError("asset manifest is required");
+  const createImage = options.createImage ?? (() => new Image());
+  const entries = await Promise.all(Object.entries(manifest).map(([id, url]) => new Promise((resolve, reject) => {
+    const image = createImage();
+    image.addEventListener("load", () => resolve([id, image]), { once: true });
+    image.addEventListener("error", () => reject(new Error(`failed to load asset ${id}: ${url}`)), { once: true });
+    image.src = url;
+  })));
+  return Object.freeze(Object.fromEntries(entries));
+}

@@ -62,4 +62,8 @@ Phase 05の成果物は技術基盤であり、完成製品、完成アート、
 
 ## 現在の作業
 
-TECH-01の純粋な時計モデル、主要画面の状態遷移、version付き保存、入力抽象化、音声初期化と無音縮退のブラウザ境界、stage schemaとseed固定scheduleは完了。仮区間は背景、敵、drop、区間、wave、仕掛け、boss phase、音、遷移を検査し、データ差替えを巨大条件分岐なしでscheduleへ反映できる。戦闘シミュレーションと開始から結果までの完走、アクセシブルな実画面UI、無音完走は未実装。次はCanvas描画とレスポンシブ画面へ進み、既存の時計・状態・入力・音声・保存・stageデータを接続する。
+TECH-01の純粋な時計モデル、主要画面の状態遷移、version付き保存、入力抽象化、音声初期化と無音縮退のブラウザ境界、stage schemaとseed固定scheduleは完了。仮区間は背景、敵、drop、区間、wave、仕掛け、boss phase、音、遷移を検査し、データ差替えを巨大条件分岐なしでscheduleへ反映できる。
+
+1280×720のserializableなstage表示モデル、Canvas 2D描画、Phase 04の背景3層・自機・代表敵・3コアのasset manifest、HUD、高コントラスト、動き軽減、Canvas外の読み上げ状態、キーボード・Pointer Events操作領域を追加した。描画モデルと命令、素材実在は自動検査済み。ローカルHTTPサーバーの実行許可が得られず、4 viewportの実ブラウザ画像、overflow、console、実操作は未確認のためUX-05〜07を合格扱いにしない。
+
+次は戦闘シミュレーションをstage scheduleへ接続し、タイトルから結果・再挑戦までの決定的な仮区間通しを作る。その後、安全な静的配信入口を確立してCanvas画面を4 viewportで再検証する。

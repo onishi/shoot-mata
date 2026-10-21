@@ -73,6 +73,10 @@ Phase 05の `phase05-orbital-segment` は基盤検証専用で、Phase 04の背�
 
 内部ゲーム座標は16:9で固定し、CanvasをCSSで利用可能領域へcontainする。縦長ではCanvas下に44 CSS px以上の操作領域を置き、HUDの重要情報はCanvas内とアクセシブルなDOM表示モデルを同じ状態から描く。高コントラストと動き軽減は表示アダプターの設定として全画面へ適用する。
 
+Phase 05の論理解像度は1280×720とする。`ui/stage-view-model.mjs` がstage定義、tick、actor、HUD、表示設定をserializableな描画モデルへ変換し、`browser/canvas-renderer.mjs` はそのモデルだけをCanvas 2Dへ描く。背景3層はstageのasset IDとscroll factorを使い、動き軽減時はoffsetを0へ固定する。Canvas外のDOMには同じモデルから現在区間、score、残機を通知し、タッチ操作はCanvasと分離した44 CSS px以上の領域へ置く。
+
+素材URLは `content/asset-manifest.mjs` に集約し、外部URLを持たず、テストで実ファイルとの対応を検査する。素材読込に1点でも失敗した場合は欠落したままゲームを開始せず、画面内の再読込案内とconsole errorへ変換する。Phase 05のplaceholder敵・bossはCanvasの代表画面へ描かず、完成素材として数えない。
+
 ## 10. ビルドと配信
 
 ES moduleを基準とし、導入する依存はロックファイル、権利、脆弱性、配信容量への影響を記録する。出力は相対URLで動く静的ファイルとし、実行時外部通信を必要としない。build IDと権利通知を成果物から確認可能にする。
