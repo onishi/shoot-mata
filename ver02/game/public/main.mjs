@@ -1,21 +1,21 @@
 import { loadCanvasAssets, renderCanvasFrame } from "../src/browser/canvas-renderer.mjs";
+import { loadBrowserAudioAssets } from "../src/browser/audio-assets.mjs";
+import { createBrowserAudioAdapter } from "../src/browser/audio-adapter.mjs";
 import { createBrowserInputAdapter } from "../src/browser/input-adapter.mjs";
+import { createGameApplication } from "../src/app/game-application.mjs";
 import { GAME_ASSETS } from "../src/content/asset-manifest.mjs";
 import { PHASE05_TEST_STAGE } from "../src/content/stages/phase05-test-segment.mjs";
 import { advanceFixedStep, createFixedStepClock, setClockSuspended } from "../src/core/fixed-step.mjs";
-import {
-  createGameSession,
-  dispatchGameAction,
-  getGameSessionSnapshot,
-  updateGameSession,
-} from "../src/core/game-session.mjs";
+import { getGameSessionSnapshot } from "../src/core/game-session.mjs";
 import { consumeInput } from "../src/core/input-state.mjs";
+import { createSaveRepository } from "../src/ports/save-repository.mjs";
 import { createStageViewModel } from "../src/ui/stage-view-model.mjs";
 
 const app = document.querySelector("[data-app]");
 const canvas = document.querySelector("[data-canvas]");
 const canvasStatus = document.querySelector("[data-canvas-status]");
 const runtimeStatus = document.querySelector("[data-runtime-status]");
+const warningStatus = document.querySelector("[data-warning-status]");
 const accessibleState = document.querySelector("[data-accessible-state]");
 const inputRoot = document.querySelector("[data-input-root]");
 const fullscreenButton = document.querySelector("[data-fullscreen]");
@@ -26,14 +26,58 @@ const screenCopy = document.querySelector("[data-screen-copy]");
 const screenActions = document.querySelector("[data-screen-actions]");
 const context = canvas.getContext("2d", { alpha: false });
 
+const audio = createBrowserAudioAdapter();
+const application = createGameApplication({
+  stage: PHASE05_TEST_STAGE,
+  saveRepository: createSaveRepository(),
+  audio,
+  seed: 20261022,
+});
+const session = application.session;
+const savedSettings = application.getSettings();
 const displaySettings = {
-  reducedMotion: matchMedia("(prefers-reduced-motion: reduce)").matches,
-  highContrast: false,
+  reducedMotion: savedSettings.reducedMotion || matchMedia("(prefers-reduced-motion: reduce)").matches,
+  highContrast: savedSettings.highContrast,
 };
-const session = createGameSession({ seed: 20261022 });
 const clock = createFixedStepClock();
 const input = createBrowserInputAdapter({ keyboardTarget: window, gameTarget: inputRoot });
 let renderedScreenKey = "";
+let audioLoadPromise = null;
+let audioAssetWarning = null;
+
+const WARNING_MESSAGES = Object.freeze({
+  "storage-unavailable": "保存領域を利用できません。このセッション内だけで継続します。",
+  "storage-read-failed": "保存データを読めません。このセッション内だけで継続します。",
+  "storage-write-failed": "保存できませんでした。このセッション内の変更は維持します。",
+  "invalid-json": "破損した保存データを退避し、初期状態で開始しました。",
+  "invalid-schema": "不正な保存データを退避し、初期状態で開始しました。",
+  "future-version": "新しい版の保存データは読まず、初期状態で開始しました。",
+  "unsupported-version": "未対応の保存データを退避し、初期状態で開始しました。",
+  "migration-failed": "保存データを移行できず、初期状態で開始しました。",
+  "audio-context-create-failed": "音声を開始できません。無音のままプレイできます。",
+  "audio-context-resume-failed": "音声の再開を拒否されました。無音のままプレイできます。",
+  "audio-source-load-failed": "一部の音源を読み込めません。利用可能な音だけで継続します。",
+});
+
+function syncWarning() {
+  const status = application.getStatus();
+  const warning = audioAssetWarning ?? status.audioWarning ?? status.saveWarning;
+  warningStatus.hidden = warning === null;
+  warningStatus.textContent = warning ? (WARNING_MESSAGES[warning] ?? `警告: ${warning}`) : "";
+}
+
+function ensureAudioAssets() {
+  if (audioLoadPromise) return audioLoadPromise;
+  audioLoadPromise = application.activateAudio().then(async ({ audible }) => {
+    if (!audible) return [];
+    const results = await loadBrowserAudioAssets(audio);
+    if (results.some(({ loaded }) => !loaded)) audioAssetWarning = "audio-source-load-failed";
+    if (session.flow.screen === "playing") audio.playBgm(PHASE05_TEST_STAGE.audio.stageLoopAssetId);
+    syncWarning();
+    return results;
+  });
+  return audioLoadPromise;
+}
 
 function screenDefinition() {
   if (session.flow.confirmation) {
@@ -115,8 +159,12 @@ function syncScreen() {
 }
 
 function update() {
-  updateGameSession(session, PHASE05_TEST_STAGE, consumeInput(input.state));
+  const command = consumeInput(input.state);
+  const wasTitle = session.flow.screen === "title";
+  application.update(command);
+  if (wasTitle && command.confirm === true) ensureAudioAssets();
   syncScreen();
+  syncWarning();
 }
 
 function createView() {
@@ -137,8 +185,10 @@ function createView() {
 screenActions.addEventListener("click", (event) => {
   const action = event.target.closest("[data-action]")?.dataset.action;
   if (!action) return;
-  dispatchGameAction(session, PHASE05_TEST_STAGE, action);
+  application.dispatch(action);
+  if (action === "start-campaign") ensureAudioAssets();
   syncScreen();
+  syncWarning();
 });
 
 function syncSettingButtons() {
@@ -146,17 +196,43 @@ function syncSettingButtons() {
     button.setAttribute("aria-pressed", String(displaySettings[button.dataset.setting]));
   }
   app.dataset.highContrast = String(displaySettings.highContrast);
+  const settings = application.getSettings();
+  for (const inputElement of document.querySelectorAll("[data-volume]")) {
+    inputElement.value = String(settings[inputElement.dataset.volume]);
+  }
+  for (const button of document.querySelectorAll("[data-audio-mute]")) {
+    button.setAttribute("aria-pressed", String(settings[button.dataset.audioMute]));
+  }
 }
 
 for (const button of document.querySelectorAll("[data-setting]")) {
   button.addEventListener("click", () => {
     const key = button.dataset.setting;
     displaySettings[key] = !displaySettings[key];
+    application.updateSettings({ [key]: displaySettings[key] });
     syncSettingButtons();
+    syncWarning();
+  });
+}
+
+for (const range of document.querySelectorAll("[data-volume]")) {
+  range.addEventListener("input", () => {
+    application.updateSettings({ [range.dataset.volume]: Number(range.value) });
+    syncWarning();
+  });
+}
+
+for (const button of document.querySelectorAll("[data-audio-mute]")) {
+  button.addEventListener("click", () => {
+    const key = button.dataset.audioMute;
+    application.updateSettings({ [key]: !application.getSettings()[key] });
+    syncSettingButtons();
+    syncWarning();
   });
 }
 syncSettingButtons();
 syncScreen();
+syncWarning();
 
 fullscreenButton.addEventListener("click", async () => {
   if (!app.requestFullscreen) {

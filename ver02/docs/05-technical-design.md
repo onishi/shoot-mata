@@ -73,6 +73,8 @@ scheduleは純粋な戦闘シミュレーションへ入力し、tickごとの�
 
 `core/game-session.mjs` はflow machineと戦闘状態を束ね、キーボードの共通commandと画面内ボタンのactionを同じ遷移へ渡す。ブラウザ入口はsessionのsnapshotだけを表示モデルへ変換し、再挑戦では同じseedから戦闘状態を作り直す。ボタンにフォーカスがあるEnter／Spaceはブラウザのclickと共通commandを二重発火させず、ボタン本来の操作だけを受理する。
 
+`app/game-application.mjs` はgame session、保存repository、音声adapterの接続だけを担う。保存済みの説明・解放状態からsessionを作り、説明完了、設定変更、クリア結果を即時保存する。STARTは同期的にaudio adapterの `activate()` を呼んでからflowを進める。保存と音声の警告は例外ではなく表示可能な状態として公開し、どちらの失敗も戦闘更新を停止しない。
+
 ## 9. 描画と画面
 
 内部ゲーム座標は16:9で固定し、CanvasをCSSで利用可能領域へcontainする。縦長ではCanvas下に44 CSS px以上の操作領域を置き、HUDの重要情報はCanvas内とアクセシブルなDOM表示モデルを同じ状態から描く。高コントラストと動き軽減は表示アダプターの設定として全画面へ適用する。

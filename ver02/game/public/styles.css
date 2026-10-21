@@ -18,7 +18,7 @@ body {
 button { font: inherit; }
 
 .app {
-  width: min(100%, 1600px, calc((100vh - 150px) * 16 / 9));
+  width: min(100%, 1600px, calc((100vh - 190px) * 16 / 9));
   min-height: 100vh;
   margin-inline: auto;
   padding: max(10px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left));
@@ -28,7 +28,7 @@ button { font: inherit; }
 }
 
 .app:has(.touch-controls:not([hidden])) {
-  width: min(100%, 1600px, calc((100vh - 236px) * 16 / 9));
+  width: min(100%, 1600px, calc((100vh - 276px) * 16 / 9));
 }
 
 .app-header {
@@ -121,6 +121,29 @@ canvas { display: block; width: 100%; height: 100%; }
   gap: 8px;
 }
 
+.audio-controls {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+}
+
+.audio-controls label { display: flex; align-items: center; gap: 6px; font-size: 12px; }
+.audio-controls input { width: min(120px, 24vw); accent-color: #66d6ff; }
+.audio-controls button { min-height: 36px; padding-inline: 10px; font-size: 12px; }
+
+.warning-status {
+  margin: 0;
+  padding: 8px 12px;
+  border: 1px solid #f5a142;
+  color: #ffd29b;
+  background: #2b190d;
+  font-size: 12px;
+}
+
+.warning-status[hidden] { display: none; }
+
 .display-controls button { padding-inline: 12px; }
 .display-controls span { margin-right: auto; color: #9db3c2; font-size: 12px; }
 
@@ -140,18 +163,19 @@ canvas { display: block; width: 100%; height: 100%; }
 
 @media (min-aspect-ratio: 8 / 5) and (max-height: 600px) {
   .app, .app:has(.touch-controls:not([hidden])) { width: min(100vw, calc(100vh * 16 / 9)); min-height: auto; padding-block: 0; }
-  .app-header, .touch-controls, .display-controls { position: absolute; }
+  .app-header, .touch-controls, .display-controls, .audio-controls { position: absolute; }
   .app-header { inset: 8px 8px auto; z-index: 2; pointer-events: none; }
   .app-header button { pointer-events: auto; }
   .touch-controls { inset: auto 12px 10px; z-index: 2; grid-template-columns: 120px 64px 90px; justify-content: space-between; opacity: 0.82; }
   .display-controls { right: 10px; bottom: 10px; z-index: 3; transform: translateY(0); }
   .display-controls span, .display-controls button { display: none; }
+  .audio-controls { display: none; }
   .game-shell { width: 100%; }
 }
 
 @media (max-aspect-ratio: 3 / 4) {
   .app, .app:has(.touch-controls:not([hidden])) { width: 100%; padding-inline: 0; align-content: start; }
-  .app-header, .display-controls { padding-inline: 10px; }
+  .app-header, .display-controls, .audio-controls, .warning-status { margin-inline: 10px; }
   .game-shell { border-inline: 0; }
   .touch-controls { padding-inline: 10px; min-height: 96px; }
   .app-header button { font-size: 11px; }
