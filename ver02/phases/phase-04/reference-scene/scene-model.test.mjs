@@ -2,11 +2,19 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   ACTORS,
+  HUD_MAX_OCCLUSION,
+  HUD_REGIONS,
+  MIN_TEXT_SIZE_PX,
+  MIN_TOUCH_TARGET_PX,
   PARALLAX_LAYERS,
+  REACTOR_QUEUE,
   STAGE_ASPECT_RATIO,
+  VFX_EVENTS,
   actorBounds,
   isInsideFlightCorridor,
   isInsideStage,
+  queueAfterPickup,
+  totalArea,
 } from "./scene-model.mjs";
 
 test("reference scene uses a 16:9 game coordinate system", () => {
@@ -35,5 +43,35 @@ test("actors do not overlap in the reference layout", () => {
       const overlaps = left.left < right.right && left.right > right.left && left.top < right.bottom && left.bottom > right.top;
       assert.equal(overlaps, false, `${ACTORS[leftIndex].id} overlaps ${ACTORS[rightIndex].id}`);
     }
+  }
+});
+
+test("reactor HUD preserves FIFO order and identifies the next ejection", () => {
+  assert.deepEqual(REACTOR_QUEUE.map(({ id }) => id), ["red", "blue", "yellow"]);
+  assert.equal(REACTOR_QUEUE.filter(({ ejectedNext }) => ejectedNext).length, 1);
+  assert.deepEqual(queueAfterPickup(REACTOR_QUEUE.map(({ id }) => id), "red"), ["blue", "yellow", "red"]);
+  assert.throws(() => queueAfterPickup(["red"], "blue"), /exactly three/);
+});
+
+test("persistent HUD stays under the twelve percent occlusion budget", () => {
+  assert.ok(totalArea(HUD_REGIONS) <= HUD_MAX_OCCLUSION);
+  for (const region of HUD_REGIONS) {
+    assert.ok(region.left >= 0 && region.top >= 0);
+    assert.ok(region.left + region.width <= 1);
+    assert.ok(region.top + region.height <= 1);
+  }
+});
+
+test("phase 04 accessibility constants preserve readable text and touch targets", () => {
+  assert.equal(MIN_TEXT_SIZE_PX, 12);
+  assert.equal(MIN_TOUCH_TARGET_PX, 44);
+});
+
+test("hit, damage, and collect use unique non-color cues inside the stage", () => {
+  assert.deepEqual(VFX_EVENTS.map(({ id }) => id), ["hit", "damage", "collect"]);
+  assert.equal(new Set(VFX_EVENTS.map(({ cue }) => cue)).size, VFX_EVENTS.length);
+  for (const event of VFX_EVENTS) {
+    assert.ok(event.x >= 0 && event.x <= 1);
+    assert.ok(event.y >= 0 && event.y <= 1);
   }
 });

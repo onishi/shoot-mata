@@ -15,8 +15,8 @@
 | CORE-RED | `../assets/game/cores/reactor-core-red-v1.png` | 赤コア、菱形＋`I` | OpenAI組み込み画像生成、2026-10-21。完全なプロンプトは同名 `.prompt.md` | リリース前にOpenAI生成物の利用条件と独自性を再確認 | 1333×1180 RGBA PNG、alpha 0〜255 / `d7a470f36a19c03ceda8b796130e7b00063f217517941be74280b8ff9dea6c12` | final |
 | CORE-BLUE | `../assets/game/cores/reactor-core-blue-v1.png` | 青コア、円＋`+` | OpenAI組み込み画像生成、2026-10-21。完全なプロンプトは同名 `.prompt.md` | リリース前にOpenAI生成物の利用条件と独自性を再確認 | 1287×1222 RGBA PNG、alpha 0〜255 / `85c69396f03e9a0a26e226007682123c95766e94570610dddaf48de46b7f5090` | final |
 | CORE-YELLOW | `../assets/game/cores/reactor-core-yellow-v1.png` | 黄コア、三角＋`◎` | OpenAI組み込み画像生成、2026-10-21。完全なプロンプトは同名 `.prompt.md` | リリース前にOpenAI生成物の利用条件と独自性を再確認 | 1364×1153 RGBA PNG、alpha 0〜255 / `70be0a105fea9b457093e3dd6ad5302895b4008181e45b297bbc8f6caa3b5b4e` | final |
-| HUD-REACTOR-01 | 未作成 | 3枠・先頭・押し出し予告 | HTML/CSSまたはCanvasのコード表現 | 自作 | — | planned |
-| VFX-HIT / DAMAGE / COLLECT | 未作成 | 命中・被弾・回収 | スプライトまたは粒子定義 | 未確認 | — | planned |
+| HUD-REACTOR-01 | `../phases/phase-04/reference-scene/` | 3枠・先頭・押し出し予告 | HTML/CSS/JSのコード表現、2026-10-21 | 自作 | 正規化面積11.69%、本文12px以上、操作対象44px以上 | final |
+| VFX-HIT / DAMAGE / COLLECT | `../phases/phase-04/reference-scene/` | 命中・被弾・回収 | HTML/CSSのコード表現、2026-10-21 | 自作 | 十字閃光 / 破線二重環 / 内向き山形 | final |
 | AUDIO-WPN / CORE / UI | 未作成 | 代表効果音セット | Phase 04で制作方法を固定 | 未確認 | — | planned |
 
 ## CONCEPT-STG01-01 生成プロンプト
@@ -54,3 +54,12 @@
 - `phases/phase-04/reference-scene/` で遠景0.08、中景0.22、前景0.46の独立速度を割り当て、自機、敵、3コアと16:9ゲーム座標へ合成した。
 - Chromeで1440×900、390×844、844×390を計測し、8画像の読込成功、横溢れ0px、16:9維持を確認した。844×390は追加調整後に縦溢れも0px。console warning/errorは0件。
 - 分離素材としてゲーム投入可能なため `final`。継ぎ目のない長時間ループ、ゲーム本体への統合、権利再確認が未完了のため `verified` ではない。
+
+## HUD-REACTOR-01 / VFX検査記録
+
+- HUDは古い順に赤`I`、青`+`、黄`◎`を並べ、先頭を寸法と二重輪郭で強調し、黄枠へ`OUT`を付けた。赤取得後の`LANCE Lv2 / AUX SEEK−1`を取得前に表示する。
+- 命中は十字閃光、被弾は破線二重環、回収は内向き山形とし、色を除いても外形が重複しない。味方弾は鏃、敵弾は閉じた円で区別する。
+- 正規化座標上の常設HUD面積は11.69%で上限12%以内。Chromeの1440×900、390×844、844×390で実測11.58〜11.65%、横溢れ0px、HUD同士の重複0、画像欠落0を確認した。
+- HUD本文は12px以上、表示設定3操作は50×44px以上。縦長ではゲーム比率を保ち、操作をゲーム画面下へ分離した。横長では操作を隠してゲーム画面の縦溢れを0pxにした。
+- 動き軽減ではパララックスとVFXアニメーションを停止するが3種の静止形状を残す。高コントラストでは背景の彩度・輝度を下げ、HUDを黒地・白輪郭にする。console warning/errorは0件。
+- コード表現としてゲーム投入可能なため`final`。ゲーム本体への統合、色覚シミュレーション画像検査、明滅頻度上限の固定は未完了なので`verified`ではない。

@@ -19,10 +19,41 @@
         <img class="actor actor--core" data-actor="core-blue" src="../../../assets/game/cores/reactor-core-blue-v1.png" alt="青い円形のリアクターコア">
         <img class="actor actor--core" data-actor="core-yellow" src="../../../assets/game/cores/reactor-core-yellow-v1.png" alt="黄色い三角形のリアクターコア">
 
+        <div class="projectile projectile--friendly" aria-hidden="true"></div>
+        <div class="projectile projectile--enemy" aria-hidden="true"></div>
+        <div class="vfx vfx--hit" data-vfx="hit" role="img" aria-label="敵への命中。十字の閃光"></div>
+        <div class="vfx vfx--damage" data-vfx="damage" role="img" aria-label="自機の被弾。途切れた二重環"></div>
+        <div class="vfx vfx--collect" data-vfx="collect" role="img" aria-label="青コア回収。内向きの山形"></div>
+
         <img class="layer layer--fore" data-layer="fore" src="../../../assets/game/backgrounds/stage-01/orbital-wreck-fore-v1.png" alt="">
         <div class="scene-label" aria-hidden="true"><span>ORBITAL WRECK</span><strong>01</strong></div>
+        <section class="reactor-hud" aria-label="リアクターキュー。赤、青、黄の順">
+          <span class="hud-kicker">REACTOR / FIFO</span>
+          <ol class="reactor-queue">
+            <li class="reactor-slot reactor-slot--red is-head" data-core="red">
+              <span class="slot-order">1</span><strong aria-label="赤ランス">I</strong>
+            </li>
+            <li class="reactor-slot reactor-slot--blue" data-core="blue">
+              <span class="slot-order">2</span><strong aria-label="青スプレッド">+</strong>
+            </li>
+            <li class="reactor-slot reactor-slot--yellow is-ejected" data-core="yellow">
+              <span class="slot-order">3</span><strong aria-label="黄シーカー">◎</strong>
+            </li>
+          </ol>
+          <span class="eject-note"><b aria-hidden="true">↑</b> NEXT OUT: ◎</span>
+        </section>
+        <section class="loadout-preview" aria-label="次に赤コアを取得した後の兵装予告">
+          <span class="hud-kicker">IF GET <b class="core-mark core-mark--red">I</b></span>
+          <strong>LANCE Lv2</strong>
+          <span>AUX SEEK−1</span>
+        </section>
       </div>
-      <p class="note">16:9基準。遠景・中景・前景は独立速度。動き軽減時は停止。</p>
+      <div class="display-controls" aria-label="代表シーンの表示設定">
+        <button type="button" data-display-mode="standard" aria-pressed="true">標準</button>
+        <button type="button" data-display-mode="reduced" aria-pressed="false">動き軽減</button>
+        <button type="button" data-display-mode="contrast" aria-pressed="false">高コントラスト</button>
+      </div>
+      <p class="note">16:9基準。HUD占有率11.69%。動き軽減でも命中・被弾・回収の形状情報を維持。</p>
     </main>
     <script type="module" src="./scene.mjs"></script>
   </body>
