@@ -87,6 +87,23 @@ Phase 05の論理解像度は1280×720とする。`ui/stage-view-model.mjs` がs
 
 ES moduleを基準とし、導入する依存はロックファイル、権利、脆弱性、配信容量への影響を記録する。出力は相対URLで動く静的ファイルとし、実行時外部通信を必要としない。build IDと権利通知を成果物から確認可能にする。
 
+Phase 05では `npm run build` が `dist/` を毎回作り直し、実行に必要な `game/public`、`game/src`、参照中の画像・音声だけを収録する。生成時刻を埋め込まず、各ファイルのSHA-256、byte数、build ID `phase05-foundation-20261022` を `build-manifest.json` へ固定順で出力する。同じ入力から2回生成したmanifestが一致することを自動検査する。`npm run audit:static` は許可外形式、16 MiB超過、HTML/CSS/JavaScript内の外部URLを拒否する。
+
+packageはruntime/dev依存とも0件で、lockfileを保存する。`npm run audit:deps` はhigh以上を失敗扱いとし、2026-10-22の監査結果は既知脆弱性0件だった。
+
 ## 11. 性能基準の決め方
 
-Phase 05で固定場面、対象端末、ブラウザ、計測時間を確定する。通常戦闘は60fpsを目標とし、継続的なcatch-up上限到達、入力処理の長時間停止、時間経過によるメモリ増加を不合格にする。最終の数値予算は仮区間の実測後に本書へ追記する。
+Phase 05の基準場面はbuild ID `phase05-foundation-20261022` の仮区間、seed `20261022`、出撃後5秒以上とする。開発基準機の現行Chromeでは次を暫定予算とし、Phase 09で低性能対象端末を含めて再測定・確定する。
+
+| 指標 | Phase 05暫定予算 | 2026-10-22 Chrome実測 |
+| --- | --- | --- |
+| 静的成果物 | 16 MiB以下 | 13,729,197 bytes、34 files |
+| 初回encoded resource | 14 MiB以下 | 13,726,347 bytes、33 resources |
+| localhost load event | 2,000ms以下 | 129ms |
+| 通常戦闘fps | 55fps以上（目標60） | 120.0fps（120Hz環境） |
+| 50ms超frame | 5秒窓で0 | 0 |
+| 最大frame / simulation drop | 50ms以下 / 0ms | 10.4ms / 0.0ms |
+| JS heap短期傾向 | 5秒窓で+8 MiB未満 | 10,125,724 → 7,655,265 bytes |
+| 通信・実行時異常 | 外部origin、欠落、warning/error各0 | すべて0 |
+
+Chromeは1568×1012 viewport、ローカルHTTP、cache有効で計測した。localhost時間はネットワーク端末のロード保証ではない。5秒heapは短期の暴走検出に限り、5分以上のsoak、低性能端末、各製品ブラウザはPhase 09まで未確認である。

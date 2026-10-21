@@ -2,6 +2,7 @@ import { loadCanvasAssets, renderCanvasFrame } from "../src/browser/canvas-rende
 import { loadBrowserAudioAssets } from "../src/browser/audio-assets.mjs";
 import { createBrowserAudioAdapter } from "../src/browser/audio-adapter.mjs";
 import { createBrowserInputAdapter } from "../src/browser/input-adapter.mjs";
+import { auditRuntimeResources, createRuntimeMonitor, recordRuntimeFrame } from "../src/browser/runtime-monitor.mjs";
 import { createGameApplication } from "../src/app/game-application.mjs";
 import { GAME_ASSETS } from "../src/content/asset-manifest.mjs";
 import { PHASE05_TEST_STAGE } from "../src/content/stages/phase05-test-segment.mjs";
@@ -41,9 +42,21 @@ const displaySettings = {
 };
 const clock = createFixedStepClock();
 const input = createBrowserInputAdapter({ keyboardTarget: window, gameTarget: inputRoot });
+const runtimeMonitor = createRuntimeMonitor();
 let renderedScreenKey = "";
 let audioLoadPromise = null;
 let audioAssetWarning = null;
+
+function syncRuntimeResources() {
+  const resources = auditRuntimeResources(performance.getEntriesByType("resource"), location.origin);
+  runtimeStatus.dataset.resourceCount = String(resources.resourceCount);
+  runtimeStatus.dataset.encodedBytes = String(resources.encodedBytes);
+  runtimeStatus.dataset.transferBytes = String(resources.transferBytes);
+  runtimeStatus.dataset.externalOrigins = resources.externalOrigins.join(",");
+  runtimeStatus.dataset.loadEventMs = String(Math.round(performance.getEntriesByType("navigation")[0]?.loadEventEnd ?? 0));
+}
+
+window.addEventListener("load", () => setTimeout(syncRuntimeResources, 0), { once: true });
 
 const WARNING_MESSAGES = Object.freeze({
   "storage-unavailable": "保存領域を利用できません。このセッション内だけで継続します。",
@@ -73,6 +86,7 @@ function ensureAudioAssets() {
     const results = await loadBrowserAudioAssets(audio);
     if (results.some(({ loaded }) => !loaded)) audioAssetWarning = "audio-source-load-failed";
     if (session.flow.screen === "playing") audio.playBgm(PHASE05_TEST_STAGE.audio.stageLoopAssetId);
+    syncRuntimeResources();
     syncWarning();
     return results;
   });
@@ -256,9 +270,21 @@ document.addEventListener("visibilitychange", () => setClockSuspended(clock, doc
 try {
   const assets = await loadCanvasAssets(GAME_ASSETS);
   canvasStatus.hidden = true;
+  syncRuntimeResources();
+  runtimeStatus.dataset.heapStartBytes = String(performance.memory?.usedJSHeapSize ?? 0);
   let lastAnnouncement = "";
   const frame = (time) => {
-    advanceFixedStep(clock, time, update);
+    const step = advanceFixedStep(clock, time, update);
+    const runtimeSample = session.flow.screen === "playing"
+      ? recordRuntimeFrame(runtimeMonitor, time, step.droppedDeltaMs)
+      : runtimeMonitor.completed;
+    if (runtimeSample) {
+      runtimeStatus.dataset.fps = runtimeSample.fps.toFixed(1);
+      runtimeStatus.dataset.longFrames = String(runtimeSample.longFrames);
+      runtimeStatus.dataset.maxFrameMs = runtimeSample.maxFrameMs.toFixed(1);
+      runtimeStatus.dataset.droppedMs = runtimeSample.droppedMs.toFixed(1);
+      runtimeStatus.dataset.heapEndBytes = String(performance.memory?.usedJSHeapSize ?? 0);
+    }
     const view = createView();
     renderCanvasFrame(context, view, assets);
     const announcement = `${session.flow.screen}。${view.accessibleSummary}`;
@@ -267,7 +293,7 @@ try {
       lastAnnouncement = announcement;
     }
     runtimeStatus.textContent = session.flow.screen === "playing"
-      ? "RUNNING / P: PAUSE"
+      ? `RUNNING / ${runtimeSample ? `${runtimeSample.fps.toFixed(1)} FPS / ` : ""}P: PAUSE`
       : session.flow.screen.toUpperCase();
     requestAnimationFrame(frame);
   };

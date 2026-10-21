@@ -16,6 +16,8 @@
 | visual | 重要HUD、操作領域、overflow、アセット欠落、設定差 | UX-03〜06、AV-01〜04 | 4 viewportの画像と静的監査 |
 | runtime | fps、停止、メモリ、console、network、容量、load | TECH-04〜08、REL-02〜03 | 実ブラウザ計測 |
 
+Phase 05の一括検証は `npm run verify`、依存監査は `npm run audit:deps` で実行する。静的buildのmanifest再現性、容量、許可形式、外部URLはNodeで検査し、生成した `dist/` をローカルHTTP配信して初回resource、外部origin、load event、fps、50ms超frame、最大frame、simulation drop、JS heap、consoleをChromeで採取する。
+
 ## 固定時間刻みの基準
 
 - 同じ2秒を30Hz、60Hz、144Hzのframe列で与え、update回数とsimulation timeが一致する。
@@ -30,6 +32,8 @@
 ## ブラウザと画面
 
 開発中の各UIスライスはChromeで1440×900、390×844、320×844、844×390を確認する。Phase 05ゲートでは現行安定版Chrome、Edge、Firefox、Safariと、利用可能なiOS Safari・Android Chrome相当の実績表を作る。未確認環境を合格扱いにしない。
+
+2026-10-22時点の静的成果物runtime監査はChromeだけで完了している。Edge、Firefox、Safari、実iOS、実Androidは未確認であり、TECH-04とPhase 05全体の完了証拠には数えない。
 
 ## 証拠
 

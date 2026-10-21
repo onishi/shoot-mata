@@ -1,5 +1,14 @@
 # 開発ログ
 
+## 2026-10-22 — Phase 05の静的buildとruntime監査を追加
+
+- 目的: 技術基盤をクリーンな静的成果物として再現し、通信、容量、ロード、fps、停止、メモリ、依存関係を同じbuild IDで監査する。
+- 実装: 必要なコードと参照中素材だけを `dist/` へ収録するbuild、固定順SHA-256 manifest、16 MiB容量・許可形式・外部URL監査、runtime resource/fps/long-frame/drop/heap計測、lockfile、依存監査コマンドを追加した。build IDは `phase05-foundation-20261022`。
+- 自動確認: manifestの2回生成一致、resource監査、性能集計の回帰を追加し、全73テスト、静的build 34 files・13,729,197 bytes、外部URL 0、high以上の既知脆弱性0、差分検査に合格した。
+- ブラウザ確認: 生成した `dist/` をChrome 1568×1012へローカルHTTP配信。主要フローで33 resources、encoded 13,726,347 bytes、外部origin 0、load event 129ms、120.0fps、50ms超frame 0、最大10.4ms、simulation drop 0ms、heap 10,125,724→7,655,265 bytes、overflow 0、console warning/error 0だった。
+- 限界: cache有効localhostの短期計測であり、実ネットワーク、低性能端末、5分以上のsoak、Edge、Firefox、Safari、実iOS/Androidは未確認。主観的な操作感・聴感も未評価。
+- 次: TECH-04のブラウザ・実端末検証表を作り、Phase 05ゲートを判定する。
+
 ## 2026-10-22 — Phase 05の音声・保存をブラウザ戦闘へ接続
 
 - 目的: 独立していた音声adapterと保存repositoryを、STARTから結果まで動くgame sessionへ接続する。
