@@ -1,5 +1,14 @@
 # 開発ログ
 
+## 2026-10-21 — キーボードとmulti-touch入力を共通コマンド化
+
+- 目的: 画面状態や戦闘規則が端末イベントを直接解釈せず、キーボードとタッチから同じ入力列を得られる境界を作る。
+- 実装: 矢印／WASD、Z／Space、Enter、Escape、Pと、`move / fire / confirm / back / pause`役割のPointer Eventsを6共通コマンドへ正規化した。移動pointerは開始点からの相対量を−1〜1へ制限し、移動＋射撃の複数pointerIdを同時保持する。単発操作は押下edgeだけで発火しkey repeatしない。
+- 安全性: `pointerup`、`pointercancel`、`lostpointercapture`、blur、disposeで状態を解放する。二重move pointerとpointer capture拒否は既存操作を壊さず、既定動作の抑止は役割付きゲーム領域とプレイ中の割当キーだけへ限定した。
+- 自動確認: キー保持・解放、単発edge、repeat、multi-touch、移動正規化、全解放、領域限定の既定動作抑止を含む8件を追加し、ゲーム基盤32テストに合格した。
+- 判定: INP-01〜03は実装中。純粋モデルと偽EventTarget境界は検証済みだが、実DOM操作領域、44 CSS px、実タッチ端末、全主要フロー完走、アクセシブルな画面外UIは未確認であり最終合格ではない。
+- 次: START操作後の音声初期化、BGM・SFX gain、拒否・失敗時の無音継続を実装する。
+
 ## 2026-10-21 — version付き保存と進行・設定モデルを実装
 
 - 目的: 進行、面・難度別best、音・表示設定を再起動後も復元し、保存破損やブラウザ拒否でゲーム開始を妨げない基盤を作る。

@@ -45,7 +45,9 @@ ver02/game/
 
 ## 5. 入力
 
-キーボードとPointer Eventsを `moveX / moveY / fire / confirm / back / pause` の共通コマンドへ正規化する。複数pointerIdは役割ごとに保持し、`pointercancel`、`lostpointercapture`、blur、画面外解除で押下状態を必ず解放する。ブラウザ既定ジェスチャーの抑止はゲーム操作領域だけに限定する。
+キーボードとPointer Eventsを `moveX / moveY / fire / confirm / back / pause` の共通コマンドへ正規化する。移動は矢印またはWASD、射撃はZまたはSpace、決定はEnter、戻るはEscape、ポーズはPを標準割当にする。決定・戻る・ポーズは押下edge、移動・射撃は保持状態として扱い、key repeatで単発操作を重複させない。
+
+複数pointerIdは移動と射撃などの役割ごとに保持する。移動pointerは開始点からの相対量を半径48 CSS pxで−1〜1へ正規化し、同時に2本目の移動pointerが触れた場合は既存操作を維持して安全に無視する。`pointerup`、`pointercancel`、`lostpointercapture`、blur、アダプター破棄で押下状態を必ず解放する。pointer captureの拒否は進行を止めない。ブラウザ既定ジェスチャーの抑止は役割を持つゲーム操作領域だけに限定し、キーボードの既定動作抑止はプレイ中だけにする。
 
 ## 6. 音声
 
