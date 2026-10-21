@@ -43,6 +43,21 @@ function actor(input, index) {
   });
 }
 
+const PROJECTILE_KINDS = Object.freeze(["lance", "spread", "seeker"]);
+
+function projectile(input, index) {
+  if (!input || typeof input !== "object") throw new TypeError(`projectiles[${index}] is required`);
+  if (!PROJECTILE_KINDS.includes(input.kind)) throw new TypeError(`projectiles[${index}].kind is invalid`);
+  return Object.freeze({
+    id: input.id ?? `projectile-${index}`,
+    x: normalized(input.x, `projectiles[${index}].x`),
+    y: normalized(input.y, `projectiles[${index}].y`),
+    kind: input.kind,
+    level: integer(input.level, `projectiles[${index}].level`, 1),
+    angle: finite(input.angle ?? 0, `projectiles[${index}].angle`),
+  });
+}
+
 function bossMeter(input) {
   if (input === null || input === undefined) return null;
   const current = integer(input.current, "boss.current");
@@ -89,10 +104,11 @@ export function createStageViewModel(input) {
     display: Object.freeze({ reducedMotion, highContrast }),
     layers: Object.freeze(layers),
     actors: Object.freeze((input.actors ?? []).map(actor)),
+    projectiles: Object.freeze((input.projectiles ?? []).map(projectile)),
     hud: Object.freeze({
       score: integer(input.score ?? 0, "score"),
       lives: integer(input.lives ?? 3, "lives"),
-      weapon: Object.freeze({ label: weapon.label, level: integer(weapon.level ?? 1, "weapon.level", 1) }),
+      weapon: Object.freeze({ label: weapon.label, level: integer(weapon.level ?? 1, "weapon.level") }),
       coreQueue: Object.freeze(queue),
       boss: bossMeter(input.boss),
     }),

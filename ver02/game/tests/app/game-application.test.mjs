@@ -122,3 +122,26 @@ test("A11Y-01/PROG-05/AV-06: 設定を即時反映し、保存・音声失敗を
   });
   assert.equal(application.session.flow.screen, "result");
 });
+
+test("AV-04/WPN-01〜03: 実際の発射eventに対応する武器音だけを鳴らす", () => {
+  for (const [core, expectedSound] of [
+    ["red", "audio-ref-weapon-lance"],
+    ["blue", "audio-ref-weapon-spread"],
+    ["yellow", "audio-ref-weapon-seeker"],
+  ]) {
+    const data = createDefaultSaveData();
+    data.progress.tutorialSeen = true;
+    const ports = createPorts({ data });
+    const application = createGameApplication({
+      stage: PHASE05_TEST_STAGE, saveRepository: ports.repository, audio: ports.audio,
+    });
+    application.update({ confirm: true });
+    application.update({ confirm: true });
+    application.session.simulation.loadout.queue.splice(0, 1, core);
+    application.update({ fire: true });
+    assert.equal(ports.calls.filter(([kind]) => kind === "sfx").at(-1)[1], expectedSound);
+    const count = ports.calls.filter(([kind]) => kind === "sfx").length;
+    application.update({ fire: true });
+    assert.equal(ports.calls.filter(([kind]) => kind === "sfx").length, count);
+  }
+});

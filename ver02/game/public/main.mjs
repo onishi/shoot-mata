@@ -189,10 +189,11 @@ function createView() {
     score: snapshot.score,
     lives: snapshot.player.lives,
     coreQueue: snapshot.coreQueue,
-    weapon: { label: snapshot.weapon.weaponLabel, level: Math.max(1, snapshot.weapon.level) },
+    weapon: { label: snapshot.weapon.weaponLabel, level: snapshot.weapon.level },
     settings: displaySettings,
     boss: snapshot.boss,
     actors: snapshot.actors,
+    projectiles: snapshot.projectiles,
   });
 }
 

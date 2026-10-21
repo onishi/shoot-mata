@@ -57,14 +57,48 @@ export function resetReactorLoadout(loadout, initialQueue = ["red"]) {
 
 export function getWeaponProfile(loadout) {
   const build = describeReactorLoadout(loadout);
-  if (build.weapon === null) return { ...build, damage: 0, cooldownTicks: Number.POSITIVE_INFINITY };
+  if (build.weapon === null) {
+    return {
+      ...build,
+      damage: 0,
+      cooldownTicks: Number.POSITIVE_INFINITY,
+      projectileCount: 0,
+      pierce: 0,
+      invulnerabilityTicks: 42,
+      collectionRadius: 0.09,
+      projectileKind: null,
+      soundAssetId: null,
+    };
+  }
   const supportPierce = build.supports.includes("red") ? 1 : 0;
   const invulnerabilityTicks = build.supports.includes("blue") ? 72 : 42;
   const collectionRadius = build.supports.includes("yellow") ? 0.16 : 0.09;
   const profiles = {
-    red: { damage: 2 + build.level * 2, cooldownTicks: 8, projectileCount: 1, pierce: build.level - 1 + supportPierce },
-    blue: { damage: 3, cooldownTicks: 10, projectileCount: 1 + build.level * 2, pierce: supportPierce },
-    yellow: { damage: 3, cooldownTicks: 9, projectileCount: build.level, pierce: supportPierce, seeking: true },
+    red: {
+      damage: 2 + build.level * 2,
+      cooldownTicks: 8,
+      projectileCount: 1,
+      pierce: build.level - 1 + supportPierce,
+      projectileKind: "lance",
+      soundAssetId: "audio-ref-weapon-lance",
+    },
+    blue: {
+      damage: 3,
+      cooldownTicks: 10,
+      projectileCount: 1 + build.level * 2,
+      pierce: supportPierce,
+      projectileKind: "spread",
+      soundAssetId: "audio-ref-weapon-spread",
+    },
+    yellow: {
+      damage: 3,
+      cooldownTicks: 9,
+      projectileCount: build.level,
+      pierce: supportPierce,
+      seeking: true,
+      projectileKind: "seeker",
+      soundAssetId: "audio-ref-weapon-seeker",
+    },
   };
   return { ...build, ...profiles[build.weapon], invulnerabilityTicks, collectionRadius };
 }

@@ -97,6 +97,14 @@ test("CORE-04/05: 青補助の無敵時間は、その青コアを失う被弾�
   assert.equal(simulation.player.invulnerabilityTicks, 72);
 });
 
+test("CORE-05: 全コア喪失後も標準範囲でコアを回収して復帰できる", () => {
+  const simulation = createStageSimulation(PHASE05_TEST_STAGE, { coreQueue: [] });
+  simulation.pickups.push({ id: "recovery-core", x: simulation.player.x, y: simulation.player.y, core: "yellow" });
+  stepStageSimulation(simulation, PHASE05_TEST_STAGE);
+  assert.deepEqual(simulation.loadout.queue, ["yellow"]);
+  assert.ok(simulation.events.some(({ type, core }) => type === "core-collected" && core === "yellow"));
+});
+
 test("LOOP-04: ポーズ中は戦闘tickを進めず、復帰後に同じ入力列を継続できる", () => {
   let flow = createFlowState({ tutorialSeen: true });
   flow = send(send(flow, "START_CAMPAIGN"), "BEGIN_STAGE");
@@ -111,4 +119,54 @@ test("LOOP-04: ポーズ中は戦闘tickを進めず、復帰後に同じ入力�
   flow = send(flow, "RESUME");
   stepStageSimulation(simulation, PHASE05_TEST_STAGE, { fire: true });
   assert.equal(simulation.tick, pausedTick + 1);
+});
+
+function benchmarkDefeatTick(core, level, targetKind) {
+  const simulation = createStageSimulation(PHASE05_TEST_STAGE, {
+    seed: 20261022,
+    lives: 99,
+    coreQueue: Array(level).fill(core),
+  });
+  simulation.nextSpawnIndex = simulation.schedule.spawns.length;
+  if (targetKind === "enemy") {
+    simulation.enemies.push({
+      id: "benchmark-enemy", typeId: "benchmark", assetId: "benchmark",
+      behaviorId: "armored-drift", x: 0.65, y: 0.5, originY: 0.5,
+      hitPoints: 40, maximumHitPoints: 40, score: 0, collisionRadius: 0.02,
+      dropItemId: "red", ageTicks: 0,
+    });
+  } else {
+    simulation.boss = {
+      id: "benchmark-boss", assetId: "benchmark", x: 0.82, y: 0.5,
+      phaseIndex: 0, phases: [{ id: "sweep", hitPoints: 200, maximumHitPoints: 200 }],
+      defeated: false, ageTicks: 0,
+    };
+  }
+  const eventType = targetKind === "enemy" ? "enemy-destroyed" : "boss-defeated";
+  while (simulation.tick < 899 && simulation.status === "playing") {
+    simulation.player.invulnerabilityTicks = 999;
+    if (targetKind === "boss") simulation.boss.ageTicks = -1;
+    stepStageSimulation(simulation, PHASE05_TEST_STAGE, { fire: true });
+    if (simulation.events.some(({ type }) => type === eventType)) return simulation.tick;
+  }
+  throw new Error(`${core} Lv${level} failed to defeat ${targetKind}`);
+}
+
+test("CORE-03/WPN-01〜04: 同条件の通常敵・boss撃破tickを3武器×3段階で比較する", () => {
+  const result = Object.fromEntries(["red", "blue", "yellow"].map((core) => [
+    core,
+    [1, 2, 3].map((level) => ({
+      enemy: benchmarkDefeatTick(core, level, "enemy"),
+      boss: benchmarkDefeatTick(core, level, "boss"),
+    })),
+  ]));
+  assert.deepEqual(result, {
+    red: [{ enemy: 76, boss: 403 }, { enemy: 31, boss: 140 }, { enemy: 23, boss: 75 }],
+    blue: [{ enemy: 46, boss: 231 }, { enemy: 27, boss: 141 }, { enemy: 27, boss: 101 }],
+    yellow: [{ enemy: 118, boss: 605 }, { enemy: 59, boss: 308 }, { enemy: 42, boss: 209 }],
+  });
+  for (const rows of Object.values(result)) {
+    assert.ok(rows[2].enemy <= rows[0].enemy);
+    assert.ok(rows[2].boss < rows[0].boss);
+  }
 });

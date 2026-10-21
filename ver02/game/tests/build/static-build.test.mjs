@@ -23,6 +23,13 @@ test("static build is complete, bounded, and reproducible", async (context) => {
   assert.ok(first.files.some(({ path }) => path === "game/public/index.html"));
   assert.match(entrypoint, /<link rel="icon"[^>]+reactor-core-red-v1\.png/);
   assert.ok(first.files.some(({ path }) => path === "assets/game/cores/reactor-core-red-v1.png"));
+  for (const file of [
+    "weapon-lance-shot-v1.wav",
+    "weapon-spread-shot-v1.wav",
+    "weapon-seeker-launch-v1.wav",
+  ]) {
+    assert.ok(first.files.some(({ path }) => path === `assets/audio/reference/${file}`));
+  }
   assert.ok(first.files.some(({ path }) => path.endsWith("salvage-weaver-v1.png")));
   assert.ok(first.files.some(({ path }) => path.endsWith("wreck-bulwark-v1.png")));
   assert.ok(first.files.some(({ path }) => path.endsWith("wreck-warden-v1.png")));

@@ -73,6 +73,8 @@ scheduleは純粋な戦闘シミュレーションへ入力し、tickごとの�
 
 `core/game-session.mjs` はflow machineと戦闘状態を束ね、キーボードの共通commandと画面内ボタンのactionを同じ遷移へ渡す。ブラウザ入口はsessionのsnapshotだけを表示モデルへ変換し、再挑戦では同じseedから戦闘状態を作り直す。ボタンにフォーカスがあるEnter／Spaceはブラウザのclickと共通commandを二重発火させず、ボタン本来の操作だけを受理する。
 
+player shotは発射時の武器種、Lv、速度、角度をsimulation stateへ保持し、snapshotを通してCanvasへ渡す。Canvasはランス、スプレッド、シーカーを色だけでなく菱形、山形、円形で描き分け、Lvを寸法へ反映する。音声は入力保持やtick剰余から推測せず、cooldownを通過した実発射時の`weapon-fired` eventに含むasset IDだけを再生する。
+
 `app/game-application.mjs` はgame session、保存repository、音声adapterの接続だけを担う。保存済みの説明・解放状態からsessionを作り、説明完了、設定変更、クリア結果を即時保存する。STARTは同期的にaudio adapterの `activate()` を呼んでからflowを進める。保存と音声の警告は例外ではなく表示可能な状態として公開し、どちらの失敗も戦闘更新を停止しない。
 
 ## 9. 描画と画面

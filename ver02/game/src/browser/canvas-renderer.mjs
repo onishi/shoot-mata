@@ -28,6 +28,50 @@ function drawLayer(context, image, layer, width, height) {
   if (firstX > 0) context.drawImage(image, firstX - width, 0, width, height);
 }
 
+function drawProjectile(context, projectile, width, height) {
+  const x = projectile.x * width;
+  const y = projectile.y * height;
+  context.save();
+  context.translate(x, y);
+  context.rotate(projectile.angle);
+  context.lineWidth = 2 + projectile.level;
+  if (projectile.kind === "lance") {
+    const length = 16 + projectile.level * 10;
+    const halfHeight = 2 + projectile.level * 1.5;
+    context.fillStyle = "#ff765f";
+    context.strokeStyle = "#fff0c2";
+    context.beginPath();
+    context.moveTo(length, 0);
+    context.lineTo(0, halfHeight);
+    context.lineTo(-6, 0);
+    context.lineTo(0, -halfHeight);
+    context.closePath();
+    context.fill();
+    context.stroke();
+  } else if (projectile.kind === "spread") {
+    const size = 5 + projectile.level * 2;
+    context.strokeStyle = "#71e8ff";
+    context.beginPath();
+    context.moveTo(-size, -size);
+    context.lineTo(size, 0);
+    context.lineTo(-size, size);
+    context.stroke();
+  } else {
+    const radius = 4 + projectile.level * 1.5;
+    context.fillStyle = "#ffe36e";
+    context.strokeStyle = "#fffbd0";
+    context.beginPath();
+    context.arc(0, 0, radius, 0, Math.PI * 2);
+    context.fill();
+    context.stroke();
+    context.beginPath();
+    context.moveTo(-radius - 5, 0);
+    context.lineTo(-radius - 1, 0);
+    context.stroke();
+  }
+  context.restore();
+}
+
 function drawHudPanel(context, x, y, width, height, highContrast) {
   context.fillStyle = highContrast ? "#000" : HUD_BACKGROUND;
   context.fillRect(x, y, width, height);
@@ -99,6 +143,7 @@ export function renderCanvasFrame(context, view, assets) {
     context.fillRect(0, 0, view.width, view.height);
   }
   for (const actor of view.actors) drawContained(context, assets[actor.assetId], actor, view.width, view.height);
+  for (const projectile of view.projectiles) drawProjectile(context, projectile, view.width, view.height);
   drawHud(context, view);
   context.restore();
   return Object.freeze({ drawnAssets: view.layers.length + view.actors.length, missingAssets: missing });

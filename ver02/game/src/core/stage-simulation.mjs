@@ -125,7 +125,8 @@ function firePlayerWeapon(state, command) {
   const weapon = getWeaponProfile(state.loadout);
   if (weapon.damage === 0) return;
   for (let index = 0; index < weapon.projectileCount; index += 1) {
-    const spread = weapon.projectileCount === 1 ? 0 : (index - (weapon.projectileCount - 1) / 2) * 0.018;
+    const lane = weapon.projectileCount === 1 ? 0 : index - (weapon.projectileCount - 1) / 2;
+    const spread = lane * 0.012;
     state.playerShots.push({
       id: `player-shot-${state.nextShotId++}`,
       x: state.player.x + 0.04,
@@ -133,8 +134,18 @@ function firePlayerWeapon(state, command) {
       damage: weapon.damage,
       pierce: weapon.pierce,
       seeking: weapon.seeking === true,
+      weapon: weapon.weapon,
+      kind: weapon.projectileKind,
+      level: weapon.level,
+      vx: PLAYER_SHOT_SPEED_PER_TICK,
+      vy: weapon.projectileKind === "spread" ? lane * 0.0018 : 0,
     });
   }
+  emit(state, "weapon-fired", {
+    weapon: weapon.weapon,
+    level: weapon.level,
+    soundAssetId: weapon.soundAssetId,
+  });
   state.fireCooldownTicks = weapon.cooldownTicks;
 }
 
@@ -191,7 +202,8 @@ function moveCombatants(state) {
       const target = nearestTarget(state, shot);
       if (target) shot.y += clamp(target.y - shot.y, -0.025, 0.025);
     }
-    shot.x += PLAYER_SHOT_SPEED_PER_TICK;
+    shot.x += shot.vx ?? PLAYER_SHOT_SPEED_PER_TICK;
+    shot.y += shot.vy ?? 0;
   }
   for (const shot of state.enemyShots) {
     shot.x += shot.vx;
@@ -397,5 +409,13 @@ export function createStageSimulationSnapshot(state) {
       }] : []),
       ...state.pickups.map((pickup) => ({ id: pickup.id, assetId: `core-${pickup.core}`, x: clamp(pickup.x, 0, 1), y: pickup.y, width: 0.05, height: 0.08, tone: "core" })),
     ],
+    projectiles: state.playerShots.map((shot) => ({
+      id: shot.id,
+      x: clamp(shot.x, 0, 1),
+      y: clamp(shot.y, 0, 1),
+      kind: shot.kind ?? "lance",
+      level: shot.level ?? 1,
+      angle: Math.atan2(shot.vy ?? 0, shot.vx ?? PLAYER_SHOT_SPEED_PER_TICK),
+    })),
   };
 }

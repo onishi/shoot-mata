@@ -109,9 +109,10 @@ export function createGameApplication(options) {
       }
       recordCompletedRun(previousScreen);
       syncScreenAudio(previousScreen);
-      if (previousScreen === "playing" && command.fire === true
-        && session.simulation?.tick % 8 === 0) {
-        audio.playSfx("audio-ref-weapon-lance");
+      if (previousScreen === "playing") {
+        for (const event of session.simulation?.events ?? []) {
+          if (event.type === "weapon-fired") audio.playSfx(event.soundAssetId);
+        }
       }
       return session;
     },

@@ -13,6 +13,7 @@ test("builds a frozen 16:9 view from stage data and HUD state", () => {
     weapon: { label: "LANCE", level: 2 },
     boss: { current: 70, maximum: 100 },
     actors: [{ id: "player", assetId: "player-interceptor", x: 0.2, y: 0.5, width: 0.24, height: 0.24 }],
+    projectiles: [{ id: "shot", x: 0.3, y: 0.5, kind: "spread", level: 2, angle: 0.1 }],
   });
 
   assert.equal(GAME_WIDTH / GAME_HEIGHT, 16 / 9);
@@ -21,6 +22,7 @@ test("builds a frozen 16:9 view from stage data and HUD state", () => {
   assert.ok(view.layers[2].offsetX < view.layers[0].offsetX);
   assert.equal(view.hud.coreQueue[0].ejectedNext, true);
   assert.equal(view.hud.boss.ratio, 0.7);
+  assert.deepEqual(view.projectiles[0], { id: "shot", x: 0.3, y: 0.5, kind: "spread", level: 2, angle: 0.1 });
   assert.match(view.accessibleSummary, /スコア12500/);
   assert.ok(Object.isFrozen(view));
   assert.ok(Object.isFrozen(view.hud));
@@ -36,6 +38,14 @@ test("reduced motion freezes parallax without removing visual layers", () => {
   assert.equal(view.display.highContrast, true);
 });
 
+test("CORE-05: 無武装HUDは成長前のLv0を表示できる", () => {
+  const view = createStageViewModel({
+    stage: PHASE05_TEST_STAGE,
+    weapon: { label: "UNARMED", level: 0 },
+  });
+  assert.deepEqual(view.hud.weapon, { label: "UNARMED", level: 0 });
+});
+
 test("rejects invalid normalized actor and HUD values", () => {
   assert.throws(() => createStageViewModel({
     stage: PHASE05_TEST_STAGE,
@@ -43,4 +53,8 @@ test("rejects invalid normalized actor and HUD values", () => {
   }), /actors\[0\]\.x/);
   assert.throws(() => createStageViewModel({ stage: PHASE05_TEST_STAGE, coreQueue: ["green"] }), /coreQueue/);
   assert.throws(() => createStageViewModel({ stage: PHASE05_TEST_STAGE, tick: 1201 }), /tick exceeds/);
+  assert.throws(() => createStageViewModel({
+    stage: PHASE05_TEST_STAGE,
+    projectiles: [{ x: 0.2, y: 0.5, kind: "laser", level: 1 }],
+  }), /projectiles\[0\]\.kind/);
 });
