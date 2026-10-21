@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "unitDefinition": "one independently tracked visual, animation set, UI screen, or audio event/layer; not a file or frame count",
+  "naming": {
+    "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*-v[0-9]+\\.(png|wav|json)$",
+    "stagePrefixPattern": "^stage-0[1-4]-",
+    "states": ["planned", "draft", "final", "verified"]
+  },
+  "stages": [
+    { "id": "stage-01", "slug": "orbital-wreck", "deliveryPhase": "phase-06", "backgroundLayers": ["far", "mid", "fore"], "enemyTypes": ["armored-frontal", "salvage-collector", "formation-fighter"], "mechanic": "wreck-corridor", "boss": "breaker-ship", "bossForms": 1, "musicLayers": ["rhythm", "melody", "danger"], "transitions": ["intro", "clear"] },
+    { "id": "stage-02", "slug": "cloud-refinery", "deliveryPhase": "phase-07", "backgroundLayers": ["far", "mid", "fore"], "enemyTypes": ["current-swarm", "shielded-turret", "dive-craft"], "mechanic": "charged-updraft", "boss": "refinery-guardian", "bossForms": 1, "musicLayers": ["rhythm", "melody", "danger"], "transitions": ["intro", "clear"] },
+    { "id": "stage-03", "slug": "living-ark", "deliveryPhase": "phase-07", "backgroundLayers": ["far", "mid", "fore"], "enemyTypes": ["regenerating-swarm", "parasite-turret", "predator"], "mechanic": "contracting-tissue", "boss": "ark-core", "bossForms": 1, "musicLayers": ["rhythm", "melody", "danger"], "transitions": ["intro", "clear"] },
+    { "id": "stage-04", "slug": "stellar-furnace", "deliveryPhase": "phase-07", "backgroundLayers": ["far", "mid", "fore"], "enemyTypes": ["heat-armor", "rammer", "omni-turret"], "mechanic": "periodic-heatwave", "boss": "furnace-controller", "bossForms": 3, "musicLayers": ["rhythm", "melody", "danger"], "transitions": ["intro", "clear"] }
+  ],
+  "weapons": [
+    { "id": "lance", "levels": [1, 2, 3], "visualSetsPerLevel": ["projectile", "impact"], "deliveryPhase": "phase-07" },
+    { "id": "spread", "levels": [1, 2, 3], "visualSetsPerLevel": ["projectile", "impact"], "deliveryPhase": "phase-07" },
+    { "id": "seeker", "levels": [1, 2, 3], "visualSetsPerLevel": ["projectile", "impact"], "deliveryPhase": "phase-07" }
+  ],
+  "shared": {
+    "playerStates": ["idle", "move", "fire", "damage", "destroy"],
+    "coreStatesPerColor": ["idle", "spawn", "collect", "eject"],
+    "coreColors": ["red", "blue", "yellow"],
+    "uiScreens": ["title", "intro", "tutorial", "settings", "stage-select", "hud", "pause", "result", "continue", "ending", "credits"],
+    "vfxEvents": ["fire", "hit", "damage", "destroy", "collect", "weapon-level", "warning", "boss-entry", "clear"],
+    "audioEvents": ["fire-lance", "fire-spread", "fire-seeker", "hit", "damage", "destroy", "collect", "core-load", "core-eject", "weapon-level", "warning", "boss-entry", "clear", "ui-confirm"]
+  },
+  "estimate": {
+    "stageUnits": 54,
+    "weaponLevelUnits": 18,
+    "sharedVisualUnits": 37,
+    "sharedAudioEventUnits": 14,
+    "totalMinimumUnits": 123,
+    "reestimateGate": "after phase-06 stage-01 vertical slice",
+    "excludes": ["animation frame count", "localization variants", "responsive exports", "compressed delivery encodings"]
+  }
+}
