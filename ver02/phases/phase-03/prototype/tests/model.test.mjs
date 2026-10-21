@@ -40,6 +40,24 @@ import {
   summarizeComparison,
   summarizeEnvironmentCoverage,
 } from "../model.mjs";
+import { createObjectiveAudit } from "../objective-audit.mjs";
+
+test("客観比較は全729コア列を列挙しFIFOだけを必須仕様適合と判定する", () => {
+  const audit = createObjectiveAudit();
+  const byMode = Object.fromEntries(audit.candidates.map((candidate) => [candidate.mode, candidate]));
+
+  assert.equal(audit.selectedMode, "queue");
+  assert.equal(audit.candidateCount, 3);
+  assert.ok(audit.candidates.every((candidate) => candidate.evaluatedSequences === 729));
+  assert.equal(byMode.queue.passesRequiredMechanic, true);
+  assert.equal(byMode.armory.passesRequiredMechanic, false);
+  assert.equal(byMode.chain.passesRequiredMechanic, false);
+  assert.equal(byMode.queue.reachableCombatBuilds, 18);
+  assert.equal(byMode.armory.reachableCombatBuilds, 9);
+  assert.equal(byMode.chain.reachableCombatBuilds, 9);
+  assert.ok(byMode.queue.meanTradeoffs > 0);
+  assert.equal(byMode.armory.meanTradeoffs, 0);
+});
 
 test("3コアは色・外形・内部記号を重複させず取得前に識別できる", () => {
   for (const key of ["colorLabel", "shape", "glyph"]) {
