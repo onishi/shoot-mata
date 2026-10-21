@@ -1,5 +1,15 @@
 # 開発ログ
 
+## 2026-10-22 — Phase 06を開始し第1面の敵・ボスを製品用定義へ接続
+
+- 目的: Phase 05の仮区間を本番入口から外し、軌道残骸帯の通常敵3種、固有仕掛け、3段階ボスを同一の製品用stage定義で通す。
+- アート: 組み込み画像生成で三日月状のSalvage Weaver、矩形重装のWreck Bulwark、要塞型boss Wreck Wardenを透明背景PNGとして制作した。完全プロンプトを同名ファイルへ保存し、768pxへ縮小後もalpha 0〜255を保持した。
+- 実装: `stage-01-orbital-wreck.mjs` を追加し、22体の5 wave、3種のdrop圧力、圧縮回廊、HP 55/65/80の3段階bossを定義した。直進、蛇行、低速重装を移動・射撃頻度で分け、boss段階ごとに掃射、三連射、高速攻撃を切り替える。全通常敵とbossのasset IDをsnapshotからCanvasへ渡すよう修正した。
+- 自動確認: 全83テストに合格。同一seedでtick 3048にクリアし、通常敵22 spawn、boss段階変化2回、boss撃破、圧縮回廊の安全帯外被弾、敵3種とbossの表示ID到達を検査した。build `phase06-stage01-slice-20261022` は39 files・15,958,008 bytes、外部URL 0で16 MiB上限内。
+- ブラウザ確認: Chromeの本番入口で第1面開始、背景3層、自機、Collector、HUD、タッチ操作を表示。390×844と844×390はいずれも横・縦overflow 0で、119.7〜119.9fps、50ms超frame 0、最大16.6ms、simulation drop 0msだった。38 resources、transfer 15,959,375 bytes、外部origin 0、全画像・音声要求200/304、console warning/error 0を確認した。
+- 未達: Phase 06完了ではない。3武器の完成見た目、VFX、敵・bossアニメーション、専用boss/clear音、全区間の実ブラウザ通し、主観品質は未確認。build余裕が約0.8 MiBのため、次の音・アニメーション追加前にWeb向け圧縮を行う。
+- 次: 3武器×3段階の投射物形状と発射音を製品戦闘へ接続し、構成別の敵・boss撃破時間を決定的に比較する。
+
 ## 2026-10-22 — Phase 05のブラウザ検証表を固定しゲート完了
 
 - 目的: TECH-04の対象環境と未確認理由を機械可読化し、利用可能な同一buildで主要フローとポーズ復帰を再検証する。

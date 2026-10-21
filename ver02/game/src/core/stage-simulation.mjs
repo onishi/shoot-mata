@@ -75,8 +75,11 @@ function spawnScheduledEnemies(state, stage) {
     state.enemies.push({
       id: `${spawn.waveId}-${state.nextSpawnIndex}`,
       typeId: spawn.enemyTypeId,
+      assetId: type.assetId,
+      behaviorId: type.behaviorId,
       x: 1.05,
       y: spawn.lane,
+      originY: spawn.lane,
       hitPoints: type.hitPoints,
       maximumHitPoints: type.hitPoints,
       score: type.score,
@@ -98,6 +101,7 @@ function spawnBoss(state, stage) {
   }));
   state.boss = {
     id: stage.boss.id,
+    assetId: stage.boss.assetId,
     x: 0.82,
     y: 0.5,
     phaseIndex: 0,
@@ -143,9 +147,16 @@ function nearestTarget(state, shot) {
 
 function moveCombatants(state) {
   for (const enemy of state.enemies) {
-    enemy.x -= ENEMY_SPEED_PER_TICK;
     enemy.ageTicks += 1;
-    if (enemy.ageTicks >= 50 && enemy.ageTicks % 90 === 0) {
+    const speed = enemy.behaviorId === "armored-drift"
+      ? ENEMY_SPEED_PER_TICK * 0.55
+      : enemy.behaviorId === "sine-left" ? ENEMY_SPEED_PER_TICK * 1.2 : ENEMY_SPEED_PER_TICK;
+    enemy.x -= speed;
+    if (enemy.behaviorId === "sine-left") {
+      enemy.y = clamp(enemy.originY + Math.sin(enemy.ageTicks / 18) * 0.1, 0.12, 0.88);
+    }
+    const firingInterval = enemy.behaviorId === "armored-drift" ? 64 : 90;
+    if (enemy.ageTicks >= 50 && enemy.ageTicks % firingInterval === 0) {
       state.enemyShots.push({
         id: `enemy-shot-${state.nextShotId++}`,
         x: enemy.x,
@@ -157,15 +168,22 @@ function moveCombatants(state) {
   }
   if (state.boss && !state.boss.defeated) {
     state.boss.ageTicks += 1;
-    state.boss.y = 0.5 + Math.sin(state.boss.ageTicks / 45) * 0.22;
-    if (state.boss.ageTicks % 54 === 0) {
-      state.enemyShots.push({
-        id: `boss-shot-${state.nextShotId++}`,
-        x: state.boss.x - 0.05,
-        y: state.boss.y,
-        vx: -0.022,
-        vy: clamp((state.player.y - state.boss.y) / 32, -0.012, 0.012),
-      });
+    const phase = state.boss.phases[state.boss.phaseIndex];
+    const phaseAge = state.boss.ageTicks;
+    const isRush = phase.id === "exposed-reactor";
+    state.boss.y = 0.5 + Math.sin(phaseAge / (isRush ? 24 : 45)) * (isRush ? 0.29 : 0.22);
+    const interval = phase.id === "salvage-crossfire" ? 42 : isRush ? 30 : 54;
+    if (phaseAge % interval === 0) {
+      const offsets = phase.id === "salvage-crossfire" ? [-0.018, 0, 0.018] : [0];
+      for (const offset of offsets) {
+        state.enemyShots.push({
+          id: `boss-shot-${state.nextShotId++}`,
+          x: state.boss.x - 0.05,
+          y: clamp(state.boss.y + offset, 0.05, 0.95),
+          vx: isRush ? -0.028 : -0.022,
+          vy: clamp((state.player.y - state.boss.y) / 32, -0.012, 0.012) + offset / 2,
+        });
+      }
     }
   }
   for (const shot of state.playerShots) {
@@ -220,6 +238,7 @@ function damageBoss(state, damage) {
   if (phase.hitPoints > 0) return;
   if (state.boss.phaseIndex < state.boss.phases.length - 1) {
     state.boss.phaseIndex += 1;
+    state.boss.ageTicks = 0;
     emit(state, "boss-phase-changed", { phaseId: state.boss.phases[state.boss.phaseIndex].id });
     return;
   }
@@ -358,9 +377,24 @@ export function createStageSimulationSnapshot(state) {
     boss,
     actors: [
       { id: "player", assetId: "player-interceptor", x: state.player.x, y: state.player.y, width: 0.12, height: 0.15, tone: "player" },
-      ...state.enemies
-        .filter((enemy) => enemy.typeId === "salvage-collector")
-        .map((enemy) => ({ id: enemy.id, assetId: "enemy-stg01-01", x: clamp(enemy.x, 0, 1), y: enemy.y, width: 0.11, height: 0.14, tone: "enemy" })),
+      ...state.enemies.map((enemy) => ({
+        id: enemy.id,
+        assetId: enemy.assetId,
+        x: clamp(enemy.x, 0, 1),
+        y: enemy.y,
+        width: enemy.behaviorId === "armored-drift" ? 0.15 : 0.11,
+        height: enemy.behaviorId === "armored-drift" ? 0.18 : 0.14,
+        tone: "enemy",
+      })),
+      ...(state.boss && !state.boss.defeated ? [{
+        id: state.boss.id,
+        assetId: state.boss.assetId,
+        x: state.boss.x,
+        y: state.boss.y,
+        width: 0.28,
+        height: 0.46,
+        tone: "boss",
+      }] : []),
       ...state.pickups.map((pickup) => ({ id: pickup.id, assetId: `core-${pickup.core}`, x: clamp(pickup.x, 0, 1), y: pickup.y, width: 0.05, height: 0.08, tone: "core" })),
     ],
   };

@@ -1,9 +1,9 @@
 export const DEFAULT_BEHAVIOR_REGISTRY = Object.freeze({
   background: Object.freeze(["parallax-loop"]),
-  enemy: Object.freeze(["drift-left", "sine-left"]),
+  enemy: Object.freeze(["drift-left", "sine-left", "armored-drift"]),
   spawn: Object.freeze(["lane-sequence", "lane-seeded"]),
   hazard: Object.freeze(["closing-corridor"]),
-  boss: Object.freeze(["boss-entry", "boss-sweep", "boss-burst"]),
+  boss: Object.freeze(["boss-entry", "boss-sweep", "boss-burst", "boss-crossfire", "boss-core-rush"]),
 });
 
 export function hasBehavior(registry, kind, id) {

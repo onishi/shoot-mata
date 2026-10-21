@@ -5,7 +5,7 @@ import { createBrowserInputAdapter } from "../src/browser/input-adapter.mjs";
 import { auditRuntimeResources, createRuntimeMonitor, recordRuntimeFrame, suspendRuntimeMonitor } from "../src/browser/runtime-monitor.mjs";
 import { createGameApplication } from "../src/app/game-application.mjs";
 import { GAME_ASSETS } from "../src/content/asset-manifest.mjs";
-import { PHASE05_TEST_STAGE } from "../src/content/stages/phase05-test-segment.mjs";
+import { STAGE_01_ORBITAL_WRECK } from "../src/content/stages/stage-01-orbital-wreck.mjs";
 import { advanceFixedStep, createFixedStepClock, setClockSuspended } from "../src/core/fixed-step.mjs";
 import { getGameSessionSnapshot } from "../src/core/game-session.mjs";
 import { consumeInput } from "../src/core/input-state.mjs";
@@ -29,7 +29,7 @@ const context = canvas.getContext("2d", { alpha: false });
 
 const audio = createBrowserAudioAdapter();
 const application = createGameApplication({
-  stage: PHASE05_TEST_STAGE,
+  stage: STAGE_01_ORBITAL_WRECK,
   saveRepository: createSaveRepository(),
   audio,
   seed: 20261022,
@@ -85,7 +85,7 @@ function ensureAudioAssets() {
     if (!audible) return [];
     const results = await loadBrowserAudioAssets(audio);
     if (results.some(({ loaded }) => !loaded)) audioAssetWarning = "audio-source-load-failed";
-    if (session.flow.screen === "playing") audio.playBgm(PHASE05_TEST_STAGE.audio.stageLoopAssetId);
+    if (session.flow.screen === "playing") audio.playBgm(STAGE_01_ORBITAL_WRECK.audio.stageLoopAssetId);
     syncRuntimeResources();
     syncWarning();
     return results;
@@ -106,9 +106,9 @@ function screenDefinition() {
   const score = session.lastRun?.score ?? 0;
   const screens = {
     title: {
-      kicker: "PHASE 05 / PLAYABLE FOUNDATION",
+      kicker: "PHASE 06 / VERTICAL SLICE",
       title: "SHOOT MATA v02",
-      copy: "決定的な技術検証区間です。EnterまたはSTARTで開始します。",
+      copy: "第1面・軌道残骸帯。EnterまたはSTARTで開始します。",
       actions: [["start-campaign", "START", true]],
     },
     tutorial: {
@@ -119,7 +119,7 @@ function screenDefinition() {
     },
     stageIntro: {
       kicker: `ATTEMPT ${session.flow.attempt}`,
-      title: PHASE05_TEST_STAGE.title,
+      title: STAGE_01_ORBITAL_WRECK.title,
       copy: `seed ${session.seed}。同じ入力列なら同じ戦闘結果を再現します。`,
       actions: [["begin-stage", "出撃", true]],
     },
@@ -184,7 +184,7 @@ function update() {
 function createView() {
   const snapshot = getGameSessionSnapshot(session);
   return createStageViewModel({
-    stage: PHASE05_TEST_STAGE,
+    stage: STAGE_01_ORBITAL_WRECK,
     tick: snapshot.tick,
     score: snapshot.score,
     lives: snapshot.player.lives,

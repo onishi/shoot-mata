@@ -23,6 +23,9 @@ test("static build is complete, bounded, and reproducible", async (context) => {
   assert.ok(first.files.some(({ path }) => path === "game/public/index.html"));
   assert.match(entrypoint, /<link rel="icon"[^>]+reactor-core-red-v1\.png/);
   assert.ok(first.files.some(({ path }) => path === "assets/game/cores/reactor-core-red-v1.png"));
+  assert.ok(first.files.some(({ path }) => path.endsWith("salvage-weaver-v1.png")));
+  assert.ok(first.files.some(({ path }) => path.endsWith("wreck-bulwark-v1.png")));
+  assert.ok(first.files.some(({ path }) => path.endsWith("wreck-warden-v1.png")));
   assert.ok(first.files.some(({ path }) => path.endsWith("stage-01-rhythm-loop-v1.wav")));
   assert.ok(first.files.every(({ path }) => !path.endsWith(".prompt.md")));
   assert.ok(first.totalBytes <= 16 * 1024 * 1024);

@@ -9,6 +9,9 @@
 | CONCEPT-STG01-01 | `../assets/concept/stage-01-orbital-wreck-benchmark-v1.png` | 軌道残骸帯の色・質感・奥行き基準 | OpenAI組み込み画像生成、2026-10-21。完全なプロンプトは同名 `.prompt.md` | リリース前にOpenAI生成物の利用条件と独自性を再確認 | 1672×941 PNG / `854ebbf4169d5f1c696108eb98255196667362810e340539c02b71975490c70d` | draft |
 | PLAYER-01 | `../assets/game/player/player-interceptor-v1.png` | 自機本体と3セル表示 | OpenAI組み込み画像生成、2026-10-21。完全なプロンプトは同名 `.prompt.md` | リリース前にOpenAI生成物の利用条件と独自性を再確認 | 1672×941 RGBA PNG、alpha 0〜255 / `604672e3b170a9132b0204c14b95f54bf8b1b4960a499d4323345524789b7724` | final |
 | ENEMY-STG01-01 | `../assets/game/enemies/stage-01/salvage-collector-v1.png` | 回収ドローン代表敵 | OpenAI組み込み画像生成、2026-10-21。完全なプロンプトは同名 `.prompt.md` | リリース前にOpenAI生成物の利用条件と独自性を再確認 | 1536×1024 RGBA PNG、alpha 0〜254 / `299cd7a24e3575940f676e67581e5aa010d1172fcb12695376e6efbf0c5f8ccd` | final |
+| ENEMY-STG01-02 | `../assets/game/enemies/stage-01/salvage-weaver-v1.png` | 蛇行する回収ドローン | OpenAI組み込み画像生成、2026-10-22。完全なプロンプトは同名 `.prompt.md` | リリース前にOpenAI生成物の利用条件と独自性を再確認 | 768×512 RGBA PNG、alpha 0〜255 / `2e6fd3d1ee2abbe1869ab71e3aaee16eb54efd983b6024a76760799ac094753e` | final |
+| ENEMY-STG01-03 | `../assets/game/enemies/stage-01/wreck-bulwark-v1.png` | 低速重装の解体艇 | OpenAI組み込み画像生成、2026-10-22。完全なプロンプトは同名 `.prompt.md` | リリース前にOpenAI生成物の利用条件と独自性を再確認 | 768×512 RGBA PNG、alpha 0〜255 / `12a83e326b3c5b0a27c33a27e04ea8c77bbbdca7ecbcbe9031b3b627c41eccf2` | final |
+| BOSS-STG01-01 | `../assets/game/bosses/stage-01/wreck-warden-v1.png` | 第1面ボス・残骸監督機 | OpenAI組み込み画像生成、2026-10-22。完全なプロンプトは同名 `.prompt.md` | リリース前にOpenAI生成物の利用条件と独自性を再確認 | 768×640 RGBA PNG、alpha 0〜255 / `862c505f84fc31407f9eecd6e2cf261af9b094728fc9db34003172422adf2424` | final |
 | BG-STG01-FAR | `../assets/game/backgrounds/stage-01/orbital-wreck-far-v1.png` | 惑星・星・遠方艦隊 | OpenAI組み込み画像生成、2026-10-21。完全なプロンプトは同名 `.prompt.md` | リリース前にOpenAI生成物の利用条件と独自性を再確認 | 1672×941 RGB PNG / `7bf826513523de6a20f9d62af79a76cc48c5484eafb376d11cb37ff61f783454` | final |
 | BG-STG01-MID | `../assets/game/backgrounds/stage-01/orbital-wreck-mid-v1.png` | 艦骸・トラス | OpenAI組み込み画像生成、2026-10-21。完全なプロンプトは同名 `.prompt.md` | リリース前にOpenAI生成物の利用条件と独自性を再確認 | 1672×941 RGBA PNG、alpha 0〜255 / `d3fbc1a3e09fb8ffd657c898823c241f77d2d43990fbdc2ec98a29cddd688f27` | final |
 | BG-STG01-FORE | `../assets/game/backgrounds/stage-01/orbital-wreck-fore-v1.png` | 暗い前景梁 | OpenAI組み込み画像生成、2026-10-21。完全なプロンプトは同名 `.prompt.md` | リリース前にOpenAI生成物の利用条件と独自性を再確認 | 1672×941 RGBA PNG、alpha 0〜255 / `fdaeed852671e5ef92a3c7ada55fc4ebebf18c0a057714a27c25b82c639b925f` | final |
@@ -38,6 +41,13 @@
 - `ffmpeg` のalpha抽出で最小0、最大254を確認し、完全透明画素と実質不透明なドローン画素の双方が存在する。
 - 144×96へのLanczos縮小と濃紺背景上の合成表示で、左向きの単眼、円形・放射状の胴体、右向きの橙色噴射を個別に判別できた。自機の右向き三角外形と3つのシアンセルは使っていない。
 - 一枚の分離素材としてゲーム投入可能なため `final`。代表ゲーム座標での合成、背景上のコントラスト、攻撃・被弾・撃破状態、権利再確認が未完了のため `verified` ではない。
+
+## ENEMY-STG01-02 / 03・BOSS-STG01-01 検査記録
+
+- 組み込み画像生成で制作し、生成原寸からLanczosで敵2点を768×512、ボスを768×640へ縮小した。全点8-bit RGBA、非インターレースで、alpha最小0・最大255を確認した。
+- ウィーバーは三日月状、ブルワークは幅広い矩形シールド状、残骸監督機は上下の破砕腕を持つ要塞状とし、円形Collectorと外形を重複させていない。
+- `stage-01-orbital-wreck.mjs`、Canvas asset manifest、静的buildへ接続し、通常敵3 IDとboss IDが表示snapshotへ到達する自動検査に合格した。Chromeの通常戦でCollectorの合成表示と画像欠落0を確認した。
+- 分離素材としてゲーム投入可能なため `final`。ウィーバー、ブルワーク、ボス各々の実ブラウザ画面、攻撃・被弾・撃破アニメーション、権利再確認が未完了のため `verified` にはしていない。
 
 ## CORE-RED / BLUE / YELLOW 検査記録
 

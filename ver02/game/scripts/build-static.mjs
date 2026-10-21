@@ -3,7 +3,7 @@ import { cp, mkdir, readFile, readdir, rm, stat, writeFile } from "node:fs/promi
 import { dirname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
-export const BUILD_ID = "phase05-foundation-20261022";
+export const BUILD_ID = "phase06-stage01-slice-20261022";
 
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const GAME_DIR = resolve(SCRIPT_DIR, "..");
@@ -19,6 +19,9 @@ const ASSET_PATHS = Object.freeze([
   "game/backgrounds/stage-01/orbital-wreck-fore-v1.png",
   "game/player/player-interceptor-v1.png",
   "game/enemies/stage-01/salvage-collector-v1.png",
+  "game/enemies/stage-01/salvage-weaver-v1.png",
+  "game/enemies/stage-01/wreck-bulwark-v1.png",
+  "game/bosses/stage-01/wreck-warden-v1.png",
   "game/cores/reactor-core-red-v1.png",
   "game/cores/reactor-core-blue-v1.png",
   "game/cores/reactor-core-yellow-v1.png",
