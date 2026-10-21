@@ -12,7 +12,9 @@
 | BG-STG01-FAR | 未作成 | 惑星・星・遠方艦隊 | 横ループ可能な背景層 | 未確認 | — | planned |
 | BG-STG01-MID | 未作成 | 艦骸・トラス | 横ループ可能な背景層 | 未確認 | — | planned |
 | BG-STG01-FORE | 未作成 | 暗い前景梁 | アルファ付き前景層 | 未確認 | — | planned |
-| CORE-RED / BLUE / YELLOW | 未作成 | 取得コア | 外形・内部記号を持つ分離素材 | 未確認 | — | planned |
+| CORE-RED | `../assets/game/cores/reactor-core-red-v1.png` | 赤コア、菱形＋`I` | OpenAI組み込み画像生成、2026-10-21。完全なプロンプトは同名 `.prompt.md` | リリース前にOpenAI生成物の利用条件と独自性を再確認 | 1333×1180 RGBA PNG、alpha 0〜255 / `d7a470f36a19c03ceda8b796130e7b00063f217517941be74280b8ff9dea6c12` | final |
+| CORE-BLUE | `../assets/game/cores/reactor-core-blue-v1.png` | 青コア、円＋`+` | OpenAI組み込み画像生成、2026-10-21。完全なプロンプトは同名 `.prompt.md` | リリース前にOpenAI生成物の利用条件と独自性を再確認 | 1287×1222 RGBA PNG、alpha 0〜255 / `85c69396f03e9a0a26e226007682123c95766e94570610dddaf48de46b7f5090` | final |
+| CORE-YELLOW | `../assets/game/cores/reactor-core-yellow-v1.png` | 黄コア、三角＋`◎` | OpenAI組み込み画像生成、2026-10-21。完全なプロンプトは同名 `.prompt.md` | リリース前にOpenAI生成物の利用条件と独自性を再確認 | 1364×1153 RGBA PNG、alpha 0〜255 / `70be0a105fea9b457093e3dd6ad5302895b4008181e45b297bbc8f6caa3b5b4e` | final |
 | HUD-REACTOR-01 | 未作成 | 3枠・先頭・押し出し予告 | HTML/CSSまたはCanvasのコード表現 | 自作 | — | planned |
 | VFX-HIT / DAMAGE / COLLECT | 未作成 | 命中・被弾・回収 | スプライトまたは粒子定義 | 未確認 | — | planned |
 | AUDIO-WPN / CORE / UI | 未作成 | 代表効果音セット | Phase 04で制作方法を固定 | 未確認 | — | planned |
@@ -36,3 +38,10 @@
 - `ffmpeg` のalpha抽出で最小0、最大254を確認し、完全透明画素と実質不透明なドローン画素の双方が存在する。
 - 144×96へのLanczos縮小と濃紺背景上の合成表示で、左向きの単眼、円形・放射状の胴体、右向きの橙色噴射を個別に判別できた。自機の右向き三角外形と3つのシアンセルは使っていない。
 - 一枚の分離素材としてゲーム投入可能なため `final`。代表ゲーム座標での合成、背景上のコントラスト、攻撃・被弾・撃破状態、権利再確認が未完了のため `verified` ではない。
+
+## CORE-RED / BLUE / YELLOW 検査記録
+
+- PNGヘッダーは赤1333×1180、青1287×1222、黄1364×1153で、すべて8-bit RGBA、非インターレース。
+- `ffmpeg` のalpha抽出で3点とも最小0、最大255を確認し、完全透明画素と不透明画素の双方が存在する。
+- 48×48へのLanczos縮小、濃灰背景への合成、グレースケール化後も、赤の菱形＋`I`、青の円＋`+`、黄の三角＋`◎`を相互に識別できた。
+- 分離素材としてゲーム投入可能なため `final`。代表ゲーム座標での合成、背景上のコントラスト、出現・回収・排出演出、権利再確認が未完了のため `verified` ではない。
