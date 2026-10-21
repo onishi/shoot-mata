@@ -6,10 +6,12 @@ import {
   HUD_REGIONS,
   MIN_TEXT_SIZE_PX,
   MIN_TOUCH_TARGET_PX,
+  MOTION_LIMITS,
   PARALLAX_LAYERS,
   REACTOR_QUEUE,
   STAGE_ASPECT_RATIO,
   VFX_EVENTS,
+  VISUAL_CUES,
   actorBounds,
   isInsideFlightCorridor,
   isInsideStage,
@@ -74,4 +76,29 @@ test("hit, damage, and collect use unique non-color cues inside the stage", () =
     assert.ok(event.x >= 0 && event.x <= 1);
     assert.ok(event.y >= 0 && event.y <= 1);
   }
+});
+
+test("combat categories have unique non-color visual signatures", () => {
+  assert.equal(VISUAL_CUES.length, 7);
+  const signatures = VISUAL_CUES.map(({ silhouette, interior, motion }) => `${silhouette}/${interior}/${motion}`);
+  assert.equal(new Set(signatures).size, VISUAL_CUES.length);
+  assert.deepEqual(VISUAL_CUES.filter(({ id }) => id.startsWith("core-")).map(({ silhouette }) => silhouette), [
+    "diamond", "circle", "triangle",
+  ]);
+  assert.notEqual(
+    VISUAL_CUES.find(({ id }) => id === "friendly-projectile").silhouette,
+    VISUAL_CUES.find(({ id }) => id === "enemy-projectile").silhouette,
+  );
+});
+
+test("VFX and camera motion remain inside accessibility limits", () => {
+  for (const event of VFX_EVENTS) {
+    const flashesPerSecond = event.luminancePulses / (event.durationMs / 1000);
+    assert.ok(flashesPerSecond <= MOTION_LIMITS.maxFlashesPerSecond, `${event.id}: ${flashesPerSecond} flashes/s`);
+  }
+  assert.ok(MOTION_LIMITS.maxCameraShakeX <= 0.015);
+  assert.ok(MOTION_LIMITS.maxCameraShakeY <= 0.01);
+  assert.ok(MOTION_LIMITS.maxCameraShakeDurationMs <= 350);
+  assert.equal(MOTION_LIMITS.reducedMotionCameraShakeX, 0);
+  assert.equal(MOTION_LIMITS.reducedMotionCameraShakeY, 0);
 });

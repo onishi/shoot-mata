@@ -20,6 +20,7 @@ for (const event of VFX_EVENTS) {
   const element = document.querySelector(`[data-vfx="${event.id}"]`);
   element.style.setProperty("--x", event.x);
   element.style.setProperty("--y", event.y);
+  element.style.setProperty("--vfx-duration", `${event.durationMs}ms`);
 }
 
 const controls = [...document.querySelectorAll("[data-display-mode]")];

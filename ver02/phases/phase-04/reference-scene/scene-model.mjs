@@ -31,10 +31,29 @@ export const HUD_MAX_OCCLUSION = 0.12;
 export const MIN_TEXT_SIZE_PX = 12;
 export const MIN_TOUCH_TARGET_PX = 44;
 
+export const VISUAL_CUES = Object.freeze([
+  { id: "core-red", silhouette: "diamond", interior: "bar-i", motion: "drift" },
+  { id: "core-blue", silhouette: "circle", interior: "cross-plus", motion: "drift" },
+  { id: "core-yellow", silhouette: "triangle", interior: "double-ring", motion: "drift" },
+  { id: "friendly-projectile", silhouette: "arrow-right", interior: "solid", motion: "right" },
+  { id: "enemy-projectile", silhouette: "closed-ring", interior: "solid-disc", motion: "left" },
+  { id: "enemy", silhouette: "radial-round", interior: "single-eye", motion: "left" },
+  { id: "background", silhouette: "open-corridor", interior: "low-edge-texture", motion: "parallax" },
+]);
+
+export const MOTION_LIMITS = Object.freeze({
+  maxFlashesPerSecond: 3,
+  maxCameraShakeX: 0.015,
+  maxCameraShakeY: 0.01,
+  maxCameraShakeDurationMs: 350,
+  reducedMotionCameraShakeX: 0,
+  reducedMotionCameraShakeY: 0,
+});
+
 export const VFX_EVENTS = Object.freeze([
-  { id: "hit", x: 0.71, y: 0.46, cue: "burst-cross" },
-  { id: "damage", x: 0.35, y: 0.57, cue: "broken-ring" },
-  { id: "collect", x: 0.58, y: 0.55, cue: "inward-chevrons" },
+  { id: "hit", x: 0.71, y: 0.46, cue: "burst-cross", durationMs: 900, luminancePulses: 1 },
+  { id: "damage", x: 0.35, y: 0.57, cue: "broken-ring", durationMs: 1600, luminancePulses: 0 },
+  { id: "collect", x: 0.58, y: 0.55, cue: "inward-chevrons", durationMs: 1100, luminancePulses: 1 },
 ]);
 
 export function totalArea(regions) {
