@@ -1,5 +1,15 @@
 # 開発ログ
 
+## 2026-10-22 — Phase 05のブラウザ検証表を固定しゲート完了
+
+- 目的: TECH-04の対象環境と未確認理由を機械可読化し、利用可能な同一buildで主要フローとポーズ復帰を再検証する。
+- 実装: 必須6対象、version、platform、実機／emulator区分、status、pass必須証拠を検査するbrowser compatibility reportを追加した。未確認や証拠不足はpassにできず、emulatorは実機完了へ算入しない。
+- 不具合と修正: ポーズ時間がruntime frame間隔へ混入し、復帰後に16.1fps・最大1224.3msと誤記録された。非戦闘中にframe基準を切るよう修正し、1.2秒停止を挟む回帰テストを追加した。
+- 自動確認: 全78テスト、build 35 files・13,733,690 bytes、外部URL 0、high以上の既知脆弱性0、差分検査に合格した。
+- ブラウザ確認: Chrome 155 / macOS 26.6.2で開始、戦闘、ポーズ、復帰を操作。34 resources、encoded 13,727,049 bytes、load 187ms、119.7fps、50ms超0、最大16.7ms、drop 0、overflow 0、console warning/error 0、外部origin 0だった。
+- 未確認: Edge、Firefox、Safari、iOS実機、Android実機は合格扱いにしていない。Phase 05は検証方式と技術基盤の成立で完了し、製品環境の合格はPhase 09・10で再判定する。
+- 次: Phase 06で第1面バーティカルスライスの必須制作単位と受け入れシナリオを固定し、仮コンテンツを完成品質へ置換する。
+
 ## 2026-10-22 — Phase 05の静的buildとruntime監査を追加
 
 - 目的: 技術基盤をクリーンな静的成果物として再現し、通信、容量、ロード、fps、停止、メモリ、依存関係を同じbuild IDで監査する。

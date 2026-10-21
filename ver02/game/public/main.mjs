@@ -2,7 +2,7 @@ import { loadCanvasAssets, renderCanvasFrame } from "../src/browser/canvas-rende
 import { loadBrowserAudioAssets } from "../src/browser/audio-assets.mjs";
 import { createBrowserAudioAdapter } from "../src/browser/audio-adapter.mjs";
 import { createBrowserInputAdapter } from "../src/browser/input-adapter.mjs";
-import { auditRuntimeResources, createRuntimeMonitor, recordRuntimeFrame } from "../src/browser/runtime-monitor.mjs";
+import { auditRuntimeResources, createRuntimeMonitor, recordRuntimeFrame, suspendRuntimeMonitor } from "../src/browser/runtime-monitor.mjs";
 import { createGameApplication } from "../src/app/game-application.mjs";
 import { GAME_ASSETS } from "../src/content/asset-manifest.mjs";
 import { PHASE05_TEST_STAGE } from "../src/content/stages/phase05-test-segment.mjs";
@@ -277,7 +277,7 @@ try {
     const step = advanceFixedStep(clock, time, update);
     const runtimeSample = session.flow.screen === "playing"
       ? recordRuntimeFrame(runtimeMonitor, time, step.droppedDeltaMs)
-      : runtimeMonitor.completed;
+      : (suspendRuntimeMonitor(runtimeMonitor), runtimeMonitor.completed);
     if (runtimeSample) {
       runtimeStatus.dataset.fps = runtimeSample.fps.toFixed(1);
       runtimeStatus.dataset.longFrames = String(runtimeSample.longFrames);

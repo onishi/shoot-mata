@@ -5,9 +5,10 @@ export function createRuntimeMonitor(options = {}) {
   }
   return {
     sampleWindowMs,
-    startedAtMs: null,
     previousFrameMs: null,
+    elapsedMs: 0,
     frames: 0,
+    frameIntervals: 0,
     longFrames: 0,
     maxFrameMs: 0,
     droppedMs: 0,
@@ -15,15 +16,21 @@ export function createRuntimeMonitor(options = {}) {
   };
 }
 
+export function suspendRuntimeMonitor(monitor) {
+  if (!monitor || typeof monitor !== "object") throw new TypeError("monitor is required");
+  monitor.previousFrameMs = null;
+}
+
 export function recordRuntimeFrame(monitor, frameTimeMs, droppedMs = 0) {
   if (!monitor || typeof monitor !== "object") throw new TypeError("monitor is required");
   if (!Number.isFinite(frameTimeMs) || frameTimeMs < 0) throw new TypeError("frameTimeMs must be non-negative");
   if (!Number.isFinite(droppedMs) || droppedMs < 0) throw new TypeError("droppedMs must be non-negative");
 
-  if (monitor.startedAtMs === null) monitor.startedAtMs = frameTimeMs;
   if (monitor.previousFrameMs !== null) {
     const interval = frameTimeMs - monitor.previousFrameMs;
     if (interval < 0) throw new RangeError("frameTimeMs must be monotonic");
+    monitor.elapsedMs += interval;
+    monitor.frameIntervals += 1;
     monitor.maxFrameMs = Math.max(monitor.maxFrameMs, interval);
     if (interval > 50) monitor.longFrames += 1;
   }
@@ -31,11 +38,11 @@ export function recordRuntimeFrame(monitor, frameTimeMs, droppedMs = 0) {
   monitor.frames += 1;
   monitor.droppedMs += droppedMs;
 
-  const elapsedMs = frameTimeMs - monitor.startedAtMs;
+  const elapsedMs = monitor.elapsedMs;
   if (elapsedMs >= monitor.sampleWindowMs) {
     monitor.completed = Object.freeze({
       elapsedMs,
-      fps: elapsedMs === 0 ? 0 : ((monitor.frames - 1) * 1_000) / elapsedMs,
+      fps: elapsedMs === 0 ? 0 : (monitor.frameIntervals * 1_000) / elapsedMs,
       longFrames: monitor.longFrames,
       maxFrameMs: monitor.maxFrameMs,
       droppedMs: monitor.droppedMs,

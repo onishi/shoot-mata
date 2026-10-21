@@ -1,6 +1,6 @@
 # Phase 05 plan — 技術基盤
 
-状態: 進行中（2026-10-21）
+状態: 完了（2026-10-22）
 
 ## 目的
 
@@ -51,7 +51,7 @@ Phase 05の成果物は技術基盤であり、完成製品、完成アート、
 - [x] console error、欠落アセット、意図しない外部通信が0件である
 - [x] 容量、ロード、メモリ、fpsのPhase 05基準値と計測方法を記録する
 - [x] 静的成果物をクリーン環境から再現でき、依存監査結果を記録する
-- [ ] Chrome、Edge、Firefox、Safariと利用可能な実モバイル環境の検証表を記録する
+- [x] Chrome、Edge、Firefox、Safariと利用可能な実モバイル環境の検証表を記録する
 
 ## 確認方法
 
@@ -75,6 +75,8 @@ stage scheduleへ純粋な戦闘シミュレーションを接続した。FIFO�
 
 ChromeではSTART、説明完了、BGM音量0.35、効果音ミュート、再読込、説明を飛ばした再START、出撃を操作し、3音源の200応答、設定と説明済み状態の復元、警告なしを確認した。1440×900、390×844、320×844、844×390のプレイ画面は横溢れ0で、1440×900は縦溢れも0、console warning/errorは0件だった。実ブラウザでAudioContext拒否を発生させる操作は行っておらず、境界とapplicationの注入テストで代替した。
 
-build ID `phase05-foundation-20261022` の静的成果物を再現可能に生成し、SHA-256 manifest、16 MiB容量上限、外部URL検査、lockfile、high以上0件の依存監査を追加した。Chromeの静的成果物実測は33 resource、encoded 13,726,347 bytes、外部origin 0、load event 129ms、通常戦闘120.0fps、50ms超frame 0、simulation drop 0ms、console warning/error 0だった。短期heapは5秒超で減少し、継続増加を検出しなかった。
+build ID `phase05-foundation-20261022` の静的成果物を再現可能に生成し、SHA-256 manifest、16 MiB容量上限、外部URL検査、lockfile、high以上0件の依存監査を追加した。最終Chrome実測は34 resource、encoded 13,727,049 bytes、外部origin 0、load event 187ms、通常戦闘119.7fps、50ms超frame 0、simulation drop 0ms、console warning/error 0だった。短期heapは初回計測の5秒超で減少し、継続増加を検出しなかった。
 
-次はTECH-04のブラウザ・実端末検証表を作り、利用不能な環境は未確認として残した上でPhase 05ゲートを判定する。
+TECH-04の機械可読な検証表を `browser-compatibility.json` に追加し、必須6対象の欠落、未確認状態、pass証拠、実機とエミュレータの区別を自動検査する。Chrome 155 / macOS 26.6.2では同一buildの開始、戦闘、ポーズ、復帰、overflow、console、resourceを再確認した。計測中にポーズ時間をframe間隔へ含める監査不具合を検出し、非戦闘中は計測基準を切る修正と回帰テストを追加した。
+
+EdgeとFirefoxは未導入、SafariはUI操作権限なし、iOS実機とAndroid実機は未接続であり、いずれも合格扱いにしていない。Android 16 / Chrome 134エミュレータは接続とversionだけを確認し、実機証拠には算入しない。Phase 05の目的である基盤と検証方式は成立したため完了とし、対象ブラウザ・実端末での製品検証はPhase 09まで未確認として維持する。

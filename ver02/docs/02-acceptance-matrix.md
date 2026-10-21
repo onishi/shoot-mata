@@ -65,10 +65,10 @@
 | TECH-01 | P05 | P08, P10 | `game/tests/core/fixed-step.test.mjs`で30/60/144Hz、長delta、非表示復帰を決定的検査。ブラウザ統合と製品負荷で再検証 | 実装中 |
 | TECH-02 | P05, P07 | P07, P10 | `stage-schema.test.mjs`で背景、敵、drop、区間、wave、仕掛け、boss phase、音、遷移のschema・参照・登録behaviorを検査。`stage-schedule.test.mjs`でデータ差替えとseed再現を検査。完成4面のデータと条件分岐レビューはP07 | 実装中 |
 | TECH-03 | P05, P07 | P08, P10 | `stage-simulation.test.mjs`で10 seedのwave、drop、仕掛け、boss phase、勝敗、タイトル→結果→同seed再挑戦を決定的検査。ブラウザ入口と完成4面は後続 | 実装中 |
-| TECH-04 | P05 | P09, P10 | 対象ブラウザ・OSの検証表、バージョン、結果 | 未着手 |
+| TECH-04 | P05 | P09, P10 | `phases/phase-05/browser-compatibility.json` に必須6対象とversion・結果を記録しschema検査。Chrome 155 / macOS 26.6.2は合格。Edge、Firefox、Safari、iOS実機、Android実機は未確認のまま明示し、P09で再検証 | 実装中 |
 | TECH-05 | P05, P09 | P09, P10 | Phase 05固定場面をChromeで5秒超計測し120.0fps、50ms超frame 0、最大10.4ms、simulation drop 0ms。低性能対象端末と長時間計測はP09 | 実装中 |
 | TECH-06 | P05, P08 | P08, P10 | asset manifest実在・静的外部URL 0を自動検査。静的成果物のChrome主要フローで33 resource、外部origin 0、欠落0、console warning/error 0。全製品フローは後続 | 実装中 |
-| TECH-07 | P05, P09 | P09, P10 | build 13,729,197 bytes/16 MiB、初回encoded 13,726,347 bytes/14 MiB、localhost load 129ms/2秒。5秒heapは10,125,724→7,655,265 bytes。P09で低性能・長時間再計測 | 実装中 |
+| TECH-07 | P05, P09 | P09, P10 | build 13,733,690 bytes/16 MiB、初回encoded 13,727,049 bytes/14 MiB、localhost load 187ms/2秒。ポーズ除外後119.7fps、50ms超0、最大16.7ms、drop 0。P09で低性能・長時間再計測 | 実装中 |
 | TECH-08 | P05 | P10 | lockfile、runtime/dev依存0、`npm audit --omit=dev --audit-level=high`で既知脆弱性0。最終候補で再監査 | 実装中 |
 | REL-01 | P04, P07 | P10 | P04生成画像は利用条件再確認待ち、自作音は外部サンプル0をmanifest照合。P07全素材・フォント・コードと通知を照合 | 実装中 |
 | REL-02 | P05 | P10 | 保存境界は注入された同一origin storageだけを使用し、個人情報・通信処理を持たない。ビルド後のnetwork監査は後続 | 実装中 |

@@ -97,13 +97,13 @@ Phase 05の基準場面はbuild ID `phase05-foundation-20261022` の仮区間、
 
 | 指標 | Phase 05暫定予算 | 2026-10-22 Chrome実測 |
 | --- | --- | --- |
-| 静的成果物 | 16 MiB以下 | 13,729,197 bytes、34 files |
-| 初回encoded resource | 14 MiB以下 | 13,726,347 bytes、33 resources |
-| localhost load event | 2,000ms以下 | 129ms |
-| 通常戦闘fps | 55fps以上（目標60） | 120.0fps（120Hz環境） |
+| 静的成果物 | 16 MiB以下 | 13,733,690 bytes、35 files |
+| 初回encoded resource | 14 MiB以下 | 13,727,049 bytes、34 resources |
+| localhost load event | 2,000ms以下 | 187ms |
+| 通常戦闘fps | 55fps以上（目標60） | 119.7fps（120Hz環境、1.2秒ポーズ後） |
 | 50ms超frame | 5秒窓で0 | 0 |
-| 最大frame / simulation drop | 50ms以下 / 0ms | 10.4ms / 0.0ms |
+| 最大frame / simulation drop | 50ms以下 / 0ms | 16.7ms / 0.0ms |
 | JS heap短期傾向 | 5秒窓で+8 MiB未満 | 10,125,724 → 7,655,265 bytes |
 | 通信・実行時異常 | 外部origin、欠落、warning/error各0 | すべて0 |
 
-Chromeは1568×1012 viewport、ローカルHTTP、cache有効で計測した。localhost時間はネットワーク端末のロード保証ではない。5秒heapは短期の暴走検出に限り、5分以上のsoak、低性能端末、各製品ブラウザはPhase 09まで未確認である。
+Chromeは1568×1012 viewport、ローカルHTTP、cacheなしの新規originで計測した。ポーズ中はframe間隔とsample時間を加算せず、復帰後の最初のframeを新しい基準にする。localhost時間はネットワーク端末のロード保証ではない。5秒heapは短期の暴走検出に限り、5分以上のsoak、低性能端末、各製品ブラウザはPhase 09まで未確認である。

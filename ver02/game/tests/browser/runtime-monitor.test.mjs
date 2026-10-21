@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { auditRuntimeResources, createRuntimeMonitor, recordRuntimeFrame } from "../../src/browser/runtime-monitor.mjs";
+import { auditRuntimeResources, createRuntimeMonitor, recordRuntimeFrame, suspendRuntimeMonitor } from "../../src/browser/runtime-monitor.mjs";
 
 test("TECH-05/07: fixed window reports fps, stalls, and dropped simulation time", () => {
   const monitor = createRuntimeMonitor({ sampleWindowMs: 1_000 });
@@ -11,6 +11,16 @@ test("TECH-05/07: fixed window reports fps, stalls, and dropped simulation time"
   assert.equal(monitor.completed.longFrames, 0);
   assert.ok(monitor.completed.maxFrameMs < 17);
   assert.equal(monitor.completed.droppedMs, 2);
+});
+
+test("TECH-04/05: pause duration is excluded from the runtime sample", () => {
+  const monitor = createRuntimeMonitor({ sampleWindowMs: 1_000 });
+  for (let frame = 0; frame <= 30; frame += 1) recordRuntimeFrame(monitor, frame * (1_000 / 60));
+  suspendRuntimeMonitor(monitor);
+  for (let frame = 31; frame <= 61; frame += 1) recordRuntimeFrame(monitor, 10_000 + frame * (1_000 / 60));
+  assert.ok(Math.abs(monitor.completed.fps - 60) < 0.001);
+  assert.equal(monitor.completed.longFrames, 0);
+  assert.ok(monitor.completed.maxFrameMs < 17);
 });
 
 test("TECH-06/07: resource audit totals bytes and exposes external origins", () => {

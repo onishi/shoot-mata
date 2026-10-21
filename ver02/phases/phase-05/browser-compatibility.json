@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "buildId": "phase05-foundation-20261022",
+  "recordedOn": "2026-10-22",
+  "targets": [
+    {
+      "id": "chrome-desktop",
+      "browser": "Google Chrome",
+      "version": "155.0.8059.85",
+      "platform": "macOS 26.6.2 arm64",
+      "environment": "desktop",
+      "status": "pass",
+      "notes": "ローカルHTTP上のdistを実操作。既存runtime監査と4 viewport検査を統合した。",
+      "evidence": {
+        "viewports": ["1568x1012", "1440x900", "390x844", "320x844", "844x390"],
+        "inputModes": ["keyboard", "pointer-events"],
+        "checks": {
+          "loaded": true,
+          "primaryFlow": true,
+          "pauseResume": true,
+          "noHorizontalOverflow": true,
+          "noConsoleErrors": true,
+          "noMissingResources": true,
+          "noExternalOrigins": true
+        },
+        "runtime": {
+          "resourceCount": 34,
+          "encodedBytes": 13727049,
+          "loadEventMs": 187,
+          "fps": 119.7,
+          "longFrames": 0,
+          "maxFrameMs": 16.7,
+          "simulationDroppedMs": 0
+        }
+      }
+    },
+    {
+      "id": "edge-desktop",
+      "browser": "Microsoft Edge",
+      "version": "n/a (not installed)",
+      "platform": "macOS 26.6.2 arm64",
+      "environment": "desktop",
+      "status": "unavailable",
+      "reason": "Microsoft Edge.appが検証機にインストールされていない。",
+      "notes": "未確認。Chromium互換性からの推定合格は行わない。"
+    },
+    {
+      "id": "firefox-desktop",
+      "browser": "Mozilla Firefox",
+      "version": "n/a (not installed)",
+      "platform": "macOS 26.6.2 arm64",
+      "environment": "desktop",
+      "status": "unavailable",
+      "reason": "Firefox.appが検証機にインストールされていない。",
+      "notes": "未確認。"
+    },
+    {
+      "id": "safari-desktop",
+      "browser": "Safari",
+      "version": "26.6.2 (21624.5.1.11.3)",
+      "platform": "macOS 26.6.2 arm64",
+      "environment": "desktop",
+      "status": "not-run",
+      "reason": "SafariのUI操作権限を利用できず、同一buildの実操作とconsole/network採取を完了できなかった。",
+      "notes": "インストール済みだが未確認。推定合格にはしない。"
+    },
+    {
+      "id": "ios-safari-device",
+      "browser": "Mobile Safari",
+      "version": "n/a (no connected device)",
+      "platform": "iOS/iPadOS",
+      "environment": "real-device",
+      "status": "unavailable",
+      "reason": "利用可能な接続済みiOS/iPadOS実機がない。",
+      "notes": "未確認。"
+    },
+    {
+      "id": "android-chrome-device",
+      "browser": "Chrome for Android",
+      "version": "n/a (no connected physical device)",
+      "platform": "Android",
+      "environment": "real-device",
+      "status": "unavailable",
+      "reason": "ADBにはAndroid 16エミュレータだけが接続され、実機は接続されていない。",
+      "notes": "エミュレータ結果を実端末の代替証拠には数えない。"
+    },
+    {
+      "id": "android-chrome-emulator",
+      "browser": "Chrome for Android",
+      "version": "134.0.6998.135",
+      "platform": "Android 16 emulator",
+      "environment": "emulator",
+      "status": "not-run",
+      "reason": "接続とversionだけを確認し、同一buildの実操作は未実施。",
+      "notes": "補助検証対象。合格しても実端末完了には数えない。"
+    }
+  ]
+}

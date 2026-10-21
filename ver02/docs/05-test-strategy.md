@@ -1,6 +1,6 @@
 # 05 テスト戦略
 
-状態: Phase 05進行中（2026-10-21）
+状態: Phase 05完了（2026-10-22）
 
 ## 原則
 
@@ -33,7 +33,7 @@ Phase 05の一括検証は `npm run verify`、依存監査は `npm run audit:dep
 
 開発中の各UIスライスはChromeで1440×900、390×844、320×844、844×390を確認する。Phase 05ゲートでは現行安定版Chrome、Edge、Firefox、Safariと、利用可能なiOS Safari・Android Chrome相当の実績表を作る。未確認環境を合格扱いにしない。
 
-2026-10-22時点の静的成果物runtime監査はChromeだけで完了している。Edge、Firefox、Safari、実iOS、実Androidは未確認であり、TECH-04とPhase 05全体の完了証拠には数えない。
+2026-10-22時点の静的成果物runtime監査はChromeだけで完了している。結果は `phases/phase-05/browser-compatibility.json` に固定し、passには主要フロー、ポーズ復帰、overflow、console、欠落resource、外部originの全項目を要求する。Edge、Firefox、Safari、実iOS、実Androidは未確認であり、合格数には数えない。検証表とfail-closedな記録方式の成立をPhase 05の完了証拠とし、対象環境の製品合格はPhase 09・10まで持ち越す。
 
 ## 証拠
 
