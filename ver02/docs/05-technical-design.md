@@ -65,6 +65,10 @@ AudioContextはユーザーのSTART操作から初期化し、生成処理を最
 
 ステージはslug、区間、背景層、敵wave、drop、仕掛け、boss phase、音、遷移をschema検査可能なデータとして持つ。ステージ固有挙動は登録済みの小さなbehavior IDで選び、ステージ番号を列挙する巨大条件分岐を作らない。
 
+schema version 1は、区間がtick 0からステージ終了まで隙間なく連続すること、waveの全spawnが参照区間内に収まること、敵・drop table・区間の参照が解決できること、IDが重複しないことを読込時に検査する。未知fieldと未登録behavior IDは黙って無視せず拒否する。敵出現時刻はデータで固定し、seedは登録済みlane候補と重み付きdropの選択だけへ使う。同じstage定義とseedから同じscheduleを再生成できる。
+
+Phase 05の `phase05-orbital-segment` は基盤検証専用で、Phase 04の背景・代表敵・音を論理asset IDで参照する。`placeholder-*` の敵、boss、音は完成素材ではなく、Phase 06の第1面完成時に台帳の実asset IDへ置換する。
+
 ## 9. 描画と画面
 
 内部ゲーム座標は16:9で固定し、CanvasをCSSで利用可能領域へcontainする。縦長ではCanvas下に44 CSS px以上の操作領域を置き、HUDの重要情報はCanvas内とアクセシブルなDOM表示モデルを同じ状態から描く。高コントラストと動き軽減は表示アダプターの設定として全画面へ適用する。

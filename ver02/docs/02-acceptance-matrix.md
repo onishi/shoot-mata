@@ -63,8 +63,8 @@
 | AV-06 | P05 | P08, P10 | START前の未生成、作成・resume・decode・再生失敗、音源欠落、ミュート、破棄を `audio-adapter.test.mjs` で検査。仮区間の無音完走と実ブラウザは後続 | 実装中 |
 | AV-07 | P04, P07 | P10 | P04代表音は生成式、用途、SHA-256、外部サンプル0をmanifestと台帳で照合。全製品素材は未着手 | 実装中 |
 | TECH-01 | P05 | P08, P10 | `game/tests/core/fixed-step.test.mjs`で30/60/144Hz、長delta、非表示復帰を決定的検査。ブラウザ統合と製品負荷で再検証 | 実装中 |
-| TECH-02 | P05, P07 | P07, P10 | 4面データのschema検査、条件分岐レビュー | 未着手 |
-| TECH-03 | P05, P07 | P08, P10 | unit/integration/full-run CI結果と4面カバレッジ | 未着手 |
+| TECH-02 | P05, P07 | P07, P10 | `stage-schema.test.mjs`で背景、敵、drop、区間、wave、仕掛け、boss phase、音、遷移のschema・参照・登録behaviorを検査。`stage-schedule.test.mjs`でデータ差替えとseed再現を検査。完成4面のデータと条件分岐レビューはP07 | 実装中 |
+| TECH-03 | P05, P07 | P08, P10 | Phase 05仮区間のseed固定scheduleを自動検査。戦闘統合の開始→boss→結果と4面カバレッジは後続 | 実装中 |
 | TECH-04 | P05 | P09, P10 | 対象ブラウザ・OSの検証表、バージョン、結果 | 未着手 |
 | TECH-05 | P05, P09 | P09, P10 | 固定した端末・場面のfps、入力遅延、停止計測 | 未着手 |
 | TECH-06 | P05, P08 | P08, P10 | 全主要フローのconsole・network・asset監査 | 未着手 |

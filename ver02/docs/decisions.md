@@ -71,3 +71,11 @@
 - 判断: 保存version 1では進行、面・難度別best、設定を分離する。parse、schema、version、migrationの失敗時は原文をrecovery keyへ一度だけ退避し、初期値とメモリ内保存でゲームを継続する。
 - 理由: 破損やブラウザの保存拒否を起動不能へせず、原因となった原文を自動上書きから守りながらPROG-05を満たすため。
 - 影響: version 0から1への移行経路を回帰テストとして維持する。将来schemaを変更する場合はversionを増やし、段階的migrationと失敗テストを同時に追加する。
+
+## D-010: ステージ固有挙動は登録behaviorと検査済みデータへ分離する
+
+- 日付: 2026-10-21
+- 状態: 採用
+- 判断: stage schema version 1に背景、敵、drop、連続区間、wave、仕掛け、boss phase、音、遷移を持たせる。固有挙動は種類別の登録済みbehavior IDで参照し、未知field、未登録ID、参照切れ、区間外spawnを読込時に拒否する。
+- 理由: 4面を追加するときにstage番号の巨大条件分岐へ密結合せず、データの欠落を実行中ではなく自動検査で発見するため。
+- 影響: seedはlaneとdrop選択だけへ注入し、同じstage定義とseedから同じscheduleを再現する。schema変更時はversion更新と移行方針が必要。Phase 05のplaceholder asset IDは完成素材とは数えず、Phase 06〜07で台帳の実IDへ置換する。
