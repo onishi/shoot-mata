@@ -1,0 +1,114 @@
+[
+  {
+    "id": "weapon-lance-shot",
+    "file": "weapon-lance-shot-v1.wav",
+    "role": "red weapon fire",
+    "durationMs": 180,
+    "targetPeakDb": -6,
+    "peakRangeDb": [
+      -7,
+      -5
+    ],
+    "loop": false,
+    "bytes": 17324,
+    "sha256": "1ab7b6e540fd2b13844564e708399e55ad6172d66d7b2d131bfb9e268fdbde17",
+    "creation": "deterministic original synthesis in generate-reference-audio.mjs",
+    "rights": "project-authored; no third-party samples"
+  },
+  {
+    "id": "weapon-spread-shot",
+    "file": "weapon-spread-shot-v1.wav",
+    "role": "blue weapon fire",
+    "durationMs": 240,
+    "targetPeakDb": -8,
+    "peakRangeDb": [
+      -9,
+      -7
+    ],
+    "loop": false,
+    "bytes": 23084,
+    "sha256": "a84afea19f5ef06f379f437a64543709ac993afa98d657f45297c3dc83191900",
+    "creation": "deterministic original synthesis in generate-reference-audio.mjs",
+    "rights": "project-authored; no third-party samples"
+  },
+  {
+    "id": "weapon-seeker-launch",
+    "file": "weapon-seeker-launch-v1.wav",
+    "role": "yellow weapon launch",
+    "durationMs": 320,
+    "targetPeakDb": -8,
+    "peakRangeDb": [
+      -9,
+      -7
+    ],
+    "loop": false,
+    "bytes": 30764,
+    "sha256": "dbff817b86c1ceed5e64437904d988495baf5a6ca1649cd984a738d1400d2cb7",
+    "creation": "deterministic original synthesis in generate-reference-audio.mjs",
+    "rights": "project-authored; no third-party samples"
+  },
+  {
+    "id": "core-collect",
+    "file": "core-collect-v1.wav",
+    "role": "core pickup",
+    "durationMs": 380,
+    "targetPeakDb": -7,
+    "peakRangeDb": [
+      -8,
+      -6
+    ],
+    "loop": false,
+    "bytes": 36524,
+    "sha256": "a7a5edbd90c0a2f4a1fdab77be6f0d869b6cba30257661b82b5a9d57d9f7f4ae",
+    "creation": "deterministic original synthesis in generate-reference-audio.mjs",
+    "rights": "project-authored; no third-party samples"
+  },
+  {
+    "id": "core-load",
+    "file": "core-load-v1.wav",
+    "role": "FIFO queue update",
+    "durationMs": 250,
+    "targetPeakDb": -9,
+    "peakRangeDb": [
+      -10,
+      -8
+    ],
+    "loop": false,
+    "bytes": 24044,
+    "sha256": "209e29a97384d030a7882e9aa052514b2e096981d5d63d7c0a08112f246100b7",
+    "creation": "deterministic original synthesis in generate-reference-audio.mjs",
+    "rights": "project-authored; no third-party samples"
+  },
+  {
+    "id": "ui-confirm",
+    "file": "ui-confirm-v1.wav",
+    "role": "UI confirmation",
+    "durationMs": 120,
+    "targetPeakDb": -12,
+    "peakRangeDb": [
+      -13,
+      -11
+    ],
+    "loop": false,
+    "bytes": 11564,
+    "sha256": "25578833c856297c86d21205b919f95e47ee2e20d097b4d37a328b0df1407c8b",
+    "creation": "deterministic original synthesis in generate-reference-audio.mjs",
+    "rights": "project-authored; no third-party samples"
+  },
+  {
+    "id": "stage-01-rhythm-loop",
+    "file": "stage-01-rhythm-loop-v1.wav",
+    "role": "stage rhythm layer loop",
+    "durationMs": 4000,
+    "targetPeakDb": -12,
+    "peakRangeDb": [
+      -13,
+      -11
+    ],
+    "loop": true,
+    "bytes": 384044,
+    "sha256": "7f436dc594798b5a6fe23888f0c5554615fc51f840f79da80ef1f61d16609559",
+    "creation": "deterministic original synthesis in generate-reference-audio.mjs",
+    "rights": "project-authored; no third-party samples"
+  }
+]

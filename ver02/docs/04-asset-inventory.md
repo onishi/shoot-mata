@@ -17,7 +17,7 @@
 | CORE-YELLOW | `../assets/game/cores/reactor-core-yellow-v1.png` | 黄コア、三角＋`◎` | OpenAI組み込み画像生成、2026-10-21。完全なプロンプトは同名 `.prompt.md` | リリース前にOpenAI生成物の利用条件と独自性を再確認 | 1364×1153 RGBA PNG、alpha 0〜255 / `70be0a105fea9b457093e3dd6ad5302895b4008181e45b297bbc8f6caa3b5b4e` | final |
 | HUD-REACTOR-01 | `../phases/phase-04/reference-scene/` | 3枠・先頭・押し出し予告 | HTML/CSS/JSのコード表現、2026-10-21 | 自作 | 正規化面積11.69%、本文12px以上、操作対象44px以上 | final |
 | VFX-HIT / DAMAGE / COLLECT | `../phases/phase-04/reference-scene/` | 命中・被弾・回収 | HTML/CSSのコード表現、2026-10-21 | 自作 | 十字閃光 / 破線二重環 / 内向き山形 | final |
-| AUDIO-WPN / CORE / UI | 未作成 | 代表効果音セット | Phase 04で制作方法を固定 | 未確認 | — | planned |
+| AUDIO-REF-01 | `../assets/audio/reference/` | 3武器発射、コア回収・装填、UI決定、第1面リズム層 | 自作の決定的合成コード、2026-10-21。`manifest.json`と`generate-reference-audio.mjs` | 自作、外部サンプル0 | 48kHz mono PCM16 WAV×7、527,348 bytes。個別SHA-256はmanifest | final |
 
 ## CONCEPT-STG01-01 生成プロンプト
 
@@ -66,3 +66,11 @@
 - 味方弾・敵弾を含む7分類の外形／内部／移動シグネチャは重複0。VFXの輝度パルスは命中1.11回/秒、被弾0回/秒、回収0.91回/秒で上限3回/秒以内。カメラ揺れ上限は横1.5%、縦1.0%、350msとし、動き軽減時は0に固定した。
 - Chromeの1440×900、390×844、320×844、844×390で横溢れ0、画像欠落0、console warning/error 0件を再確認した。横長は縦溢れ0で、実計算されたVFX周期0.9秒・1.6秒・1.1秒がモデルと一致した。
 - コード表現としてゲーム投入可能なため`final`。ゲーム本体への統合と製品全素材での再検証が未完了なので`verified`ではない。
+
+## AUDIO-REF-01 検査記録
+
+- 赤ランス180ms/−6dBFS、青スプレッド240ms/−8dBFS、黄シーカー320ms/−8dBFS、コア回収380ms/−7.001dBFS、装填250ms/−9dBFS、UI決定120ms/−12dBFS、第1面リズム層4000ms/−12dBFSを作成した。
+- 7点とも48kHz、mono、PCM16 WAV。クリップは全点0、−60dBFS基準の先頭無音は最大0.125ms、末尾無音は最大0.5ms。リズム層のループ端正規化振幅差は0.004395で上限0.01以内。
+- `manifest.json`に用途、長さ、目標ピーク、バイト数、SHA-256、制作方法、権利を記録し、テストで実ファイルと照合する。外部音源・外部サンプルは使用していない。
+- Chromeで7点すべて`readyState=4`、表示長0.12〜4秒、ループ指定、横溢れ0、console warning/error 0件を確認した。320×844でも横溢れ0、音声操作高54px。
+- 分離音声としてゲーム投入可能なため`final`。聴感の主観評価、ゲーム本体の同時発音・音量設定・ミュート・失敗時継続、配信用圧縮形式は未確認なので`verified`ではない。
