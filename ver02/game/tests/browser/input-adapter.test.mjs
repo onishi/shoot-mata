@@ -47,6 +47,23 @@ test("INP-01: gameplay中だけ割当済みキーボード操作の既定動作�
   assert.equal(consumeInput(adapter.state).moveX, 0);
 });
 
+test("INP-01/A11Y-04: ボタン上のEnterとSpaceを共通commandへ二重入力しない", () => {
+  const keyboard = new FakeTarget();
+  const game = new FakeTarget();
+  const adapter = createBrowserInputAdapter({ keyboardTarget: keyboard, gameTarget: game });
+  const button = { tagName: "BUTTON" };
+  keyboard.dispatch("keydown", { code: "Enter", repeat: false, target: button });
+  keyboard.dispatch("keydown", { code: "Space", repeat: false, target: button });
+  assert.deepEqual(consumeInput(adapter.state), {
+    moveX: 0,
+    moveY: 0,
+    fire: false,
+    confirm: false,
+    back: false,
+    pause: false,
+  });
+});
+
 test("INP-02/03: ゲーム操作領域のpointerだけを捕捉・抑止しmulti-touchを保持する", () => {
   const keyboard = new FakeTarget();
   const game = new FakeTarget();

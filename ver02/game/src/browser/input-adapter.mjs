@@ -22,7 +22,14 @@ export function createBrowserInputAdapter(options = {}) {
   }
   let gameplayActive = false;
 
+  const isInteractiveActivation = (event) => {
+    if (!["Enter", "Space"].includes(event.code)) return false;
+    const tagName = event.target?.tagName?.toLowerCase?.();
+    return ["button", "a", "input", "select", "textarea"].includes(tagName);
+  };
+
   const onKeyDown = (event) => {
+    if (isInteractiveActivation(event)) return;
     const handled = setKey(state, event.code, true, { repeat: event.repeat === true });
     if (handled && gameplayActive) event.preventDefault();
   };

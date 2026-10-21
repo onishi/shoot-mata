@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#050910">
-    <title>shoot-mata v02 — Phase 05 Canvas</title>
+    <title>shoot-mata v02 — Phase 05 Playable Flow</title>
     <link rel="stylesheet" href="./styles.css">
   </head>
   <body>
@@ -14,10 +14,16 @@
         <button type="button" data-fullscreen>フルスクリーン</button>
       </header>
       <section class="game-shell" data-game-shell aria-label="軌道残骸帯のCanvas基盤検証">
-        <canvas data-canvas width="1280" height="720" aria-label="軌道残骸帯。矢印またはWASDで移動、Pでポーズ"></canvas>
+        <canvas data-canvas width="1280" height="720" aria-label="軌道残骸帯。矢印またはWASDで移動、ZまたはSpaceで射撃、Pでポーズ"></canvas>
         <p class="canvas-status" data-canvas-status role="status">素材を読み込んでいます</p>
+        <section class="screen-panel" data-screen-panel aria-live="polite" hidden>
+          <p class="screen-kicker" data-screen-kicker></p>
+          <h1 data-screen-title></h1>
+          <p data-screen-copy></p>
+          <div class="screen-actions" data-screen-actions></div>
+        </section>
       </section>
-      <section class="touch-controls" data-input-root aria-label="タッチ操作">
+      <section class="touch-controls" data-input-root aria-label="タッチ操作" hidden>
         <button type="button" class="move-pad" data-input-role="move" aria-label="指を滑らせて移動">MOVE</button>
         <button type="button" data-input-role="pause" aria-label="ポーズ">PAUSE</button>
         <button type="button" class="fire-button" data-input-role="fire" aria-label="射撃">FIRE</button>

@@ -11,12 +11,12 @@
 | EXP-03 | P05, P08 | P09, P10 | 被弾理由と直前コア列を表示し、再挑戦導線を操作確認 | 未着手 |
 | EXP-04 | P07 | P09, P10 | 4ステージの固有要素を通しプレイ、画像・動画で比較 | 未着手 |
 | EXP-05 | P04, P07 | P10 | P04代表シーン、音7点、制作規則と自作音権利台帳を整備。P07全製品素材の一貫性と権利を再検証 | 実装中 |
-| LOOP-01 | P05, P07 | P08, P10 | `game/tests/core/flow-machine.test.mjs`でタイトル→4面→エンディングの状態遷移を検査。ゲーム本体の決定的通しと実操作は未着手 | 実装中 |
+| LOOP-01 | P05, P07 | P08, P10 | `flow-machine.test.mjs`の4面遷移と`game-session.test.mjs`のタイトル→説明→仮区間→結果を検査。Chromeで初回導線を実操作。完成4面は後続 | 実装中 |
 | LOOP-02 | P07 | P08, P10 | 4ステージ各々の開始→結果→再挑戦テスト | 未着手 |
 | LOOP-03 | P03, P06 | P09, P10 | `phases/phase-03/prototype/objective-audit.mjs`、ゲーム内統合テスト | 実装中 |
-| LOOP-04 | P05 | P08, P10 | `game/tests/core/flow-machine.test.mjs`でポーズ・復帰・再開確認・タイトル離脱確認を検査。ブラウザ操作は未着手 | 実装中 |
+| LOOP-04 | P05 | P08, P10 | `flow-machine.test.mjs`と`game-session.test.mjs`でポーズ・復帰・再開始／離脱確認を検査。ChromeでPointer Eventsのポーズ、再開始確認取消、復帰を操作 | 実装中 |
 | LOOP-05 | P07 | P08, P10 | 状態モデルの4面クリア→エンディング→クレジットを検査。完成コンテンツの通し証拠は未着手 | 実装中 |
-| LOOP-06 | P05, P07 | P08, P10 | 状態モデルの即時再挑戦、キャンペーン限定・有限コンティニューを検査。戦闘統合は未着手 | 実装中 |
+| LOOP-06 | P05, P07 | P08, P10 | 状態モデルとsession統合で結果・敗北からの再挑戦、同seed再現、有限コンティニューを検査。Chromeでゲームオーバー→attempt 2を操作 | 実装中 |
 | CORE-01 | P03, P04 | P09, P10 | P03試作の落下中コア・HUD・凡例で3色を外形・内部記号でも区別。`prototype/tests/model.test.mjs`、3画面画像。P04分離素材の48×48グレースケール検査は `docs/04-asset-inventory.md`。ゲーム内完成アートで再検証 | 実装中 |
 | CORE-02 | P03 | P03, P10 | `prototype/tests/model.test.mjs`、`prototype/objective-audit.mjs` の全729列 | 実装中 |
 | CORE-03 | P03, P07 | P07, P10 | P03の3系統×3段階試作。完成機能・見た目をテストと台帳で照合 | 実装中 |
@@ -40,15 +40,15 @@
 | PROG-04 | P05 | P08, P10 | `save-data.test.mjs`と`ports/save-repository.test.mjs`で面・難度別best、内訳、コア列の分離・保存復元を検査。実ブラウザは後続 | 実装中 |
 | PROG-05 | P05 | P08, P10 | version 1、v0移行、破損退避、未来version、storage取得・読込・書込失敗、確認付き初期化を自動検査。警告UIと実ブラウザは後続 | 実装中 |
 | PROG-06 | P07 | P09, P10 | 初見観察、被弾位置分布、予告レビュー | 未着手 |
-| UX-01 | P05, P07 | P08, P10 | 全画面一覧との実装照合、全遷移の操作動画 | 未着手 |
-| UX-02 | P05, P06 | P09, P10 | 初回説明と再表示を初見観察・操作確認 | 未着手 |
+| UX-01 | P05, P07 | P08, P10 | P05にタイトル、初回説明、stage intro、HUD、ポーズ、確認、結果、ゲームオーバー、再挑戦を実装。設定、stage select、ending等は後続 | 実装中 |
+| UX-02 | P05, P06 | P09, P10 | 初回説明をブラウザ入口へ接続しChromeでEnter導線を確認。段階説明、再表示、初見観察は後続 | 実装中 |
 | UX-03 | P04, P06 | P09, P10 | P04代表HUDは11.58〜11.65%を3画面で確認。P05 Canvasへscore、残機、3コア、武器、boss meterを同一表示モデルから描画。P06ゲーム本体で再検証 | 実装中 |
 | UX-04 | P04, P07 | P09, P10 | P04実PNGをグレースケール・3種色覚シミュレーションで検査し、コア間37.02/255以上、自機・敵25.24/255以上、非色シグネチャ重複0。`reference-scene/visual-audit.test.mjs`。P07全素材で再検証 | 実装中 |
-| UX-05 | P05, P06 | P08, P10 | P05に16:9 Canvas、safe-area、縦長・横長CSSを実装。4 viewportの実ブラウザ画像とoverflowは未確認 | 実装中 |
-| UX-06 | P05, P06 | P08, P10 | P05に縦長Canvas下の44px以上のmove/fire/pause領域を実装。主要フロー完走と実端末は未確認 | 実装中 |
+| UX-05 | P05, P06 | P08, P10 | P05に16:9 Canvas、safe-area、縦長・横長CSSを実装。Chromeの1440×900、390×844、320×844、844×390でタイトル・プレイの横溢れ0を確認。実端末は後続 | 実装中 |
+| UX-06 | P05, P06 | P08, P10 | 縦長Canvas下と横長overlayへ44px以上のmove/fire/pause領域を実装。4 viewportで表示確認、実端末完走は後続 | 実装中 |
 | UX-07 | P05 | P08, P10 | 明示ボタンと非対応・拒否時の通常表示継続を実装。許可・拒否・非対応の実ブラウザ統合テストは未確認 | 実装中 |
-| INP-01 | P05 | P08, P10 | `input-state.test.mjs`と`browser/input-adapter.test.mjs`で標準キー、保持、押下edge、repeat、プレイ中の既定動作抑止を検査。全主要フロー完走は後続 | 実装中 |
-| INP-02 | P05 | P08, P10 | move＋fireのmulti-touch、pointerup/cancel/capture喪失、blur、破棄を自動検査。実機操作は後続 | 実装中 |
+| INP-01 | P05 | P08, P10 | 標準キー、保持、押下edge、repeat、既定動作抑止、ボタンEnter二重発火防止を自動検査。Chromeでタイトル→説明→出撃とポーズを操作。完成キャンペーンは後続 | 実装中 |
+| INP-02 | P05 | P08, P10 | move＋fireのmulti-touch、pointerup/cancel/capture喪失、blur、破棄を自動検査。Chromeでポーズと再挑戦ボタンを操作、実タッチ端末は後続 | 実装中 |
 | INP-03 | P04, P05 | P09, P10 | P04表示設定は50×44px以上。P05で役割付きゲーム領域だけがpointer既定動作を抑止することを検査。実端末のスクロール競合は後続 | 実装中 |
 | INP-04 | P07 | P08, P10 | キーボードとタッチ各1回以上のキャンペーン完走記録 | 未着手 |
 | A11Y-01 | P05 | P08, P10 | BGM/SFX別音量・ミュートのschema、保存復元、独立gainへの即時反映を自動検査。実画面設定操作は後続 | 実装中 |
@@ -67,7 +67,7 @@
 | TECH-03 | P05, P07 | P08, P10 | `stage-simulation.test.mjs`で10 seedのwave、drop、仕掛け、boss phase、勝敗、タイトル→結果→同seed再挑戦を決定的検査。ブラウザ入口と完成4面は後続 | 実装中 |
 | TECH-04 | P05 | P09, P10 | 対象ブラウザ・OSの検証表、バージョン、結果 | 未着手 |
 | TECH-05 | P05, P09 | P09, P10 | 固定した端末・場面のfps、入力遅延、停止計測 | 未着手 |
-| TECH-06 | P05, P08 | P08, P10 | 全主要フローのconsole・network・asset監査 | 未着手 |
+| TECH-06 | P05, P08 | P08, P10 | asset manifest実在・外部URL 0を自動検査し、Chromeの初回導線・プレイ・ポーズ・敗北・再挑戦でconsole warning/error 0。network捕捉は後続 | 実装中 |
 | TECH-07 | P05, P09 | P09, P10 | 容量、ロード、メモリの予算とリリース計測 | 未着手 |
 | TECH-08 | P05 | P10 | 依存監査結果、例外時は影響・期限・所有者 | 未着手 |
 | REL-01 | P04, P07 | P10 | P04生成画像は利用条件再確認待ち、自作音は外部サンプル0をmanifest照合。P07全素材・フォント・コードと通知を照合 | 実装中 |

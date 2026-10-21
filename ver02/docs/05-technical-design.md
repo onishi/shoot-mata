@@ -71,6 +71,8 @@ Phase 05の `phase05-orbital-segment` は基盤検証専用で、Phase 04の背�
 
 scheduleは純粋な戦闘シミュレーションへ入力し、tickごとの敵出現、敵弾、固有仕掛け、boss phase、dropを同じseedと入力列から再現する。戦闘状態はDOMやCanvasを含まずserializableな値だけで構成し、終了時にstage dataの `STAGE_CLEAR` または `PLAYER_DEFEATED` をflow machineへ返す。Phase 05の被弾規則は最古コアを1個失い、空の状態での被弾は残機を1失う。青補助の無敵延長は、その青コアを失う被弾にも被弾前の構成から適用する。
 
+`core/game-session.mjs` はflow machineと戦闘状態を束ね、キーボードの共通commandと画面内ボタンのactionを同じ遷移へ渡す。ブラウザ入口はsessionのsnapshotだけを表示モデルへ変換し、再挑戦では同じseedから戦闘状態を作り直す。ボタンにフォーカスがあるEnter／Spaceはブラウザのclickと共通commandを二重発火させず、ボタン本来の操作だけを受理する。
+
 ## 9. 描画と画面
 
 内部ゲーム座標は16:9で固定し、CanvasをCSSで利用可能領域へcontainする。縦長ではCanvas下に44 CSS px以上の操作領域を置き、HUDの重要情報はCanvas内とアクセシブルなDOM表示モデルを同じ状態から描く。高コントラストと動き軽減は表示アダプターの設定として全画面へ適用する。
