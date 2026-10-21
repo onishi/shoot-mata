@@ -103,7 +103,13 @@
           <label class="note">迷い・狙った構成・気づき
             <textarea name="note" maxlength="500" rows="3"></textarea>
           </label>
-          <label class="exclude-record"><input name="exclude" type="checkbox"> QA・導線確認の完走として保存し、正式な3回比較と集計には含めない</label>
+          <label class="record-type">この完走の扱い
+            <select name="record-type" required>
+              <option value="comparison">正式比較（方式ごとの3回と環境証拠に含める）</option>
+              <option value="environment">追加の環境証拠（比較平均には含めない）</option>
+              <option value="qa">QA・導線確認（比較にも環境証拠にも含めない）</option>
+            </select>
+          </label>
           <p id="reflection-warning" class="reflection-warning" role="alert" hidden></p>
           <div class="reflection-actions">
             <button type="submit">この完走を保存</button>
@@ -128,6 +134,6 @@
         <p class="empty-message">まだ完走記録はありません。各方式を3回ずつ完走してください。</p>
       </section>
     </main>
-    <script type="module" src="./app.mjs?v=20261021-browser-evidence-1"></script>
+    <script type="module" src="./app.mjs?v=20261021-environment-evidence-1"></script>
   </body>
 </html>

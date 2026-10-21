@@ -290,12 +290,16 @@ export function createSessionRecord({
   reflection,
   environment,
   included = true,
+  environmentEvidence = false,
   legacyExcluded = false,
   classificationReviewed = true,
   completedAt = new Date().toISOString(),
 }) {
   if (!MODE_INFO[mode]) throw new Error(`Unknown mode: ${mode}`);
   if (typeof included !== "boolean") throw new Error("Invalid comparison inclusion");
+  if (typeof environmentEvidence !== "boolean" || (included && environmentEvidence)) {
+    throw new Error("Invalid environment evidence state");
+  }
   if (typeof legacyExcluded !== "boolean" || (legacyExcluded && included)) {
     throw new Error("Invalid legacy comparison state");
   }
@@ -321,6 +325,7 @@ export function createSessionRecord({
     protocol: COMPARISON_PROTOCOL,
     build: COMPARISON_BUILD,
     included,
+    environmentEvidence,
     legacyExcluded,
     classificationReviewed,
     mode,
@@ -354,10 +359,12 @@ export function restoreSessionRecords(value) {
       const normalized = createSessionRecord({
         ...record,
         included: classificationReviewed ? record.included : false,
+        environmentEvidence: classificationReviewed ? record.environmentEvidence === true : false,
         legacyExcluded: !classificationReviewed,
         classificationReviewed,
       });
-      return normalized.included && !canIncludeSessionRecord(normalized) ? [] : [normalized];
+      return (normalized.included || normalized.environmentEvidence)
+        && !canIncludeSessionRecord(normalized) ? [] : [normalized];
     } catch {
       return [];
     }
@@ -379,7 +386,8 @@ export function parseComparisonExport(source) {
   }
   const records = restoreSessionRecords(payload.records);
   if (records.length !== payload.records.length
-    || records.some((record) => record.included !== false && !canIncludeSessionRecord(record))) {
+    || records.some((record) => (record.included || record.environmentEvidence)
+      && !canIncludeSessionRecord(record))) {
     throw new Error("Invalid comparison records");
   }
   return records;
@@ -388,7 +396,8 @@ export function parseComparisonExport(source) {
 export function serializeComparisonExport(records, exportedAt = new Date().toISOString()) {
   if (!Array.isArray(records)
     || restoreSessionRecords(records).length !== records.length
-    || records.some((record) => record.included !== false && !canIncludeSessionRecord(record))
+    || records.some((record) => (record.included || record.environmentEvidence)
+      && !canIncludeSessionRecord(record))
     || typeof exportedAt !== "string"
     || !Number.isFinite(Date.parse(exportedAt))) {
     throw new Error("Invalid comparison export");
@@ -405,6 +414,7 @@ export function serializeComparisonExport(records, exportedAt = new Date().toISO
 function sessionRecordIdentity(record) {
   const {
     included: _included,
+    environmentEvidence: _environmentEvidence,
     legacyExcluded: _legacyExcluded,
     classificationReviewed: _classificationReviewed,
     ...session
@@ -516,7 +526,7 @@ export function setSessionRecordInclusion(records, index, included, target = COM
   ).length;
   if (included && includedCount >= target) return [...records];
   return records.map((record, recordIndex) => recordIndex === index
-    ? { ...record, included, legacyExcluded: false, classificationReviewed: true }
+    ? { ...record, included, environmentEvidence: false, legacyExcluded: false, classificationReviewed: true }
     : record);
 }
 
@@ -529,12 +539,17 @@ export function comparisonProgress(records, target = COMPARISON_TARGET) {
 
 export function canStartMode(records, mode, target = COMPARISON_TARGET) {
   if (!MODE_INFO[mode]) throw new Error(`Unknown mode: ${mode}`);
-  return !comparisonProgress(records, target)[mode].complete;
+  const progress = comparisonProgress(records, target);
+  if (!progress[mode].complete) return true;
+  const comparisonComplete = Object.values(progress).every((state) => state.complete);
+  return comparisonComplete && !summarizeEnvironmentCoverage(records).complete;
 }
 
 export function startButtonLabel(records, mode, target = COMPARISON_TARGET) {
+  const progress = comparisonProgress(records, target);
+  if (!progress[mode].complete) return "45秒テストを開始";
   return canStartMode(records, mode, target)
-    ? "45秒テストを開始"
+    ? "環境証拠の追加テストを開始"
     : "この方式は3/3完了";
 }
 
@@ -595,7 +610,7 @@ export function summarizeEnvironmentCoverage(records) {
   const browsers = new Set();
 
   for (const record of records) {
-    if (record?.included === false || !record?.environment) continue;
+    if ((!record?.included && !record?.environmentEvidence) || !record?.environment) continue;
     const environment = record.environment;
     if (BROWSER_TYPES.includes(environment.browser)) browsers.add(environment.browser);
     const inputMethods = Array.isArray(environment.inputMethods)

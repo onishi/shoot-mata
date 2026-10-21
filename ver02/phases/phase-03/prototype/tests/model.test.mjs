@@ -109,6 +109,39 @@ test("QA記録は証拠として保持しても正式比較の進捗・推奨・
   assert.equal(summarizeComparison(records).byMode.queue.metrics.kills, 20);
 });
 
+test("追加の環境証拠は比較回数と平均を変えずに不足環境を補う", () => {
+  const comparison = createSessionRecord({
+    mode: "queue",
+    metrics: { collections: 8, switches: 2, tradeoffs: 3, kills: 20, hits: 1, level3: 4.2 },
+    reflection: { prediction: 4, choice: 3, retry: 5 },
+    environment: { viewportWidth: 1440, viewportHeight: 900, inputMethods: ["keyboard"], browser: "chrome" },
+    completedAt: "2026-10-21T06:00:00.000Z",
+  });
+  const environmentEvidence = createSessionRecord({
+    mode: "queue",
+    included: false,
+    environmentEvidence: true,
+    metrics: { collections: 9, switches: 3, tradeoffs: 2, kills: 99, hits: 0, level3: 5.1 },
+    reflection: { prediction: 3, choice: 4, retry: 4 },
+    environment: { viewportWidth: 390, viewportHeight: 844, inputMethods: ["touch"], browser: "safari" },
+    completedAt: "2026-10-21T06:01:00.000Z",
+  });
+  const records = [comparison, environmentEvidence];
+
+  assert.equal(comparisonProgress(records).queue.count, 1);
+  assert.equal(summarizeComparison(records).byMode.queue.metrics.kills, 20);
+  assert.deepEqual(summarizeEnvironmentCoverage(records), {
+    pc: 1,
+    portrait: 1,
+    landscape: 0,
+    keyboard: 1,
+    touch: 1,
+    browserCount: 2,
+    browsers: ["chrome", "safari"],
+    complete: false,
+  });
+});
+
 test("操作入力のない現行記録はQA保存だけを許可する", () => {
   const makeRecord = (included, inputMethods) => createSessionRecord({
     mode: "queue",
@@ -202,6 +235,32 @@ test("目標回数を完了した方式は追加セッションを開始でき�
   assert.equal(canStartMode(records, "queue"), false);
   assert.equal(canStartMode(records, "armory"), true);
   assert.throws(() => canStartMode(records, "unknown"), /Unknown mode/);
+});
+
+test("9回完了後は不足環境の追加テストだけを開始できる", () => {
+  const modes = ["queue", "armory", "chain", "armory", "chain", "queue", "chain", "queue", "armory"];
+  const makeRecords = (environments) => modes.map((mode, index) => createSessionRecord({
+    mode,
+    metrics: { collections: 1, switches: 0, tradeoffs: 0, kills: 1, hits: 0, level3: 0 },
+    reflection: { prediction: 3, choice: 3, retry: 3 },
+    environment: environments[index],
+    completedAt: `2026-10-21T07:00:0${index}.000Z`,
+  }));
+  const incompleteEvidence = makeRecords(Array(9).fill(undefined));
+
+  assert.equal(canStartMode(incompleteEvidence, "queue"), true);
+  assert.equal(canStartMode(incompleteEvidence, "armory"), true);
+  assert.equal(startButtonLabel(incompleteEvidence, "queue"), "環境証拠の追加テストを開始");
+
+  const completeEvidence = makeRecords([
+    { viewportWidth: 1440, viewportHeight: 900, inputMethods: ["keyboard"], browser: "chrome" },
+    { viewportWidth: 390, viewportHeight: 844, inputMethods: ["touch"], browser: "safari" },
+    { viewportWidth: 844, viewportHeight: 390, inputMethods: ["touch"], browser: "chrome" },
+    ...Array(6).fill({ viewportWidth: 1440, viewportHeight: 900, inputMethods: ["keyboard"], browser: "chrome" }),
+  ]);
+
+  assert.equal(canStartMode(completeEvidence, "queue"), false);
+  assert.equal(startButtonLabel(completeEvidence, "queue"), "この方式は3/3完了");
 });
 
 test("完了方式の直前記録を取り消すと開始ボタンの案内も再試行へ戻る", () => {
@@ -678,13 +737,13 @@ test("既存記録を非破壊で正式比較とQA除外へ切り替える", () 
   const excluded = setSessionRecordInclusion(records, 0, false);
 
   assert.deepEqual(excluded, [
-    { mode: "queue", included: false, legacyExcluded: false, classificationReviewed: true, environment: { inputMethods: ["touch"] } },
+    { mode: "queue", included: false, environmentEvidence: false, legacyExcluded: false, classificationReviewed: true, environment: { inputMethods: ["touch"] } },
     { mode: "armory", included: false, legacyExcluded: true, classificationReviewed: false, environment: { inputMethods: ["touch"] } },
   ]);
   assert.equal(records[0].included, true);
   assert.deepEqual(setSessionRecordInclusion(records, 1, true), [
     { mode: "queue", included: true, legacyExcluded: false, classificationReviewed: true, environment: { inputMethods: ["touch"] } },
-    { mode: "armory", included: true, legacyExcluded: false, classificationReviewed: true, environment: { inputMethods: ["touch"] } },
+    { mode: "armory", included: true, environmentEvidence: false, legacyExcluded: false, classificationReviewed: true, environment: { inputMethods: ["touch"] } },
   ]);
   assert.deepEqual(setSessionRecordInclusion(records, -1, false), records);
   assert.deepEqual(setSessionRecordInclusion(records, 0, "no"), records);

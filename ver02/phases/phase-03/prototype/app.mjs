@@ -38,7 +38,7 @@ import {
   startButtonLabel,
   weaponLabel,
   summarizeEnvironmentCoverage,
-} from "./model.mjs?v=20261021-browser-evidence-1";
+} from "./model.mjs?v=20261021-environment-evidence-1";
 
 const canvas = document.querySelector("#stage");
 const ctx = canvas.getContext("2d");
@@ -46,6 +46,7 @@ const startButton = document.querySelector("#start");
 const countdown = document.querySelector("#countdown");
 const reflectionForm = document.querySelector("#reflection-form");
 const reflectionWarning = document.querySelector("#reflection-warning");
+const recordTypeSelect = reflectionForm.elements.namedItem("record-type");
 const discardSessionButton = document.querySelector("#discard-session");
 const resultsBody = document.querySelector("#results-body");
 const progress = document.querySelector("#comparison-progress");
@@ -382,6 +383,9 @@ function update(dt) {
     };
     modeButtons.forEach((button) => { button.disabled = true; });
     reflectionForm.hidden = false;
+    recordTypeSelect.value = comparisonProgress(records)[selectedMode].complete
+      ? "environment"
+      : "comparison";
     reflectionForm.querySelector("legend").textContent = `${MODE_INFO[selectedMode].label} — 完走直後の記録`;
     renderResults();
     reflectionForm.scrollIntoView({ block: "nearest", behavior: "smooth" });
@@ -394,6 +398,12 @@ reflectionForm.addEventListener("submit", (event) => {
   event.preventDefault();
   if (!pendingSession) return;
   const data = new FormData(reflectionForm);
+  const recordType = String(data.get("record-type"));
+  if (recordType === "comparison" && comparisonProgress(records)[pendingSession.mode].complete) {
+    reflectionWarning.hidden = false;
+    reflectionWarning.textContent = "この方式の正式比較は3/3完了しています。追加の環境証拠またはQAを選んでください。";
+    return;
+  }
   const record = createSessionRecord({
     mode: pendingSession.mode,
     metrics: pendingSession.metrics,
@@ -401,7 +411,8 @@ reflectionForm.addEventListener("submit", (event) => {
       ...pendingSession.environment,
       browser: String(data.get("browser")),
     },
-    included: data.get("exclude") !== "on",
+    included: recordType === "comparison",
+    environmentEvidence: recordType === "environment",
     reflection: {
       prediction: Number(data.get("prediction")),
       choice: Number(data.get("choice")),
@@ -409,9 +420,9 @@ reflectionForm.addEventListener("submit", (event) => {
       note: data.get("note"),
     },
   });
-  if (record.included && !canIncludeSessionRecord(record)) {
+  if ((record.included || record.environmentEvidence) && !canIncludeSessionRecord(record)) {
     reflectionWarning.hidden = false;
-    reflectionWarning.textContent = "正式比較に含めるには、セッション中にキーボードまたはポインターで操作してください。導線確認だけの場合はQA除外を選べます。";
+    reflectionWarning.textContent = "正式比較または環境証拠に含めるには、セッション中にキーボードまたはポインターで操作してください。導線確認だけの場合はQAを選べます。";
     return;
   }
   reflectionWarning.hidden = true;
@@ -537,13 +548,12 @@ function renderResults() {
     ? `次の推奨: ${MODE_INFO[nextMode].label}（順序による慣れ・疲労の偏りを減らすため、3セットで開始方式をずらします）`
     : evidence.complete
       ? "必要な9完走と環境証拠が揃いました。JSONを出力して、人の観察と数値を分けてレビューしてください。"
-      : "必要な9完走は揃いましたが、環境証拠が未達です。未確認の画面・入力条件で追加確認し、正式3件が上限ならQA除外で保存してください。";
+      : "必要な9完走は揃いましたが、環境証拠が未達です。未確認の画面・入力条件で人が追加完走し、「追加の環境証拠」で保存してください。";
   modeButtons.forEach((button) => {
     button.classList.toggle("recommended", button.dataset.mode === nextMode);
-    button.disabled = controlsLocked || coverage[button.dataset.mode].complete;
+    button.disabled = controlsLocked || !canStartMode(records, button.dataset.mode);
   });
-  const selectedComplete = coverage[selectedMode].complete;
-  startButton.disabled = controlsLocked || selectedComplete;
+  startButton.disabled = controlsLocked || !canStartMode(records, selectedMode);
   if (!controlsLocked) startButton.textContent = startButtonLabel(records, selectedMode);
   undoButton.disabled = controlsLocked || records.length === 0;
   clearButton.disabled = controlsLocked || records.length === 0;
@@ -557,7 +567,7 @@ function renderResults() {
       : "旧記録 / 環境なし";
     const handling = record.legacyExcluded
       ? "旧記録除外"
-      : record.included === false ? "QA除外" : "正式";
+      : record.included ? "正式" : record.environmentEvidence ? "環境証拠" : "QA除外";
     const values = [index + 1, handling, MODE_INFO[record.mode].label, environment, record.metrics.collections,
       record.metrics.switches, record.metrics.tradeoffs, record.metrics.kills,
       record.metrics.hits, record.metrics.level3.toFixed(1), record.reflection.prediction,
