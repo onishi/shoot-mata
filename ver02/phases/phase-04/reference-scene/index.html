@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Stage 01 reference scene</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <main>
+      <p class="eyebrow">PHASE 04 / GAME-COORDINATE COMPOSITE</p>
+      <div class="stage" data-stage aria-label="軌道残骸帯の代表シーン">
+        <img class="layer layer--far" data-layer="far" src="../../../assets/game/backgrounds/stage-01/orbital-wreck-far-v1.png" alt="">
+        <img class="layer layer--mid" data-layer="mid" src="../../../assets/game/backgrounds/stage-01/orbital-wreck-mid-v1.png" alt="">
+
+        <img class="actor" data-actor="player" src="../../../assets/game/player/player-interceptor-v1.png" alt="右向きの自機">
+        <img class="actor" data-actor="enemy" src="../../../assets/game/enemies/stage-01/salvage-collector-v1.png" alt="左向きの回収ドローン">
+        <img class="actor actor--core" data-actor="core-red" src="../../../assets/game/cores/reactor-core-red-v1.png" alt="赤いひし形のリアクターコア">
+        <img class="actor actor--core" data-actor="core-blue" src="../../../assets/game/cores/reactor-core-blue-v1.png" alt="青い円形のリアクターコア">
+        <img class="actor actor--core" data-actor="core-yellow" src="../../../assets/game/cores/reactor-core-yellow-v1.png" alt="黄色い三角形のリアクターコア">
+
+        <img class="layer layer--fore" data-layer="fore" src="../../../assets/game/backgrounds/stage-01/orbital-wreck-fore-v1.png" alt="">
+        <div class="scene-label" aria-hidden="true"><span>ORBITAL WRECK</span><strong>01</strong></div>
+      </div>
+      <p class="note">16:9基準。遠景・中景・前景は独立速度。動き軽減時は停止。</p>
+    </main>
+    <script type="module" src="./scene.mjs"></script>
+  </body>
+</html>
