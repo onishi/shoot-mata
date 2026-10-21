@@ -37,7 +37,7 @@ import {
   shouldWarnBeforeUnload,
   startButtonLabel,
   weaponLabel,
-} from "./model.mjs?v=20261021-input-evidence";
+} from "./model.mjs?v=20261021-viewport-evidence-2";
 
 const canvas = document.querySelector("#stage");
 const ctx = canvas.getContext("2d");
@@ -87,6 +87,7 @@ let projectiles = [];
 let enemyShots = [];
 let interaction = createInteractionState();
 let pendingSession = null;
+let sessionViewport = null;
 const initialRecords = initializeSessionRecords(comparisonStorage, COMPARISON_STORAGE_KEY);
 let records = initialRecords.records;
 let recordsPersisted = initialRecords.persisted;
@@ -135,9 +136,18 @@ function sessionMetrics() {
 }
 
 function sessionEnvironment() {
+  const viewportWidth = sessionViewport?.viewportWidth ?? window.innerWidth;
+  const viewportHeight = sessionViewport?.viewportHeight ?? window.innerHeight;
+  const viewportEndWidth = window.innerWidth;
+  const viewportEndHeight = window.innerHeight;
   return {
-    viewportWidth: window.innerWidth,
-    viewportHeight: window.innerHeight,
+    viewportWidth,
+    viewportHeight,
+    viewportEndWidth,
+    viewportEndHeight,
+    viewportChanged: Boolean(sessionViewport?.changed)
+      || viewportWidth !== viewportEndWidth
+      || viewportHeight !== viewportEndHeight,
     inputMethods: [...interaction.inputMethods],
   };
 }
@@ -148,6 +158,11 @@ function start() {
   reflectionWarning.hidden = true;
   pendingSession = null;
   reset();
+  sessionViewport = {
+    viewportWidth: window.innerWidth,
+    viewportHeight: window.innerHeight,
+    changed: false,
+  };
   suspended = false;
   running = true;
   startButton.hidden = true;
@@ -211,6 +226,12 @@ window.addEventListener("beforeunload", (event) => {
   if (!shouldWarnBeforeUnload(running, pendingSession !== null)) return;
   event.preventDefault();
   event.returnValue = true;
+});
+window.addEventListener("resize", () => {
+  if (!running || !sessionViewport) return;
+  sessionViewport.changed = sessionViewport.changed
+    || window.innerWidth !== sessionViewport.viewportWidth
+    || window.innerHeight !== sessionViewport.viewportHeight;
 });
 
 function pointerPosition(event) {
@@ -514,7 +535,9 @@ function renderResults() {
   resultsBody.replaceChildren(...records.map((record, index) => {
     const row = document.createElement("tr");
     const environment = record.environment
-      ? `${record.environment.viewportWidth}×${record.environment.viewportHeight} / ${record.environment.inputMethods.join("+") || "入力記録なし"}`
+      ? `${record.environment.viewportWidth}×${record.environment.viewportHeight}${record.environment.viewportChanged
+        ? ` → ${record.environment.viewportEndWidth}×${record.environment.viewportEndHeight}（途中変更）`
+        : ""} / ${record.environment.inputMethods.join("+") || "入力記録なし"}`
       : "旧記録 / 環境なし";
     const handling = record.legacyExcluded
       ? "旧記録除外"

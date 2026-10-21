@@ -248,9 +248,20 @@ export function weaponLabel(type) {
 
 function normalizeSessionEnvironment(environment) {
   if (environment === undefined || environment === null) return null;
-  const { viewportWidth, viewportHeight, inputMethods } = environment;
+  const {
+    viewportWidth,
+    viewportHeight,
+    viewportEndWidth = viewportWidth,
+    viewportEndHeight = viewportHeight,
+    viewportChanged = viewportEndWidth !== viewportWidth || viewportEndHeight !== viewportHeight,
+    inputMethods,
+  } = environment;
   if (!Number.isInteger(viewportWidth) || viewportWidth <= 0
     || !Number.isInteger(viewportHeight) || viewportHeight <= 0
+    || !Number.isInteger(viewportEndWidth) || viewportEndWidth <= 0
+    || !Number.isInteger(viewportEndHeight) || viewportEndHeight <= 0
+    || typeof viewportChanged !== "boolean"
+    || (!viewportChanged && (viewportEndWidth !== viewportWidth || viewportEndHeight !== viewportHeight))
     || !Array.isArray(inputMethods)) {
     throw new Error("Invalid session environment");
   }
@@ -259,7 +270,14 @@ function normalizeSessionEnvironment(environment) {
   if (normalizedMethods.some((method) => !allowedMethods.includes(method))) {
     throw new Error("Invalid session environment");
   }
-  return { viewportWidth, viewportHeight, inputMethods: normalizedMethods };
+  return {
+    viewportWidth,
+    viewportHeight,
+    viewportEndWidth,
+    viewportEndHeight,
+    viewportChanged,
+    inputMethods: normalizedMethods,
+  };
 }
 
 export function createSessionRecord({

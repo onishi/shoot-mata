@@ -79,6 +79,9 @@ test("比較記録は定量値と主観値を分離し、方式ごとの不足�
   assert.deepEqual(record.environment, {
     viewportWidth: 390,
     viewportHeight: 844,
+    viewportEndWidth: 390,
+    viewportEndHeight: 844,
+    viewportChanged: false,
     inputMethods: ["touch"],
   });
   assert.deepEqual(comparisonProgress([record]), {
@@ -278,6 +281,9 @@ test("比較記録は画面・入力を正規化し、区分不明の旧記録�
   assert.deepEqual(current.environment, {
     viewportWidth: 844,
     viewportHeight: 390,
+    viewportEndWidth: 844,
+    viewportEndHeight: 390,
+    viewportChanged: false,
     inputMethods: ["keyboard", "touch"],
   });
 
@@ -292,6 +298,58 @@ test("比較記録は画面・入力を正規化し、区分不明の旧記録�
   assert.equal(restoredLegacy.legacyExcluded, true);
   assert.equal(restoredLegacy.classificationReviewed, false);
   assert.equal(comparisonProgress([restoredLegacy]).queue.count, 0);
+});
+
+test("比較記録はセッション中の画面サイズ変更を開始・終了寸法と共に保存する", () => {
+  const base = {
+    mode: "queue",
+    metrics: { collections: 1, switches: 0, tradeoffs: 0, kills: 1, hits: 0, level3: 0 },
+    reflection: { prediction: 3, choice: 3, retry: 3 },
+  };
+  const resized = createSessionRecord({
+    ...base,
+    environment: {
+      viewportWidth: 390,
+      viewportHeight: 844,
+      viewportEndWidth: 844,
+      viewportEndHeight: 390,
+      viewportChanged: true,
+      inputMethods: ["touch"],
+    },
+  });
+  assert.deepEqual(resized.environment, {
+    viewportWidth: 390,
+    viewportHeight: 844,
+    viewportEndWidth: 844,
+    viewportEndHeight: 390,
+    viewportChanged: true,
+    inputMethods: ["touch"],
+  });
+
+  const returnedToStart = createSessionRecord({
+    ...base,
+    environment: {
+      viewportWidth: 390,
+      viewportHeight: 844,
+      viewportEndWidth: 390,
+      viewportEndHeight: 844,
+      viewportChanged: true,
+      inputMethods: ["touch"],
+    },
+  });
+  assert.equal(returnedToStart.environment.viewportChanged, true);
+
+  assert.throws(() => createSessionRecord({
+    ...base,
+    environment: {
+      viewportWidth: 390,
+      viewportHeight: 844,
+      viewportEndWidth: 844,
+      viewportEndHeight: 390,
+      viewportChanged: false,
+      inputMethods: ["touch"],
+    },
+  }), /Invalid session environment/);
 });
 
 test("保存済み比較記録の破損行と旧version・旧protocol・異条件を除外する", () => {
