@@ -84,8 +84,8 @@ export const PHASE05_TEST_STAGE = parseStageDefinition({
     startTick: 930,
     entryBehaviorId: "boss-entry",
     phases: [
-      { id: "sweep", hitPoints: 80, behaviorId: "boss-sweep" },
-      { id: "burst", hitPoints: 60, behaviorId: "boss-burst" },
+      { id: "sweep", hitPoints: 35, behaviorId: "boss-sweep" },
+      { id: "burst", hitPoints: 25, behaviorId: "boss-burst" },
     ],
   },
   audio: {

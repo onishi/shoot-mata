@@ -21,7 +21,7 @@
 | CORE-02 | P03 | P03, P10 | `prototype/tests/model.test.mjs`、`prototype/objective-audit.mjs` の全729列 | 実装中 |
 | CORE-03 | P03, P07 | P07, P10 | P03の3系統×3段階試作。完成機能・見た目をテストと台帳で照合 | 実装中 |
 | CORE-04 | P03, P07 | P09, P10 | P03全729列の混色・代償判定、P07の構成別戦闘シミュレーション | 実装中 |
-| CORE-05 | P03, P05 | P08, P10 | 被弾・ミス・コンティニュー全状態の回帰テスト | 未着手 |
+| CORE-05 | P03, P05 | P08, P10 | `reactor-loadout.test.mjs`と`stage-simulation.test.mjs`で被弾時の最古コア喪失、空時の残機喪失、青補助無敵、ゲームオーバーを検査。ミス・コンティニューと完成HUDは後続 | 実装中 |
 | CORE-06 | P04, P06 | P09, P10 | P04代表HUDを3画面で確認。P06でゲーム本体のHUDと機体状態を再検証 | 実装中 |
 | CORE-07 | P07 | P08, P10 | 各面のドロップ列検査、必要色枯渇の長時間シミュレーション | 未着手 |
 | WPN-01 | P03, P07 | P07, P10 | P03赤Lv1〜3試作、完成機能テスト、画像、プレイ記録 | 実装中 |
@@ -36,7 +36,7 @@
 | STG-06 | P07 | P09, P10 | 全面の難度曲線計測と複数完走記録 | 未着手 |
 | PROG-01 | P05, P07 | P08, P10 | `game/tests/core/save-data.test.mjs`で初期状態、説明済み、面クリア後の段階解放を検査。ゲーム本体接続と4面復元は後続 | 実装中 |
 | PROG-02 | P05, P09 | P09, P10 | 標準・アシストの保存値を検査。戦闘パラメーター反映と両設定の完走は後続 | 実装中 |
-| PROG-03 | P05, P07 | P08, P10 | スコア各要因と結果内訳の決定的テスト | 未着手 |
+| PROG-03 | P05, P07 | P08, P10 | Phase 05戦闘状態に敵、コア、連続撃破、無被弾の内訳を実装し決定的通しで照合。結果画面と製品バランスは後続 | 実装中 |
 | PROG-04 | P05 | P08, P10 | `save-data.test.mjs`と`ports/save-repository.test.mjs`で面・難度別best、内訳、コア列の分離・保存復元を検査。実ブラウザは後続 | 実装中 |
 | PROG-05 | P05 | P08, P10 | version 1、v0移行、破損退避、未来version、storage取得・読込・書込失敗、確認付き初期化を自動検査。警告UIと実ブラウザは後続 | 実装中 |
 | PROG-06 | P07 | P09, P10 | 初見観察、被弾位置分布、予告レビュー | 未着手 |
@@ -64,7 +64,7 @@
 | AV-07 | P04, P07 | P10 | P04代表音は生成式、用途、SHA-256、外部サンプル0をmanifestと台帳で照合。全製品素材は未着手 | 実装中 |
 | TECH-01 | P05 | P08, P10 | `game/tests/core/fixed-step.test.mjs`で30/60/144Hz、長delta、非表示復帰を決定的検査。ブラウザ統合と製品負荷で再検証 | 実装中 |
 | TECH-02 | P05, P07 | P07, P10 | `stage-schema.test.mjs`で背景、敵、drop、区間、wave、仕掛け、boss phase、音、遷移のschema・参照・登録behaviorを検査。`stage-schedule.test.mjs`でデータ差替えとseed再現を検査。完成4面のデータと条件分岐レビューはP07 | 実装中 |
-| TECH-03 | P05, P07 | P08, P10 | Phase 05仮区間のseed固定scheduleを自動検査。戦闘統合の開始→boss→結果と4面カバレッジは後続 | 実装中 |
+| TECH-03 | P05, P07 | P08, P10 | `stage-simulation.test.mjs`で10 seedのwave、drop、仕掛け、boss phase、勝敗、タイトル→結果→同seed再挑戦を決定的検査。ブラウザ入口と完成4面は後続 | 実装中 |
 | TECH-04 | P05 | P09, P10 | 対象ブラウザ・OSの検証表、バージョン、結果 | 未着手 |
 | TECH-05 | P05, P09 | P09, P10 | 固定した端末・場面のfps、入力遅延、停止計測 | 未着手 |
 | TECH-06 | P05, P08 | P08, P10 | 全主要フローのconsole・network・asset監査 | 未着手 |
