@@ -6,7 +6,8 @@ export const CORE_INFO = Object.freeze({
 });
 export const COMPARISON_TARGET = 3;
 export const COMPARISON_PROTOCOL = 2;
-export const COMPARISON_BUILD = "phase03-20261021-1";
+export const COMPARISON_BUILD = "phase03-20261021-2";
+export const BROWSER_TYPES = Object.freeze(["chrome", "safari", "firefox", "edge", "other"]);
 const GAMEPLAY_KEYS = Object.freeze([
   "arrowleft", "arrowright", "arrowup", "arrowdown", "a", "d", "w", "s",
 ]);
@@ -255,6 +256,7 @@ function normalizeSessionEnvironment(environment) {
     viewportEndHeight = viewportHeight,
     viewportChanged = viewportEndWidth !== viewportWidth || viewportEndHeight !== viewportHeight,
     inputMethods,
+    browser,
   } = environment;
   if (!Number.isInteger(viewportWidth) || viewportWidth <= 0
     || !Number.isInteger(viewportHeight) || viewportHeight <= 0
@@ -262,7 +264,8 @@ function normalizeSessionEnvironment(environment) {
     || !Number.isInteger(viewportEndHeight) || viewportEndHeight <= 0
     || typeof viewportChanged !== "boolean"
     || (!viewportChanged && (viewportEndWidth !== viewportWidth || viewportEndHeight !== viewportHeight))
-    || !Array.isArray(inputMethods)) {
+    || !Array.isArray(inputMethods)
+    || !BROWSER_TYPES.includes(browser)) {
     throw new Error("Invalid session environment");
   }
   const allowedMethods = ["keyboard", "mouse", "touch", "pen", "pointer"];
@@ -277,6 +280,7 @@ function normalizeSessionEnvironment(environment) {
     viewportEndHeight,
     viewportChanged,
     inputMethods: normalizedMethods,
+    browser,
   };
 }
 
@@ -334,7 +338,7 @@ export function createSessionRecord({
 
 export function canIncludeSessionRecord(record) {
   if (!record || typeof record !== "object") return false;
-  if (record.environment === null || record.environment === undefined) return true;
+  if (record.environment === null || record.environment === undefined) return false;
   return Array.isArray(record.environment.inputMethods)
     && record.environment.inputMethods.length > 0;
 }
@@ -347,12 +351,13 @@ export function restoreSessionRecords(value) {
         || record?.protocol !== COMPARISON_PROTOCOL
         || record?.build !== COMPARISON_BUILD) return [];
       const classificationReviewed = record.classificationReviewed === true;
-      return [createSessionRecord({
+      const normalized = createSessionRecord({
         ...record,
         included: classificationReviewed ? record.included : false,
         legacyExcluded: !classificationReviewed,
         classificationReviewed,
-      })];
+      });
+      return normalized.included && !canIncludeSessionRecord(normalized) ? [] : [normalized];
     } catch {
       return [];
     }
@@ -587,10 +592,12 @@ export function summarizeEnvironmentCoverage(records) {
     keyboard: 0,
     touch: 0,
   };
+  const browsers = new Set();
 
   for (const record of records) {
     if (record?.included === false || !record?.environment) continue;
     const environment = record.environment;
+    if (BROWSER_TYPES.includes(environment.browser)) browsers.add(environment.browser);
     const inputMethods = Array.isArray(environment.inputMethods)
       ? environment.inputMethods
       : [];
@@ -606,7 +613,9 @@ export function summarizeEnvironmentCoverage(records) {
 
   return {
     ...coverage,
-    complete: Object.values(coverage).every((count) => count > 0),
+    browserCount: browsers.size,
+    browsers: [...browsers].sort(),
+    complete: Object.values(coverage).every((count) => count > 0) && browsers.size >= 2,
   };
 }
 

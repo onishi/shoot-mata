@@ -38,7 +38,7 @@ import {
   startButtonLabel,
   weaponLabel,
   summarizeEnvironmentCoverage,
-} from "./model.mjs?v=20261021-environment-coverage-3";
+} from "./model.mjs?v=20261021-browser-evidence-1";
 
 const canvas = document.querySelector("#stage");
 const ctx = canvas.getContext("2d");
@@ -397,7 +397,10 @@ reflectionForm.addEventListener("submit", (event) => {
   const record = createSessionRecord({
     mode: pendingSession.mode,
     metrics: pendingSession.metrics,
-    environment: pendingSession.environment,
+    environment: {
+      ...pendingSession.environment,
+      browser: String(data.get("browser")),
+    },
     included: data.get("exclude") !== "on",
     reflection: {
       prediction: Number(data.get("prediction")),
@@ -528,6 +531,7 @@ function renderResults() {
     `スマホ横長 ${evidence.landscape ? "済" : "未"}`,
     `キーボード ${evidence.keyboard ? "済" : "未"}`,
     `実タッチ ${evidence.touch ? "済" : "未"}`,
+    `別ブラウザ ${evidence.browserCount}/2`,
   ].join(" / ");
   nextSession.textContent = nextMode
     ? `次の推奨: ${MODE_INFO[nextMode].label}（順序による慣れ・疲労の偏りを減らすため、3セットで開始方式をずらします）`
@@ -549,7 +553,7 @@ function renderResults() {
     const environment = record.environment
       ? `${record.environment.viewportWidth}×${record.environment.viewportHeight}${record.environment.viewportChanged
         ? ` → ${record.environment.viewportEndWidth}×${record.environment.viewportEndHeight}（途中変更）`
-        : ""} / ${record.environment.inputMethods.join("+") || "入力記録なし"}`
+        : ""} / ${record.environment.inputMethods.join("+") || "入力記録なし"} / ${record.environment.browser}`
       : "旧記録 / 環境なし";
     const handling = record.legacyExcluded
       ? "旧記録除外"

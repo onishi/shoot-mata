@@ -90,6 +90,16 @@
           <label>別の取り方を再試行したい
             <select name="retry" required><option value="">選択</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
           </label>
+          <label>確認したブラウザ
+            <select name="browser" required>
+              <option value="">選択</option>
+              <option value="chrome">Chrome</option>
+              <option value="safari">Safari</option>
+              <option value="firefox">Firefox</option>
+              <option value="edge">Edge</option>
+              <option value="other">その他</option>
+            </select>
+          </label>
           <label class="note">迷い・狙った構成・気づき
             <textarea name="note" maxlength="500" rows="3"></textarea>
           </label>
@@ -118,6 +128,6 @@
         <p class="empty-message">まだ完走記録はありません。各方式を3回ずつ完走してください。</p>
       </section>
     </main>
-    <script type="module" src="./app.mjs?v=20261021-environment-coverage-3"></script>
+    <script type="module" src="./app.mjs?v=20261021-browser-evidence-1"></script>
   </body>
 </html>

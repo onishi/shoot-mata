@@ -67,7 +67,7 @@ test("比較記録は定量値と主観値を分離し、方式ごとの不足�
     mode: "queue",
     metrics: { collections: 8, switches: 2, tradeoffs: 3, kills: 20, hits: 1, level3: 4.2 },
     reflection: { prediction: 4, choice: 3, retry: 5, note: " mixed build " },
-    environment: { viewportWidth: 390, viewportHeight: 844, inputMethods: ["touch"] },
+    environment: { viewportWidth: 390, viewportHeight: 844, inputMethods: ["touch"], browser: "chrome" },
     completedAt: "2026-10-19T00:00:00.000Z",
   };
   const record = createSessionRecord(base);
@@ -84,6 +84,7 @@ test("比較記録は定量値と主観値を分離し、方式ごとの不足�
     viewportEndHeight: 844,
     viewportChanged: false,
     inputMethods: ["touch"],
+    browser: "chrome",
   });
   assert.deepEqual(comparisonProgress([record]), {
     queue: { count: 1, remaining: 2, complete: false },
@@ -114,14 +115,22 @@ test("操作入力のない現行記録はQA保存だけを許可する", () => 
     included,
     metrics: { collections: 8, switches: 2, tradeoffs: 3, kills: 20, hits: 1, level3: 4.2 },
     reflection: { prediction: 4, choice: 3, retry: 5 },
-    environment: { viewportWidth: 390, viewportHeight: 844, inputMethods },
+    environment: { viewportWidth: 390, viewportHeight: 844, inputMethods, browser: "chrome" },
     completedAt: "2026-10-21T03:00:00.000Z",
   });
   const qaWithoutInput = makeRecord(false, []);
   const officialWithInput = makeRecord(true, ["touch"]);
+  const withoutEnvironment = createSessionRecord({
+    mode: "queue",
+    included: false,
+    metrics: { collections: 8, switches: 2, tradeoffs: 3, kills: 20, hits: 1, level3: 4.2 },
+    reflection: { prediction: 4, choice: 3, retry: 5 },
+    completedAt: "2026-10-21T03:00:01.000Z",
+  });
 
   assert.equal(canIncludeSessionRecord(qaWithoutInput), false);
   assert.equal(canIncludeSessionRecord(officialWithInput), true);
+  assert.equal(canIncludeSessionRecord(withoutEnvironment), false);
   assert.equal(setSessionRecordInclusion([qaWithoutInput], 0, true)[0].included, false);
   assert.throws(() => serializeComparisonExport([
     { ...qaWithoutInput, included: true },
@@ -263,9 +272,9 @@ test("正式比較の画面・入力条件を集計し、途中リサイズとQA
     completedAt: `2026-10-21T04:00:0${second}.000Z`,
   });
   const records = [
-    makeRecord("queue", { viewportWidth: 1440, viewportHeight: 900, inputMethods: ["keyboard"] }, true, 0),
-    makeRecord("armory", { viewportWidth: 390, viewportHeight: 844, inputMethods: ["touch"] }, true, 1),
-    makeRecord("chain", { viewportWidth: 844, viewportHeight: 390, inputMethods: ["touch"] }, true, 2),
+    makeRecord("queue", { viewportWidth: 1440, viewportHeight: 900, inputMethods: ["keyboard"], browser: "chrome" }, true, 0),
+    makeRecord("armory", { viewportWidth: 390, viewportHeight: 844, inputMethods: ["touch"], browser: "safari" }, true, 1),
+    makeRecord("chain", { viewportWidth: 844, viewportHeight: 390, inputMethods: ["touch"], browser: "chrome" }, true, 2),
     makeRecord("queue", {
       viewportWidth: 390,
       viewportHeight: 844,
@@ -273,8 +282,9 @@ test("正式比較の画面・入力条件を集計し、途中リサイズとQA
       viewportEndHeight: 390,
       viewportChanged: true,
       inputMethods: ["touch"],
+      browser: "chrome",
     }, true, 3),
-    makeRecord("armory", { viewportWidth: 320, viewportHeight: 844, inputMethods: ["touch"] }, false, 4),
+    makeRecord("armory", { viewportWidth: 320, viewportHeight: 844, inputMethods: ["touch"], browser: "firefox" }, false, 4),
   ];
 
   assert.deepEqual(summarizeEnvironmentCoverage(records), {
@@ -283,9 +293,37 @@ test("正式比較の画面・入力条件を集計し、途中リサイズとQA
     landscape: 1,
     keyboard: 1,
     touch: 3,
+    browserCount: 2,
+    browsers: ["chrome", "safari"],
     complete: true,
   });
   assert.throws(() => summarizeEnvironmentCoverage(null), /Invalid comparison records/);
+});
+
+test("環境証拠は正式記録に2種類以上のブラウザが揃うまで完了しない", () => {
+  const makeRecord = (mode, environment, second) => createSessionRecord({
+    mode,
+    metrics: { collections: 6, switches: 2, tradeoffs: 1, kills: 12, hits: 1, level3: 2.5 },
+    reflection: { prediction: 3, choice: 4, retry: 5 },
+    environment: { ...environment, browser: "chrome" },
+    completedAt: `2026-10-21T04:01:0${second}.000Z`,
+  });
+  const records = [
+    makeRecord("queue", { viewportWidth: 1440, viewportHeight: 900, inputMethods: ["keyboard"] }, 0),
+    makeRecord("armory", { viewportWidth: 390, viewportHeight: 844, inputMethods: ["touch"] }, 1),
+    makeRecord("chain", { viewportWidth: 844, viewportHeight: 390, inputMethods: ["touch"] }, 2),
+  ];
+
+  assert.deepEqual(summarizeEnvironmentCoverage(records), {
+    pc: 1,
+    portrait: 1,
+    landscape: 1,
+    keyboard: 1,
+    touch: 2,
+    browserCount: 1,
+    browsers: ["chrome"],
+    complete: false,
+  });
 });
 
 test("比較記録は範囲外の主観評価と不正な指標を拒否する", () => {
@@ -296,11 +334,19 @@ test("比較記録は範囲外の主観評価と不正な指標を拒否する",
   assert.throws(() => createSessionRecord({ mode: "queue", metrics, reflection: { prediction: 3, choice: 3, retry: 3 }, included: "no" }), /Invalid comparison inclusion/);
   assert.throws(() => createSessionRecord({
     mode: "queue", metrics, reflection: { prediction: 3, choice: 3, retry: 3 },
-    environment: { viewportWidth: 0, viewportHeight: 844, inputMethods: ["touch"] },
+    environment: { viewportWidth: 0, viewportHeight: 844, inputMethods: ["touch"], browser: "chrome" },
   }), /Invalid session environment/);
   assert.throws(() => createSessionRecord({
     mode: "queue", metrics, reflection: { prediction: 3, choice: 3, retry: 3 },
-    environment: { viewportWidth: 390, viewportHeight: 844, inputMethods: ["gamepad"] },
+    environment: { viewportWidth: 390, viewportHeight: 844, inputMethods: ["gamepad"], browser: "chrome" },
+  }), /Invalid session environment/);
+  assert.throws(() => createSessionRecord({
+    mode: "queue", metrics, reflection: { prediction: 3, choice: 3, retry: 3 },
+    environment: { viewportWidth: 390, viewportHeight: 844, inputMethods: ["touch"], browser: "unknown" },
+  }), /Invalid session environment/);
+  assert.throws(() => createSessionRecord({
+    mode: "queue", metrics, reflection: { prediction: 3, choice: 3, retry: 3 },
+    environment: { viewportWidth: 390, viewportHeight: 844, inputMethods: ["touch"] },
   }), /Invalid session environment/);
 });
 
@@ -313,7 +359,7 @@ test("比較記録は画面・入力を正規化し、区分不明の旧記録�
   };
   const current = createSessionRecord({
     ...base,
-    environment: { viewportWidth: 844, viewportHeight: 390, inputMethods: ["touch", "keyboard", "touch"] },
+    environment: { viewportWidth: 844, viewportHeight: 390, inputMethods: ["touch", "keyboard", "touch"], browser: "chrome" },
   });
   assert.deepEqual(current.environment, {
     viewportWidth: 844,
@@ -322,6 +368,7 @@ test("比較記録は画面・入力を正規化し、区分不明の旧記録�
     viewportEndHeight: 390,
     viewportChanged: false,
     inputMethods: ["keyboard", "touch"],
+    browser: "chrome",
   });
 
   const legacy = { ...createSessionRecord(base) };
@@ -352,6 +399,7 @@ test("比較記録はセッション中の画面サイズ変更を開始・終�
       viewportEndHeight: 390,
       viewportChanged: true,
       inputMethods: ["touch"],
+      browser: "safari",
     },
   });
   assert.deepEqual(resized.environment, {
@@ -361,6 +409,7 @@ test("比較記録はセッション中の画面サイズ変更を開始・終�
     viewportEndHeight: 390,
     viewportChanged: true,
     inputMethods: ["touch"],
+    browser: "safari",
   });
 
   const returnedToStart = createSessionRecord({
@@ -372,6 +421,7 @@ test("比較記録はセッション中の画面サイズ変更を開始・終�
       viewportEndHeight: 844,
       viewportChanged: true,
       inputMethods: ["touch"],
+      browser: "safari",
     },
   });
   assert.equal(returnedToStart.environment.viewportChanged, true);
@@ -385,6 +435,7 @@ test("比較記録はセッション中の画面サイズ変更を開始・終�
       viewportEndHeight: 390,
       viewportChanged: false,
       inputMethods: ["touch"],
+      browser: "safari",
     },
   }), /Invalid session environment/);
 });
@@ -394,6 +445,7 @@ test("保存済み比較記録の破損行と旧version・旧protocol・異条�
     mode: "chain",
     metrics: { collections: 7, switches: 2, tradeoffs: 2, kills: 18, hits: 1, level3: 3.4 },
     reflection: { prediction: 3, choice: 4, retry: 5, note: "再試行したい" },
+    environment: { viewportWidth: 390, viewportHeight: 844, inputMethods: ["touch"], browser: "chrome" },
     completedAt: "2026-10-19T00:00:00.000Z",
   });
   const restored = restoreSessionRecords([
@@ -415,6 +467,7 @@ test("同じ条件IDの公式JSON出力だけを比較記録として読み込�
     mode: "queue",
     metrics: { collections: 7, switches: 2, tradeoffs: 1, kills: 18, hits: 1, level3: 3.4 },
     reflection: { prediction: 3, choice: 4, retry: 5 },
+    environment: { viewportWidth: 390, viewportHeight: 844, inputMethods: ["touch"], browser: "chrome" },
     completedAt: "2026-10-20T01:00:00.000Z",
   });
   const payload = JSON.stringify({
@@ -443,6 +496,7 @@ test("比較記録の公式JSONは条件ID・集計・生記録を保って読�
     mode: "chain",
     metrics: { collections: 9, switches: 3, tradeoffs: 2, kills: 21, hits: 1, level3: 5.2 },
     reflection: { prediction: 4, choice: 5, retry: 4, note: "端末間で移動" },
+    environment: { viewportWidth: 390, viewportHeight: 844, inputMethods: ["touch"], browser: "chrome" },
     completedAt: "2026-10-21T02:00:00.000Z",
   });
   const serialized = serializeComparisonExport([record], "2026-10-21T02:01:00.000Z");
@@ -482,7 +536,7 @@ test("同じ完走記録は正式・QA区分が異なっても二重に統合し
     mode: "queue",
     metrics: { collections: 7, switches: 2, tradeoffs: 1, kills: 18, hits: 1, level3: 3.4 },
     reflection: { prediction: 3, choice: 4, retry: 5 },
-    environment: { viewportWidth: 390, viewportHeight: 844, inputMethods: ["touch"] },
+    environment: { viewportWidth: 390, viewportHeight: 844, inputMethods: ["touch"], browser: "chrome" },
     completedAt: "2026-10-20T01:00:00.000Z",
   });
   const qaCopy = {
@@ -506,6 +560,7 @@ test("QA記録を正式へ戻しても方式ごとの3件上限を超えない",
     included,
     metrics: { collections: 7, switches: 2, tradeoffs: 1, kills: 18, hits: 1, level3: 3.4 },
     reflection: { prediction: 3, choice: 4, retry: 5 },
+    environment: { viewportWidth: 390, viewportHeight: 844, inputMethods: ["touch"], browser: "chrome" },
     completedAt: `2026-10-20T01:01:0${second}.000Z`,
   });
   const records = [
@@ -573,6 +628,7 @@ test("起動時に有効な比較記録を復元し、保存可否を完走前�
     mode: "queue",
     metrics: { collections: 8, switches: 2, tradeoffs: 3, kills: 20, hits: 1, level3: 4.2 },
     reflection: { prediction: 4, choice: 3, retry: 5 },
+    environment: { viewportWidth: 390, viewportHeight: 844, inputMethods: ["touch"], browser: "chrome" },
     completedAt: "2026-10-20T00:00:00.000Z",
   });
   values.set("comparison", JSON.stringify([record, { ...record, protocol: 1 }]));
@@ -616,19 +672,19 @@ test("指定した比較記録だけを元の配列を変えずに削除する",
 
 test("既存記録を非破壊で正式比較とQA除外へ切り替える", () => {
   const records = [
-    { mode: "queue", included: true, legacyExcluded: false, classificationReviewed: true },
-    { mode: "armory", included: false, legacyExcluded: true, classificationReviewed: false },
+    { mode: "queue", included: true, legacyExcluded: false, classificationReviewed: true, environment: { inputMethods: ["touch"] } },
+    { mode: "armory", included: false, legacyExcluded: true, classificationReviewed: false, environment: { inputMethods: ["touch"] } },
   ];
   const excluded = setSessionRecordInclusion(records, 0, false);
 
   assert.deepEqual(excluded, [
-    { mode: "queue", included: false, legacyExcluded: false, classificationReviewed: true },
-    { mode: "armory", included: false, legacyExcluded: true, classificationReviewed: false },
+    { mode: "queue", included: false, legacyExcluded: false, classificationReviewed: true, environment: { inputMethods: ["touch"] } },
+    { mode: "armory", included: false, legacyExcluded: true, classificationReviewed: false, environment: { inputMethods: ["touch"] } },
   ]);
   assert.equal(records[0].included, true);
   assert.deepEqual(setSessionRecordInclusion(records, 1, true), [
-    { mode: "queue", included: true, legacyExcluded: false, classificationReviewed: true },
-    { mode: "armory", included: true, legacyExcluded: false, classificationReviewed: true },
+    { mode: "queue", included: true, legacyExcluded: false, classificationReviewed: true, environment: { inputMethods: ["touch"] } },
+    { mode: "armory", included: true, legacyExcluded: false, classificationReviewed: true, environment: { inputMethods: ["touch"] } },
   ]);
   assert.deepEqual(setSessionRecordInclusion(records, -1, false), records);
   assert.deepEqual(setSessionRecordInclusion(records, 0, "no"), records);
