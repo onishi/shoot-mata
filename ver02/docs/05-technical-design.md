@@ -39,7 +39,7 @@ ver02/game/
 
 ## 4. 状態と決定性
 
-ゲーム全体は画面状態とプレイ状態を明示的に分ける。画面状態は少なくとも `title / tutorial / stageIntro / playing / paused / result / continue / ending / credits` を持つ。プレイ状態はserializableな値だけで構成し、描画オブジェクトやAudioNodeを保持しない。
+ゲーム全体は画面状態とプレイ状態を明示的に分ける。画面状態は `title / stageSelect / settings / tutorial / stageIntro / playing / paused / result / gameOver / ending / credits` を持つ。再挑戦・タイトル離脱の確認は画面状態と分離し、確認中に別遷移を受理しない。プレイ状態はserializableな値だけで構成し、描画オブジェクトやAudioNodeを保持しない。
 
 乱数はステージ開始時のseedから生成し、ステージデータ、入力コマンド、tick番号を記録すれば同じ結果を再生できる構造にする。日時と乱数globalをゲーム規則から直接参照しない。
 
