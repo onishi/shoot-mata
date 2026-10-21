@@ -12,6 +12,7 @@ test("static build is complete, bounded, and reproducible", async (context) => {
   context.after(() => rm(OUTPUT, { recursive: true, force: true }));
   const first = await buildStatic(OUTPUT);
   const firstManifest = await readFile(resolve(OUTPUT, "build-manifest.json"), "utf8");
+  const entrypoint = await readFile(resolve(OUTPUT, "game/public/index.html"), "utf8");
   const second = await buildStatic(OUTPUT);
   const secondManifest = await readFile(resolve(OUTPUT, "build-manifest.json"), "utf8");
 
@@ -20,6 +21,8 @@ test("static build is complete, bounded, and reproducible", async (context) => {
   assert.equal(first.totalBytes, second.totalBytes);
   assert.equal(firstManifest, secondManifest);
   assert.ok(first.files.some(({ path }) => path === "game/public/index.html"));
+  assert.match(entrypoint, /<link rel="icon"[^>]+reactor-core-red-v1\.png/);
+  assert.ok(first.files.some(({ path }) => path === "assets/game/cores/reactor-core-red-v1.png"));
   assert.ok(first.files.some(({ path }) => path.endsWith("stage-01-rhythm-loop-v1.wav")));
   assert.ok(first.files.every(({ path }) => !path.endsWith(".prompt.md")));
   assert.ok(first.totalBytes <= 16 * 1024 * 1024);

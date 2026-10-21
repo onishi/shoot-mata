@@ -13,9 +13,11 @@
 
 ## 自動検証
 
-全78テスト、静的build 35 files・13,733,690 bytes、外部URL 0、high以上の既知脆弱性0、差分検査に合格した。Chrome 155 / macOS 26.6.2のcacheなしlocalhostでは34 resources、encoded 13,727,049 bytes、load 187ms、119.7fps、50ms超frame 0、最大16.7ms、simulation drop 0、overflow 0、console warning/error 0だった。
+全78テスト、静的build 35 files・13,733,784 bytes、外部URL 0、high以上の既知脆弱性0、差分検査に合格した。Chrome 155 / macOS 26.6.2のcacheなしlocalhostでは34 resources、encoded 13,727,049 bytes、load 187ms、119.7fps、50ms超frame 0、最大16.7ms、simulation drop 0、overflow 0、console warning/error 0だった。
 
 ポーズ復帰の再検証で、非戦闘時間をframe間隔へ含めてfpsとlong frameを誤記録する不具合を検出した。非戦闘中に計測基準を切り、復帰後の最初のframeから再開するよう修正し、1.2秒停止を挟む回帰テストと実ブラウザ再確認を行った。
+
+一時サーバーのアクセス記録では、consoleに出ない暗黙の `/favicon.ico` 404も検出した。配信済みの自作赤コア画像をfaviconへ明示指定し、entrypointからbuild対象assetを参照する回帰テストを追加した。
 
 ## 未確認と後続作業
 

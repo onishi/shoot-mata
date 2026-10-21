@@ -97,7 +97,7 @@ Phase 05の基準場面はbuild ID `phase05-foundation-20261022` の仮区間、
 
 | 指標 | Phase 05暫定予算 | 2026-10-22 Chrome実測 |
 | --- | --- | --- |
-| 静的成果物 | 16 MiB以下 | 13,733,690 bytes、35 files |
+| 静的成果物 | 16 MiB以下 | 13,733,784 bytes、35 files |
 | 初回encoded resource | 14 MiB以下 | 13,727,049 bytes、34 resources |
 | localhost load event | 2,000ms以下 | 187ms |
 | 通常戦闘fps | 55fps以上（目標60） | 119.7fps（120Hz環境、1.2秒ポーズ後） |
