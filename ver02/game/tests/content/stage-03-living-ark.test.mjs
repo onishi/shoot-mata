@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { GAME_ASSETS, assetIdsForStage } from "../../src/content/asset-manifest.mjs";
 import { STAGE_03_LIVING_ARK } from "../../src/content/stages/stage-03-living-ark.mjs";
 import {
   createStageSimulation,
@@ -68,6 +69,8 @@ test("STG-03: 生体方舟は再生・寄生・捕食、3組織仕掛け、成�
     STAGE_03_LIVING_ARK.boss.phases.map(({ behaviorId }) => behaviorId),
     ["boss-feeding-arms", "boss-grown-carapace", "boss-shifting-heart"],
   );
+  assert.equal(assetIdsForStage(STAGE_03_LIVING_ARK).every((id) => GAME_ASSETS[id]), true);
+  assert.equal(assetIdsForStage(STAGE_03_LIVING_ARK).some((id) => id.includes("placeholder")), false);
 });
 
 test("STG-03/TECH-03: 同一seedで通常戦、組織仕掛け、3段階boss、結果を再現する", () => {
@@ -141,4 +144,17 @@ test("STG-03: 敵3役は再生蛇行、低速寄生砲台、待伏せ突進と�
   assert.equal(turret.y, turret.originY);
   assert.ok(predator.y < predator.originY);
   assert.ok(simulation.enemyShots.some(({ id }) => id.startsWith("enemy-shot-")));
+});
+
+test("AV-01/02: 第3面の敵3種とbossの実asset IDが表示snapshotへ到達する", () => {
+  const simulation = createStageSimulation(STAGE_03_LIVING_ARK, { seed: 9 });
+  const seen = new Set();
+  while (simulation.status === "playing" && simulation.tick < STAGE_03_LIVING_ARK.boss.startTick + 1) {
+    stepStageSimulation(simulation, STAGE_03_LIVING_ARK, autoCommand(simulation));
+    for (const actor of createStageSimulationSnapshot(simulation).actors) seen.add(actor.assetId);
+  }
+  assert.equal(seen.has("enemy-stg03-swarm"), true);
+  assert.equal(seen.has("enemy-stg03-parasite"), true);
+  assert.equal(seen.has("enemy-stg03-predator"), true);
+  assert.equal(seen.has("boss-stg03-ark-core"), true);
 });

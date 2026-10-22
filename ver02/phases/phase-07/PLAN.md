@@ -56,4 +56,6 @@ Phase 06で確立した制作・実装・検証経路を使い、第2〜4面、�
 
 [完了] 第3面の背景3層を原本PNGと1280×720配信WebPで制作し、asset manifestへ接続した。中景・前景のalpha最大差0、PSNR 34.360dB以上、3点合計697,514 bytesで面別2.25 MiB予算内。
 
-第3面の再生群体、寄生砲台、捕食体、方舟中枢bossを透明背景の完成assetとして制作し、配信変換、manifest、表示snapshotへ接続する。画像完成前の音IDは実assetとして扱わない。
+[完了] 第3面の再生群体、寄生砲台、捕食体、方舟中枢bossを透明背景の完成assetとして制作し、敵384×256・boss 512×427のlossless WebP、asset manifest、表示snapshotへ接続した。4点の復号画素差はRGB・alphaとも0、背景込み1,211,744 bytesで面別予算内。
+
+第3面のリズム・旋律・危機/Boss音層と導入・クリア通知を決定的な自作合成で制作し、音声manifest、loader、容量検査へ接続する。画像IDと未制作の音IDを混同しない。
