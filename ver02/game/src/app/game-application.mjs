@@ -32,11 +32,11 @@ function saveResultFromSession(session, difficulty) {
 }
 
 export function createGameApplication(options) {
-  if (!options?.stage) throw new TypeError("stage is required");
+  const stages = options?.stages ?? (options?.stage ? [options.stage] : null);
+  if (!Array.isArray(stages) || stages.length === 0) throw new TypeError("at least one stage is required");
   requirePort(options.saveRepository, ["load", "save"], "save repository");
   requirePort(options.audio, ["activate", "getStatus", "setSettings", "playBgm", "playSfx", "stopBgm"], "audio");
 
-  const stage = options.stage;
   const repository = options.saveRepository;
   const audio = options.audio;
   const loaded = repository.load();
@@ -47,9 +47,19 @@ export function createGameApplication(options) {
   const session = createGameSession({
     seed: options.seed,
     tutorialSeen: saveData.progress.tutorialSeen,
-    maxUnlockedStage: saveData.progress.maxUnlockedStage,
+    maxUnlockedStage: Math.max(
+      saveData.progress.maxUnlockedStage,
+      options.minimumUnlockedStage ?? 0,
+    ),
   });
   audio.setSettings(saveData.settings);
+
+  function currentStage() {
+    const stageIndex = session.flow.stageIndex ?? 0;
+    const stage = stages[stageIndex];
+    if (!stage) throw new RangeError(`stage ${stageIndex} is unavailable`);
+    return stage;
+  }
 
   function persist(nextData) {
     saveData = nextData;
@@ -67,6 +77,7 @@ export function createGameApplication(options) {
   function syncScreenAudio(previousScreen) {
     const nextScreen = session.flow.screen;
     if (previousScreen === nextScreen) return;
+    const stage = currentStage();
     if (nextScreen === "playing") {
       audio.playBgm(stage.audio.stageLayerAssetIds);
       audio.playSfx(stage.audio.introAssetId);
@@ -93,8 +104,8 @@ export function createGameApplication(options) {
 
     dispatch(action) {
       const previousScreen = session.flow.screen;
-      if (action === "start-campaign") activateAudio();
-      dispatchGameAction(session, stage, action);
+      if (action === "start-campaign" || action.startsWith("start-stage-")) activateAudio();
+      dispatchGameAction(session, currentStage(), action);
       if (action === "complete-tutorial" && !saveData.progress.tutorialSeen) {
         persist(markTutorialSeen(saveData));
       }
@@ -104,8 +115,11 @@ export function createGameApplication(options) {
 
     update(command = {}) {
       const previousScreen = session.flow.screen;
-      if (previousScreen === "title" && command.confirm === true) activateAudio();
-      updateGameSession(session, stage, command);
+      if ((previousScreen === "title" && command.confirm === true)
+        || (previousScreen === "stageSelect" && Number.isInteger(command.stageIndex))) {
+        activateAudio();
+      }
+      updateGameSession(session, currentStage(), command);
       if (previousScreen === "tutorial" && session.flow.screen === "stageIntro"
         && !saveData.progress.tutorialSeen) {
         persist(markTutorialSeen(saveData));
@@ -113,6 +127,7 @@ export function createGameApplication(options) {
       recordCompletedRun(previousScreen);
       syncScreenAudio(previousScreen);
       if (previousScreen === "playing") {
+        const stage = currentStage();
         for (const event of session.simulation?.events ?? []) {
           if (event.type === "boss-entered") audio.playBgm(stage.audio.bossLayerAssetIds);
           if (event.type === "stage-cleared") audio.playSfx(stage.audio.clearAssetId);

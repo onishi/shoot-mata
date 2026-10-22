@@ -7,6 +7,7 @@ import { auditRuntimeResources, createRuntimeMonitor, recordRuntimeFrame, suspen
 import { createGameApplication } from "../src/app/game-application.mjs";
 import { GAME_ASSETS } from "../src/content/asset-manifest.mjs";
 import { STAGE_01_ORBITAL_WRECK } from "../src/content/stages/stage-01-orbital-wreck.mjs";
+import { STAGE_02_CLOUD_REFINERY } from "../src/content/stages/stage-02-cloud-refinery.mjs";
 import { advanceFixedStep, createFixedStepClock, setClockSuspended } from "../src/core/fixed-step.mjs";
 import { getGameSessionSnapshot } from "../src/core/game-session.mjs";
 import { consumeInput } from "../src/core/input-state.mjs";
@@ -15,6 +16,8 @@ import { createStageViewModel } from "../src/ui/stage-view-model.mjs";
 
 const app = document.querySelector("[data-app]");
 const canvas = document.querySelector("[data-canvas]");
+const gameShell = document.querySelector("[data-game-shell]");
+const stageLabel = document.querySelector("[data-stage-label]");
 const canvasStatus = document.querySelector("[data-canvas-status]");
 const runtimeStatus = document.querySelector("[data-runtime-status]");
 const warningStatus = document.querySelector("[data-warning-status]");
@@ -28,13 +31,19 @@ const screenTitle = document.querySelector("[data-screen-title]");
 const screenCopy = document.querySelector("[data-screen-copy]");
 const screenActions = document.querySelector("[data-screen-actions]");
 const context = canvas.getContext("2d", { alpha: false });
+const stages = Object.freeze([STAGE_01_ORBITAL_WRECK, STAGE_02_CLOUD_REFINERY]);
+const stageLabels = Object.freeze(["ORBITAL WRECK", "CLOUD REFINERY"]);
+const query = new URLSearchParams(location.search);
+const qaStageIndex = Object.freeze({ stage01: 0, stage02: 1 })[query.get("qa")] ?? null;
+const selectedStage = () => stages[session.flow.stageIndex ?? 0];
 
 const audio = createBrowserAudioAdapter();
 const application = createGameApplication({
-  stage: STAGE_01_ORBITAL_WRECK,
+  stages,
   saveRepository: createSaveRepository(),
   audio,
   seed: 20261022,
+  minimumUnlockedStage: qaStageIndex ?? 0,
 });
 const session = application.session;
 const savedSettings = application.getSettings();
@@ -42,8 +51,8 @@ const displaySettings = {
   reducedMotion: savedSettings.reducedMotion || matchMedia("(prefers-reduced-motion: reduce)").matches,
   highContrast: savedSettings.highContrast,
 };
-const qaEnabled = new URLSearchParams(location.search).get("qa") === "stage01";
-const qaDriver = qaEnabled ? createAutomaticPlaythrough() : null;
+const qaEnabled = qaStageIndex !== null;
+const qaDriver = qaEnabled ? createAutomaticPlaythrough({ stageIndex: qaStageIndex }) : null;
 const clock = createFixedStepClock(qaEnabled ? { stepMs: 1000 / 240 } : undefined);
 const input = createBrowserInputAdapter({ keyboardTarget: window, gameTarget: inputRoot });
 const runtimeMonitor = createRuntimeMonitor();
@@ -89,7 +98,7 @@ function ensureAudioAssets() {
     if (!audible) return [];
     const results = await loadBrowserAudioAssets(audio);
     if (results.some(({ loaded }) => !loaded)) audioAssetWarning = "audio-source-load-failed";
-    if (session.flow.screen === "playing") audio.playBgm(STAGE_01_ORBITAL_WRECK.audio.stageLayerAssetIds);
+    if (session.flow.screen === "playing") audio.playBgm(selectedStage().audio.stageLayerAssetIds);
     syncRuntimeResources();
     syncWarning();
     return results;
@@ -110,10 +119,20 @@ function screenDefinition() {
   const score = session.lastRun?.score ?? 0;
   const screens = {
     title: {
-      kicker: "PHASE 06 / VERTICAL SLICE",
+      kicker: "PHASE 07 / CONTENT BUILD",
       title: "SHOOT MATA v02",
-      copy: "第1面・軌道残骸帯。EnterまたはSTARTで開始します。",
-      actions: [["start-campaign", "START", true]],
+      copy: "キャンペーンを開始するか、解放済みステージを選択します。",
+      actions: [["start-campaign", "CAMPAIGN START", true], ["open-stage-select", "ステージ選択"]],
+    },
+    stageSelect: {
+      kicker: "STAGE SELECT",
+      title: "出撃先を選択",
+      copy: "解放済みステージは単独で開始し、同じseedで再挑戦できます。",
+      actions: [
+        ...stages.slice(0, session.flow.maxUnlockedStage + 1)
+          .map((stage, index) => [`start-stage-${index}`, stage.title, index === 0]),
+        ["return-title", "タイトルへ戻る"],
+      ],
     },
     tutorial: {
       kicker: "FIRST FLIGHT",
@@ -123,7 +142,7 @@ function screenDefinition() {
     },
     stageIntro: {
       kicker: `ATTEMPT ${session.flow.attempt}`,
-      title: STAGE_01_ORBITAL_WRECK.title,
+      title: selectedStage().title,
       copy: `seed ${session.seed}。同じ入力列なら同じ戦闘結果を再現します。`,
       actions: [["begin-stage", "出撃", true]],
     },
@@ -137,7 +156,14 @@ function screenDefinition() {
       kicker: "STAGE CLEAR",
       title: `SCORE ${score}`,
       copy: `敵 ${session.lastRun?.scoreBreakdown.enemy ?? 0} / コア ${session.lastRun?.scoreBreakdown.core ?? 0} / 連続撃破 ${session.lastRun?.scoreBreakdown.streak ?? 0} / 無被弾 ${session.lastRun?.scoreBreakdown.noHit ?? 0}`,
-      actions: [["retry", "同じseedで再挑戦", true]],
+      actions: [
+        ["retry", "同じseedで再挑戦", true],
+        ...(session.flow.mode === "single"
+          ? [["advance", "ステージ選択へ"]]
+          : session.flow.stageIndex + 1 < stages.length
+            ? [["advance", "次のステージへ"]]
+            : [["open-stage-select", "ステージ選択へ"]]),
+      ],
     },
     gameOver: {
       kicker: "PLAYER DEFEATED",
@@ -155,6 +181,13 @@ function screenDefinition() {
 }
 
 function syncScreen() {
+  const stage = selectedStage();
+  const stageIndex = session.flow.stageIndex ?? 0;
+  const stageName = stage.title.replace(/^STAGE [0-9]+ /, "");
+  stageLabel.textContent = stageLabels[stageIndex];
+  gameShell.setAttribute("aria-label", stage.title);
+  canvas.setAttribute("aria-label", `${stageName}。矢印またはWASDで移動、ZまたはSpaceで射撃、Pでポーズ`);
+  document.title = `shoot-mata v02 — ${stage.title}`;
   const definition = screenDefinition();
   const key = `${session.flow.screen}:${session.flow.confirmation}:${session.flow.attempt}:${session.lastRun?.score ?? 0}`;
   const playing = session.flow.screen === "playing";
@@ -179,9 +212,11 @@ function syncScreen() {
 function update() {
   const command = qaDriver ? qaDriver.nextCommand(session) : consumeInput(input.state);
   const wasTitle = session.flow.screen === "title";
+  const wasStageSelect = session.flow.screen === "stageSelect";
   application.update(command);
   qaDriver?.observe(session);
-  if (wasTitle && command.confirm === true) ensureAudioAssets();
+  if ((wasTitle && command.confirm === true)
+    || (wasStageSelect && Number.isInteger(command.stageIndex))) ensureAudioAssets();
   syncScreen();
   syncWarning();
   syncQaStatus();
@@ -208,7 +243,7 @@ function syncQaStatus() {
 function createView() {
   const snapshot = getGameSessionSnapshot(session);
   return createStageViewModel({
-    stage: STAGE_01_ORBITAL_WRECK,
+    stage: selectedStage(),
     tick: snapshot.tick,
     score: snapshot.score,
     lives: snapshot.player.lives,
@@ -226,7 +261,7 @@ screenActions.addEventListener("click", (event) => {
   const action = event.target.closest("[data-action]")?.dataset.action;
   if (!action) return;
   application.dispatch(action);
-  if (action === "start-campaign") ensureAudioAssets();
+  if (action === "start-campaign" || action.startsWith("start-stage-")) ensureAudioAssets();
   syncScreen();
   syncWarning();
 });

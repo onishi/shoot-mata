@@ -7,6 +7,7 @@ import {
 
 const ACTION_EVENTS = Object.freeze({
   "start-campaign": "START_CAMPAIGN",
+  "open-stage-select": "OPEN_STAGE_SELECT",
   "complete-tutorial": "COMPLETE_TUTORIAL",
   "begin-stage": "BEGIN_STAGE",
   pause: "PAUSE",
@@ -16,7 +17,9 @@ const ACTION_EVENTS = Object.freeze({
   confirm: "CONFIRM",
   cancel: "CANCEL_CONFIRMATION",
   retry: "RETRY_STAGE",
+  advance: "ADVANCE",
   continue: "CONTINUE_CAMPAIGN",
+  "return-title": "RETURN_TITLE",
 });
 
 function requireSession(session) {
@@ -48,9 +51,13 @@ export function createGameSession(options = {}) {
 
 export function dispatchGameAction(session, stage, action) {
   requireSession(session);
-  const eventType = ACTION_EVENTS[action];
+  const stageMatch = /^start-stage-([0-3])$/.exec(action);
+  const eventType = stageMatch ? "START_STAGE" : ACTION_EVENTS[action];
   if (!eventType) throw new Error(`unknown game action: ${action}`);
-  session.flow = transitionFlow(session.flow, { type: eventType });
+  const event = stageMatch
+    ? { type: eventType, stageIndex: Number(stageMatch[1]) }
+    : { type: eventType };
+  session.flow = transitionFlow(session.flow, event);
   if (eventType === "BEGIN_STAGE") startSimulation(session, stage);
   if (["RETRY_STAGE", "CONTINUE_CAMPAIGN"].includes(eventType)
     || (eventType === "CONFIRM" && session.flow.screen !== "playing")) {
@@ -73,7 +80,15 @@ export function updateGameSession(session, stage, command = {}) {
 
   switch (session.flow.screen) {
     case "title":
-      if (command.confirm === true) dispatchGameAction(session, stage, "start-campaign");
+      if (command.openStageSelect === true) dispatchGameAction(session, stage, "open-stage-select");
+      else if (command.confirm === true) dispatchGameAction(session, stage, "start-campaign");
+      break;
+    case "stageSelect":
+      if (Number.isInteger(command.stageIndex)) {
+        dispatchGameAction(session, stage, `start-stage-${command.stageIndex}`);
+      } else if (command.back === true) {
+        dispatchGameAction(session, stage, "return-title");
+      }
       break;
     case "tutorial":
       if (command.confirm === true) dispatchGameAction(session, stage, "complete-tutorial");

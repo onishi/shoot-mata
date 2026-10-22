@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { createGameApplication } from "../../src/app/game-application.mjs";
 import { PHASE05_TEST_STAGE } from "../../src/content/stages/phase05-test-segment.mjs";
+import { STAGE_02_CLOUD_REFINERY } from "../../src/content/stages/stage-02-cloud-refinery.mjs";
 import { createDefaultSaveData } from "../../src/core/save-data.mjs";
 
 function createPorts(options = {}) {
@@ -175,5 +176,27 @@ test("AV-04: コア回収とFIFO装填eventに対応する2音を一度ずつ鳴
   assert.deepEqual(ports.calls.slice(before).filter(([kind]) => kind === "sfx"), [
     ["sfx", "audio-ref-core-collect"],
     ["sfx", "audio-ref-core-load"],
+  ]);
+});
+
+test("LOOP-01/STG-02: 解放済み第2面を選択して対応stageと音層で開始する", () => {
+  const data = createDefaultSaveData();
+  data.progress.tutorialSeen = true;
+  data.progress.maxUnlockedStage = 1;
+  const ports = createPorts({ data });
+  const application = createGameApplication({
+    stages: [PHASE05_TEST_STAGE, STAGE_02_CLOUD_REFINERY],
+    saveRepository: ports.repository,
+    audio: ports.audio,
+    seed: 20261022,
+  });
+
+  application.dispatch("open-stage-select");
+  application.dispatch("start-stage-1");
+  assert.equal(application.session.flow.stageIndex, 1);
+  application.dispatch("begin-stage");
+  assert.equal(application.session.simulation.stageId, STAGE_02_CLOUD_REFINERY.id);
+  assert.deepEqual(ports.calls.findLast(([kind]) => kind === "bgm"), [
+    "bgm", STAGE_02_CLOUD_REFINERY.audio.stageLayerAssetIds,
   ]);
 });
