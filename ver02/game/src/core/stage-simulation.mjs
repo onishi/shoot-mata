@@ -121,6 +121,7 @@ function spawnBoss(state, stage) {
   if (state.boss !== null || state.tick < state.schedule.boss.startTick) return;
   const phases = stage.boss.phases.map((phase) => ({
     id: phase.id,
+    behaviorId: phase.behaviorId,
     hitPoints: phase.hitPoints,
     maximumHitPoints: phase.hitPoints,
   }));
@@ -184,14 +185,26 @@ function nearestTarget(state, shot) {
 function moveCombatants(state) {
   for (const enemy of state.enemies) {
     enemy.ageTicks += 1;
-    const speed = enemy.behaviorId === "armored-drift"
-      ? ENEMY_SPEED_PER_TICK * 0.55
-      : enemy.behaviorId === "sine-left" ? ENEMY_SPEED_PER_TICK * 1.2 : ENEMY_SPEED_PER_TICK;
+    const speedFactors = {
+      "armored-drift": 0.55,
+      "sine-left": 1.2,
+      "current-rider": 1.35,
+      "cover-turret": 0.42,
+      "dive-striker": enemy.ageTicks < 45 ? 0.72 : 1.65,
+    };
+    const speed = ENEMY_SPEED_PER_TICK * (speedFactors[enemy.behaviorId] ?? 1);
     enemy.x -= speed;
-    if (enemy.behaviorId === "sine-left") {
-      enemy.y = clamp(enemy.originY + Math.sin(enemy.ageTicks / 18) * 0.1, 0.12, 0.88);
+    if (enemy.behaviorId === "sine-left" || enemy.behaviorId === "current-rider") {
+      const amplitude = enemy.behaviorId === "current-rider" ? 0.16 : 0.1;
+      const period = enemy.behaviorId === "current-rider" ? 14 : 18;
+      enemy.y = clamp(enemy.originY + Math.sin(enemy.ageTicks / period) * amplitude, 0.12, 0.88);
+    } else if (enemy.behaviorId === "dive-striker" && enemy.ageTicks >= 45) {
+      enemy.y += clamp(state.player.y - enemy.y, -0.018, 0.018);
     }
-    const firingInterval = enemy.behaviorId === "armored-drift" ? 64 : 90;
+    const firingInterval = enemy.behaviorId === "dive-striker"
+      ? Number.POSITIVE_INFINITY
+      : enemy.behaviorId === "cover-turret" ? 72
+        : enemy.behaviorId === "armored-drift" ? 64 : 90;
     if (enemy.ageTicks >= 50 && enemy.ageTicks % firingInterval === 0) {
       state.enemyShots.push({
         id: `enemy-shot-${state.nextShotId++}`,
@@ -206,11 +219,14 @@ function moveCombatants(state) {
     state.boss.ageTicks += 1;
     const phase = state.boss.phases[state.boss.phaseIndex];
     const phaseAge = state.boss.ageTicks;
-    const isRush = phase.id === "exposed-reactor";
-    state.boss.y = 0.5 + Math.sin(phaseAge / (isRush ? 24 : 45)) * (isRush ? 0.29 : 0.22);
-    const interval = phase.id === "salvage-crossfire" ? 42 : isRush ? 30 : 54;
+    const isRush = phase.behaviorId === "boss-core-rush" || phase.behaviorId === "boss-thunder-dive";
+    const isCrossfire = phase.behaviorId === "boss-crossfire" || phase.behaviorId === "boss-shutter-barrage";
+    const isCurrentClimb = phase.behaviorId === "boss-current-climb";
+    state.boss.y = 0.5 + Math.sin(phaseAge / (isRush ? 20 : isCurrentClimb ? 32 : 45))
+      * (isRush ? 0.31 : isCurrentClimb ? 0.34 : 0.22);
+    const interval = isCrossfire ? 42 : isRush ? 30 : 54;
     if (phaseAge % interval === 0) {
-      const offsets = phase.id === "salvage-crossfire" ? [-0.018, 0, 0.018] : [0];
+      const offsets = isCrossfire ? [-0.018, 0, 0.018] : [0];
       for (const offset of offsets) {
         state.enemyShots.push({
           id: `boss-shot-${state.nextShotId++}`,
@@ -362,10 +378,32 @@ function resolvePickups(state) {
 }
 
 function resolveHazards(state) {
-  const active = state.schedule.hazards.find((hazard) => state.tick >= hazard.startTick && state.tick < hazard.endTick);
-  if (!active || state.tick % 120 !== 0) return;
-  if (active.behaviorId === "closing-corridor" && (state.player.y < 0.27 || state.player.y > 0.73)) {
-    damagePlayer(state, "closing-corridor");
+  const activeHazards = state.schedule.hazards
+    .filter((hazard) => state.tick >= hazard.startTick && state.tick < hazard.endTick);
+  for (const active of activeHazards) {
+    if (active.behaviorId === "alternating-current") {
+      const direction = Math.floor((state.tick - active.startTick) / 180) % 2 === 0 ? -1 : 1;
+      state.player.y = clamp(state.player.y + direction * 0.0035, 0.12, 0.88);
+      if ((state.tick - active.startTick) % 180 === 0) {
+        emit(state, "hazard-current-shifted", { hazardId: active.id, direction });
+      }
+      continue;
+    }
+    if (state.tick % 120 !== 0) continue;
+    if (active.behaviorId === "closing-corridor" && (state.player.y < 0.27 || state.player.y > 0.73)) {
+      damagePlayer(state, "closing-corridor");
+    }
+    if (active.behaviorId === "shutter-cover") {
+      const openingY = Math.floor((state.tick - active.startTick) / 240) % 2 === 0 ? 0.3 : 0.7;
+      if (Math.abs(state.player.y - openingY) > 0.24) damagePlayer(state, "shutter-cover");
+    }
+    if (active.behaviorId === "charged-cloud") {
+      const chargedHalf = Math.floor((state.tick - active.startTick) / 180) % 2 === 0 ? "upper" : "lower";
+      if ((chargedHalf === "upper" && state.player.y < 0.5)
+        || (chargedHalf === "lower" && state.player.y >= 0.5)) {
+        damagePlayer(state, "charged-cloud");
+      }
+    }
   }
 }
 
