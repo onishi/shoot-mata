@@ -89,8 +89,9 @@ export const PHASE05_TEST_STAGE = parseStageDefinition({
     ],
   },
   audio: {
-    stageLoopAssetId: "audio-ref-stage01-rhythm",
-    bossLoopAssetId: "placeholder-boss-loop",
+    stageLayerAssetIds: ["audio-ref-stage01-rhythm"],
+    bossLayerAssetIds: ["placeholder-boss-loop"],
+    introAssetId: "audio-ref-ui-confirm",
     clearAssetId: "placeholder-stage-clear",
   },
   transitions: {

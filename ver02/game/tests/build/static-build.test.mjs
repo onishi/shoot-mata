@@ -37,6 +37,15 @@ test("static build is complete, bounded, and reproducible", async (context) => {
   assert.ok(first.files.some(({ path }) => path.endsWith("wreck-bulwark-v1.webp")));
   assert.ok(first.files.some(({ path }) => path.endsWith("wreck-warden-v1.webp")));
   assert.ok(first.files.some(({ path }) => path.endsWith("stage-01-rhythm-loop-v1.wav")));
+  for (const file of [
+    "stage-02-cloud-refinery-rhythm-v1.wav",
+    "stage-02-cloud-refinery-melody-v1.wav",
+    "stage-02-cloud-refinery-danger-v1.wav",
+    "stage-02-cloud-refinery-intro-v1.wav",
+    "stage-02-cloud-refinery-clear-v1.wav",
+  ]) {
+    assert.ok(first.files.some(({ path }) => path === `assets/audio/stage-02/${file}`));
+  }
   assert.ok(first.files.every(({ path }) => !path.endsWith(".prompt.md")));
   assert.ok(first.files.every(({ path }) => !path.endsWith(".png")));
   assert.ok(first.totalBytes <= ASSET_BUDGETS.build);
@@ -49,5 +58,6 @@ test("static build is complete, bounded, and reproducible", async (context) => {
         return sum + first.files.find(({ path }) => path === `${prefix}/${asset.deliveryPath}`).bytes;
       }, 0)]));
   assert.ok(groupBytes["stage-01"] <= ASSET_BUDGETS["stage-01"]);
+  assert.ok(groupBytes["stage-02"] <= ASSET_BUDGETS["stage-02"]);
   assert.ok(groupBytes.shared <= ASSET_BUDGETS.shared);
 });

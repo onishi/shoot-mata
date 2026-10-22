@@ -87,6 +87,14 @@ test("PROG-04: クリア結果を選択難度のbestへ一度だけ保存する"
     streak: application.session.lastRun.scoreBreakdown.streak,
     noDamage: application.session.lastRun.scoreBreakdown.noHit,
   });
+  assert.ok(ports.calls.some(([kind, ids]) => kind === "bgm"
+    && ids === PHASE05_TEST_STAGE.audio.stageLayerAssetIds));
+  assert.ok(ports.calls.some(([kind, ids]) => kind === "bgm"
+    && ids === PHASE05_TEST_STAGE.audio.bossLayerAssetIds));
+  assert.ok(ports.calls.some(([kind, id]) => kind === "sfx"
+    && id === PHASE05_TEST_STAGE.audio.introAssetId));
+  assert.ok(ports.calls.some(([kind, id]) => kind === "sfx"
+    && id === PHASE05_TEST_STAGE.audio.clearAssetId));
   const saveCalls = ports.calls.filter(([kind]) => kind === "save").length;
   application.update();
   assert.equal(ports.calls.filter(([kind]) => kind === "save").length, saveCalls);

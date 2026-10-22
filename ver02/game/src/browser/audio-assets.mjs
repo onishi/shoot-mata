@@ -34,6 +34,31 @@ export const AUDIO_ASSETS = Object.freeze([
     group: "sfx",
     url: "../../assets/audio/reference/core-load-v1.wav",
   }),
+  Object.freeze({
+    id: "audio-stg02-rhythm",
+    group: "bgm",
+    url: "../../assets/audio/stage-02/stage-02-cloud-refinery-rhythm-v1.wav",
+  }),
+  Object.freeze({
+    id: "audio-stg02-melody",
+    group: "bgm",
+    url: "../../assets/audio/stage-02/stage-02-cloud-refinery-melody-v1.wav",
+  }),
+  Object.freeze({
+    id: "audio-stg02-danger",
+    group: "bgm",
+    url: "../../assets/audio/stage-02/stage-02-cloud-refinery-danger-v1.wav",
+  }),
+  Object.freeze({
+    id: "audio-stg02-intro",
+    group: "sfx",
+    url: "../../assets/audio/stage-02/stage-02-cloud-refinery-intro-v1.wav",
+  }),
+  Object.freeze({
+    id: "audio-stg02-clear",
+    group: "sfx",
+    url: "../../assets/audio/stage-02/stage-02-cloud-refinery-clear-v1.wav",
+  }),
 ]);
 
 export async function loadBrowserAudioAssets(audio, options = {}) {

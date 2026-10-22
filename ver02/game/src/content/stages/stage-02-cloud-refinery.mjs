@@ -51,8 +51,9 @@ export const STAGE_02_CLOUD_REFINERY = parseStageDefinition({
     ],
   },
   audio: {
-    stageLoopAssetId: "audio-stg02-cloud-loop",
-    bossLoopAssetId: "audio-stg02-guardian-loop",
+    stageLayerAssetIds: ["audio-stg02-rhythm", "audio-stg02-melody"],
+    bossLayerAssetIds: ["audio-stg02-rhythm", "audio-stg02-melody", "audio-stg02-danger"],
+    introAssetId: "audio-stg02-intro",
     clearAssetId: "audio-stg02-clear",
   },
   transitions: { onClear: "STAGE_CLEAR", onDefeat: "PLAYER_DEFEATED" },

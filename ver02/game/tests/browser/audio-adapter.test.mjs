@@ -39,7 +39,7 @@ function createFakeContext(options = {}) {
         started: false,
         stopped: false,
         connect(target) { this.connectedTo = target; },
-        start() { this.started = true; },
+        start(when) { this.started = true; this.startedAt = when; },
         stop() { this.stopped = true; },
       };
       sources.push(source);
@@ -178,6 +178,25 @@ test("A11Y-01/AV-06: mute中もBGM/SFX操作と破棄を安全に完了する", 
   assert.equal(context.closeCalls, 1);
   assert.deepEqual(audio.getStatus(), { mode: "disposed", warning: null });
   assert.equal((await audio.activate()).audible, false);
+});
+
+test("AV-05: 複数BGM層を同時刻に開始し、危機層への切替で旧sourceを止める", async () => {
+  const context = createFakeContext({ state: "running" });
+  const audio = createBrowserAudioAdapter({ settings: DEFAULT_SETTINGS, createContext: () => context });
+  await audio.activate();
+  for (const id of ["rhythm", "melody", "danger"]) {
+    await audio.loadSound(id, "bgm", new ArrayBuffer(1));
+  }
+
+  assert.equal(audio.playBgm(["rhythm", "melody"]).played, true);
+  assert.deepEqual(context.sources.slice(0, 2).map(({ startedAt }) => startedAt), [12, 12]);
+  assert.equal(context.sources.slice(0, 2).every(({ loop }) => loop), true);
+
+  assert.equal(audio.playBgm(["rhythm", "melody", "danger"]).played, true);
+  assert.equal(context.sources.slice(0, 2).every(({ stopped }) => stopped), true);
+  assert.deepEqual(context.sources.slice(2).map(({ startedAt }) => startedAt), [12, 12, 12]);
+  audio.stopBgm();
+  assert.equal(context.sources.slice(2).every(({ stopped }) => stopped), true);
 });
 
 test("AV-06: resume待機中に破棄してもactiveへ戻らない", async () => {

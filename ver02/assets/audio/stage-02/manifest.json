@@ -1,0 +1,82 @@
+[
+  {
+    "id": "audio-stg02-rhythm",
+    "file": "stage-02-cloud-refinery-rhythm-v1.wav",
+    "role": "rhythm music layer",
+    "durationMs": 4000,
+    "targetPeakDb": -18,
+    "peakRangeDb": [
+      -19,
+      -17
+    ],
+    "loop": true,
+    "bytes": 384044,
+    "sha256": "f21ca11d7d229b2e9076bf01272f4e071a37c8d379f8199ffdaf7fc6fbabaf0a",
+    "creation": "deterministic original synthesis in generate-stage-02-audio.mjs",
+    "rights": "project-authored; no third-party samples"
+  },
+  {
+    "id": "audio-stg02-melody",
+    "file": "stage-02-cloud-refinery-melody-v1.wav",
+    "role": "melody music layer",
+    "durationMs": 4000,
+    "targetPeakDb": -20,
+    "peakRangeDb": [
+      -21,
+      -19
+    ],
+    "loop": true,
+    "bytes": 384044,
+    "sha256": "89b3c2c97f3fccc4436c911fbb880f78ed9d112bbd8e830d4edc7b7524c6f20a",
+    "creation": "deterministic original synthesis in generate-stage-02-audio.mjs",
+    "rights": "project-authored; no third-party samples"
+  },
+  {
+    "id": "audio-stg02-danger",
+    "file": "stage-02-cloud-refinery-danger-v1.wav",
+    "role": "danger and boss music layer",
+    "durationMs": 4000,
+    "targetPeakDb": -22,
+    "peakRangeDb": [
+      -23,
+      -21
+    ],
+    "loop": true,
+    "bytes": 384044,
+    "sha256": "d2f261926c40530138e33b29974ed34625be22f8f714c8cc310b4a1eea09f75f",
+    "creation": "deterministic original synthesis in generate-stage-02-audio.mjs",
+    "rights": "project-authored; no third-party samples"
+  },
+  {
+    "id": "audio-stg02-intro",
+    "file": "stage-02-cloud-refinery-intro-v1.wav",
+    "role": "stage introduction notification",
+    "durationMs": 500,
+    "targetPeakDb": -10,
+    "peakRangeDb": [
+      -11,
+      -9
+    ],
+    "loop": false,
+    "bytes": 48044,
+    "sha256": "eb2e612413c0a39675253d5d391c52002490a30e2f9a967431cff67850ef350b",
+    "creation": "deterministic original synthesis in generate-stage-02-audio.mjs",
+    "rights": "project-authored; no third-party samples"
+  },
+  {
+    "id": "audio-stg02-clear",
+    "file": "stage-02-cloud-refinery-clear-v1.wav",
+    "role": "stage clear notification",
+    "durationMs": 900,
+    "targetPeakDb": -8,
+    "peakRangeDb": [
+      -9,
+      -7
+    ],
+    "loop": false,
+    "bytes": 86444,
+    "sha256": "911d61be0fd6e8f55c71aedc48eba879ed4f26dd45c46fbdf65c84eebe03ceb2",
+    "creation": "deterministic original synthesis in generate-stage-02-audio.mjs",
+    "rights": "project-authored; no third-party samples"
+  }
+]

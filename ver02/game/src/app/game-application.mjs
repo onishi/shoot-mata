@@ -67,7 +67,10 @@ export function createGameApplication(options) {
   function syncScreenAudio(previousScreen) {
     const nextScreen = session.flow.screen;
     if (previousScreen === nextScreen) return;
-    if (nextScreen === "playing") audio.playBgm(stage.audio.stageLoopAssetId);
+    if (nextScreen === "playing") {
+      audio.playBgm(stage.audio.stageLayerAssetIds);
+      audio.playSfx(stage.audio.introAssetId);
+    }
     if (["title", "result", "gameOver"].includes(nextScreen)) audio.stopBgm();
     if (nextScreen !== "playing") audio.playSfx("audio-ref-ui-confirm");
   }
@@ -111,6 +114,8 @@ export function createGameApplication(options) {
       syncScreenAudio(previousScreen);
       if (previousScreen === "playing") {
         for (const event of session.simulation?.events ?? []) {
+          if (event.type === "boss-entered") audio.playBgm(stage.audio.bossLayerAssetIds);
+          if (event.type === "stage-cleared") audio.playSfx(stage.audio.clearAssetId);
           if (event.soundAssetId) audio.playSfx(event.soundAssetId);
         }
       }

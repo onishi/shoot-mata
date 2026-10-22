@@ -26,11 +26,11 @@
     "audioEvents": ["fire-lance", "fire-spread", "fire-seeker", "hit", "damage", "destroy", "collect", "core-load", "core-eject", "weapon-level", "warning", "boss-entry", "clear", "ui-confirm"]
   },
   "estimate": {
-    "stageUnits": 54,
+    "stageUnits": 56,
     "weaponLevelUnits": 18,
     "sharedVisualUnits": 37,
     "sharedAudioEventUnits": 14,
-    "totalMinimumUnits": 123,
+    "totalMinimumUnits": 125,
     "reestimateGate": "after phase-06 stage-01 vertical slice",
     "excludes": ["animation frame count", "localization variants", "responsive exports", "compressed delivery encodings"]
   }

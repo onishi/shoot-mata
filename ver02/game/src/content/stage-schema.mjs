@@ -197,8 +197,15 @@ function validateBoss(boss, durationTicks, sectionIds, sections, registry) {
 
 function validateAudio(audio) {
   objectAt(audio, "stage.audio");
-  exactKeys(audio, ["stageLoopAssetId", "bossLoopAssetId", "clearAssetId"], "stage.audio");
-  for (const [key, value] of Object.entries(audio)) stringAt(value, `stage.audio.${key}`, { slug: true });
+  exactKeys(audio, ["stageLayerAssetIds", "bossLayerAssetIds", "introAssetId", "clearAssetId"], "stage.audio");
+  for (const key of ["stageLayerAssetIds", "bossLayerAssetIds"]) {
+    arrayAt(audio[key], `stage.audio.${key}`);
+    audio[key].forEach((value, index) => stringAt(value, `stage.audio.${key}[${index}]`, { slug: true }));
+    if (new Set(audio[key]).size !== audio[key].length) fail(`stage.audio.${key}`, "layer IDs must be unique");
+  }
+  for (const key of ["introAssetId", "clearAssetId"]) {
+    stringAt(audio[key], `stage.audio.${key}`, { slug: true });
+  }
 }
 
 function validateTransitions(transitions) {

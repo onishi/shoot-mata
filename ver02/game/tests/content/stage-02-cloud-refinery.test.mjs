@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { AUDIO_ASSETS } from "../../src/browser/audio-assets.mjs";
 import { GAME_ASSETS, assetIdsForStage } from "../../src/content/asset-manifest.mjs";
 import { STAGE_02_CLOUD_REFINERY } from "../../src/content/stages/stage-02-cloud-refinery.mjs";
 import {
@@ -57,6 +58,19 @@ test("STG-02: 雲海精製塔は固有敵3種、3仕掛け、3段階bossをデ�
   );
   assert.equal(assetIdsForStage(STAGE_02_CLOUD_REFINERY).every((id) => GAME_ASSETS[id]), true);
   assert.equal(assetIdsForStage(STAGE_02_CLOUD_REFINERY).some((id) => id.includes("placeholder")), false);
+});
+
+test("AV-05: 第2面の通常2層、boss 3層、導入・クリア音は全て製品loaderに存在する", () => {
+  const audioIds = new Set(AUDIO_ASSETS.map(({ id }) => id));
+  const required = [
+    ...STAGE_02_CLOUD_REFINERY.audio.stageLayerAssetIds,
+    ...STAGE_02_CLOUD_REFINERY.audio.bossLayerAssetIds,
+    STAGE_02_CLOUD_REFINERY.audio.introAssetId,
+    STAGE_02_CLOUD_REFINERY.audio.clearAssetId,
+  ];
+  assert.equal(required.every((id) => audioIds.has(id)), true);
+  assert.equal(STAGE_02_CLOUD_REFINERY.audio.stageLayerAssetIds.length, 2);
+  assert.equal(STAGE_02_CLOUD_REFINERY.audio.bossLayerAssetIds.length, 3);
 });
 
 test("STG-02/TECH-03: 同一seedで通常戦、固有仕掛け、3段階boss、結果を再現する", () => {

@@ -1,6 +1,6 @@
 # 04 アセット台帳
 
-状態: Phase 04代表素材完了・製品全量はPhase 06〜07で継続（2026-10-21）
+状態: Phase 04代表素材完了・製品全量はPhase 06〜07で継続（2026-10-22）
 
 状態は `planned / draft / final / verified` を使う。`final` はゲーム投入可能な分離・編集済み素材、`verified` はゲーム内表示と権利を確認した素材だけに付ける。
 
@@ -28,6 +28,7 @@
 | HUD-REACTOR-01 | `../phases/phase-04/reference-scene/` | 3枠・先頭・押し出し予告 | HTML/CSS/JSのコード表現、2026-10-21 | 自作 | 正規化面積11.69%、本文12px以上、操作対象44px以上 | final |
 | VFX-HIT / DAMAGE / COLLECT | `../phases/phase-04/reference-scene/` | 命中・被弾・回収 | HTML/CSSのコード表現、2026-10-21 | 自作 | 十字閃光 / 破線二重環 / 内向き山形 | final |
 | AUDIO-REF-01 | `../assets/audio/reference/` | 3武器発射、コア回収・装填、UI決定、第1面リズム層 | 自作の決定的合成コード、2026-10-21。`manifest.json`と`generate-reference-audio.mjs` | 自作、外部サンプル0 | 48kHz mono PCM16 WAV×7、527,348 bytes。個別SHA-256はmanifest | final |
+| AUDIO-STG02-01 | `../assets/audio/stage-02/` | 第2面リズム・旋律・危機/Bossの3層、導入・クリア通知 | 自作の決定的合成コード、2026-10-22。`manifest.json`と`generate-stage-02-audio.mjs` | 自作、外部サンプル0 | 48kHz mono PCM16 WAV×5、1,286,620 bytes。個別SHA-256はmanifest | final |
 
 制作原本は上表のPNGを保持し、製品buildは `../assets/delivery/` のWebPを参照する。配信派生物11点の寸法、圧縮方式、byte数、SHA-256、復号画素差は `../assets/delivery/asset-optimization-audit.json` を正本とする。背景3点はlossy RGB・lossless alpha、actor・boss・コア8点は縮小後losslessで、原本の権利・出典・promptは上表から継承する。
 
@@ -107,3 +108,10 @@
 - `manifest.json`に用途、長さ、目標ピーク、バイト数、SHA-256、制作方法、権利を記録し、テストで実ファイルと照合する。外部音源・外部サンプルは使用していない。
 - Chromeで7点すべて`readyState=4`、表示長0.12〜4秒、ループ指定、横溢れ0、console warning/error 0件を確認した。320×844でも横溢れ0、音声操作高54px。
 - P06で3武器、コア回収、FIFO装填を製品eventへ接続し、Chromeで7点すべての取得、警告0、音量設定・ミュート・失敗時継続を確認した。分離音声としてゲーム投入可能なため`final`。聴感の主観評価、製品全体の同時発音、配信用圧縮形式は未確認なので`verified`ではない。
+
+## AUDIO-STG02-01 検査記録
+
+- 4秒の同期ループとしてリズム−18dBFS、旋律−20dBFS、危機/Boss−22dBFSを分離し、導入500ms/−10dBFS、クリア900ms/−8dBFSを作成した。5点合計1,286,620 bytesで、画像込み第2面2,283,252 bytesとなり2.25 MiB予算内。
+- 5点とも48kHz、mono、PCM16 WAV、クリップ0。3ループの端差は0.000244以下、等倍3層合成ピークは−11.623dBFSで、−6dBFS上限まで余裕を持つ。
+- 通常戦はリズム＋旋律、`boss-entered`で危機層を加えた3層へ同時刻切替し、ステージ開始と`stage-cleared`で通知音を再生する。音声schemaは空層・重複層を拒否し、全IDを製品loaderと静的buildで照合する。
+- 生成式、用途、byte数、SHA-256、外部サンプル0をmanifestと自動テストで照合済みのため`final`。実ブラウザでの取得・再生、聴感、長時間同期は未確認なので`verified`ではない。

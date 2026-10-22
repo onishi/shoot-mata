@@ -56,3 +56,13 @@ test("TECH-02: sectionsの隙間・逆転とboss以外のboss参照を拒否す�
   wrongBossSection.boss.sectionId = "closing-wreck";
   assert.throws(() => parseStageDefinition(wrongBossSection), /must reference a boss section/);
 });
+
+test("AV-05: 音楽層は空配列と重複IDをfail closedで拒否する", () => {
+  const emptyLayers = editableStage();
+  emptyLayers.audio.stageLayerAssetIds = [];
+  assert.throws(() => parseStageDefinition(emptyLayers), /must contain at least 1 item/);
+
+  const duplicateLayers = editableStage();
+  duplicateLayers.audio.bossLayerAssetIds = ["same-layer", "same-layer"];
+  assert.throws(() => parseStageDefinition(duplicateLayers), /layer IDs must be unique/);
+});

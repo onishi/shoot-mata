@@ -89,7 +89,7 @@ function ensureAudioAssets() {
     if (!audible) return [];
     const results = await loadBrowserAudioAssets(audio);
     if (results.some(({ loaded }) => !loaded)) audioAssetWarning = "audio-source-load-failed";
-    if (session.flow.screen === "playing") audio.playBgm(STAGE_01_ORBITAL_WRECK.audio.stageLoopAssetId);
+    if (session.flow.screen === "playing") audio.playBgm(STAGE_01_ORBITAL_WRECK.audio.stageLayerAssetIds);
     syncRuntimeResources();
     syncWarning();
     return results;

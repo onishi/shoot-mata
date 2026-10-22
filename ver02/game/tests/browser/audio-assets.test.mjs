@@ -21,3 +21,15 @@ test("AV-06/REL-02: 音声assetは相対URLだけを使い、欠落しても残�
   assert.equal(results.find(({ id }) => id === "audio-ref-ui-confirm").warning, "audio-source-load-failed");
   assert.equal(loaded.length, AUDIO_ASSETS.length - 1);
 });
+
+test("AV-05: 第2面の3音楽層と導入・クリア通知を製品loaderへ登録する", () => {
+  const stage02 = AUDIO_ASSETS.filter(({ id }) => id.startsWith("audio-stg02-"));
+  assert.deepEqual(stage02.map(({ id }) => id), [
+    "audio-stg02-rhythm",
+    "audio-stg02-melody",
+    "audio-stg02-danger",
+    "audio-stg02-intro",
+    "audio-stg02-clear",
+  ]);
+  assert.deepEqual(stage02.map(({ group }) => group), ["bgm", "bgm", "bgm", "sfx", "sfx"]);
+});

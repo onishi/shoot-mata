@@ -41,7 +41,7 @@ export function createBrowserAudioAdapter(options = {}) {
   let context = null;
   let gains = null;
   let activationPromise = null;
-  let currentBgm = null;
+  let currentBgm = new Set();
   const sounds = new Map();
   const activeSfx = new Set();
 
@@ -73,7 +73,7 @@ export function createBrowserAudioAdapter(options = {}) {
     context = null;
     gains = null;
     sounds.clear();
-    currentBgm = null;
+    currentBgm.clear();
     activeSfx.clear();
     await closeContext(candidate);
     return result();
@@ -121,30 +121,41 @@ export function createBrowserAudioAdapter(options = {}) {
 
   function play(id, group, loop) {
     if (mode !== "active") return result({ played: false });
-    const sound = sounds.get(id);
-    if (!sound || sound.group !== group) {
+    const ids = group === "bgm" && Array.isArray(id) ? id : [id];
+    if (ids.length === 0 || new Set(ids).size !== ids.length) {
       warning = "audio-source-missing";
       return result({ played: false });
     }
+    const requested = ids.map((assetId) => sounds.get(assetId));
+    if (requested.some((sound) => !sound || sound.group !== group)) {
+      warning = "audio-source-missing";
+      return result({ played: false });
+    }
+    const created = [];
     try {
-      const source = context.createBufferSource();
-      source.buffer = sound.buffer;
-      source.loop = loop;
-      source.connect(gains[group]);
-      if (group === "bgm") {
-        stopSource(currentBgm);
-        currentBgm = source;
-        source.onended = () => {
-          if (currentBgm === source) currentBgm = null;
-        };
-      } else {
-        activeSfx.add(source);
-        source.onended = () => activeSfx.delete(source);
+      for (const sound of requested) {
+        const source = context.createBufferSource();
+        source.buffer = sound.buffer;
+        source.loop = loop;
+        source.connect(gains[group]);
+        created.push(source);
       }
-      source.start();
+      if (group === "bgm") {
+        for (const source of currentBgm) stopSource(source);
+        currentBgm = new Set(created);
+        for (const source of created) source.onended = () => currentBgm.delete(source);
+      } else {
+        for (const source of created) {
+          activeSfx.add(source);
+          source.onended = () => activeSfx.delete(source);
+        }
+      }
+      const startTime = context.currentTime ?? 0;
+      for (const source of created) source.start(startTime);
       warning = null;
       return result({ played: true });
     } catch {
+      for (const source of created) stopSource(source);
       warning = "audio-playback-failed";
       return result({ played: false });
     }
@@ -204,13 +215,14 @@ export function createBrowserAudioAdapter(options = {}) {
     },
 
     stopBgm() {
-      stopSource(currentBgm);
-      currentBgm = null;
+      for (const source of currentBgm) stopSource(source);
+      currentBgm.clear();
     },
 
     async dispose() {
       if (mode === "disposed") return;
-      stopSource(currentBgm);
+      for (const source of currentBgm) stopSource(source);
+      currentBgm.clear();
       for (const source of activeSfx) stopSource(source);
       activeSfx.clear();
       sounds.clear();
