@@ -36,6 +36,7 @@
 | VFX-HIT / DAMAGE / COLLECT | `../phases/phase-04/reference-scene/` | 命中・被弾・回収 | HTML/CSSのコード表現、2026-10-21 | 自作 | 十字閃光 / 破線二重環 / 内向き山形 | final |
 | AUDIO-REF-01 | `../assets/audio/reference/` | 3武器発射、コア回収・装填、UI決定、第1面リズム層 | 自作の決定的合成コード、2026-10-21。`manifest.json`と`generate-reference-audio.mjs` | 自作、外部サンプル0 | 48kHz mono PCM16 WAV×7、527,348 bytes。個別SHA-256はmanifest | final |
 | AUDIO-STG02-01 | `../assets/audio/stage-02/` | 第2面リズム・旋律・危機/Bossの3層、導入・クリア通知 | 自作の決定的合成コード、2026-10-22。`manifest.json`と`generate-stage-02-audio.mjs` | 自作、外部サンプル0 | 48kHz mono PCM16 WAV×5、1,286,620 bytes。個別SHA-256はmanifest | final |
+| AUDIO-STG03-01 | `../assets/audio/stage-03/` | 第3面リズム・旋律・危機/Bossの3層、導入・クリア通知 | 自作の決定的合成コード、2026-10-23。`manifest.json`と`generate-stage-03-audio.mjs` | 自作、外部サンプル0 | 48kHz mono PCM16 WAV×5、1,099,420 bytes。個別SHA-256はmanifest | final |
 
 制作原本は上表のPNGを保持し、製品buildは `../assets/delivery/` のWebPを参照する。配信派生物25点の寸法、圧縮方式、byte数、SHA-256、復号画素差は `../assets/delivery/asset-optimization-audit.json` を正本とする。背景9点はlossy RGB・lossless alpha、actor・boss・コア16点は縮小後losslessで、原本の権利・出典・promptは上表から継承する。
 
@@ -135,4 +136,11 @@
 - 4秒の同期ループとしてリズム−18dBFS、旋律−20dBFS、危機/Boss−22dBFSを分離し、導入500ms/−10dBFS、クリア900ms/−8dBFSを作成した。5点合計1,286,620 bytesで、画像込み第2面2,283,252 bytesとなり2.25 MiB予算内。
 - 5点とも48kHz、mono、PCM16 WAV、クリップ0。3ループの端差は0.000244以下、等倍3層合成ピークは−11.623dBFSで、−6dBFS上限まで余裕を持つ。
 - 通常戦はリズム＋旋律、`boss-entered`で危機層を加えた3層へ同時刻切替し、ステージ開始と`stage-cleared`で通知音を再生する。音声schemaは空層・重複層を拒否し、全IDを製品loaderと静的buildで照合する。
+- 生成式、用途、byte数、SHA-256、外部サンプル0をmanifestと自動テストで照合済みのため`final`。実ブラウザでの取得・再生、聴感、長時間同期は未確認なので`verified`ではない。
+
+## AUDIO-STG03-01 検査記録
+
+- 3.4秒の同期ループとして心拍状リズム−18dBFS、有機的旋律−20dBFS、神経パルス状危機/Boss−22dBFSを分離し、導入450ms/−10dBFS、クリア800ms/−8dBFSを作成した。5点合計1,099,420 bytes、画像込み第3面2,311,164 bytesで2.25 MiB予算内。
+- 5点とも48kHz、mono、PCM16 WAV、クリップ0。先頭無音は最大0.146ms、末尾無音は最大0.792ms、3ループの端差は0.000183以下、等倍3層合成ピークは−11.352dBFSで−6dBFS上限まで余裕を持つ。
+- 通常戦はリズム＋旋律、`boss-entered`で危機層を加えた3層へ切替し、ステージ開始と`stage-cleared`で通知音を再生できるIDをstage dataと製品loaderで照合した。
 - 生成式、用途、byte数、SHA-256、外部サンプル0をmanifestと自動テストで照合済みのため`final`。実ブラウザでの取得・再生、聴感、長時間同期は未確認なので`verified`ではない。

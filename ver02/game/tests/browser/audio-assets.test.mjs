@@ -33,3 +33,15 @@ test("AV-05: 第2面の3音楽層と導入・クリア通知を製品loaderへ�
   ]);
   assert.deepEqual(stage02.map(({ group }) => group), ["bgm", "bgm", "bgm", "sfx", "sfx"]);
 });
+
+test("AV-05: 第3面の3音楽層と導入・クリア通知を製品loaderへ登録する", () => {
+  const stage03 = AUDIO_ASSETS.filter(({ id }) => id.startsWith("audio-stg03-"));
+  assert.deepEqual(stage03.map(({ id }) => id), [
+    "audio-stg03-rhythm",
+    "audio-stg03-melody",
+    "audio-stg03-danger",
+    "audio-stg03-intro",
+    "audio-stg03-clear",
+  ]);
+  assert.deepEqual(stage03.map(({ group }) => group), ["bgm", "bgm", "bgm", "sfx", "sfx"]);
+});

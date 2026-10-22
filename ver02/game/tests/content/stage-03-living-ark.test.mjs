@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { AUDIO_ASSETS } from "../../src/browser/audio-assets.mjs";
 import { GAME_ASSETS, assetIdsForStage } from "../../src/content/asset-manifest.mjs";
 import { STAGE_03_LIVING_ARK } from "../../src/content/stages/stage-03-living-ark.mjs";
 import {
@@ -71,6 +72,19 @@ test("STG-03: 生体方舟は再生・寄生・捕食、3組織仕掛け、成�
   );
   assert.equal(assetIdsForStage(STAGE_03_LIVING_ARK).every((id) => GAME_ASSETS[id]), true);
   assert.equal(assetIdsForStage(STAGE_03_LIVING_ARK).some((id) => id.includes("placeholder")), false);
+});
+
+test("AV-05: 第3面の通常2層、boss 3層、導入・クリア音は全て製品loaderに存在する", () => {
+  const audioIds = new Set(AUDIO_ASSETS.map(({ id }) => id));
+  const required = [
+    ...STAGE_03_LIVING_ARK.audio.stageLayerAssetIds,
+    ...STAGE_03_LIVING_ARK.audio.bossLayerAssetIds,
+    STAGE_03_LIVING_ARK.audio.introAssetId,
+    STAGE_03_LIVING_ARK.audio.clearAssetId,
+  ];
+  assert.equal(required.every((id) => audioIds.has(id)), true);
+  assert.equal(STAGE_03_LIVING_ARK.audio.stageLayerAssetIds.length, 2);
+  assert.equal(STAGE_03_LIVING_ARK.audio.bossLayerAssetIds.length, 3);
 });
 
 test("STG-03/TECH-03: 同一seedで通常戦、組織仕掛け、3段階boss、結果を再現する", () => {

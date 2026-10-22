@@ -1,0 +1,82 @@
+[
+  {
+    "id": "audio-stg03-rhythm",
+    "file": "stage-03-living-ark-rhythm-v1.wav",
+    "role": "rhythm music layer",
+    "durationMs": 3400,
+    "targetPeakDb": -18,
+    "peakRangeDb": [
+      -19,
+      -17
+    ],
+    "loop": true,
+    "bytes": 326444,
+    "sha256": "0858cc5f683dacf3509afb040fd28b63730f30eaadb7c5bd52046d6045e42b2e",
+    "creation": "deterministic original synthesis in generate-stage-03-audio.mjs",
+    "rights": "project-authored; no third-party samples"
+  },
+  {
+    "id": "audio-stg03-melody",
+    "file": "stage-03-living-ark-melody-v1.wav",
+    "role": "melody music layer",
+    "durationMs": 3400,
+    "targetPeakDb": -20,
+    "peakRangeDb": [
+      -21,
+      -19
+    ],
+    "loop": true,
+    "bytes": 326444,
+    "sha256": "5582b61a5128dd91467fb7777dd5fca4ab33739b9126aaea85048cfd1bb6cc11",
+    "creation": "deterministic original synthesis in generate-stage-03-audio.mjs",
+    "rights": "project-authored; no third-party samples"
+  },
+  {
+    "id": "audio-stg03-danger",
+    "file": "stage-03-living-ark-danger-v1.wav",
+    "role": "danger and boss music layer",
+    "durationMs": 3400,
+    "targetPeakDb": -22,
+    "peakRangeDb": [
+      -23,
+      -21
+    ],
+    "loop": true,
+    "bytes": 326444,
+    "sha256": "90197b934518505ac1a6161ff8ac7e317b21414fd71b69fd138c806fb3aa95c0",
+    "creation": "deterministic original synthesis in generate-stage-03-audio.mjs",
+    "rights": "project-authored; no third-party samples"
+  },
+  {
+    "id": "audio-stg03-intro",
+    "file": "stage-03-living-ark-intro-v1.wav",
+    "role": "stage introduction notification",
+    "durationMs": 450,
+    "targetPeakDb": -10,
+    "peakRangeDb": [
+      -11,
+      -9
+    ],
+    "loop": false,
+    "bytes": 43244,
+    "sha256": "95a018adcffbb8c94d44e71fc798ec4c83be1736779e2831e12cb811945f7b71",
+    "creation": "deterministic original synthesis in generate-stage-03-audio.mjs",
+    "rights": "project-authored; no third-party samples"
+  },
+  {
+    "id": "audio-stg03-clear",
+    "file": "stage-03-living-ark-clear-v1.wav",
+    "role": "stage clear notification",
+    "durationMs": 800,
+    "targetPeakDb": -8,
+    "peakRangeDb": [
+      -9,
+      -7
+    ],
+    "loop": false,
+    "bytes": 76844,
+    "sha256": "32d4272646614273be905ab9051f7a16ced997ea561f223362d58557a0ee7205",
+    "creation": "deterministic original synthesis in generate-stage-03-audio.mjs",
+    "rights": "project-authored; no third-party samples"
+  }
+]
