@@ -20,6 +20,10 @@
 | ENEMY-STG03-02 | `../assets/game/enemies/stage-03/parasite-turret-v1.png` | 低速の寄生砲台 | OpenAI組み込み画像生成、2026-10-23。完全なプロンプトは同名 `.prompt.md` | リリース前にOpenAI生成物の利用条件と独自性を再確認 | 1402×1122 RGBA PNG、alpha 0〜255 / `0d38aa2ff12c2fe703b339ea698fad0497b420bb1a0c291f32e2ff52d9c0c40d` | final |
 | ENEMY-STG03-03 | `../assets/game/enemies/stage-03/ark-predator-v1.png` | 待伏せ突進する捕食体 | OpenAI組み込み画像生成、2026-10-23。完全なプロンプトは同名 `.prompt.md` | リリース前にOpenAI生成物の利用条件と独自性を再確認 | 1536×1024 RGBA PNG、alpha 0〜254 / `ef4f0b51ce2d9fe0e3e8fadf74b6539a381ce24fa260051030a4c952ee502d46` | final |
 | BOSS-STG03-01 | `../assets/game/bosses/stage-03/ark-core-v1.png` | 第3面ボス・方舟中枢 | OpenAI組み込み画像生成、2026-10-23。完全なプロンプトは同名 `.prompt.md` | リリース前にOpenAI生成物の利用条件と独自性を再確認 | 1536×1024 RGBA PNG、alpha 0〜254 / `97cb00f68da7d5804538c22408a1664912d5bf0597ea7689124ea9982ff3beea` | final |
+| ENEMY-STG04-01 | `../assets/game/enemies/stage-04/heat-armor-v1.png` | 被弾を軽減する耐熱装甲 | OpenAI組み込み画像生成、2026-10-23。完全なプロンプトは同名 `.prompt.md` | リリース前にOpenAI生成物の利用条件と独自性を再確認 | 1536×1024 RGBA PNG、alpha 0〜254 / `dcfe8a4b7ec4b437bd37492b0ee304921082c57e63ec1e03cc9fa87fa7ad4094` | final |
+| ENEMY-STG04-02 | `../assets/game/enemies/stage-04/solar-rammer-v1.png` | 予備動作後に追尾突進する機体 | OpenAI組み込み画像生成、2026-10-23。完全なプロンプトは同名 `.prompt.md` | リリース前にOpenAI生成物の利用条件と独自性を再確認 | 1774×887 RGBA PNG、alpha 0〜255 / `44e2ab780f845cb319a4708853e23aaf6d562419ecdebe6b556c33847c5ce71a` | final |
+| ENEMY-STG04-03 | `../assets/game/enemies/stage-04/omni-turret-v1.png` | 3方向へ同時射撃する全方向砲台 | OpenAI組み込み画像生成、2026-10-23。完全なプロンプトは同名 `.prompt.md` | リリース前にOpenAI生成物の利用条件と独自性を再確認 | 1402×1122 RGBA PNG、alpha 0〜255 / `7060bd7d93e4db0135689d651b088fdd48234323272421c23088bd8b66493743` | final |
+| BOSS-STG04-01 | `../assets/game/bosses/stage-04/furnace-controller-v1.png` | 第4面ボス・炉心制御機 | OpenAI組み込み画像生成、2026-10-23。完全なプロンプトは同名 `.prompt.md` | リリース前にOpenAI生成物の利用条件と独自性を再確認 | 1536×1024 RGBA PNG、alpha 0〜254 / `f24ddce17a17648421fbd27957195c4dae5d47310c0a243b06ef58e216c509fe` | final |
 | BG-STG01-FAR | `../assets/game/backgrounds/stage-01/orbital-wreck-far-v1.png` | 惑星・星・遠方艦隊 | OpenAI組み込み画像生成、2026-10-21。完全なプロンプトは同名 `.prompt.md` | リリース前にOpenAI生成物の利用条件と独自性を再確認 | 1672×941 RGB PNG / `7bf826513523de6a20f9d62af79a76cc48c5484eafb376d11cb37ff61f783454` | final |
 | BG-STG01-MID | `../assets/game/backgrounds/stage-01/orbital-wreck-mid-v1.png` | 艦骸・トラス | OpenAI組み込み画像生成、2026-10-21。完全なプロンプトは同名 `.prompt.md` | リリース前にOpenAI生成物の利用条件と独自性を再確認 | 1672×941 RGBA PNG、alpha 0〜255 / `d3fbc1a3e09fb8ffd657c898823c241f77d2d43990fbdc2ec98a29cddd688f27` | final |
 | BG-STG01-FORE | `../assets/game/backgrounds/stage-01/orbital-wreck-fore-v1.png` | 暗い前景梁 | OpenAI組み込み画像生成、2026-10-21。完全なプロンプトは同名 `.prompt.md` | リリース前にOpenAI生成物の利用条件と独自性を再確認 | 1672×941 RGBA PNG、alpha 0〜255 / `fdaeed852671e5ef92a3c7ada55fc4ebebf18c0a057714a27c25b82c639b925f` | final |
@@ -41,7 +45,7 @@
 | AUDIO-STG02-01 | `../assets/audio/stage-02/` | 第2面リズム・旋律・危機/Bossの3層、導入・クリア通知 | 自作の決定的合成コード、2026-10-22。`manifest.json`と`generate-stage-02-audio.mjs` | 自作、外部サンプル0 | 48kHz mono PCM16 WAV×5、1,286,620 bytes。個別SHA-256はmanifest | final |
 | AUDIO-STG03-01 | `../assets/audio/stage-03/` | 第3面リズム・旋律・危機/Bossの3層、導入・クリア通知 | 自作の決定的合成コード、2026-10-23。`manifest.json`と`generate-stage-03-audio.mjs` | 自作、外部サンプル0 | 48kHz mono PCM16 WAV×5、1,099,420 bytes。個別SHA-256はmanifest | final |
 
-制作原本は上表のPNGを保持し、製品buildは `../assets/delivery/` のWebPを参照する。配信派生物28点の寸法、圧縮方式、byte数、SHA-256、復号画素差は `../assets/delivery/asset-optimization-audit.json` を正本とする。背景12点はlossy RGB・lossless alpha、actor・boss・コア16点は縮小後losslessで、原本の権利・出典・promptは上表から継承する。
+制作原本は上表のPNGを保持し、製品buildは `../assets/delivery/` のWebPを参照する。配信派生物32点の寸法、圧縮方式、byte数、SHA-256、復号画素差は `../assets/delivery/asset-optimization-audit.json` を正本とする。背景12点はlossy RGB・lossless alpha、actor・boss・コア20点は縮小後losslessで、原本の権利・出典・promptは上表から継承する。
 
 ## CONCEPT-STG01-01 生成プロンプト
 
@@ -83,6 +87,13 @@
 - 再生群体は丸い種子嚢と後方触手、寄生砲台は横長の砲口と幅広い殻、捕食体は細いS字と大顎、方舟中枢は3本の捕食腕と花弁状心臓を持つ要塞外形とし、役割間の外形を分離した。全点は左向きの琥珀発光を持ち、自機の右向き三角形とシアン3セルを使っていない。
 - 配信版は敵3点を384×256、bossを512×427のlossless WebPへ縮小し、RGB・alpha差0。4点合計514,230 bytes、背景込み第3面1,211,744 bytesで面別2.25 MiB予算内。
 - stage data、asset manifest、表示snapshotへ4 IDを接続し、通常敵3種とbossのID到達を自動検査した。濃紺背景への配信版合成で透明境界、全身、左向きを確認した。製品画面の第3面選択とブラウザ通し、攻撃・被弾・撃破アニメーション、権利再確認が未完了のため`verified`ではない。
+
+## ENEMY-STG04-01〜03・BOSS-STG04-01 検査記録
+
+- 組み込み画像生成で4点を制作し、全点8-bit RGBA・非インターレース、alpha最小0・最大254〜255を確認した。完全なpromptは各同名`.prompt.md`へ保存した。
+- 耐熱装甲は幅広い遮熱板、突進機は細長い槍と三日月翼、全方向砲台は左へ扇状に向く3砲身、炉心制御機は遮熱殻・突進杭・6本のフレア放射器を持つ要塞外形とし、役割間の外形を分離した。全点は左向きの橙赤発光を持ち、自機の右向き三角形とシアン3セルを使っていない。
+- 配信版は敵3点を384×256、bossを512×427のlossless WebPへ縮小し、RGB・alpha差0。4点合計526,594 bytes、背景込み第4面1,293,610 bytesで面別2.25 MiB予算内。
+- stage data、asset manifest、表示snapshotへ4 IDを接続し、通常敵3種とbossのID到達を自動検査した。製品画面の第4面選択とブラウザ通し、攻撃・被弾・撃破アニメーション、権利再確認が未完了のため`verified`ではない。
 
 ## CORE-RED / BLUE / YELLOW 検査記録
 

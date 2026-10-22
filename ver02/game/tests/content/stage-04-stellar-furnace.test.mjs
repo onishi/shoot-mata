@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { GAME_ASSETS, assetIdsForStage } from "../../src/content/asset-manifest.mjs";
 import { STAGE_04_STELLAR_FURNACE } from "../../src/content/stages/stage-04-stellar-furnace.mjs";
 import {
   createStageSimulation,
@@ -96,6 +97,11 @@ test("STG-04: 恒星炉心は耐熱装甲・突進・全方向砲台、熱安全
   );
 });
 
+test("STG-04/AV-01: 第4面はplaceholderを含まない実assetだけを参照する", () => {
+  assert.equal(assetIdsForStage(STAGE_04_STELLAR_FURNACE).every((id) => GAME_ASSETS[id]), true);
+  assert.equal(assetIdsForStage(STAGE_04_STELLAR_FURNACE).some((id) => id.includes("placeholder")), false);
+});
+
 test("STG-04/TECH-03: 同一seedで通常戦、熱波と可変安全圏、3段階boss、結果を再現する", () => {
   const first = runStage();
   const replay = runStage();
@@ -184,4 +190,17 @@ test("STG-04: 炉心制御機は各形態で冷却コアを放出し混色補助
   stepStageSimulation(simulation, STAGE_04_STELLAR_FURNACE);
   assert.ok(simulation.events.some(({ type, core }) => type === "boss-coolant-vented" && core === "blue"));
   assert.ok(simulation.pickups.some(({ core }) => core === "blue"));
+});
+
+test("AV-01/02: 第4面の敵3種とbossの実asset IDが表示snapshotへ到達する", () => {
+  const simulation = createStageSimulation(STAGE_04_STELLAR_FURNACE, { seed: 9 });
+  const seen = new Set();
+  while (simulation.status === "playing" && simulation.tick < STAGE_04_STELLAR_FURNACE.boss.startTick + 1) {
+    stepStageSimulation(simulation, STAGE_04_STELLAR_FURNACE, autoCommand(simulation));
+    for (const actor of createStageSimulationSnapshot(simulation).actors) seen.add(actor.assetId);
+  }
+  assert.equal(seen.has("enemy-stg04-heat-armor"), true);
+  assert.equal(seen.has("enemy-stg04-rammer"), true);
+  assert.equal(seen.has("enemy-stg04-omni-turret"), true);
+  assert.equal(seen.has("boss-stg04-furnace-controller"), true);
 });
