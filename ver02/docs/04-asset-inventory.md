@@ -12,6 +12,10 @@
 | ENEMY-STG01-02 | `../assets/game/enemies/stage-01/salvage-weaver-v1.png` | 蛇行する回収ドローン | OpenAI組み込み画像生成、2026-10-22。完全なプロンプトは同名 `.prompt.md` | リリース前にOpenAI生成物の利用条件と独自性を再確認 | 768×512 RGBA PNG、alpha 0〜255 / `2e6fd3d1ee2abbe1869ab71e3aaee16eb54efd983b6024a76760799ac094753e` | final |
 | ENEMY-STG01-03 | `../assets/game/enemies/stage-01/wreck-bulwark-v1.png` | 低速重装の解体艇 | OpenAI組み込み画像生成、2026-10-22。完全なプロンプトは同名 `.prompt.md` | リリース前にOpenAI生成物の利用条件と独自性を再確認 | 768×512 RGBA PNG、alpha 0〜255 / `12a83e326b3c5b0a27c33a27e04ea8c77bbbdca7ecbcbe9031b3b627c41eccf2` | final |
 | BOSS-STG01-01 | `../assets/game/bosses/stage-01/wreck-warden-v1.png` | 第1面ボス・残骸監督機 | OpenAI組み込み画像生成、2026-10-22。完全なプロンプトは同名 `.prompt.md` | リリース前にOpenAI生成物の利用条件と独自性を再確認 | 768×640 RGBA PNG、alpha 0〜255 / `862c505f84fc31407f9eecd6e2cf261af9b094728fc9db34003172422adf2424` | final |
+| ENEMY-STG02-01 | `../assets/game/enemies/stage-02/cloud-skimmer-v1.png` | 気流蛇行機 | OpenAI組み込み画像生成、2026-10-22。完全なプロンプトは同名 `.prompt.md` | リリース前にOpenAI生成物の利用条件と独自性を再確認 | 1536×1024 RGBA PNG、alpha 0〜254 / `6a7179de6d5f475540d5f112cb3659ace7230f634cefa945e010038815cde1ad` | final |
+| ENEMY-STG02-02 | `../assets/game/enemies/stage-02/shutter-turret-v1.png` | 低速遮蔽砲台 | OpenAI組み込み画像生成、2026-10-22。完全なプロンプトは同名 `.prompt.md` | リリース前にOpenAI生成物の利用条件と独自性を再確認 | 1536×1024 RGBA PNG、alpha 0〜254 / `a283491994d607db83bfc3f4f67321b9d2737a0b1b0be7c1e449d631f07ad3c8` | final |
+| ENEMY-STG02-03 | `../assets/game/enemies/stage-02/storm-diver-v1.png` | 追尾急降下機 | OpenAI組み込み画像生成、2026-10-22。完全なプロンプトは同名 `.prompt.md` | リリース前にOpenAI生成物の利用条件と独自性を再確認 | 1536×1024 RGBA PNG、alpha 0〜254 / `f17f2f929b25ffeb77cc4f05841087a5fe622e72dba0e6504ff42e2119b06330` | final |
+| BOSS-STG02-01 | `../assets/game/bosses/stage-02/refinery-guardian-v1.png` | 第2面ボス・精製守護機 | OpenAI組み込み画像生成、2026-10-22。完全なプロンプトは同名 `.prompt.md` | リリース前にOpenAI生成物の利用条件と独自性を再確認 | 1536×1024 RGBA PNG、alpha 0〜254 / `6176247c64f75723508bb1a4358014fa98518326062e2cc4751782018294bbca` | final |
 | BG-STG01-FAR | `../assets/game/backgrounds/stage-01/orbital-wreck-far-v1.png` | 惑星・星・遠方艦隊 | OpenAI組み込み画像生成、2026-10-21。完全なプロンプトは同名 `.prompt.md` | リリース前にOpenAI生成物の利用条件と独自性を再確認 | 1672×941 RGB PNG / `7bf826513523de6a20f9d62af79a76cc48c5484eafb376d11cb37ff61f783454` | final |
 | BG-STG01-MID | `../assets/game/backgrounds/stage-01/orbital-wreck-mid-v1.png` | 艦骸・トラス | OpenAI組み込み画像生成、2026-10-21。完全なプロンプトは同名 `.prompt.md` | リリース前にOpenAI生成物の利用条件と独自性を再確認 | 1672×941 RGBA PNG、alpha 0〜255 / `d3fbc1a3e09fb8ffd657c898823c241f77d2d43990fbdc2ec98a29cddd688f27` | final |
 | BG-STG01-FORE | `../assets/game/backgrounds/stage-01/orbital-wreck-fore-v1.png` | 暗い前景梁 | OpenAI組み込み画像生成、2026-10-21。完全なプロンプトは同名 `.prompt.md` | リリース前にOpenAI生成物の利用条件と独自性を再確認 | 1672×941 RGBA PNG、alpha 0〜255 / `fdaeed852671e5ef92a3c7ada55fc4ebebf18c0a057714a27c25b82c639b925f` | final |
@@ -53,6 +57,13 @@
 - ウィーバーは三日月状、ブルワークは幅広い矩形シールド状、残骸監督機は上下の破砕腕を持つ要塞状とし、円形Collectorと外形を重複させていない。
 - `stage-01-orbital-wreck.mjs`、Canvas asset manifest、静的buildへ接続し、通常敵3 IDとboss IDが表示snapshotへ到達する自動検査に合格した。Chromeの通常戦でCollectorの合成表示と画像欠落0を確認した。
 - 分離素材としてゲーム投入可能なため `final`。ウィーバー、ブルワーク、ボス各々の実ブラウザ画面、攻撃・被弾・撃破アニメーション、権利再確認が未完了のため `verified` にはしていない。
+
+## ENEMY-STG02-01〜03・BOSS-STG02-01 検査記録
+
+- 4点とも1536×1024、8-bit RGBA PNG、非インターレースで、alpha最小0・最大254を確認した。組み込み画像生成の完全なpromptを各同名`.prompt.md`へ保存した。
+- 気流蛇行機は横広の三日月、遮蔽砲台は幅広の矩形装甲、急降下機は斜めの槍／鉤、精製守護機は縦長の塔／砂時計状とし、役割ごとの外形を重複させていない。全敵は左向き橙赤発光で、右向き三角形とシアン3セルを持つ自機から分離した。
+- 配信版は敵3点を384×256、bossを512×427のlossless WebPへ縮小し、RGB・alpha差0。4点合計409,614 bytes、背景込み第2面996,632 bytesで面別2.25 MiB予算内。
+- stage data、asset manifest、表示snapshotへ4 IDを接続し、通常敵3種とbossのID到達を自動検査した。製品画面の第2面選択とブラウザ通し、攻撃・被弾・撃破アニメーション、権利再確認が未完了のため`verified`ではない。
 
 ## CORE-RED / BLUE / YELLOW 検査記録
 

@@ -29,7 +29,7 @@
 | WPN-03 | P03, P07 | P07, P10 | P06製品戦闘で黄Lv1〜3の1/2/3発追尾、Lv別円形、専用音を検査。全区間の画面確認は後続 | 実装中 |
 | WPN-04 | P03, P07 | P09, P10 | `stage-simulation.test.mjs`でHP40敵・HP200 bossの9構成撃破tickを固定比較。群れ・遮蔽別の逆転検証は後続 | 実装中 |
 | STG-01 | P06 | P06, P10 | `stage-01-orbital-wreck.test.mjs`とChrome `?qa=stage01`で、通常戦、圧縮回廊、3段階boss、結果、同seed再挑戦を完走。390×844・844×390でoverflow 0、console warning/error 0 | 実装済み未検証 |
-| STG-02 | P07 | P07, P10 | `stage-02-cloud-refinery.test.mjs`で敵3種、上下気流、開閉遮蔽、帯電域、3段階boss、開始→結果の同seed再現を検査。完成asset・音・製品画面・ブラウザ通しは後続 | 実装中 |
+| STG-02 | P07 | P07, P10 | `stage-02-cloud-refinery.test.mjs`で完成背景3層・敵3種・bossのID到達、上下気流、開閉遮蔽、帯電域、3段階boss、開始→結果の同seed再現を検査。音・製品画面・ブラウザ通しは後続 | 実装中 |
 | STG-03 | P07 | P07, P10 | 生体方舟の開始→固有仕掛け→ボス→結果、画面・動画 | 未着手 |
 | STG-04 | P07 | P07, P10 | 恒星炉心の開始→固有仕掛け→ボス→結果、画面・動画 | 未着手 |
 | STG-05 | P06, P07 | P07, P10 | 第1面は敵3種・圧縮回廊・3段階bossをデータと決定的通しへ実装。専用boss音・全演出と残り3面は継続 | 実装中 |

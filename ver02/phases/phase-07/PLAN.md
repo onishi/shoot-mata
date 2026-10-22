@@ -46,4 +46,6 @@ Phase 06で確立した制作・実装・検証経路を使い、第2〜4面、�
 
 [完了] 第2面の背景3層を原本PNGと1280×720配信WebPで制作し、asset manifestと容量検査へ接続した。配信3点は合計587,018 bytes、alpha最大差0、PSNR 33.574dB以上で面別2.25 MiB予算内。
 
-第2面の敵3種とbossを透明背景の完成assetとして制作し、表示上限に合わせたlossless WebP、asset manifest、Canvas snapshotへ接続する。画像完成前のIDを実assetとして扱わず、音3層とブラウザ通しはその後に個別検証する。
+[完了] 第2面の敵3種とbossを透明背景の完成assetとして制作し、敵384×256・boss 512×427のlossless WebP、asset manifest、表示snapshotへ接続した。4点の復号画素差はRGB・alphaとも0、背景込み996,632 bytesで面別予算内。
+
+第2面のリズム・旋律・危機/Boss音層と導入・クリア通知を決定的な自作合成で制作し、音声manifestと製品eventへ接続する。その後、製品入口から第2面を選択できる状態遷移と`?qa=stage02`のブラウザ通しを追加する。

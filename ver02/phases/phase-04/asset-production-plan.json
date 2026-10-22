@@ -8,7 +8,7 @@
   },
   "stages": [
     { "id": "stage-01", "slug": "orbital-wreck", "deliveryPhase": "phase-06", "backgroundLayers": ["far", "mid", "fore"], "enemyTypes": ["armored-frontal", "salvage-collector", "formation-fighter"], "mechanic": "wreck-corridor", "boss": "breaker-ship", "bossForms": 1, "musicLayers": ["rhythm", "melody", "danger"], "transitions": ["intro", "clear"] },
-    { "id": "stage-02", "slug": "cloud-refinery", "deliveryPhase": "phase-07", "backgroundLayers": ["far", "mid", "fore"], "enemyTypes": ["current-swarm", "shielded-turret", "dive-craft"], "mechanic": "charged-updraft", "boss": "refinery-guardian", "bossForms": 1, "musicLayers": ["rhythm", "melody", "danger"], "transitions": ["intro", "clear"] },
+    { "id": "stage-02", "slug": "cloud-refinery", "deliveryPhase": "phase-07", "backgroundLayers": ["far", "mid", "fore"], "enemyTypes": ["cloud-skimmer", "shutter-turret", "storm-diver"], "mechanic": "current-shutter-charge", "boss": "refinery-guardian", "bossForms": 3, "musicLayers": ["rhythm", "melody", "danger"], "transitions": ["intro", "clear"] },
     { "id": "stage-03", "slug": "living-ark", "deliveryPhase": "phase-07", "backgroundLayers": ["far", "mid", "fore"], "enemyTypes": ["regenerating-swarm", "parasite-turret", "predator"], "mechanic": "contracting-tissue", "boss": "ark-core", "bossForms": 1, "musicLayers": ["rhythm", "melody", "danger"], "transitions": ["intro", "clear"] },
     { "id": "stage-04", "slug": "stellar-furnace", "deliveryPhase": "phase-07", "backgroundLayers": ["far", "mid", "fore"], "enemyTypes": ["heat-armor", "rammer", "omni-turret"], "mechanic": "periodic-heatwave", "boss": "furnace-controller", "bossForms": 3, "musicLayers": ["rhythm", "melody", "danger"], "transitions": ["intro", "clear"] }
   ],

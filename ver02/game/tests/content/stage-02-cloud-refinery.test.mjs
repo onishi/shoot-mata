@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { GAME_ASSETS, assetIdsForStage } from "../../src/content/asset-manifest.mjs";
 import { STAGE_02_CLOUD_REFINERY } from "../../src/content/stages/stage-02-cloud-refinery.mjs";
 import {
   createStageSimulation,
@@ -54,6 +55,8 @@ test("STG-02: 雲海精製塔は固有敵3種、3仕掛け、3段階bossをデ�
     STAGE_02_CLOUD_REFINERY.boss.phases.map(({ behaviorId }) => behaviorId),
     ["boss-current-climb", "boss-shutter-barrage", "boss-thunder-dive"],
   );
+  assert.equal(assetIdsForStage(STAGE_02_CLOUD_REFINERY).every((id) => GAME_ASSETS[id]), true);
+  assert.equal(assetIdsForStage(STAGE_02_CLOUD_REFINERY).some((id) => id.includes("placeholder")), false);
 });
 
 test("STG-02/TECH-03: 同一seedで通常戦、固有仕掛け、3段階boss、結果を再現する", () => {
@@ -126,4 +129,17 @@ test("STG-02: 敵3役は気流蛇行、低速砲台、追尾急降下として�
   assert.notEqual(skimmer.y, skimmer.originY);
   assert.equal(turret.y, turret.originY);
   assert.ok(diver.y < diver.originY);
+});
+
+test("AV-01/02: 第2面の敵3種とbossの実asset IDが表示snapshotへ到達する", () => {
+  const simulation = createStageSimulation(STAGE_02_CLOUD_REFINERY, { seed: 9 });
+  const seen = new Set();
+  while (simulation.status === "playing" && simulation.tick < STAGE_02_CLOUD_REFINERY.boss.startTick + 1) {
+    stepStageSimulation(simulation, STAGE_02_CLOUD_REFINERY, autoCommand(simulation));
+    for (const actor of createStageSimulationSnapshot(simulation).actors) seen.add(actor.assetId);
+  }
+  assert.equal(seen.has("enemy-stg02-skimmer"), true);
+  assert.equal(seen.has("enemy-stg02-turret"), true);
+  assert.equal(seen.has("enemy-stg02-diver"), true);
+  assert.equal(seen.has("boss-stg02-refinery-guardian"), true);
 });
