@@ -1,4 +1,5 @@
 import { loadCanvasAssets, renderCanvasFrame } from "../src/browser/canvas-renderer.mjs";
+import { createAutomaticPlaythrough } from "../src/browser/automatic-playthrough.mjs";
 import { loadBrowserAudioAssets } from "../src/browser/audio-assets.mjs";
 import { createBrowserAudioAdapter } from "../src/browser/audio-adapter.mjs";
 import { createBrowserInputAdapter } from "../src/browser/input-adapter.mjs";
@@ -17,6 +18,7 @@ const canvas = document.querySelector("[data-canvas]");
 const canvasStatus = document.querySelector("[data-canvas-status]");
 const runtimeStatus = document.querySelector("[data-runtime-status]");
 const warningStatus = document.querySelector("[data-warning-status]");
+const qaStatus = document.querySelector("[data-qa-status]");
 const accessibleState = document.querySelector("[data-accessible-state]");
 const inputRoot = document.querySelector("[data-input-root]");
 const fullscreenButton = document.querySelector("[data-fullscreen]");
@@ -40,7 +42,9 @@ const displaySettings = {
   reducedMotion: savedSettings.reducedMotion || matchMedia("(prefers-reduced-motion: reduce)").matches,
   highContrast: savedSettings.highContrast,
 };
-const clock = createFixedStepClock();
+const qaEnabled = new URLSearchParams(location.search).get("qa") === "stage01";
+const qaDriver = qaEnabled ? createAutomaticPlaythrough() : null;
+const clock = createFixedStepClock(qaEnabled ? { stepMs: 1000 / 240 } : undefined);
 const input = createBrowserInputAdapter({ keyboardTarget: window, gameTarget: inputRoot });
 const runtimeMonitor = createRuntimeMonitor();
 let renderedScreenKey = "";
@@ -173,12 +177,32 @@ function syncScreen() {
 }
 
 function update() {
-  const command = consumeInput(input.state);
+  const command = qaDriver ? qaDriver.nextCommand(session) : consumeInput(input.state);
   const wasTitle = session.flow.screen === "title";
   application.update(command);
+  qaDriver?.observe(session);
   if (wasTitle && command.confirm === true) ensureAudioAssets();
   syncScreen();
   syncWarning();
+  syncQaStatus();
+}
+
+function syncQaStatus() {
+  if (!qaDriver) return;
+  const status = qaDriver.status(session);
+  qaStatus.hidden = false;
+  qaStatus.dataset.screen = status.screen;
+  qaStatus.dataset.attempt = String(status.attempt);
+  qaStatus.dataset.tick = String(status.tick);
+  qaStatus.dataset.completedAttempts = String(status.completedAttempts);
+  qaStatus.dataset.replayMatches = String(status.replayMatches);
+  qaStatus.dataset.failure = status.failure ?? "";
+  qaStatus.dataset.milestones = status.milestones.join(",");
+  qaStatus.textContent = status.failure
+    ? `QA FAIL / ${status.failure}`
+    : status.stopped
+      ? `QA PASS / ${status.completedAttempts} RUNS / SAME SEED ${status.replayMatches ? "MATCH" : "MISMATCH"}`
+      : `QA AUTO / ATTEMPT ${status.attempt} / ${status.screen.toUpperCase()} / TICK ${status.tick}`;
 }
 
 function createView() {
@@ -249,6 +273,7 @@ for (const button of document.querySelectorAll("[data-audio-mute]")) {
 syncSettingButtons();
 syncScreen();
 syncWarning();
+syncQaStatus();
 
 fullscreenButton.addEventListener("click", async () => {
   if (!app.requestFullscreen) {
