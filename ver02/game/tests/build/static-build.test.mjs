@@ -55,6 +55,15 @@ test("static build is complete, bounded, and reproducible", async (context) => {
   ]) {
     assert.ok(first.files.some(({ path }) => path === `assets/audio/stage-03/${file}`));
   }
+  for (const file of [
+    "stage-04-stellar-furnace-rhythm-v1.wav",
+    "stage-04-stellar-furnace-melody-v1.wav",
+    "stage-04-stellar-furnace-danger-v1.wav",
+    "stage-04-stellar-furnace-intro-v1.wav",
+    "stage-04-stellar-furnace-clear-v1.wav",
+  ]) {
+    assert.ok(first.files.some(({ path }) => path === `assets/audio/stage-04/${file}`));
+  }
   assert.ok(first.files.every(({ path }) => !path.endsWith(".prompt.md")));
   assert.ok(first.files.every(({ path }) => !path.endsWith(".png")));
   assert.ok(first.totalBytes <= ASSET_BUDGETS.build);
@@ -69,5 +78,6 @@ test("static build is complete, bounded, and reproducible", async (context) => {
   assert.ok(groupBytes["stage-01"] <= ASSET_BUDGETS["stage-01"]);
   assert.ok(groupBytes["stage-02"] <= ASSET_BUDGETS["stage-02"]);
   assert.ok(groupBytes["stage-03"] <= ASSET_BUDGETS["stage-03"]);
+  assert.ok(groupBytes["stage-04"] <= ASSET_BUDGETS["stage-04"]);
   assert.ok(groupBytes.shared <= ASSET_BUDGETS.shared);
 });

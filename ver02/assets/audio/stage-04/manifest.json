@@ -1,0 +1,82 @@
+[
+  {
+    "id": "audio-stg04-rhythm",
+    "file": "stage-04-stellar-furnace-rhythm-v1.wav",
+    "role": "rhythm music layer",
+    "durationMs": 3000,
+    "targetPeakDb": -18,
+    "peakRangeDb": [
+      -19,
+      -17
+    ],
+    "loop": true,
+    "bytes": 288044,
+    "sha256": "a07b7302f9d5ab67a44c78a9950cfbf5787b81bcbcc16a062d4e0224f017b242",
+    "creation": "deterministic original synthesis in generate-stage-04-audio.mjs",
+    "rights": "project-authored; no third-party samples"
+  },
+  {
+    "id": "audio-stg04-melody",
+    "file": "stage-04-stellar-furnace-melody-v1.wav",
+    "role": "melody music layer",
+    "durationMs": 3000,
+    "targetPeakDb": -20,
+    "peakRangeDb": [
+      -21,
+      -19
+    ],
+    "loop": true,
+    "bytes": 288044,
+    "sha256": "0028d17fcc77c81ebb30596ebff824a37d2f3580e28c9f181bb0cf084189d9e0",
+    "creation": "deterministic original synthesis in generate-stage-04-audio.mjs",
+    "rights": "project-authored; no third-party samples"
+  },
+  {
+    "id": "audio-stg04-danger",
+    "file": "stage-04-stellar-furnace-danger-v1.wav",
+    "role": "danger and boss music layer",
+    "durationMs": 3000,
+    "targetPeakDb": -22,
+    "peakRangeDb": [
+      -23,
+      -21
+    ],
+    "loop": true,
+    "bytes": 288044,
+    "sha256": "14dd52d88bb3213811305562fe40360840ab3e915c8be2ff55b19b63cd596540",
+    "creation": "deterministic original synthesis in generate-stage-04-audio.mjs",
+    "rights": "project-authored; no third-party samples"
+  },
+  {
+    "id": "audio-stg04-intro",
+    "file": "stage-04-stellar-furnace-intro-v1.wav",
+    "role": "stage introduction notification",
+    "durationMs": 350,
+    "targetPeakDb": -10,
+    "peakRangeDb": [
+      -11,
+      -9
+    ],
+    "loop": false,
+    "bytes": 33644,
+    "sha256": "635f1a80296478d5efb6b62e1ff97a04e067aa371a665e2a7978c82df4cf9510",
+    "creation": "deterministic original synthesis in generate-stage-04-audio.mjs",
+    "rights": "project-authored; no third-party samples"
+  },
+  {
+    "id": "audio-stg04-clear",
+    "file": "stage-04-stellar-furnace-clear-v1.wav",
+    "role": "stage clear notification",
+    "durationMs": 650,
+    "targetPeakDb": -8,
+    "peakRangeDb": [
+      -9,
+      -7
+    ],
+    "loop": false,
+    "bytes": 62444,
+    "sha256": "aa3d0b1fe5aba9b217abc827ea98b10da1dc4565de9f347dd98016ad18633ad6",
+    "creation": "deterministic original synthesis in generate-stage-04-audio.mjs",
+    "rights": "project-authored; no third-party samples"
+  }
+]

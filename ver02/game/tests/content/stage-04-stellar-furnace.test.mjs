@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { AUDIO_ASSETS } from "../../src/browser/audio-assets.mjs";
 import { GAME_ASSETS, assetIdsForStage } from "../../src/content/asset-manifest.mjs";
 import { STAGE_04_STELLAR_FURNACE } from "../../src/content/stages/stage-04-stellar-furnace.mjs";
 import {
@@ -100,6 +101,19 @@ test("STG-04: 恒星炉心は耐熱装甲・突進・全方向砲台、熱安全
 test("STG-04/AV-01: 第4面はplaceholderを含まない実assetだけを参照する", () => {
   assert.equal(assetIdsForStage(STAGE_04_STELLAR_FURNACE).every((id) => GAME_ASSETS[id]), true);
   assert.equal(assetIdsForStage(STAGE_04_STELLAR_FURNACE).some((id) => id.includes("placeholder")), false);
+});
+
+test("STG-04/AV-05: 第4面は通常2層とboss 3層、導入・クリア通知を参照する", () => {
+  const audioIds = new Set(AUDIO_ASSETS.map(({ id }) => id));
+  const required = [
+    ...STAGE_04_STELLAR_FURNACE.audio.stageLayerAssetIds,
+    ...STAGE_04_STELLAR_FURNACE.audio.bossLayerAssetIds,
+    STAGE_04_STELLAR_FURNACE.audio.introAssetId,
+    STAGE_04_STELLAR_FURNACE.audio.clearAssetId,
+  ];
+  assert.equal(required.every((id) => audioIds.has(id)), true);
+  assert.equal(STAGE_04_STELLAR_FURNACE.audio.stageLayerAssetIds.length, 2);
+  assert.equal(STAGE_04_STELLAR_FURNACE.audio.bossLayerAssetIds.length, 3);
 });
 
 test("STG-04/TECH-03: 同一seedで通常戦、熱波と可変安全圏、3段階boss、結果を再現する", () => {

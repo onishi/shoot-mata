@@ -84,6 +84,31 @@ export const AUDIO_ASSETS = Object.freeze([
     group: "sfx",
     url: "../../assets/audio/stage-03/stage-03-living-ark-clear-v1.wav",
   }),
+  Object.freeze({
+    id: "audio-stg04-rhythm",
+    group: "bgm",
+    url: "../../assets/audio/stage-04/stage-04-stellar-furnace-rhythm-v1.wav",
+  }),
+  Object.freeze({
+    id: "audio-stg04-melody",
+    group: "bgm",
+    url: "../../assets/audio/stage-04/stage-04-stellar-furnace-melody-v1.wav",
+  }),
+  Object.freeze({
+    id: "audio-stg04-danger",
+    group: "bgm",
+    url: "../../assets/audio/stage-04/stage-04-stellar-furnace-danger-v1.wav",
+  }),
+  Object.freeze({
+    id: "audio-stg04-intro",
+    group: "sfx",
+    url: "../../assets/audio/stage-04/stage-04-stellar-furnace-intro-v1.wav",
+  }),
+  Object.freeze({
+    id: "audio-stg04-clear",
+    group: "sfx",
+    url: "../../assets/audio/stage-04/stage-04-stellar-furnace-clear-v1.wav",
+  }),
 ]);
 
 export async function loadBrowserAudioAssets(audio, options = {}) {
