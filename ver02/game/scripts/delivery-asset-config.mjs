@@ -2,6 +2,7 @@ export const ASSET_BUDGETS = Object.freeze({
   "stage-01": Math.floor(2.25 * 1024 * 1024),
   "stage-02": Math.floor(2.25 * 1024 * 1024),
   "stage-03": Math.floor(2.25 * 1024 * 1024),
+  "stage-04": Math.floor(2.25 * 1024 * 1024),
   shared: 7 * 1024 * 1024,
   build: 16 * 1024 * 1024,
 });
@@ -52,6 +53,9 @@ export const DELIVERY_ASSETS = Object.freeze([
   image("game/backgrounds/stage-03/living-ark-far-v1.png", "game/backgrounds/stage-03/living-ark-far-v1.webp", "stage-03", 1280, 720, 84),
   image("game/backgrounds/stage-03/living-ark-mid-v1.png", "game/backgrounds/stage-03/living-ark-mid-v1.webp", "stage-03", 1280, 720, 84),
   image("game/backgrounds/stage-03/living-ark-fore-v1.png", "game/backgrounds/stage-03/living-ark-fore-v1.webp", "stage-03", 1280, 720, 84),
+  image("game/backgrounds/stage-04/stellar-furnace-far-v1.png", "game/backgrounds/stage-04/stellar-furnace-far-v1.webp", "stage-04", 1280, 720, 84),
+  image("game/backgrounds/stage-04/stellar-furnace-mid-v1.png", "game/backgrounds/stage-04/stellar-furnace-mid-v1.webp", "stage-04", 1280, 720, 84),
+  image("game/backgrounds/stage-04/stellar-furnace-fore-v1.png", "game/backgrounds/stage-04/stellar-furnace-fore-v1.webp", "stage-04", 1280, 720, 84),
   image("game/enemies/stage-03/regenerating-swarm-v1.png", "game/enemies/stage-03/regenerating-swarm-v1.webp", "stage-03", 384, 256, 100, true),
   image("game/enemies/stage-03/parasite-turret-v1.png", "game/enemies/stage-03/parasite-turret-v1.webp", "stage-03", 384, 256, 100, true),
   image("game/enemies/stage-03/ark-predator-v1.png", "game/enemies/stage-03/ark-predator-v1.webp", "stage-03", 384, 256, 100, true),

@@ -29,6 +29,9 @@
 | BG-STG03-FAR | `../assets/game/backgrounds/stage-03/living-ark-far-v1.png` | 外殻越しの星空、遠方膜、発光器官 | OpenAI組み込み画像生成、2026-10-23。完全なプロンプトは同名 `.prompt.md` | リリース前にOpenAI生成物の利用条件と独自性を再確認 | 1672×941 RGB PNG / `89e09630fd4a53f9f55ef14c926d9f762a9435d648d7dbd55561a219bd4bed22` | final |
 | BG-STG03-MID | `../assets/game/backgrounds/stage-03/living-ark-mid-v1.png` | 半透明組織、軟骨肋、増殖節 | OpenAI組み込み画像生成、2026-10-23。完全なプロンプトは同名 `.prompt.md` | リリース前にOpenAI生成物の利用条件と独自性を再確認 | 1672×941 RGBA PNG、alpha 0〜255 / `2b243dd455953081d4775845e8b5fc3673d7817a3a22f8ea7e0bc706afeb44f7` | final |
 | BG-STG03-FORE | `../assets/game/backgrounds/stage-03/living-ark-fore-v1.png` | 近接外殻、繊維膜、休眠増殖節 | OpenAI組み込み画像生成、2026-10-23。完全なプロンプトは同名 `.prompt.md` | リリース前にOpenAI生成物の利用条件と独自性を再確認 | 1672×941 RGBA PNG、alpha 0〜255 / `eb35820364bfac26da987cf37d5bcd873c47bfdbacafc36860d35bf2c980771b` | final |
+| BG-STG04-FAR | `../assets/game/backgrounds/stage-04/stellar-furnace-far-v1.png` | 人工恒星、遠方集光環、炉壁 | OpenAI組み込み画像生成、2026-10-23。完全なプロンプトは同名 `.prompt.md` | リリース前にOpenAI生成物の利用条件と独自性を再確認 | 1672×941 RGB PNG / `106deed24e41d4868ede2f64476c6e091a7521bdc87f2299307b8c1d70b813a1` | final |
+| BG-STG04-MID | `../assets/game/backgrounds/stage-04/stellar-furnace-mid-v1.png` | 破砕集光環、遮熱板、導管架台 | OpenAI組み込み画像生成、2026-10-23。完全なプロンプトは同名 `.prompt.md` | リリース前にOpenAI生成物の利用条件と独自性を再確認 | 1672×941 RGBA PNG、alpha 0〜255 / `ce4d7363e9b6fb7d26341f48c37e5e926dc7ebfbacd7bf438fb6aad161234101` | final |
+| BG-STG04-FORE | `../assets/game/backgrounds/stage-04/stellar-furnace-fore-v1.png` | 近接耐火装甲、集光環歯、配線束 | OpenAI組み込み画像生成、2026-10-23。完全なプロンプトは同名 `.prompt.md` | リリース前にOpenAI生成物の利用条件と独自性を再確認 | 1672×941 RGBA PNG、alpha 0〜255 / `0cf8e4594dc65c96a680e8a1e14bf4596d6260c9a43a04d233a92b4aff9f48fa` | final |
 | CORE-RED | `../assets/game/cores/reactor-core-red-v1.png` | 赤コア、菱形＋`I` | OpenAI組み込み画像生成、2026-10-21。完全なプロンプトは同名 `.prompt.md` | リリース前にOpenAI生成物の利用条件と独自性を再確認 | 1333×1180 RGBA PNG、alpha 0〜255 / `d7a470f36a19c03ceda8b796130e7b00063f217517941be74280b8ff9dea6c12` | final |
 | CORE-BLUE | `../assets/game/cores/reactor-core-blue-v1.png` | 青コア、円＋`+` | OpenAI組み込み画像生成、2026-10-21。完全なプロンプトは同名 `.prompt.md` | リリース前にOpenAI生成物の利用条件と独自性を再確認 | 1287×1222 RGBA PNG、alpha 0〜255 / `85c69396f03e9a0a26e226007682123c95766e94570610dddaf48de46b7f5090` | final |
 | CORE-YELLOW | `../assets/game/cores/reactor-core-yellow-v1.png` | 黄コア、三角＋`◎` | OpenAI組み込み画像生成、2026-10-21。完全なプロンプトは同名 `.prompt.md` | リリース前にOpenAI生成物の利用条件と独自性を再確認 | 1364×1153 RGBA PNG、alpha 0〜255 / `70be0a105fea9b457093e3dd6ad5302895b4008181e45b297bbc8f6caa3b5b4e` | final |
@@ -38,7 +41,7 @@
 | AUDIO-STG02-01 | `../assets/audio/stage-02/` | 第2面リズム・旋律・危機/Bossの3層、導入・クリア通知 | 自作の決定的合成コード、2026-10-22。`manifest.json`と`generate-stage-02-audio.mjs` | 自作、外部サンプル0 | 48kHz mono PCM16 WAV×5、1,286,620 bytes。個別SHA-256はmanifest | final |
 | AUDIO-STG03-01 | `../assets/audio/stage-03/` | 第3面リズム・旋律・危機/Bossの3層、導入・クリア通知 | 自作の決定的合成コード、2026-10-23。`manifest.json`と`generate-stage-03-audio.mjs` | 自作、外部サンプル0 | 48kHz mono PCM16 WAV×5、1,099,420 bytes。個別SHA-256はmanifest | final |
 
-制作原本は上表のPNGを保持し、製品buildは `../assets/delivery/` のWebPを参照する。配信派生物25点の寸法、圧縮方式、byte数、SHA-256、復号画素差は `../assets/delivery/asset-optimization-audit.json` を正本とする。背景9点はlossy RGB・lossless alpha、actor・boss・コア16点は縮小後losslessで、原本の権利・出典・promptは上表から継承する。
+制作原本は上表のPNGを保持し、製品buildは `../assets/delivery/` のWebPを参照する。配信派生物28点の寸法、圧縮方式、byte数、SHA-256、復号画素差は `../assets/delivery/asset-optimization-audit.json` を正本とする。背景12点はlossy RGB・lossless alpha、actor・boss・コア16点は縮小後losslessで、原本の権利・出典・promptは上表から継承する。
 
 ## CONCEPT-STG01-01 生成プロンプト
 
@@ -110,6 +113,13 @@
 - 遠景は外殻越しの星空と遠方の膜・発光器官、中景は半透明組織・軟骨肋・増殖節、前景は暗い近接外殻・繊維膜・休眠節へ役割を分離した。画面高24〜78%の中央帯に対するalpha平均は中景68.9524/255、前景43.8956/255で、中央飛行回廊に透明領域を保持する。
 - 配信版は3点とも1280×720 lossy WebP、alpha最大差0。遠景・中景・前景の平均RGB誤差は2.659・3.706・3.673/255、PSNRは36.931・34.416・34.360dB、合計697,514 bytesで第3面2.25 MiB予算内。
 - asset manifestと静的buildへ背景3 IDを接続した。敵3種、boss、音は未制作のため製品画面とブラウザ通しはまだ行わず、状態は`final`に留める。主観的な見た目、長時間ループの継ぎ目、権利再確認も未確認。
+
+## BG-STG04-FAR / MID / FORE 検査記録
+
+- 3点とも1672×941、8-bit PNG、非インターレース。遠景はRGB、中景と前景はRGBAで、両alphaの最小0・最大255を確認した。
+- 遠景は人工恒星と遠方集光環・炉壁、中景は破砕集光環・遮熱板・導管架台、前景は暗い近接耐火装甲・集光環歯・配線束へ役割を分離した。中景と前景は中央飛行回廊を透明に保つ。
+- 配信版は3点とも1280×720 lossy WebP、alpha最大差0。遠景・中景・前景の平均RGB誤差は3.561・5.140・4.886/255、PSNRは33.299・30.287・30.140dB、合計767,016 bytesで第4面2.25 MiB予算内。
+- asset manifestと静的buildへ背景3 IDを接続した。敵3種、boss、音、製品入口は未制作・未接続のため、状態は`final`に留める。主観的な見た目、長時間ループの継ぎ目、ブラウザ合成、権利再確認も未確認。
 
 ## HUD-REACTOR-01 / VFX検査記録
 
