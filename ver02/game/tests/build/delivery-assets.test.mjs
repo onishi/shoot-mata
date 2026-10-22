@@ -15,7 +15,9 @@ test("Phase 07 delivery images preserve alpha and stay within measured quality a
   assert.deepEqual(audit.budgets, ASSET_BUDGETS);
   assert.equal(audit.images.length, DELIVERY_ASSETS.filter(({ kind }) => kind === "webp").length);
 
-  const actualGroupBytes = { "stage-01": 0, shared: 0 };
+  const actualGroupBytes = Object.fromEntries(
+    Object.keys(ASSET_BUDGETS).filter((group) => group !== "build").map((group) => [group, 0]),
+  );
   for (const image of audit.images) {
     const path = resolve(DELIVERY_ROOT, image.deliveryPath);
     const content = await readFile(path);
@@ -26,6 +28,7 @@ test("Phase 07 delivery images preserve alpha and stay within measured quality a
     actualGroupBytes[image.group] += image.bytes;
   }
   assert.deepEqual(audit.groupImageBytes, actualGroupBytes);
-  assert.ok(actualGroupBytes["stage-01"] <= ASSET_BUDGETS["stage-01"]);
-  assert.ok(actualGroupBytes.shared <= ASSET_BUDGETS.shared);
+  for (const [group, bytes] of Object.entries(actualGroupBytes)) {
+    assert.ok(bytes <= ASSET_BUDGETS[group], `${group} exceeds its delivery budget`);
+  }
 });

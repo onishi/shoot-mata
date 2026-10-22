@@ -7,11 +7,13 @@
   },
   "budgets": {
     "stage-01": 2359296,
+    "stage-02": 2359296,
     "shared": 7340032,
     "build": 16777216
   },
   "groupImageBytes": {
     "stage-01": 1193798,
+    "stage-02": 587018,
     "shared": 249584
   },
   "images": [
@@ -57,6 +59,51 @@
       "sha256": "bb595196e886736b8b362ab7cc9abe8f92e1c52d44a5f0f00c92413c411dd162",
       "meanAbsoluteRgbError": 3.017,
       "rgbPsnrDb": 34.905,
+      "meanAbsoluteAlphaError": 0,
+      "maximumAlphaError": 0
+    },
+    {
+      "sourcePath": "game/backgrounds/stage-02/cloud-refinery-far-v1.png",
+      "deliveryPath": "game/backgrounds/stage-02/cloud-refinery-far-v1.webp",
+      "group": "stage-02",
+      "width": 1280,
+      "height": 720,
+      "quality": 84,
+      "lossless": false,
+      "bytes": 114328,
+      "sha256": "9fa723076340c4548f48d636f5942479a9393baadfd53e0d5ee54a5d511ecb01",
+      "meanAbsoluteRgbError": 2.496,
+      "rgbPsnrDb": 36.651,
+      "meanAbsoluteAlphaError": 0,
+      "maximumAlphaError": 0
+    },
+    {
+      "sourcePath": "game/backgrounds/stage-02/cloud-refinery-mid-v1.png",
+      "deliveryPath": "game/backgrounds/stage-02/cloud-refinery-mid-v1.webp",
+      "group": "stage-02",
+      "width": 1280,
+      "height": 720,
+      "quality": 84,
+      "lossless": false,
+      "bytes": 275124,
+      "sha256": "4dd4bdbac985541c04737343a14386bd2e53f61a963a0f4e2f496a75dd545478",
+      "meanAbsoluteRgbError": 3.614,
+      "rgbPsnrDb": 33.951,
+      "meanAbsoluteAlphaError": 0,
+      "maximumAlphaError": 0
+    },
+    {
+      "sourcePath": "game/backgrounds/stage-02/cloud-refinery-fore-v1.png",
+      "deliveryPath": "game/backgrounds/stage-02/cloud-refinery-fore-v1.webp",
+      "group": "stage-02",
+      "width": 1280,
+      "height": 720,
+      "quality": 84,
+      "lossless": false,
+      "bytes": 197566,
+      "sha256": "d105d2a721ff6ba262f4962b14a230f1dd64ee31207ab4796079c27a750b21bf",
+      "meanAbsoluteRgbError": 3.617,
+      "rgbPsnrDb": 33.574,
       "meanAbsoluteAlphaError": 0,
       "maximumAlphaError": 0
     },

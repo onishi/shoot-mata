@@ -15,6 +15,9 @@
 | BG-STG01-FAR | `../assets/game/backgrounds/stage-01/orbital-wreck-far-v1.png` | 惑星・星・遠方艦隊 | OpenAI組み込み画像生成、2026-10-21。完全なプロンプトは同名 `.prompt.md` | リリース前にOpenAI生成物の利用条件と独自性を再確認 | 1672×941 RGB PNG / `7bf826513523de6a20f9d62af79a76cc48c5484eafb376d11cb37ff61f783454` | final |
 | BG-STG01-MID | `../assets/game/backgrounds/stage-01/orbital-wreck-mid-v1.png` | 艦骸・トラス | OpenAI組み込み画像生成、2026-10-21。完全なプロンプトは同名 `.prompt.md` | リリース前にOpenAI生成物の利用条件と独自性を再確認 | 1672×941 RGBA PNG、alpha 0〜255 / `d3fbc1a3e09fb8ffd657c898823c241f77d2d43990fbdc2ec98a29cddd688f27` | final |
 | BG-STG01-FORE | `../assets/game/backgrounds/stage-01/orbital-wreck-fore-v1.png` | 暗い前景梁 | OpenAI組み込み画像生成、2026-10-21。完全なプロンプトは同名 `.prompt.md` | リリース前にOpenAI生成物の利用条件と独自性を再確認 | 1672×941 RGBA PNG、alpha 0〜255 / `fdaeed852671e5ef92a3c7ada55fc4ebebf18c0a057714a27c25b82c639b925f` | final |
+| BG-STG02-FAR | `../assets/game/backgrounds/stage-02/cloud-refinery-far-v1.png` | ガス惑星、雲海、遠方精製塔、稲光 | OpenAI組み込み画像生成、2026-10-22。完全なプロンプトは同名 `.prompt.md` | リリース前にOpenAI生成物の利用条件と独自性を再確認 | 1672×941 RGB PNG / `69a4ddab843000c5d86ba11a2f39dd90bfc56786d836270737f51b9b1749ce2a` | final |
+| BG-STG02-MID | `../assets/game/backgrounds/stage-02/cloud-refinery-mid-v1.png` | 浮遊塔、配管橋、吸気タービン | OpenAI組み込み画像生成、2026-10-22。完全なプロンプトは同名 `.prompt.md` | リリース前にOpenAI生成物の利用条件と独自性を再確認 | 1672×941 RGBA PNG、alpha 0〜255 / `f3fb54f83479a046be0f5981db0982147da7bb31371f1405b781e4de087d7458` | final |
+| BG-STG02-FORE | `../assets/game/backgrounds/stage-02/cloud-refinery-fore-v1.png` | 近接配管、遮蔽レール、碍子 | OpenAI組み込み画像生成、2026-10-22。完全なプロンプトは同名 `.prompt.md` | リリース前にOpenAI生成物の利用条件と独自性を再確認 | 1672×941 RGBA PNG、alpha 0〜255 / `73713739d7c82ceb90177e6228488e1f39af81323cb76dce4a91f2f7e7b58bee` | final |
 | CORE-RED | `../assets/game/cores/reactor-core-red-v1.png` | 赤コア、菱形＋`I` | OpenAI組み込み画像生成、2026-10-21。完全なプロンプトは同名 `.prompt.md` | リリース前にOpenAI生成物の利用条件と独自性を再確認 | 1333×1180 RGBA PNG、alpha 0〜255 / `d7a470f36a19c03ceda8b796130e7b00063f217517941be74280b8ff9dea6c12` | final |
 | CORE-BLUE | `../assets/game/cores/reactor-core-blue-v1.png` | 青コア、円＋`+` | OpenAI組み込み画像生成、2026-10-21。完全なプロンプトは同名 `.prompt.md` | リリース前にOpenAI生成物の利用条件と独自性を再確認 | 1287×1222 RGBA PNG、alpha 0〜255 / `85c69396f03e9a0a26e226007682123c95766e94570610dddaf48de46b7f5090` | final |
 | CORE-YELLOW | `../assets/game/cores/reactor-core-yellow-v1.png` | 黄コア、三角＋`◎` | OpenAI組み込み画像生成、2026-10-21。完全なプロンプトは同名 `.prompt.md` | リリース前にOpenAI生成物の利用条件と独自性を再確認 | 1364×1153 RGBA PNG、alpha 0〜255 / `70be0a105fea9b457093e3dd6ad5302895b4008181e45b297bbc8f6caa3b5b4e` | final |
@@ -66,6 +69,13 @@
 - `phases/phase-04/reference-scene/` で遠景0.08、中景0.22、前景0.46の独立速度を割り当て、自機、敵、3コアと16:9ゲーム座標へ合成した。
 - Chromeで1440×900、390×844、844×390を計測し、8画像の読込成功、横溢れ0px、16:9維持を確認した。844×390は追加調整後に縦溢れも0px。console warning/errorは0件。
 - 分離素材としてゲーム投入可能なため `final`。継ぎ目のない長時間ループ、ゲーム本体への統合、権利再確認が未完了のため `verified` ではない。
+
+## BG-STG02-FAR / MID / FORE 検査記録
+
+- 3点とも1672×941、8-bit PNG、非インターレース。遠景はRGB、中景と前景はRGBAで、両alphaの最小0・最大255を確認した。
+- 遠景はガス惑星の雲海と遠方精製塔、中景は浮遊塔・配管橋・吸気タービン、前景は暗い配管・遮蔽レール・碍子へ役割を分離した。中景と前景は中央飛行回廊を透明に保つ。
+- 配信版は3点とも1280×720 lossy WebP、alpha最大差0。遠景・中景・前景の平均RGB誤差は2.496・3.614・3.617/255、PSNRは36.651・33.951・33.574dB、合計587,018 bytesで第2面2.25 MiB予算内。
+- asset manifestと静的buildへ背景3 IDを接続した。敵3種とbossが未制作のため製品画面とブラウザ通しはまだ行わず、状態は`final`に留める。主観的な見た目、長時間ループの継ぎ目、権利再確認も未確認。
 
 ## HUD-REACTOR-01 / VFX検査記録
 

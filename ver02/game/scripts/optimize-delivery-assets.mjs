@@ -129,5 +129,8 @@ export async function optimizeDeliveryAssets(outputRoot = DEFAULT_OUTPUT_ROOT) {
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   const audit = await optimizeDeliveryAssets();
-  console.log(`optimized ${audit.images.length} images: stage-01 ${audit.groupImageBytes["stage-01"]} bytes; shared ${audit.groupImageBytes.shared} bytes`);
+  const groups = Object.entries(audit.groupImageBytes)
+    .map(([group, bytes]) => `${group} ${bytes} bytes`)
+    .join("; ");
+  console.log(`optimized ${audit.images.length} images: ${groups}`);
 }

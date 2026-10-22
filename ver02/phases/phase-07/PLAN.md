@@ -44,4 +44,6 @@ Phase 06で確立した制作・実装・検証経路を使い、第2〜4面、�
 
 ## 次の作業単位
 
-第2面の完成asset制作へ進む。背景3層、敵3種、bossを原本と2.25 MiB以下の配信形式で作成し、既存のasset manifest、Canvas描画、容量検査へ接続する。画像完成前のIDを実assetとして扱わず、音3層とブラウザ通しはその後に個別検証する。
+[完了] 第2面の背景3層を原本PNGと1280×720配信WebPで制作し、asset manifestと容量検査へ接続した。配信3点は合計587,018 bytes、alpha最大差0、PSNR 33.574dB以上で面別2.25 MiB予算内。
+
+第2面の敵3種とbossを透明背景の完成assetとして制作し、表示上限に合わせたlossless WebP、asset manifest、Canvas snapshotへ接続する。画像完成前のIDを実assetとして扱わず、音3層とブラウザ通しはその後に個別検証する。

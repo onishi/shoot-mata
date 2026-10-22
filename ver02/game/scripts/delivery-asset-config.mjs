@@ -1,5 +1,6 @@
 export const ASSET_BUDGETS = Object.freeze({
   "stage-01": Math.floor(2.25 * 1024 * 1024),
+  "stage-02": Math.floor(2.25 * 1024 * 1024),
   shared: 7 * 1024 * 1024,
   build: 16 * 1024 * 1024,
 });
@@ -34,6 +35,9 @@ export const DELIVERY_ASSETS = Object.freeze([
   image("game/backgrounds/stage-01/orbital-wreck-far-v1.png", "game/backgrounds/stage-01/orbital-wreck-far-v1.webp", "stage-01", 1280, 720, 84),
   image("game/backgrounds/stage-01/orbital-wreck-mid-v1.png", "game/backgrounds/stage-01/orbital-wreck-mid-v1.webp", "stage-01", 1280, 720, 84),
   image("game/backgrounds/stage-01/orbital-wreck-fore-v1.png", "game/backgrounds/stage-01/orbital-wreck-fore-v1.webp", "stage-01", 1280, 720, 84),
+  image("game/backgrounds/stage-02/cloud-refinery-far-v1.png", "game/backgrounds/stage-02/cloud-refinery-far-v1.webp", "stage-02", 1280, 720, 84),
+  image("game/backgrounds/stage-02/cloud-refinery-mid-v1.png", "game/backgrounds/stage-02/cloud-refinery-mid-v1.webp", "stage-02", 1280, 720, 84),
+  image("game/backgrounds/stage-02/cloud-refinery-fore-v1.png", "game/backgrounds/stage-02/cloud-refinery-fore-v1.webp", "stage-02", 1280, 720, 84),
   image("game/player/player-interceptor-v1.png", "game/player/player-interceptor-v1.webp", "shared", 512, 288, 100, true),
   image("game/enemies/stage-01/salvage-collector-v1.png", "game/enemies/stage-01/salvage-collector-v1.webp", "stage-01", 384, 256, 100, true),
   image("game/enemies/stage-01/salvage-weaver-v1.png", "game/enemies/stage-01/salvage-weaver-v1.webp", "stage-01", 384, 256, 100, true),
