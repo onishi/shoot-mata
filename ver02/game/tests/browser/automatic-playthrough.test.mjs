@@ -3,10 +3,11 @@ import test from "node:test";
 import { createAutomaticPlaythrough } from "../../src/browser/automatic-playthrough.mjs";
 import { STAGE_01_ORBITAL_WRECK } from "../../src/content/stages/stage-01-orbital-wreck.mjs";
 import { STAGE_02_CLOUD_REFINERY } from "../../src/content/stages/stage-02-cloud-refinery.mjs";
+import { STAGE_03_LIVING_ARK } from "../../src/content/stages/stage-03-living-ark.mjs";
 import { createGameSession, updateGameSession } from "../../src/core/game-session.mjs";
 
-function runAutomaticBrowserPath(stage = STAGE_01_ORBITAL_WRECK, stageIndex = 0) {
-  const session = createGameSession({ seed: 20261022, maxUnlockedStage: stageIndex });
+function runAutomaticBrowserPath(stage = STAGE_01_ORBITAL_WRECK, stageIndex = 0, seed = 20261022) {
+  const session = createGameSession({ seed, maxUnlockedStage: stageIndex });
   const driver = createAutomaticPlaythrough({ screenHoldTicks: 0, targetAttempts: 2, stageIndex });
   let updates = 0;
   while (!driver.status(session).stopped && updates < 10_000) {
@@ -55,6 +56,31 @@ test("STG-02/LOOP-06: browser用自動入力は選択画面から第2面を2回�
     "boss:current-climb",
     "boss:shutter-barrage",
     "boss:thunder-dive",
+    "boss-defeated",
+    "stage-cleared",
+    "result:1",
+    "retry-requested",
+    "result:2",
+  ]);
+});
+
+test("STG-03/LOOP-06: browser用自動入力は選択画面から第3面を2回再現する", () => {
+  const { session, driver, updates } = runAutomaticBrowserPath(STAGE_03_LIVING_ARK, 2, 20261023);
+  const status = driver.status(session);
+  assert.ok(updates < 10_000);
+  assert.equal(status.screen, "result");
+  assert.equal(status.attempt, 2);
+  assert.equal(status.completedAttempts, 2);
+  assert.equal(status.replayMatches, true);
+  assert.equal(status.failure, null);
+  assert.deepEqual(status.milestones, [
+    "normal-combat",
+    "living-tissue",
+    "growth-source",
+    "contracting-tissue",
+    "boss:feeding-arms",
+    "boss:grown-carapace",
+    "boss:shifting-heart",
     "boss-defeated",
     "stage-cleared",
     "result:1",

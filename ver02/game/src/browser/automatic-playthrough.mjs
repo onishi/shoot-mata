@@ -7,6 +7,21 @@ function snapshotKey(snapshot) {
 }
 
 function automaticCombatCommand(simulation) {
+  const livingTissue = simulation.schedule.hazards.some(({ behaviorId, startTick, endTick }) => (
+    ["reactive-tissue", "growth-source", "contracting-tissue"].includes(behaviorId)
+      && simulation.tick >= startTick
+      && simulation.tick < endTick
+  ));
+  const incomingShot = simulation.enemyShots
+    .filter(({ x }) => x > simulation.player.x && x - simulation.player.x < 0.24)
+    .sort((left, right) => left.x - right.x)[0];
+  if (livingTissue) {
+    const targetY = simulation.boss || !incomingShot
+      ? 0.5
+      : (incomingShot.y >= simulation.player.y ? 0.38 : 0.62);
+    const safeDelta = targetY - simulation.player.y;
+    return { moveY: Math.abs(safeDelta) < 0.025 ? 0 : Math.sign(safeDelta), fire: true };
+  }
   const shutter = simulation.schedule.hazards.find(({ behaviorId, startTick, endTick }) => (
     behaviorId === "shutter-cover" && simulation.tick >= startTick && simulation.tick < endTick
   ));
@@ -57,10 +72,14 @@ export function createAutomaticPlaythrough(options = {}) {
   function markSimulationMilestones(simulation) {
     if (!simulation) return;
     if (simulation.tick >= 180) milestones.add("normal-combat");
-    if (simulation.tick >= 1500) {
-      milestones.add(stageIndex === 1 ? "charged-shutters" : "closing-corridor");
-    }
+    if (simulation.tick >= 1500) milestones.add([
+      "closing-corridor",
+      "charged-shutters",
+      "living-tissue",
+    ][stageIndex] ?? "stage-setpiece");
     for (const event of simulation.events ?? []) {
+      if (event.type === "hazard-growth-pulsed") milestones.add("growth-source");
+      if (event.type === "hazard-tissue-contracted") milestones.add("contracting-tissue");
       if (event.type === "boss-entered") milestones.add(`boss:${simulation.boss.phases[0].id}`);
       if (event.type === "boss-phase-changed") milestones.add(`boss:${event.phaseId}`);
       if (event.type === "boss-defeated") milestones.add("boss-defeated");

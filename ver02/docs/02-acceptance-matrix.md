@@ -11,12 +11,12 @@
 | EXP-03 | P05, P08 | P09, P10 | 被弾理由と直前コア列を表示し、再挑戦導線を操作確認 | 未着手 |
 | EXP-04 | P07 | P09, P10 | 4ステージの固有要素を通しプレイ、画像・動画で比較 | 未着手 |
 | EXP-05 | P04, P07 | P10 | P04代表シーン、音7点、制作規則と自作音権利台帳を整備。P07全製品素材の一貫性と権利を再検証 | 実装中 |
-| LOOP-01 | P05, P07 | P08, P10 | 4面状態モデルに加え、製品入口へ解放済み第1・2面の単独選択を接続。Chromeで通常入口→第2面選択→出撃と動的な見出し・アクセシブル名を確認。第3〜4面、全キャンペーンは後続 | 実装中 |
+| LOOP-01 | P05, P07 | P08, P10 | 4面状態モデルに加え、製品入口へ解放済み第1〜3面の単独選択を接続。Chromeで通常入口→第3面選択→出撃と動的な見出し・アクセシブル名を確認。第4面、全キャンペーンは後続 | 実装中 |
 | LOOP-02 | P07 | P08, P10 | 4ステージ各々の開始→結果→再挑戦テスト | 未着手 |
 | LOOP-03 | P03, P06 | P09, P10 | `phases/phase-03/prototype/objective-audit.mjs`、ゲーム内統合テスト | 実装中 |
 | LOOP-04 | P05 | P08, P10 | `flow-machine.test.mjs`と`game-session.test.mjs`でポーズ・復帰・再開始／離脱確認を検査。ChromeでPointer Eventsのポーズ、再開始確認取消、復帰を操作 | 実装中 |
 | LOOP-05 | P07 | P08, P10 | 状態モデルの4面クリア→エンディング→クレジットを検査。完成コンテンツの通し証拠は未着手 | 実装中 |
-| LOOP-06 | P05, P07 | P08, P10 | Chrome自動入力で第1面に加え、第2面も2回クリア。第2面はscore 9525、結果→attempt 2、最終snapshot一致。第3〜4面は後続 | 実装中 |
+| LOOP-06 | P05, P07 | P08, P10 | Chrome自動入力で第1〜3面を各2回クリア。第3面はtick 3577・score 11950、結果→attempt 2、最終snapshot一致。第4面は後続 | 実装中 |
 | CORE-01 | P03, P04 | P09, P10 | P03試作の落下中コア・HUD・凡例で3色を外形・内部記号でも区別。`prototype/tests/model.test.mjs`、3画面画像。P04分離素材の48×48グレースケール検査は `docs/04-asset-inventory.md`。ゲーム内完成アートで再検証 | 実装中 |
 | CORE-02 | P03 | P03, P10 | `prototype/tests/model.test.mjs`、`prototype/objective-audit.mjs` の全729列 | 実装中 |
 | CORE-03 | P03, P07 | P07, P10 | P03試作に加え、P06製品戦闘で3系統×3段階の弾数・貫通・追尾、Lv別Canvas形状、発射音を自動検査。残り面での完成確認は後続 | 実装中 |
@@ -30,7 +30,7 @@
 | WPN-04 | P03, P07 | P09, P10 | `stage-simulation.test.mjs`でHP40敵・HP200 bossの9構成撃破tickを固定比較。群れ・遮蔽別の逆転検証は後続 | 実装中 |
 | STG-01 | P06 | P06, P10 | `stage-01-orbital-wreck.test.mjs`とChrome `?qa=stage01`で、通常戦、圧縮回廊、3段階boss、結果、同seed再挑戦を完走。390×844・844×390でoverflow 0、console warning/error 0 | 実装済み未検証 |
 | STG-02 | P07 | P07, P10 | 完成背景3層・敵3種・boss、上下気流・開閉遮蔽・帯電域、3段階boss、通常2層/Boss 3音層を接続。Chrome `?qa=stage02`で2完走・score 9525・snapshot一致、通常入口から選択・出撃、3 viewportを確認。個別アニメーションと主観品質は後続 | 実装中 |
-| STG-03 | P07 | P07, P10 | `stage-03-living-ark.test.mjs`で再生群体、寄生砲台、捕食体、射撃開口、増殖源、収縮通路、成長3段階boss、boss中のコア復帰、開始→結果の同seed再現を検査。完成背景3層、敵3種、boss、通常2層/Boss 3音層をmanifest・loader・表示snapshotへ接続済み。製品画面・ブラウザ通しは後続 | 実装中 |
+| STG-03 | P07 | P07, P10 | 完成背景3層、再生群体・寄生砲台・捕食体、射撃開口・増殖源・収縮通路、成長3段階boss、通常2層/Boss 3音層を製品入口へ接続。`stage-03-living-ark.test.mjs`とChrome `?qa=stage03`で2完走・tick 3577・score 11950・snapshot一致、3 viewport、キーボード/Pointer Eventsのポーズを確認。個別アニメーションと主観品質は後続 | 実装中 |
 | STG-04 | P07 | P07, P10 | 恒星炉心の開始→固有仕掛け→ボス→結果、画面・動画 | 未着手 |
 | STG-05 | P06, P07 | P07, P10 | 第1面は敵3種・圧縮回廊・3段階bossをデータと決定的通しへ実装。専用boss音・全演出と残り3面は継続 | 実装中 |
 | STG-06 | P07 | P09, P10 | 全面の難度曲線計測と複数完走記録 | 未着手 |
@@ -64,11 +64,11 @@
 | AV-07 | P04, P07 | P10 | P04代表音とP07第2面音は生成式、用途、SHA-256、外部サンプル0をmanifest・台帳・実ファイルで照合。残る全製品素材と最終権利確認は後続 | 実装中 |
 | TECH-01 | P05 | P08, P10 | `game/tests/core/fixed-step.test.mjs`で30/60/144Hz、長delta、非表示復帰を決定的検査。ブラウザ統合と製品負荷で再検証 | 実装中 |
 | TECH-02 | P05, P07 | P07, P10 | `stage-schema.test.mjs`で背景、敵、drop、区間、wave、仕掛け、boss phase、音、遷移のschema・参照・登録behaviorを検査。`stage-schedule.test.mjs`でデータ差替えとseed再現を検査。完成4面のデータと条件分岐レビューはP07 | 実装中 |
-| TECH-03 | P05, P07 | P08, P10 | 決定的simulationに加え、同じapplication/session経路で第1・2面をChrome各2完走しsnapshot一致を記録。完成4面は後続 | 実装中 |
+| TECH-03 | P05, P07 | P08, P10 | 決定的simulationに加え、同じapplication/session経路で第1〜3面をChrome各2完走しsnapshot一致を記録。完成4面は後続 | 実装中 |
 | TECH-04 | P05 | P09, P10 | `phases/phase-05/browser-compatibility.json` に必須6対象とversion・結果を記録しschema検査。Chrome 155 / macOS 26.6.2は合格。Edge、Firefox、Safari、iOS実機、Android実機は未確認のまま明示し、P09で再検証 | 実装中 |
 | TECH-05 | P05, P09 | P09, P10 | Phase 05固定場面をChromeで5秒超計測し120.0fps、50ms超frame 0、最大10.4ms、simulation drop 0ms。低性能対象端末と長時間計測はP09 | 実装中 |
 | TECH-06 | P05, P08 | P08, P10 | asset manifest実在・静的外部URL 0を自動検査。P07配信WebP 11点をChromeで全件HTTP 200、同seed 2完走、console warning/error 0。全製品フローは後続 | 実装中 |
-| TECH-07 | P05, P09 | P09, P10 | Phase 07 build 6,723,107 bytes/16 MiB。第1面1,577,842、第2面2,283,252、第3面2,311,164 bytes/各2.25 MiB、共有392,888 bytes/7 MiB。背景PSNR 33.373 dB以上、alpha差0、actor・コア復号差0を自動検査。P09で初回転送、低性能・長時間性能を再計測 | 実装中 |
+| TECH-07 | P05, P09 | P09, P10 | Phase 07 build 6,724,308 bytes/16 MiB。第1面1,577,842、第2面2,283,252、第3面2,311,164 bytes/各2.25 MiB、共有392,888 bytes/7 MiB。背景PSNR 33.373 dB以上、alpha差0、actor・コア復号差0を自動検査。P09で初回転送、低性能・長時間性能を再計測 | 実装中 |
 | TECH-08 | P05 | P10 | lockfile、runtime/dev依存0、`npm audit --omit=dev --audit-level=high`で既知脆弱性0。最終候補で再監査 | 実装中 |
 | REL-01 | P04, P07 | P10 | P04生成画像は利用条件再確認待ち、自作音は外部サンプル0をmanifest照合。P07全素材・フォント・コードと通知を照合 | 実装中 |
 | REL-02 | P05 | P10 | 保存境界は注入された同一origin storageだけを使用し、個人情報・通信処理を持たない。ビルド後のnetwork監査は後続 | 実装中 |

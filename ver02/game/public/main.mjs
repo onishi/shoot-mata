@@ -8,6 +8,7 @@ import { createGameApplication } from "../src/app/game-application.mjs";
 import { GAME_ASSETS } from "../src/content/asset-manifest.mjs";
 import { STAGE_01_ORBITAL_WRECK } from "../src/content/stages/stage-01-orbital-wreck.mjs";
 import { STAGE_02_CLOUD_REFINERY } from "../src/content/stages/stage-02-cloud-refinery.mjs";
+import { STAGE_03_LIVING_ARK } from "../src/content/stages/stage-03-living-ark.mjs";
 import { advanceFixedStep, createFixedStepClock, setClockSuspended } from "../src/core/fixed-step.mjs";
 import { getGameSessionSnapshot } from "../src/core/game-session.mjs";
 import { consumeInput } from "../src/core/input-state.mjs";
@@ -31,10 +32,15 @@ const screenTitle = document.querySelector("[data-screen-title]");
 const screenCopy = document.querySelector("[data-screen-copy]");
 const screenActions = document.querySelector("[data-screen-actions]");
 const context = canvas.getContext("2d", { alpha: false });
-const stages = Object.freeze([STAGE_01_ORBITAL_WRECK, STAGE_02_CLOUD_REFINERY]);
-const stageLabels = Object.freeze(["ORBITAL WRECK", "CLOUD REFINERY"]);
+const stages = Object.freeze([
+  STAGE_01_ORBITAL_WRECK,
+  STAGE_02_CLOUD_REFINERY,
+  STAGE_03_LIVING_ARK,
+]);
+const stageLabels = Object.freeze(["ORBITAL WRECK", "CLOUD REFINERY", "LIVING ARK"]);
 const query = new URLSearchParams(location.search);
-const qaStageIndex = Object.freeze({ stage01: 0, stage02: 1 })[query.get("qa")] ?? null;
+const qaStageIndex = Object.freeze({ stage01: 0, stage02: 1, stage03: 2 })[query.get("qa")] ?? null;
+const qaSeeds = Object.freeze([20261022, 20261022, 20261023]);
 const selectedStage = () => stages[session.flow.stageIndex ?? 0];
 
 const audio = createBrowserAudioAdapter();
@@ -42,7 +48,7 @@ const application = createGameApplication({
   stages,
   saveRepository: createSaveRepository(),
   audio,
-  seed: 20261022,
+  seed: qaStageIndex === null ? 20261022 : qaSeeds[qaStageIndex],
   minimumUnlockedStage: qaStageIndex ?? 0,
 });
 const session = application.session;
