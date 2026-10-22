@@ -191,18 +191,31 @@ function moveCombatants(state) {
       "current-rider": 1.35,
       "cover-turret": 0.42,
       "dive-striker": enemy.ageTicks < 45 ? 0.72 : 1.65,
+      "regenerating-swarm": 1.12,
+      "parasite-turret": 0.36,
+      "stalking-predator": enemy.ageTicks < 60 ? 0.48 : 1.8,
     };
     const speed = ENEMY_SPEED_PER_TICK * (speedFactors[enemy.behaviorId] ?? 1);
     enemy.x -= speed;
-    if (enemy.behaviorId === "sine-left" || enemy.behaviorId === "current-rider") {
-      const amplitude = enemy.behaviorId === "current-rider" ? 0.16 : 0.1;
-      const period = enemy.behaviorId === "current-rider" ? 14 : 18;
+    if (["sine-left", "current-rider", "regenerating-swarm"].includes(enemy.behaviorId)) {
+      const amplitude = enemy.behaviorId === "current-rider" ? 0.16
+        : enemy.behaviorId === "regenerating-swarm" ? 0.13 : 0.1;
+      const period = enemy.behaviorId === "current-rider" ? 14
+        : enemy.behaviorId === "regenerating-swarm" ? 16 : 18;
       enemy.y = clamp(enemy.originY + Math.sin(enemy.ageTicks / period) * amplitude, 0.12, 0.88);
-    } else if (enemy.behaviorId === "dive-striker" && enemy.ageTicks >= 45) {
+    } else if ((enemy.behaviorId === "dive-striker" && enemy.ageTicks >= 45)
+      || (enemy.behaviorId === "stalking-predator" && enemy.ageTicks >= 60)) {
       enemy.y += clamp(state.player.y - enemy.y, -0.018, 0.018);
+    }
+    if (enemy.behaviorId === "regenerating-swarm" && enemy.ageTicks % 90 === 0
+      && enemy.hitPoints < enemy.maximumHitPoints) {
+      enemy.hitPoints = Math.min(enemy.maximumHitPoints, enemy.hitPoints + 2);
+      emit(state, "enemy-regenerated", { enemyId: enemy.id, hitPoints: enemy.hitPoints });
     }
     const firingInterval = enemy.behaviorId === "dive-striker"
       ? Number.POSITIVE_INFINITY
+      : enemy.behaviorId === "stalking-predator" ? Number.POSITIVE_INFINITY
+        : enemy.behaviorId === "parasite-turret" ? 66
       : enemy.behaviorId === "cover-turret" ? 72
         : enemy.behaviorId === "armored-drift" ? 64 : 90;
     if (enemy.ageTicks >= 50 && enemy.ageTicks % firingInterval === 0) {
@@ -219,12 +232,26 @@ function moveCombatants(state) {
     state.boss.ageTicks += 1;
     const phase = state.boss.phases[state.boss.phaseIndex];
     const phaseAge = state.boss.ageTicks;
-    const isRush = phase.behaviorId === "boss-core-rush" || phase.behaviorId === "boss-thunder-dive";
-    const isCrossfire = phase.behaviorId === "boss-crossfire" || phase.behaviorId === "boss-shutter-barrage";
+    const isRush = ["boss-core-rush", "boss-thunder-dive", "boss-shifting-heart"].includes(phase.behaviorId);
+    const isCrossfire = ["boss-crossfire", "boss-shutter-barrage", "boss-grown-carapace"].includes(phase.behaviorId);
     const isCurrentClimb = phase.behaviorId === "boss-current-climb";
-    state.boss.y = 0.5 + Math.sin(phaseAge / (isRush ? 20 : isCurrentClimb ? 32 : 45))
-      * (isRush ? 0.31 : isCurrentClimb ? 0.34 : 0.22);
-    const interval = isCrossfire ? 42 : isRush ? 30 : 54;
+    const isFeeding = phase.behaviorId === "boss-feeding-arms";
+    state.boss.y = 0.5 + Math.sin(phaseAge / (isRush ? 20 : isCurrentClimb ? 32 : isFeeding ? 26 : 45))
+      * (isRush ? 0.31 : isCurrentClimb ? 0.34 : isFeeding ? 0.27 : 0.22);
+    const interval = isCrossfire ? 42 : isRush ? 30 : isFeeding ? 48 : 54;
+    const isLivingArkCore = [
+      "boss-feeding-arms", "boss-grown-carapace", "boss-shifting-heart",
+    ].includes(phase.behaviorId);
+    if (isLivingArkCore && phaseAge % 150 === 0) {
+      const core = ["blue", "red", "yellow"][state.boss.phaseIndex];
+      state.pickups.push({
+        id: `boss-organ-${state.boss.phaseIndex}-${phaseAge}`,
+        x: state.boss.x - 0.04,
+        y: state.boss.y,
+        core,
+      });
+      emit(state, "boss-organ-shed", { phaseId: phase.id, core });
+    }
     if (phaseAge % interval === 0) {
       const offsets = isCrossfire ? [-0.018, 0, 0.018] : [0];
       for (const offset of offsets) {
@@ -389,6 +416,24 @@ function resolveHazards(state) {
       }
       continue;
     }
+    if (active.behaviorId === "growth-source") {
+      if ((state.tick - active.startTick) % 180 === 0) {
+        let healedEnemies = 0;
+        for (const enemy of state.enemies) {
+          if (enemy.hitPoints >= enemy.maximumHitPoints) continue;
+          enemy.hitPoints = Math.min(enemy.maximumHitPoints, enemy.hitPoints + 2);
+          healedEnemies += 1;
+        }
+        emit(state, "hazard-growth-pulsed", { hazardId: active.id, healedEnemies });
+      }
+      continue;
+    }
+    if (active.behaviorId === "contracting-tissue"
+      && (state.tick - active.startTick) % 180 === 0) {
+      const phase = Math.floor((state.tick - active.startTick) / 180) % 4;
+      const halfWidth = [0.3, 0.22, 0.14, 0.22][phase];
+      emit(state, "hazard-tissue-contracted", { hazardId: active.id, halfWidth });
+    }
     if (state.tick % 120 !== 0) continue;
     if (active.behaviorId === "closing-corridor" && (state.player.y < 0.27 || state.player.y > 0.73)) {
       damagePlayer(state, "closing-corridor");
@@ -403,6 +448,16 @@ function resolveHazards(state) {
         || (chargedHalf === "lower" && state.player.y >= 0.5)) {
         damagePlayer(state, "charged-cloud");
       }
+    }
+    if (active.behaviorId === "reactive-tissue") {
+      const tissueOpened = state.events.some(({ type }) => type === "weapon-fired");
+      const halfWidth = tissueOpened ? 0.32 : 0.16;
+      if (Math.abs(state.player.y - 0.5) > halfWidth) damagePlayer(state, "reactive-tissue");
+    }
+    if (active.behaviorId === "contracting-tissue") {
+      const phase = Math.floor((state.tick - active.startTick) / 180) % 4;
+      const halfWidth = [0.3, 0.22, 0.14, 0.22][phase];
+      if (Math.abs(state.player.y - 0.5) > halfWidth) damagePlayer(state, "contracting-tissue");
     }
   }
 }
