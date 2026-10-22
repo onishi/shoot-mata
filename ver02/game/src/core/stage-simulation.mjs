@@ -66,6 +66,7 @@ export function createStageSimulation(stageInput, options = {}) {
     hitsTaken: 0,
     score: 0,
     scoreBreakdown: createScoreBreakdown(),
+    destroyedEnemyCount: 0,
     events: [],
     schedule,
   };
@@ -194,6 +195,9 @@ function moveCombatants(state) {
       "regenerating-swarm": 1.12,
       "parasite-turret": 0.36,
       "stalking-predator": enemy.ageTicks < 60 ? 0.48 : 1.8,
+      "heat-armored": 0.5,
+      "solar-rammer": enemy.ageTicks < 48 ? 0.38 : 2.15,
+      "omni-turret": 0.3,
     };
     const speed = ENEMY_SPEED_PER_TICK * (speedFactors[enemy.behaviorId] ?? 1);
     enemy.x -= speed;
@@ -206,6 +210,8 @@ function moveCombatants(state) {
     } else if ((enemy.behaviorId === "dive-striker" && enemy.ageTicks >= 45)
       || (enemy.behaviorId === "stalking-predator" && enemy.ageTicks >= 60)) {
       enemy.y += clamp(state.player.y - enemy.y, -0.018, 0.018);
+    } else if (enemy.behaviorId === "solar-rammer" && enemy.ageTicks >= 48) {
+      enemy.y += clamp(state.player.y - enemy.y, -0.022, 0.022);
     }
     if (enemy.behaviorId === "regenerating-swarm" && enemy.ageTicks % 90 === 0
       && enemy.hitPoints < enemy.maximumHitPoints) {
@@ -215,30 +221,36 @@ function moveCombatants(state) {
     const firingInterval = enemy.behaviorId === "dive-striker"
       ? Number.POSITIVE_INFINITY
       : enemy.behaviorId === "stalking-predator" ? Number.POSITIVE_INFINITY
-        : enemy.behaviorId === "parasite-turret" ? 66
+      : enemy.behaviorId === "parasite-turret" ? 66
+      : enemy.behaviorId === "omni-turret" ? 60
       : enemy.behaviorId === "cover-turret" ? 72
         : enemy.behaviorId === "armored-drift" ? 64 : 90;
     if (enemy.ageTicks >= 50 && enemy.ageTicks % firingInterval === 0) {
-      state.enemyShots.push({
-        id: `enemy-shot-${state.nextShotId++}`,
-        x: enemy.x,
-        y: enemy.y,
-        vx: -ENEMY_SHOT_SPEED_PER_TICK,
-        vy: clamp((state.player.y - enemy.y) / 36, -0.009, 0.009),
-      });
+      const offsets = enemy.behaviorId === "omni-turret" ? [-0.012, 0, 0.012] : [0];
+      for (const offset of offsets) {
+        state.enemyShots.push({
+          id: `enemy-shot-${state.nextShotId++}`,
+          x: enemy.x,
+          y: enemy.y,
+          vx: -ENEMY_SHOT_SPEED_PER_TICK,
+          vy: clamp((state.player.y - enemy.y) / 36, -0.009, 0.009) + offset,
+        });
+      }
     }
   }
   if (state.boss && !state.boss.defeated) {
     state.boss.ageTicks += 1;
     const phase = state.boss.phases[state.boss.phaseIndex];
     const phaseAge = state.boss.ageTicks;
-    const isRush = ["boss-core-rush", "boss-thunder-dive", "boss-shifting-heart"].includes(phase.behaviorId);
-    const isCrossfire = ["boss-crossfire", "boss-shutter-barrage", "boss-grown-carapace"].includes(phase.behaviorId);
+    const isRush = ["boss-core-rush", "boss-thunder-dive", "boss-shifting-heart", "boss-overload-ram"].includes(phase.behaviorId);
+    const isCrossfire = ["boss-crossfire", "boss-shutter-barrage", "boss-grown-carapace", "boss-omni-flare"].includes(phase.behaviorId);
     const isCurrentClimb = phase.behaviorId === "boss-current-climb";
     const isFeeding = phase.behaviorId === "boss-feeding-arms";
+    const isThermalShell = phase.behaviorId === "boss-thermal-shell";
     state.boss.y = 0.5 + Math.sin(phaseAge / (isRush ? 20 : isCurrentClimb ? 32 : isFeeding ? 26 : 45))
       * (isRush ? 0.31 : isCurrentClimb ? 0.34 : isFeeding ? 0.27 : 0.22);
-    const interval = isCrossfire ? 42 : isRush ? 30 : isFeeding ? 48 : 54;
+    const interval = phase.behaviorId === "boss-omni-flare" ? 36
+      : isCrossfire ? 42 : isRush ? 30 : isFeeding ? 48 : isThermalShell ? 50 : 54;
     const isLivingArkCore = [
       "boss-feeding-arms", "boss-grown-carapace", "boss-shifting-heart",
     ].includes(phase.behaviorId);
@@ -251,6 +263,19 @@ function moveCombatants(state) {
         core,
       });
       emit(state, "boss-organ-shed", { phaseId: phase.id, core });
+    }
+    const isFurnaceController = [
+      "boss-thermal-shell", "boss-overload-ram", "boss-omni-flare",
+    ].includes(phase.behaviorId);
+    if (isFurnaceController && phaseAge % 90 === 0) {
+      const core = ["blue", "yellow", "blue"][state.boss.phaseIndex];
+      state.pickups.push({
+        id: `boss-coolant-${state.boss.phaseIndex}-${phaseAge}`,
+        x: state.boss.x - 0.04,
+        y: state.boss.y,
+        core,
+      });
+      emit(state, "boss-coolant-vented", { phaseId: phase.id, core });
     }
     if (phaseAge % interval === 0) {
       const offsets = isCrossfire ? [-0.018, 0, 0.018] : [0];
@@ -307,6 +332,7 @@ function destroyEnemy(state, enemy) {
   state.score += enemy.score;
   state.scoreBreakdown.enemy += enemy.score;
   state.streak += 1;
+  state.destroyedEnemyCount += 1;
   const streakBonus = state.streak >= 3 ? 25 * state.streak : 0;
   state.score += streakBonus;
   state.scoreBreakdown.streak += streakBonus;
@@ -337,7 +363,10 @@ function resolvePlayerShots(state) {
     const enemy = state.enemies.find((candidate) => !deadEnemies.has(candidate.id)
       && Math.abs(candidate.x - shot.x) <= 0.045 && Math.abs(candidate.y - shot.y) <= 0.075);
     if (enemy) {
-      enemy.hitPoints -= shot.damage;
+      const damage = enemy.behaviorId === "heat-armored"
+        ? Math.max(1, shot.damage - 2)
+        : shot.damage;
+      enemy.hitPoints -= damage;
       addEffect(state, "hit", enemy.x, enemy.y);
       if (enemy.hitPoints <= 0) {
         deadEnemies.add(enemy.id);
@@ -408,6 +437,38 @@ function resolveHazards(state) {
   const activeHazards = state.schedule.hazards
     .filter((hazard) => state.tick >= hazard.startTick && state.tick < hazard.endTick);
   for (const active of activeHazards) {
+    if (active.behaviorId === "periodic-heatwave") {
+      if ((state.tick - active.startTick) % 180 === 0) {
+        const waveIndex = Math.floor((state.tick - active.startTick) / 180);
+        const safeY = waveIndex % 2 === 0 ? 0.24 : 0.76;
+        emit(state, "hazard-heatwave-pulsed", { hazardId: active.id, safeY });
+        if (Math.abs(state.player.y - safeY) > 0.2) damagePlayer(state, "periodic-heatwave");
+      }
+      continue;
+    }
+    if (active.behaviorId === "coolant-refuge") {
+      if ((state.tick - active.startTick) % 180 === 0) {
+        const refugeIndex = Math.floor((state.tick - active.startTick) / 180);
+        const safeY = refugeIndex % 2 === 0 ? 0.24 : 0.76;
+        emit(state, "hazard-refuge-shifted", { hazardId: active.id, safeY });
+      }
+      continue;
+    }
+    if (active.behaviorId === "destruction-safe-zone") {
+      if ((state.tick - active.startTick) % 120 === 0) {
+        const centers = [0.26, 0.5, 0.74];
+        const safeY = centers[state.destroyedEnemyCount % centers.length];
+        const halfWidth = Math.max(0.14, 0.3 - state.destroyedEnemyCount * 0.006);
+        emit(state, "hazard-safe-zone-changed", {
+          hazardId: active.id,
+          destroyedEnemyCount: state.destroyedEnemyCount,
+          safeY,
+          halfWidth,
+        });
+        if (Math.abs(state.player.y - safeY) > halfWidth) damagePlayer(state, "destruction-safe-zone");
+      }
+      continue;
+    }
     if (active.behaviorId === "alternating-current") {
       const direction = Math.floor((state.tick - active.startTick) / 180) % 2 === 0 ? -1 : 1;
       state.player.y = clamp(state.player.y + direction * 0.0035, 0.12, 0.88);
@@ -521,6 +582,7 @@ export function createStageSimulationSnapshot(state) {
     weapon: describeReactorLoadout(state.loadout),
     score: state.score,
     scoreBreakdown: { ...state.scoreBreakdown },
+    destroyedEnemyCount: state.destroyedEnemyCount,
     hitsTaken: state.hitsTaken,
     boss,
     actors: [
