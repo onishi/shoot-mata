@@ -8,12 +8,14 @@
   "budgets": {
     "stage-01": 2359296,
     "stage-02": 2359296,
+    "stage-03": 2359296,
     "shared": 7340032,
     "build": 16777216
   },
   "groupImageBytes": {
     "stage-01": 1193798,
     "stage-02": 996632,
+    "stage-03": 697514,
     "shared": 249584
   },
   "images": [
@@ -104,6 +106,51 @@
       "sha256": "d105d2a721ff6ba262f4962b14a230f1dd64ee31207ab4796079c27a750b21bf",
       "meanAbsoluteRgbError": 3.617,
       "rgbPsnrDb": 33.574,
+      "meanAbsoluteAlphaError": 0,
+      "maximumAlphaError": 0
+    },
+    {
+      "sourcePath": "game/backgrounds/stage-03/living-ark-far-v1.png",
+      "deliveryPath": "game/backgrounds/stage-03/living-ark-far-v1.webp",
+      "group": "stage-03",
+      "width": 1280,
+      "height": 720,
+      "quality": 84,
+      "lossless": false,
+      "bytes": 140450,
+      "sha256": "f00779a4707daa50ef793bf08babb2c1e02d5353fce07549e3e6aa6dfeab4119",
+      "meanAbsoluteRgbError": 2.659,
+      "rgbPsnrDb": 36.931,
+      "meanAbsoluteAlphaError": 0,
+      "maximumAlphaError": 0
+    },
+    {
+      "sourcePath": "game/backgrounds/stage-03/living-ark-mid-v1.png",
+      "deliveryPath": "game/backgrounds/stage-03/living-ark-mid-v1.webp",
+      "group": "stage-03",
+      "width": 1280,
+      "height": 720,
+      "quality": 84,
+      "lossless": false,
+      "bytes": 339764,
+      "sha256": "b9574fdc7e1a03afadf66e933fe4d56cf18d1f1265b3fc15ad8b0c34e392dc72",
+      "meanAbsoluteRgbError": 3.706,
+      "rgbPsnrDb": 34.416,
+      "meanAbsoluteAlphaError": 0,
+      "maximumAlphaError": 0
+    },
+    {
+      "sourcePath": "game/backgrounds/stage-03/living-ark-fore-v1.png",
+      "deliveryPath": "game/backgrounds/stage-03/living-ark-fore-v1.webp",
+      "group": "stage-03",
+      "width": 1280,
+      "height": 720,
+      "quality": 84,
+      "lossless": false,
+      "bytes": 217300,
+      "sha256": "dd9b9d99bdef8ca230d5d7a1c9336f072b2d3bab0b58f097163becc6dbc5188f",
+      "meanAbsoluteRgbError": 3.673,
+      "rgbPsnrDb": 34.36,
       "meanAbsoluteAlphaError": 0,
       "maximumAlphaError": 0
     },

@@ -1,6 +1,7 @@
 export const ASSET_BUDGETS = Object.freeze({
   "stage-01": Math.floor(2.25 * 1024 * 1024),
   "stage-02": Math.floor(2.25 * 1024 * 1024),
+  "stage-03": Math.floor(2.25 * 1024 * 1024),
   shared: 7 * 1024 * 1024,
   build: 16 * 1024 * 1024,
 });
@@ -43,6 +44,9 @@ export const DELIVERY_ASSETS = Object.freeze([
   image("game/backgrounds/stage-02/cloud-refinery-far-v1.png", "game/backgrounds/stage-02/cloud-refinery-far-v1.webp", "stage-02", 1280, 720, 84),
   image("game/backgrounds/stage-02/cloud-refinery-mid-v1.png", "game/backgrounds/stage-02/cloud-refinery-mid-v1.webp", "stage-02", 1280, 720, 84),
   image("game/backgrounds/stage-02/cloud-refinery-fore-v1.png", "game/backgrounds/stage-02/cloud-refinery-fore-v1.webp", "stage-02", 1280, 720, 84),
+  image("game/backgrounds/stage-03/living-ark-far-v1.png", "game/backgrounds/stage-03/living-ark-far-v1.webp", "stage-03", 1280, 720, 84),
+  image("game/backgrounds/stage-03/living-ark-mid-v1.png", "game/backgrounds/stage-03/living-ark-mid-v1.webp", "stage-03", 1280, 720, 84),
+  image("game/backgrounds/stage-03/living-ark-fore-v1.png", "game/backgrounds/stage-03/living-ark-fore-v1.webp", "stage-03", 1280, 720, 84),
   image("game/enemies/stage-02/cloud-skimmer-v1.png", "game/enemies/stage-02/cloud-skimmer-v1.webp", "stage-02", 384, 256, 100, true),
   image("game/enemies/stage-02/shutter-turret-v1.png", "game/enemies/stage-02/shutter-turret-v1.webp", "stage-02", 384, 256, 100, true),
   image("game/enemies/stage-02/storm-diver-v1.png", "game/enemies/stage-02/storm-diver-v1.webp", "stage-02", 384, 256, 100, true),
