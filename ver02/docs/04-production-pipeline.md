@@ -45,3 +45,5 @@ Phase 05以降はビルドとブラウザ統合テストへ同じ台帳検査を
 第1面の製品経路までで46/123制作単位相当を接続し、最低77単位が残る。内訳は第2面13、第3面13、第4面15、第1面残4、武器別命中9、共通ビジュアル15、共通音8である。
 
 第1面固有assetは10,174,611 bytes、共有assetは5,775,992 bytesとなり、現build 16,086,103 bytesのままでは残り3面を追加できない。Phase 07の制作前に配信形式と寸法を再設計し、各面2.25 MiB以下、共有asset・コード等7 MiB以下を一次予算とする。16 MiBの製品上限、完成アート、背景3層、敵3種、ボス、音を削減対象にはしない。
+
+Phase 07では制作原本PNGを保持し、背景を1280×720のlossy WebP、自機・敵・boss・コアを表示上限より大きい縮小lossless WebPとして配信する工程を採用した。`npm run assets:optimize` は同じ設定で11画像を生成し、復号後のRGB PSNRとalpha差、byte数、SHA-256を `assets/delivery/asset-optimization-audit.json` へ記録する。背景はPSNR 33.373 dB以上、alpha最大差0、actorとコアはRGB・alphaとも復号画素差0。第1面配信assetは音込み1,577,842 bytes、共有assetは音込み392,888 bytes、静的build全体は2,106,350 bytesとなり、面別2.25 MiB、共有7 MiB、全体16 MiBの自動上限に合格した。

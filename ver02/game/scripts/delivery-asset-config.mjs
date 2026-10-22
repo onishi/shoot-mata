@@ -1,0 +1,45 @@
+export const ASSET_BUDGETS = Object.freeze({
+  "stage-01": Math.floor(2.25 * 1024 * 1024),
+  shared: 7 * 1024 * 1024,
+  build: 16 * 1024 * 1024,
+});
+
+const image = (sourcePath, deliveryPath, group, width, height, quality, lossless = false) => Object.freeze({
+  kind: "webp",
+  sourcePath,
+  deliveryPath,
+  group,
+  width,
+  height,
+  quality,
+  lossless,
+  alphaQuality: 100,
+});
+
+const copy = (path, group) => Object.freeze({
+  kind: "copy",
+  sourcePath: path,
+  deliveryPath: path,
+  group,
+});
+
+export const DELIVERY_ASSETS = Object.freeze([
+  copy("audio/reference/stage-01-rhythm-loop-v1.wav", "stage-01"),
+  copy("audio/reference/ui-confirm-v1.wav", "shared"),
+  copy("audio/reference/weapon-lance-shot-v1.wav", "shared"),
+  copy("audio/reference/weapon-spread-shot-v1.wav", "shared"),
+  copy("audio/reference/weapon-seeker-launch-v1.wav", "shared"),
+  copy("audio/reference/core-collect-v1.wav", "shared"),
+  copy("audio/reference/core-load-v1.wav", "shared"),
+  image("game/backgrounds/stage-01/orbital-wreck-far-v1.png", "game/backgrounds/stage-01/orbital-wreck-far-v1.webp", "stage-01", 1280, 720, 84),
+  image("game/backgrounds/stage-01/orbital-wreck-mid-v1.png", "game/backgrounds/stage-01/orbital-wreck-mid-v1.webp", "stage-01", 1280, 720, 84),
+  image("game/backgrounds/stage-01/orbital-wreck-fore-v1.png", "game/backgrounds/stage-01/orbital-wreck-fore-v1.webp", "stage-01", 1280, 720, 84),
+  image("game/player/player-interceptor-v1.png", "game/player/player-interceptor-v1.webp", "shared", 512, 288, 100, true),
+  image("game/enemies/stage-01/salvage-collector-v1.png", "game/enemies/stage-01/salvage-collector-v1.webp", "stage-01", 384, 256, 100, true),
+  image("game/enemies/stage-01/salvage-weaver-v1.png", "game/enemies/stage-01/salvage-weaver-v1.webp", "stage-01", 384, 256, 100, true),
+  image("game/enemies/stage-01/wreck-bulwark-v1.png", "game/enemies/stage-01/wreck-bulwark-v1.webp", "stage-01", 384, 256, 100, true),
+  image("game/bosses/stage-01/wreck-warden-v1.png", "game/bosses/stage-01/wreck-warden-v1.webp", "stage-01", 512, 427, 100, true),
+  image("game/cores/reactor-core-red-v1.png", "game/cores/reactor-core-red-v1.webp", "shared", 256, 256, 100, true),
+  image("game/cores/reactor-core-blue-v1.png", "game/cores/reactor-core-blue-v1.webp", "shared", 256, 256, 100, true),
+  image("game/cores/reactor-core-yellow-v1.png", "game/cores/reactor-core-yellow-v1.webp", "shared", 256, 256, 100, true),
+]);

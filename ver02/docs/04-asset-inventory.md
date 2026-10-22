@@ -22,6 +22,8 @@
 | VFX-HIT / DAMAGE / COLLECT | `../phases/phase-04/reference-scene/` | 命中・被弾・回収 | HTML/CSSのコード表現、2026-10-21 | 自作 | 十字閃光 / 破線二重環 / 内向き山形 | final |
 | AUDIO-REF-01 | `../assets/audio/reference/` | 3武器発射、コア回収・装填、UI決定、第1面リズム層 | 自作の決定的合成コード、2026-10-21。`manifest.json`と`generate-reference-audio.mjs` | 自作、外部サンプル0 | 48kHz mono PCM16 WAV×7、527,348 bytes。個別SHA-256はmanifest | final |
 
+制作原本は上表のPNGを保持し、製品buildは `../assets/delivery/` のWebPを参照する。配信派生物11点の寸法、圧縮方式、byte数、SHA-256、復号画素差は `../assets/delivery/asset-optimization-audit.json` を正本とする。背景3点はlossy RGB・lossless alpha、actor・boss・コア8点は縮小後losslessで、原本の権利・出典・promptは上表から継承する。
+
 ## CONCEPT-STG01-01 生成プロンプト
 
 組み込み画像生成を使用。用途は16:9横スクロールシューティングの最終品質基準。軌道残骸帯、左側の三角形自機、右側の球形回収ドローン、惑星、遠景艦隊、前中遠景の艦骸、赤ひし形・青円・黄三角の3コアを指定した。深い藍・炭色、琥珀灯、シアンエンジン、橙赤の敵を配色し、中央飛行回廊の可読性を要求した。他作品の識別可能な機体・敵・構図、文字、ロゴ、商標、透かし、UI、写実写真を禁止した。

@@ -67,8 +67,8 @@
 | TECH-03 | P05, P07 | P08, P10 | 決定的simulationに加え、P06ブラウザ入口も同じapplication/session経路で第1面2完走とsnapshot一致を記録。完成4面は後続 | 実装中 |
 | TECH-04 | P05 | P09, P10 | `phases/phase-05/browser-compatibility.json` に必須6対象とversion・結果を記録しschema検査。Chrome 155 / macOS 26.6.2は合格。Edge、Firefox、Safari、iOS実機、Android実機は未確認のまま明示し、P09で再検証 | 実装中 |
 | TECH-05 | P05, P09 | P09, P10 | Phase 05固定場面をChromeで5秒超計測し120.0fps、50ms超frame 0、最大10.4ms、simulation drop 0ms。低性能対象端末と長時間計測はP09 | 実装中 |
-| TECH-06 | P05, P08 | P08, P10 | asset manifest実在・静的外部URL 0を自動検査。P06静的成果物のChrome実行で41 resource、外部origin 0、音源を含む欠落0、console warning/error 0。全製品フローは後続 | 実装中 |
-| TECH-07 | P05, P09 | P09, P10 | build 13,733,784 bytes/16 MiB、初回encoded 13,727,049 bytes/14 MiB、localhost load 187ms/2秒。ポーズ除外後119.7fps、50ms超0、最大16.7ms、drop 0。P09で低性能・長時間再計測 | 実装中 |
+| TECH-06 | P05, P08 | P08, P10 | asset manifest実在・静的外部URL 0を自動検査。P07配信WebP 11点をChromeで全件HTTP 200、同seed 2完走、console warning/error 0。全製品フローは後続 | 実装中 |
+| TECH-07 | P05, P09 | P09, P10 | Phase 07 build 2,106,350 bytes/16 MiB。第1面配信asset 1,577,842 bytes/2.25 MiB、共有392,888 bytes/7 MiB。背景PSNR 33.373 dB以上、alpha差0、actor・コア復号差0を自動検査。P09で初回転送、低性能・長時間性能を再計測 | 実装中 |
 | TECH-08 | P05 | P10 | lockfile、runtime/dev依存0、`npm audit --omit=dev --audit-level=high`で既知脆弱性0。最終候補で再監査 | 実装中 |
 | REL-01 | P04, P07 | P10 | P04生成画像は利用条件再確認待ち、自作音は外部サンプル0をmanifest照合。P07全素材・フォント・コードと通知を照合 | 実装中 |
 | REL-02 | P05 | P10 | 保存境界は注入された同一origin storageだけを使用し、個人情報・通信処理を持たない。ビルド後のnetwork監査は後続 | 実装中 |

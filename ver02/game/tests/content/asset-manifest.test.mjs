@@ -9,6 +9,7 @@ test("AV-01/TECH-06: Canvas manifestの全素材が同一repository内に存在�
   for (const [id, relativeUrl] of Object.entries(GAME_ASSETS)) {
     assert.match(id, /^[a-z0-9]+(?:-[a-z0-9]+)*$/);
     assert.ok(!relativeUrl.startsWith("http"), `${id} must not use external communication`);
+    assert.match(relativeUrl, /\.webp$/, `${id} must use a delivery WebP`);
     const assetUrl = new URL(`../../public/${relativeUrl}`, import.meta.url);
     await access(fileURLToPath(assetUrl));
   }

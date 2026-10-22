@@ -1,5 +1,14 @@
 # 開発ログ
 
+## 2026-10-22 — Phase 07の配信asset工程と容量ゲートを確立
+
+- 目的: 残り3面を16 MiB buildへ追加できるよう、第1面原本の見た目と透過を数値で保った配信画像工程を作る。
+- 実装: 原本PNGは保持し、背景3点を1280×720 lossy WebP、自機・通常敵3種・boss・3コアを用途別縮小lossless WebPへ再生成する `npm run assets:optimize` を追加した。asset manifestとfaviconを配信WebPへ切り替え、stage別2.25 MiB・共有7 MiB・build全体16 MiBをbuild時にも拒否する。
+- 画像検査: 背景の平均RGB誤差は3.01〜3.95/255、PSNRは33.373 dB以上、alpha最大差0。actor・boss・コアは縮小基準に対してRGB・alpha差0。SHA-256と全数値を `assets/delivery/asset-optimization-audit.json` へ固定した。
+- 自動確認: 新規1件を含む全95テスト、再現build、静的外部URL監査に合格。第1面assetは音込み1,577,842 bytes、共有assetは392,888 bytes、buildは44 files・2,106,350 bytesで、直前16,086,103 bytesから13,979,753 bytes削減した。
+- ブラウザ確認: Chromeで配信WebP 11点がすべてHTTP 200。`?qa=stage01` は2回ともtick 3048・score 10785で `QA PASS / 2 RUNS / SAME SEED MATCH`。1440×900、390×844、844×390で横overflow 0、横長の縦overflow 0、console warning/error 0を確認した。
+- 限界: 背景圧縮の主観的な見た目は未評価。Safari・Firefox・実タッチ端末、低性能端末の復号性能はPhase 09で確認する。Phase 07は継続し、次は第2面のデータと決定的通しを作る。
+
 ## 2026-10-22 — 第1面のブラウザ自動通しを追加しPhase 06を完了
 
 - 目的: 製品入口で開始→通常戦→圧縮回廊→3段階boss→結果→同seed再挑戦を再現し、決定的simulationだけではない画面証拠を残す。

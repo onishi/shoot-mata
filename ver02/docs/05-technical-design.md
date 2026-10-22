@@ -89,7 +89,7 @@ Phase 05の論理解像度は1280×720とする。`ui/stage-view-model.mjs` がs
 
 ES moduleを基準とし、導入する依存はロックファイル、権利、脆弱性、配信容量への影響を記録する。出力は相対URLで動く静的ファイルとし、実行時外部通信を必要としない。build IDと権利通知を成果物から確認可能にする。
 
-Phase 05では `npm run build` が `dist/` を毎回作り直し、実行に必要な `game/public`、`game/src`、参照中の画像・音声だけを収録する。生成時刻を埋め込まず、各ファイルのSHA-256、byte数、build ID `phase05-foundation-20261022` を `build-manifest.json` へ固定順で出力する。同じ入力から2回生成したmanifestが一致することを自動検査する。`npm run audit:static` は許可外形式、16 MiB超過、HTML/CSS/JavaScript内の外部URLを拒否する。
+`npm run build` は `dist/` を毎回作り直し、実行に必要な `game/public`、`game/src`、参照中の配信画像・音声だけを収録する。生成時刻を埋め込まず、各ファイルのSHA-256、byte数、build IDを `build-manifest.json` へ固定順で出力する。同じ入力から2回生成したmanifestが一致することを自動検査する。Phase 07以降は制作原本PNGでなく `assets/delivery/` の検査済みWebPを収録し、build時にも第1面2.25 MiB、共有7 MiB、全体16 MiBの上限をfail closedで検査する。`npm run audit:static` は許可外形式、16 MiB超過、HTML/CSS/JavaScript内の外部URLを拒否する。
 
 packageはruntime/dev依存とも0件で、lockfileを保存する。`npm run audit:deps` はhigh以上を失敗扱いとし、2026-10-22の監査結果は既知脆弱性0件だった。
 
@@ -99,7 +99,7 @@ Phase 05の基準場面はbuild ID `phase05-foundation-20261022` の仮区間、
 
 | 指標 | Phase 05暫定予算 | 2026-10-22 Chrome実測 |
 | --- | --- | --- |
-| 静的成果物 | 16 MiB以下 | 13,733,784 bytes、35 files |
+| 静的成果物 | 16 MiB以下 | Phase 07配信asset化後2,106,350 bytes、44 files |
 | 初回encoded resource | 14 MiB以下 | 13,727,049 bytes、34 resources |
 | localhost load event | 2,000ms以下 | 187ms |
 | 通常戦闘fps | 55fps以上（目標60） | 119.7fps（120Hz環境、1.2秒ポーズ後） |

@@ -3,6 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "assets:optimize": "node scripts/optimize-delivery-assets.mjs",
     "build": "node scripts/build-static.mjs",
     "audit:static": "node scripts/audit-static.mjs",
     "audit:deps": "npm audit --omit=dev --audit-level=high",
