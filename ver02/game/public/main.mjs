@@ -9,6 +9,7 @@ import { GAME_ASSETS } from "../src/content/asset-manifest.mjs";
 import { STAGE_01_ORBITAL_WRECK } from "../src/content/stages/stage-01-orbital-wreck.mjs";
 import { STAGE_02_CLOUD_REFINERY } from "../src/content/stages/stage-02-cloud-refinery.mjs";
 import { STAGE_03_LIVING_ARK } from "../src/content/stages/stage-03-living-ark.mjs";
+import { STAGE_04_STELLAR_FURNACE } from "../src/content/stages/stage-04-stellar-furnace.mjs";
 import { advanceFixedStep, createFixedStepClock, setClockSuspended } from "../src/core/fixed-step.mjs";
 import { getGameSessionSnapshot } from "../src/core/game-session.mjs";
 import { consumeInput } from "../src/core/input-state.mjs";
@@ -36,11 +37,12 @@ const stages = Object.freeze([
   STAGE_01_ORBITAL_WRECK,
   STAGE_02_CLOUD_REFINERY,
   STAGE_03_LIVING_ARK,
+  STAGE_04_STELLAR_FURNACE,
 ]);
-const stageLabels = Object.freeze(["ORBITAL WRECK", "CLOUD REFINERY", "LIVING ARK"]);
+const stageLabels = Object.freeze(["ORBITAL WRECK", "CLOUD REFINERY", "LIVING ARK", "STELLAR FURNACE"]);
 const query = new URLSearchParams(location.search);
-const qaStageIndex = Object.freeze({ stage01: 0, stage02: 1, stage03: 2 })[query.get("qa")] ?? null;
-const qaSeeds = Object.freeze([20261022, 20261022, 20261023]);
+const qaStageIndex = Object.freeze({ stage01: 0, stage02: 1, stage03: 2, stage04: 3 })[query.get("qa")] ?? null;
+const qaSeeds = Object.freeze([20261022, 20261022, 20261023, 20261024]);
 const selectedStage = () => stages[session.flow.stageIndex ?? 0];
 
 const audio = createBrowserAudioAdapter();

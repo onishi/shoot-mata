@@ -7,6 +7,12 @@ function snapshotKey(snapshot) {
 }
 
 function automaticCombatCommand(simulation) {
+  const activeHazard = (behaviorId) => simulation.schedule.hazards.find(({ behaviorId: id, startTick, endTick }) => (
+    id === behaviorId && simulation.tick >= startTick && simulation.tick < endTick
+  ));
+  const heatwave = activeHazard("periodic-heatwave");
+  const safeZone = activeHazard("destruction-safe-zone");
+  const stellarFurnace = simulation.schedule.hazards.some(({ behaviorId }) => behaviorId === "periodic-heatwave");
   const livingTissue = simulation.schedule.hazards.some(({ behaviorId, startTick, endTick }) => (
     ["reactive-tissue", "growth-source", "contracting-tissue"].includes(behaviorId)
       && simulation.tick >= startTick
@@ -15,6 +21,36 @@ function automaticCombatCommand(simulation) {
   const incomingShot = simulation.enemyShots
     .filter(({ x }) => x > simulation.player.x && x - simulation.player.x < 0.24)
     .sort((left, right) => left.x - right.x)[0];
+  if (stellarFurnace) {
+    let targetY = simulation.boss?.y ?? simulation.enemies[0]?.y ?? 0.5;
+    if (simulation.tick >= 1620 && simulation.tick < 1680) targetY = 0.24;
+    if (heatwave) {
+      const elapsed = simulation.tick - heatwave.startTick;
+      const nextWave = Math.ceil(elapsed / 180);
+      const approachingPulse = nextWave * 180 - elapsed <= 50;
+      const waveIndex = approachingPulse ? nextWave : Math.floor(elapsed / 180);
+      targetY = waveIndex % 2 === 0 ? 0.24 : 0.76;
+    }
+    if (simulation.tick >= 2340 && simulation.tick < 2400) {
+      targetY = [0.26, 0.5, 0.74][simulation.destroyedEnemyCount % 3];
+    }
+    if (safeZone) {
+      const center = [0.26, 0.5, 0.74][simulation.destroyedEnemyCount % 3];
+      const elapsed = simulation.tick - safeZone.startTick;
+      const ticksToPulse = Math.ceil(elapsed / 120) * 120 - elapsed;
+      targetY = ticksToPulse <= 35 || ticksToPulse === 120
+        ? center
+        : incomingShot
+          ? (incomingShot.y >= simulation.player.y ? 0.18 : 0.82)
+          : center;
+    } else if (heatwave && incomingShot) {
+      targetY += incomingShot.y >= simulation.player.y ? -0.14 : 0.14;
+    } else if (!simulation.boss && incomingShot) {
+      targetY = incomingShot.y >= simulation.player.y ? 0.3 : 0.7;
+    }
+    const safeDelta = targetY - simulation.player.y;
+    return { moveY: Math.abs(safeDelta) < 0.025 ? 0 : Math.sign(safeDelta), fire: true };
+  }
   if (livingTissue) {
     const targetY = simulation.boss || !incomingShot
       ? 0.5
@@ -76,10 +112,13 @@ export function createAutomaticPlaythrough(options = {}) {
       "closing-corridor",
       "charged-shutters",
       "living-tissue",
+      "stellar-heatwave",
     ][stageIndex] ?? "stage-setpiece");
     for (const event of simulation.events ?? []) {
       if (event.type === "hazard-growth-pulsed") milestones.add("growth-source");
       if (event.type === "hazard-tissue-contracted") milestones.add("contracting-tissue");
+      if (event.type === "hazard-heatwave-pulsed") milestones.add("periodic-heatwave");
+      if (event.type === "hazard-safe-zone-changed") milestones.add("destruction-safe-zone");
       if (event.type === "boss-entered") milestones.add(`boss:${simulation.boss.phases[0].id}`);
       if (event.type === "boss-phase-changed") milestones.add(`boss:${event.phaseId}`);
       if (event.type === "boss-defeated") milestones.add("boss-defeated");

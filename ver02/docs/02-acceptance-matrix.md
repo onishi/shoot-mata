@@ -31,7 +31,7 @@
 | STG-01 | P06 | P06, P10 | `stage-01-orbital-wreck.test.mjs`とChrome `?qa=stage01`で、通常戦、圧縮回廊、3段階boss、結果、同seed再挑戦を完走。390×844・844×390でoverflow 0、console warning/error 0 | 実装済み未検証 |
 | STG-02 | P07 | P07, P10 | 完成背景3層・敵3種・boss、上下気流・開閉遮蔽・帯電域、3段階boss、通常2層/Boss 3音層を接続。Chrome `?qa=stage02`で2完走・score 9525・snapshot一致、通常入口から選択・出撃、3 viewportを確認。個別アニメーションと主観品質は後続 | 実装中 |
 | STG-03 | P07 | P07, P10 | 完成背景3層、再生群体・寄生砲台・捕食体、射撃開口・増殖源・収縮通路、成長3段階boss、通常2層/Boss 3音層を製品入口へ接続。`stage-03-living-ark.test.mjs`とChrome `?qa=stage03`で2完走・tick 3577・score 11950・snapshot一致、3 viewport、キーボード/Pointer Eventsのポーズを確認。個別アニメーションと主観品質は後続 | 実装中 |
-| STG-04 | P07 | P07, P10 | 耐熱装甲・突進機・全方向砲台、周期熱波・退避域・撃破数で変わる安全圏、3形態bossをデータと決定的simulationへ実装。完成背景3層、敵3種・boss、通常2層/Boss 3音層をmanifestとloaderへ接続。seed `20261024`で32機、熱波4回、安全圏変化6回、boss 3形態を経てtick 3512・score 14720で結果へ到達し同一snapshotを再現。製品入口と画面証拠は後続 | 実装中 |
+| STG-04 | P07 | P07, P10 | 完成背景3層、耐熱装甲・突進機・全方向砲台、周期熱波・退避域・可変安全圏、3形態boss、通常2層/Boss 3音層を製品入口へ接続。`stage-04-stellar-furnace.test.mjs`とChrome `?qa=stage04`で2完走・tick 3512・score 17360・snapshot一致、通常入口から選択・出撃、3 viewport、キーボード/Pointer Eventsのポーズを確認。個別アニメーションと主観品質は後続 | 実装中 |
 | STG-05 | P06, P07 | P07, P10 | 第1面は敵3種・圧縮回廊・3段階bossをデータと決定的通しへ実装。専用boss音・全演出と残り3面は継続 | 実装中 |
 | STG-06 | P07 | P09, P10 | 全面の難度曲線計測と複数完走記録 | 未着手 |
 | PROG-01 | P05, P07 | P08, P10 | 初期状態、説明済み、面クリア後の段階解放をunit検査。P05ブラウザ入口で説明完了を保存し、再読込後に説明を飛ばすことをChrome確認。4面復元は後続 | 実装中 |
@@ -59,16 +59,16 @@
 | AV-02 | P04, P06, P07 | P07, P10 | アニメーション一覧と全状態のゲーム内動画を照合 | 未着手 |
 | AV-03 | P04, P06, P07 | P07, P10 | 第1面の遠景・中景・前景を独立速度で合成。残り4面の背景レイヤー、パララックス、環境動作の画面証拠 | 実装中 |
 | AV-04 | P04, P06, P07 | P09, P10 | P06で3武器のLv別弾形状に加え、命中の十字、被弾の破線二重環、撃破の放射線、回収の内向き山形を寿命付きCanvas VFXへ統合。色に依存しない形状と動き軽減時の残存を自動検査 | 実装中 |
-| AV-05 | P04, P06, P07 | P07, P10 | P04自作代表音7点とP07第2面5点を台帳化・波形検査。第2面は通常2層、boss 3層を同期切替し、導入・クリア通知を製品eventへ接続。タイトル、第1面残層、第3〜4面、結果・エンディングは後続 | 実装中 |
+| AV-05 | P04, P06, P07 | P07, P10 | P04自作代表音7点とP07第2〜4面各5点を台帳化・波形検査。各面は通常2層、boss 3層を同期切替し、導入・クリア通知を製品eventへ接続。タイトル、第1面残層、結果・エンディングは後続 | 実装中 |
 | AV-06 | P05 | P08, P10 | 音声異常系と無音完走をunit検査。Chromeの操作起点で代表7音源と第2面5音源をすべてHTTP 200で取得し、警告0、console warning/error 0を確認 | 実装中 |
-| AV-07 | P04, P07 | P10 | P04代表音とP07第2面音は生成式、用途、SHA-256、外部サンプル0をmanifest・台帳・実ファイルで照合。残る全製品素材と最終権利確認は後続 | 実装中 |
+| AV-07 | P04, P07 | P10 | P04代表音とP07第2〜4面音は生成式、用途、SHA-256、外部サンプル0をmanifest・台帳・実ファイルで照合。残る全製品素材と最終権利確認は後続 | 実装中 |
 | TECH-01 | P05 | P08, P10 | `game/tests/core/fixed-step.test.mjs`で30/60/144Hz、長delta、非表示復帰を決定的検査。ブラウザ統合と製品負荷で再検証 | 実装中 |
 | TECH-02 | P05, P07 | P07, P10 | `stage-schema.test.mjs`で背景、敵、drop、区間、wave、仕掛け、boss phase、音、遷移のschema・参照・登録behaviorを検査。`stage-schedule.test.mjs`でデータ差替えとseed再現を検査。完成4面のデータと条件分岐レビューはP07 | 実装中 |
-| TECH-03 | P05, P07 | P08, P10 | 決定的simulationに加え、同じapplication/session経路で第1〜3面をChrome各2完走しsnapshot一致を記録。完成4面は後続 | 実装中 |
+| TECH-03 | P05, P07 | P08, P10 | 決定的simulationに加え、同じapplication/session経路で第1〜4面をChrome各2完走しsnapshot一致を記録。全4面のキャンペーン連続完走は後続 | 実装中 |
 | TECH-04 | P05 | P09, P10 | `phases/phase-05/browser-compatibility.json` に必須6対象とversion・結果を記録しschema検査。Chrome 155 / macOS 26.6.2は合格。Edge、Firefox、Safari、iOS実機、Android実機は未確認のまま明示し、P09で再検証 | 実装中 |
 | TECH-05 | P05, P09 | P09, P10 | Phase 05固定場面をChromeで5秒超計測し120.0fps、50ms超frame 0、最大10.4ms、simulation drop 0ms。低性能対象端末と長時間計測はP09 | 実装中 |
-| TECH-06 | P05, P08 | P08, P10 | asset manifest実在・静的外部URL 0を自動検査。P07配信WebP 11点をChromeで全件HTTP 200、同seed 2完走、console warning/error 0。全製品フローは後続 | 実装中 |
-| TECH-07 | P05, P09 | P09, P10 | Phase 07 build 8,986,948 bytes/16 MiB。第1面1,577,842、第2面2,283,252、第3面2,311,164、第4面2,253,830 bytes/各2.25 MiB、共有392,888 bytes/7 MiB。背景PSNR 30.140 dB以上、alpha差0、actor・コア復号差0を自動検査。P09で初回転送、低性能・長時間性能を再計測 | 実装中 |
+| TECH-06 | P05, P08 | P08, P10 | asset manifest実在・静的外部URL 0を自動検査。P07第4面の画像7点・音声5点をChromeでHTTP 200、同seed 2完走、console warning/error 0、外部origin 0。全製品フローは後続 | 実装中 |
+| TECH-07 | P05, P09 | P09, P10 | Phase 07 build 8,989,189 bytes/16 MiB。第1面1,577,842、第2面2,283,252、第3面2,311,164、第4面2,253,830 bytes/各2.25 MiB、共有392,888 bytes/7 MiB。背景PSNR 30.140 dB以上、alpha差0、actor・コア復号差0を自動検査。P09で初回転送、低性能・長時間性能を再計測 | 実装中 |
 | TECH-08 | P05 | P10 | lockfile、runtime/dev依存0、`npm audit --omit=dev --audit-level=high`で既知脆弱性0。最終候補で再監査 | 実装中 |
 | REL-01 | P04, P07 | P10 | P04生成画像は利用条件再確認待ち、自作音は外部サンプル0をmanifest照合。P07全素材・フォント・コードと通知を照合 | 実装中 |
 | REL-02 | P05 | P10 | 保存境界は注入された同一origin storageだけを使用し、個人情報・通信処理を持たない。ビルド後のnetwork監査は後続 | 実装中 |

@@ -4,6 +4,7 @@ import { createAutomaticPlaythrough } from "../../src/browser/automatic-playthro
 import { STAGE_01_ORBITAL_WRECK } from "../../src/content/stages/stage-01-orbital-wreck.mjs";
 import { STAGE_02_CLOUD_REFINERY } from "../../src/content/stages/stage-02-cloud-refinery.mjs";
 import { STAGE_03_LIVING_ARK } from "../../src/content/stages/stage-03-living-ark.mjs";
+import { STAGE_04_STELLAR_FURNACE } from "../../src/content/stages/stage-04-stellar-furnace.mjs";
 import { createGameSession, updateGameSession } from "../../src/core/game-session.mjs";
 
 function runAutomaticBrowserPath(stage = STAGE_01_ORBITAL_WRECK, stageIndex = 0, seed = 20261022) {
@@ -81,6 +82,31 @@ test("STG-03/LOOP-06: browser用自動入力は選択画面から第3面を2回�
     "boss:feeding-arms",
     "boss:grown-carapace",
     "boss:shifting-heart",
+    "boss-defeated",
+    "stage-cleared",
+    "result:1",
+    "retry-requested",
+    "result:2",
+  ]);
+});
+
+test("STG-04/LOOP-06: browser用自動入力は選択画面から第4面を2回再現する", () => {
+  const { session, driver, updates } = runAutomaticBrowserPath(STAGE_04_STELLAR_FURNACE, 3, 20261024);
+  const status = driver.status(session);
+  assert.ok(updates < 10_000);
+  assert.equal(status.screen, "result");
+  assert.equal(status.attempt, 2);
+  assert.equal(status.completedAttempts, 2);
+  assert.equal(status.replayMatches, true);
+  assert.equal(status.failure, null);
+  assert.deepEqual(status.milestones, [
+    "normal-combat",
+    "stellar-heatwave",
+    "periodic-heatwave",
+    "destruction-safe-zone",
+    "boss:thermal-shell",
+    "boss:overload-ram",
+    "boss:omni-flare",
     "boss-defeated",
     "stage-cleared",
     "result:1",

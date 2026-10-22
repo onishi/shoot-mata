@@ -4,6 +4,7 @@ import { createGameApplication } from "../../src/app/game-application.mjs";
 import { PHASE05_TEST_STAGE } from "../../src/content/stages/phase05-test-segment.mjs";
 import { STAGE_02_CLOUD_REFINERY } from "../../src/content/stages/stage-02-cloud-refinery.mjs";
 import { STAGE_03_LIVING_ARK } from "../../src/content/stages/stage-03-living-ark.mjs";
+import { STAGE_04_STELLAR_FURNACE } from "../../src/content/stages/stage-04-stellar-furnace.mjs";
 import { createDefaultSaveData } from "../../src/core/save-data.mjs";
 
 function createPorts(options = {}) {
@@ -221,5 +222,27 @@ test("LOOP-01/STG-03: 解放済み第3面を選択して対応stageと音層で�
   assert.equal(application.session.simulation.stageId, STAGE_03_LIVING_ARK.id);
   assert.deepEqual(ports.calls.findLast(([kind]) => kind === "bgm"), [
     "bgm", STAGE_03_LIVING_ARK.audio.stageLayerAssetIds,
+  ]);
+});
+
+test("LOOP-01/STG-04: 解放済み第4面を選択して対応stageと音層で開始する", () => {
+  const data = createDefaultSaveData();
+  data.progress.tutorialSeen = true;
+  data.progress.maxUnlockedStage = 3;
+  const ports = createPorts({ data });
+  const application = createGameApplication({
+    stages: [PHASE05_TEST_STAGE, STAGE_02_CLOUD_REFINERY, STAGE_03_LIVING_ARK, STAGE_04_STELLAR_FURNACE],
+    saveRepository: ports.repository,
+    audio: ports.audio,
+    seed: 20261024,
+  });
+
+  application.dispatch("open-stage-select");
+  application.dispatch("start-stage-3");
+  assert.equal(application.session.flow.stageIndex, 3);
+  application.dispatch("begin-stage");
+  assert.equal(application.session.simulation.stageId, STAGE_04_STELLAR_FURNACE.id);
+  assert.deepEqual(ports.calls.findLast(([kind]) => kind === "bgm"), [
+    "bgm", STAGE_04_STELLAR_FURNACE.audio.stageLayerAssetIds,
   ]);
 });
