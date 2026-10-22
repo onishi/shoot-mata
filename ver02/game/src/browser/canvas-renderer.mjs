@@ -72,6 +72,65 @@ function drawProjectile(context, projectile, width, height) {
   context.restore();
 }
 
+function drawEffect(context, effect, width, height, display) {
+  const x = effect.x * width;
+  const y = effect.y * height;
+  const progress = display.reducedMotion ? 0.35 : effect.progress;
+  const highContrast = display.highContrast;
+  context.save();
+  context.translate(x, y);
+  context.globalAlpha = Math.max(0.25, 1 - progress);
+  context.lineWidth = highContrast ? 5 : 3;
+
+  if (effect.kind === "hit") {
+    const radius = 8 + progress * 18;
+    context.strokeStyle = highContrast ? "#fff" : "#fff3a6";
+    context.beginPath();
+    context.moveTo(-radius, 0);
+    context.lineTo(radius, 0);
+    context.moveTo(0, -radius);
+    context.lineTo(0, radius);
+    context.stroke();
+  } else if (effect.kind === "damage") {
+    const radius = 22 + progress * 30;
+    context.strokeStyle = highContrast ? "#fff" : "#ff765f";
+    context.setLineDash([10, 7]);
+    for (const offset of [0, 9]) {
+      context.beginPath();
+      context.arc(0, 0, radius + offset, 0, Math.PI * 2);
+      context.stroke();
+    }
+    context.setLineDash([]);
+  } else if (effect.kind === "destroy") {
+    const radius = 16 + progress * 42;
+    context.strokeStyle = highContrast ? "#fff" : "#ff9b5f";
+    context.beginPath();
+    for (let index = 0; index < 8; index += 1) {
+      const angle = (Math.PI * 2 * index) / 8;
+      const inner = radius * 0.45;
+      context.moveTo(Math.cos(angle) * inner, Math.sin(angle) * inner);
+      context.lineTo(Math.cos(angle) * radius, Math.sin(angle) * radius);
+    }
+    context.stroke();
+  } else {
+    const radius = 28 - progress * 12;
+    context.strokeStyle = highContrast ? "#fff" : "#79efff";
+    context.beginPath();
+    for (const angle of [0, Math.PI / 2, Math.PI, Math.PI * 1.5]) {
+      const tip = radius * 0.45;
+      const spread = 7;
+      context.moveTo(Math.cos(angle) * radius, Math.sin(angle) * radius);
+      context.lineTo(Math.cos(angle) * tip + Math.cos(angle + Math.PI / 2) * spread,
+        Math.sin(angle) * tip + Math.sin(angle + Math.PI / 2) * spread);
+      context.lineTo(Math.cos(angle) * tip + Math.cos(angle - Math.PI / 2) * spread,
+        Math.sin(angle) * tip + Math.sin(angle - Math.PI / 2) * spread);
+      context.closePath();
+    }
+    context.stroke();
+  }
+  context.restore();
+}
+
 function drawHudPanel(context, x, y, width, height, highContrast) {
   context.fillStyle = highContrast ? "#000" : HUD_BACKGROUND;
   context.fillRect(x, y, width, height);
@@ -144,6 +203,7 @@ export function renderCanvasFrame(context, view, assets) {
   }
   for (const actor of view.actors) drawContained(context, assets[actor.assetId], actor, view.width, view.height);
   for (const projectile of view.projectiles) drawProjectile(context, projectile, view.width, view.height);
+  for (const effect of view.effects) drawEffect(context, effect, view.width, view.height, view.display);
   drawHud(context, view);
   context.restore();
   return Object.freeze({ drawnAssets: view.layers.length + view.actors.length, missingAssets: missing });

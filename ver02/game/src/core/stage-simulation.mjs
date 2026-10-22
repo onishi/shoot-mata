@@ -14,6 +14,13 @@ const ENEMY_SPEED_PER_TICK = 0.006;
 const PLAYER_SHOT_SPEED_PER_TICK = 0.045;
 const ENEMY_SHOT_SPEED_PER_TICK = 0.018;
 
+const EFFECT_LIFETIMES = Object.freeze({
+  hit: 12,
+  damage: 36,
+  destroy: 28,
+  collect: 32,
+});
+
 function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
 }
@@ -49,9 +56,11 @@ export function createStageSimulation(stageInput, options = {}) {
     playerShots: [],
     enemyShots: [],
     pickups: [],
+    effects: [],
     boss: null,
     nextSpawnIndex: 0,
     nextShotId: 0,
+    nextEffectId: 0,
     fireCooldownTicks: 0,
     streak: 0,
     hitsTaken: 0,
@@ -64,6 +73,22 @@ export function createStageSimulation(stageInput, options = {}) {
 
 function emit(state, type, detail = {}) {
   state.events.push({ tick: state.tick, type, ...detail });
+}
+
+function addEffect(state, kind, x, y) {
+  state.effects.push({
+    id: `effect-${state.nextEffectId++}`,
+    kind,
+    x: clamp(x, 0, 1),
+    y: clamp(y, 0, 1),
+    ageTicks: 0,
+    lifetimeTicks: EFFECT_LIFETIMES[kind],
+  });
+}
+
+function ageEffects(state) {
+  for (const effect of state.effects) effect.ageTicks += 1;
+  state.effects = state.effects.filter(({ ageTicks, lifetimeTicks }) => ageTicks < lifetimeTicks);
 }
 
 function spawnScheduledEnemies(state, stage) {
@@ -214,6 +239,7 @@ function moveCombatants(state) {
 
 function damagePlayer(state, reason) {
   if (state.player.invulnerabilityTicks > 0 || state.status !== "playing") return false;
+  const impact = { x: state.player.x, y: state.player.y };
   const defenseBeforeHit = getWeaponProfile(state.loadout);
   const loss = loseReactorCore(state.loadout);
   state.hitsTaken += 1;
@@ -224,6 +250,7 @@ function damagePlayer(state, reason) {
     state.player.x = PLAYER_START.x;
     state.player.y = PLAYER_START.y;
   }
+  addEffect(state, "damage", impact.x, impact.y);
   emit(state, "player-hit", { reason, lostCore: loss.lost, lives: state.player.lives });
   if (state.player.lives <= 0) {
     state.status = "defeated";
@@ -241,6 +268,7 @@ function destroyEnemy(state, enemy) {
   state.score += streakBonus;
   state.scoreBreakdown.streak += streakBonus;
   state.pickups.push({ id: `drop-${enemy.id}`, x: enemy.x, y: enemy.y, core: enemy.dropItemId });
+  addEffect(state, "destroy", enemy.x, enemy.y);
   emit(state, "enemy-destroyed", { enemyId: enemy.id, drop: enemy.dropItemId });
 }
 
@@ -255,6 +283,7 @@ function damageBoss(state, damage) {
     return;
   }
   state.boss.defeated = true;
+  addEffect(state, "destroy", state.boss.x, state.boss.y);
   emit(state, "boss-defeated", { bossId: state.boss.id });
 }
 
@@ -266,6 +295,7 @@ function resolvePlayerShots(state) {
       && Math.abs(candidate.x - shot.x) <= 0.045 && Math.abs(candidate.y - shot.y) <= 0.075);
     if (enemy) {
       enemy.hitPoints -= shot.damage;
+      addEffect(state, "hit", enemy.x, enemy.y);
       if (enemy.hitPoints <= 0) {
         deadEnemies.add(enemy.id);
         destroyEnemy(state, enemy);
@@ -276,6 +306,7 @@ function resolvePlayerShots(state) {
     }
     if (state.boss && !state.boss.defeated
       && Math.abs(state.boss.x - shot.x) <= 0.07 && Math.abs(state.boss.y - shot.y) <= 0.11) {
+      addEffect(state, "hit", state.boss.x, state.boss.y);
       damageBoss(state, shot.damage);
       if (shot.pierce > 0) shot.pierce -= 1;
       else shot.dead = true;
@@ -309,11 +340,22 @@ function resolvePickups(state) {
   const profile = getWeaponProfile(state.loadout);
   for (const pickup of state.pickups) {
     if (Math.hypot(pickup.x - state.player.x, pickup.y - state.player.y) <= profile.collectionRadius) {
-      collectReactorCore(state.loadout, pickup.core);
+      const loadResult = collectReactorCore(state.loadout, pickup.core);
       state.score += 75;
       state.scoreBreakdown.core += 75;
       pickup.collected = true;
-      emit(state, "core-collected", { core: pickup.core });
+      addEffect(state, "collect", pickup.x, pickup.y);
+      emit(state, "core-collected", {
+        core: pickup.core,
+        soundAssetId: "audio-ref-core-collect",
+      });
+      emit(state, "core-loaded", {
+        core: pickup.core,
+        ejected: loadResult.ejected,
+        weapon: loadResult.build.weapon,
+        level: loadResult.build.level,
+        soundAssetId: "audio-ref-core-load",
+      });
     }
   }
   state.pickups = state.pickups.filter((pickup) => !pickup.collected && pickup.x >= -0.05);
@@ -350,6 +392,7 @@ export function stepStageSimulation(state, stageInput, input = {}) {
   const stage = parseStageDefinition(stageInput);
   if (stage.id !== state.stageId) throw new Error("stage does not match simulation state");
   state.events = [];
+  ageEffects(state);
   const command = normalizedCommand(input);
   spawnScheduledEnemies(state, stage);
   spawnBoss(state, stage);
@@ -417,5 +460,6 @@ export function createStageSimulationSnapshot(state) {
       level: shot.level ?? 1,
       angle: Math.atan2(shot.vy ?? 0, shot.vx ?? PLAYER_SHOT_SPEED_PER_TICK),
     })),
+    effects: state.effects.map((effect) => ({ ...effect })),
   };
 }

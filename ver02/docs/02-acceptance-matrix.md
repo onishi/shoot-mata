@@ -44,7 +44,7 @@
 | UX-02 | P05, P06 | P09, P10 | 初回説明をブラウザ入口へ接続しChromeでEnter導線を確認。段階説明、再表示、初見観察は後続 | 実装中 |
 | UX-03 | P04, P06 | P09, P10 | P04代表HUDは11.58〜11.65%を3画面で確認。P05 Canvasへscore、残機、3コア、武器、boss meterを同一表示モデルから描画。P06ゲーム本体で再検証 | 実装中 |
 | UX-04 | P04, P07 | P09, P10 | P04実PNGをグレースケール・3種色覚シミュレーションで検査し、コア間37.02/255以上、自機・敵25.24/255以上、非色シグネチャ重複0。`reference-scene/visual-audit.test.mjs`。P07全素材で再検証 | 実装中 |
-| UX-05 | P05, P06 | P08, P10 | P05に16:9 Canvas、safe-area、縦長・横長CSSを実装。Chromeの1440×900、390×844、320×844、844×390でタイトル・プレイの横溢れ0を確認。実端末は後続 | 実装中 |
+| UX-05 | P05, P06 | P08, P10 | P05に16:9 Canvas、safe-area、縦長・横長CSSを実装。P06のゲームオーバーと再挑戦をChrome 1568×1012、390×844、844×390で再確認し、横溢れ0、横長の縦溢れ0。実端末は後続 | 実装中 |
 | UX-06 | P05, P06 | P08, P10 | 縦長Canvas下と横長overlayへ44px以上のmove/fire/pause領域を実装。4 viewportで表示確認、実端末完走は後続 | 実装中 |
 | UX-07 | P05 | P08, P10 | 明示ボタンと非対応・拒否時の通常表示継続を実装。許可・拒否・非対応の実ブラウザ統合テストは未確認 | 実装中 |
 | INP-01 | P05 | P08, P10 | 標準キー、保持、押下edge、repeat、既定動作抑止、ボタンEnter二重発火防止を自動検査。Chromeでタイトル→説明→出撃とポーズを操作。完成キャンペーンは後続 | 実装中 |
@@ -52,22 +52,22 @@
 | INP-03 | P04, P05 | P09, P10 | P04表示設定は50×44px以上。P05で役割付きゲーム領域だけがpointer既定動作を抑止することを検査。実端末のスクロール競合は後続 | 実装中 |
 | INP-04 | P07 | P08, P10 | キーボードとタッチ各1回以上のキャンペーン完走記録 | 未着手 |
 | A11Y-01 | P05 | P08, P10 | BGM/SFX別音量・ミュートのschema、保存復元、独立gainへの即時反映を自動検査。ChromeでBGM音量とSFXミュートを変更し、再読込後の復元を確認 | 実装中 |
-| A11Y-02 | P04, P05 | P09, P10 | P04代表シーンで軽減時も3 VFX形状とHUDを保持。P05保存schemaへ動き・明滅軽減を統合。ゲーム表示への接続は後続 | 実装中 |
+| A11Y-02 | P04, P05 | P09, P10 | P04代表シーンに加え、P06 Canvasの命中・被弾・撃破・回収VFXで動き軽減時も静止形状を保持する自動検査に合格。全製品演出は後続 | 実装中 |
 | A11Y-03 | P04, P07 | P09, P10 | P04 HUD記号、12px文字、高コントラスト表示を監査。P07全素材で再検証 | 実装中 |
 | A11Y-04 | P05 | P08, P10 | メニューのTab順、フォーカス、ラベル監査 | 未着手 |
 | AV-01 | P04, P06, P07 | P07, P10 | 自機・3コア・第1面背景3層・通常敵3種・第1面bossはfinal。本番入口の第1面asset IDにplaceholder 0。全製品素材のfinal/verifiedはP07 | 実装中 |
 | AV-02 | P04, P06, P07 | P07, P10 | アニメーション一覧と全状態のゲーム内動画を照合 | 未着手 |
 | AV-03 | P04, P06, P07 | P07, P10 | 第1面の遠景・中景・前景を独立速度で合成。残り4面の背景レイヤー、パララックス、環境動作の画面証拠 | 実装中 |
-| AV-04 | P04, P06, P07 | P09, P10 | P06で3武器のLv別弾形状と発射event・専用音をゲーム本体へ統合し、Chromeでランス弾と音源欠落0を確認。命中・被弾・回収等の本体統合は後続 | 実装中 |
-| AV-05 | P04, P06, P07 | P07, P10 | P04自作代表音7点を台帳化し波形検査済み。タイトル、4面、ボス、結果・エンディングの全音源とゲーム内確認は未着手 | 実装中 |
-| AV-06 | P05 | P08, P10 | START前の未生成、作成・resume・decode・再生失敗、音源欠落、ミュート、破棄をunit検査。applicationへ作成失敗を注入して結果まで無音完走。ChromeでSTART後のローカル3音源読込とミュート継続を確認 | 実装中 |
+| AV-04 | P04, P06, P07 | P09, P10 | P06で3武器のLv別弾形状に加え、命中の十字、被弾の破線二重環、撃破の放射線、回収の内向き山形を寿命付きCanvas VFXへ統合。色に依存しない形状と動き軽減時の残存を自動検査 | 実装中 |
+| AV-05 | P04, P06, P07 | P07, P10 | P04自作代表音7点を台帳化し波形検査済み。P06で3武器、コア回収、FIFO装填の5効果音と第1面BGMを製品eventへ接続。タイトル、残り3面、boss、結果・エンディングは後続 | 実装中 |
+| AV-06 | P05 | P08, P10 | 音声異常系と無音完走をunit検査。P06 ChromeでSTART後に自作7音源をすべてHTTP 200/304で取得し、警告0、console warning/error 0を確認 | 実装中 |
 | AV-07 | P04, P07 | P10 | P04代表音は生成式、用途、SHA-256、外部サンプル0をmanifestと台帳で照合。全製品素材は未着手 | 実装中 |
 | TECH-01 | P05 | P08, P10 | `game/tests/core/fixed-step.test.mjs`で30/60/144Hz、長delta、非表示復帰を決定的検査。ブラウザ統合と製品負荷で再検証 | 実装中 |
 | TECH-02 | P05, P07 | P07, P10 | `stage-schema.test.mjs`で背景、敵、drop、区間、wave、仕掛け、boss phase、音、遷移のschema・参照・登録behaviorを検査。`stage-schedule.test.mjs`でデータ差替えとseed再現を検査。完成4面のデータと条件分岐レビューはP07 | 実装中 |
 | TECH-03 | P05, P07 | P08, P10 | `stage-simulation.test.mjs`で10 seedのwave、drop、仕掛け、boss phase、勝敗、タイトル→結果→同seed再挑戦を決定的検査。ブラウザ入口と完成4面は後続 | 実装中 |
 | TECH-04 | P05 | P09, P10 | `phases/phase-05/browser-compatibility.json` に必須6対象とversion・結果を記録しschema検査。Chrome 155 / macOS 26.6.2は合格。Edge、Firefox、Safari、iOS実機、Android実機は未確認のまま明示し、P09で再検証 | 実装中 |
 | TECH-05 | P05, P09 | P09, P10 | Phase 05固定場面をChromeで5秒超計測し120.0fps、50ms超frame 0、最大10.4ms、simulation drop 0ms。低性能対象端末と長時間計測はP09 | 実装中 |
-| TECH-06 | P05, P08 | P08, P10 | asset manifest実在・静的外部URL 0を自動検査。静的成果物のChrome主要フローで33 resource、外部origin 0、欠落0、console warning/error 0。全製品フローは後続 | 実装中 |
+| TECH-06 | P05, P08 | P08, P10 | asset manifest実在・静的外部URL 0を自動検査。P06静的成果物のChrome実行で41 resource、外部origin 0、音源を含む欠落0、console warning/error 0。全製品フローは後続 | 実装中 |
 | TECH-07 | P05, P09 | P09, P10 | build 13,733,784 bytes/16 MiB、初回encoded 13,727,049 bytes/14 MiB、localhost load 187ms/2秒。ポーズ除外後119.7fps、50ms超0、最大16.7ms、drop 0。P09で低性能・長時間再計測 | 実装中 |
 | TECH-08 | P05 | P10 | lockfile、runtime/dev依存0、`npm audit --omit=dev --audit-level=high`で既知脆弱性0。最終候補で再監査 | 実装中 |
 | REL-01 | P04, P07 | P10 | P04生成画像は利用条件再確認待ち、自作音は外部サンプル0をmanifest照合。P07全素材・フォント・コードと通知を照合 | 実装中 |

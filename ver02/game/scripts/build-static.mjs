@@ -16,6 +16,8 @@ const ASSET_PATHS = Object.freeze([
   "audio/reference/weapon-lance-shot-v1.wav",
   "audio/reference/weapon-spread-shot-v1.wav",
   "audio/reference/weapon-seeker-launch-v1.wav",
+  "audio/reference/core-collect-v1.wav",
+  "audio/reference/core-load-v1.wav",
   "game/backgrounds/stage-01/orbital-wreck-far-v1.png",
   "game/backgrounds/stage-01/orbital-wreck-mid-v1.png",
   "game/backgrounds/stage-01/orbital-wreck-fore-v1.png",

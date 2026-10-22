@@ -14,6 +14,7 @@ test("builds a frozen 16:9 view from stage data and HUD state", () => {
     boss: { current: 70, maximum: 100 },
     actors: [{ id: "player", assetId: "player-interceptor", x: 0.2, y: 0.5, width: 0.24, height: 0.24 }],
     projectiles: [{ id: "shot", x: 0.3, y: 0.5, kind: "spread", level: 2, angle: 0.1 }],
+    effects: [{ id: "impact", x: 0.4, y: 0.5, kind: "hit", ageTicks: 3, lifetimeTicks: 12 }],
   });
 
   assert.equal(GAME_WIDTH / GAME_HEIGHT, 16 / 9);
@@ -23,6 +24,7 @@ test("builds a frozen 16:9 view from stage data and HUD state", () => {
   assert.equal(view.hud.coreQueue[0].ejectedNext, true);
   assert.equal(view.hud.boss.ratio, 0.7);
   assert.deepEqual(view.projectiles[0], { id: "shot", x: 0.3, y: 0.5, kind: "spread", level: 2, angle: 0.1 });
+  assert.deepEqual(view.effects[0], { id: "impact", x: 0.4, y: 0.5, kind: "hit", progress: 0.25 });
   assert.match(view.accessibleSummary, /スコア12500/);
   assert.ok(Object.isFrozen(view));
   assert.ok(Object.isFrozen(view.hud));
@@ -57,4 +59,12 @@ test("rejects invalid normalized actor and HUD values", () => {
     stage: PHASE05_TEST_STAGE,
     projectiles: [{ x: 0.2, y: 0.5, kind: "laser", level: 1 }],
   }), /projectiles\[0\]\.kind/);
+  assert.throws(() => createStageViewModel({
+    stage: PHASE05_TEST_STAGE,
+    effects: [{ x: 0.2, y: 0.5, kind: "flash", ageTicks: 0, lifetimeTicks: 10 }],
+  }), /effects\[0\]\.kind/);
+  assert.throws(() => createStageViewModel({
+    stage: PHASE05_TEST_STAGE,
+    effects: [{ x: 0.2, y: 0.5, kind: "hit", ageTicks: 10, lifetimeTicks: 10 }],
+  }), /expired/);
 });

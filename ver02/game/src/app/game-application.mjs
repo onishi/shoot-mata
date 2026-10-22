@@ -111,7 +111,7 @@ export function createGameApplication(options) {
       syncScreenAudio(previousScreen);
       if (previousScreen === "playing") {
         for (const event of session.simulation?.events ?? []) {
-          if (event.type === "weapon-fired") audio.playSfx(event.soundAssetId);
+          if (event.soundAssetId) audio.playSfx(event.soundAssetId);
         }
       }
       return session;

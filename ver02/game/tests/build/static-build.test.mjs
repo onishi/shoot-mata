@@ -27,6 +27,8 @@ test("static build is complete, bounded, and reproducible", async (context) => {
     "weapon-lance-shot-v1.wav",
     "weapon-spread-shot-v1.wav",
     "weapon-seeker-launch-v1.wav",
+    "core-collect-v1.wav",
+    "core-load-v1.wav",
   ]) {
     assert.ok(first.files.some(({ path }) => path === `assets/audio/reference/${file}`));
   }

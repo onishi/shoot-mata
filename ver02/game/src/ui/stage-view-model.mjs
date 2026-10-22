@@ -44,6 +44,7 @@ function actor(input, index) {
 }
 
 const PROJECTILE_KINDS = Object.freeze(["lance", "spread", "seeker"]);
+const EFFECT_KINDS = Object.freeze(["hit", "damage", "destroy", "collect"]);
 
 function projectile(input, index) {
   if (!input || typeof input !== "object") throw new TypeError(`projectiles[${index}] is required`);
@@ -55,6 +56,21 @@ function projectile(input, index) {
     kind: input.kind,
     level: integer(input.level, `projectiles[${index}].level`, 1),
     angle: finite(input.angle ?? 0, `projectiles[${index}].angle`),
+  });
+}
+
+function effect(input, index) {
+  if (!input || typeof input !== "object") throw new TypeError(`effects[${index}] is required`);
+  if (!EFFECT_KINDS.includes(input.kind)) throw new TypeError(`effects[${index}].kind is invalid`);
+  const ageTicks = integer(input.ageTicks, `effects[${index}].ageTicks`);
+  const lifetimeTicks = integer(input.lifetimeTicks, `effects[${index}].lifetimeTicks`, 1);
+  if (ageTicks >= lifetimeTicks) throw new RangeError(`effects[${index}] has expired`);
+  return Object.freeze({
+    id: input.id ?? `effect-${index}`,
+    kind: input.kind,
+    x: normalized(input.x, `effects[${index}].x`),
+    y: normalized(input.y, `effects[${index}].y`),
+    progress: ageTicks / lifetimeTicks,
   });
 }
 
@@ -105,6 +121,7 @@ export function createStageViewModel(input) {
     layers: Object.freeze(layers),
     actors: Object.freeze((input.actors ?? []).map(actor)),
     projectiles: Object.freeze((input.projectiles ?? []).map(projectile)),
+    effects: Object.freeze((input.effects ?? []).map(effect)),
     hud: Object.freeze({
       score: integer(input.score ?? 0, "score"),
       lives: integer(input.lives ?? 3, "lives"),

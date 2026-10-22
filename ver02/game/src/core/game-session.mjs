@@ -126,5 +126,7 @@ export function getGameSessionSnapshot(session) {
     actors: [
       { id: "player", assetId: "player-interceptor", x: 0.18, y: 0.5, width: 0.12, height: 0.15, tone: "player" },
     ],
+    projectiles: [],
+    effects: [],
   };
 }

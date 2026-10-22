@@ -145,3 +145,27 @@ test("AV-04/WPN-01〜03: 実際の発射eventに対応する武器音だけを�
     assert.equal(ports.calls.filter(([kind]) => kind === "sfx").length, count);
   }
 });
+
+test("AV-04: コア回収とFIFO装填eventに対応する2音を一度ずつ鳴らす", () => {
+  const data = createDefaultSaveData();
+  data.progress.tutorialSeen = true;
+  const ports = createPorts({ data });
+  const application = createGameApplication({
+    stage: PHASE05_TEST_STAGE, saveRepository: ports.repository, audio: ports.audio,
+  });
+  application.update({ confirm: true });
+  application.update({ confirm: true });
+  const simulation = application.session.simulation;
+  simulation.pickups.push({ id: "forced-core", x: simulation.player.x, y: simulation.player.y, core: "blue" });
+  const before = ports.calls.length;
+  application.update();
+  assert.deepEqual(ports.calls.slice(before).filter(([kind]) => kind === "sfx"), [
+    ["sfx", "audio-ref-core-collect"],
+    ["sfx", "audio-ref-core-load"],
+  ]);
+  application.update();
+  assert.deepEqual(ports.calls.slice(before).filter(([kind]) => kind === "sfx"), [
+    ["sfx", "audio-ref-core-collect"],
+    ["sfx", "audio-ref-core-load"],
+  ]);
+});

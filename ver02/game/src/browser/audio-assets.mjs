@@ -24,6 +24,16 @@ export const AUDIO_ASSETS = Object.freeze([
     group: "sfx",
     url: "../../assets/audio/reference/weapon-seeker-launch-v1.wav",
   }),
+  Object.freeze({
+    id: "audio-ref-core-collect",
+    group: "sfx",
+    url: "../../assets/audio/reference/core-collect-v1.wav",
+  }),
+  Object.freeze({
+    id: "audio-ref-core-load",
+    group: "sfx",
+    url: "../../assets/audio/reference/core-load-v1.wav",
+  }),
 ]);
 
 export async function loadBrowserAudioAssets(audio, options = {}) {

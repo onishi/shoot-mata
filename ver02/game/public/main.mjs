@@ -194,6 +194,7 @@ function createView() {
     boss: snapshot.boss,
     actors: snapshot.actors,
     projectiles: snapshot.projectiles,
+    effects: snapshot.effects,
   });
 }
 

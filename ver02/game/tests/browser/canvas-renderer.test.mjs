@@ -10,6 +10,7 @@ function fakeContext() {
   for (const method of [
     "save", "restore", "clearRect", "fillRect", "strokeRect", "fillText", "drawImage",
     "translate", "rotate", "beginPath", "moveTo", "lineTo", "closePath", "fill", "stroke", "arc",
+    "setLineDash",
   ]) {
     context[method] = (...args) => calls.push([method, ...args]);
   }
@@ -57,6 +58,24 @@ test("CORE-03/WPN-01〜03: 3系統の弾をLvに応じた別形状で描く", ()
   assert.equal(context.calls.filter(([method]) => method === "arc").length, 1);
   assert.equal(context.calls.filter(([method]) => method === "closePath").length, 1);
   assert.ok(context.calls.filter(([method]) => method === "lineTo").length >= 5);
+});
+
+test("AV-04/A11Y-02: 4種VFXを非色形状で描き、動き軽減でも残す", () => {
+  const effects = ["hit", "damage", "destroy", "collect"].map((kind, index) => ({
+    id: kind, kind, x: 0.3 + index * 0.1, y: 0.5, ageTicks: 4, lifetimeTicks: 20,
+  }));
+  const view = createStageViewModel({
+    stage: PHASE05_TEST_STAGE,
+    settings: { reducedMotion: true, highContrast: true },
+    effects,
+  });
+  const assets = Object.fromEntries(view.layers.map(({ assetId }) => [assetId, fakeImage()]));
+  const context = fakeContext();
+  renderCanvasFrame(context, view, assets);
+  assert.equal(context.calls.filter(([method]) => method === "translate").length, 4);
+  assert.equal(context.calls.filter(([method]) => method === "arc").length, 2);
+  assert.ok(context.calls.some(([method, dash]) => method === "setLineDash" && dash.length === 2));
+  assert.ok(context.calls.filter(([method]) => method === "closePath").length >= 4);
 });
 
 test("reports every missing asset before drawing", () => {

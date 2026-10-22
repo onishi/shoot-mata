@@ -103,6 +103,43 @@ test("CORE-05: 全コア喪失後も標準範囲でコアを回収して復帰�
   stepStageSimulation(simulation, PHASE05_TEST_STAGE);
   assert.deepEqual(simulation.loadout.queue, ["yellow"]);
   assert.ok(simulation.events.some(({ type, core }) => type === "core-collected" && core === "yellow"));
+  assert.deepEqual(simulation.events.filter(({ type }) => type.startsWith("core-")), [
+    { tick: 0, type: "core-collected", core: "yellow", soundAssetId: "audio-ref-core-collect" },
+    {
+      tick: 0, type: "core-loaded", core: "yellow", ejected: null,
+      weapon: "yellow", level: 1, soundAssetId: "audio-ref-core-load",
+    },
+  ]);
+  assert.equal(simulation.effects.at(-1).kind, "collect");
+});
+
+test("AV-04: 命中・撃破・被弾VFXは発生位置を保持し、寿命後に消える", () => {
+  const simulation = createStageSimulation(PHASE05_TEST_STAGE, { lives: 2, coreQueue: [] });
+  simulation.nextSpawnIndex = simulation.schedule.spawns.length;
+  simulation.enemies.push({
+    id: "vfx-target", typeId: "test", assetId: "test", behaviorId: "armored-drift",
+    x: 0.3, y: 0.5, originY: 0.5, hitPoints: 1, maximumHitPoints: 1,
+    score: 10, collisionRadius: 0.02, dropItemId: "red", ageTicks: 0,
+  });
+  simulation.playerShots.push({
+    id: "forced-hit", x: 0.3, y: 0.5, damage: 1, pierce: 0,
+    kind: "lance", level: 1, vx: 0, vy: 0,
+  });
+  stepStageSimulation(simulation, PHASE05_TEST_STAGE);
+  assert.deepEqual(simulation.effects.map(({ kind }) => kind), ["hit", "destroy"]);
+  const initialEffectIds = simulation.effects.map(({ id }) => id);
+
+  simulation.player.invulnerabilityTicks = 0;
+  simulation.enemyShots.push({ id: "forced-damage", x: simulation.player.x, y: simulation.player.y, vx: 0, vy: 0 });
+  stepStageSimulation(simulation, PHASE05_TEST_STAGE);
+  assert.ok(simulation.effects.some(({ kind }) => kind === "damage"));
+  const damage = simulation.effects.find(({ kind }) => kind === "damage");
+  initialEffectIds.push(damage.id);
+  assert.equal(damage.x, 0.18);
+  assert.equal(damage.y, 0.5);
+
+  for (let index = 0; index < 36; index += 1) stepStageSimulation(simulation, PHASE05_TEST_STAGE);
+  assert.equal(simulation.effects.some(({ id }) => initialEffectIds.includes(id)), false);
 });
 
 test("LOOP-04: ポーズ中は戦闘tickを進めず、復帰後に同じ入力列を継続できる", () => {
