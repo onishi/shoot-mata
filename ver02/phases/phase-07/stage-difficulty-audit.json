@@ -1,0 +1,253 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-24",
+  "scope": {
+    "objective": "content pressure curve and repeatable multi-seed completion evidence",
+    "limitation": "stage-aware deterministic automation is not a human or subjective difficulty rating"
+  },
+  "seeds": [
+    20261008,
+    20261015,
+    20261021
+  ],
+  "inputPolicy": "automaticCombatCommand; same policy implementation with stage hazard branches",
+  "stages": [
+    {
+      "stageId": "stage-01-orbital-wreck",
+      "pressure": {
+        "durationTicks": 3600,
+        "enemyCount": 22,
+        "enemyHitPoints": 160,
+        "bossHitPoints": 200,
+        "totalHostileHitPoints": 360,
+        "stageMechanics": 7,
+        "cumulativeMechanics": 7
+      },
+      "runs": [
+        {
+          "seed": 20261008,
+          "status": "cleared",
+          "clearTick": 2988,
+          "score": 10560,
+          "hitsTaken": 1,
+          "coreLosses": 1,
+          "lifeLosses": 0,
+          "bossTicks": 228,
+          "hitReasons": {
+            "enemy-shot": 1
+          }
+        },
+        {
+          "seed": 20261015,
+          "status": "cleared",
+          "clearTick": 2953,
+          "score": 10860,
+          "hitsTaken": 1,
+          "coreLosses": 1,
+          "lifeLosses": 0,
+          "bossTicks": 193,
+          "hitReasons": {
+            "enemy-shot": 1
+          }
+        },
+        {
+          "seed": 20261021,
+          "status": "cleared",
+          "clearTick": 2996,
+          "score": 10785,
+          "hitsTaken": 2,
+          "coreLosses": 2,
+          "lifeLosses": 0,
+          "bossTicks": 236,
+          "hitReasons": {
+            "enemy-shot": 2
+          }
+        }
+      ]
+    },
+    {
+      "stageId": "stage-02-cloud-refinery",
+      "pressure": {
+        "durationTicks": 3720,
+        "enemyCount": 24,
+        "enemyHitPoints": 189,
+        "bossHitPoints": 215,
+        "totalHostileHitPoints": 404,
+        "stageMechanics": 9,
+        "cumulativeMechanics": 16
+      },
+      "runs": [
+        {
+          "seed": 20261008,
+          "status": "cleared",
+          "clearTick": 3086,
+          "score": 9450,
+          "hitsTaken": 3,
+          "coreLosses": 3,
+          "lifeLosses": 0,
+          "bossTicks": 266,
+          "hitReasons": {
+            "charged-cloud": 1,
+            "enemy-shot": 2
+          }
+        },
+        {
+          "seed": 20261015,
+          "status": "cleared",
+          "clearTick": 3085,
+          "score": 9300,
+          "hitsTaken": 3,
+          "coreLosses": 3,
+          "lifeLosses": 0,
+          "bossTicks": 265,
+          "hitReasons": {
+            "charged-cloud": 1,
+            "enemy-shot": 2
+          }
+        },
+        {
+          "seed": 20261021,
+          "status": "cleared",
+          "clearTick": 3104,
+          "score": 9275,
+          "hitsTaken": 4,
+          "coreLosses": 4,
+          "lifeLosses": 0,
+          "bossTicks": 284,
+          "hitReasons": {
+            "charged-cloud": 1,
+            "enemy-shot": 3
+          }
+        }
+      ]
+    },
+    {
+      "stageId": "stage-03-living-ark",
+      "pressure": {
+        "durationTicks": 4080,
+        "enemyCount": 30,
+        "enemyHitPoints": 291,
+        "bossHitPoints": 195,
+        "totalHostileHitPoints": 486,
+        "stageMechanics": 9,
+        "cumulativeMechanics": 25
+      },
+      "runs": [
+        {
+          "seed": 20261008,
+          "status": "cleared",
+          "clearTick": 3164,
+          "score": 12025,
+          "hitsTaken": 2,
+          "coreLosses": 2,
+          "lifeLosses": 0,
+          "bossTicks": 224,
+          "hitReasons": {
+            "enemy-shot": 2
+          }
+        },
+        {
+          "seed": 20261015,
+          "status": "cleared",
+          "clearTick": 3339,
+          "score": 11485,
+          "hitsTaken": 4,
+          "coreLosses": 4,
+          "lifeLosses": 0,
+          "bossTicks": 399,
+          "hitReasons": {
+            "enemy-shot": 3,
+            "enemy-collision": 1
+          }
+        },
+        {
+          "seed": 20261021,
+          "status": "cleared",
+          "clearTick": 3378,
+          "score": 18470,
+          "hitsTaken": 2,
+          "coreLosses": 2,
+          "lifeLosses": 0,
+          "bossTicks": 438,
+          "hitReasons": {
+            "enemy-shot": 2
+          }
+        }
+      ]
+    },
+    {
+      "stageId": "stage-04-stellar-furnace",
+      "pressure": {
+        "durationTicks": 4440,
+        "enemyCount": 32,
+        "enemyHitPoints": 383,
+        "bossHitPoints": 240,
+        "totalHostileHitPoints": 623,
+        "stageMechanics": 9,
+        "cumulativeMechanics": 34
+      },
+      "runs": [
+        {
+          "seed": 20261008,
+          "status": "cleared",
+          "clearTick": 3478,
+          "score": 14035,
+          "hitsTaken": 4,
+          "coreLosses": 4,
+          "lifeLosses": 0,
+          "bossTicks": 238,
+          "hitReasons": {
+            "enemy-shot": 3,
+            "destruction-safe-zone": 1
+          }
+        },
+        {
+          "seed": 20261015,
+          "status": "cleared",
+          "clearTick": 4149,
+          "score": 17510,
+          "hitsTaken": 12,
+          "coreLosses": 10,
+          "lifeLosses": 2,
+          "bossTicks": 909,
+          "hitReasons": {
+            "enemy-shot": 11,
+            "destruction-safe-zone": 1
+          }
+        },
+        {
+          "seed": 20261021,
+          "status": "cleared",
+          "clearTick": 3846,
+          "score": 14310,
+          "hitsTaken": 9,
+          "coreLosses": 8,
+          "lifeLosses": 1,
+          "bossTicks": 606,
+          "hitReasons": {
+            "enemy-shot": 8,
+            "enemy-collision": 1
+          }
+        }
+      ]
+    }
+  ],
+  "finale": {
+    "coreColors": [
+      "core-red",
+      "core-blue",
+      "core-yellow"
+    ],
+    "requiredBehaviors": [
+      "heat-armored",
+      "solar-rammer",
+      "omni-turret",
+      "periodic-heatwave",
+      "destruction-safe-zone",
+      "boss-thermal-shell",
+      "boss-overload-ram",
+      "boss-omni-flare"
+    ]
+  },
+  "violations": []
+}
