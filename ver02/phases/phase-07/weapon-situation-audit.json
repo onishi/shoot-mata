@@ -1,0 +1,99 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-24",
+  "policy": {
+    "comparison": "same level-3 loadout size, seed, player position, and continuous-fire input",
+    "ranking": "destroyed desc, escaped asc, remaining HP asc, completion ticks asc"
+  },
+  "seed": 20261024,
+  "loadout": {
+    "level": 3,
+    "cores": 3
+  },
+  "input": {
+    "moveX": 0,
+    "moveY": 0,
+    "fire": true
+  },
+  "scenarios": [
+    {
+      "id": "single-durable-target",
+      "description": "centered 200 HP target at long range",
+      "expectedWinner": "red",
+      "winner": "red",
+      "results": {
+        "red": {
+          "ticks": 75,
+          "destroyed": 0,
+          "escaped": 0,
+          "remainingHitPoints": 0
+        },
+        "blue": {
+          "ticks": 101,
+          "destroyed": 0,
+          "escaped": 0,
+          "remainingHitPoints": 0
+        },
+        "yellow": {
+          "ticks": 176,
+          "destroyed": 0,
+          "escaped": 0,
+          "remainingHitPoints": 0
+        }
+      }
+    },
+    {
+      "id": "close-formation-swarm",
+      "description": "five 18 HP targets spread across adjacent lanes",
+      "expectedWinner": "blue",
+      "winner": "blue",
+      "results": {
+        "red": {
+          "ticks": 75,
+          "destroyed": 5,
+          "escaped": 0,
+          "remainingHitPoints": 0
+        },
+        "blue": {
+          "ticks": 47,
+          "destroyed": 5,
+          "escaped": 0,
+          "remainingHitPoints": 0
+        },
+        "yellow": {
+          "ticks": 83,
+          "destroyed": 5,
+          "escaped": 0,
+          "remainingHitPoints": 0
+        }
+      }
+    },
+    {
+      "id": "covered-dead-angle",
+      "description": "60 HP cover turret outside the direct firing lane",
+      "expectedWinner": "yellow",
+      "winner": "yellow",
+      "results": {
+        "red": {
+          "ticks": 220,
+          "destroyed": 0,
+          "escaped": 0,
+          "remainingHitPoints": 60
+        },
+        "blue": {
+          "ticks": 220,
+          "destroyed": 0,
+          "escaped": 0,
+          "remainingHitPoints": 60
+        },
+        "yellow": {
+          "ticks": 63,
+          "destroyed": 1,
+          "escaped": 0,
+          "remainingHitPoints": 0
+        }
+      }
+    }
+  ],
+  "violations": []
+}

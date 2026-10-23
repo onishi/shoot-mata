@@ -27,7 +27,7 @@
 | WPN-01 | P03, P07 | P07, P10 | P06製品戦闘で赤Lv1〜3の威力・貫通、Lv別菱形、専用音を検査。実ブラウザでLv1弾を確認 | 実装中 |
 | WPN-02 | P03, P07 | P07, P10 | P06製品戦闘で青Lv1〜3の3/5/7発広射線、Lv別山形、専用音を検査。全区間の画面確認は後続 | 実装中 |
 | WPN-03 | P03, P07 | P07, P10 | P06製品戦闘で黄Lv1〜3の1/2/3発追尾、Lv別円形、専用音を検査。全区間の画面確認は後続 | 実装中 |
-| WPN-04 | P03, P07 | P09, P10 | `stage-simulation.test.mjs`でHP40敵・HP200 bossの9構成撃破tickを固定比較。群れ・遮蔽別の逆転検証は後続 | 実装中 |
+| WPN-04 | P03, P07 | P09, P10 | `weapon-situation-audit.json`と回帰テストで、同じLv3構成・seed・固定位置・連射入力を比較。単体高耐久は赤75tick、近接5機群は青47tick、遮蔽死角は黄63tickで優位が逆転し、再実行一致 | 実装済み未検証 |
 | STG-01 | P06 | P06, P10 | `stage-01-orbital-wreck.test.mjs`とChrome `?qa=stage01`で、通常戦、圧縮回廊、3段階boss、結果、同seed再挑戦を完走。390×844・844×390でoverflow 0、console warning/error 0 | 実装済み未検証 |
 | STG-02 | P07 | P07, P10 | 完成背景3層・敵3種・boss、上下気流・開閉遮蔽・帯電域、3段階boss、通常2層/Boss 3音層を接続。Chrome `?qa=stage02`で2完走・score 9525・snapshot一致、通常入口から選択・出撃、3 viewportを確認。個別アニメーションと主観品質は後続 | 実装中 |
 | STG-03 | P07 | P07, P10 | 完成背景3層、再生群体・寄生砲台・捕食体、射撃開口・増殖源・収縮通路、成長3段階boss、通常2層/Boss 3音層を製品入口へ接続。`stage-03-living-ark.test.mjs`とChrome `?qa=stage03`で2完走・tick 3577・score 11950・snapshot一致、3 viewport、キーボード/Pointer Eventsのポーズを確認。個別アニメーションと主観品質は後続 | 実装中 |
