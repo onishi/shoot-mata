@@ -22,6 +22,7 @@ test("static build is complete, bounded, and reproducible", async (context) => {
   assert.equal(first.totalBytes, second.totalBytes);
   assert.equal(firstManifest, secondManifest);
   assert.ok(first.files.some(({ path }) => path === "game/public/index.html"));
+  assert.ok(first.files.every(({ path }) => !path.endsWith("phase05-test-segment.mjs")));
   assert.match(entrypoint, /<link rel="icon"[^>]+reactor-core-red-v1\.webp/);
   assert.ok(first.files.some(({ path }) => path === "assets/delivery/game/cores/reactor-core-red-v1.webp"));
   for (const file of [

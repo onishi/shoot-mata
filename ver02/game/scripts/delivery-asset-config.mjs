@@ -7,6 +7,22 @@ export const ASSET_BUDGETS = Object.freeze({
   build: 16 * 1024 * 1024,
 });
 
+const IMAGE_RIGHTS_REVIEW = Object.freeze({
+  status: "final",
+  origin: "openai-image-generation",
+  rights: "output-owned-by-user-subject-to-applicable-law-and-openai-terms",
+  reviewedOn: "2026-10-24",
+  termsUrl: "https://openai.com/policies/terms-of-use/",
+  residualRisk: "output-may-not-be-unique; project remains responsible for non-infringing use",
+});
+
+const AUDIO_RIGHTS_REVIEW = Object.freeze({
+  status: "final",
+  origin: "project-authored-deterministic-synthesis",
+  rights: "project-authored; no third-party samples",
+  reviewedOn: "2026-10-24",
+});
+
 const image = (sourcePath, deliveryPath, group, width, height, quality, lossless = false) => Object.freeze({
   kind: "webp",
   sourcePath,
@@ -17,6 +33,8 @@ const image = (sourcePath, deliveryPath, group, width, height, quality, lossless
   quality,
   lossless,
   alphaQuality: 100,
+  promptPath: sourcePath.replace(/\.png$/, ".prompt.md"),
+  ...IMAGE_RIGHTS_REVIEW,
 });
 
 const copy = (path, group) => Object.freeze({
@@ -24,6 +42,8 @@ const copy = (path, group) => Object.freeze({
   sourcePath: path,
   deliveryPath: path,
   group,
+  manifestPath: `${path.slice(0, path.lastIndexOf("/"))}/manifest.json`,
+  ...AUDIO_RIGHTS_REVIEW,
 });
 
 export const DELIVERY_ASSETS = Object.freeze([

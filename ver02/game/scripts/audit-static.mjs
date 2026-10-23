@@ -27,6 +27,7 @@ for (const file of manifest.files) {
   if ([".css", ".html", ".mjs"].includes(extname(file.path))) {
     const source = content.toString("utf8");
     if (/\b(?:https?:)?\/\//i.test(source)) failures.push(`${file.path}: external URL found`);
+    if (/\b(?:placeholder|planned|draft)\b/i.test(source)) failures.push(`${file.path}: unfinished product reference found`);
   }
 }
 

@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="dark">
+    <title>shoot-mata v02 — 権利・制作情報</title>
+    <style>
+      :root { color-scheme: dark; font-family: ui-monospace, "SFMono-Regular", Consolas, monospace; background: #020408; color: #e8f4fb; }
+      body { max-width: 52rem; margin: auto; padding: 24px; line-height: 1.7; }
+      h1, h2 { color: #f5a142; }
+      a { color: #66d6ff; }
+      .back { display: inline-block; min-height: 44px; margin-bottom: 16px; }
+    </style>
+  </head>
+  <body>
+    <a class="back" href="./index.html">ゲームへ戻る</a>
+    <main>
+      <h1>shoot-mata v02 — 権利・制作情報</h1>
+      <p>確認日: 2026-10-24</p>
+
+      <h2>画像</h2>
+      <p>製品版の自機、コア、敵、ボス、背景画像は OpenAI の組み込み画像生成機能で本プロジェクト用に生成し、プロジェクト内で切り出し・縮小・WebP 化したものです。各画像の完全な生成プロンプトは、原本 PNG と同名の <code>.prompt.md</code> に保存しています。プロンプトでは、既存作品の識別可能なキャラクター、機体、ロゴ、商標、透かしを含めないよう指定しています。</p>
+      <p>確認時点の OpenAI Terms of Use は、OpenAI と利用者の間では、適用法令で認められる範囲で利用者が Output を所有すると定めています。同時に、生成物は一意とは限らず、第三者権利を侵害しない利用について利用者が責任を負う旨も定めています。</p>
+      <ul>
+        <li>Terms of Use: <code>openai.com/policies/terms-of-use/</code></li>
+        <li>Service terms: <code>openai.com/policies/service-terms/</code></li>
+      </ul>
+      <p>この記録は法的助言や、生成物の独自性・非侵害性の保証ではありません。公開前の最終検収でも利用条件と成果物を再確認します。</p>
+
+      <h2>音楽・効果音</h2>
+      <p>製品版の音楽と効果音は、リポジトリ内の生成コードによる決定的な自作合成です。外部音源、サンプル、録音素材は使用していません。各音声の用途、生成方法、SHA-256、権利情報は各 <code>assets/audio/*/manifest.json</code> に保存しています。</p>
+
+      <h2>コード、フォント、外部通信</h2>
+      <p>製品版には runtime / development npm 依存パッケージがありません。表示にはブラウザおよび OS のシステム等幅フォントを使用し、フォントファイルは同梱していません。ゲーム本体とこの通知は外部 URL のコード参照を持たず、実行中に外部サービスへ通信しません。</p>
+    </main>
+  </body>
+</html>

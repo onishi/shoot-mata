@@ -1,5 +1,16 @@
 # 開発ログ
 
+## 2026-10-24 — Phase 07の全asset・権利・配信経路を一括監査
+
+- 目的: 4面と共有素材を、文書上の一覧ではなく製品runtime、配信定義、実ファイル、生成証拠、権利状態まで一つのゲートで再照合する。
+- 実装: `DELIVERY_ASSETS`へfinal状態、生成方法、権利、確認日、画像promptまたは音声manifestを追加した。新しいproduct asset gateは、4面のstage data、Canvas 33 ID（32ファイル）、音声26 ID、配信58ファイルの完全一致、原本、WebP監査、prompt、音声byte数・SHA-256・外部サンプル0を検査する。Phase 05試作stageは製品buildから除外し、静的監査がplaceholder / planned / draftを拒否するようにした。
+- 権利: 2026-10-24のOpenAI公式Terms of UseとService termsを確認し、Output所有の条件と、非一意性・非侵害未保証・利用者責任を分けて記録した。画像32点、音声26点、外部素材0、npm依存0を`THIRD_PARTY_NOTICES.html`としてbuildへ同梱し、製品画面から読めるようにした。法的助言または非侵害保証とは扱わず、Phase 10で再確認する。
+- 不具合と修正: 初版のMarkdown通知はChromeに`ERR_BLOCKED_BY_CLIENT`で遮断されたため自己完結HTMLへ変更した。通知リンク追加で1568×1012の文書高が1px超過したためCanvasの利用可能高を再計算し、PC・縦長・横長すべてoverflow 0へ戻した。
+- 自動確認: 製品テスト142件、制作パイプライン62件、差分検査に合格。build `phase07-content-gate-20261024` は87 files・9,595,827 bytes / 16 MiB、外部URL 0、製品経路のplaceholder / planned / draft 0。
+- ブラウザ確認: Chrome `?qa=campaign`で第1〜4面を再完走し、総合score 54,140、`QA PASS / 4 STAGES / ENDING + CREDITS`。1568×1012、390×844、844×390で縦横overflow 0、権利通知HTML表示、console warning/error 0を確認した。
+- 未達: INP-04のキーボード・タッチ別キャンペーン完走、AV-05のタイトル・結果・エンディング音、A11Y-04のTab順・フォーカス・ラベルがPhase 07に残る。生成画像の主観品質、独自性・非侵害性、別ブラウザ、実端末は未確認。
+- 次: 製品input adapterを通るキーボード・タッチ別のキャンペーン完走を再現可能な検査とブラウザ記録へ追加する。
+
 ## 2026-10-24 — 4面キャンペーン、保存復元、エンディングを製品入口へ接続
 
 - 目的: 個別にだけ遊べた完成4面を一本のキャンペーンとして接続し、段階解放、保存復元、総合結果、エンディング、クレジットを製品経路で成立させる。

@@ -80,4 +80,8 @@ Phase 06で確立した制作・実装・検証経路を使い、第2〜4面、�
 
 [完了] 4面キャンペーンの進行、面クリア後の段階解放、保存復元、エンディング、総合結果、クレジットを製品入口で接続した。面別固定seedで実コンテンツ4面を連続完走する統合テストとブラウザQAを追加し、Chromeで総合score 54,140、`QA PASS / 4 STAGES / ENDING + CREDITS`、縦長・横長overflow 0、console warning/error 0を確認した。
 
-全asset台帳と権利状態を実ファイル・manifest・製品経路へ再照合し、placeholder／planned／draft参照0、build容量、外部通信、3画面条件をPhase 07ゲートとして再検証する。
+[完了] 全asset台帳と権利状態を実ファイル・manifest・製品経路へ再照合した。画像32点と音声26点はruntime参照・配信定義・実ファイルと過不足なく一致し、画像prompt、音声manifestのSHA-256、権利状態、配布通知を自動検査する。製品buildからPhase 05試作定義を除外し、placeholder／planned／draft参照0、9,595,827 bytes / 16 MiB、外部URL 0を確認した。Chromeの4面campaignはscore 54,140で再完走し、1568×1012、390×844、844×390のoverflow 0、console warning/error 0、HTML権利通知の表示を確認した。
+
+## 次の作業単位
+
+INP-04のキーボードとタッチ各1回以上のキャンペーン完走を、同じ製品入力adapterを通る再現可能な記録として追加する。続いてAV-05のタイトル・結果・エンディング音とA11Y-04のTab順・フォーカス・ラベルを埋め、Phase 07の残ゲートを判定する。

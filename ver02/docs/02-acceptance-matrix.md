@@ -55,23 +55,23 @@
 | A11Y-02 | P04, P05 | P09, P10 | 命中・被弾・撃破・回収VFXに加え、自機の主武器・Lv・混色補助・無武装・無敵表示が動き軽減時も静止形状を保持する自動検査に合格。全製品演出は後続 | 実装中 |
 | A11Y-03 | P04, P07 | P09, P10 | P04 HUD記号、12px文字、高コントラスト表示を監査。P07全素材で再検証 | 実装中 |
 | A11Y-04 | P05 | P08, P10 | メニューのTab順、フォーカス、ラベル監査 | 未着手 |
-| AV-01 | P04, P06, P07 | P07, P10 | 自機・3コア・第1面背景3層・通常敵3種・第1面bossはfinal。本番入口の第1面asset IDにplaceholder 0。全製品素材のfinal/verifiedはP07 | 実装中 |
+| AV-01 | P04, P06, P07 | P07, P10 | 製品画像32点と音声26点をruntime manifest、配信定義、原本、生成証拠へ全量照合。`product-asset-gate.test.mjs`が製品経路のplaceholder / planned / draftを拒否し、4面campaignと3 viewportで欠落0を確認。主観品質は未評価 | 実装中 |
 | AV-02 | P04, P06, P07 | P07, P10 | simulation由来の自機移動・射撃、全通常敵のbehavior別移動・登場・攻撃・被弾、boss登場・攻撃・被弾・形態変化、撃破VFX、コア出現・回収・排出、クリア表示をCanvasへ接続。状態別の非色輪郭と動き軽減を自動検査し、Chrome第4面2完走でクリア表示を確認。全状態の動画照合は後続 | 実装中 |
-| AV-03 | P04, P06, P07 | P07, P10 | 第1面の遠景・中景・前景を独立速度で合成。残り4面の背景レイヤー、パララックス、環境動作の画面証拠 | 実装中 |
+| AV-03 | P04, P06, P07 | P07, P10 | 全4面の遠景・中景・前景を独立速度で製品Canvasへ合成。4面別2完走とcampaign完走、1568×1012・390×844・844×390で画像欠落とoverflow 0を確認。主観的な奥行き品質は未評価 | 実装中 |
 | AV-04 | P04, P06, P07 | P09, P10 | 3武器のLv別弾形状、命中・被弾・撃破・回収VFX、自機の3主武器×3Lv・混色補助・無武装・無敵表示をCanvasへ統合。色に依存しない形状、10構成の一意性、動き軽減時の残存を自動検査 | 実装中 |
 | AV-05 | P04, P06, P07 | P07, P10 | P04自作共有音6点とP07第1〜4面各5点を台帳化・波形検査。各面は通常2層、boss 3層を同期切替し、導入・クリア通知を製品eventへ接続。タイトル、結果・エンディングは後続 | 実装中 |
 | AV-06 | P05 | P08, P10 | 音声異常系と無音完走をunit検査。Chromeの操作起点で代表7音源と第2面5音源をすべてHTTP 200で取得し、警告0、console warning/error 0を確認 | 実装中 |
-| AV-07 | P04, P07 | P10 | P04共有音とP07第1〜4面音は生成式、用途、SHA-256、外部サンプル0をmanifest・台帳・実ファイルで照合。残る全製品素材と最終権利確認は後続 | 実装中 |
+| AV-07 | P04, P07 | P10 | 全画像32点は原本・完全prompt・配信WebP・最適化監査、全音声26点は生成式・用途・SHA-256・外部サンプル0を全量照合。2026-10-24の公式利用条件確認、非一意性・非侵害未保証の残存リスク、`THIRD_PARTY_NOTICES.html`を記録。P10で再確認 | 実装中 |
 | TECH-01 | P05 | P08, P10 | `game/tests/core/fixed-step.test.mjs`で30/60/144Hz、長delta、非表示復帰を決定的検査。ブラウザ統合と製品負荷で再検証 | 実装中 |
 | TECH-02 | P05, P07 | P07, P10 | `stage-schema.test.mjs`で背景、敵、drop、区間、wave、仕掛け、boss phase、音、遷移のschema・参照・登録behaviorを検査。`stage-schedule.test.mjs`でデータ差替えとseed再現を検査。完成4面のデータと条件分岐レビューはP07 | 実装中 |
 | TECH-03 | P05, P07 | P08, P10 | 決定的simulation、第1〜4面のChrome各2完走・snapshot一致に加え、同じapplication/session経路と面別固定seedで実4面を連続完走。Chrome `?qa=campaign`でも4面→ending→credits、console warning/error 0を確認 | 実装中 |
 | TECH-04 | P05 | P09, P10 | `phases/phase-05/browser-compatibility.json` に必須6対象とversion・結果を記録しschema検査。Chrome 155 / macOS 26.6.2は合格。Edge、Firefox、Safari、iOS実機、Android実機は未確認のまま明示し、P09で再検証 | 実装中 |
 | TECH-05 | P05, P09 | P09, P10 | Phase 05固定場面をChromeで5秒超計測し120.0fps、50ms超frame 0、最大10.4ms、simulation drop 0ms。低性能対象端末と長時間計測はP09 | 実装中 |
-| TECH-06 | P05, P08 | P08, P10 | asset manifest実在・静的外部URL 0を自動検査。P07第4面の画像7点・音声5点をChromeでHTTP 200、同seed 2完走、console warning/error 0、外部origin 0。全製品フローは後続 | 実装中 |
-| TECH-07 | P05, P09 | P09, P10 | Phase 07 build 8,989,189 bytes/16 MiB。第1面1,577,842、第2面2,283,252、第3面2,311,164、第4面2,253,830 bytes/各2.25 MiB、共有392,888 bytes/7 MiB。背景PSNR 30.140 dB以上、alpha差0、actor・コア復号差0を自動検査。P09で初回転送、低性能・長時間性能を再計測 | 実装中 |
+| TECH-06 | P05, P08 | P08, P10 | 全58配信assetとruntime参照を全量照合。Phase 05試作定義を製品buildから除外し、静的なplaceholder / planned / draft・外部URL 0を監査。Chromeの全4面campaignでconsole warning/error 0、3 viewport overflow 0。オフライン実行は後続 | 実装中 |
+| TECH-07 | P05, P09 | P09, P10 | Phase 07 build `phase07-content-gate-20261024` は87 files・9,595,827 bytes/16 MiB。第1面1,577,842、第2面2,283,252、第3面2,311,164、第4面2,253,830 bytes/各2.25 MiB、共有392,888 bytes/7 MiB。背景PSNR 30.140 dB以上、alpha差0、actor・コア復号差0。P09で初回転送、低性能・長時間性能を再計測 | 実装中 |
 | TECH-08 | P05 | P10 | lockfile、runtime/dev依存0、`npm audit --omit=dev --audit-level=high`で既知脆弱性0。最終候補で再監査 | 実装中 |
-| REL-01 | P04, P07 | P10 | P04生成画像は利用条件再確認待ち、自作音は外部サンプル0をmanifest照合。P07全素材・フォント・コードと通知を照合 | 実装中 |
-| REL-02 | P05 | P10 | 保存境界は注入された同一origin storageだけを使用し、個人情報・通信処理を持たない。ビルド後のnetwork監査は後続 | 実装中 |
+| REL-01 | P04, P07 | P10 | 2026-10-24に全画像・音声の出典、prompt／生成式、SHA-256、権利状態を再照合。OpenAI公式利用条件、非一意性・非侵害未保証、外部音源0、依存0を配布HTMLへ記録。P10で条件変更と成果物を再確認 | 実装中 |
+| REL-02 | P05 | P10 | 保存境界は同一origin storageだけを使用し個人情報処理を持たない。静的buildは外部URL 0、Chrome campaignは外部通信なしで完走。通知の規約所在は非リンク文字列で示す | 実装中 |
 | REL-03 | P05 | P08, P10 | storageだけで復元する自動テストと書込失敗時のメモリ継続を検査。実ブラウザの通信切断確認は後続 | 実装中 |
 | REL-04 | P10, P11 | P11 | version、変更点、既知問題、build ID、通知の本番照合 | 未着手 |
 | REL-05 | P11 | P11 | Phase 10 build IDとの一致、公開URLの4面スモーク | 未着手 |

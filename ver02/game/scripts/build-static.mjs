@@ -4,7 +4,7 @@ import { dirname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { ASSET_BUDGETS, DELIVERY_ASSETS } from "./delivery-asset-config.mjs";
 
-export const BUILD_ID = "phase07-delivery-assets-20261022";
+export const BUILD_ID = "phase07-content-gate-20261024";
 
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const GAME_DIR = resolve(SCRIPT_DIR, "..");
@@ -52,6 +52,7 @@ export async function buildStatic(outputDirectory = DEFAULT_OUTPUT) {
   await mkdir(join(output, "game"), { recursive: true });
   await cp(join(GAME_DIR, "public"), join(output, "game", "public"), { recursive: true });
   await cp(join(GAME_DIR, "src"), join(output, "game", "src"), { recursive: true });
+  await rm(join(output, "game", "src", "content", "stages", "phase05-test-segment.mjs"));
 
   const groupBytes = {};
   for (const asset of DELIVERY_ASSETS) {
