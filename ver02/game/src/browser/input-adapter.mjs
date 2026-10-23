@@ -13,7 +13,7 @@ export function createBrowserInputAdapter(options = {}) {
   const gameTarget = options.gameTarget;
   const state = options.state ?? createInputState();
   const resolvePointerRole = options.resolvePointerRole
-    ?? ((event) => event.target?.dataset?.inputRole ?? null);
+    ?? ((event) => event.inputRole ?? event.target?.dataset?.inputRole ?? null);
   if (!keyboardTarget?.addEventListener || !keyboardTarget?.removeEventListener) {
     throw new TypeError("keyboardTarget must be an event target");
   }

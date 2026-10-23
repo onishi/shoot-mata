@@ -104,6 +104,20 @@ test("LOOP-01/05: 4面キャンペーンの結果を集計してendingとcredits
   assert.equal(session.flow.screen, "title");
 });
 
+test("INP-04: campaign結果の共通confirmは主導線の次面へ進む", () => {
+  const session = createGameSession({ seed: 77, tutorialSeen: true });
+  confirm(session);
+  confirm(session);
+  while (session.flow.screen === "playing") {
+    updateGameSession(session, PHASE05_TEST_STAGE, autoCommand(session));
+  }
+  assert.equal(session.flow.screen, "result");
+  confirm(session);
+  assert.equal(session.flow.screen, "stageIntro");
+  assert.equal(session.flow.stageIndex, 1);
+  assert.equal(session.flow.attempt, 2);
+});
+
 test("CORE-05/LOOP-06: 敗北結果からタッチ用actionで再挑戦できる", () => {
   const session = createGameSession({ tutorialSeen: true });
   enterPlaying(session);

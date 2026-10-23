@@ -82,6 +82,8 @@ Phase 06で確立した制作・実装・検証経路を使い、第2〜4面、�
 
 [完了] 全asset台帳と権利状態を実ファイル・manifest・製品経路へ再照合した。画像32点と音声26点はruntime参照・配信定義・実ファイルと過不足なく一致し、画像prompt、音声manifestのSHA-256、権利状態、配布通知を自動検査する。製品buildからPhase 05試作定義を除外し、placeholder／planned／draft参照0、9,595,827 bytes / 16 MiB、外部URL 0を確認した。Chromeの4面campaignはscore 54,140で再完走し、1568×1012、390×844、844×390のoverflow 0、console warning/error 0、HTML権利通知の表示を確認した。
 
+[完了] INP-04のキーボードとタッチを、戦闘commandの直接注入ではなくkeydown/upとPointer Eventsから製品input adapterへ通す再現経路へ追加した。Nodeでは両方式が同一score 49,620、Chromeの240Hz QA clockでは両方式が同一score 54,140で4面→ending→creditsを完走した。ブラウザ記録はキーボード1,132 events、タッチ4,086 events＋画面主操作10回、戦闘12,316 frames、console warning/error 0。タッチ画面遷移直後に空入力1 tickを余計に進めて方式別scoreが分かれる不具合を検出し、遷移した更新では戦闘を進めない回帰テストを追加した。実タッチ端末は未確認。
+
 ## 次の作業単位
 
-INP-04のキーボードとタッチ各1回以上のキャンペーン完走を、同じ製品入力adapterを通る再現可能な記録として追加する。続いてAV-05のタイトル・結果・エンディング音とA11Y-04のTab順・フォーカス・ラベルを埋め、Phase 07の残ゲートを判定する。
+AV-05のタイトル・結果・エンディング音を製品画面遷移へ追加する。続いてA11Y-04のTab順・フォーカス・ラベルを埋め、Phase 07の残ゲートを判定する。

@@ -11,7 +11,7 @@
 | EXP-03 | P05, P08 | P09, P10 | 被弾理由と直前コア列を表示し、再挑戦導線を操作確認 | 未着手 |
 | EXP-04 | P07 | P09, P10 | 4ステージの固有要素を通しプレイ、画像・動画で比較 | 未着手 |
 | EXP-05 | P04, P07 | P10 | P04代表シーン、音7点、制作規則と自作音権利台帳を整備。P07全製品素材の一貫性と権利を再検証 | 実装中 |
-| LOOP-01 | P05, P07 | P08, P10 | 製品入口へ4面キャンペーン、各結果からの次面遷移、面別固定seed、エンディング、総合結果、クレジットを接続。実コンテンツ4面の統合テストとChrome `?qa=campaign`で開始→4面→ending→creditsを連続完走し、総合score 54,140を確認 | 実装中 |
+| LOOP-01 | P05, P07 | P08, P10 | 製品入口へ4面キャンペーン、各結果からの次面遷移、面別固定seed、エンディング、総合結果、クレジットを接続。実コンテンツ4面の統合テストとChrome `?qa=campaign`で開始→4面→ending→creditsを連続完走し、240Hz QA clockで総合score 54,140を確認 | 実装中 |
 | LOOP-02 | P07 | P08, P10 | 4ステージ各々の開始→結果→再挑戦テスト | 未着手 |
 | LOOP-03 | P03, P06 | P09, P10 | `phases/phase-03/prototype/objective-audit.mjs`、ゲーム内統合テスト | 実装中 |
 | LOOP-04 | P05 | P08, P10 | `flow-machine.test.mjs`と`game-session.test.mjs`でポーズ・復帰・再開始／離脱確認を検査。ChromeでPointer Eventsのポーズ、再開始確認取消、復帰を操作 | 実装中 |
@@ -47,10 +47,10 @@
 | UX-05 | P05, P06 | P08, P10 | P05に16:9 Canvas、safe-area、縦長・横長CSSを実装。P06のゲームオーバーと再挑戦をChrome 1568×1012、390×844、844×390で再確認し、横溢れ0、横長の縦溢れ0。実端末は後続 | 実装中 |
 | UX-06 | P05, P06 | P08, P10 | 縦長Canvas下と横長overlayへ44px以上のmove/fire/pause領域を実装。4 viewportで表示確認、実端末完走は後続 | 実装中 |
 | UX-07 | P05 | P08, P10 | 明示ボタンと非対応・拒否時の通常表示継続を実装。許可・拒否・非対応の実ブラウザ統合テストは未確認 | 実装中 |
-| INP-01 | P05 | P08, P10 | 標準キー、保持、押下edge、repeat、既定動作抑止、ボタンEnter二重発火防止を自動検査。Chromeでタイトル→説明→出撃とポーズを操作。完成キャンペーンは後続 | 実装中 |
-| INP-02 | P05 | P08, P10 | move＋fireのmulti-touch、pointerup/cancel/capture喪失、blur、破棄を自動検査。Chromeでポーズと再挑戦ボタンを操作、実タッチ端末は後続 | 実装中 |
+| INP-01 | P05 | P08, P10 | 標準キー、保持、押下edge、repeat、既定動作抑止、ボタンEnter二重発火防止を自動検査。Chrome `?qa=campaign&input=keyboard`で1,132 key eventsを製品adapterへ通し、戦闘12,316 frames、4面→ending→credits、score 54,140を完走 | 実装中 |
+| INP-02 | P05 | P08, P10 | move＋fireのmulti-touch、pointerup/cancel/capture喪失、blur、破棄を自動検査。Chrome `?qa=campaign&input=touch`で4,086 Pointer Eventsを製品adapterへ通し、4面→ending→creditsを完走。実タッチ端末は後続 | 実装中 |
 | INP-03 | P04, P05 | P09, P10 | P04表示設定は50×44px以上。P05で役割付きゲーム領域だけがpointer既定動作を抑止することを検査。実端末のスクロール競合は後続 | 実装中 |
-| INP-04 | P07 | P08, P10 | キーボードとタッチ各1回以上のキャンペーン完走記録 | 未着手 |
+| INP-04 | P07 | P08, P10 | `automatic-input-replay.test.mjs`でkeydown/upとPointer Eventsを製品adapterへ通す両経路が同一score 49,620で完走。Chromeの240Hz QA clockでも両経路が同一score 54,140、戦闘12,316 frames、4面→ending→credits、console warning/error 0で完走。実タッチ端末はP09・P10で確認 | 実装済み未検証 |
 | A11Y-01 | P05 | P08, P10 | BGM/SFX別音量・ミュートのschema、保存復元、独立gainへの即時反映を自動検査。ChromeでBGM音量とSFXミュートを変更し、再読込後の復元を確認 | 実装中 |
 | A11Y-02 | P04, P05 | P09, P10 | 命中・被弾・撃破・回収VFXに加え、自機の主武器・Lv・混色補助・無武装・無敵表示が動き軽減時も静止形状を保持する自動検査に合格。全製品演出は後続 | 実装中 |
 | A11Y-03 | P04, P07 | P09, P10 | P04 HUD記号、12px文字、高コントラスト表示を監査。P07全素材で再検証 | 実装中 |

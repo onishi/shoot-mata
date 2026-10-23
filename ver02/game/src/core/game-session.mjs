@@ -133,7 +133,9 @@ export function updateGameSession(session, stage, command = {}) {
       break;
     case "result":
       if (command.advance === true) dispatchGameAction(session, stage, "advance");
-      else if (command.confirm === true) dispatchGameAction(session, stage, "retry");
+      else if (command.confirm === true) {
+        dispatchGameAction(session, stage, session.flow.mode === "campaign" ? "advance" : "retry");
+      }
       break;
     case "gameOver":
       if (command.confirm === true) dispatchGameAction(session, stage, "retry");

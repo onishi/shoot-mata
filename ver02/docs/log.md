@@ -1,5 +1,15 @@
 # 開発ログ
 
+## 2026-10-24 — キーボード・タッチを製品入力adapterへ通して4面完走
+
+- 目的: INP-04を戦闘commandの直接注入ではなく、製品と同じkeydown/up・Pointer Events正規化経路による再現可能なキャンペーン完走で検証する。
+- 実装: `?qa=campaign&input=keyboard|touch`を追加し、自動操縦の意図をキー保持・押下edgeまたはmove/fire pointerへ変換して既存input adapterから消費するようにした。キャンペーン結果の共通confirmは画面の主導線どおり次面へ進む。QA表示へ入力方式、key/pointer event数、画面主操作数、戦闘frame数を記録する。
+- 不具合と修正: タッチの画面主ボタンが同期遷移した直後、同じ更新で開始直後の戦闘を空入力のまま1 tick進め、キーボードとタッチのscoreが分かれた。画面主操作で遷移した更新は戦闘更新を行わないよう修正し、両方式の結果一致を回帰検査した。
+- 自動確認: 新規4件を含む全146テスト、差分検査、静的監査に合格。Nodeのkeydown/up経路とPointer Events経路はともに4面→ending→creditsへ到達し、同一score 49,620。build `phase07-content-gate-20261024` は88 files・9,600,882 bytes / 16 MiB、外部URL 0。
+- ブラウザ確認: Chromeの240Hz QA clockでキーボードは1,132 events、タッチは4,086 Pointer Events＋画面主操作10回を記録。両方式とも戦闘12,316 frames、4面→ending→credits、総合score 54,140、console warning/error 0。Nodeの単一update harnessとは実行loop条件が異なるため、入力方式間の一致は同じharness／clock内で照合した。
+- 未確認: Pointer EventsはChrome上の合成入力であり、iOS／Android実機の物理タッチ、スクロール競合、長時間保持は未確認。Phase 09・10の実端末検証へ残す。
+- 次: AV-05のタイトル・結果・エンディング音を製品画面遷移へ追加する。
+
 ## 2026-10-24 — Phase 07の全asset・権利・配信経路を一括監査
 
 - 目的: 4面と共有素材を、文書上の一覧ではなく製品runtime、配信定義、実ファイル、生成証拠、権利状態まで一つのゲートで再照合する。

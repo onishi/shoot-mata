@@ -1,5 +1,6 @@
 import { loadCanvasAssets, renderCanvasFrame } from "../src/browser/canvas-renderer.mjs";
 import { createAutomaticCampaignPlaythrough, createAutomaticPlaythrough } from "../src/browser/automatic-playthrough.mjs";
+import { createAutomaticInputReplay } from "../src/browser/automatic-input-replay.mjs";
 import { loadBrowserAudioAssets } from "../src/browser/audio-assets.mjs";
 import { createBrowserAudioAdapter } from "../src/browser/audio-adapter.mjs";
 import { createBrowserInputAdapter } from "../src/browser/input-adapter.mjs";
@@ -43,6 +44,7 @@ const stageLabels = Object.freeze(["ORBITAL WRECK", "CLOUD REFINERY", "LIVING AR
 const query = new URLSearchParams(location.search);
 const qaStageIndex = Object.freeze({ stage01: 0, stage02: 1, stage03: 2, stage04: 3 })[query.get("qa")] ?? null;
 const qaCampaign = query.get("qa") === "campaign";
+const qaInputMode = ["keyboard", "touch"].includes(query.get("input")) ? query.get("input") : null;
 const qaSeeds = Object.freeze([20261022, 20261022, 20261023, 20261024]);
 const selectedStage = () => stages[session.flow.stageIndex ?? 0];
 
@@ -69,6 +71,16 @@ const qaDriver = qaCampaign
     : null;
 const clock = createFixedStepClock(qaEnabled ? { stepMs: 1000 / 240 } : undefined);
 const input = createBrowserInputAdapter({ keyboardTarget: window, gameTarget: inputRoot });
+const qaInputReplay = qaCampaign && qaInputMode
+  ? createAutomaticInputReplay({
+      mode: qaInputMode,
+      keyboardTarget: window,
+      pointerTarget: inputRoot,
+      activatePrimary() {
+        screenActions.querySelector('[data-primary="true"]')?.click();
+      },
+    })
+  : null;
 const runtimeMonitor = createRuntimeMonitor();
 let renderedScreenKey = "";
 let audioLoadPromise = null;
@@ -243,10 +255,18 @@ function syncScreen() {
 }
 
 function update() {
-  const command = qaDriver ? qaDriver.nextCommand(session) : consumeInput(input.state);
+  const desiredCommand = qaDriver?.nextCommand(session);
+  const inputReplayResult = qaInputReplay?.apply(desiredCommand, {
+    playing: session.flow.screen === "playing",
+  });
+  const command = qaDriver
+    ? qaInputReplay
+      ? consumeInput(input.state)
+      : desiredCommand
+    : consumeInput(input.state);
   const wasTitle = session.flow.screen === "title";
   const wasStageSelect = session.flow.screen === "stageSelect";
-  application.update(command);
+  if (inputReplayResult?.primaryActivated !== true) application.update(command);
   qaDriver?.observe(session);
   if ((wasTitle && command.confirm === true)
     || (wasStageSelect && Number.isInteger(command.stageIndex))) ensureAudioAssets();
@@ -266,11 +286,17 @@ function syncQaStatus() {
   qaStatus.dataset.replayMatches = String(status.replayMatches);
   qaStatus.dataset.failure = status.failure ?? "";
   qaStatus.dataset.milestones = status.milestones.join(",");
+  const inputEvidence = qaInputReplay?.getEvidence();
+  qaStatus.dataset.inputMode = inputEvidence?.mode ?? "direct";
+  qaStatus.dataset.keyboardEvents = String(inputEvidence?.keyboardEvents ?? 0);
+  qaStatus.dataset.pointerEvents = String(inputEvidence?.pointerEvents ?? 0);
+  qaStatus.dataset.primaryActivations = String(inputEvidence?.primaryActivations ?? 0);
+  qaStatus.dataset.gameplayFrames = String(inputEvidence?.gameplayFrames ?? 0);
   qaStatus.textContent = status.failure
     ? `QA FAIL / ${status.failure}`
     : status.stopped
       ? status.mode === "campaign"
-        ? `QA PASS / ${status.completedAttempts} STAGES / ENDING + CREDITS`
+        ? `QA PASS / ${status.completedAttempts} STAGES / ENDING + CREDITS${inputEvidence ? ` / ${inputEvidence.mode.toUpperCase()} INPUT` : ""}`
         : `QA PASS / ${status.completedAttempts} RUNS / SAME SEED ${status.replayMatches ? "MATCH" : "MISMATCH"}`
       : `QA AUTO / ATTEMPT ${status.attempt} / ${status.screen.toUpperCase()} / TICK ${status.tick}`;
 }
