@@ -1,0 +1,189 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-24",
+  "policy": {
+    "colors": [
+      "red",
+      "blue",
+      "yellow"
+    ],
+    "maximumMissedDrops": 10,
+    "scope": "stage start through boss entry"
+  },
+  "totals": {
+    "stages": 4,
+    "dropSequences": 65536,
+    "stageTicks": 192675840,
+    "violations": 0
+  },
+  "stages": [
+    {
+      "stageId": "stage-01-orbital-wreck",
+      "seedStart": 0,
+      "seedCount": 16384,
+      "inspectedDropSequences": 16384,
+      "inspectedStageTicks": 45219840,
+      "maximumAllowedMissedDrops": 10,
+      "minimumCount": {
+        "red": 2,
+        "blue": 2,
+        "yellow": 2
+      },
+      "maximumMissedDrops": {
+        "red": {
+          "value": 10,
+          "seed": 19
+        },
+        "blue": {
+          "value": 10,
+          "seed": 4
+        },
+        "yellow": {
+          "value": 10,
+          "seed": 30
+        }
+      },
+      "maximumGapTicks": {
+        "red": {
+          "value": 1540,
+          "seed": 87
+        },
+        "blue": {
+          "value": 1540,
+          "seed": 93
+        },
+        "yellow": {
+          "value": 1540,
+          "seed": 567
+        }
+      },
+      "violations": []
+    },
+    {
+      "stageId": "stage-02-cloud-refinery",
+      "seedStart": 0,
+      "seedCount": 16384,
+      "inspectedDropSequences": 16384,
+      "inspectedStageTicks": 46202880,
+      "maximumAllowedMissedDrops": 10,
+      "minimumCount": {
+        "red": 2,
+        "blue": 2,
+        "yellow": 4
+      },
+      "maximumMissedDrops": {
+        "red": {
+          "value": 10,
+          "seed": 11
+        },
+        "blue": {
+          "value": 10,
+          "seed": 1
+        },
+        "yellow": {
+          "value": 10,
+          "seed": 39
+        }
+      },
+      "maximumGapTicks": {
+        "red": {
+          "value": 1415,
+          "seed": 94
+        },
+        "blue": {
+          "value": 1415,
+          "seed": 23
+        },
+        "yellow": {
+          "value": 1415,
+          "seed": 3117
+        }
+      },
+      "violations": []
+    },
+    {
+      "stageId": "stage-03-living-ark",
+      "seedStart": 0,
+      "seedCount": 16384,
+      "inspectedDropSequences": 16384,
+      "inspectedStageTicks": 48168960,
+      "maximumAllowedMissedDrops": 10,
+      "minimumCount": {
+        "red": 3,
+        "blue": 4,
+        "yellow": 2
+      },
+      "maximumMissedDrops": {
+        "red": {
+          "value": 10,
+          "seed": 4
+        },
+        "blue": {
+          "value": 10,
+          "seed": 2
+        },
+        "yellow": {
+          "value": 10,
+          "seed": 20
+        }
+      },
+      "maximumGapTicks": {
+        "red": {
+          "value": 1254,
+          "seed": 130
+        },
+        "blue": {
+          "value": 1254,
+          "seed": 135
+        },
+        "yellow": {
+          "value": 1254,
+          "seed": 203
+        }
+      },
+      "violations": []
+    },
+    {
+      "stageId": "stage-04-stellar-furnace",
+      "seedStart": 0,
+      "seedCount": 16384,
+      "inspectedDropSequences": 16384,
+      "inspectedStageTicks": 53084160,
+      "maximumAllowedMissedDrops": 10,
+      "minimumCount": {
+        "red": 4,
+        "blue": 4,
+        "yellow": 2
+      },
+      "maximumMissedDrops": {
+        "red": {
+          "value": 10,
+          "seed": 4
+        },
+        "blue": {
+          "value": 10,
+          "seed": 2
+        },
+        "yellow": {
+          "value": 10,
+          "seed": 0
+        }
+      },
+      "maximumGapTicks": {
+        "red": {
+          "value": 1316,
+          "seed": 692
+        },
+        "blue": {
+          "value": 1316,
+          "seed": 270
+        },
+        "yellow": {
+          "value": 1316,
+          "seed": 22
+        }
+      },
+      "violations": []
+    }
+  ]
+}

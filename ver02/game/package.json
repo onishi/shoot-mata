@@ -9,6 +9,7 @@
   },
   "scripts": {
     "assets:optimize": "node scripts/optimize-delivery-assets.mjs",
+    "audit:core-supply": "node scripts/audit-core-supply.mjs",
     "build": "node scripts/build-static.mjs",
     "audit:static": "node scripts/audit-static.mjs",
     "audit:deps": "npm audit --omit=dev --audit-level=high",
