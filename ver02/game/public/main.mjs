@@ -16,6 +16,11 @@ import { getCampaignSummary, getGameSessionSnapshot } from "../src/core/game-ses
 import { consumeInput } from "../src/core/input-state.mjs";
 import { createSaveRepository } from "../src/ports/save-repository.mjs";
 import { createStageViewModel } from "../src/ui/stage-view-model.mjs";
+import {
+  focusInitialMenuAction,
+  getMenuActionLabel,
+  setMenuBackgroundInert,
+} from "../src/ui/menu-accessibility.mjs";
 
 const app = document.querySelector("[data-app]");
 const canvas = document.querySelector("[data-canvas]");
@@ -33,6 +38,7 @@ const screenKicker = document.querySelector("[data-screen-kicker]");
 const screenTitle = document.querySelector("[data-screen-title]");
 const screenCopy = document.querySelector("[data-screen-copy]");
 const screenActions = document.querySelector("[data-screen-actions]");
+const menuBackground = Array.from(document.querySelectorAll("[data-menu-background]"));
 const context = canvas.getContext("2d", { alpha: false });
 const stages = Object.freeze([
   STAGE_01_ORBITAL_WRECK,
@@ -239,6 +245,14 @@ function syncScreen() {
   input.setGameplayActive(playing);
   inputRoot.hidden = !playing;
   screenPanel.hidden = definition === null;
+  setMenuBackgroundInert(menuBackground, !playing);
+  canvas.inert = !playing;
+  canvas.setAttribute("aria-hidden", String(!playing));
+  if (playing) {
+    if (renderedScreenKey !== key) canvas.focus({ preventScroll: true });
+    renderedScreenKey = key;
+    return;
+  }
   if (!definition || key === renderedScreenKey) return;
   renderedScreenKey = key;
   screenKicker.textContent = definition.kicker;
@@ -250,8 +264,10 @@ function syncScreen() {
     button.dataset.action = action;
     button.dataset.primary = String(primary);
     button.textContent = label;
+    button.setAttribute("aria-label", getMenuActionLabel(action, label, definition.title));
     return button;
   }));
+  focusInitialMenuAction(screenActions.querySelectorAll("button"));
 }
 
 function update() {

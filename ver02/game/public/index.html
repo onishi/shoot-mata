@@ -10,17 +10,17 @@
   </head>
   <body>
     <main class="app" data-app>
-      <header class="app-header">
+      <header class="app-header" data-menu-background>
         <div><span>PHASE 07 / CONTENT PRODUCTION</span><strong data-stage-label>ORBITAL WRECK</strong></div>
         <button type="button" data-fullscreen>フルスクリーン</button>
       </header>
       <section class="game-shell" data-game-shell aria-label="第1面・軌道残骸帯">
-        <canvas data-canvas width="1280" height="720" aria-label="軌道残骸帯。矢印またはWASDで移動、ZまたはSpaceで射撃、Pでポーズ"></canvas>
+        <canvas data-canvas width="1280" height="720" tabindex="-1" aria-label="軌道残骸帯。矢印またはWASDで移動、ZまたはSpaceで射撃、Pでポーズ"></canvas>
         <p class="canvas-status" data-canvas-status role="status">素材を読み込んでいます</p>
-        <section class="screen-panel" data-screen-panel aria-live="polite" hidden>
+        <section class="screen-panel" data-screen-panel role="dialog" aria-modal="true" aria-labelledby="screen-title" aria-describedby="screen-copy" hidden>
           <p class="screen-kicker" data-screen-kicker></p>
-          <h1 data-screen-title></h1>
-          <p data-screen-copy></p>
+          <h1 id="screen-title" data-screen-title></h1>
+          <p id="screen-copy" data-screen-copy></p>
           <div class="screen-actions" data-screen-actions></div>
         </section>
       </section>
@@ -29,18 +29,18 @@
         <button type="button" data-input-role="pause" aria-label="ポーズ">PAUSE</button>
         <button type="button" class="fire-button" data-input-role="fire" aria-label="射撃">FIRE</button>
       </section>
-      <section class="display-controls" aria-label="表示設定">
+      <section class="display-controls" aria-label="表示設定" data-menu-background>
         <button type="button" data-setting="reducedMotion" aria-pressed="false">動き軽減</button>
         <button type="button" data-setting="highContrast" aria-pressed="false">高コントラスト</button>
         <span data-runtime-status role="status">準備中</span>
       </section>
-      <section class="audio-controls" aria-label="音声設定">
+      <section class="audio-controls" aria-label="音声設定" data-menu-background>
         <label>BGM <input type="range" min="0" max="1" step="0.05" data-volume="bgmVolume" aria-label="BGM音量"></label>
         <button type="button" data-audio-mute="bgmMuted" aria-pressed="false">BGMミュート</button>
         <label>効果音 <input type="range" min="0" max="1" step="0.05" data-volume="sfxVolume" aria-label="効果音量"></label>
         <button type="button" data-audio-mute="sfxMuted" aria-pressed="false">効果音ミュート</button>
       </section>
-      <a class="notice-link" href="./THIRD_PARTY_NOTICES.html">権利・制作情報</a>
+      <a class="notice-link" href="./THIRD_PARTY_NOTICES.html" data-menu-background>権利・制作情報</a>
       <p class="warning-status" data-warning-status role="status" hidden></p>
       <p class="qa-status" data-qa-status role="status" hidden></p>
       <p class="sr-only" data-accessible-state aria-live="polite"></p>
