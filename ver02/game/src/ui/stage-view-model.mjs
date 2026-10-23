@@ -9,6 +9,8 @@ const CORE_PRESENTATION = Object.freeze({
   yellow: Object.freeze({ assetId: "core-yellow", symbol: "◎", label: "SEEKER", color: "#ffe06a" }),
 });
 
+const PLAYER_WEAPONS = Object.freeze(["red", "blue", "yellow"]);
+
 function finite(value, name) {
   if (!Number.isFinite(value)) throw new TypeError(`${name} must be finite`);
   return value;
@@ -32,6 +34,32 @@ function actor(input, index) {
   if (typeof input.assetId !== "string" || input.assetId === "") {
     throw new TypeError(`actors[${index}].assetId is required`);
   }
+  let reactor = null;
+  if (input.reactor !== undefined) {
+    if (input.tone !== "player" || !input.reactor || typeof input.reactor !== "object") {
+      throw new TypeError(`actors[${index}].reactor requires a player actor`);
+    }
+    const primary = input.reactor.primary ?? null;
+    if (primary !== null && !PLAYER_WEAPONS.includes(primary)) {
+      throw new TypeError(`actors[${index}].reactor.primary is invalid`);
+    }
+    const level = integer(input.reactor.level, `actors[${index}].reactor.level`);
+    if ((primary === null && level !== 0) || (primary !== null && (level < 1 || level > 3))) {
+      throw new RangeError(`actors[${index}].reactor.level does not match its primary weapon`);
+    }
+    const supports = input.reactor.supports ?? [];
+    if (!Array.isArray(supports)
+      || supports.some((support) => !PLAYER_WEAPONS.includes(support) || support === primary)
+      || new Set(supports).size !== supports.length) {
+      throw new TypeError(`actors[${index}].reactor.supports is invalid`);
+    }
+    reactor = Object.freeze({
+      primary,
+      level,
+      supports: Object.freeze([...supports]),
+      invulnerable: input.reactor.invulnerable === true,
+    });
+  }
   return Object.freeze({
     id: input.id ?? `actor-${index}`,
     assetId: input.assetId,
@@ -40,6 +68,7 @@ function actor(input, index) {
     width: normalized(input.width, `actors[${index}].width`),
     height: normalized(input.height, `actors[${index}].height`),
     tone: input.tone ?? "neutral",
+    reactor,
   });
 }
 

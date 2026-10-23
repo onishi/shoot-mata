@@ -28,6 +28,125 @@ function drawLayer(context, image, layer, width, height) {
   if (firstX > 0) context.drawImage(image, firstX - width, 0, width, height);
 }
 
+const REACTOR_COLORS = Object.freeze({
+  red: "#ff765f",
+  blue: "#71e8ff",
+  yellow: "#ffe36e",
+});
+
+function drawCoreGlyph(context, core, x, y, size, filled) {
+  context.save();
+  context.translate(x, y);
+  context.fillStyle = filled ? REACTOR_COLORS[core] : "rgba(8, 17, 25, 0.82)";
+  context.strokeStyle = filled ? "#fffbd0" : "#8295a3";
+  context.lineWidth = Math.max(2, size * 0.14);
+  context.beginPath();
+  if (core === "red") {
+    context.moveTo(size, 0);
+    context.lineTo(0, size * 0.72);
+    context.lineTo(-size, 0);
+    context.lineTo(0, -size * 0.72);
+    context.closePath();
+  } else if (core === "blue") {
+    const arm = size * 0.32;
+    context.moveTo(-arm, -size);
+    context.lineTo(arm, -size);
+    context.lineTo(arm, -arm);
+    context.lineTo(size, -arm);
+    context.lineTo(size, arm);
+    context.lineTo(arm, arm);
+    context.lineTo(arm, size);
+    context.lineTo(-arm, size);
+    context.lineTo(-arm, arm);
+    context.lineTo(-size, arm);
+    context.lineTo(-size, -arm);
+    context.lineTo(-arm, -arm);
+    context.closePath();
+  } else {
+    context.arc(0, 0, size * 0.82, 0, Math.PI * 2);
+  }
+  context.fill();
+  context.stroke();
+  if (filled) {
+    context.strokeStyle = "#07111a";
+    context.lineWidth = Math.max(2, size * 0.18);
+    context.beginPath();
+    if (core === "red") {
+      context.moveTo(0, -size * 0.42);
+      context.lineTo(0, size * 0.42);
+    } else if (core === "blue") {
+      context.moveTo(-size * 0.38, 0);
+      context.lineTo(size * 0.38, 0);
+      context.moveTo(0, -size * 0.38);
+      context.lineTo(0, size * 0.38);
+    } else {
+      context.arc(0, 0, size * 0.32, 0, Math.PI * 2);
+    }
+    context.stroke();
+  }
+  context.restore();
+}
+
+function drawPlayerReactorState(context, actor, width, height, display, tick) {
+  const reactor = actor.reactor;
+  if (!reactor) return;
+  const x = actor.x * width;
+  const y = actor.y * height;
+  const scale = Math.min(actor.width * width, actor.height * height);
+  context.save();
+  context.globalAlpha = display.reducedMotion ? 0.95 : (tick % 12 < 6 ? 0.82 : 1);
+
+  if (reactor.primary === null) {
+    context.strokeStyle = display.highContrast ? "#fff" : "#9aabb5";
+    context.lineWidth = Math.max(3, scale * 0.035);
+    context.setLineDash([scale * 0.08, scale * 0.06]);
+    context.beginPath();
+    context.arc(x - scale * 0.22, y, scale * 0.25, 0, Math.PI * 2);
+    context.moveTo(x - scale * 0.36, y - scale * 0.14);
+    context.lineTo(x - scale * 0.08, y + scale * 0.14);
+    context.moveTo(x - scale * 0.08, y - scale * 0.14);
+    context.lineTo(x - scale * 0.36, y + scale * 0.14);
+    context.stroke();
+    context.setLineDash([]);
+  } else {
+    const cellSize = scale * 0.075;
+    for (let index = 0; index < 3; index += 1) {
+      drawCoreGlyph(
+        context,
+        reactor.primary,
+        x - scale * 0.31 + index * scale * 0.16,
+        y + scale * 0.29,
+        cellSize,
+        index < reactor.level,
+      );
+    }
+  }
+
+  reactor.supports.forEach((support, index) => {
+    drawCoreGlyph(
+      context,
+      support,
+      x - scale * 0.3 + index * scale * 0.15,
+      y - scale * 0.31,
+      scale * 0.045,
+      true,
+    );
+  });
+
+  if (reactor.invulnerable) {
+    context.strokeStyle = display.highContrast ? "#fff" : "#b6f5ff";
+    context.lineWidth = Math.max(3, scale * 0.026);
+    context.setLineDash([scale * 0.11, scale * 0.065]);
+    for (const radius of [0.48, 0.56]) {
+      context.beginPath();
+      context.arc(x, y, scale * radius, 0, Math.PI * 2);
+      context.stroke();
+    }
+    context.setLineDash([]);
+  }
+  context.restore();
+}
+
 function drawProjectile(context, projectile, width, height) {
   const x = projectile.x * width;
   const y = projectile.y * height;
@@ -201,7 +320,12 @@ export function renderCanvasFrame(context, view, assets) {
     context.fillStyle = "rgba(0, 0, 0, 0.34)";
     context.fillRect(0, 0, view.width, view.height);
   }
-  for (const actor of view.actors) drawContained(context, assets[actor.assetId], actor, view.width, view.height);
+  for (const actor of view.actors) {
+    drawContained(context, assets[actor.assetId], actor, view.width, view.height);
+    if (actor.tone === "player") {
+      drawPlayerReactorState(context, actor, view.width, view.height, view.display, view.tick);
+    }
+  }
   for (const projectile of view.projectiles) drawProjectile(context, projectile, view.width, view.height);
   for (const effect of view.effects) drawEffect(context, effect, view.width, view.height, view.display);
   drawHud(context, view);

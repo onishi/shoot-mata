@@ -60,6 +60,56 @@ test("CORE-03/WPN-01〜03: 3系統の弾をLvに応じた別形状で描く", ()
   assert.ok(context.calls.filter(([method]) => method === "lineTo").length >= 5);
 });
 
+test("CORE-03/CORE-06: 自機の無武装と3武器×3段階を非色形状で一意に描く", () => {
+  const configurations = [
+    { primary: null, level: 0, supports: [], invulnerable: false },
+    ...["red", "blue", "yellow"].flatMap((primary) => [1, 2, 3].map((level) => ({
+      primary, level, supports: [], invulnerable: false,
+    }))),
+  ];
+  const signatures = configurations.map((reactor) => {
+    const view = createStageViewModel({
+      stage: PHASE05_TEST_STAGE,
+      actors: [{
+        assetId: "player-interceptor", x: 0.2, y: 0.5, width: 0.12, height: 0.15,
+        tone: "player", reactor,
+      }],
+    });
+    const assets = Object.fromEntries([
+      ...view.layers.map(({ assetId }) => [assetId, fakeImage()]),
+      ["player-interceptor", fakeImage()],
+    ]);
+    const context = fakeContext();
+    renderCanvasFrame(context, view, assets);
+    return JSON.stringify(context.calls.filter(([method]) => [
+      "arc", "moveTo", "lineTo", "closePath", "fill", "stroke", "setLineDash",
+    ].includes(method)));
+  });
+  assert.equal(new Set(signatures).size, 10);
+});
+
+test("A11Y-02: 混色補助と無敵リングは動き軽減・高コントラストでも残る", () => {
+  const view = createStageViewModel({
+    stage: PHASE05_TEST_STAGE,
+    tick: 11,
+    settings: { reducedMotion: true, highContrast: true },
+    actors: [{
+      assetId: "player-interceptor", x: 0.2, y: 0.5, width: 0.12, height: 0.15,
+      tone: "player",
+      reactor: { primary: "red", level: 1, supports: ["blue", "yellow"], invulnerable: true },
+    }],
+  });
+  const assets = Object.fromEntries([
+    ...view.layers.map(({ assetId }) => [assetId, fakeImage()]),
+    ["player-interceptor", fakeImage()],
+  ]);
+  const context = fakeContext();
+  renderCanvasFrame(context, view, assets);
+  assert.ok(context.calls.filter(([method]) => method === "arc").length >= 3);
+  assert.ok(context.calls.some(([method, dash]) => method === "setLineDash" && dash.length === 2));
+  assert.ok(context.calls.filter(([method]) => method === "closePath").length >= 4);
+});
+
 test("AV-04/A11Y-02: 4種VFXを非色形状で描き、動き軽減でも残す", () => {
   const effects = ["hit", "damage", "destroy", "collect"].map((kind, index) => ({
     id: kind, kind, x: 0.3 + index * 0.1, y: 0.5, ageTicks: 4, lifetimeTicks: 20,

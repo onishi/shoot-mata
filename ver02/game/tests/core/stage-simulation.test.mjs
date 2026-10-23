@@ -97,6 +97,20 @@ test("CORE-04/05: 青補助の無敵時間は、その青コアを失う被弾�
   assert.equal(simulation.player.invulnerabilityTicks, 72);
 });
 
+test("CORE-03/06: reactor構成と無敵状態を自機の表示snapshotへ渡す", () => {
+  const simulation = createStageSimulation(PHASE05_TEST_STAGE, {
+    coreQueue: ["yellow", "yellow", "blue"],
+  });
+  simulation.player.invulnerabilityTicks = 12;
+  const player = createStageSimulationSnapshot(simulation).actors.find(({ id }) => id === "player");
+  assert.deepEqual(player.reactor, {
+    primary: "yellow",
+    level: 2,
+    supports: ["blue"],
+    invulnerable: true,
+  });
+});
+
 test("CORE-05: 全コア喪失後も標準範囲でコアを回収して復帰できる", () => {
   const simulation = createStageSimulation(PHASE05_TEST_STAGE, { coreQueue: [] });
   simulation.pickups.push({ id: "recovery-core", x: simulation.player.x, y: simulation.player.y, core: "yellow" });

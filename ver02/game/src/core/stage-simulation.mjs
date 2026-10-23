@@ -563,6 +563,7 @@ export function stepStageSimulation(state, stageInput, input = {}) {
 }
 
 export function createStageSimulationSnapshot(state) {
+  const reactor = describeReactorLoadout(state.loadout);
   const boss = state.boss && !state.boss.defeated
     ? {
       id: state.boss.id,
@@ -579,14 +580,28 @@ export function createStageSimulationSnapshot(state) {
     flowEvent: state.flowEvent,
     player: { ...state.player },
     coreQueue: [...state.loadout.queue],
-    weapon: describeReactorLoadout(state.loadout),
+    weapon: reactor,
     score: state.score,
     scoreBreakdown: { ...state.scoreBreakdown },
     destroyedEnemyCount: state.destroyedEnemyCount,
     hitsTaken: state.hitsTaken,
     boss,
     actors: [
-      { id: "player", assetId: "player-interceptor", x: state.player.x, y: state.player.y, width: 0.12, height: 0.15, tone: "player" },
+      {
+        id: "player",
+        assetId: "player-interceptor",
+        x: state.player.x,
+        y: state.player.y,
+        width: 0.12,
+        height: 0.15,
+        tone: "player",
+        reactor: {
+          primary: reactor.weapon,
+          level: reactor.level,
+          supports: reactor.supports,
+          invulnerable: state.player.invulnerabilityTicks > 0,
+        },
+      },
       ...state.enemies.map((enemy) => ({
         id: enemy.id,
         assetId: enemy.assetId,
