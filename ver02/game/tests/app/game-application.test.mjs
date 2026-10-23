@@ -1,7 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { createGameApplication } from "../../src/app/game-application.mjs";
+import { automaticCombatCommand } from "../../src/browser/automatic-playthrough.mjs";
 import { PHASE05_TEST_STAGE } from "../../src/content/stages/phase05-test-segment.mjs";
+import { STAGE_01_ORBITAL_WRECK } from "../../src/content/stages/stage-01-orbital-wreck.mjs";
 import { STAGE_02_CLOUD_REFINERY } from "../../src/content/stages/stage-02-cloud-refinery.mjs";
 import { STAGE_03_LIVING_ARK } from "../../src/content/stages/stage-03-living-ark.mjs";
 import { STAGE_04_STELLAR_FURNACE } from "../../src/content/stages/stage-04-stellar-furnace.mjs";
@@ -245,4 +247,52 @@ test("LOOP-01/STG-04: 解放済み第4面を選択して対応stageと音層で�
   assert.deepEqual(ports.calls.findLast(([kind]) => kind === "bgm"), [
     "bgm", STAGE_04_STELLAR_FURNACE.audio.stageLayerAssetIds,
   ]);
+});
+
+test("LOOP-01/05/PROG-01: 4面キャンペーンを連続クリアし、段階解放を再起動後も復元する", () => {
+  const data = createDefaultSaveData();
+  data.progress.tutorialSeen = true;
+  const ports = createPorts({ data });
+  const stages = [
+    STAGE_01_ORBITAL_WRECK,
+    STAGE_02_CLOUD_REFINERY,
+    STAGE_03_LIVING_ARK,
+    STAGE_04_STELLAR_FURNACE,
+  ];
+  const application = createGameApplication({
+    stages,
+    saveRepository: ports.repository,
+    audio: ports.audio,
+    seed: 20261022,
+    stageSeeds: [20261022, 20261022, 20261023, 20261024],
+  });
+
+  application.dispatch("start-campaign");
+  for (let stageIndex = 0; stageIndex < stages.length; stageIndex += 1) {
+    assert.equal(application.session.flow.stageIndex, stageIndex);
+    application.dispatch("begin-stage");
+    while (application.session.flow.screen === "playing") {
+      application.update(automaticCombatCommand(application.session.simulation));
+    }
+    assert.equal(application.session.flow.screen, "result", `stage ${stageIndex + 1} did not clear`);
+    assert.equal(ports.getData().progress.stages[stageIndex].cleared.standard, true);
+    assert.equal(ports.getData().progress.maxUnlockedStage, Math.min(stageIndex + 1, 3));
+    application.dispatch("advance");
+  }
+  assert.equal(application.session.flow.screen, "ending");
+  application.dispatch("complete-ending");
+  assert.equal(application.session.flow.screen, "credits");
+  application.dispatch("return-title");
+
+  const restored = createGameApplication({
+    stages,
+    saveRepository: ports.repository,
+    audio: ports.audio,
+    seed: 20261022,
+    stageSeeds: [20261022, 20261022, 20261023, 20261024],
+  });
+  assert.equal(restored.session.flow.maxUnlockedStage, 3);
+  restored.dispatch("open-stage-select");
+  restored.dispatch("start-stage-3");
+  assert.equal(restored.session.flow.stageIndex, 3);
 });

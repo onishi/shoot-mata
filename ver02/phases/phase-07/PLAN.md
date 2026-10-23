@@ -78,4 +78,6 @@ Phase 06で確立した制作・実装・検証経路を使い、第2〜4面、�
 
 [完了] 攻撃・被弾・撃破・回収・登場・形態変化・クリアの状態をsimulation snapshotからCanvasへ接続した。全通常敵・bossはbehavior IDに応じた移動、登場、反動、被弾、boss形態変化を持ち、コアは出現・回収・被弾時排出、自機は移動・射撃を表示する。動き軽減時も状態別の輪郭記号を残す。Chromeの第4面2完走でクリア表示、3 viewportのoverflow 0、console warning/error 0を確認した。全状態の動画照合と主観品質は未達のためAV-02は`実装中`。
 
-4面キャンペーンの進行、面クリア後の段階解放、保存復元、エンディング、クレジットを製品入口で接続し、決定的な連続通しを追加する。
+[完了] 4面キャンペーンの進行、面クリア後の段階解放、保存復元、エンディング、総合結果、クレジットを製品入口で接続した。面別固定seedで実コンテンツ4面を連続完走する統合テストとブラウザQAを追加し、Chromeで総合score 54,140、`QA PASS / 4 STAGES / ENDING + CREDITS`、縦長・横長overflow 0、console warning/error 0を確認した。
+
+全asset台帳と権利状態を実ファイル・manifest・製品経路へ再照合し、placeholder／planned／draft参照0、build容量、外部通信、3画面条件をPhase 07ゲートとして再検証する。

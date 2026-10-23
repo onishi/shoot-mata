@@ -34,6 +34,11 @@ function saveResultFromSession(session, difficulty) {
 export function createGameApplication(options) {
   const stages = options?.stages ?? (options?.stage ? [options.stage] : null);
   if (!Array.isArray(stages) || stages.length === 0) throw new TypeError("at least one stage is required");
+  const stageSeeds = options.stageSeeds ?? stages.map(() => options.seed ?? 20261022);
+  if (!Array.isArray(stageSeeds) || stageSeeds.length !== stages.length
+    || stageSeeds.some((seed) => !Number.isInteger(seed) || seed < 0 || seed > 0xffffffff)) {
+    throw new TypeError("stageSeeds must contain one unsigned 32-bit integer per stage");
+  }
   requirePort(options.saveRepository, ["load", "save"], "save repository");
   requirePort(options.audio, ["activate", "getStatus", "setSettings", "playBgm", "playSfx", "stopBgm"], "audio");
 
@@ -59,6 +64,10 @@ export function createGameApplication(options) {
     const stage = stages[stageIndex];
     if (!stage) throw new RangeError(`stage ${stageIndex} is unavailable`);
     return stage;
+  }
+
+  function syncStageSeed() {
+    session.seed = stageSeeds[session.flow.stageIndex ?? 0];
   }
 
   function persist(nextData) {
@@ -109,6 +118,7 @@ export function createGameApplication(options) {
       if (action === "complete-tutorial" && !saveData.progress.tutorialSeen) {
         persist(markTutorialSeen(saveData));
       }
+      syncStageSeed();
       syncScreenAudio(previousScreen);
       return session;
     },
@@ -120,6 +130,7 @@ export function createGameApplication(options) {
         activateAudio();
       }
       updateGameSession(session, currentStage(), command);
+      syncStageSeed();
       if (previousScreen === "tutorial" && session.flow.screen === "stageIntro"
         && !saveData.progress.tutorialSeen) {
         persist(markTutorialSeen(saveData));

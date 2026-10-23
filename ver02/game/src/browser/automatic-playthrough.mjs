@@ -6,7 +6,7 @@ function snapshotKey(snapshot) {
   return JSON.stringify(snapshot);
 }
 
-function automaticCombatCommand(simulation) {
+export function automaticCombatCommand(simulation) {
   const activeHazard = (behaviorId) => simulation.schedule.hazards.find(({ behaviorId: id, startTick, endTick }) => (
     id === behaviorId && simulation.tick >= startTick && simulation.tick < endTick
   ));
@@ -181,6 +181,66 @@ export function createAutomaticPlaythrough(options = {}) {
       completedAttempts: completedRuns.length,
       targetAttempts,
       replayMatches,
+      milestones: Object.freeze([...milestones]),
+    });
+  }
+
+  return Object.freeze({ nextCommand, observe, status });
+}
+
+export function createAutomaticCampaignPlaythrough(options = {}) {
+  const screenHoldTicks = options.screenHoldTicks ?? 30;
+  if (!Number.isInteger(screenHoldTicks) || screenHoldTicks < 0) {
+    throw new TypeError("screenHoldTicks must be a non-negative integer");
+  }
+  const milestones = new Set();
+  let previousScreen = null;
+  let screenAge = 0;
+  let stopped = false;
+  let failure = null;
+
+  function observe(session) {
+    if (session.flow.screen === "result" && session.lastRun) {
+      milestones.add(`stage-${session.flow.stageIndex + 1}-clear`);
+    }
+    if (session.flow.screen === "ending") milestones.add("ending");
+    if (session.flow.screen === "credits") {
+      milestones.add("credits");
+      stopped = true;
+    }
+    if (session.flow.screen === "gameOver") {
+      failure = `stage ${session.flow.stageIndex + 1} ended in gameOver`;
+      stopped = true;
+    }
+  }
+
+  function nextCommand(session) {
+    observe(session);
+    const screen = session.flow.screen;
+    if (screen !== previousScreen) {
+      previousScreen = screen;
+      screenAge = 0;
+    } else {
+      screenAge += 1;
+    }
+    if (stopped || screenAge < screenHoldTicks) return {};
+    if (screen === "playing") return automaticCombatCommand(session.simulation);
+    if (["title", "tutorial", "stageIntro", "ending"].includes(screen)) return { confirm: true };
+    if (screen === "result") return { advance: true };
+    return {};
+  }
+
+  function status(session) {
+    return Object.freeze({
+      active: true,
+      mode: "campaign",
+      stopped,
+      failure,
+      screen: session.flow.screen,
+      attempt: session.flow.attempt,
+      tick: session.simulation?.tick ?? session.lastRun?.tick ?? 0,
+      completedAttempts: session.campaignRuns.filter(Boolean).length,
+      replayMatches: null,
       milestones: Object.freeze([...milestones]),
     });
   }

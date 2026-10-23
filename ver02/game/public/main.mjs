@@ -1,5 +1,5 @@
 import { loadCanvasAssets, renderCanvasFrame } from "../src/browser/canvas-renderer.mjs";
-import { createAutomaticPlaythrough } from "../src/browser/automatic-playthrough.mjs";
+import { createAutomaticCampaignPlaythrough, createAutomaticPlaythrough } from "../src/browser/automatic-playthrough.mjs";
 import { loadBrowserAudioAssets } from "../src/browser/audio-assets.mjs";
 import { createBrowserAudioAdapter } from "../src/browser/audio-adapter.mjs";
 import { createBrowserInputAdapter } from "../src/browser/input-adapter.mjs";
@@ -11,7 +11,7 @@ import { STAGE_02_CLOUD_REFINERY } from "../src/content/stages/stage-02-cloud-re
 import { STAGE_03_LIVING_ARK } from "../src/content/stages/stage-03-living-ark.mjs";
 import { STAGE_04_STELLAR_FURNACE } from "../src/content/stages/stage-04-stellar-furnace.mjs";
 import { advanceFixedStep, createFixedStepClock, setClockSuspended } from "../src/core/fixed-step.mjs";
-import { getGameSessionSnapshot } from "../src/core/game-session.mjs";
+import { getCampaignSummary, getGameSessionSnapshot } from "../src/core/game-session.mjs";
 import { consumeInput } from "../src/core/input-state.mjs";
 import { createSaveRepository } from "../src/ports/save-repository.mjs";
 import { createStageViewModel } from "../src/ui/stage-view-model.mjs";
@@ -42,6 +42,7 @@ const stages = Object.freeze([
 const stageLabels = Object.freeze(["ORBITAL WRECK", "CLOUD REFINERY", "LIVING ARK", "STELLAR FURNACE"]);
 const query = new URLSearchParams(location.search);
 const qaStageIndex = Object.freeze({ stage01: 0, stage02: 1, stage03: 2, stage04: 3 })[query.get("qa")] ?? null;
+const qaCampaign = query.get("qa") === "campaign";
 const qaSeeds = Object.freeze([20261022, 20261022, 20261023, 20261024]);
 const selectedStage = () => stages[session.flow.stageIndex ?? 0];
 
@@ -51,6 +52,7 @@ const application = createGameApplication({
   saveRepository: createSaveRepository(),
   audio,
   seed: qaStageIndex === null ? 20261022 : qaSeeds[qaStageIndex],
+  stageSeeds: qaSeeds,
   minimumUnlockedStage: qaStageIndex ?? 0,
 });
 const session = application.session;
@@ -59,8 +61,12 @@ const displaySettings = {
   reducedMotion: savedSettings.reducedMotion || matchMedia("(prefers-reduced-motion: reduce)").matches,
   highContrast: savedSettings.highContrast,
 };
-const qaEnabled = qaStageIndex !== null;
-const qaDriver = qaEnabled ? createAutomaticPlaythrough({ stageIndex: qaStageIndex }) : null;
+const qaEnabled = qaStageIndex !== null || qaCampaign;
+const qaDriver = qaCampaign
+  ? createAutomaticCampaignPlaythrough()
+  : qaStageIndex !== null
+    ? createAutomaticPlaythrough({ stageIndex: qaStageIndex })
+    : null;
 const clock = createFixedStepClock(qaEnabled ? { stepMs: 1000 / 240 } : undefined);
 const input = createBrowserInputAdapter({ keyboardTarget: window, gameTarget: inputRoot });
 const runtimeMonitor = createRuntimeMonitor();
@@ -125,12 +131,17 @@ function screenDefinition() {
     };
   }
   const score = session.lastRun?.score ?? 0;
+  const campaign = getCampaignSummary(session);
   const screens = {
     title: {
       kicker: "PHASE 07 / CONTENT BUILD",
       title: "SHOOT MATA v02",
       copy: "キャンペーンを開始するか、解放済みステージを選択します。",
-      actions: [["start-campaign", "CAMPAIGN START", true], ["open-stage-select", "ステージ選択"]],
+      actions: [
+        ["start-campaign", "CAMPAIGN START", true],
+        ["open-stage-select", "ステージ選択"],
+        ["open-credits", "クレジット"],
+      ],
     },
     stageSelect: {
       kicker: "STAGE SELECT",
@@ -165,12 +176,12 @@ function screenDefinition() {
       title: `SCORE ${score}`,
       copy: `敵 ${session.lastRun?.scoreBreakdown.enemy ?? 0} / コア ${session.lastRun?.scoreBreakdown.core ?? 0} / 連続撃破 ${session.lastRun?.scoreBreakdown.streak ?? 0} / 無被弾 ${session.lastRun?.scoreBreakdown.noHit ?? 0}`,
       actions: [
-        ["retry", "同じseedで再挑戦", true],
+        ...(session.flow.mode === "campaign"
+          ? [["advance", session.flow.stageIndex + 1 < stages.length ? "次のステージへ" : "エンディングへ", true]]
+          : [["retry", "同じseedで再挑戦", true]]),
         ...(session.flow.mode === "single"
           ? [["advance", "ステージ選択へ"]]
-          : session.flow.stageIndex + 1 < stages.length
-            ? [["advance", "次のステージへ"]]
-            : [["open-stage-select", "ステージ選択へ"]]),
+          : [["retry", "同じseedで再挑戦"]]),
       ],
     },
     gameOver: {
@@ -183,6 +194,20 @@ function screenDefinition() {
           ? [["continue", `コンティニュー (${session.flow.continuesRemaining})`]]
           : []),
       ],
+    },
+    ending: {
+      kicker: "CAMPAIGN COMPLETE",
+      title: "星路は、ふたたび拓かれた",
+      copy: `4つの炉心網を解放。総合 SCORE ${campaign.score} / 被弾 ${campaign.hitsTaken}。回収した力は、新しい航路の光になった。`,
+      actions: [["complete-ending", "総合結果とクレジット", true]],
+    },
+    credits: {
+      kicker: session.flow.returnScreen === "title" ? "CREDITS" : "MISSION RECORD / CREDITS",
+      title: session.flow.returnScreen === "title" ? "制作クレジット" : `TOTAL SCORE ${campaign.score}`,
+      copy: session.flow.returnScreen === "title"
+        ? "企画・コード・画像・音楽: shoot-mata v02 production. 外部サンプル不使用。詳細は THIRD_PARTY_NOTICES を参照してください。"
+        : `敵 ${campaign.breakdown.enemy} / コア ${campaign.breakdown.core} / 連続撃破 ${campaign.breakdown.streak} / 無被弾 ${campaign.breakdown.noHit}。企画・コード・画像・音楽: shoot-mata v02 production。`,
+      actions: [["return-title", "タイトルへ戻る", true]],
     },
   };
   return screens[session.flow.screen] ?? null;
@@ -244,7 +269,9 @@ function syncQaStatus() {
   qaStatus.textContent = status.failure
     ? `QA FAIL / ${status.failure}`
     : status.stopped
-      ? `QA PASS / ${status.completedAttempts} RUNS / SAME SEED ${status.replayMatches ? "MATCH" : "MISMATCH"}`
+      ? status.mode === "campaign"
+        ? `QA PASS / ${status.completedAttempts} STAGES / ENDING + CREDITS`
+        : `QA PASS / ${status.completedAttempts} RUNS / SAME SEED ${status.replayMatches ? "MATCH" : "MISMATCH"}`
       : `QA AUTO / ATTEMPT ${status.attempt} / ${status.screen.toUpperCase()} / TICK ${status.tick}`;
 }
 

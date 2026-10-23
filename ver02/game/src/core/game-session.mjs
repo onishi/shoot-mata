@@ -19,6 +19,8 @@ const ACTION_EVENTS = Object.freeze({
   retry: "RETRY_STAGE",
   advance: "ADVANCE",
   continue: "CONTINUE_CAMPAIGN",
+  "complete-ending": "COMPLETE_ENDING",
+  "open-credits": "OPEN_CREDITS",
   "return-title": "RETURN_TITLE",
 });
 
@@ -31,6 +33,18 @@ function requireSession(session) {
 function startSimulation(session, stage) {
   session.simulation = createStageSimulation(stage, { seed: session.seed });
   session.lastRun = null;
+}
+
+function recordCampaignRun(session) {
+  if (session.flow.mode !== "campaign" || !session.lastRun) return;
+  const run = {
+    stageIndex: session.flow.stageIndex,
+    score: session.lastRun.score,
+    scoreBreakdown: { ...session.lastRun.scoreBreakdown },
+    hitsTaken: session.lastRun.hitsTaken,
+    coreQueue: [...session.lastRun.coreQueue],
+  };
+  session.campaignRuns[session.flow.stageIndex] = run;
 }
 
 export function createGameSession(options = {}) {
@@ -46,6 +60,7 @@ export function createGameSession(options = {}) {
     }),
     simulation: null,
     lastRun: null,
+    campaignRuns: [],
   };
 }
 
@@ -57,6 +72,7 @@ export function dispatchGameAction(session, stage, action) {
   const event = stageMatch
     ? { type: eventType, stageIndex: Number(stageMatch[1]) }
     : { type: eventType };
+  if (eventType === "START_CAMPAIGN") session.campaignRuns = [];
   session.flow = transitionFlow(session.flow, event);
   if (eventType === "BEGIN_STAGE") startSimulation(session, stage);
   if (["RETRY_STAGE", "CONTINUE_CAMPAIGN"].includes(eventType)
@@ -66,6 +82,7 @@ export function dispatchGameAction(session, stage, action) {
   if (session.flow.screen === "title") {
     session.simulation = null;
     session.lastRun = null;
+    session.campaignRuns = [];
   }
   return session;
 }
@@ -105,6 +122,7 @@ export function updateGameSession(session, stage, command = {}) {
       stepStageSimulation(session.simulation, stage, command);
       if (session.simulation.flowEvent) {
         session.lastRun = createStageSimulationSnapshot(session.simulation);
+        if (session.simulation.flowEvent === "STAGE_CLEAR") recordCampaignRun(session);
         session.flow = transitionFlow(session.flow, { type: session.simulation.flowEvent });
       }
       break;
@@ -114,13 +132,40 @@ export function updateGameSession(session, stage, command = {}) {
       }
       break;
     case "result":
+      if (command.advance === true) dispatchGameAction(session, stage, "advance");
+      else if (command.confirm === true) dispatchGameAction(session, stage, "retry");
+      break;
     case "gameOver":
       if (command.confirm === true) dispatchGameAction(session, stage, "retry");
+      break;
+    case "ending":
+      if (command.confirm === true) dispatchGameAction(session, stage, "complete-ending");
+      break;
+    case "credits":
+      if (command.confirm === true || command.back === true) {
+        dispatchGameAction(session, stage, "return-title");
+      }
       break;
     default:
       break;
   }
   return session;
+}
+
+export function getCampaignSummary(session) {
+  requireSession(session);
+  const completedStages = session.campaignRuns.filter(Boolean);
+  return {
+    completedStages: completedStages.length,
+    score: completedStages.reduce((total, run) => total + run.score, 0),
+    hitsTaken: completedStages.reduce((total, run) => total + run.hitsTaken, 0),
+    breakdown: completedStages.reduce((total, run) => ({
+      enemy: total.enemy + run.scoreBreakdown.enemy,
+      core: total.core + run.scoreBreakdown.core,
+      streak: total.streak + run.scoreBreakdown.streak,
+      noHit: total.noHit + run.scoreBreakdown.noHit,
+    }), { enemy: 0, core: 0, streak: 0, noHit: 0 }),
+  };
 }
 
 export function getGameSessionSnapshot(session) {

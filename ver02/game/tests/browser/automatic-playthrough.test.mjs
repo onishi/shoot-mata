@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { createAutomaticPlaythrough } from "../../src/browser/automatic-playthrough.mjs";
+import {
+  createAutomaticCampaignPlaythrough,
+  createAutomaticPlaythrough,
+} from "../../src/browser/automatic-playthrough.mjs";
 import { STAGE_01_ORBITAL_WRECK } from "../../src/content/stages/stage-01-orbital-wreck.mjs";
 import { STAGE_02_CLOUD_REFINERY } from "../../src/content/stages/stage-02-cloud-refinery.mjs";
 import { STAGE_03_LIVING_ARK } from "../../src/content/stages/stage-03-living-ark.mjs";
@@ -125,4 +128,32 @@ test("QA driverは不正設定を拒否し、game overを合格にしない", ()
   driver.observe(session);
   assert.equal(driver.status(session).stopped, true);
   assert.match(driver.status(session).failure, /gameOver/);
+});
+
+test("LOOP-01/05/TECH-03: browser用自動入力で4面からendingとcreditsまで連続完走する", () => {
+  const stages = [
+    STAGE_01_ORBITAL_WRECK,
+    STAGE_02_CLOUD_REFINERY,
+    STAGE_03_LIVING_ARK,
+    STAGE_04_STELLAR_FURNACE,
+  ];
+  const seeds = [20261022, 20261022, 20261023, 20261024];
+  const session = createGameSession({ seed: seeds[0] });
+  const driver = createAutomaticCampaignPlaythrough({ screenHoldTicks: 0 });
+  let updates = 0;
+  while (!driver.status(session).stopped && updates < 20_000) {
+    const stageIndex = session.flow.stageIndex ?? 0;
+    session.seed = seeds[stageIndex];
+    updateGameSession(session, stages[stageIndex], driver.nextCommand(session));
+    driver.observe(session);
+    updates += 1;
+  }
+  const status = driver.status(session);
+  assert.ok(updates < 20_000);
+  assert.equal(status.failure, null);
+  assert.equal(status.screen, "credits");
+  assert.equal(status.completedAttempts, 4);
+  assert.deepEqual(status.milestones, [
+    "stage-1-clear", "stage-2-clear", "stage-3-clear", "stage-4-clear", "ending", "credits",
+  ]);
 });

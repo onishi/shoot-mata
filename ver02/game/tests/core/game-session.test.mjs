@@ -4,6 +4,7 @@ import { PHASE05_TEST_STAGE } from "../../src/content/stages/phase05-test-segmen
 import {
   createGameSession,
   dispatchGameAction,
+  getCampaignSummary,
   getGameSessionSnapshot,
   updateGameSession,
 } from "../../src/core/game-session.mjs";
@@ -67,13 +68,40 @@ test("TECH-03/LOOP-06: ブラウザ用セッションも結果と同seed再挑�
   assert.equal(session.flow.screen, "result");
   const first = getGameSessionSnapshot(session);
   assert.equal(first.status, "cleared");
-  confirm(session);
+  dispatchGameAction(session, PHASE05_TEST_STAGE, "retry");
   assert.equal(session.flow.screen, "stageIntro");
   confirm(session);
   while (session.flow.screen === "playing") {
     updateGameSession(session, PHASE05_TEST_STAGE, autoCommand(session));
   }
   assert.deepEqual(getGameSessionSnapshot(session), first);
+});
+
+test("LOOP-01/05: 4面キャンペーンの結果を集計してendingとcreditsへ進む", () => {
+  const session = createGameSession({ seed: 77, tutorialSeen: true });
+  confirm(session);
+  for (let stageIndex = 0; stageIndex < 4; stageIndex += 1) {
+    confirm(session);
+    while (session.flow.screen === "playing") {
+      updateGameSession(session, PHASE05_TEST_STAGE, autoCommand(session));
+    }
+    assert.equal(session.flow.screen, "result");
+    dispatchGameAction(session, PHASE05_TEST_STAGE, "advance");
+  }
+  assert.equal(session.flow.screen, "ending");
+  const summary = getCampaignSummary(session);
+  assert.equal(summary.completedStages, 4);
+  assert.equal(summary.score, session.campaignRuns.reduce((total, run) => total + run.score, 0));
+  assert.deepEqual(summary.breakdown, session.campaignRuns.reduce((total, run) => ({
+    enemy: total.enemy + run.scoreBreakdown.enemy,
+    core: total.core + run.scoreBreakdown.core,
+    streak: total.streak + run.scoreBreakdown.streak,
+    noHit: total.noHit + run.scoreBreakdown.noHit,
+  }), { enemy: 0, core: 0, streak: 0, noHit: 0 }));
+  confirm(session);
+  assert.equal(session.flow.screen, "credits");
+  confirm(session);
+  assert.equal(session.flow.screen, "title");
 });
 
 test("CORE-05/LOOP-06: 敗北結果からタッチ用actionで再挑戦できる", () => {
