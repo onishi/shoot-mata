@@ -60,6 +60,21 @@ test("CORE-05: 無武装HUDは成長前のLv0を表示できる", () => {
   assert.deepEqual(view.hud.weapon, { label: "UNARMED", level: 0 });
 });
 
+test("AV-02: actor animation、core排出、画面遷移を正規化する", () => {
+  const view = createStageViewModel({
+    stage: PHASE05_TEST_STAGE,
+    actors: [{
+      assetId: "player-interceptor", x: 0.2, y: 0.5, width: 0.2, height: 0.2,
+      animation: { state: "attack", progress: 0.5, variant: "player-interceptor" },
+    }],
+    effects: [{ kind: "eject", core: "yellow", x: 0.2, y: 0.5, ageTicks: 3, lifetimeTicks: 12 }],
+    transition: { kind: "clear", progress: 1 },
+  });
+  assert.equal(view.actors[0].animation.state, "attack");
+  assert.equal(view.effects[0].core, "yellow");
+  assert.equal(view.transition.kind, "clear");
+});
+
 test("rejects invalid normalized actor and HUD values", () => {
   assert.throws(() => createStageViewModel({
     stage: PHASE05_TEST_STAGE,

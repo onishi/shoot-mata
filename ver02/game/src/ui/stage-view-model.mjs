@@ -35,6 +35,21 @@ function actor(input, index) {
     throw new TypeError(`actors[${index}].assetId is required`);
   }
   let reactor = null;
+  let animation = null;
+  if (input.animation !== undefined) {
+    if (!input.animation || typeof input.animation !== "object") {
+      throw new TypeError(`actors[${index}].animation is invalid`);
+    }
+    const states = ["move", "enter", "attack", "hit", "phase"];
+    if (!states.includes(input.animation.state)) {
+      throw new TypeError(`actors[${index}].animation.state is invalid`);
+    }
+    animation = Object.freeze({
+      state: input.animation.state,
+      progress: normalized(input.animation.progress, `actors[${index}].animation.progress`),
+      variant: typeof input.animation.variant === "string" ? input.animation.variant : "default",
+    });
+  }
   if (input.reactor !== undefined) {
     if (input.tone !== "player" || !input.reactor || typeof input.reactor !== "object") {
       throw new TypeError(`actors[${index}].reactor requires a player actor`);
@@ -69,11 +84,12 @@ function actor(input, index) {
     height: normalized(input.height, `actors[${index}].height`),
     tone: input.tone ?? "neutral",
     reactor,
+    animation,
   });
 }
 
 const PROJECTILE_KINDS = Object.freeze(["lance", "spread", "seeker"]);
-const EFFECT_KINDS = Object.freeze(["hit", "damage", "destroy", "collect"]);
+const EFFECT_KINDS = Object.freeze(["hit", "damage", "destroy", "collect", "eject"]);
 
 function projectile(input, index) {
   if (!input || typeof input !== "object") throw new TypeError(`projectiles[${index}] is required`);
@@ -91,6 +107,9 @@ function projectile(input, index) {
 function effect(input, index) {
   if (!input || typeof input !== "object") throw new TypeError(`effects[${index}] is required`);
   if (!EFFECT_KINDS.includes(input.kind)) throw new TypeError(`effects[${index}].kind is invalid`);
+  if (input.kind === "eject" && !PLAYER_WEAPONS.includes(input.core)) {
+    throw new TypeError(`effects[${index}].core is invalid`);
+  }
   const ageTicks = integer(input.ageTicks, `effects[${index}].ageTicks`);
   const lifetimeTicks = integer(input.lifetimeTicks, `effects[${index}].lifetimeTicks`, 1);
   if (ageTicks >= lifetimeTicks) throw new RangeError(`effects[${index}] has expired`);
@@ -100,6 +119,18 @@ function effect(input, index) {
     x: normalized(input.x, `effects[${index}].x`),
     y: normalized(input.y, `effects[${index}].y`),
     progress: ageTicks / lifetimeTicks,
+    ...(input.kind === "eject" ? { core: input.core } : {}),
+  });
+}
+
+function transition(input) {
+  if (input === null || input === undefined) return null;
+  if (!input || typeof input !== "object" || !["intro", "clear"].includes(input.kind)) {
+    throw new TypeError("transition.kind is invalid");
+  }
+  return Object.freeze({
+    kind: input.kind,
+    progress: normalized(input.progress, "transition.progress"),
   });
 }
 
@@ -151,6 +182,7 @@ export function createStageViewModel(input) {
     actors: Object.freeze((input.actors ?? []).map(actor)),
     projectiles: Object.freeze((input.projectiles ?? []).map(projectile)),
     effects: Object.freeze((input.effects ?? []).map(effect)),
+    transition: transition(input.transition),
     hud: Object.freeze({
       score: integer(input.score ?? 0, "score"),
       lives: integer(input.lives ?? 3, "lives"),

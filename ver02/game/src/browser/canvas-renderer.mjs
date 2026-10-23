@@ -6,19 +6,88 @@ function requireContext(context) {
   }
 }
 
-function drawContained(context, image, actor, width, height) {
+function actorTransform(actor, display) {
+  const animation = actor.animation;
+  if (!animation || display.reducedMotion) return { x: 0, y: 0, scaleX: 1, scaleY: 1, rotation: 0, alpha: 1 };
+  const wave = Math.sin(animation.progress * Math.PI * 2);
+  if (animation.state === "enter") {
+    return { x: (1 - animation.progress) * 80, y: 0, scaleX: 0.72 + animation.progress * 0.28, scaleY: 1, rotation: 0, alpha: 0.45 + animation.progress * 0.55 };
+  }
+  if (animation.state === "attack") {
+    return { x: -Math.sin(animation.progress * Math.PI) * 12, y: 0, scaleX: 1.08, scaleY: 0.94, rotation: 0, alpha: 1 };
+  }
+  if (animation.state === "hit") {
+    return { x: wave * 7, y: 0, scaleX: 1, scaleY: 1, rotation: wave * 0.035, alpha: 0.62 };
+  }
+  if (animation.state === "phase") {
+    return { x: 0, y: 0, scaleX: 1 + Math.sin(animation.progress * Math.PI) * 0.18, scaleY: 1 + Math.sin(animation.progress * Math.PI) * 0.18, rotation: wave * 0.04, alpha: 1 };
+  }
+  const organic = /regenerating|parasite|predator|feeding|carapace|heart/.test(animation.variant);
+  const turret = /turret|crossfire|barrage|omni/.test(animation.variant);
+  return {
+    x: turret ? 0 : wave * 2,
+    y: organic ? wave * 5 : wave * 2,
+    scaleX: organic ? 1 + wave * 0.025 : 1,
+    scaleY: organic ? 1 - wave * 0.025 : 1,
+    rotation: turret ? wave * 0.012 : 0,
+    alpha: 1,
+  };
+}
+
+function drawAnimationCue(context, actor, width, height, display) {
+  const animation = actor.animation;
+  if (!animation || animation.state === "move") return;
+  const x = actor.x * width;
+  const y = actor.y * height;
+  const radius = Math.min(actor.width * width, actor.height * height) * 0.52;
+  context.save();
+  context.translate(x, y);
+  context.strokeStyle = display.highContrast ? "#fff" : "rgba(220, 247, 255, 0.9)";
+  context.lineWidth = display.highContrast ? 5 : 3;
+  context.beginPath();
+  if (animation.state === "attack") {
+    context.moveTo(radius * 0.55, -radius * 0.45);
+    context.lineTo(radius, 0);
+    context.lineTo(radius * 0.55, radius * 0.45);
+  } else if (animation.state === "hit") {
+    for (const side of [-1, 1]) {
+      context.moveTo(side * radius, -radius * 0.45);
+      context.lineTo(side * radius * 0.72, 0);
+      context.lineTo(side * radius, radius * 0.45);
+    }
+  } else if (animation.state === "phase") {
+    context.setLineDash([10, 7]);
+    context.arc(0, 0, radius, 0, Math.PI * 2);
+  } else {
+    context.moveTo(-radius, -radius * 0.42);
+    context.lineTo(-radius * 0.62, 0);
+    context.lineTo(-radius, radius * 0.42);
+  }
+  context.stroke();
+  context.setLineDash([]);
+  context.restore();
+}
+
+function drawContained(context, image, actor, width, height, display) {
   const boxWidth = actor.width * width;
   const boxHeight = actor.height * height;
   const ratio = Math.min(boxWidth / image.naturalWidth, boxHeight / image.naturalHeight);
   const drawWidth = image.naturalWidth * ratio;
   const drawHeight = image.naturalHeight * ratio;
+  const transform = actorTransform(actor, display);
+  context.save();
+  context.translate((actor.x * width) + transform.x, (actor.y * height) + transform.y);
+  context.rotate(transform.rotation);
+  context.scale(transform.scaleX, transform.scaleY);
+  context.globalAlpha = transform.alpha;
   context.drawImage(
     image,
-    (actor.x * width) - (drawWidth / 2),
-    (actor.y * height) - (drawHeight / 2),
+    -drawWidth / 2,
+    -drawHeight / 2,
     drawWidth,
     drawHeight,
   );
+  context.restore();
 }
 
 function drawLayer(context, image, layer, width, height) {
@@ -84,6 +153,31 @@ function drawCoreGlyph(context, core, x, y, size, filled) {
     }
     context.stroke();
   }
+  context.restore();
+}
+
+function drawTransition(context, transition, width, height, display) {
+  if (!transition) return;
+  context.save();
+  const progress = display.reducedMotion ? 1 : transition.progress;
+  context.fillStyle = transition.kind === "clear" ? "rgba(3, 20, 28, 0.72)" : "rgba(2, 7, 11, 0.58)";
+  context.fillRect(0, height * 0.38, width, height * 0.24);
+  context.strokeStyle = display.highContrast ? "#fff" : "#9ff6ff";
+  context.lineWidth = 4;
+  const spread = 90 + progress * 180;
+  context.beginPath();
+  context.moveTo(width / 2 - spread, height * 0.43);
+  context.lineTo(width / 2 - spread - 34, height / 2);
+  context.lineTo(width / 2 - spread, height * 0.57);
+  context.moveTo(width / 2 + spread, height * 0.43);
+  context.lineTo(width / 2 + spread + 34, height / 2);
+  context.lineTo(width / 2 + spread, height * 0.57);
+  context.stroke();
+  context.fillStyle = "#fff";
+  context.textAlign = "center";
+  context.textBaseline = "middle";
+  context.font = "bold 54px ui-monospace, monospace";
+  context.fillText(transition.kind === "clear" ? "STAGE CLEAR" : "SORTIE", width / 2, height / 2);
   context.restore();
 }
 
@@ -231,7 +325,7 @@ function drawEffect(context, effect, width, height, display) {
       context.lineTo(Math.cos(angle) * radius, Math.sin(angle) * radius);
     }
     context.stroke();
-  } else {
+  } else if (effect.kind === "collect") {
     const radius = 28 - progress * 12;
     context.strokeStyle = highContrast ? "#fff" : "#79efff";
     context.beginPath();
@@ -245,6 +339,15 @@ function drawEffect(context, effect, width, height, display) {
         Math.sin(angle) * tip + Math.sin(angle - Math.PI / 2) * spread);
       context.closePath();
     }
+    context.stroke();
+  } else {
+    const core = ["red", "blue", "yellow"].includes(effect.core) ? effect.core : "red";
+    const travel = display.reducedMotion ? 12 : 12 + progress * 34;
+    drawCoreGlyph(context, core, -travel, -travel * 0.55, 8, true);
+    context.strokeStyle = highContrast ? "#fff" : REACTOR_COLORS[core];
+    context.beginPath();
+    context.moveTo(-travel + 12, -travel * 0.55 + 7);
+    context.lineTo(-travel + 22, -travel * 0.55 + 13);
     context.stroke();
   }
   context.restore();
@@ -321,13 +424,15 @@ export function renderCanvasFrame(context, view, assets) {
     context.fillRect(0, 0, view.width, view.height);
   }
   for (const actor of view.actors) {
-    drawContained(context, assets[actor.assetId], actor, view.width, view.height);
+    drawContained(context, assets[actor.assetId], actor, view.width, view.height, view.display);
+    drawAnimationCue(context, actor, view.width, view.height, view.display);
     if (actor.tone === "player") {
       drawPlayerReactorState(context, actor, view.width, view.height, view.display, view.tick);
     }
   }
   for (const projectile of view.projectiles) drawProjectile(context, projectile, view.width, view.height);
   for (const effect of view.effects) drawEffect(context, effect, view.width, view.height, view.display);
+  drawTransition(context, view.transition, view.width, view.height, view.display);
   drawHud(context, view);
   context.restore();
   return Object.freeze({ drawnAssets: view.layers.length + view.actors.length, missingAssets: missing });

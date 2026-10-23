@@ -262,6 +262,7 @@ function createView() {
     actors: snapshot.actors,
     projectiles: snapshot.projectiles,
     effects: snapshot.effects,
+    transition: snapshot.transition,
   });
 }
 

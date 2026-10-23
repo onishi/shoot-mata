@@ -111,6 +111,33 @@ test("CORE-03/06: reactor構成と無敵状態を自機の表示snapshotへ渡�
   });
 });
 
+test("AV-02: actorの登場・攻撃・形態変化とコア排出をsnapshotへ渡す", () => {
+  const simulation = createStageSimulation(PHASE05_TEST_STAGE, { coreQueue: ["red", "blue"] });
+  simulation.nextSpawnIndex = simulation.schedule.spawns.length;
+  simulation.enemies.push({
+    id: "animated-enemy", typeId: "test", assetId: "test", behaviorId: "armored-drift",
+    x: 0.6, y: 0.5, originY: 0.5, hitPoints: 20, maximumHitPoints: 20,
+    score: 10, collisionRadius: 0.02, dropItemId: "red", ageTicks: 0, attackTicks: 0, hitTicks: 0,
+  });
+  simulation.enemyShots.push({ id: "forced-eject", x: 0.198, y: 0.5, vx: -0.018, vy: 0 });
+  stepStageSimulation(simulation, PHASE05_TEST_STAGE, { fire: true });
+  const snapshot = createStageSimulationSnapshot(simulation);
+  assert.equal(snapshot.actors.find(({ id }) => id === "player").animation.state, "attack");
+  assert.equal(snapshot.actors.find(({ id }) => id === "animated-enemy").animation.state, "enter");
+  assert.equal(snapshot.effects.find(({ kind }) => kind === "eject").core, "red");
+
+  simulation.boss = {
+    id: "animated-boss", assetId: "test", x: 0.82, y: 0.5, phaseIndex: 1,
+    phases: [
+      { id: "one", behaviorId: "boss-crossfire", hitPoints: 0, maximumHitPoints: 10 },
+      { id: "two", behaviorId: "boss-core-rush", hitPoints: 10, maximumHitPoints: 10 },
+    ],
+    defeated: false, ageTicks: 0, attackTicks: 0, hitTicks: 0, phaseTicks: 20,
+  };
+  assert.equal(createStageSimulationSnapshot(simulation).actors
+    .find(({ id }) => id === "animated-boss").animation.state, "phase");
+});
+
 test("CORE-05: 全コア喪失後も標準範囲でコアを回収して復帰できる", () => {
   const simulation = createStageSimulation(PHASE05_TEST_STAGE, { coreQueue: [] });
   simulation.pickups.push({ id: "recovery-core", x: simulation.player.x, y: simulation.player.y, core: "yellow" });

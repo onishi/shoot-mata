@@ -19,6 +19,7 @@ const EFFECT_LIFETIMES = Object.freeze({
   damage: 36,
   destroy: 28,
   collect: 32,
+  eject: 32,
 });
 
 function clamp(value, min, max) {
@@ -50,7 +51,7 @@ export function createStageSimulation(stageInput, options = {}) {
     tick: 0,
     status: "playing",
     flowEvent: null,
-    player: { ...PLAYER_START, lives, invulnerabilityTicks: 0 },
+    player: { ...PLAYER_START, lives, invulnerabilityTicks: 0, attackTicks: 0 },
     loadout,
     enemies: [],
     playerShots: [],
@@ -76,7 +77,7 @@ function emit(state, type, detail = {}) {
   state.events.push({ tick: state.tick, type, ...detail });
 }
 
-function addEffect(state, kind, x, y) {
+function addEffect(state, kind, x, y, detail = {}) {
   state.effects.push({
     id: `effect-${state.nextEffectId++}`,
     kind,
@@ -84,6 +85,7 @@ function addEffect(state, kind, x, y) {
     y: clamp(y, 0, 1),
     ageTicks: 0,
     lifetimeTicks: EFFECT_LIFETIMES[kind],
+    ...detail,
   });
 }
 
@@ -112,6 +114,8 @@ function spawnScheduledEnemies(state, stage) {
       collisionRadius: type.collisionRadius / 720,
       dropItemId: spawn.dropItemId.replace("core-", ""),
       ageTicks: 0,
+      attackTicks: 0,
+      hitTicks: 0,
     });
     emit(state, "enemy-spawned", { enemyId: `${spawn.waveId}-${state.nextSpawnIndex}` });
     state.nextSpawnIndex += 1;
@@ -135,6 +139,9 @@ function spawnBoss(state, stage) {
     phases,
     defeated: false,
     ageTicks: 0,
+    attackTicks: 0,
+    hitTicks: 0,
+    phaseTicks: 30,
   };
   emit(state, "boss-entered", { bossId: state.boss.id });
 }
@@ -144,6 +151,7 @@ function movePlayer(state, command) {
   state.player.x = clamp(state.player.x + (command.moveX / magnitude) * PLAYER_SPEED_PER_TICK, 0.06, 0.72);
   state.player.y = clamp(state.player.y + (command.moveY / magnitude) * PLAYER_SPEED_PER_TICK, 0.12, 0.88);
   state.player.invulnerabilityTicks = Math.max(0, state.player.invulnerabilityTicks - 1);
+  state.player.attackTicks = Math.max(0, state.player.attackTicks - 1);
 }
 
 function firePlayerWeapon(state, command) {
@@ -173,6 +181,7 @@ function firePlayerWeapon(state, command) {
     level: weapon.level,
     soundAssetId: weapon.soundAssetId,
   });
+  state.player.attackTicks = 8;
   state.fireCooldownTicks = weapon.cooldownTicks;
 }
 
@@ -186,6 +195,8 @@ function nearestTarget(state, shot) {
 function moveCombatants(state) {
   for (const enemy of state.enemies) {
     enemy.ageTicks += 1;
+    enemy.attackTicks = Math.max(0, enemy.attackTicks - 1);
+    enemy.hitTicks = Math.max(0, enemy.hitTicks - 1);
     const speedFactors = {
       "armored-drift": 0.55,
       "sine-left": 1.2,
@@ -226,6 +237,7 @@ function moveCombatants(state) {
       : enemy.behaviorId === "cover-turret" ? 72
         : enemy.behaviorId === "armored-drift" ? 64 : 90;
     if (enemy.ageTicks >= 50 && enemy.ageTicks % firingInterval === 0) {
+      enemy.attackTicks = 12;
       const offsets = enemy.behaviorId === "omni-turret" ? [-0.012, 0, 0.012] : [0];
       for (const offset of offsets) {
         state.enemyShots.push({
@@ -240,6 +252,9 @@ function moveCombatants(state) {
   }
   if (state.boss && !state.boss.defeated) {
     state.boss.ageTicks += 1;
+    state.boss.attackTicks = Math.max(0, state.boss.attackTicks - 1);
+    state.boss.hitTicks = Math.max(0, state.boss.hitTicks - 1);
+    state.boss.phaseTicks = Math.max(0, state.boss.phaseTicks - 1);
     const phase = state.boss.phases[state.boss.phaseIndex];
     const phaseAge = state.boss.ageTicks;
     const isRush = ["boss-core-rush", "boss-thunder-dive", "boss-shifting-heart", "boss-overload-ram"].includes(phase.behaviorId);
@@ -278,6 +293,7 @@ function moveCombatants(state) {
       emit(state, "boss-coolant-vented", { phaseId: phase.id, core });
     }
     if (phaseAge % interval === 0) {
+      state.boss.attackTicks = 14;
       const offsets = isCrossfire ? [-0.018, 0, 0.018] : [0];
       for (const offset of offsets) {
         state.enemyShots.push({
@@ -302,7 +318,10 @@ function moveCombatants(state) {
     shot.x += shot.vx;
     shot.y += shot.vy;
   }
-  for (const pickup of state.pickups) pickup.x -= 0.004;
+  for (const pickup of state.pickups) {
+    pickup.ageTicks = (pickup.ageTicks ?? 0) + 1;
+    pickup.x -= 0.004;
+  }
 }
 
 function damagePlayer(state, reason) {
@@ -318,6 +337,7 @@ function damagePlayer(state, reason) {
     state.player.x = PLAYER_START.x;
     state.player.y = PLAYER_START.y;
   }
+  if (loss.lost !== null) addEffect(state, "eject", impact.x, impact.y, { core: loss.lost });
   addEffect(state, "damage", impact.x, impact.y);
   emit(state, "player-hit", { reason, lostCore: loss.lost, lives: state.player.lives });
   if (state.player.lives <= 0) {
@@ -344,10 +364,12 @@ function destroyEnemy(state, enemy) {
 function damageBoss(state, damage) {
   const phase = state.boss.phases[state.boss.phaseIndex];
   phase.hitPoints -= damage;
+  state.boss.hitTicks = 7;
   if (phase.hitPoints > 0) return;
   if (state.boss.phaseIndex < state.boss.phases.length - 1) {
     state.boss.phaseIndex += 1;
     state.boss.ageTicks = 0;
+    state.boss.phaseTicks = 30;
     emit(state, "boss-phase-changed", { phaseId: state.boss.phases[state.boss.phaseIndex].id });
     return;
   }
@@ -367,6 +389,7 @@ function resolvePlayerShots(state) {
         ? Math.max(1, shot.damage - 2)
         : shot.damage;
       enemy.hitPoints -= damage;
+      enemy.hitTicks = 7;
       addEffect(state, "hit", enemy.x, enemy.y);
       if (enemy.hitPoints <= 0) {
         deadEnemies.add(enemy.id);
@@ -601,6 +624,12 @@ export function createStageSimulationSnapshot(state) {
           supports: reactor.supports,
           invulnerable: state.player.invulnerabilityTicks > 0,
         },
+        animation: {
+          state: state.player.attackTicks > 0 ? "attack" : "move",
+          progress: state.player.attackTicks > 0
+            ? 1 - (state.player.attackTicks / 8) : (state.tick % 60) / 60,
+          variant: "player-interceptor",
+        },
       },
       ...state.enemies.map((enemy) => ({
         id: enemy.id,
@@ -610,6 +639,15 @@ export function createStageSimulationSnapshot(state) {
         width: enemy.behaviorId === "armored-drift" ? 0.15 : 0.11,
         height: enemy.behaviorId === "armored-drift" ? 0.18 : 0.14,
         tone: "enemy",
+        animation: {
+          state: enemy.ageTicks < 24 ? "enter"
+            : enemy.hitTicks > 0 ? "hit"
+              : enemy.attackTicks > 0 ? "attack" : "move",
+          progress: enemy.ageTicks < 24 ? enemy.ageTicks / 24
+            : enemy.hitTicks > 0 ? 1 - (enemy.hitTicks / 7)
+              : enemy.attackTicks > 0 ? 1 - (enemy.attackTicks / 12) : (enemy.ageTicks % 60) / 60,
+          variant: enemy.behaviorId,
+        },
       })),
       ...(state.boss && !state.boss.defeated ? [{
         id: state.boss.id,
@@ -619,8 +657,25 @@ export function createStageSimulationSnapshot(state) {
         width: 0.28,
         height: 0.46,
         tone: "boss",
+        animation: {
+          state: state.boss.phaseTicks > 0 ? (state.boss.phaseIndex === 0 ? "enter" : "phase")
+            : state.boss.hitTicks > 0 ? "hit"
+              : state.boss.attackTicks > 0 ? "attack" : "move",
+          progress: state.boss.phaseTicks > 0 ? 1 - (state.boss.phaseTicks / 30)
+            : state.boss.hitTicks > 0 ? 1 - (state.boss.hitTicks / 7)
+              : state.boss.attackTicks > 0 ? 1 - (state.boss.attackTicks / 14) : (state.boss.ageTicks % 90) / 90,
+          variant: state.boss.phases[state.boss.phaseIndex].behaviorId,
+        },
       }] : []),
-      ...state.pickups.map((pickup) => ({ id: pickup.id, assetId: `core-${pickup.core}`, x: clamp(pickup.x, 0, 1), y: pickup.y, width: 0.05, height: 0.08, tone: "core" })),
+      ...state.pickups.map((pickup) => ({
+        id: pickup.id, assetId: `core-${pickup.core}`, x: clamp(pickup.x, 0, 1), y: pickup.y,
+        width: 0.05, height: 0.08, tone: "core",
+        animation: {
+          state: (pickup.ageTicks ?? 0) < 18 ? "enter" : "move",
+          progress: (pickup.ageTicks ?? 0) < 18 ? (pickup.ageTicks ?? 0) / 18 : ((pickup.ageTicks ?? 0) % 48) / 48,
+          variant: pickup.core,
+        },
+      })),
     ],
     projectiles: state.playerShots.map((shot) => ({
       id: shot.id,
@@ -631,5 +686,6 @@ export function createStageSimulationSnapshot(state) {
       angle: Math.atan2(shot.vy ?? 0, shot.vx ?? PLAYER_SHOT_SPEED_PER_TICK),
     })),
     effects: state.effects.map((effect) => ({ ...effect })),
+    transition: state.status === "cleared" ? { kind: "clear", progress: 1 } : null,
   };
 }

@@ -131,7 +131,7 @@ export function getGameSessionSnapshot(session) {
     tick: 0,
     status: "waiting",
     flowEvent: null,
-    player: { x: 0.18, y: 0.5, lives: 3, invulnerabilityTicks: 0 },
+    player: { x: 0.18, y: 0.5, lives: 3, invulnerabilityTicks: 0, attackTicks: 0 },
     coreQueue: ["red"],
     weapon: { weaponLabel: "LANCE", level: 1 },
     score: 0,
@@ -139,9 +139,14 @@ export function getGameSessionSnapshot(session) {
     hitsTaken: 0,
     boss: null,
     actors: [
-      { id: "player", assetId: "player-interceptor", x: 0.18, y: 0.5, width: 0.12, height: 0.15, tone: "player" },
+      {
+        id: "player", assetId: "player-interceptor", x: 0.18, y: 0.5,
+        width: 0.12, height: 0.15, tone: "player",
+        animation: { state: "move", progress: 0, variant: "player-interceptor" },
+      },
     ],
     projectiles: [],
     effects: [],
+    transition: session.flow.screen === "stageIntro" ? { kind: "intro", progress: 0 } : null,
   };
 }

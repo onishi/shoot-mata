@@ -9,7 +9,7 @@ function fakeContext() {
   const context = { calls };
   for (const method of [
     "save", "restore", "clearRect", "fillRect", "strokeRect", "fillText", "drawImage",
-    "translate", "rotate", "beginPath", "moveTo", "lineTo", "closePath", "fill", "stroke", "arc",
+    "translate", "rotate", "scale", "beginPath", "moveTo", "lineTo", "closePath", "fill", "stroke", "arc",
     "setLineDash",
   ]) {
     context[method] = (...args) => calls.push([method, ...args]);
@@ -126,6 +126,37 @@ test("AV-04/A11Y-02: 4種VFXを非色形状で描き、動き軽減でも残す"
   assert.equal(context.calls.filter(([method]) => method === "arc").length, 2);
   assert.ok(context.calls.some(([method, dash]) => method === "setLineDash" && dash.length === 2));
   assert.ok(context.calls.filter(([method]) => method === "closePath").length >= 4);
+});
+
+test("AV-02/A11Y-02: actorの登場・攻撃・被弾・形態変化とクリアを非色形状で描く", () => {
+  const states = ["enter", "attack", "hit", "phase"];
+  const actors = states.map((state, index) => ({
+    id: state,
+    assetId: "player-interceptor",
+    x: 0.2 + index * 0.18,
+    y: 0.45,
+    width: 0.12,
+    height: 0.15,
+    tone: index === 0 ? "player" : "enemy",
+    animation: { state, progress: 0.5, variant: "test" },
+  }));
+  const view = createStageViewModel({
+    stage: PHASE05_TEST_STAGE,
+    settings: { reducedMotion: true, highContrast: true },
+    actors,
+    effects: [{ kind: "eject", core: "blue", x: 0.4, y: 0.6, ageTicks: 8, lifetimeTicks: 32 }],
+    transition: { kind: "clear", progress: 1 },
+  });
+  const assets = Object.fromEntries([
+    ...view.layers.map(({ assetId }) => [assetId, fakeImage()]),
+    ["player-interceptor", fakeImage()],
+  ]);
+  const context = fakeContext();
+  renderCanvasFrame(context, view, assets);
+  assert.equal(context.calls.filter(([method]) => method === "scale").length, 4);
+  assert.ok(context.calls.some(([method, value]) => method === "fillText" && value === "STAGE CLEAR"));
+  assert.ok(context.calls.some(([method, dash]) => method === "setLineDash" && dash.length === 2));
+  assert.ok(context.calls.filter(([method]) => method === "lineTo").length >= 12);
 });
 
 test("reports every missing asset before drawing", () => {
