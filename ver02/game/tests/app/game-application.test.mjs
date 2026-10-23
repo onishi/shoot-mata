@@ -23,6 +23,7 @@ function createPorts(options = {}) {
   const audio = {
     mode: "idle",
     warning: null,
+    soundsReady: options.soundsReady ?? true,
     activate() {
       calls.push(["activate"]);
       this.mode = options.audioFailure ? "silent" : "active";
@@ -31,7 +32,10 @@ function createPorts(options = {}) {
     },
     getStatus() { return { mode: this.mode, warning: this.warning }; },
     setSettings(settings) { calls.push(["settings", structuredClone(settings)]); },
-    playBgm(id) { calls.push(["bgm", id]); },
+    playBgm(id) {
+      calls.push(["bgm", id]);
+      return { played: this.soundsReady };
+    },
     playSfx(id) { calls.push(["sfx", id]); },
     stopBgm() { calls.push(["stop-bgm"]); },
   };
@@ -180,6 +184,52 @@ test("AV-04: コア回収とFIFO装填eventに対応する2音を一度ずつ鳴
   assert.deepEqual(ports.calls.slice(before).filter(([kind]) => kind === "sfx"), [
     ["sfx", "audio-ref-core-collect"],
     ["sfx", "audio-ref-core-load"],
+  ]);
+});
+
+test("AV-05: タイトル・結果・エンディングの各画面へ固有BGMを同期する", () => {
+  const data = createDefaultSaveData();
+  data.progress.tutorialSeen = true;
+  const ports = createPorts({ data, soundsReady: false });
+  const application = createGameApplication({
+    stages: Array.from({ length: 4 }, () => PHASE05_TEST_STAGE),
+    saveRepository: ports.repository,
+    audio: ports.audio,
+    seed: 77,
+  });
+
+  application.dispatch("start-campaign");
+  assert.deepEqual(ports.calls.findLast(([kind]) => kind === "bgm"), [
+    "bgm", "audio-ref-title-theme",
+  ]);
+  ports.audio.soundsReady = true;
+  application.syncCurrentScreenAudio();
+  assert.equal(ports.calls.filter(([kind, id]) => kind === "bgm" && id === "audio-ref-title-theme").length, 2);
+
+  for (let stageIndex = 0; stageIndex < 4; stageIndex += 1) {
+    application.dispatch("begin-stage");
+    assert.deepEqual(ports.calls.findLast(([kind]) => kind === "bgm"), [
+      "bgm", PHASE05_TEST_STAGE.audio.stageLayerAssetIds,
+    ]);
+    while (application.session.flow.screen === "playing") {
+      application.update(autoCommand(application.session));
+    }
+    assert.deepEqual(ports.calls.findLast(([kind]) => kind === "bgm"), [
+      "bgm", "audio-ref-result-theme",
+    ]);
+    application.dispatch("advance");
+  }
+  assert.equal(application.session.flow.screen, "ending");
+  assert.deepEqual(ports.calls.findLast(([kind]) => kind === "bgm"), [
+    "bgm", "audio-ref-ending-theme",
+  ]);
+  const endingStarts = ports.calls.filter(([kind, id]) => kind === "bgm" && id === "audio-ref-ending-theme").length;
+  application.dispatch("complete-ending");
+  assert.equal(application.session.flow.screen, "credits");
+  assert.equal(ports.calls.filter(([kind, id]) => kind === "bgm" && id === "audio-ref-ending-theme").length, endingStarts);
+  application.dispatch("return-title");
+  assert.deepEqual(ports.calls.findLast(([kind]) => kind === "bgm"), [
+    "bgm", "audio-ref-title-theme",
   ]);
 });
 

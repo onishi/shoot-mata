@@ -80,10 +80,12 @@ Phase 06で確立した制作・実装・検証経路を使い、第2〜4面、�
 
 [完了] 4面キャンペーンの進行、面クリア後の段階解放、保存復元、エンディング、総合結果、クレジットを製品入口で接続した。面別固定seedで実コンテンツ4面を連続完走する統合テストとブラウザQAを追加し、Chromeで総合score 54,140、`QA PASS / 4 STAGES / ENDING + CREDITS`、縦長・横長overflow 0、console warning/error 0を確認した。
 
-[完了] 全asset台帳と権利状態を実ファイル・manifest・製品経路へ再照合した。画像32点と音声26点はruntime参照・配信定義・実ファイルと過不足なく一致し、画像prompt、音声manifestのSHA-256、権利状態、配布通知を自動検査する。製品buildからPhase 05試作定義を除外し、placeholder／planned／draft参照0、9,595,827 bytes / 16 MiB、外部URL 0を確認した。Chromeの4面campaignはscore 54,140で再完走し、1568×1012、390×844、844×390のoverflow 0、console warning/error 0、HTML権利通知の表示を確認した。
+[完了] 全asset台帳と権利状態を実ファイル・manifest・製品経路へ再照合した。画像32点と音声29点はruntime参照・配信定義・実ファイルと過不足なく一致し、画像prompt、音声manifestのSHA-256、権利状態、配布通知を自動検査する。製品buildからPhase 05試作定義を除外し、placeholder／planned／draft参照0、10,466,391 bytes / 16 MiB、外部URL 0を確認した。Chromeの4面campaignはscore 54,140で再完走し、1568×1012、390×844、844×390のoverflow 0、console warning/error 0、HTML権利通知の表示を確認した。
 
 [完了] INP-04のキーボードとタッチを、戦闘commandの直接注入ではなくkeydown/upとPointer Eventsから製品input adapterへ通す再現経路へ追加した。Nodeでは両方式が同一score 49,620、Chromeの240Hz QA clockでは両方式が同一score 54,140で4面→ending→creditsを完走した。ブラウザ記録はキーボード1,132 events、タッチ4,086 events＋画面主操作10回、戦闘12,316 frames、console warning/error 0。タッチ画面遷移直後に空入力1 tickを余計に進めて方式別scoreが分かれる不具合を検出し、遷移した更新では戦闘を進めない回帰テストを追加した。実タッチ端末は未確認。
 
+[完了] AV-05のタイトル／メニュー、面別結果、キャンペーンエンディングへ固有の共有BGM 3点を追加した。読込前の再生失敗を再生済みにせず、読込完了時に現在画面へ再同期する。4面campaignで結果テーマを面ごとに切替え、endingからcreditsでは同じテーマを再開始せず継続することを自動検査した。Chromeは4面→ending→creditsをscore 54,140で完走し、音声警告0、console warning/error 0、外部origin 0、横overflow 0だった。聴感は未評価。
+
 ## 次の作業単位
 
-AV-05のタイトル・結果・エンディング音を製品画面遷移へ追加する。続いてA11Y-04のTab順・フォーカス・ラベルを埋め、Phase 07の残ゲートを判定する。
+A11Y-04のTab順・フォーカス・ラベルを埋め、Phase 07の残ゲートを判定する。

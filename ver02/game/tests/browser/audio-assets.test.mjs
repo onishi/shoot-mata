@@ -57,3 +57,13 @@ test("AV-05: 第4面の3音楽層と導入・クリア通知を製品loaderへ�
   ]);
   assert.deepEqual(stage04.map(({ group }) => group), ["bgm", "bgm", "bgm", "sfx", "sfx"]);
 });
+
+test("AV-05: タイトル・結果・エンディングの共有BGMを製品loaderへ登録する", () => {
+  const screenThemes = AUDIO_ASSETS.filter(({ id }) => id.endsWith("-theme"));
+  assert.deepEqual(screenThemes.map(({ id }) => id), [
+    "audio-ref-title-theme",
+    "audio-ref-result-theme",
+    "audio-ref-ending-theme",
+  ]);
+  assert.deepEqual(screenThemes.map(({ group }) => group), ["bgm", "bgm", "bgm"]);
+});

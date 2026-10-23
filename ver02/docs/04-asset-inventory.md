@@ -157,11 +157,11 @@
 
 ## AUDIO-REF-01 検査記録
 
-- 赤ランス180ms/−6dBFS、青スプレッド240ms/−8dBFS、黄シーカー320ms/−8dBFS、コア回収380ms/−7.001dBFS、装填250ms/−9dBFS、UI決定120ms/−12dBFS、第1面リズム層4000ms/−12dBFSを作成した。
-- 7点とも48kHz、mono、PCM16 WAV。クリップは全点0、−60dBFS基準の先頭無音は最大0.125ms、末尾無音は最大0.5ms。リズム層のループ端正規化振幅差は0.004395で上限0.01以内。
+- 赤ランス180ms/−6dBFS、青スプレッド240ms/−8dBFS、黄シーカー320ms/−8dBFS、コア回収380ms/−7.001dBFS、装填250ms/−9dBFS、UI決定120ms/−12dBFS、第1面リズム層4000ms/−12dBFSを作成した。P07でタイトル／メニュー3000ms、結果2400ms、エンディング3600msの各−18dBFSループを追加した。
+- 10点とも48kHz、mono、PCM16 WAV。クリップは全点0。追加3ループの先頭無音は0.021ms以下、末尾無音0ms、ループ端正規化振幅差は0.003632〜0.005219で上限0.01以内。
 - `manifest.json`に用途、長さ、目標ピーク、バイト数、SHA-256、制作方法、権利を記録し、テストで実ファイルと照合する。外部音源・外部サンプルは使用していない。
-- Chromeで7点すべて`readyState=4`、表示長0.12〜4秒、ループ指定、横溢れ0、console warning/error 0件を確認した。320×844でも横溢れ0、音声操作高54px。
-- P06で3武器、コア回収、FIFO装填を製品eventへ接続し、Chromeで7点すべての取得、警告0、音量設定・ミュート・失敗時継続を確認した。分離音声としてゲーム投入可能なため`final`。聴感の主観評価、製品全体の同時発音、配信用圧縮形式は未確認なので`verified`ではない。
+- Chromeで旧7点すべて`readyState=4`、表示長0.12〜4秒、ループ指定、横溢れ0、console warning/error 0件を確認した。320×844でも横溢れ0、音声操作高54px。
+- P06で3武器、コア回収、FIFO装填を製品eventへ接続した。P07で追加3 BGMをタイトル／メニュー、結果、エンディングへ接続し、読込前失敗後の再同期、ending→credits間の継続を自動検査した。Chrome campaignはcreditsまで完走し、音声警告0、59 runtime resources、外部origin 0、console warning/error 0だった。分離音声としてゲーム投入可能なため`final`。聴感の主観評価、実端末、配信用圧縮形式は未確認なので`verified`ではない。
 
 ## AUDIO-STG01-01 検査記録
 
@@ -193,8 +193,8 @@
 
 ## Phase 07 製品経路・権利の全量照合
 
-- 製品経路は、4面のstage data、`GAME_ASSETS`、`AUDIO_ASSETS`、`DELIVERY_ASSETS`を正本として照合する。画像32ファイル、音声26ファイルの全58配信ファイルが、runtime参照と過不足なく一致する。
+- 製品経路は、4面のstage data、`GAME_ASSETS`、`AUDIO_ASSETS`、`DELIVERY_ASSETS`を正本として照合する。画像32ファイル、音声29ファイルの全61配信ファイルが、runtime参照と過不足なく一致する。
 - 画像32点は原本PNG、同名の完全prompt、配信WebP、最適化監査のSHA-256を接続した。2026-10-24時点のOpenAI Terms of Useでは、OpenAIと利用者の間で適用法令上認められる範囲のOutput所有が利用者に帰属することを確認した。生成物が非一意であり得ること、非侵害が保証されないこと、利用者が利用責任を負うことは残存リスクとして維持する。
-- 音声26点は生成コード、原本WAV、manifestの用途・byte数・SHA-256・`project-authored; no third-party samples`を再照合した。製品から除外済みの旧`stage-01-rhythm-loop-v1.wav`はゲート対象に含めない。
+- 音声29点は生成コード、原本WAV、manifestの用途・byte数・SHA-256・`project-authored; no third-party samples`を再照合した。製品から除外済みの旧`stage-01-rhythm-loop-v1.wav`はゲート対象に含めない。
 - `product-asset-gate.test.mjs`は製品経路の`placeholder / planned / draft`を拒否し、全4面の画像・音ID、実ファイル、prompt、音声manifest、権利状態、配布通知を一括検査する。以前の各検査記録に残る「製品入口未接続」「権利再確認未完了」は制作時点の履歴であり、この全量照合が現状を上書きする。
 - 配布物へ`THIRD_PARTY_NOTICES.html`を同梱し、画像生成、音声合成、外部素材0、外部runtime依存0、利用条件URL、残存リスクを利用者から参照可能にした。これは法的助言または独自性・非侵害性の保証ではなく、Phase 10でも再確認する。

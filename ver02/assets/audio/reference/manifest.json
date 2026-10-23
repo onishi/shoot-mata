@@ -96,6 +96,54 @@
     "rights": "project-authored; no third-party samples"
   },
   {
+    "id": "title-theme-loop",
+    "file": "title-theme-loop-v1.wav",
+    "role": "title and menu music loop",
+    "durationMs": 3000,
+    "targetPeakDb": -18,
+    "peakRangeDb": [
+      -19,
+      -17
+    ],
+    "loop": true,
+    "bytes": 288044,
+    "sha256": "ce92514c1486f12331b76ecd2a07324978a0b11fa28e836bf868aa07cd52d8a2",
+    "creation": "deterministic original synthesis in generate-reference-audio.mjs",
+    "rights": "project-authored; no third-party samples"
+  },
+  {
+    "id": "result-theme-loop",
+    "file": "result-theme-loop-v1.wav",
+    "role": "stage result music loop",
+    "durationMs": 2400,
+    "targetPeakDb": -18,
+    "peakRangeDb": [
+      -19,
+      -17
+    ],
+    "loop": true,
+    "bytes": 230444,
+    "sha256": "e2f3a8449c43e25d44ad448c6c46a14f3052d9939e5ba0f116fda7d963ddf5f7",
+    "creation": "deterministic original synthesis in generate-reference-audio.mjs",
+    "rights": "project-authored; no third-party samples"
+  },
+  {
+    "id": "ending-theme-loop",
+    "file": "ending-theme-loop-v1.wav",
+    "role": "campaign ending music loop",
+    "durationMs": 3600,
+    "targetPeakDb": -18,
+    "peakRangeDb": [
+      -19,
+      -17
+    ],
+    "loop": true,
+    "bytes": 345644,
+    "sha256": "c596f25691a49e8b3f8029fa3df0bab3fc757e49611cec790bc1038d386d9055",
+    "creation": "deterministic original synthesis in generate-reference-audio.mjs",
+    "rights": "project-authored; no third-party samples"
+  },
+  {
     "id": "stage-01-rhythm-loop",
     "file": "stage-01-rhythm-loop-v1.wav",
     "role": "stage rhythm layer loop",

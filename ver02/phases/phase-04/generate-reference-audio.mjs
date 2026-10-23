@@ -42,6 +42,30 @@ const synths = {
   "ui-confirm": (time, duration) => envelope(time, duration, 0.003, 0.025) * (
     0.7 * Math.sin(TAU * 880 * time) + 0.3 * Math.sin(TAU * 1320 * time)
   ),
+  "title-theme-loop": (time) => {
+    const drift = 0.62 + 0.38 * Math.cos(TAU * time / 3);
+    return drift * (
+      0.5 * Math.sin(TAU * 110 * time) +
+      0.3 * Math.sin(TAU * 165 * time) +
+      0.2 * Math.sin(TAU * 330 * time)
+    );
+  },
+  "result-theme-loop": (time) => {
+    const pulse = 0.7 + 0.3 * Math.cos(TAU * 2.5 * time);
+    return pulse * (
+      0.46 * Math.sin(TAU * 220 * time) +
+      0.32 * Math.sin(TAU * 275 * time) +
+      0.22 * Math.sin(TAU * 440 * time)
+    );
+  },
+  "ending-theme-loop": (time) => {
+    const rise = 0.68 + 0.32 * Math.cos(TAU * time / 3.6);
+    return rise * (
+      0.42 * Math.sin(TAU * 110 * time) +
+      0.34 * Math.sin(TAU * 220 * time) +
+      0.24 * Math.sin(TAU * 330 * time)
+    );
+  },
   "stage-01-rhythm-loop": (time) => {
     const pulse = 0.55 + 0.45 * Math.cos(TAU * 2 * time);
     return pulse * (0.62 * Math.sin(TAU * 55 * time) + 0.24 * Math.sin(TAU * 110 * time)) +

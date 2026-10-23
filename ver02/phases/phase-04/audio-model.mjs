@@ -9,6 +9,9 @@ export const REFERENCE_AUDIO = Object.freeze([
   { id: "core-collect", file: "core-collect-v1.wav", role: "core pickup", durationMs: 380, targetPeakDb: -7, peakRangeDb: [-8, -6], loop: false },
   { id: "core-load", file: "core-load-v1.wav", role: "FIFO queue update", durationMs: 250, targetPeakDb: -9, peakRangeDb: [-10, -8], loop: false },
   { id: "ui-confirm", file: "ui-confirm-v1.wav", role: "UI confirmation", durationMs: 120, targetPeakDb: -12, peakRangeDb: [-13, -11], loop: false },
+  { id: "title-theme-loop", file: "title-theme-loop-v1.wav", role: "title and menu music loop", durationMs: 3000, targetPeakDb: -18, peakRangeDb: [-19, -17], loop: true },
+  { id: "result-theme-loop", file: "result-theme-loop-v1.wav", role: "stage result music loop", durationMs: 2400, targetPeakDb: -18, peakRangeDb: [-19, -17], loop: true },
+  { id: "ending-theme-loop", file: "ending-theme-loop-v1.wav", role: "campaign ending music loop", durationMs: 3600, targetPeakDb: -18, peakRangeDb: [-19, -17], loop: true },
   { id: "stage-01-rhythm-loop", file: "stage-01-rhythm-loop-v1.wav", role: "stage rhythm layer loop", durationMs: 4000, targetPeakDb: -12, peakRangeDb: [-13, -11], loop: true },
 ]);
 

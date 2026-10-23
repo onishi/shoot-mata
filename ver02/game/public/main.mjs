@@ -124,7 +124,7 @@ function ensureAudioAssets() {
     if (!audible) return [];
     const results = await loadBrowserAudioAssets(audio);
     if (results.some(({ loaded }) => !loaded)) audioAssetWarning = "audio-source-load-failed";
-    if (session.flow.screen === "playing") audio.playBgm(selectedStage().audio.stageLayerAssetIds);
+    application.syncCurrentScreenAudio();
     syncRuntimeResources();
     syncWarning();
     return results;

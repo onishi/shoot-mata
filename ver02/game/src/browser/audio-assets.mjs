@@ -30,6 +30,21 @@ export const AUDIO_ASSETS = Object.freeze([
     url: "../../assets/audio/reference/ui-confirm-v1.wav",
   }),
   Object.freeze({
+    id: "audio-ref-title-theme",
+    group: "bgm",
+    url: "../../assets/audio/reference/title-theme-loop-v1.wav",
+  }),
+  Object.freeze({
+    id: "audio-ref-result-theme",
+    group: "bgm",
+    url: "../../assets/audio/reference/result-theme-loop-v1.wav",
+  }),
+  Object.freeze({
+    id: "audio-ref-ending-theme",
+    group: "bgm",
+    url: "../../assets/audio/reference/ending-theme-loop-v1.wav",
+  }),
+  Object.freeze({
     id: "audio-ref-weapon-lance",
     group: "sfx",
     url: "../../assets/audio/reference/weapon-lance-shot-v1.wav",

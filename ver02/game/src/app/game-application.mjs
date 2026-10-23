@@ -31,6 +31,16 @@ function saveResultFromSession(session, difficulty) {
   };
 }
 
+const SCREEN_BGM = Object.freeze({
+  title: "audio-ref-title-theme",
+  stageSelect: "audio-ref-title-theme",
+  tutorial: "audio-ref-title-theme",
+  stageIntro: "audio-ref-title-theme",
+  result: "audio-ref-result-theme",
+  gameOver: "audio-ref-result-theme",
+  ending: "audio-ref-ending-theme",
+});
+
 export function createGameApplication(options) {
   const stages = options?.stages ?? (options?.stage ? [options.stage] : null);
   if (!Array.isArray(stages) || stages.length === 0) throw new TypeError("at least one stage is required");
@@ -49,6 +59,7 @@ export function createGameApplication(options) {
   let saveWarning = loaded.warning;
   let activationPromise = null;
   let lastRecordedRun = null;
+  let activeBgmKey = null;
   const session = createGameSession({
     seed: options.seed,
     tutorialSeen: saveData.progress.tutorialSeen,
@@ -83,15 +94,38 @@ export function createGameApplication(options) {
     return activationPromise;
   }
 
+  function playBgm(assetIds) {
+    const key = JSON.stringify(assetIds);
+    if (activeBgmKey === key) return;
+    const playback = audio.playBgm(assetIds);
+    if (playback?.played !== false) activeBgmKey = key;
+  }
+
+  function screenBgm() {
+    if (session.flow.screen === "playing") return currentStage().audio.stageLayerAssetIds;
+    if (session.flow.screen === "credits") {
+      return session.flow.returnScreen === "title"
+        ? SCREEN_BGM.title
+        : SCREEN_BGM.ending;
+    }
+    return SCREEN_BGM[session.flow.screen] ?? null;
+  }
+
+  function syncCurrentScreenBgm() {
+    const assetIds = screenBgm();
+    if (assetIds) playBgm(assetIds);
+  }
+
   function syncScreenAudio(previousScreen) {
     const nextScreen = session.flow.screen;
     if (previousScreen === nextScreen) return;
-    const stage = currentStage();
     if (nextScreen === "playing") {
-      audio.playBgm(stage.audio.stageLayerAssetIds);
+      const stage = currentStage();
+      playBgm(stage.audio.stageLayerAssetIds);
       audio.playSfx(stage.audio.introAssetId);
+    } else {
+      syncCurrentScreenBgm();
     }
-    if (["title", "result", "gameOver"].includes(nextScreen)) audio.stopBgm();
     if (nextScreen !== "playing") audio.playSfx("audio-ref-ui-confirm");
   }
 
@@ -110,6 +144,10 @@ export function createGameApplication(options) {
     session,
 
     activateAudio,
+
+    syncCurrentScreenAudio() {
+      syncCurrentScreenBgm();
+    },
 
     dispatch(action) {
       const previousScreen = session.flow.screen;
@@ -140,7 +178,7 @@ export function createGameApplication(options) {
       if (previousScreen === "playing") {
         const stage = currentStage();
         for (const event of session.simulation?.events ?? []) {
-          if (event.type === "boss-entered") audio.playBgm(stage.audio.bossLayerAssetIds);
+          if (event.type === "boss-entered") playBgm(stage.audio.bossLayerAssetIds);
           if (event.type === "stage-cleared") audio.playSfx(stage.audio.clearAssetId);
           if (event.soundAssetId) audio.playSfx(event.soundAssetId);
         }
