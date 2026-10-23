@@ -91,7 +91,7 @@ ES moduleを基準とし、導入する依存はロックファイル、権利�
 
 `npm run build` は `dist/` を毎回作り直し、実行に必要な `game/public`、`game/src`、参照中の配信画像・音声だけを収録する。生成時刻を埋め込まず、各ファイルのSHA-256、byte数、build IDを `build-manifest.json` へ固定順で出力する。同じ入力から2回生成したmanifestが一致することを自動検査する。Phase 07以降は制作原本PNGでなく `assets/delivery/` の検査済みWebPを収録し、build時にも第1面2.25 MiB、共有7 MiB、全体16 MiBの上限をfail closedで検査する。`npm run audit:static` は許可外形式、16 MiB超過、HTML/CSS/JavaScript内の外部URLを拒否する。
 
-packageはruntime/dev依存とも0件で、lockfileを保存する。`npm run audit:deps` はhigh以上を失敗扱いとし、2026-10-22の監査結果は既知脆弱性0件だった。
+packageはruntime/dev依存とも0件で、lockfileを保存する。開発・build実行環境は `.node-version` で最新LTSのNode.js 24.22.1へ固定し、`package.json` と `.npmrc` でNode.js 24.22.1以上24系、npm 11.19.1以上11系を必須にする。`npm run audit:deps` はhigh以上を失敗扱いとし、2026-10-23の監査結果は既知脆弱性0件だった。
 
 ## 11. 性能基準の決め方
 
