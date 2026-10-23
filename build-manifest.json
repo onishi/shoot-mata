@@ -1,0 +1,443 @@
+{
+  "schemaVersion": 1,
+  "buildId": "phase07-delivery-assets-20261022",
+  "entrypoint": "game/public/index.html",
+  "files": [
+    {
+      "path": "assets/audio/reference/core-collect-v1.wav",
+      "bytes": 36524,
+      "sha256": "a7a5edbd90c0a2f4a1fdab77be6f0d869b6cba30257661b82b5a9d57d9f7f4ae"
+    },
+    {
+      "path": "assets/audio/reference/core-load-v1.wav",
+      "bytes": 24044,
+      "sha256": "209e29a97384d030a7882e9aa052514b2e096981d5d63d7c0a08112f246100b7"
+    },
+    {
+      "path": "assets/audio/reference/ui-confirm-v1.wav",
+      "bytes": 11564,
+      "sha256": "25578833c856297c86d21205b919f95e47ee2e20d097b4d37a328b0df1407c8b"
+    },
+    {
+      "path": "assets/audio/reference/weapon-lance-shot-v1.wav",
+      "bytes": 17324,
+      "sha256": "1ab7b6e540fd2b13844564e708399e55ad6172d66d7b2d131bfb9e268fdbde17"
+    },
+    {
+      "path": "assets/audio/reference/weapon-seeker-launch-v1.wav",
+      "bytes": 30764,
+      "sha256": "dbff817b86c1ceed5e64437904d988495baf5a6ca1649cd984a738d1400d2cb7"
+    },
+    {
+      "path": "assets/audio/reference/weapon-spread-shot-v1.wav",
+      "bytes": 23084,
+      "sha256": "a84afea19f5ef06f379f437a64543709ac993afa98d657f45297c3dc83191900"
+    },
+    {
+      "path": "assets/audio/stage-01/stage-01-orbital-wreck-clear-v1.wav",
+      "bytes": 67244,
+      "sha256": "dddf467d19aca46c186ed519aefadb91af0b587c45a3d4e7b4a172215f23c1f2"
+    },
+    {
+      "path": "assets/audio/stage-01/stage-01-orbital-wreck-danger-v1.wav",
+      "bytes": 288044,
+      "sha256": "2b1646c08ff119e34175cfafd6bc1fe3e0985a928efa618082619891ce2b14a3"
+    },
+    {
+      "path": "assets/audio/stage-01/stage-01-orbital-wreck-intro-v1.wav",
+      "bytes": 38444,
+      "sha256": "7013e74ab508abc08a5119a34ffe9154a84d5d6b44fd644789209794d31971d7"
+    },
+    {
+      "path": "assets/audio/stage-01/stage-01-orbital-wreck-melody-v1.wav",
+      "bytes": 288044,
+      "sha256": "01028bdce0963ca03cf9da5df6746ab642fb3d87e4021866c10b2abb56ee65b1"
+    },
+    {
+      "path": "assets/audio/stage-01/stage-01-orbital-wreck-rhythm-v1.wav",
+      "bytes": 288044,
+      "sha256": "b45d2a1c0d773ff1ac125d2b899cbecfaa3d75140344863a594fce37380f0635"
+    },
+    {
+      "path": "assets/audio/stage-02/stage-02-cloud-refinery-clear-v1.wav",
+      "bytes": 86444,
+      "sha256": "911d61be0fd6e8f55c71aedc48eba879ed4f26dd45c46fbdf65c84eebe03ceb2"
+    },
+    {
+      "path": "assets/audio/stage-02/stage-02-cloud-refinery-danger-v1.wav",
+      "bytes": 384044,
+      "sha256": "d2f261926c40530138e33b29974ed34625be22f8f714c8cc310b4a1eea09f75f"
+    },
+    {
+      "path": "assets/audio/stage-02/stage-02-cloud-refinery-intro-v1.wav",
+      "bytes": 48044,
+      "sha256": "eb2e612413c0a39675253d5d391c52002490a30e2f9a967431cff67850ef350b"
+    },
+    {
+      "path": "assets/audio/stage-02/stage-02-cloud-refinery-melody-v1.wav",
+      "bytes": 384044,
+      "sha256": "89b3c2c97f3fccc4436c911fbb880f78ed9d112bbd8e830d4edc7b7524c6f20a"
+    },
+    {
+      "path": "assets/audio/stage-02/stage-02-cloud-refinery-rhythm-v1.wav",
+      "bytes": 384044,
+      "sha256": "f21ca11d7d229b2e9076bf01272f4e071a37c8d379f8199ffdaf7fc6fbabaf0a"
+    },
+    {
+      "path": "assets/audio/stage-03/stage-03-living-ark-clear-v1.wav",
+      "bytes": 76844,
+      "sha256": "32d4272646614273be905ab9051f7a16ced997ea561f223362d58557a0ee7205"
+    },
+    {
+      "path": "assets/audio/stage-03/stage-03-living-ark-danger-v1.wav",
+      "bytes": 326444,
+      "sha256": "90197b934518505ac1a6161ff8ac7e317b21414fd71b69fd138c806fb3aa95c0"
+    },
+    {
+      "path": "assets/audio/stage-03/stage-03-living-ark-intro-v1.wav",
+      "bytes": 43244,
+      "sha256": "95a018adcffbb8c94d44e71fc798ec4c83be1736779e2831e12cb811945f7b71"
+    },
+    {
+      "path": "assets/audio/stage-03/stage-03-living-ark-melody-v1.wav",
+      "bytes": 326444,
+      "sha256": "5582b61a5128dd91467fb7777dd5fca4ab33739b9126aaea85048cfd1bb6cc11"
+    },
+    {
+      "path": "assets/audio/stage-03/stage-03-living-ark-rhythm-v1.wav",
+      "bytes": 326444,
+      "sha256": "0858cc5f683dacf3509afb040fd28b63730f30eaadb7c5bd52046d6045e42b2e"
+    },
+    {
+      "path": "assets/audio/stage-04/stage-04-stellar-furnace-clear-v1.wav",
+      "bytes": 62444,
+      "sha256": "aa3d0b1fe5aba9b217abc827ea98b10da1dc4565de9f347dd98016ad18633ad6"
+    },
+    {
+      "path": "assets/audio/stage-04/stage-04-stellar-furnace-danger-v1.wav",
+      "bytes": 288044,
+      "sha256": "14dd52d88bb3213811305562fe40360840ab3e915c8be2ff55b19b63cd596540"
+    },
+    {
+      "path": "assets/audio/stage-04/stage-04-stellar-furnace-intro-v1.wav",
+      "bytes": 33644,
+      "sha256": "635f1a80296478d5efb6b62e1ff97a04e067aa371a665e2a7978c82df4cf9510"
+    },
+    {
+      "path": "assets/audio/stage-04/stage-04-stellar-furnace-melody-v1.wav",
+      "bytes": 288044,
+      "sha256": "0028d17fcc77c81ebb30596ebff824a37d2f3580e28c9f181bb0cf084189d9e0"
+    },
+    {
+      "path": "assets/audio/stage-04/stage-04-stellar-furnace-rhythm-v1.wav",
+      "bytes": 288044,
+      "sha256": "a07b7302f9d5ab67a44c78a9950cfbf5787b81bcbcc16a062d4e0224f017b242"
+    },
+    {
+      "path": "assets/delivery/game/backgrounds/stage-01/orbital-wreck-far-v1.webp",
+      "bytes": 185974,
+      "sha256": "65ac372818f1002573e4879a801a255822fec9feebcff170197c579e94573dcd"
+    },
+    {
+      "path": "assets/delivery/game/backgrounds/stage-01/orbital-wreck-fore-v1.webp",
+      "bytes": 157344,
+      "sha256": "bb595196e886736b8b362ab7cc9abe8f92e1c52d44a5f0f00c92413c411dd162"
+    },
+    {
+      "path": "assets/delivery/game/backgrounds/stage-01/orbital-wreck-mid-v1.webp",
+      "bytes": 312278,
+      "sha256": "799cbc6dcbbc55df19d18e05a77eb643d6937d34e391ba5fa9672d3bf0dc02e5"
+    },
+    {
+      "path": "assets/delivery/game/backgrounds/stage-02/cloud-refinery-far-v1.webp",
+      "bytes": 114328,
+      "sha256": "9fa723076340c4548f48d636f5942479a9393baadfd53e0d5ee54a5d511ecb01"
+    },
+    {
+      "path": "assets/delivery/game/backgrounds/stage-02/cloud-refinery-fore-v1.webp",
+      "bytes": 197566,
+      "sha256": "d105d2a721ff6ba262f4962b14a230f1dd64ee31207ab4796079c27a750b21bf"
+    },
+    {
+      "path": "assets/delivery/game/backgrounds/stage-02/cloud-refinery-mid-v1.webp",
+      "bytes": 275124,
+      "sha256": "4dd4bdbac985541c04737343a14386bd2e53f61a963a0f4e2f496a75dd545478"
+    },
+    {
+      "path": "assets/delivery/game/backgrounds/stage-03/living-ark-far-v1.webp",
+      "bytes": 140450,
+      "sha256": "f00779a4707daa50ef793bf08babb2c1e02d5353fce07549e3e6aa6dfeab4119"
+    },
+    {
+      "path": "assets/delivery/game/backgrounds/stage-03/living-ark-fore-v1.webp",
+      "bytes": 217300,
+      "sha256": "dd9b9d99bdef8ca230d5d7a1c9336f072b2d3bab0b58f097163becc6dbc5188f"
+    },
+    {
+      "path": "assets/delivery/game/backgrounds/stage-03/living-ark-mid-v1.webp",
+      "bytes": 339764,
+      "sha256": "b9574fdc7e1a03afadf66e933fe4d56cf18d1f1265b3fc15ad8b0c34e392dc72"
+    },
+    {
+      "path": "assets/delivery/game/backgrounds/stage-04/stellar-furnace-far-v1.webp",
+      "bytes": 197046,
+      "sha256": "e88e4fe2145e52c369d2d8e1c4037ef1b430b99464b1cb0a91ed9134b3ec2b19"
+    },
+    {
+      "path": "assets/delivery/game/backgrounds/stage-04/stellar-furnace-fore-v1.webp",
+      "bytes": 213632,
+      "sha256": "07bb303ac693649cd565d09a576838c8ab032f805d6ca63554d3797cafdda7f1"
+    },
+    {
+      "path": "assets/delivery/game/backgrounds/stage-04/stellar-furnace-mid-v1.webp",
+      "bytes": 356338,
+      "sha256": "49dd7ebd4f9d32cc0ca780c04f983762f05447c6c631aa2a625cd7a2e6855903"
+    },
+    {
+      "path": "assets/delivery/game/bosses/stage-01/wreck-warden-v1.webp",
+      "bytes": 276870,
+      "sha256": "ef462992437ef354a8b84355ed9b1849703ae272d122faa4886b59dde979069a"
+    },
+    {
+      "path": "assets/delivery/game/bosses/stage-02/refinery-guardian-v1.webp",
+      "bytes": 195560,
+      "sha256": "38c598938424bcfb2aaee5a490ee59819aca3fbc0b97e3f8cf419c0a58933bc7"
+    },
+    {
+      "path": "assets/delivery/game/bosses/stage-03/ark-core-v1.webp",
+      "bytes": 271182,
+      "sha256": "3686ceace0c67edc02e3987a38a22a9d94aa4bd122d88bdc50dd540a8ec6f99e"
+    },
+    {
+      "path": "assets/delivery/game/bosses/stage-04/furnace-controller-v1.webp",
+      "bytes": 243644,
+      "sha256": "30bae115f73b540374191405cc8efaa7c89c308e4e639e7f7f350cf22df55ed3"
+    },
+    {
+      "path": "assets/delivery/game/cores/reactor-core-blue-v1.webp",
+      "bytes": 65138,
+      "sha256": "321d5ff0f2d66c0b06d26ba760487af984cb782847ff8f9e85ac6cc5090dbac6"
+    },
+    {
+      "path": "assets/delivery/game/cores/reactor-core-red-v1.webp",
+      "bytes": 41184,
+      "sha256": "6c57008ba10b73974406618a45e4a4c09cbf7951d0b1037f661db75252353c02"
+    },
+    {
+      "path": "assets/delivery/game/cores/reactor-core-yellow-v1.webp",
+      "bytes": 52684,
+      "sha256": "fbc330aa48c5d464025721b0f49fbbda03cffa3edda60e3d66a96d7ab5e760c9"
+    },
+    {
+      "path": "assets/delivery/game/enemies/stage-01/salvage-collector-v1.webp",
+      "bytes": 72090,
+      "sha256": "55dd2593accc784d0c4dba59592009877b2dd5e3b7b39603bc1903b8eac32549"
+    },
+    {
+      "path": "assets/delivery/game/enemies/stage-01/salvage-weaver-v1.webp",
+      "bytes": 80734,
+      "sha256": "630fe46a4cc0b64f72c41c6a152f33806f553119e37a821e22a54cb5e601a1ec"
+    },
+    {
+      "path": "assets/delivery/game/enemies/stage-01/wreck-bulwark-v1.webp",
+      "bytes": 108508,
+      "sha256": "567d3cfc202bf73dd495b9469fee996ce4a30b473b1a088428bbc3c7a8c980cf"
+    },
+    {
+      "path": "assets/delivery/game/enemies/stage-02/cloud-skimmer-v1.webp",
+      "bytes": 58942,
+      "sha256": "22c75fc6711512bcf75346b29f0b644bb3a04073b926e07c08f026e0b3f7b198"
+    },
+    {
+      "path": "assets/delivery/game/enemies/stage-02/shutter-turret-v1.webp",
+      "bytes": 98594,
+      "sha256": "cf7cdd47fa078074371523bf07b60f5d67951e5f252fa904be5601c78cc9c5fa"
+    },
+    {
+      "path": "assets/delivery/game/enemies/stage-02/storm-diver-v1.webp",
+      "bytes": 56518,
+      "sha256": "0438d7c5db8298efc283a8ba5b3d765af74e74c7cc29049187dd011df733fb1a"
+    },
+    {
+      "path": "assets/delivery/game/enemies/stage-03/ark-predator-v1.webp",
+      "bytes": 60016,
+      "sha256": "22b186b7d6d443fc5b276ac13e68192342e65e18f023de4c0cbe4561f1276c80"
+    },
+    {
+      "path": "assets/delivery/game/enemies/stage-03/parasite-turret-v1.webp",
+      "bytes": 95048,
+      "sha256": "0db547162156a52188c4051b03a980788ad6ff48cf1a959198f7b5f4e3180310"
+    },
+    {
+      "path": "assets/delivery/game/enemies/stage-03/regenerating-swarm-v1.webp",
+      "bytes": 87984,
+      "sha256": "361740a92e6cf549950394e60e0a16a8131071b2a1e34bdb12bd68bf0f741f6b"
+    },
+    {
+      "path": "assets/delivery/game/enemies/stage-04/heat-armor-v1.webp",
+      "bytes": 126488,
+      "sha256": "e704c648ea3323efac2304c264c21f73a568e9737a0e7592c6c277ef0f61aeee"
+    },
+    {
+      "path": "assets/delivery/game/enemies/stage-04/omni-turret-v1.webp",
+      "bytes": 84444,
+      "sha256": "7adc5afc4430e5b8bc14973e4186e5b2035de340b868059d00015901ed388a1e"
+    },
+    {
+      "path": "assets/delivery/game/enemies/stage-04/solar-rammer-v1.webp",
+      "bytes": 72018,
+      "sha256": "bf57b975e36aa5f42ce3e6d0c216525910849c540f6b031d4f77ffc6c2eecb16"
+    },
+    {
+      "path": "assets/delivery/game/player/player-interceptor-v1.webp",
+      "bytes": 90578,
+      "sha256": "687f691d0e9f0b2f9a584a75a0e4d0ef3874e84e4391fc23a2804963d2ec4b6e"
+    },
+    {
+      "path": "game/public/index.html",
+      "bytes": 3000,
+      "sha256": "0c560deec9e1d68f931b7900170f8c2c7f7869e6ff7ebcc4d0492fd96090ee9b"
+    },
+    {
+      "path": "game/public/main.mjs",
+      "bytes": 17477,
+      "sha256": "9bd466702923a9ee04d3bbff9303b6e1c197bced37598a9d87df8afd13e80d67"
+    },
+    {
+      "path": "game/public/styles.css",
+      "bytes": 5915,
+      "sha256": "970f7a86dd7108971fef6f66ba15b0300f0a94013ed8f2757376dbd1c3cdd9f5"
+    },
+    {
+      "path": "game/src/app/game-application.mjs",
+      "bytes": 5172,
+      "sha256": "1deff44de5f38bf1bc580b3d3c6d957cb5433bfeaf6db03b0662e527c85bc798"
+    },
+    {
+      "path": "game/src/browser/audio-adapter.mjs",
+      "bytes": 7185,
+      "sha256": "1a9a6759720229abf916fec3a127bf6d9ff49e9ef6789c26f3f8e6e69a165bf1"
+    },
+    {
+      "path": "game/src/browser/audio-assets.mjs",
+      "bytes": 4740,
+      "sha256": "7ce0c6bd971f7c1c4d714ddea8a84a73e7ff6c41ca6f12b242d22fe501e052b5"
+    },
+    {
+      "path": "game/src/browser/automatic-playthrough.mjs",
+      "bytes": 7779,
+      "sha256": "fa200da353d1b97d345f9db1a9bf669e32d6cf4362f53c4b2248d8497d6c7b96"
+    },
+    {
+      "path": "game/src/browser/canvas-renderer.mjs",
+      "bytes": 12370,
+      "sha256": "b422872b7c8c4f98d21f5ebad71402c6c50aa7b8f9c1aada3f3b0e6362fbc3e1"
+    },
+    {
+      "path": "game/src/browser/compatibility-report.mjs",
+      "bytes": 4251,
+      "sha256": "c1ea636a9a25f59bac398da951bf0d4a949f33b419bfbe0e2b463b73642a7707"
+    },
+    {
+      "path": "game/src/browser/input-adapter.mjs",
+      "bytes": 3477,
+      "sha256": "6bd76ad944deda29bac41e90879e5a111714e64b5b14a2a40c97addcf94f0ee2"
+    },
+    {
+      "path": "game/src/browser/runtime-monitor.mjs",
+      "bytes": 2548,
+      "sha256": "8133235a04bffc05f5e268aa840148d2f220cd82c776708e7518c9df8c4f48f6"
+    },
+    {
+      "path": "game/src/content/asset-manifest.mjs",
+      "bytes": 3444,
+      "sha256": "158b5f6536293f4442af7fc377bf2ac9b9de0236bca7b79de5585b55dc466941"
+    },
+    {
+      "path": "game/src/content/behavior-registry.mjs",
+      "bytes": 1194,
+      "sha256": "61db767b2223d991492a8022bf1d67dd1dfec0e5e5afdab041a45abd8ebc2dda"
+    },
+    {
+      "path": "game/src/content/stage-schema.mjs",
+      "bytes": 11979,
+      "sha256": "f8bf622cffbfd3f412cd90b10c1af3959c7c497aeb71970c7750b42d6d538561"
+    },
+    {
+      "path": "game/src/content/stages/phase05-test-segment.mjs",
+      "bytes": 2888,
+      "sha256": "d6bf3589e21e26f69a02651a6ff2c9b3dd6e8bf72888d96675448b1242e619cf"
+    },
+    {
+      "path": "game/src/content/stages/stage-01-orbital-wreck.mjs",
+      "bytes": 3868,
+      "sha256": "ac88513e212b548dbeedeb1b60301527f22e4af257287856fb99db2a6bf3c7a8"
+    },
+    {
+      "path": "game/src/content/stages/stage-02-cloud-refinery.mjs",
+      "bytes": 4134,
+      "sha256": "c62a4c3a5c17e117d8b6a2fe02e6a94e4cbe7a46ed74996e94b96446a1ffc808"
+    },
+    {
+      "path": "game/src/content/stages/stage-03-living-ark.mjs",
+      "bytes": 4341,
+      "sha256": "4e6357d26018358ea117be663089c87197806ac15d408748073bd51dbf88875f"
+    },
+    {
+      "path": "game/src/content/stages/stage-04-stellar-furnace.mjs",
+      "bytes": 4378,
+      "sha256": "078aa5c0c85fa6f2f6d3e9c61510f854f40244565ee7249d2fb26deb13dd105b"
+    },
+    {
+      "path": "game/src/core/fixed-step.mjs",
+      "bytes": 3433,
+      "sha256": "af890457d724ef9c69c0ce617099a2626d99b22b986f5dcaf8781b97034be21e"
+    },
+    {
+      "path": "game/src/core/flow-machine.mjs",
+      "bytes": 6604,
+      "sha256": "fb83f504c21ea9e73073c459423350de5c939eb87140b8491acc7681eebabc57"
+    },
+    {
+      "path": "game/src/core/game-session.mjs",
+      "bytes": 4952,
+      "sha256": "7708bec822eada64667c395995b96a9ef3dcf120db3231592e3900e00a031269"
+    },
+    {
+      "path": "game/src/core/input-state.mjs",
+      "bytes": 4236,
+      "sha256": "2ee75c38a1c3caa6645540575216a82cf6cbc412b84d40b6e4507f9a41e8bacb"
+    },
+    {
+      "path": "game/src/core/reactor-loadout.mjs",
+      "bytes": 3266,
+      "sha256": "4e2187cc703ba396341b5f5bdc6d43238567b6b854644c8ec358dcc99c574739"
+    },
+    {
+      "path": "game/src/core/save-data.mjs",
+      "bytes": 7439,
+      "sha256": "ab8daa6df97e6189ce7998563a003713ffda8cf491d5295d1d542f808e766f88"
+    },
+    {
+      "path": "game/src/core/stage-schedule.mjs",
+      "bytes": 1930,
+      "sha256": "07dc322ec36d946791a0bfe00d7261501b48f5557310cdee9150d65196925921"
+    },
+    {
+      "path": "game/src/core/stage-simulation.mjs",
+      "bytes": 24155,
+      "sha256": "d9b9e30b6c1a0b73c027287d584da6f2174cab762dd582053a884d52fd0b2381"
+    },
+    {
+      "path": "game/src/ports/save-repository.mjs",
+      "bytes": 3003,
+      "sha256": "a23dbc015c76e4dd71f2352cc0d3d837f387cc53feef657964eb12f7e46437b0"
+    },
+    {
+      "path": "game/src/ui/stage-view-model.mjs",
+      "bytes": 6997,
+      "sha256": "a9bb830caad738dbbfe85fdd11987a4420a3c4c0e1781803a8c3866e770f6955"
+    }
+  ],
+  "totalBytes": 9580907
+}
