@@ -27,7 +27,11 @@ const copy = (path, group) => Object.freeze({
 });
 
 export const DELIVERY_ASSETS = Object.freeze([
-  copy("audio/reference/stage-01-rhythm-loop-v1.wav", "stage-01"),
+  copy("audio/stage-01/stage-01-orbital-wreck-rhythm-v1.wav", "stage-01"),
+  copy("audio/stage-01/stage-01-orbital-wreck-melody-v1.wav", "stage-01"),
+  copy("audio/stage-01/stage-01-orbital-wreck-danger-v1.wav", "stage-01"),
+  copy("audio/stage-01/stage-01-orbital-wreck-intro-v1.wav", "stage-01"),
+  copy("audio/stage-01/stage-01-orbital-wreck-clear-v1.wav", "stage-01"),
   copy("audio/reference/ui-confirm-v1.wav", "shared"),
   copy("audio/reference/weapon-lance-shot-v1.wav", "shared"),
   copy("audio/reference/weapon-spread-shot-v1.wav", "shared"),

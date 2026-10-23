@@ -1,0 +1,82 @@
+[
+  {
+    "id": "audio-stg01-rhythm",
+    "file": "stage-01-orbital-wreck-rhythm-v1.wav",
+    "role": "rhythm music layer",
+    "durationMs": 3000,
+    "targetPeakDb": -18,
+    "peakRangeDb": [
+      -19,
+      -17
+    ],
+    "loop": true,
+    "bytes": 288044,
+    "sha256": "b45d2a1c0d773ff1ac125d2b899cbecfaa3d75140344863a594fce37380f0635",
+    "creation": "deterministic original synthesis in generate-stage-01-audio.mjs",
+    "rights": "project-authored; no third-party samples"
+  },
+  {
+    "id": "audio-stg01-melody",
+    "file": "stage-01-orbital-wreck-melody-v1.wav",
+    "role": "melody music layer",
+    "durationMs": 3000,
+    "targetPeakDb": -20,
+    "peakRangeDb": [
+      -21,
+      -19
+    ],
+    "loop": true,
+    "bytes": 288044,
+    "sha256": "01028bdce0963ca03cf9da5df6746ab642fb3d87e4021866c10b2abb56ee65b1",
+    "creation": "deterministic original synthesis in generate-stage-01-audio.mjs",
+    "rights": "project-authored; no third-party samples"
+  },
+  {
+    "id": "audio-stg01-danger",
+    "file": "stage-01-orbital-wreck-danger-v1.wav",
+    "role": "danger and boss music layer",
+    "durationMs": 3000,
+    "targetPeakDb": -22,
+    "peakRangeDb": [
+      -23,
+      -21
+    ],
+    "loop": true,
+    "bytes": 288044,
+    "sha256": "2b1646c08ff119e34175cfafd6bc1fe3e0985a928efa618082619891ce2b14a3",
+    "creation": "deterministic original synthesis in generate-stage-01-audio.mjs",
+    "rights": "project-authored; no third-party samples"
+  },
+  {
+    "id": "audio-stg01-intro",
+    "file": "stage-01-orbital-wreck-intro-v1.wav",
+    "role": "stage introduction notification",
+    "durationMs": 400,
+    "targetPeakDb": -10,
+    "peakRangeDb": [
+      -11,
+      -9
+    ],
+    "loop": false,
+    "bytes": 38444,
+    "sha256": "7013e74ab508abc08a5119a34ffe9154a84d5d6b44fd644789209794d31971d7",
+    "creation": "deterministic original synthesis in generate-stage-01-audio.mjs",
+    "rights": "project-authored; no third-party samples"
+  },
+  {
+    "id": "audio-stg01-clear",
+    "file": "stage-01-orbital-wreck-clear-v1.wav",
+    "role": "stage clear notification",
+    "durationMs": 700,
+    "targetPeakDb": -8,
+    "peakRangeDb": [
+      -9,
+      -7
+    ],
+    "loop": false,
+    "bytes": 67244,
+    "sha256": "dddf467d19aca46c186ed519aefadb91af0b587c45a3d4e7b4a172215f23c1f2",
+    "creation": "deterministic original synthesis in generate-stage-01-audio.mjs",
+    "rights": "project-authored; no third-party samples"
+  }
+]

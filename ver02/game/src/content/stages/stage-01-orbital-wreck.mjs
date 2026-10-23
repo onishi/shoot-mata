@@ -49,10 +49,10 @@ export const STAGE_01_ORBITAL_WRECK = parseStageDefinition({
     ],
   },
   audio: {
-    stageLayerAssetIds: ["audio-ref-stage01-rhythm"],
-    bossLayerAssetIds: ["audio-ref-stage01-rhythm"],
-    introAssetId: "audio-ref-ui-confirm",
-    clearAssetId: "audio-ref-ui-confirm",
+    stageLayerAssetIds: ["audio-stg01-rhythm", "audio-stg01-melody"],
+    bossLayerAssetIds: ["audio-stg01-rhythm", "audio-stg01-melody", "audio-stg01-danger"],
+    introAssetId: "audio-stg01-intro",
+    clearAssetId: "audio-stg01-clear",
   },
   transitions: { onClear: "STAGE_CLEAR", onDefeat: "PLAYER_DEFEATED" },
 });

@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { AUDIO_ASSETS } from "../../src/browser/audio-assets.mjs";
 import { GAME_ASSETS, assetIdsForStage } from "../../src/content/asset-manifest.mjs";
 import { STAGE_01_ORBITAL_WRECK } from "../../src/content/stages/stage-01-orbital-wreck.mjs";
 import { createStageSchedule } from "../../src/core/stage-schedule.mjs";
@@ -37,6 +38,19 @@ test("STG-01/05: 製品用第1面は3敵、圧縮回廊、3段階boss、完成as
   assert.equal(STAGE_01_ORBITAL_WRECK.boss.phases.length, 3);
   assert.equal(assetIdsForStage(STAGE_01_ORBITAL_WRECK).every((id) => GAME_ASSETS[id]), true);
   assert.equal(assetIdsForStage(STAGE_01_ORBITAL_WRECK).some((id) => id.includes("placeholder")), false);
+});
+
+test("AV-05: 第1面の通常2層、boss 3層、導入・クリア音は全て製品loaderに存在する", () => {
+  const audioIds = new Set(AUDIO_ASSETS.map(({ id }) => id));
+  const required = [
+    ...STAGE_01_ORBITAL_WRECK.audio.stageLayerAssetIds,
+    ...STAGE_01_ORBITAL_WRECK.audio.bossLayerAssetIds,
+    STAGE_01_ORBITAL_WRECK.audio.introAssetId,
+    STAGE_01_ORBITAL_WRECK.audio.clearAssetId,
+  ];
+  assert.equal(required.every((id) => audioIds.has(id)), true);
+  assert.equal(STAGE_01_ORBITAL_WRECK.audio.stageLayerAssetIds.length, 2);
+  assert.equal(STAGE_01_ORBITAL_WRECK.audio.bossLayerAssetIds.length, 3);
 });
 
 test("STG-01/TECH-03: 同一seedで通常戦、固有仕掛け、3段階boss、結果を再現する", () => {

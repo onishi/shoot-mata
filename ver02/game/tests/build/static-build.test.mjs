@@ -36,7 +36,15 @@ test("static build is complete, bounded, and reproducible", async (context) => {
   assert.ok(first.files.some(({ path }) => path.endsWith("salvage-weaver-v1.webp")));
   assert.ok(first.files.some(({ path }) => path.endsWith("wreck-bulwark-v1.webp")));
   assert.ok(first.files.some(({ path }) => path.endsWith("wreck-warden-v1.webp")));
-  assert.ok(first.files.some(({ path }) => path.endsWith("stage-01-rhythm-loop-v1.wav")));
+  for (const file of [
+    "stage-01-orbital-wreck-rhythm-v1.wav",
+    "stage-01-orbital-wreck-melody-v1.wav",
+    "stage-01-orbital-wreck-danger-v1.wav",
+    "stage-01-orbital-wreck-intro-v1.wav",
+    "stage-01-orbital-wreck-clear-v1.wav",
+  ]) {
+    assert.ok(first.files.some(({ path }) => path === `assets/audio/stage-01/${file}`));
+  }
   for (const file of [
     "stage-02-cloud-refinery-rhythm-v1.wav",
     "stage-02-cloud-refinery-melody-v1.wav",

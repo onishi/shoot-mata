@@ -1,8 +1,28 @@
 export const AUDIO_ASSETS = Object.freeze([
   Object.freeze({
-    id: "audio-ref-stage01-rhythm",
+    id: "audio-stg01-rhythm",
     group: "bgm",
-    url: "../../assets/audio/reference/stage-01-rhythm-loop-v1.wav",
+    url: "../../assets/audio/stage-01/stage-01-orbital-wreck-rhythm-v1.wav",
+  }),
+  Object.freeze({
+    id: "audio-stg01-melody",
+    group: "bgm",
+    url: "../../assets/audio/stage-01/stage-01-orbital-wreck-melody-v1.wav",
+  }),
+  Object.freeze({
+    id: "audio-stg01-danger",
+    group: "bgm",
+    url: "../../assets/audio/stage-01/stage-01-orbital-wreck-danger-v1.wav",
+  }),
+  Object.freeze({
+    id: "audio-stg01-intro",
+    group: "sfx",
+    url: "../../assets/audio/stage-01/stage-01-orbital-wreck-intro-v1.wav",
+  }),
+  Object.freeze({
+    id: "audio-stg01-clear",
+    group: "sfx",
+    url: "../../assets/audio/stage-01/stage-01-orbital-wreck-clear-v1.wav",
   }),
   Object.freeze({
     id: "audio-ref-ui-confirm",

@@ -41,7 +41,8 @@
 | CORE-YELLOW | `../assets/game/cores/reactor-core-yellow-v1.png` | 黄コア、三角＋`◎` | OpenAI組み込み画像生成、2026-10-21。完全なプロンプトは同名 `.prompt.md` | リリース前にOpenAI生成物の利用条件と独自性を再確認 | 1364×1153 RGBA PNG、alpha 0〜255 / `70be0a105fea9b457093e3dd6ad5302895b4008181e45b297bbc8f6caa3b5b4e` | final |
 | HUD-REACTOR-01 | `../phases/phase-04/reference-scene/` | 3枠・先頭・押し出し予告 | HTML/CSS/JSのコード表現、2026-10-21 | 自作 | 正規化面積11.69%、本文12px以上、操作対象44px以上 | final |
 | VFX-HIT / DAMAGE / COLLECT | `../phases/phase-04/reference-scene/` | 命中・被弾・回収 | HTML/CSSのコード表現、2026-10-21 | 自作 | 十字閃光 / 破線二重環 / 内向き山形 | final |
-| AUDIO-REF-01 | `../assets/audio/reference/` | 3武器発射、コア回収・装填、UI決定、第1面リズム層 | 自作の決定的合成コード、2026-10-21。`manifest.json`と`generate-reference-audio.mjs` | 自作、外部サンプル0 | 48kHz mono PCM16 WAV×7、527,348 bytes。個別SHA-256はmanifest | final |
+| AUDIO-REF-01 | `../assets/audio/reference/` | 3武器発射、コア回収・装填、UI決定 | 自作の決定的合成コード、2026-10-21。`manifest.json`と`generate-reference-audio.mjs` | 自作、外部サンプル0 | 48kHz mono PCM16 WAV×6、143,304 bytes。個別SHA-256はmanifest。旧第1面リズムは製品経路から除外 | final |
+| AUDIO-STG01-01 | `../assets/audio/stage-01/` | 第1面リズム・旋律・危機/Bossの3層、導入・クリア通知 | 自作の決定的合成コード、2026-10-23。`manifest.json`と`generate-stage-01-audio.mjs` | 自作、外部サンプル0 | 48kHz mono PCM16 WAV×5、969,820 bytes。個別SHA-256はmanifest | final |
 | AUDIO-STG02-01 | `../assets/audio/stage-02/` | 第2面リズム・旋律・危機/Bossの3層、導入・クリア通知 | 自作の決定的合成コード、2026-10-22。`manifest.json`と`generate-stage-02-audio.mjs` | 自作、外部サンプル0 | 48kHz mono PCM16 WAV×5、1,286,620 bytes。個別SHA-256はmanifest | final |
 | AUDIO-STG03-01 | `../assets/audio/stage-03/` | 第3面リズム・旋律・危機/Bossの3層、導入・クリア通知 | 自作の決定的合成コード、2026-10-23。`manifest.json`と`generate-stage-03-audio.mjs` | 自作、外部サンプル0 | 48kHz mono PCM16 WAV×5、1,099,420 bytes。個別SHA-256はmanifest | final |
 | AUDIO-STG04-01 | `../assets/audio/stage-04/` | 第4面リズム・旋律・危機/Bossの3層、導入・クリア通知 | 自作の決定的合成コード、2026-10-23。`manifest.json`と`generate-stage-04-audio.mjs` | 自作、外部サンプル0 | 48kHz mono PCM16 WAV×5、960,220 bytes。個別SHA-256はmanifest | final |
@@ -152,6 +153,13 @@
 - `manifest.json`に用途、長さ、目標ピーク、バイト数、SHA-256、制作方法、権利を記録し、テストで実ファイルと照合する。外部音源・外部サンプルは使用していない。
 - Chromeで7点すべて`readyState=4`、表示長0.12〜4秒、ループ指定、横溢れ0、console warning/error 0件を確認した。320×844でも横溢れ0、音声操作高54px。
 - P06で3武器、コア回収、FIFO装填を製品eventへ接続し、Chromeで7点すべての取得、警告0、音量設定・ミュート・失敗時継続を確認した。分離音声としてゲーム投入可能なため`final`。聴感の主観評価、製品全体の同時発音、配信用圧縮形式は未確認なので`verified`ではない。
+
+## AUDIO-STG01-01 検査記録
+
+- 3秒の同期ループとして残骸衝突状リズム−18dBFS、離調金属旋律−20dBFS、走査警報状危機/Boss−22dBFSを分離し、導入400ms/−10dBFS、クリア700ms/−8dBFSを作成した。5点合計969,820 bytes、画像込み第1面2,163,618 bytesで2.25 MiB予算内。
+- 5点とも48kHz、mono、PCM16 WAV、クリップ0。先頭無音は最大0.146ms、末尾無音は最大1.563ms、3ループの端差は0.000153以下、等倍3層合成ピークは−11.370dBFSで−6dBFS上限まで余裕を持つ。
+- 通常戦はリズム＋旋律、`boss-entered`で危機層を加えた3層へ切替し、ステージ開始と`stage-cleared`で固有通知音を再生する。Phase 04の単層リズムと共通UI通知は製品stage data、loader、静的buildから除外した。
+- 生成式、用途、byte数、SHA-256、外部サンプル0をmanifestと自動テストで照合済みのため`final`。実ブラウザでの取得・再生、聴感、長時間同期は未確認なので`verified`ではない。
 
 ## AUDIO-STG02-01 検査記録
 
