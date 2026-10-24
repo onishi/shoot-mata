@@ -1,0 +1,155 @@
+{
+  "schemaVersion": 1,
+  "buildId": "phase10-rc1-20261024",
+  "recordedOn": "2026-10-25",
+  "scope": "Phase 10で最終検証する67要件を、実在する自動テスト、生成レポート、ブラウザ記録、実装へ一対一で追跡する。参照の存在は合格判定そのものではなく、各行の状態と環境blockerを置き換えない。",
+  "evidenceSets": [
+    {
+      "id": "core-mechanics",
+      "requirementIds": ["EXP-01", "EXP-02", "LOOP-03", "CORE-01", "CORE-02", "CORE-03", "CORE-04", "CORE-05", "CORE-06", "WPN-01", "WPN-02", "WPN-03", "WPN-04"],
+      "summary": "729構成比較、リアクター状態遷移、3武器×3段階、表示上の非色形状、状況別優位を追跡する。",
+      "limitations": "決定的比較と描画命令は、判断の面白さや人の視認性を測定しない。",
+      "artifacts": [
+        { "path": "phases/phase-03/prototype/objective-audit.mjs", "kind": "implementation" },
+        { "path": "phases/phase-03/REVIEW.md", "kind": "design-record" },
+        { "path": "game/tests/core/reactor-loadout.test.mjs", "kind": "automated-test" },
+        { "path": "game/tests/core/weapon-situation-audit.test.mjs", "kind": "automated-test" },
+        { "path": "game/tests/browser/visual-state-audit.test.mjs", "kind": "automated-test" },
+        { "path": "phases/phase-07/weapon-situation-audit.json", "kind": "generated-report" },
+        { "path": "phases/phase-09/visual-state-audit.json", "kind": "generated-report" }
+      ]
+    },
+    {
+      "id": "core-supply",
+      "requirementIds": ["CORE-07"],
+      "summary": "4面×16,384 seedのコア供給上限と固定seed再現性を追跡する。",
+      "limitations": "供給の統計的上限は人が感じる公平さを保証しない。",
+      "artifacts": [
+        { "path": "game/tests/core/core-supply-audit.test.mjs", "kind": "automated-test" },
+        { "path": "phases/phase-07/core-supply-audit.json", "kind": "generated-report" }
+      ]
+    },
+    {
+      "id": "complete-flow",
+      "requirementIds": ["EXP-03", "LOOP-01", "LOOP-02", "LOOP-04", "LOOP-05", "LOOP-06"],
+      "summary": "敗北理由、ポーズ、再挑戦、コンティニュー、4面campaign、ending、creditsの製品経路を追跡する。",
+      "limitations": "Chrome以外の環境結果はブラウザ互換記録で別管理する。",
+      "artifacts": [
+        { "path": "game/tests/app/phase08-loop-flow.test.mjs", "kind": "automated-test" },
+        { "path": "game/tests/browser/automatic-playthrough.test.mjs", "kind": "automated-test" },
+        { "path": "game/tests/ui/failure-review.test.mjs", "kind": "automated-test" },
+        { "path": "phases/phase-08/alpha-runtime-evidence.json", "kind": "browser-record" }
+      ]
+    },
+    {
+      "id": "stage-content",
+      "requirementIds": ["EXP-04", "STG-01", "STG-02", "STG-03", "STG-04", "STG-05", "STG-06"],
+      "summary": "4面固有の敵、仕掛け、boss、難易度曲線、開始から結果までの決定的通しを追跡する。",
+      "limitations": "自動入力による完走は人の初見難度や主観的な多様性を評価しない。",
+      "artifacts": [
+        { "path": "game/tests/content/stage-01-orbital-wreck.test.mjs", "kind": "automated-test" },
+        { "path": "game/tests/content/stage-02-cloud-refinery.test.mjs", "kind": "automated-test" },
+        { "path": "game/tests/content/stage-03-living-ark.test.mjs", "kind": "automated-test" },
+        { "path": "game/tests/content/stage-04-stellar-furnace.test.mjs", "kind": "automated-test" },
+        { "path": "game/tests/core/stage-difficulty-audit.test.mjs", "kind": "automated-test" },
+        { "path": "phases/phase-07/stage-difficulty-audit.json", "kind": "generated-report" },
+        { "path": "phases/phase-09/learning-curve-audit.json", "kind": "generated-report" }
+      ]
+    },
+    {
+      "id": "art-coherence",
+      "requirementIds": ["EXP-05"],
+      "summary": "製品素材の制作規則、状態、権利、固定RCへの収録を追跡する。",
+      "limitations": "台帳と静的監査は美しさ、統一感、非侵害性を保証しない。",
+      "artifacts": [
+        { "path": "docs/04-asset-inventory.md", "kind": "design-record" },
+        { "path": "game/tests/build/product-asset-gate.test.mjs", "kind": "automated-test" },
+        { "path": "phases/phase-10/release-artifact-audit.json", "kind": "generated-report" }
+      ]
+    },
+    {
+      "id": "progression",
+      "requirementIds": ["PROG-01", "PROG-02", "PROG-03", "PROG-04", "PROG-05", "PROG-06"],
+      "summary": "段階解放、アシスト、score内訳、best、保存移行・異常、危険予告を追跡する。",
+      "limitations": "保存と数値監査は製品バランスの主観評価を含まない。",
+      "artifacts": [
+        { "path": "game/tests/app/game-application.test.mjs", "kind": "automated-test" },
+        { "path": "game/tests/core/save-data.test.mjs", "kind": "automated-test" },
+        { "path": "game/tests/ports/save-repository.test.mjs", "kind": "automated-test" },
+        { "path": "game/tests/core/learning-curve-audit.test.mjs", "kind": "automated-test" },
+        { "path": "phases/phase-09/learning-curve-audit.json", "kind": "generated-report" }
+      ]
+    },
+    {
+      "id": "ux",
+      "requirementIds": ["UX-01", "UX-02", "UX-03", "UX-04", "UX-05", "UX-06", "UX-07"],
+      "summary": "全画面フロー、説明、HUD、非色視認性、3 viewport、タッチ領域、fullscreen異常系を追跡する。",
+      "limitations": "実端末レイアウトとfullscreen許可経路は未確認のまま互換記録へ残す。",
+      "artifacts": [
+        { "path": "game/tests/ui/stage-view-model.test.mjs", "kind": "automated-test" },
+        { "path": "game/tests/browser/canvas-renderer.test.mjs", "kind": "automated-test" },
+        { "path": "game/tests/browser/fullscreen-controller.test.mjs", "kind": "automated-test" },
+        { "path": "phases/phase-09/visual-state-audit.json", "kind": "generated-report" },
+        { "path": "phases/phase-10/browser-compatibility.json", "kind": "browser-record" }
+      ]
+    },
+    {
+      "id": "input-accessibility",
+      "requirementIds": ["INP-01", "INP-02", "INP-03", "INP-04", "A11Y-01", "A11Y-02", "A11Y-03", "A11Y-04"],
+      "summary": "keyboard、Pointer Events、入力同値性、音量、動き・明滅軽減、高コントラスト、Tab順を追跡する。",
+      "limitations": "合成Pointer EventsをiOS/Android実タッチの証拠へ読み替えない。",
+      "artifacts": [
+        { "path": "game/tests/browser/input-adapter.test.mjs", "kind": "automated-test" },
+        { "path": "game/tests/browser/automatic-input-replay.test.mjs", "kind": "automated-test" },
+        { "path": "game/tests/ui/menu-accessibility.test.mjs", "kind": "automated-test" },
+        { "path": "game/tests/browser/audio-adapter.test.mjs", "kind": "automated-test" },
+        { "path": "phases/phase-09/visual-state-audit.json", "kind": "generated-report" },
+        { "path": "phases/phase-10/browser-compatibility.json", "kind": "browser-record" }
+      ]
+    },
+    {
+      "id": "audio-visual-assets",
+      "requirementIds": ["AV-01", "AV-02", "AV-03", "AV-04", "AV-05", "AV-06", "AV-07"],
+      "summary": "完成素材61点、actor/VFX状態、parallax、武器表示、適応音声、無音継続、生成証拠と通知を追跡する。",
+      "limitations": "機械監査は視覚・聴覚の主観品質、独自性、非侵害性を保証しない。",
+      "artifacts": [
+        { "path": "game/tests/build/product-asset-gate.test.mjs", "kind": "automated-test" },
+        { "path": "game/tests/browser/visual-state-audit.test.mjs", "kind": "automated-test" },
+        { "path": "game/tests/browser/audio-runtime-audit.test.mjs", "kind": "automated-test" },
+        { "path": "phases/phase-09/visual-state-audit.json", "kind": "generated-report" },
+        { "path": "phases/phase-09/audio-runtime-audit.json", "kind": "generated-report" },
+        { "path": "phases/phase-10/release-artifact-audit.json", "kind": "generated-report" }
+      ]
+    },
+    {
+      "id": "technical-quality",
+      "requirementIds": ["TECH-01", "TECH-02", "TECH-03", "TECH-04", "TECH-05", "TECH-06", "TECH-07", "TECH-08"],
+      "summary": "固定更新、stage schema、決定性、互換性、物理低性能blocker、静的配信、性能、依存監査を追跡する。",
+      "limitations": "desktop負荷試験を物理低性能端末や未確認ブラウザの合格へ読み替えない。",
+      "artifacts": [
+        { "path": "game/tests/core/fixed-step.test.mjs", "kind": "automated-test" },
+        { "path": "game/tests/content/stage-schema.test.mjs", "kind": "automated-test" },
+        { "path": "game/tests/browser/compatibility-report.test.mjs", "kind": "automated-test" },
+        { "path": "phases/phase-08/alpha-runtime-evidence.json", "kind": "browser-record" },
+        { "path": "phases/phase-09/performance-soak.json", "kind": "browser-record" },
+        { "path": "phases/phase-10/browser-compatibility.json", "kind": "browser-record" },
+        { "path": "phases/phase-10/release-candidate.json", "kind": "generated-report" },
+        { "path": "phases/phase-10/release-artifact-audit.json", "kind": "generated-report" }
+      ]
+    },
+    {
+      "id": "release-readiness",
+      "requirementIds": ["REL-01", "REL-02", "REL-03"],
+      "summary": "権利・通知、データ境界、外部通信0、保存と接続喪失時の継続を追跡する。",
+      "limitations": "法的助言や非侵害保証ではなく、本番公開・rollbackはPhase 11以降で検証する。",
+      "artifacts": [
+        { "path": "game/tests/build/release-artifact-audit.test.mjs", "kind": "automated-test" },
+        { "path": "game/tests/ports/save-repository.test.mjs", "kind": "automated-test" },
+        { "path": "phases/phase-08/alpha-runtime-evidence.json", "kind": "browser-record" },
+        { "path": "phases/phase-10/release-artifact-audit.json", "kind": "generated-report" }
+      ]
+    }
+  ],
+  "deferredRequirementIds": ["REL-04", "REL-05", "REL-06"],
+  "accepted": false
+}

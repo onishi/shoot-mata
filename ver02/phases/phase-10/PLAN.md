@@ -25,7 +25,7 @@ READMEと`02-product-requirements.md`の必須要件を、MVPではなく製品�
 ## 実装順
 
 1. [完了] release candidate build IDと再現manifestを固定する
-2. [完了] 受け入れマトリクスの全ID、証拠説明、状態を機械監査する
+2. [完了] 受け入れマトリクスの全ID、証拠説明、状態を機械監査し、P10対象67件を実在する証拠へ追跡する
 3. [完了] 全自動検査、静的成果物、権利・通知、依存関係をrelease candidateで再検証する
 4. [進行中] 全必須ブラウザ・実端末・物理低性能端末を同一buildで検証する（Chrome desktop 1/6合格、実モバイル0/2、物理低性能端末未接続）
 5. [未着手] 全受け入れ行を更新し、中核未達0件と重大既知不具合0件を判定する
@@ -34,7 +34,7 @@ READMEと`02-product-requirements.md`の必須要件を、MVPではなく製品�
 ## 完了条件
 
 - [x] release candidateが単一build IDと全ファイルhashで固定され、再現buildと一致する
-- [ ] 製品要件の全必須IDが実在する証拠へ追跡できる（70 IDの行対応と証拠説明の存在は確認済み。個別証拠の実在照合は継続）
+- [x] P10対象の全必須IDが実在する証拠へ追跡できる（67 IDを11 evidence set・57 artifact参照へ対応。P11以降のREL-04〜06は将来証拠のため別管理）
 - [ ] READMEの必須要件に未達・不合格・blockが0件である
 - [ ] 必須ブラウザ4種、iOS Safari実機、Android Chrome実機が同一buildで合格する
 - [ ] 物理低性能端末で進行速度、入力、5分以上の停止・資源傾向を確認する
@@ -51,11 +51,13 @@ build manifestは100 files・10,526,479 bytes、SHA-256 `3c25733152691eadf21eaa5
 
 製品要件と受け入れマトリクスの70 IDが一対一で対応することを監査する`audit:acceptance`を追加した。欠落、重複、未知ID、空の実装phase・最終検証phase・証拠説明、許可外状態をfail closedで拒否する。Phase 10入口は`実装中`19、`実装済み未検証`47、`未着手`4、`合格`0であり、行が存在するだけでは合格にしない。
 
-最終検証にP10を含む行は67、P11以降で検証する行は3だった。個別証拠パスの実在と内容妥当性は次の作業単位で照合するため、完了条件は未チェックのまま維持する。2026-10-25に、ID parserが接頭辞を英字だけへ制限し`A11Y-01`〜`A11Y-04`を両文書から黙って除外していたことを発見した。接頭辞内の数字を許可する修正と回帰テストを追加し、誤った66件基準を70件へ訂正した。
+最終検証にP10を含む行は67、P11以降で検証する行は3だった。2026-10-25に、ID parserが接頭辞を英字だけへ制限し`A11Y-01`〜`A11Y-04`を両文書から黙って除外していたことを発見した。接頭辞内の数字を許可する修正と回帰テストを追加し、誤った66件基準を70件へ訂正した。
+
+続いて`acceptance-evidence.json`と`audit:acceptance-evidence`を追加し、P10対象67件を重複なく11 evidence setへ割り当て、57件の自動テスト・生成レポート・ブラウザ記録・実装／設計記録が`ver02/`内の実ファイルであることを検査する。パス逸脱、要件文書自身への循環参照、欠落、重複、P10対象外IDの混入、検証artifactを持たないsetをfail closedで拒否する。REL-04〜06はP11以降の将来証拠として明示的に分離した。これは証拠の追跡可能性を確認するものであり、各要件の状態を自動的に`合格`へ変更しない。
 
 ## 完了した第3作業単位
 
-固定release candidateに対して`npm run verify`を再実行し、195テスト、100 files・10,526,479 bytesの再現build、静的監査、受け入れID監査、release artifact監査、依存監査に合格した。`release-artifact-audit.json`と専用のfail-closed監査は、build manifestのSHA-256、全配信ファイル、画像32点、音声29点、権利通知、runtime/dev依存0、lockfile、既知脆弱性0を同じbuild IDへ結び付ける。
+固定release candidateに対して`npm run verify`を再実行し、200テスト、100 files・10,526,479 bytesの再現build、静的監査、受け入れID監査、受け入れ証拠監査、release artifact監査、依存監査に合格した。`release-artifact-audit.json`と専用のfail-closed監査は、build manifestのSHA-256、全配信ファイル、画像32点、音声29点、権利通知、runtime/dev依存0、lockfile、既知脆弱性0を同じbuild IDへ結び付ける。
 
 OpenAI Terms of Useは2026-01-01発効版、Service Termsは2026-10-16更新版を2026-10-24に再確認した。Output所有、非一意性、利用者の適法利用責任という既存通知の整理と矛盾しない。これは法的助言、独自性、非侵害性の保証ではなく、残存リスクを通知と監査証拠に維持する。この作業単位だけではrelease candidate全体を合格にせず、`accepted: false`を保持する。
 

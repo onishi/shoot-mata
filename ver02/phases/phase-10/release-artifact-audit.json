@@ -13,8 +13,8 @@
   "automatedSuite": {
     "command": "npm run verify",
     "status": "pass",
-    "testCount": 195,
-    "scope": "product tests, deterministic playthroughs, release-candidate reproduction, static audit, acceptance coverage, and release artifact audit"
+    "testCount": 200,
+    "scope": "product tests, deterministic playthroughs, release-candidate reproduction, static audit, acceptance coverage, acceptance evidence traceability, and release artifact audit"
   },
   "staticAudit": {
     "command": "npm run audit:static",
