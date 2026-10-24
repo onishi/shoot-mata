@@ -1,0 +1,95 @@
+{
+  "schemaVersion": 1,
+  "phase": "09",
+  "buildId": "phase09-performance-soak-20261024",
+  "recordedOn": "2026-10-24",
+  "knownDefects": {
+    "critical": [],
+    "major": [],
+    "minor": [],
+    "scope": "191 product and gate tests, reproducible static build, static asset/external-URL audit, dependency audit, Chrome campaign/browser checks, deterministic visual/audio/difficulty audits, and the five-minute loaded soak",
+    "statement": "No reproducible product defect remains open inside the observed Phase 09 scope. Missing environment or subjective evidence is tracked as residual risk, not converted into a defect or a pass."
+  },
+  "qualityTargets": [
+    {
+      "id": "difficulty-and-learning-curve",
+      "status": "pass",
+      "evidence": ["learning-curve-audit.json", "../phase-07/stage-difficulty-audit.json"]
+    },
+    {
+      "id": "visual-states-and-accessibility",
+      "status": "pass",
+      "evidence": ["visual-state-audit.json"]
+    },
+    {
+      "id": "audio-runtime",
+      "status": "pass",
+      "evidence": ["audio-runtime-audit.json"]
+    },
+    {
+      "id": "required-browser-and-device-coverage",
+      "status": "incomplete",
+      "evidence": ["browser-compatibility.json"],
+      "summary": "1 of 6 required targets passed; 0 real mobile targets passed."
+    },
+    {
+      "id": "loaded-five-minute-performance",
+      "status": "pass",
+      "evidence": ["performance-soak.json"]
+    },
+    {
+      "id": "physical-low-end-performance",
+      "status": "unobserved",
+      "evidence": ["performance-soak.json"]
+    },
+    {
+      "id": "subjective-quality",
+      "status": "unmeasured",
+      "evidence": [],
+      "summary": "Fun, feel, legibility, beauty, nostalgia, novelty, and listening quality were not inferred from machine evidence."
+    }
+  ],
+  "residualRisks": [
+    {
+      "id": "RISK-P09-01",
+      "classification": "acceptance-blocker",
+      "summary": "Edge, Firefox, Safari, iOS Safari real-device, and Android Chrome real-device coverage is missing.",
+      "evidence": "browser-compatibility.json",
+      "phase10ExitRequired": true
+    },
+    {
+      "id": "RISK-P09-02",
+      "classification": "acceptance-blocker",
+      "summary": "No physical low-end target device has been measured; the four-render-pass workload is not a device substitute.",
+      "evidence": "performance-soak.json",
+      "phase10ExitRequired": true
+    },
+    {
+      "id": "RISK-P09-03",
+      "classification": "acceptance-blocker",
+      "summary": "The browser compatibility pass predates the current performance-soak build ID, so the final release candidate must be revalidated as one immutable build.",
+      "evidence": "browser-compatibility.json",
+      "phase10ExitRequired": true
+    },
+    {
+      "id": "RISK-P09-04",
+      "classification": "unmeasured-quality",
+      "summary": "Human subjective quality is unmeasured by explicit project policy and is not a progression gate.",
+      "evidence": "../../../README.md",
+      "phase10ExitRequired": false
+    },
+    {
+      "id": "RISK-P09-05",
+      "classification": "release-review",
+      "summary": "Generated-image non-uniqueness and non-infringement are not guaranteed; rights terms and shipped notices require Phase 10 recheck.",
+      "evidence": "../../docs/04-asset-inventory.md",
+      "phase10ExitRequired": true
+    }
+  ],
+  "gateDecision": {
+    "phase09Complete": true,
+    "phase10MayStart": true,
+    "phase10MayPass": false,
+    "reason": "Phase 09 measurements and risk recording are complete with zero critical or major known defects in scope. Phase 10 must close every acceptance blocker and revalidate one release-candidate build before final acceptance."
+  }
+}
