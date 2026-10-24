@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "buildId": "phase09-performance-soak-20261024",
+  "observedAt": "2026-10-24",
+  "environment": {
+    "browser": "Chrome 156",
+    "os": "macOS 26.6.2",
+    "viewport": "extension-managed",
+    "server": "localhost HTTP",
+    "actualLowEndDeviceObserved": false
+  },
+  "condition": {
+    "name": "four-render-pass workload",
+    "description": "Each animation frame draws the complete 1280x720 product scene four times while the fixed-step campaign continues.",
+    "renderPasses": 4,
+    "monitorWindowMs": 300000,
+    "warmupMs": 60000,
+    "metricIntervalMs": 30000,
+    "limitations": "This is a reproducible CPU/render workload condition on the development machine, not evidence from a physical low-end device."
+  },
+  "thresholds": {
+    "minimumFps": 30,
+    "maximumDroppedRatio": 0.01,
+    "maximumSingleFrameMs": 1000,
+    "maximumHeapGrowthBytes": 16777216,
+    "maximumPostWarmupResourceGrowth": 0,
+    "maximumPostWarmupDomGrowth": 0
+  },
+  "result": {
+    "elapsedMs": 300000.9,
+    "fps": 116.1,
+    "longFramesOver50Ms": 35,
+    "maxFrameMs": 259.7,
+    "droppedMs": 2109.7,
+    "droppedRatio": 0.007032312236783289,
+    "heapStartBytes": 4776122,
+    "heapEndBytes": 8745604,
+    "postWarmupHeapGrowthBytes": 782631,
+    "postWarmupResourceGrowth": 0,
+    "postWarmupDomGrowth": 0,
+    "completedCampaigns": 5,
+    "completedStages": 23,
+    "sameSeedReplayMatches": true,
+    "qaFailure": null,
+    "consoleWarnings": 0,
+    "consoleErrors": 0,
+    "externalOrigins": [],
+    "loadEventMs": 110,
+    "encodedResourceBytes": 5162650,
+    "transferResourceBytes": 5181550
+  },
+  "metricSamples": [
+    { "elapsedMs": 0, "heapBytes": 6227416, "resourceCount": 64, "domNodes": 49 },
+    { "elapsedMs": 30006.9, "heapBytes": 8534125, "resourceCount": 64, "domNodes": 49 },
+    { "elapsedMs": 60008.9, "heapBytes": 8744506, "resourceCount": 64, "domNodes": 49 },
+    { "elapsedMs": 90016.2, "heapBytes": 6706833, "resourceCount": 64, "domNodes": 49 },
+    { "elapsedMs": 120024.5, "heapBytes": 9081717, "resourceCount": 64, "domNodes": 49 },
+    { "elapsedMs": 150025.7, "heapBytes": 9169053, "resourceCount": 64, "domNodes": 49 },
+    { "elapsedMs": 180026.7, "heapBytes": 8388590, "resourceCount": 64, "domNodes": 49 },
+    { "elapsedMs": 210033.8, "heapBytes": 8379938, "resourceCount": 64, "domNodes": 49 },
+    { "elapsedMs": 240040, "heapBytes": 7605232, "resourceCount": 64, "domNodes": 49 },
+    { "elapsedMs": 270040.5, "heapBytes": 6306339, "resourceCount": 64, "domNodes": 49 },
+    { "elapsedMs": 300000.9, "heapBytes": 9527137, "resourceCount": 64, "domNodes": 49 }
+  ],
+  "passed": true
+}

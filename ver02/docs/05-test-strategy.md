@@ -18,6 +18,8 @@
 
 Phase 05の一括検証は `npm run verify`、依存監査は `npm run audit:deps` で実行する。静的buildのmanifest再現性、容量、許可形式、外部URLはNodeで検査し、生成した `dist/` をローカルHTTP配信して初回resource、外部origin、load event、fps、50ms超frame、最大frame、simulation drop、JS heap、consoleをChromeで採取する。
 
+Phase 09の長時間回帰は `?qa=campaign&runs=10&monitorMs=300000&renderPasses=4` を使い、playing中の実時間だけを5分積算する。60秒warmup後の30秒間隔sampleからheap・resource・DOM増加を算出し、少なくとも5 campaign、同seed一致、進行停止なしを同じ証拠へ保存する。ブラウザ操作による負荷条件と物理低性能端末の実績は別欄で管理する。
+
 ## 固定時間刻みの基準
 
 - 同じ2秒を30Hz、60Hz、144Hzのframe列で与え、update回数とsimulation timeが一致する。

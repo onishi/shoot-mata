@@ -109,3 +109,5 @@ Phase 05の基準場面はbuild ID `phase05-foundation-20261022` の仮区間、
 | 通信・実行時異常 | 外部origin、欠落、warning/error各0 | すべて0 |
 
 Chromeは1568×1012 viewport、ローカルHTTP、cacheなしの新規originで計測した。ポーズ中はframe間隔とsample時間を加算せず、復帰後の最初のframeを新しい基準にする。localhost時間はネットワーク端末のロード保証ではない。5秒heapは短期の暴走検出に限り、5分以上のsoak、低性能端末、各製品ブラウザはPhase 09まで未確認である。
+
+Phase 09の再現可能な低性能相当条件は、製品の1280×720 Canvas全体を各animation frameで4回描画し、固定時間更新と自動campaignを同時に継続する。5分soakの合格条件は30fps以上、simulation dropが計測時間の1%以下、単一frame 1秒以下、60秒warmup後のheap増加16 MiB以下、resource・DOM増加0、進行停止・QA failure・console warning/error・外部通信0とする。この負荷注入は開発機上の回帰条件であり、物理的な低性能端末の合格証拠には置き換えない。

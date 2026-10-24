@@ -1,5 +1,13 @@
 # 開発ログ
 
+## 2026-10-24 — 4倍描画負荷で5分soakを完走
+
+- 目的: TECH-05/07として、再現可能な低性能相当条件と5分以上の連続実行で進行速度、停止、heap・resource・DOM増加を監査する。
+- 実装: QA campaignへ5,000〜600,000msの計測窓、1〜4回の全画面描画、60秒warmup後の30秒間隔metric sampleを追加した。不正値は通常の5秒・1描画へ閉じる。
+- Chrome実測: 4倍描画負荷でplaying実時間300,000.9ms、5 campaign＋第6周第4面tick 3,404まで進行。116.1fps、50ms超frame 35、最大259.7ms、simulation drop 2,109.7ms（0.703%）、同seed一致、QA failure 0。
+- 資源: warmup後heap +782,631 bytes、resource/DOM増加0、console warning/error 0、外部origin 0。buildは100 files・10,526,479 bytes / 16 MiB。
+- 判定: 明示した負荷時閾値に合格。開発機の4倍描画は物理低性能端末の証拠ではなく、実端末未確認は残存リスクとして維持する。次はPhase 09ゲート判定を行う。
+
 ## 2026-10-24 — Chrome互換性通しと未確認ブラウザ・実端末を固定
 
 - 目的: INP-02/03/04、TECH-04として、Phase 09の同一buildを利用可能な必須ブラウザ・端末で検証し、利用不能な対象を推定合格にせず記録する。

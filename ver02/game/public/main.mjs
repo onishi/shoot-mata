@@ -63,10 +63,20 @@ const qaCampaign = query.get("qa") === "campaign";
 const qaFailureReview = query.get("qa") === "failure-review";
 const qaInputMode = ["keyboard", "touch"].includes(query.get("input")) ? query.get("input") : null;
 const requestedCampaignRuns = Number(query.get("runs") ?? 1);
-const qaCampaignRuns = Number.isInteger(requestedCampaignRuns) && requestedCampaignRuns >= 1 && requestedCampaignRuns <= 5
+const qaCampaignRuns = Number.isInteger(requestedCampaignRuns) && requestedCampaignRuns >= 1 && requestedCampaignRuns <= 10
   ? requestedCampaignRuns
   : 1;
 const qaSilentAudio = qaCampaign && query.get("audio") === "silent";
+const requestedMonitorMs = Number(query.get("monitorMs") ?? 5_000);
+const qaMonitorMs = qaCampaign && Number.isInteger(requestedMonitorMs)
+  && requestedMonitorMs >= 5_000 && requestedMonitorMs <= 600_000
+  ? requestedMonitorMs
+  : 5_000;
+const requestedRenderPasses = Number(query.get("renderPasses") ?? 1);
+const qaRenderPasses = qaCampaign && Number.isInteger(requestedRenderPasses)
+  && requestedRenderPasses >= 1 && requestedRenderPasses <= 4
+  ? requestedRenderPasses
+  : 1;
 const qaSeeds = Object.freeze([20261022, 20261022, 20261023, 20261024]);
 const selectedStage = () => stages[session.flow.stageIndex ?? 0];
 
@@ -108,7 +118,7 @@ const qaInputReplay = qaCampaign && qaInputMode
       },
     })
   : null;
-const runtimeMonitor = createRuntimeMonitor();
+const runtimeMonitor = createRuntimeMonitor({ sampleWindowMs: qaMonitorMs });
 let renderedScreenKey = "";
 let audioLoadPromise = null;
 let audioAssetWarning = null;
@@ -483,7 +493,11 @@ try {
   const frame = (time) => {
     const step = advanceFixedStep(clock, time, update);
     const runtimeSample = session.flow.screen === "playing"
-      ? recordRuntimeFrame(runtimeMonitor, time, step.droppedDeltaMs)
+      ? recordRuntimeFrame(runtimeMonitor, time, step.droppedDeltaMs, {
+          heapBytes: performance.memory?.usedJSHeapSize,
+          resourceCount: performance.getEntriesByType("resource").length,
+          domNodes: document.getElementsByTagName("*").length,
+        })
       : (suspendRuntimeMonitor(runtimeMonitor), runtimeMonitor.completed);
     if (runtimeSample) {
       runtimeStatus.dataset.fps = runtimeSample.fps.toFixed(1);
@@ -491,9 +505,15 @@ try {
       runtimeStatus.dataset.maxFrameMs = runtimeSample.maxFrameMs.toFixed(1);
       runtimeStatus.dataset.droppedMs = runtimeSample.droppedMs.toFixed(1);
       runtimeStatus.dataset.heapEndBytes = String(performance.memory?.usedJSHeapSize ?? 0);
+      runtimeStatus.dataset.monitorElapsedMs = runtimeSample.elapsedMs.toFixed(1);
+      runtimeStatus.dataset.heapGrowthBytes = String(runtimeSample.heapGrowthBytes ?? "unsupported");
+      runtimeStatus.dataset.resourceGrowth = String(runtimeSample.resourceGrowth ?? "unsupported");
+      runtimeStatus.dataset.domGrowth = String(runtimeSample.domGrowth ?? "unsupported");
+      runtimeStatus.dataset.metricSamples = JSON.stringify(runtimeSample.metricSamples);
+      runtimeStatus.dataset.renderPasses = String(qaRenderPasses);
     }
     const view = createView();
-    renderCanvasFrame(context, view, assets);
+    for (let pass = 0; pass < qaRenderPasses; pass += 1) renderCanvasFrame(context, view, assets);
     const announcement = `${session.flow.screen}。${view.accessibleSummary}`;
     if (announcement !== lastAnnouncement && (session.flow.screen !== "playing" || view.tick % 300 === 0)) {
       accessibleState.textContent = announcement;

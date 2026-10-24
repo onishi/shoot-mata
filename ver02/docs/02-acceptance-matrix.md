@@ -66,9 +66,9 @@
 | TECH-02 | P05, P07 | P07, P10 | `stage-schema.test.mjs`で背景、敵、drop、区間、wave、仕掛け、boss phase、音、遷移のschema・参照・登録behaviorを検査。`stage-schedule.test.mjs`でデータ差替えとseed再現を検査。完成4面のデータと条件分岐レビューはP07 | 実装中 |
 | TECH-03 | P05, P07 | P08, P10 | 決定的simulation、第1〜4面のChrome各2完走・snapshot一致に加え、`automatic-playthrough.test.mjs`とChrome `?qa=campaign&runs=3&audio=silent`で同じ製品経路を3 campaign・12面→ending→creditsまで完走し、面別固定seedの結果一致、失敗0、console warning/error 0。`alpha-runtime-evidence.json` | 実装済み未検証 |
 | TECH-04 | P05 | P09, P10 | `phases/phase-09/browser-compatibility.json`に必須6対象と補助エミュレータを記録しschema検査。Chrome 156 / macOS 26.6.2はPointer Eventsの4面campaign、通常入口のポーズ・復帰、3 viewport、console、resource、外部originに合格。Edge・Firefoxは未導入、SafariはUI操作不可、iOS/Android実機は未接続として推定合格せず明示 | 実装済み未検証 |
-| TECH-05 | P05, P09 | P09, P10 | Phase 05固定場面をChromeで5秒超計測し120.0fps、50ms超frame 0、最大10.4ms、simulation drop 0ms。低性能対象端末と長時間計測はP09 | 実装中 |
+| TECH-05 | P05, P09 | P09, P10 | Chromeの4倍描画負荷でplaying実時間300,000.9msを計測。116.1fps、最大259.7ms、simulation drop 2,109.7ms（0.703%）、5 campaign以上を停止なく継続。物理低性能端末の証拠ではない限界を明記。`performance-soak.json` | 実装済み未検証 |
 | TECH-06 | P05, P08 | P08, P10 | 全61配信assetとruntime参照を全量照合。Phase 05試作定義を製品buildから除外し、静的なplaceholder / planned / draft・外部URL 0を監査。Chromeの実4面3 campaignで63 resource、外部origin 0、console warning/error 0、欠落による停止0。3 viewportと接続喪失相当は別Phase 08証拠で確認。`alpha-runtime-evidence.json` | 実装済み未検証 |
-| TECH-07 | P05, P09 | P09, P10 | Phase 08 build `phase08-alpha-runtime-20261024` は98 files・10,495,871 bytes/16 MiB。Chrome初回は63 resource、encoded 5,148,913 bytes、transfer 5,167,813 bytes、load event 202ms。5秒性能窓は119.4fps、50ms超frame 0、最大24.0ms、simulation drop 0ms。P09で低性能・長時間性能を再計測 | 実装中 |
+| TECH-07 | P05, P09 | P09, P10 | build `phase09-performance-soak-20261024` は100 files・10,526,479 bytes/16 MiB。4倍描画負荷の5分soakはwarmup後heap +782,631 bytes、resource/DOM増加0、console warning/error・外部origin 0。`performance-soak.json` | 実装済み未検証 |
 | TECH-08 | P05 | P10 | lockfile、runtime/dev依存0、`npm audit --omit=dev --audit-level=high`で既知脆弱性0。最終候補で再監査 | 実装中 |
 | REL-01 | P04, P07 | P10 | 2026-10-24に全画像・音声の出典、prompt／生成式、SHA-256、権利状態を再照合。OpenAI公式利用条件、非一意性・非侵害未保証、外部音源0、依存0を配布HTMLへ記録。P10で条件変更と成果物を再確認 | 実装中 |
 | REL-02 | P05 | P10 | 保存境界は同一origin storageだけを使用し個人情報処理を持たない。静的buildは外部URL 0、Chrome campaignは外部通信なしで完走。通知の規約所在は非リンク文字列で示す | 実装中 |

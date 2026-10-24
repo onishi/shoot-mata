@@ -48,3 +48,25 @@ test("TECH-06/07: resource audit totals bytes and exposes external origins", () 
     externalOrigins: ["https://example.test"],
   });
 });
+
+test("TECH-05/07: long soak reports post-warmup heap, resource, and DOM growth", () => {
+  const monitor = createRuntimeMonitor({ sampleWindowMs: 300_000, metricIntervalMs: 30_000, warmupMs: 60_000 });
+  for (let second = 0; second <= 300; second += 1) {
+    recordRuntimeFrame(monitor, second * 1_000, 0, {
+      heapBytes: 8_000_000 + second * 1_000,
+      resourceCount: second < 30 ? 60 : 63,
+      domNodes: 48,
+    });
+  }
+  assert.equal(monitor.completed.metricSamples.length, 11);
+  assert.equal(monitor.completed.heapGrowthBytes, 240_000);
+  assert.equal(monitor.completed.resourceGrowth, 0);
+  assert.equal(monitor.completed.domGrowth, 0);
+});
+
+test("TECH-05/07: invalid soak configuration and metrics fail closed", () => {
+  assert.throws(() => createRuntimeMonitor({ sampleWindowMs: 1_000, warmupMs: 1_000 }), /warmupMs/);
+  assert.throws(() => createRuntimeMonitor({ metricIntervalMs: 0 }), /metricIntervalMs/);
+  const monitor = createRuntimeMonitor();
+  assert.throws(() => recordRuntimeFrame(monitor, 0, 0, { heapBytes: -1 }), /heapBytes/);
+});
