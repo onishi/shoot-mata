@@ -1,0 +1,101 @@
+{
+  "schemaVersion": 1,
+  "buildId": "phase09-audio-runtime-20261024",
+  "recordedOn": "2026-10-24",
+  "targets": [
+    {
+      "id": "chrome-desktop",
+      "browser": "Google Chrome",
+      "version": "156.0.8078.48",
+      "platform": "macOS 26.6.2 arm64",
+      "environment": "desktop",
+      "status": "pass",
+      "notes": "同一の静的buildをローカルHTTP配信し、Pointer Events経路で4面campaignからcreditsまで完走した。通常入口でもタッチUIのポーズ・復帰を操作した。",
+      "evidence": {
+        "viewports": ["1568x956", "390x844", "844x390"],
+        "inputModes": ["keyboard", "pointer-events"],
+        "checks": {
+          "loaded": true,
+          "primaryFlow": true,
+          "pauseResume": true,
+          "noHorizontalOverflow": true,
+          "noConsoleErrors": true,
+          "noMissingResources": true,
+          "noExternalOrigins": true
+        },
+        "campaign": {
+          "stages": 4,
+          "score": 54140,
+          "result": "QA PASS / 1 CAMPAIGNS / 4 STAGES / SINGLE RUN / TOUCH INPUT"
+        },
+        "layout": {
+          "1568x956": { "horizontalOverflowPx": 0, "verticalOverflowPx": 0 },
+          "390x844": { "horizontalOverflowPx": 0, "verticalOverflowPx": 0 },
+          "844x390": { "horizontalOverflowPx": 0, "verticalOverflowPx": 0 }
+        },
+        "consoleWarningOrErrorCount": 0,
+        "httpStatus": "all requested product resources returned 200"
+      }
+    },
+    {
+      "id": "edge-desktop",
+      "browser": "Microsoft Edge",
+      "version": "n/a (not installed)",
+      "platform": "macOS 26.6.2 arm64",
+      "environment": "desktop",
+      "status": "unavailable",
+      "reason": "Microsoft Edge.appが検証機にインストールされていない。",
+      "notes": "未確認。Chromium互換性からの推定合格は行わない。"
+    },
+    {
+      "id": "firefox-desktop",
+      "browser": "Mozilla Firefox",
+      "version": "n/a (not installed)",
+      "platform": "macOS 26.6.2 arm64",
+      "environment": "desktop",
+      "status": "unavailable",
+      "reason": "Firefox.appが検証機にインストールされていない。",
+      "notes": "未確認。"
+    },
+    {
+      "id": "safari-desktop",
+      "browser": "Safari",
+      "version": "26.6.2 (21624.5.1.11.3)",
+      "platform": "macOS 26.6.2 arm64",
+      "environment": "desktop",
+      "status": "not-run",
+      "reason": "Safariはインストール済みだが、この作業環境からのUI操作が許可されず、同一buildの実操作を開始できなかった。",
+      "notes": "未確認。WebKit互換性からの推定合格は行わない。"
+    },
+    {
+      "id": "ios-safari-device",
+      "browser": "Mobile Safari",
+      "version": "n/a (no connected device)",
+      "platform": "iOS/iPadOS",
+      "environment": "real-device",
+      "status": "unavailable",
+      "reason": "利用可能な接続済みiOS/iPadOS実機がない。",
+      "notes": "未確認。"
+    },
+    {
+      "id": "android-chrome-device",
+      "browser": "Chrome for Android",
+      "version": "n/a (no connected device)",
+      "platform": "Android",
+      "environment": "real-device",
+      "status": "unavailable",
+      "reason": "ADBの接続済み端末一覧が空で、Android実機を利用できない。",
+      "notes": "未確認。エミュレータ結果を実端末の代替証拠には数えない。"
+    },
+    {
+      "id": "android-chrome-emulator",
+      "browser": "Chrome for Android",
+      "version": "n/a (no connected emulator)",
+      "platform": "Android emulator",
+      "environment": "emulator",
+      "status": "unavailable",
+      "reason": "ADBの接続済み端末一覧が空で、以前利用できたAndroidエミュレータも今回は接続されていない。",
+      "notes": "補助検証対象。実端末の合格数には含めない。"
+    }
+  ]
+}

@@ -82,3 +82,20 @@ test("TECH-04: checked-in Phase 05 evidence remains schema-valid", async () => {
   const result = validateCompatibilityReport(report);
   assert.equal(result.valid, true, result.failures.join("\n"));
 });
+
+test("TECH-04/INP-02〜04: Phase 09 evidence records observed and unavailable targets without inference", async () => {
+  const path = resolve(process.cwd(), "../phases/phase-09/browser-compatibility.json");
+  const report = JSON.parse(await readFile(path, "utf8"));
+  const result = validateCompatibilityReport(report);
+  assert.equal(result.valid, true, result.failures.join("\n"));
+  assert.deepEqual(summarizeCompatibilityReport(report), {
+    targetCount: 7,
+    pass: 1,
+    fail: 0,
+    "not-run": 1,
+    unavailable: 5,
+    requiredPass: 1,
+    requiredCount: 6,
+    realMobilePass: 0,
+  });
+});
