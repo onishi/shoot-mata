@@ -8,6 +8,7 @@ import { createAutomaticInputReplay } from "../src/browser/automatic-input-repla
 import { loadBrowserAudioAssets } from "../src/browser/audio-assets.mjs";
 import { createBrowserAudioAdapter } from "../src/browser/audio-adapter.mjs";
 import { createBrowserInputAdapter } from "../src/browser/input-adapter.mjs";
+import { createFullscreenController } from "../src/browser/fullscreen-controller.mjs";
 import { auditRuntimeResources, createRuntimeMonitor, recordRuntimeFrame, suspendRuntimeMonitor } from "../src/browser/runtime-monitor.mjs";
 import { createGameApplication } from "../src/app/game-application.mjs";
 import { GAME_ASSETS } from "../src/content/asset-manifest.mjs";
@@ -39,6 +40,7 @@ const qaStatus = document.querySelector("[data-qa-status]");
 const accessibleState = document.querySelector("[data-accessible-state]");
 const inputRoot = document.querySelector("[data-input-root]");
 const fullscreenButton = document.querySelector("[data-fullscreen]");
+const fullscreenStatus = document.querySelector("[data-fullscreen-status]");
 const screenPanel = document.querySelector("[data-screen-panel]");
 const screenKicker = document.querySelector("[data-screen-kicker]");
 const screenTitle = document.querySelector("[data-screen-title]");
@@ -410,21 +412,11 @@ syncScreen();
 syncWarning();
 syncQaStatus();
 
-fullscreenButton.addEventListener("click", async () => {
-  if (!app.requestFullscreen) {
-    runtimeStatus.textContent = "フルスクリーン非対応（通常表示を継続）";
-    return;
-  }
-  try {
-    if (document.fullscreenElement) await document.exitFullscreen();
-    else await app.requestFullscreen();
-  } catch {
-    runtimeStatus.textContent = "フルスクリーンを開始できません（通常表示を継続）";
-  }
-});
-
-document.addEventListener("fullscreenchange", () => {
-  fullscreenButton.textContent = document.fullscreenElement ? "通常表示" : "フルスクリーン";
+createFullscreenController({
+  documentTarget: document,
+  element: app,
+  button: fullscreenButton,
+  statusElement: fullscreenStatus,
 });
 
 document.addEventListener("visibilitychange", () => setClockSuspended(clock, document.hidden));

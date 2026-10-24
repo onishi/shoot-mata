@@ -152,6 +152,17 @@ canvas { display: block; width: 100%; height: 100%; }
 
 .warning-status[hidden] { display: none; }
 
+.fullscreen-status {
+  margin: 0;
+  padding: 8px 12px;
+  border: 1px solid #66d6ff;
+  color: #d8f6ff;
+  background: #08202c;
+  font-size: 12px;
+}
+
+.fullscreen-status[hidden] { display: none; }
+
 .qa-status {
   position: fixed;
   left: 10px;
@@ -201,7 +212,7 @@ canvas { display: block; width: 100%; height: 100%; }
 
 @media (max-aspect-ratio: 3 / 4) {
   .app, .app:has(.touch-controls:not([hidden])) { width: 100%; padding-inline: 0; align-content: start; }
-  .app-header, .display-controls, .audio-controls, .notice-link, .warning-status, .qa-status { margin-inline: 10px; }
+  .app-header, .display-controls, .audio-controls, .notice-link, .warning-status, .fullscreen-status, .qa-status { margin-inline: 10px; }
   .game-shell { border-inline: 0; }
   .touch-controls { padding-inline: 10px; min-height: 96px; }
   .app-header button { font-size: 11px; }

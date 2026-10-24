@@ -40,18 +40,18 @@
 | PROG-04 | P05 | P08, P10 | 実4面の面・難度別best、内訳、コア列を同一storageへ保存し、別repository/applicationから復元。製品の結果画面とステージ選択へ現在難度のbestを表示し、Chrome再読込後も4面のbest 10860/9525/19845/17360を確認 | 実装済み未検証 |
 | PROG-05 | P05 | P08, P10 | version 1、v0移行、破損退避、未来version、storage取得・読込・書込失敗、確認付き初期化を自動検査。実第1面の書込拒否注入でもclear/bestをメモリ内維持し結果へ到達。警告UIと正常保存のChrome再読込を確認 | 実装済み未検証 |
 | PROG-06 | P07 | P09, P10 | 初見観察、被弾位置分布、予告レビュー | 未着手 |
-| UX-01 | P05, P07 | P08, P10 | タイトル、初回説明、stage select、stage intro、HUD、ポーズ、確認、結果、ゲームオーバー、再挑戦、ending、総合結果、creditsを製品入口へ接続。ChromeのPC・390×844・844×390でcredits表示とoverflow 0を確認。設定専用画面は後続 | 実装中 |
+| UX-01 | P05, P07 | P08, P10 | タイトル、初回説明、stage select、stage intro、HUD、ポーズ、確認、結果、ゲームオーバー、再挑戦、ending、総合結果、creditsを製品入口へ接続。Chromeでキーボード／Pointer Eventsの4面campaignを各12,316戦闘frameで完走し、creditsまで確認。設定は戦闘中の製品UIから変更・復元を確認 | 実装済み未検証 |
 | UX-02 | P05, P06 | P09, P10 | 初回説明をブラウザ入口へ接続しChromeでEnter導線を確認。段階説明、再表示、初見観察は後続 | 実装中 |
 | UX-03 | P04, P06 | P09, P10 | P04代表HUDは11.58〜11.65%を3画面で確認。P05 Canvasへscore、残機、3コア、武器、boss meterを同一表示モデルから描画。P06ゲーム本体で再検証 | 実装中 |
 | UX-04 | P04, P07 | P09, P10 | P04実PNGをグレースケール・3種色覚シミュレーションで検査し、コア間37.02/255以上、自機・敵25.24/255以上、非色シグネチャ重複0。`reference-scene/visual-audit.test.mjs`。P07全素材で再検証 | 実装中 |
-| UX-05 | P05, P06 | P08, P10 | P05に16:9 Canvas、safe-area、縦長・横長CSSを実装。P06のゲームオーバーと再挑戦をChrome 1568×1012、390×844、844×390で再確認し、横溢れ0、横長の縦溢れ0。実端末は後続 | 実装中 |
-| UX-06 | P05, P06 | P08, P10 | 縦長Canvas下と横長overlayへ44px以上のmove/fire/pause領域を実装。4 viewportで表示確認、実端末完走は後続 | 実装中 |
-| UX-07 | P05 | P08, P10 | 明示ボタンと非対応・拒否時の通常表示継続を実装。許可・拒否・非対応の実ブラウザ統合テストは未確認 | 実装中 |
-| INP-01 | P05 | P08, P10 | 標準キー、保持、押下edge、repeat、既定動作抑止、ボタンEnter二重発火防止を自動検査。Chrome `?qa=campaign&input=keyboard`で1,132 key eventsを製品adapterへ通し、戦闘12,316 frames、4面→ending→credits、score 54,140を完走 | 実装中 |
-| INP-02 | P05 | P08, P10 | move＋fireのmulti-touch、pointerup/cancel/capture喪失、blur、破棄を自動検査。Chrome `?qa=campaign&input=touch`で4,086 Pointer Eventsを製品adapterへ通し、4面→ending→creditsを完走。実タッチ端末は後続 | 実装中 |
+| UX-05 | P05, P06 | P08, P10 | 16:9 Canvas、safe-area、縦長・横長CSSを実装。Chrome 1440×900、390×844、320×844、844×390の戦闘・GAME OVER・creditsで横溢れ0、横長の縦溢れ0。実端末は後続 | 実装済み未検証 |
+| UX-06 | P05, P06 | P08, P10 | 縦長Canvas下と横長overlayへmove/fire/pause領域を実装。Chrome 390×844と320×844で高さ96px、844×390で高さ76px、overflow 0。実端末完走は後続 | 実装済み未検証 |
+| UX-07 | P05 | P08, P10 | 明示ボタン、`aria-pressed`、専用live statusを実装。許可・解除・拒否・非対応を`fullscreen-controller.test.mjs`で検査し、Chrome自動化環境の拒否時に説明を保持して通常表示継続。実ブラウザの許可経路は環境制約により自動テスト証拠のみ | 実装済み未検証 |
+| INP-01 | P05 | P08, P10 | 標準キー、保持、押下edge、repeat、既定動作抑止、ボタンEnter二重発火防止を自動検査。Chrome `?qa=campaign&input=keyboard`で1,132 key events、戦闘12,316 frames、4面→ending→credits、score 54,140を完走。通常入口でTab／Shift+Tab／Enter、Canvas focus、P pauseも確認 | 実装済み未検証 |
+| INP-02 | P05 | P08, P10 | move＋fireのmulti-touch、pointerup/cancel/capture喪失、blur、破棄を自動検査。Chrome `?qa=campaign&input=touch`で4,086 Pointer Events、戦闘12,316 frames、4面→ending→creditsを完走。実タッチ端末は後続 | 実装済み未検証 |
 | INP-03 | P04, P05 | P09, P10 | P04表示設定は50×44px以上。P05で役割付きゲーム領域だけがpointer既定動作を抑止することを検査。実端末のスクロール競合は後続 | 実装中 |
 | INP-04 | P07 | P08, P10 | `automatic-input-replay.test.mjs`でkeydown/upとPointer Eventsを製品adapterへ通す両経路が同一score 49,620で完走。Chromeの240Hz QA clockでも両経路が同一score 54,140、戦闘12,316 frames、4面→ending→credits、console warning/error 0で完走。実タッチ端末はP09・P10で確認 | 実装済み未検証 |
-| A11Y-01 | P05 | P08, P10 | BGM/SFX別音量・ミュートのschema、保存復元、独立gainへの即時反映を自動検査。ChromeでBGM音量とSFXミュートを変更し、再読込後の復元を確認 | 実装中 |
+| A11Y-01 | P05 | P08, P10 | BGM/SFX別音量・ミュートのschema、保存復元、独立gainへの即時反映を自動検査。ChromeでBGM 0.45、SFX 0.65、動き軽減、高コントラストを変更し、再読込後の値・表示復元と主操作focusを確認 | 実装済み未検証 |
 | A11Y-02 | P04, P05 | P09, P10 | 命中・被弾・撃破・回収VFXに加え、自機の主武器・Lv・混色補助・無武装・無敵表示が動き軽減時も静止形状を保持する自動検査に合格。全製品演出は後続 | 実装中 |
 | A11Y-03 | P04, P07 | P09, P10 | P04 HUD記号、12px文字、高コントラスト表示を監査。P07全素材で再検証 | 実装中 |
 | A11Y-04 | P05, P07 | P08, P10 | `menu-accessibility.test.mjs`でモーダル背面のTab除外、主操作フォーカス、文脈付きラベルを検査。ChromeでTab／Shift+TabとEnterを使い、タイトル→ステージ選択→導入→戦闘、3pxフォーカス輪郭、Canvasへのフォーカス移動、console warning/error 0を確認 | 実装済み未検証 |

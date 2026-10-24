@@ -1,5 +1,14 @@
 # 開発ログ
 
+## 2026-10-24 — 3画面条件・入力・アクセシビリティ・フルスクリーンを再検証
+
+- 目的: UX-01/05/06/07、INP-01/02/04、A11Y-01/04として、主要画面と操作をPC・縦長・横長、キーボード・Pointer Events、フルスクリーン異常系で再検証する。
+- 修正: フルスクリーン拒否／非対応の説明が共用runtime表示へ書かれ、次の描画frameで消える不具合を検出した。専用controllerとlive statusへ分離し、ボタンの`aria-pressed`／`aria-disabled`、許可・解除・拒否・非対応、listener破棄を3テストで固定した。
+- 入力確認: Chromeの`?qa=campaign&input=keyboard`は1,132 key events、`input=touch`は4,086 Pointer Eventsを製品adapterへ通し、双方とも戦闘12,316 frames、4面→ending→credits、score 54,140で完走した。通常入口ではTab／Shift+Tab／Enter、戦闘Canvasへのfocus、P pause後の再開ボタンfocusを確認した。
+- 画面・設定確認: 1440×900、390×844、320×844、844×390でoverflow 0。タッチ操作高は縦長96px、横長76px。BGM 0.45、SFX 0.65、動き軽減、高コントラストは再読込後も復元した。ブラウザ自動化環境のフルスクリーン要求は拒否されたが、説明を保持して通常表示で継続し、console warning/error 0だった。許可経路は決定的なadapterテストで確認し、実ブラウザ許可はPhase 10にも残す。
+- 自動確認: 製品テスト171件、再現build、静的監査、差分検査に合格。build `phase08-input-layout-fullscreen-20261024` は98 files・10,494,205 bytes / 16 MiB、外部URL 0。
+- 判定: Phase 08実装順4を完了。UX-01/05/06/07、INP-01/02、A11Y-01を`実装済み未検証`へ更新した。実タッチ端末、別ブラウザ、フルスクリーン実許可、Phase 10最終検収は未確認。次はTECH-01/03/06/07の複数回campaign、無音、resource、console、容量、短時間性能を記録する。
+
 ## 2026-10-24 — 実4面の保存復元・ベスト表示・接続喪失縮退を検証
 
 - 目的: PROG-01/03/04/05とREL-03として、実4面の進行、面・難度別best、内訳、最終コア列が正常時と異常時に失われず、製品画面から確認できることを検証する。

@@ -12,8 +12,9 @@
     <main class="app" data-app>
       <header class="app-header" data-menu-background>
         <div><span>PHASE 08 / CONTENT ALPHA</span><strong data-stage-label>ORBITAL WRECK</strong></div>
-        <button type="button" data-fullscreen>フルスクリーン</button>
+        <button type="button" data-fullscreen aria-pressed="false" aria-describedby="fullscreen-status">フルスクリーン</button>
       </header>
+      <p id="fullscreen-status" class="fullscreen-status" data-fullscreen-status role="status" aria-live="polite" hidden></p>
       <section class="game-shell" data-game-shell aria-label="第1面・軌道残骸帯">
         <canvas data-canvas width="1280" height="720" tabindex="-1" aria-label="軌道残骸帯。矢印またはWASDで移動、ZまたはSpaceで射撃、Pでポーズ"></canvas>
         <p class="canvas-status" data-canvas-status role="status">素材を読み込んでいます</p>
