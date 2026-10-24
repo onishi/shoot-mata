@@ -8,6 +8,7 @@ import { STAGE_02_CLOUD_REFINERY } from "../../src/content/stages/stage-02-cloud
 import { STAGE_03_LIVING_ARK } from "../../src/content/stages/stage-03-living-ark.mjs";
 import { STAGE_04_STELLAR_FURNACE } from "../../src/content/stages/stage-04-stellar-furnace.mjs";
 import { createDefaultSaveData } from "../../src/core/save-data.mjs";
+import { createSaveRepository } from "../../src/ports/save-repository.mjs";
 
 function createPorts(options = {}) {
   let data = options.data ?? createDefaultSaveData();
@@ -40,6 +41,15 @@ function createPorts(options = {}) {
     stopBgm() { calls.push(["stop-bgm"]); },
   };
   return { repository, audio, calls, getData: () => data };
+}
+
+function createStorage(initial = {}) {
+  const entries = new Map(Object.entries(initial));
+  return {
+    entries,
+    getItem(key) { return entries.has(key) ? entries.get(key) : null; },
+    setItem(key, value) { entries.set(key, value); },
+  };
 }
 
 function autoCommand(session) {
@@ -345,4 +355,101 @@ test("LOOP-01/05/PROG-01: 4面キャンペーンを連続クリアし、段階�
   restored.dispatch("open-stage-select");
   restored.dispatch("start-stage-3");
   assert.equal(restored.session.flow.stageIndex, 3);
+});
+
+test("PROG-01/03/04/REL-03: 実4面のbest・内訳・コア列を難度別に永続化して復元する", () => {
+  const storage = createStorage();
+  const stages = [
+    STAGE_01_ORBITAL_WRECK,
+    STAGE_02_CLOUD_REFINERY,
+    STAGE_03_LIVING_ARK,
+    STAGE_04_STELLAR_FURNACE,
+  ];
+  const stageSeeds = [20261022, 20261022, 20261023, 20261024];
+  const audio = createPorts().audio;
+  const first = createGameApplication({
+    stages,
+    stageSeeds,
+    saveRepository: createSaveRepository({ getStorage: () => storage }),
+    audio,
+  });
+
+  first.dispatch("start-campaign");
+  first.dispatch("complete-tutorial");
+  for (let stageIndex = 0; stageIndex < stages.length; stageIndex += 1) {
+    first.dispatch("begin-stage");
+    while (first.session.flow.screen === "playing") {
+      first.update(automaticCombatCommand(first.session.simulation));
+    }
+    assert.equal(first.session.flow.screen, "result", `standard stage ${stageIndex + 1}`);
+    first.dispatch("advance");
+  }
+
+  const standardProgress = first.getProgress();
+  assert.equal(standardProgress.maxUnlockedStage, 3);
+  for (let stageIndex = 0; stageIndex < stages.length; stageIndex += 1) {
+    const best = standardProgress.stages[stageIndex].best.standard;
+    assert.equal(standardProgress.stages[stageIndex].cleared.standard, true);
+    assert.ok(best.score > 0);
+    assert.equal(best.score, Object.values(best.breakdown).reduce((total, part) => total + part, 0));
+    assert.ok(best.coreQueue.length <= 3);
+  }
+
+  const assist = createGameApplication({
+    stages,
+    stageSeeds,
+    saveRepository: createSaveRepository({ getStorage: () => storage }),
+    audio: createPorts().audio,
+  });
+  assist.updateSettings({ difficulty: "assist" });
+  assist.dispatch("open-stage-select");
+  assist.dispatch("start-stage-3");
+  assist.dispatch("begin-stage");
+  while (assist.session.flow.screen === "playing") {
+    assist.update(automaticCombatCommand(assist.session.simulation));
+  }
+
+  const restored = createGameApplication({
+    stages,
+    stageSeeds,
+    saveRepository: createSaveRepository({ getStorage: () => storage }),
+    audio: createPorts().audio,
+  });
+  const restoredProgress = restored.getProgress();
+  assert.equal(restored.getSettings().difficulty, "assist");
+  assert.equal(restoredProgress.stages[3].cleared.assist, true);
+  assert.ok(restoredProgress.stages[3].best.assist.score > 0);
+  assert.deepEqual(restoredProgress.stages.map((stage) => stage.best.standard),
+    standardProgress.stages.map((stage) => stage.best.standard));
+
+  const detached = restored.getProgress();
+  detached.maxUnlockedStage = 0;
+  detached.stages[3].best.assist.score = 0;
+  assert.equal(restored.getProgress().maxUnlockedStage, 3);
+  assert.ok(restored.getProgress().stages[3].best.assist.score > 0);
+});
+
+test("PROG-05: 書込拒否後も実面のclearとbestをセッション内に維持する", () => {
+  const storage = {
+    getItem() { return null; },
+    setItem() { throw new Error("quota denied"); },
+  };
+  const application = createGameApplication({
+    stage: STAGE_01_ORBITAL_WRECK,
+    seed: 20261022,
+    saveRepository: createSaveRepository({ getStorage: () => storage }),
+    audio: createPorts().audio,
+  });
+
+  application.dispatch("start-campaign");
+  application.dispatch("complete-tutorial");
+  application.dispatch("begin-stage");
+  while (application.session.flow.screen === "playing") {
+    application.update(automaticCombatCommand(application.session.simulation));
+  }
+
+  assert.equal(application.session.flow.screen, "result");
+  assert.equal(application.getStatus().saveWarning, "storage-unavailable");
+  assert.equal(application.getProgress().stages[0].cleared.standard, true);
+  assert.equal(application.getProgress().stages[0].best.standard.score, application.session.lastRun.score);
 });

@@ -159,6 +159,11 @@ function screenDefinition() {
   }
   const score = session.lastRun?.score ?? 0;
   const campaign = getCampaignSummary(session);
+  const settings = application.getSettings();
+  const progress = application.getProgress();
+  const difficulty = settings.difficulty;
+  const difficultyLabel = difficulty === "assist" ? "アシスト" : "標準";
+  const stageBest = progress.stages[session.flow.stageIndex ?? 0].best[difficulty];
   const failureReview = session.lastRun?.failure
     ? createFailureReview(session.lastRun)
     : null;
@@ -179,7 +184,12 @@ function screenDefinition() {
       copy: "解放済みステージは単独で開始し、同じseedで再挑戦できます。",
       actions: [
         ...stages.slice(0, session.flow.maxUnlockedStage + 1)
-          .map((stage, index) => [`start-stage-${index}`, stage.title, index === 0]),
+          .map((stage, index) => {
+            const record = progress.stages[index];
+            const best = record.best[difficulty];
+            const suffix = record.cleared[difficulty] ? ` / BEST ${best.score}` : " / 未クリア";
+            return [`start-stage-${index}`, `${stage.title}${suffix}`, index === 0];
+          }),
         ["return-title", "タイトルへ戻る"],
       ],
     },
@@ -204,7 +214,7 @@ function screenDefinition() {
     result: {
       kicker: "STAGE CLEAR",
       title: `SCORE ${score}`,
-      copy: `敵 ${session.lastRun?.scoreBreakdown.enemy ?? 0} / コア ${session.lastRun?.scoreBreakdown.core ?? 0} / 連続撃破 ${session.lastRun?.scoreBreakdown.streak ?? 0} / 無被弾 ${session.lastRun?.scoreBreakdown.noHit ?? 0}`,
+      copy: `${difficultyLabel} BEST ${stageBest.score}。敵 ${session.lastRun?.scoreBreakdown.enemy ?? 0} / コア ${session.lastRun?.scoreBreakdown.core ?? 0} / 連続撃破 ${session.lastRun?.scoreBreakdown.streak ?? 0} / 無被弾 ${session.lastRun?.scoreBreakdown.noHit ?? 0}。最終コア ${stageBest.coreQueue.length > 0 ? stageBest.coreQueue.join("→") : "なし"}`,
       actions: [
         ...(session.flow.mode === "campaign"
           ? [["advance", session.flow.stageIndex + 1 < stages.length ? "次のステージへ" : "エンディングへ", true]]

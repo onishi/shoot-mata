@@ -197,6 +197,10 @@ export function createGameApplication(options) {
       return { ...saveData.settings };
     },
 
+    getProgress() {
+      return structuredClone(saveData.progress);
+    },
+
     getStatus() {
       const audioStatus = audio.getStatus();
       return {
