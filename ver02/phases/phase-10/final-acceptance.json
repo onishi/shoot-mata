@@ -6,18 +6,7 @@
     "phase10RequirementCount": 67,
     "deferredRequirementIds": ["REL-04", "REL-05", "REL-06"],
     "nonPassingRequirementIds": [
-      "EXP-01", "EXP-02", "EXP-03", "EXP-04", "EXP-05",
-      "LOOP-01", "LOOP-02", "LOOP-03", "LOOP-04", "LOOP-05", "LOOP-06",
-      "CORE-01", "CORE-02", "CORE-03", "CORE-04", "CORE-05", "CORE-06", "CORE-07",
-      "WPN-01", "WPN-02", "WPN-03", "WPN-04",
-      "STG-01", "STG-02", "STG-03", "STG-04", "STG-05", "STG-06",
-      "PROG-01", "PROG-02", "PROG-03", "PROG-04", "PROG-05", "PROG-06",
-      "UX-01", "UX-02", "UX-03", "UX-04", "UX-05", "UX-06", "UX-07",
-      "INP-01", "INP-02", "INP-03", "INP-04",
-      "A11Y-01", "A11Y-02", "A11Y-03", "A11Y-04",
-      "AV-01", "AV-02", "AV-03", "AV-04", "AV-05", "AV-06", "AV-07",
-      "TECH-01", "TECH-02", "TECH-03", "TECH-04", "TECH-05", "TECH-06", "TECH-07", "TECH-08",
-      "REL-01", "REL-02", "REL-03"
+      "UX-05", "UX-06", "INP-02", "INP-03", "INP-04", "TECH-04", "TECH-05"
     ],
     "nonPassingBrowserTargetIds": [
       "edge-desktop",
@@ -41,6 +30,6 @@
     "physicalLowPerformancePass": false,
     "noCriticalOrMajorDefects": true,
     "accepted": false,
-    "reason": "Phase 10対象67行はまだ合格へ更新されておらず、必須ブラウザ5対象、実モバイル2対象、物理低性能端末の固定RC証拠がない。SafariはComputer Useが承認されず、公式WebDriverの永続的な認証省略設定もセキュリティ承認されなかったため、推定合格せずPhase 10を継続する。"
+    "reason": "固定RCの既存証拠でPhase 10対象67行中60行を合格へ更新した。UX-05/06、INP-02/03/04、TECH-04/05は必須ブラウザ5対象、実モバイル2対象、物理低性能端末の証拠がなくブロック中である。SafariはComputer Useが今回も承認されず、推定合格せずPhase 10を継続する。"
   }
 }

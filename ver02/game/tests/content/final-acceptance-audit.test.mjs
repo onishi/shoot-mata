@@ -22,7 +22,15 @@ test("Phase 10 gate derives every current blocker and remains fail-closed", asyn
   const result = auditFinalAcceptance(await checkedInInputs());
   assert.equal(result.valid, true, result.failures.join("\n"));
   assert.equal(result.phase10RequirementCount, 67);
-  assert.equal(result.nonPassingRequirementIds.length, 67);
+  assert.deepEqual(result.nonPassingRequirementIds, [
+    "UX-05",
+    "UX-06",
+    "INP-02",
+    "INP-03",
+    "INP-04",
+    "TECH-04",
+    "TECH-05",
+  ]);
   assert.deepEqual(result.deferredRequirementIds, ["REL-04", "REL-05", "REL-06"]);
   assert.deepEqual(result.nonPassingBrowserTargetIds, [
     "edge-desktop",
