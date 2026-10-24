@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "buildId": "phase10-rc1-20261024",
+  "recordedOn": "2026-10-24",
+  "manifest": {
+    "path": "game/dist/build-manifest.json",
+    "sha256": "3c25733152691eadf21eaa5919a538c29919b5451a6d7045cf8420dde012e7ab",
+    "fileCount": 100,
+    "totalBytes": 10526479,
+    "budgetBytes": 16777216
+  },
+  "status": "candidate",
+  "accepted": false,
+  "notes": "This identity starts Phase 10 verification. It is not accepted or releasable until every Phase 10 requirement and beta-gate blocker passes against this exact build."
+}

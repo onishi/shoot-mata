@@ -1,5 +1,12 @@
 # 開発ログ
 
+## 2026-10-24 — Phase 10 release candidateを固定
+
+- 目的: 最終検収の全証拠を同一成果物へ結び付け、後続変更や旧buildの結果を混入させない。
+- 実装: build IDを`phase10-rc1-20261024`へ更新し、100 files・10,526,479 bytesの全ファイルhash manifestを生成した。manifest自体のSHA-256は`3c25733152691eadf21eaa5919a538c29919b5451a6d7045cf8420dde012e7ab`。
+- 検査: fresh buildのID、manifest hash、件数、容量を`phases/phase-10/release-candidate.json`と照合するテストを追加した。
+- 判定: Phase 10を開始した。candidateの`accepted`はfalseであり、全受け入れ行とPhase 09 blockerが合格するまでrelease可能とは扱わない。次は製品要件と受け入れマトリクスの全ID監査を行う。
+
 ## 2026-10-24 — Phase 09ベータゲートを判定
 
 - 目的: 重大な既知不具合、品質目標、未測定の主観品質、未確認環境を分離し、Phase 10へ進める条件をfail-closedに固定する。
