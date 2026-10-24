@@ -402,11 +402,15 @@ test("PROG-01/03/04/REL-03: 実4面のbest・内訳・コア列を難度別に�
     audio: createPorts().audio,
   });
   assist.updateSettings({ difficulty: "assist" });
-  assist.dispatch("open-stage-select");
-  assist.dispatch("start-stage-3");
-  assist.dispatch("begin-stage");
-  while (assist.session.flow.screen === "playing") {
-    assist.update(automaticCombatCommand(assist.session.simulation));
+  assist.dispatch("start-campaign");
+  for (let stageIndex = 0; stageIndex < stages.length; stageIndex += 1) {
+    assist.dispatch("begin-stage");
+    assert.equal(assist.session.simulation.difficulty, "assist");
+    while (assist.session.flow.screen === "playing") {
+      assist.update(automaticCombatCommand(assist.session.simulation));
+    }
+    assert.equal(assist.session.flow.screen, "result", `assist stage ${stageIndex + 1}`);
+    assist.dispatch("advance");
   }
 
   const restored = createGameApplication({
@@ -417,8 +421,8 @@ test("PROG-01/03/04/REL-03: 実4面のbest・内訳・コア列を難度別に�
   });
   const restoredProgress = restored.getProgress();
   assert.equal(restored.getSettings().difficulty, "assist");
-  assert.equal(restoredProgress.stages[3].cleared.assist, true);
-  assert.ok(restoredProgress.stages[3].best.assist.score > 0);
+  assert.ok(restoredProgress.stages.every((stage) => stage.cleared.assist));
+  assert.ok(restoredProgress.stages.every((stage) => stage.best.assist.score > 0));
   assert.deepEqual(restoredProgress.stages.map((stage) => stage.best.standard),
     standardProgress.stages.map((stage) => stage.best.standard));
 
@@ -427,6 +431,29 @@ test("PROG-01/03/04/REL-03: 実4面のbest・内訳・コア列を難度別に�
   detached.stages[3].best.assist.score = 0;
   assert.equal(restored.getProgress().maxUnlockedStage, 3);
   assert.ok(restored.getProgress().stages[3].best.assist.score > 0);
+});
+
+test("PROG-02: 出撃中の設定変更は進行中runの難度と保存先を変えない", () => {
+  const data = createDefaultSaveData();
+  data.progress.tutorialSeen = true;
+  const ports = createPorts({ data });
+  const application = createGameApplication({
+    stage: PHASE05_TEST_STAGE,
+    saveRepository: ports.repository,
+    audio: ports.audio,
+    seed: 77,
+  });
+
+  application.dispatch("start-campaign");
+  application.dispatch("begin-stage");
+  assert.equal(application.session.simulation.difficulty, "standard");
+  application.updateSettings({ difficulty: "assist" });
+  while (application.session.flow.screen === "playing") {
+    application.update(autoCommand(application.session));
+  }
+  assert.equal(application.session.lastRun.difficulty, "standard");
+  assert.equal(ports.getData().progress.stages[0].cleared.standard, true);
+  assert.equal(ports.getData().progress.stages[0].cleared.assist, false);
 });
 
 test("PROG-05: 書込拒否後も実面のclearとbestをセッション内に維持する", () => {

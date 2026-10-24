@@ -26,6 +26,7 @@ test("static build is complete, bounded, and reproducible", async (context) => {
   assert.match(entrypoint, /<link rel="icon"[^>]+reactor-core-red-v1\.webp/);
   assert.match(entrypoint, /role="dialog" aria-modal="true" aria-labelledby="screen-title" aria-describedby="screen-copy"/);
   assert.match(entrypoint, /data-canvas[^>]+tabindex="-1"/);
+  assert.match(entrypoint, /data-difficulty[^>]+aria-describedby="difficulty-description"/);
   assert.ok(first.files.some(({ path }) => path === "assets/delivery/game/cores/reactor-core-red-v1.webp"));
   for (const file of [
     "weapon-lance-shot-v1.wav",

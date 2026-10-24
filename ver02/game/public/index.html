@@ -11,7 +11,7 @@
   <body>
     <main class="app" data-app>
       <header class="app-header" data-menu-background>
-        <div><span>PHASE 08 / CONTENT ALPHA</span><strong data-stage-label>ORBITAL WRECK</strong></div>
+        <div><span>PHASE 09 / POLISH BETA</span><strong data-stage-label>ORBITAL WRECK</strong></div>
         <button type="button" data-fullscreen aria-pressed="false" aria-describedby="fullscreen-status">フルスクリーン</button>
       </header>
       <p id="fullscreen-status" class="fullscreen-status" data-fullscreen-status role="status" aria-live="polite" hidden></p>
@@ -31,10 +31,14 @@
         <button type="button" class="fire-button" data-input-role="fire" aria-label="射撃">FIRE</button>
       </section>
       <section class="display-controls" aria-label="表示設定" data-menu-background>
+        <button type="button" data-difficulty aria-describedby="difficulty-description">難易度: 標準</button>
         <button type="button" data-setting="reducedMotion" aria-pressed="false">動き軽減</button>
         <button type="button" data-setting="highContrast" aria-pressed="false">高コントラスト</button>
         <span data-runtime-status role="status">準備中</span>
       </section>
+      <p id="difficulty-description" class="sr-only" data-difficulty-description data-menu-background>
+        標準。アシストへ切り替えると、次の出撃から敵弾が遅くなり、被弾後の無敵時間・開始時の残機とコア・回収範囲が増えます。記録は難易度別に保存します。
+      </p>
       <section class="audio-controls" aria-label="音声設定" data-menu-background>
         <label>BGM <input type="range" min="0" max="1" step="0.05" data-volume="bgmVolume" aria-label="BGM音量"></label>
         <button type="button" data-audio-mute="bgmMuted" aria-pressed="false">BGMミュート</button>

@@ -40,6 +40,15 @@ test("LOOP-01/INP-01: 共通commandで初回説明から戦闘へ入る", () => 
   assert.equal(session.simulation.seed, 77);
 });
 
+test("PROG-02: セッション難度を出撃時のsimulationへ固定する", () => {
+  const session = createGameSession({ seed: 77, tutorialSeen: true, difficulty: "assist" });
+  enterPlaying(session);
+  assert.equal(session.simulation.difficulty, "assist");
+  assert.equal(session.simulation.player.lives, 4);
+  assert.deepEqual(session.simulation.loadout.queue, ["red", "red"]);
+  assert.equal(getGameSessionSnapshot(session).difficulty, "assist");
+});
+
 test("LOOP-04: セッションのポーズ中は戦闘tickを進めず確認を解決できる", () => {
   const session = createGameSession({ tutorialSeen: true });
   enterPlaying(session);

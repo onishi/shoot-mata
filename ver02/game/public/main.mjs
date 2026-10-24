@@ -41,6 +41,8 @@ const accessibleState = document.querySelector("[data-accessible-state]");
 const inputRoot = document.querySelector("[data-input-root]");
 const fullscreenButton = document.querySelector("[data-fullscreen]");
 const fullscreenStatus = document.querySelector("[data-fullscreen-status]");
+const difficultyButton = document.querySelector("[data-difficulty]");
+const difficultyDescription = document.querySelector("[data-difficulty-description]");
 const screenPanel = document.querySelector("[data-screen-panel]");
 const screenKicker = document.querySelector("[data-screen-kicker]");
 const screenTitle = document.querySelector("[data-screen-title]");
@@ -170,7 +172,7 @@ function screenDefinition() {
   const campaign = getCampaignSummary(session);
   const settings = application.getSettings();
   const progress = application.getProgress();
-  const difficulty = settings.difficulty;
+  const difficulty = session.lastRun?.difficulty ?? settings.difficulty;
   const difficultyLabel = difficulty === "assist" ? "アシスト" : "標準";
   const stageBest = progress.stages[session.flow.stageIndex ?? 0].best[difficulty];
   const failureReview = session.lastRun?.failure
@@ -178,11 +180,14 @@ function screenDefinition() {
     : null;
   const screens = {
     title: {
-      kicker: "PHASE 08 / ALPHA BUILD",
+      kicker: "PHASE 09 / POLISH BETA",
       title: "SHOOT MATA v02",
-      copy: "キャンペーンを開始するか、解放済みステージを選択します。",
+      copy: difficulty === "assist"
+        ? "アシスト選択中。敵弾が遅く、被弾後の無敵時間・開始時の残機とコア・回収範囲が増えます。記録は難易度別です。"
+        : "標準選択中。キャンペーンを開始するか、アシストへ切り替えて回避・復帰の余裕を増やせます。記録は難易度別です。",
       actions: [
         ["start-campaign", "CAMPAIGN START", true],
+        ["toggle-difficulty", `難易度: ${difficultyLabel}（変更）`],
         ["open-stage-select", "ステージ選択"],
         ["open-credits", "クレジット"],
       ],
@@ -268,7 +273,7 @@ function syncScreen() {
   canvas.setAttribute("aria-label", `${stageName}。矢印またはWASDで移動、ZまたはSpaceで射撃、Pでポーズ`);
   document.title = `shoot-mata v02 — ${stage.title}`;
   const definition = screenDefinition();
-  const key = `${session.flow.screen}:${session.flow.confirmation}:${session.flow.attempt}:${session.lastRun?.score ?? 0}`;
+  const key = `${session.flow.screen}:${session.flow.confirmation}:${session.flow.attempt}:${session.lastRun?.score ?? 0}:${application.getSettings().difficulty}`;
   const playing = session.flow.screen === "playing";
   input.setGameplayActive(playing);
   inputRoot.hidden = !playing;
@@ -371,6 +376,14 @@ function createView() {
 screenActions.addEventListener("click", (event) => {
   const action = event.target.closest("[data-action]")?.dataset.action;
   if (!action) return;
+  if (action === "toggle-difficulty") {
+    const difficulty = application.getSettings().difficulty === "standard" ? "assist" : "standard";
+    application.updateSettings({ difficulty });
+    syncSettingButtons();
+    syncScreen();
+    syncWarning();
+    return;
+  }
   application.dispatch(action);
   if (action === "start-campaign" || action.startsWith("start-stage-")) ensureAudioAssets();
   syncScreen();
@@ -383,6 +396,12 @@ function syncSettingButtons() {
   }
   app.dataset.highContrast = String(displaySettings.highContrast);
   const settings = application.getSettings();
+  const assist = settings.difficulty === "assist";
+  difficultyButton.textContent = `難易度: ${assist ? "アシスト" : "標準"}`;
+  difficultyButton.setAttribute("aria-pressed", String(assist));
+  difficultyDescription.textContent = assist
+    ? "アシスト。次の出撃から敵弾が遅くなり、被弾後の無敵時間・開始時の残機とコア・回収範囲が増えます。記録は難易度別に保存します。"
+    : "標準。アシストへ切り替えると、次の出撃から敵弾が遅くなり、被弾後の無敵時間・開始時の残機とコア・回収範囲が増えます。記録は難易度別に保存します。";
   for (const inputElement of document.querySelectorAll("[data-volume]")) {
     inputElement.value = String(settings[inputElement.dataset.volume]);
   }
@@ -390,6 +409,14 @@ function syncSettingButtons() {
     button.setAttribute("aria-pressed", String(settings[button.dataset.audioMute]));
   }
 }
+
+difficultyButton.addEventListener("click", () => {
+  const difficulty = application.getSettings().difficulty === "standard" ? "assist" : "standard";
+  application.updateSettings({ difficulty });
+  syncSettingButtons();
+  syncScreen();
+  syncWarning();
+});
 
 for (const button of document.querySelectorAll("[data-setting]")) {
   button.addEventListener("click", () => {

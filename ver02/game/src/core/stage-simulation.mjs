@@ -14,6 +14,23 @@ const ENEMY_SPEED_PER_TICK = 0.006;
 const PLAYER_SHOT_SPEED_PER_TICK = 0.045;
 const ENEMY_SHOT_SPEED_PER_TICK = 0.018;
 
+export const DIFFICULTY_PROFILES = Object.freeze({
+  standard: Object.freeze({
+    initialLives: 3,
+    initialCoreQueue: Object.freeze(["red"]),
+    enemyShotSpeedMultiplier: 1,
+    invulnerabilityMultiplier: 1,
+    collectionRadiusMultiplier: 1,
+  }),
+  assist: Object.freeze({
+    initialLives: 4,
+    initialCoreQueue: Object.freeze(["red", "red"]),
+    enemyShotSpeedMultiplier: 0.75,
+    invulnerabilityMultiplier: 1.5,
+    collectionRadiusMultiplier: 1.25,
+  }),
+});
+
 const EFFECT_LIFETIMES = Object.freeze({
   hit: 12,
   damage: 36,
@@ -42,12 +59,17 @@ export function createStageSimulation(stageInput, options = {}) {
   const stage = parseStageDefinition(stageInput);
   const seed = options.seed ?? 0;
   const schedule = createStageSchedule(stage, seed);
-  const lives = options.lives ?? 3;
+  const difficulty = options.difficulty ?? "standard";
+  const difficultyProfile = DIFFICULTY_PROFILES[difficulty];
+  if (!difficultyProfile) throw new TypeError("difficulty must be standard or assist");
+  const lives = options.lives ?? difficultyProfile.initialLives;
   if (!Number.isInteger(lives) || lives < 1) throw new TypeError("lives must be a positive integer");
-  const loadout = createReactorLoadout(options.coreQueue ?? ["red"]);
+  const loadout = createReactorLoadout(options.coreQueue ?? difficultyProfile.initialCoreQueue);
   return {
     stageId: stage.id,
     seed,
+    difficulty,
+    difficultyProfile,
     tick: 0,
     status: "playing",
     flowEvent: null,
@@ -246,8 +268,9 @@ function moveCombatants(state) {
           id: `enemy-shot-${state.nextShotId++}`,
           x: enemy.x,
           y: enemy.y,
-          vx: -ENEMY_SHOT_SPEED_PER_TICK,
-          vy: clamp((state.player.y - enemy.y) / 36, -0.009, 0.009) + offset,
+          vx: -ENEMY_SHOT_SPEED_PER_TICK * state.difficultyProfile.enemyShotSpeedMultiplier,
+          vy: (clamp((state.player.y - enemy.y) / 36, -0.009, 0.009) + offset)
+            * state.difficultyProfile.enemyShotSpeedMultiplier,
         });
       }
     }
@@ -302,8 +325,9 @@ function moveCombatants(state) {
           id: `boss-shot-${state.nextShotId++}`,
           x: state.boss.x - 0.05,
           y: clamp(state.boss.y + offset, 0.05, 0.95),
-          vx: isRush ? -0.028 : -0.022,
-          vy: clamp((state.player.y - state.boss.y) / 32, -0.012, 0.012) + offset / 2,
+          vx: (isRush ? -0.028 : -0.022) * state.difficultyProfile.enemyShotSpeedMultiplier,
+          vy: (clamp((state.player.y - state.boss.y) / 32, -0.012, 0.012) + offset / 2)
+            * state.difficultyProfile.enemyShotSpeedMultiplier,
         });
       }
     }
@@ -335,7 +359,9 @@ function damagePlayer(state, reason) {
   const loss = loseReactorCore(state.loadout);
   state.hitsTaken += 1;
   state.streak = 0;
-  state.player.invulnerabilityTicks = defenseBeforeHit.invulnerabilityTicks ?? 42;
+  state.player.invulnerabilityTicks = Math.round(
+    (defenseBeforeHit.invulnerabilityTicks ?? 42) * state.difficultyProfile.invulnerabilityMultiplier,
+  );
   if (loss.lost === null) {
     state.player.lives -= 1;
     state.player.x = PLAYER_START.x;
@@ -452,7 +478,8 @@ function resolveThreats(state) {
 function resolvePickups(state) {
   const profile = getWeaponProfile(state.loadout);
   for (const pickup of state.pickups) {
-    if (Math.hypot(pickup.x - state.player.x, pickup.y - state.player.y) <= profile.collectionRadius) {
+    if (Math.hypot(pickup.x - state.player.x, pickup.y - state.player.y)
+      <= profile.collectionRadius * state.difficultyProfile.collectionRadiusMultiplier) {
       const loadResult = collectReactorCore(state.loadout, pickup.core);
       state.score += 75;
       state.scoreBreakdown.core += 75;
@@ -624,6 +651,7 @@ export function createStageSimulationSnapshot(state) {
     : null;
   return {
     stageId: state.stageId,
+    difficulty: state.difficulty,
     tick: state.tick,
     status: state.status,
     flowEvent: state.flowEvent,

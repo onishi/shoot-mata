@@ -31,7 +31,10 @@ function requireSession(session) {
 }
 
 function startSimulation(session, stage) {
-  session.simulation = createStageSimulation(stage, { seed: session.seed });
+  session.simulation = createStageSimulation(stage, {
+    seed: session.seed,
+    difficulty: session.difficulty,
+  });
   session.lastRun = null;
 }
 
@@ -52,8 +55,13 @@ export function createGameSession(options = {}) {
   if (!Number.isInteger(seed) || seed < 0 || seed > 0xffffffff) {
     throw new TypeError("seed must be an unsigned 32-bit integer");
   }
+  const difficulty = options.difficulty ?? "standard";
+  if (!["standard", "assist"].includes(difficulty)) {
+    throw new TypeError("difficulty must be standard or assist");
+  }
   return {
     seed,
+    difficulty,
     flow: createFlowState({
       tutorialSeen: options.tutorialSeen === true,
       maxUnlockedStage: options.maxUnlockedStage ?? 0,
@@ -175,6 +183,7 @@ export function getGameSessionSnapshot(session) {
   if (session.simulation) return createStageSimulationSnapshot(session.simulation);
   if (session.lastRun) return session.lastRun;
   return {
+    difficulty: session.difficulty,
     tick: 0,
     status: "waiting",
     flowEvent: null,

@@ -52,6 +52,45 @@ test("TECH-03: seedでdrop列が変わっても仮区間の最低火力で完走
   }
 });
 
+test("PROG-02: アシストは敵弾・被弾後無敵・開始時救済・回収範囲を調整する", () => {
+  const standard = createStageSimulation(PHASE05_TEST_STAGE, { difficulty: "standard" });
+  const assist = createStageSimulation(PHASE05_TEST_STAGE, { difficulty: "assist" });
+
+  assert.equal(standard.player.lives, 3);
+  assert.deepEqual(standard.loadout.queue, ["red"]);
+  assert.equal(assist.player.lives, 4);
+  assert.deepEqual(assist.loadout.queue, ["red", "red"]);
+
+  for (const simulation of [standard, assist]) {
+    simulation.nextSpawnIndex = simulation.schedule.spawns.length;
+    simulation.enemies.push({
+      id: "assist-speed", typeId: "test", assetId: "test", behaviorId: "armored-drift",
+      x: 0.8, y: 0.2, originY: 0.2, hitPoints: 20, maximumHitPoints: 20,
+      score: 10, collisionRadius: 0.02, dropItemId: "red", ageTicks: 63,
+      attackTicks: 0, hitTicks: 0,
+    });
+    stepStageSimulation(simulation, PHASE05_TEST_STAGE);
+  }
+  assert.equal(standard.enemyShots[0].vx, -0.018);
+  assert.ok(Math.abs(assist.enemyShots[0].vx - (-0.0135)) < Number.EPSILON);
+
+  for (const simulation of [standard, assist]) {
+    simulation.enemyShots.push({
+      id: "forced-difficulty-hit", x: simulation.player.x, y: simulation.player.y, vx: 0, vy: 0,
+    });
+    stepStageSimulation(simulation, PHASE05_TEST_STAGE);
+  }
+  assert.equal(standard.player.invulnerabilityTicks, 42);
+  assert.equal(assist.player.invulnerabilityTicks, 63);
+
+  standard.pickups.push({ id: "standard-range", x: standard.player.x + 0.105, y: standard.player.y, core: "blue" });
+  assist.pickups.push({ id: "assist-range", x: assist.player.x + 0.105, y: assist.player.y, core: "blue" });
+  stepStageSimulation(standard, PHASE05_TEST_STAGE);
+  stepStageSimulation(assist, PHASE05_TEST_STAGE);
+  assert.equal(standard.pickups.some(({ id }) => id === "standard-range"), true);
+  assert.equal(assist.pickups.some(({ id }) => id === "assist-range"), false);
+});
+
 test("LOOP-01/06: タイトルから結果へ遷移し、同じseedで即時再挑戦できる", () => {
   let flow = createFlowState();
   flow = send(flow, "START_CAMPAIGN");

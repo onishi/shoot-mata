@@ -62,6 +62,7 @@ export function createGameApplication(options) {
   let activeBgmKey = null;
   const session = createGameSession({
     seed: options.seed,
+    difficulty: saveData.settings.difficulty,
     tutorialSeen: saveData.progress.tutorialSeen,
     maxUnlockedStage: Math.max(
       saveData.progress.maxUnlockedStage,
@@ -134,7 +135,7 @@ export function createGameApplication(options) {
     if (lastRecordedRun === session.lastRun) return;
     saveData = recordStageClear(
       saveData,
-      saveResultFromSession(session, saveData.settings.difficulty),
+      saveResultFromSession(session, session.lastRun.difficulty),
     );
     persist(saveData);
     lastRecordedRun = session.lastRun;
@@ -151,6 +152,9 @@ export function createGameApplication(options) {
 
     dispatch(action) {
       const previousScreen = session.flow.screen;
+      if (action === "start-campaign" || action.startsWith("start-stage-")) {
+        session.difficulty = saveData.settings.difficulty;
+      }
       if (action === "start-campaign" || action.startsWith("start-stage-")) activateAudio();
       dispatchGameAction(session, currentStage(), action);
       if (action === "complete-tutorial" && !saveData.progress.tutorialSeen) {
@@ -165,6 +169,7 @@ export function createGameApplication(options) {
       const previousScreen = session.flow.screen;
       if ((previousScreen === "title" && command.confirm === true)
         || (previousScreen === "stageSelect" && Number.isInteger(command.stageIndex))) {
+        session.difficulty = saveData.settings.difficulty;
         activateAudio();
       }
       updateGameSession(session, currentStage(), command);
