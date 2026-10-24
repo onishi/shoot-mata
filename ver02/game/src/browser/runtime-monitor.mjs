@@ -25,6 +25,7 @@ export function recordRuntimeFrame(monitor, frameTimeMs, droppedMs = 0) {
   if (!monitor || typeof monitor !== "object") throw new TypeError("monitor is required");
   if (!Number.isFinite(frameTimeMs) || frameTimeMs < 0) throw new TypeError("frameTimeMs must be non-negative");
   if (!Number.isFinite(droppedMs) || droppedMs < 0) throw new TypeError("droppedMs must be non-negative");
+  if (monitor.completed) return monitor.completed;
 
   if (monitor.previousFrameMs !== null) {
     const interval = frameTimeMs - monitor.previousFrameMs;

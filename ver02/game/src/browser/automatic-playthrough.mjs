@@ -190,23 +190,34 @@ export function createAutomaticPlaythrough(options = {}) {
 
 export function createAutomaticCampaignPlaythrough(options = {}) {
   const screenHoldTicks = options.screenHoldTicks ?? 30;
+  const targetCampaigns = options.targetCampaigns ?? 1;
   if (!Number.isInteger(screenHoldTicks) || screenHoldTicks < 0) {
     throw new TypeError("screenHoldTicks must be a non-negative integer");
   }
+  if (!Number.isInteger(targetCampaigns) || targetCampaigns < 1) {
+    throw new TypeError("targetCampaigns must be a positive integer");
+  }
   const milestones = new Set();
+  const completedCampaigns = [];
   let previousScreen = null;
   let screenAge = 0;
   let stopped = false;
   let failure = null;
+  let recordedCredits = false;
 
   function observe(session) {
+    if (session.flow.screen !== "credits") recordedCredits = false;
     if (session.flow.screen === "result" && session.lastRun) {
       milestones.add(`stage-${session.flow.stageIndex + 1}-clear`);
     }
     if (session.flow.screen === "ending") milestones.add("ending");
     if (session.flow.screen === "credits") {
       milestones.add("credits");
-      stopped = true;
+      if (!recordedCredits) {
+        completedCampaigns.push(cloneSnapshot(session.campaignRuns));
+        recordedCredits = true;
+      }
+      stopped = completedCampaigns.length >= targetCampaigns;
     }
     if (session.flow.screen === "gameOver") {
       failure = `stage ${session.flow.stageIndex + 1} ended in gameOver`;
@@ -225,12 +236,17 @@ export function createAutomaticCampaignPlaythrough(options = {}) {
     }
     if (stopped || screenAge < screenHoldTicks) return {};
     if (screen === "playing") return automaticCombatCommand(session.simulation);
-    if (["title", "tutorial", "stageIntro", "ending"].includes(screen)) return { confirm: true };
+    if (["title", "tutorial", "stageIntro", "ending", "credits"].includes(screen)) return { confirm: true };
     if (screen === "result") return { advance: true };
     return {};
   }
 
   function status(session) {
+    const campaignMatches = completedCampaigns.length < 2
+      ? null
+      : completedCampaigns.slice(1).every((campaign) => (
+        snapshotKey(campaign) === snapshotKey(completedCampaigns[0])
+      ));
     return Object.freeze({
       active: true,
       mode: "campaign",
@@ -239,8 +255,10 @@ export function createAutomaticCampaignPlaythrough(options = {}) {
       screen: session.flow.screen,
       attempt: session.flow.attempt,
       tick: session.simulation?.tick ?? session.lastRun?.tick ?? 0,
-      completedAttempts: session.campaignRuns.filter(Boolean).length,
-      replayMatches: null,
+      completedAttempts: completedCampaigns.length * 4 + (stopped ? 0 : session.campaignRuns.filter(Boolean).length),
+      completedCampaigns: completedCampaigns.length,
+      targetCampaigns,
+      replayMatches: campaignMatches,
       milestones: Object.freeze([...milestones]),
     });
   }

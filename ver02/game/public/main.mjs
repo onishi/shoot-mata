@@ -60,10 +60,17 @@ const qaStageIndex = Object.freeze({ stage01: 0, stage02: 1, stage03: 2, stage04
 const qaCampaign = query.get("qa") === "campaign";
 const qaFailureReview = query.get("qa") === "failure-review";
 const qaInputMode = ["keyboard", "touch"].includes(query.get("input")) ? query.get("input") : null;
+const requestedCampaignRuns = Number(query.get("runs") ?? 1);
+const qaCampaignRuns = Number.isInteger(requestedCampaignRuns) && requestedCampaignRuns >= 1 && requestedCampaignRuns <= 5
+  ? requestedCampaignRuns
+  : 1;
+const qaSilentAudio = qaCampaign && query.get("audio") === "silent";
 const qaSeeds = Object.freeze([20261022, 20261022, 20261023, 20261024]);
 const selectedStage = () => stages[session.flow.stageIndex ?? 0];
 
-const audio = createBrowserAudioAdapter();
+const audio = createBrowserAudioAdapter(qaSilentAudio
+  ? { createContext() { throw new Error("QA forced silent audio"); } }
+  : undefined);
 const application = createGameApplication({
   stages,
   saveRepository: createSaveRepository(),
@@ -80,7 +87,7 @@ const displaySettings = {
 };
 const qaEnabled = qaStageIndex !== null || qaCampaign || qaFailureReview;
 const qaDriver = qaCampaign
-  ? createAutomaticCampaignPlaythrough()
+  ? createAutomaticCampaignPlaythrough({ targetCampaigns: qaCampaignRuns })
   : qaFailureReview
     ? createAutomaticFailureReview()
     : qaStageIndex !== null
@@ -321,6 +328,8 @@ function syncQaStatus() {
   qaStatus.dataset.attempt = String(status.attempt);
   qaStatus.dataset.tick = String(status.tick);
   qaStatus.dataset.completedAttempts = String(status.completedAttempts);
+  qaStatus.dataset.completedCampaigns = String(status.completedCampaigns ?? 0);
+  qaStatus.dataset.targetCampaigns = String(status.targetCampaigns ?? 0);
   qaStatus.dataset.replayMatches = String(status.replayMatches);
   qaStatus.dataset.failure = status.failure ?? "";
   qaStatus.dataset.milestones = status.milestones.join(",");
@@ -334,7 +343,7 @@ function syncQaStatus() {
     ? `QA FAIL / ${status.failure}`
     : status.stopped
       ? status.mode === "campaign"
-        ? `QA PASS / ${status.completedAttempts} STAGES / ENDING + CREDITS${inputEvidence ? ` / ${inputEvidence.mode.toUpperCase()} INPUT` : ""}`
+        ? `QA PASS / ${status.completedCampaigns} CAMPAIGNS / ${status.completedAttempts} STAGES / ${status.replayMatches === null ? "SINGLE RUN" : `SAME SEED ${status.replayMatches ? "MATCH" : "MISMATCH"}`}${qaSilentAudio ? " / SILENT FALLBACK" : ""}${inputEvidence ? ` / ${inputEvidence.mode.toUpperCase()} INPUT` : ""}`
         : status.mode === "failure-review"
           ? `QA PASS / FAILURE REVIEW / ${status.milestones.join(" / ").toUpperCase()}`
         : `QA PASS / ${status.completedAttempts} RUNS / SAME SEED ${status.replayMatches ? "MATCH" : "MISMATCH"}`

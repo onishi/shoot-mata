@@ -13,6 +13,19 @@ test("TECH-05/07: fixed window reports fps, stalls, and dropped simulation time"
   assert.equal(monitor.completed.droppedMs, 2);
 });
 
+test("TECH-05/07: completed window is not changed by later inspection stalls", () => {
+  const monitor = createRuntimeMonitor({ sampleWindowMs: 1_000 });
+  for (let frame = 0; frame <= 60; frame += 1) {
+    recordRuntimeFrame(monitor, frame * (1_000 / 60));
+  }
+  const completed = monitor.completed;
+  recordRuntimeFrame(monitor, 10_000, 9_000);
+  assert.equal(monitor.completed, completed);
+  assert.equal(monitor.completed.longFrames, 0);
+  assert.equal(monitor.completed.droppedMs, 0);
+  assert.ok(monitor.completed.maxFrameMs < 17);
+});
+
 test("TECH-04/05: pause duration is excluded from the runtime sample", () => {
   const monitor = createRuntimeMonitor({ sampleWindowMs: 1_000 });
   for (let frame = 0; frame <= 30; frame += 1) recordRuntimeFrame(monitor, frame * (1_000 / 60));

@@ -1,5 +1,14 @@
 # 開発ログ
 
+## 2026-10-24 — 複数campaign・無音・resource・短時間性能を検証しPhase 08を完了
+
+- 目的: TECH-01/03/06/07として、完成4面を複数回通し、無音縮退、resource、console、容量、短時間性能を同じ製品経路で検証する。
+- 実装: QA限定の`runs=1..5`と`audio=silent`を追加した。campaign driverはcreditsからタイトルへ戻って次周を開始し、各周の4面結果を保存して同seed一致を判定する。Nodeで3 campaign・12面の結果一致を回帰テストへ固定した。
+- 不具合修正: 5秒窓のruntime monitorが完走まで値を累積し、検査中の停止もlong frameへ混入していた。完了した窓を固定し、後続の停止・dropで測定値が変わらないテストを追加した。
+- ブラウザ確認: Chrome `?qa=campaign&runs=3&audio=silent`で3 campaign・12面、ending、creditsを完走し、同seed結果一致。音声作成失敗の説明を保持して進行し、119.4fps、50ms超frame 0、最大24.0ms、simulation drop 0ms、63 resource、encoded 5,148,913 bytes、transfer 5,167,813 bytes、load event 202ms、外部origin 0、console warning/error 0、横overflow 0を記録した。
+- 自動確認: 製品テスト174件、再現build、静的監査、差分検査、依存監査に合格。build `phase08-alpha-runtime-20261024` は98 files・10,495,871 bytes / 16 MiB、静的外部URL 0、high以上の既知依存脆弱性0。
+- 判定: TECH-01/03/06とAV-06を`実装済み未検証`へ更新し、Phase 08の全完了条件に合格。検査範囲の重大な既知不具合は0。別ブラウザ、実端末、低性能・長時間性能、主観品質、Phase 10最終検収は未確認であり、製品完成扱いにはしない。次はPhase 09計画を作りポリッシュとベータ検証へ進む。
+
 ## 2026-10-24 — 3画面条件・入力・アクセシビリティ・フルスクリーンを再検証
 
 - 目的: UX-01/05/06/07、INP-01/02/04、A11Y-01/04として、主要画面と操作をPC・縦長・横長、キーボード・Pointer Events、フルスクリーン異常系で再検証する。

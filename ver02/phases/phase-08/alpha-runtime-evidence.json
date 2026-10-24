@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-24",
+  "buildId": "phase08-alpha-runtime-20261024",
+  "browser": {
+    "name": "Chrome",
+    "platform": "macOS",
+    "url": "http://127.0.0.1:4173/game/public/index.html?qa=campaign&runs=3&audio=silent",
+    "viewport": {
+      "width": 1568,
+      "horizontalOverflowPx": 0
+    }
+  },
+  "campaign": {
+    "completedCampaigns": 3,
+    "completedStages": 12,
+    "sameSeedResultMatch": true,
+    "finalScreen": "credits",
+    "failure": null,
+    "milestones": [
+      "stage-1-clear",
+      "stage-2-clear",
+      "stage-3-clear",
+      "stage-4-clear",
+      "ending",
+      "credits"
+    ]
+  },
+  "degradedMode": {
+    "injection": "AudioContext creation failure",
+    "warning": "音声を開始できません。無音のままプレイできます。",
+    "completed": true
+  },
+  "runtimeWindow": {
+    "durationMs": 5000,
+    "fps": 119.4,
+    "longFramesOver50Ms": 0,
+    "maxFrameMs": 24.0,
+    "simulationDroppedMs": 0.0,
+    "heapStartBytes": 11240199,
+    "heapEndBytes": 7592597
+  },
+  "resources": {
+    "count": 63,
+    "encodedBytes": 5148913,
+    "transferBytes": 5167813,
+    "loadEventMs": 202,
+    "externalOrigins": []
+  },
+  "console": {
+    "warnings": 0,
+    "errors": 0
+  },
+  "artifact": {
+    "files": 98,
+    "bytes": 10495871,
+    "budgetBytes": 16777216,
+    "externalUrls": 0,
+    "knownHighSeverityDependencyVulnerabilities": 0
+  },
+  "limits": [
+    "Chrome以外のブラウザと実iOS・実Android端末は未確認",
+    "低性能端末と長時間連続実行はPhase 09で確認",
+    "楽しさ、操作感、聴感などの主観品質は未評価"
+  ]
+}

@@ -177,7 +177,41 @@ test("LOOP-01/05/TECH-03: browser用自動入力で4面からendingとcreditsま
   assert.equal(status.failure, null);
   assert.equal(status.screen, "credits");
   assert.equal(status.completedAttempts, 4);
+  assert.equal(status.completedCampaigns, 1);
+  assert.equal(status.replayMatches, null);
   assert.deepEqual(status.milestones, [
     "stage-1-clear", "stage-2-clear", "stage-3-clear", "stage-4-clear", "ending", "credits",
   ]);
+});
+
+test("TECH-03: browser用自動入力で同seedのcampaignを3回完走して結果一致を検査する", () => {
+  const stages = [
+    STAGE_01_ORBITAL_WRECK,
+    STAGE_02_CLOUD_REFINERY,
+    STAGE_03_LIVING_ARK,
+    STAGE_04_STELLAR_FURNACE,
+  ];
+  const seeds = [20261022, 20261022, 20261023, 20261024];
+  const session = createGameSession({ seed: seeds[0] });
+  const driver = createAutomaticCampaignPlaythrough({ screenHoldTicks: 0, targetCampaigns: 3 });
+  let updates = 0;
+  while (!driver.status(session).stopped && updates < 60_000) {
+    const stageIndex = session.flow.stageIndex ?? 0;
+    session.seed = seeds[stageIndex];
+    updateGameSession(session, stages[stageIndex], driver.nextCommand(session));
+    driver.observe(session);
+    updates += 1;
+  }
+  const status = driver.status(session);
+  assert.ok(updates < 60_000);
+  assert.equal(status.failure, null);
+  assert.equal(status.screen, "credits");
+  assert.equal(status.completedAttempts, 12);
+  assert.equal(status.completedCampaigns, 3);
+  assert.equal(status.targetCampaigns, 3);
+  assert.equal(status.replayMatches, true);
+});
+
+test("campaign QA driverは不正な反復回数を拒否する", () => {
+  assert.throws(() => createAutomaticCampaignPlaythrough({ targetCampaigns: 0 }), /targetCampaigns/);
 });
