@@ -71,8 +71,8 @@
       "platform": "macOS 26.6.2 arm64",
       "environment": "desktop",
       "status": "not-run",
-      "reason": "Safariはインストール済みだが、今回のcomputer-use環境からSafari操作が承認されず、固定RCの実操作を開始できなかった。",
-      "notes": "未確認。WebKit互換性から推定合格しない。"
+      "reason": "Safariはインストール済みだが、computer-use環境からのSafari操作が承認されず、公式safaridriverも永続的な認証省略設定を必要とするためセキュリティ承認されず、固定RCの実操作を開始できなかった。",
+      "notes": "未確認。WebKit互換性から推定合格せず、認証設定の迂回も行わない。"
     },
     {
       "id": "ios-safari-device",

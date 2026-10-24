@@ -34,11 +34,17 @@ export async function auditAcceptanceEvidence({ registry, acceptanceRows, rootDi
   if (registry?.buildId !== expectedBuildId) failures.push(`buildId must be ${expectedBuildId}`);
   if (!nonEmptyString(registry?.recordedOn)) failures.push("recordedOn is required");
   if (!nonEmptyString(registry?.scope)) failures.push("scope is required");
-  if (registry?.accepted !== false) failures.push("accepted must remain false until every acceptance row passes");
+  if (typeof registry?.accepted !== "boolean") failures.push("accepted must be a boolean");
 
   const phase10Ids = acceptanceRows
     .filter(({ finalVerification }) => finalVerification.split(",").map((value) => value.trim()).includes("P10"))
     .map(({ id }) => id);
+  const allPhase10RowsPass = acceptanceRows
+    .filter(({ finalVerification }) => finalVerification.split(",").map((value) => value.trim()).includes("P10"))
+    .every(({ state }) => state === "合格");
+  if (registry?.accepted === true && !allPhase10RowsPass) {
+    failures.push("accepted cannot be true while a Phase 10 acceptance row is non-passing");
+  }
   const deferredIds = acceptanceRows
     .filter(({ finalVerification }) => !finalVerification.split(",").map((value) => value.trim()).includes("P10"))
     .map(({ id }) => id);

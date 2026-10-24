@@ -59,3 +59,55 @@ test("Phase 10 gate rejects stale requirement and browser blocker snapshots", as
   assert.match(result.failures.join("\n"), /nonPassingRequirementIds must exactly match/);
   assert.match(result.failures.join("\n"), /nonPassingBrowserTargetIds must exactly match/);
 });
+
+test("Phase 10 gate has a valid transition to accepted after every required condition passes", async () => {
+  const inputs = await checkedInInputs();
+  inputs.acceptanceRows = inputs.acceptanceRows.map((row) => (
+    row.finalVerification.split(",").map((value) => value.trim()).includes("P10")
+      ? { ...row, state: "合格" }
+      : row
+  ));
+  inputs.compatibility = structuredClone(inputs.compatibility);
+  inputs.compatibility.targets = inputs.compatibility.targets.map((target) => ({
+    ...target,
+    status: "pass",
+    version: target.version.startsWith("n/a") ? "fixture-version" : target.version,
+    notes: "fixture pass evidence",
+    evidence: {
+      viewports: ["fixture-viewport"],
+      inputModes: ["fixture-input"],
+      checks: {
+        loaded: true,
+        primaryFlow: true,
+        pauseResume: true,
+        noHorizontalOverflow: true,
+        noConsoleErrors: true,
+        noMissingResources: true,
+        noExternalOrigins: true,
+      },
+    },
+  }));
+  inputs.releaseCandidate = { ...inputs.releaseCandidate, status: "accepted", accepted: true };
+  inputs.evidenceRegistry = { ...inputs.evidenceRegistry, accepted: true };
+  inputs.gate = structuredClone(inputs.gate);
+  inputs.gate.acceptance.nonPassingRequirementIds = [];
+  inputs.gate.acceptance.nonPassingBrowserTargetIds = [];
+  inputs.gate.acceptance.nonPassingRealMobileTargetIds = [];
+  inputs.gate.acceptance.physicalLowPerformancePassed = true;
+  inputs.gate.decision = {
+    allPhase10RequirementsPass: true,
+    allRequiredBrowsersPass: true,
+    bothRealMobileTargetsPass: true,
+    physicalLowPerformancePass: true,
+    noCriticalOrMajorDefects: true,
+    accepted: true,
+    reason: "fixture: every required condition passed",
+  };
+
+  const result = auditFinalAcceptance(inputs);
+  assert.equal(result.valid, true, result.failures.join("\n"));
+  assert.equal(result.nonPassingRequirementIds.length, 0);
+  assert.equal(result.nonPassingBrowserTargetIds.length, 0);
+  assert.equal(result.physicalLowPerformancePassed, true);
+  assert.equal(result.decision.accepted, true);
+});

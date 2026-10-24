@@ -71,4 +71,8 @@ OpenAI Terms of Useは2026-01-01発効版、Service Termsは2026-10-16更新版�
 
 `final-acceptance.json`と`audit:final-acceptance`を追加し、受け入れ表、固定RC、証拠台帳、環境別記録を単一のfail-closed判定へ接続した。監査はP10対象とP11以降対象を再導出し、非合格要件、未合格の必須ブラウザ、実モバイル2対象、物理低性能端末、critical／major既知不具合を全て判定する。blocker一覧が実文書からずれた場合や、一部artifactだけが`accepted: true`へ進んだ場合は失敗する。
 
-2026-10-25時点では、P10対象67件がまだ受け入れ表で非合格、必須6対象中5対象、実モバイル2対象、物理低性能端末が未合格であるため、判定は`accepted: false`である。全203テストと`npm run verify`は合格したが、これは未確認環境を閉じず、Phase 10完了を意味しない。Safariは同日に再試行したもののComputer Use承認前に拒否され、`not-run`を維持した。
+2026-10-25時点では、P10対象67件がまだ受け入れ表で非合格、必須6対象中5対象、実モバイル2対象、物理低性能端末が未合格であるため、判定は`accepted: false`である。全205テストと`npm run verify`は合格したが、これは未確認環境を閉じず、Phase 10完了を意味しない。SafariはComputer Useが承認されず、公式`safaridriver`も永続的な認証省略設定を必要とするためセキュリティ承認されなかった。設定を迂回せず`not-run`を維持した。
+
+## 完了した受け入れ状態遷移の修正
+
+証拠台帳監査とrelease candidate監査が`accepted: false`を常時強制する一方、最終検収監査は全条件合格時に同じartifactへ`accepted: true`を要求しており、Phase 10を将来も完了できない矛盾があった。各監査を、現在の未達状態は拒否しつつ、P10対象行が全件合格した場合だけ証拠台帳の合格遷移を許可し、release candidateの合格状態を最終検収ゲートへ委ねる形へ修正した。全要件、必須ブラウザ、実モバイル、物理低性能端末、重大不具合0が揃ったfixtureで`accepted: true`へ遷移できる回帰テストを追加した。全205テストと`npm run verify`に合格し、現在の実データは引き続き`accepted: false`である。

@@ -24,6 +24,6 @@ test("Phase 10 release candidate identity matches a fresh reproducible build", a
   assert.equal(manifest.totalBytes, candidate.manifest.totalBytes);
   assert.ok(manifest.totalBytes <= candidate.manifest.budgetBytes);
   assert.equal(manifestSha256, candidate.manifest.sha256);
-  assert.equal(candidate.status, "candidate");
-  assert.equal(candidate.accepted, false);
+  assert.equal(typeof candidate.accepted, "boolean");
+  assert.equal(candidate.status, candidate.accepted ? "accepted" : "candidate");
 });

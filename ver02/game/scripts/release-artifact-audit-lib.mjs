@@ -107,7 +107,8 @@ export async function auditReleaseArtifact() {
   assert(evidence.rights.serviceTerms.updated === "2026-10-16", "Service Terms update date not recorded", failures);
   assert(evidence.rights.residualRisk === "generated-output-non-uniqueness-and-non-infringement-not-guaranteed", "rights residual risk was removed", failures);
   assert(evidence.status === "pass", "release artifact audit is not recorded as pass", failures);
-  assert(evidence.accepted === false && candidate.accepted === false, "artifact audit must not accept the full release candidate", failures);
+  assert(evidence.accepted === false, "artifact audit must not decide full release-candidate acceptance", failures);
+  assert(typeof candidate.accepted === "boolean", "release candidate accepted must be a boolean", failures);
 
   return {
     failures,

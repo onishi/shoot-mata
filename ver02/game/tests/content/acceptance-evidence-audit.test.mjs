@@ -66,3 +66,43 @@ test("Phase 10 evidence registry fails closed for missing, duplicate, escaping, 
   assert.match(result.failures.join("\n"), /artifact path escapes ver02/);
   assert.match(result.failures.join("\n"), /circular requirement document is not evidence/);
 });
+
+test("Phase 10 evidence registry permits acceptance only after every in-scope row passes", async () => {
+  const artifactPath = "game/tests/content/acceptance-evidence-audit.test.mjs";
+  const registry = {
+    schemaVersion: 1,
+    buildId: "phase10-rc1-20261024",
+    recordedOn: "2026-10-25",
+    scope: "transition fixture",
+    accepted: true,
+    deferredRequirementIds: ["REL-04"],
+    evidenceSets: [{
+      id: "transition",
+      requirementIds: ["CORE-01"],
+      summary: "fixture",
+      limitations: "fixture",
+      artifacts: [{ path: artifactPath, kind: "automated-test" }],
+    }],
+  };
+  const passingRows = [
+    { id: "CORE-01", finalVerification: "P10", state: "合格" },
+    { id: "REL-04", finalVerification: "P11", state: "未着手" },
+  ];
+
+  const passing = await auditAcceptanceEvidence({
+    registry,
+    acceptanceRows: passingRows,
+    rootDir: fileURLToPath(rootUrl),
+    expectedBuildId: "phase10-rc1-20261024",
+  });
+  assert.equal(passing.valid, true, passing.failures.join("\n"));
+
+  const nonPassing = await auditAcceptanceEvidence({
+    registry,
+    acceptanceRows: passingRows.map((row) => row.id === "CORE-01" ? { ...row, state: "実装済み未検証" } : row),
+    rootDir: fileURLToPath(rootUrl),
+    expectedBuildId: "phase10-rc1-20261024",
+  });
+  assert.equal(nonPassing.valid, false);
+  assert.match(nonPassing.failures.join("\n"), /accepted cannot be true while a Phase 10 acceptance row is non-passing/);
+});

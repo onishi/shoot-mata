@@ -32,7 +32,7 @@
   "knownDefects": {
     "critical": [],
     "major": [],
-    "scope": "固定RCに対する200自動テスト、静的・証拠・素材・依存監査、Chrome desktopの観測範囲。未確認環境は欠陥0の根拠へ含めない。"
+    "scope": "固定RCに対する205自動テスト、静的・証拠・素材・依存監査、Chrome desktopの観測範囲。未確認環境は欠陥0の根拠へ含めない。"
   },
   "decision": {
     "allPhase10RequirementsPass": false,
@@ -41,6 +41,6 @@
     "physicalLowPerformancePass": false,
     "noCriticalOrMajorDefects": true,
     "accepted": false,
-    "reason": "Phase 10対象67行はまだ合格へ更新されておらず、必須ブラウザ5対象、実モバイル2対象、物理低性能端末の固定RC証拠がない。Safari再試行もComputer Use承認前に拒否されたため、推定合格せずPhase 10を継続する。"
+    "reason": "Phase 10対象67行はまだ合格へ更新されておらず、必須ブラウザ5対象、実モバイル2対象、物理低性能端末の固定RC証拠がない。SafariはComputer Useが承認されず、公式WebDriverの永続的な認証省略設定もセキュリティ承認されなかったため、推定合格せずPhase 10を継続する。"
   }
 }

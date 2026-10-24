@@ -1,5 +1,15 @@
 # 開発ログ
 
+## 2026-10-25 — Phase 10の合格状態遷移を到達可能に修正
+
+- 目的: 未達時にfail-closedであるだけでなく、全条件が揃ったときに最終検収を正しく完了できることを保証する。
+- 原因: 証拠台帳監査とrelease candidate関連監査が`accepted: false`を常時強制する一方、最終検収監査は全条件合格時に同じartifactへ`accepted: true`を要求していたため、合格状態が到達不能だった。
+- 修正: 証拠台帳はbooleanを必須とし、P10対象行に非合格が残る間の`true`だけを拒否する。release artifact監査は固定成果物のscope合格と製品全体の合格判断を分離し、release candidateのboolean状態を最終検収ゲートへ委ねた。
+- 回帰: 全要件、必須ブラウザ6対象、実モバイル2対象、物理低性能端末、critical／major 0件を満たすfixtureを追加し、`accepted: true`へ遷移できることを検査した。未達状態の先行合格と陳腐化blockerは引き続き拒否する。
+- 環境: SafariはComputer Useが承認されず、公式`safaridriver`も永続的な認証省略設定を必要とするためセキュリティ承認されなかった。迂回せず`not-run`を維持した。Android実機は接続0件だった。
+- 検査: 全205テスト、固定RCの100 files・10,526,479 bytes再現build、静的監査、70行の受け入れID監査、67/67件の証拠監査、最終検収監査、release artifact監査、依存監査に合格した。
+- 判定: 現在の実データはP10対象67件、必須ブラウザ5対象、実モバイル2対象、物理低性能端末が未合格で`accepted: false`。Phase 10を継続する。
+
 ## 2026-10-25 — Phase 10最終検収ゲートをfail-closed化
 
 - 目的: 受け入れ行、固定RC、証拠台帳、ブラウザ・実端末記録が別々に更新されても、未確認を残したまま`accepted: true`へ進めない単一判定を作る。
