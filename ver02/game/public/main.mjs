@@ -369,6 +369,7 @@ function createView() {
     actors: snapshot.actors,
     projectiles: snapshot.projectiles,
     effects: snapshot.effects,
+    hazardWarnings: snapshot.hazardWarnings,
     transition: snapshot.transition,
   });
 }

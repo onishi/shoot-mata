@@ -52,6 +52,26 @@ test("reduced motion freezes parallax without removing visual layers", () => {
   assert.equal(view.display.highContrast, true);
 });
 
+test("PROG-06/A11Y-03: 危険予告を非色記号と読み上げ要約へ変換する", () => {
+  const view = createStageViewModel({
+    stage: PHASE05_TEST_STAGE,
+    tick: 570,
+    hazardWarnings: [{
+      hazardId: "wreck-compression",
+      behaviorId: "closing-corridor",
+      ticksUntilActive: 30,
+    }],
+  });
+  assert.deepEqual(view.hazardWarnings[0], {
+    hazardId: "wreck-compression",
+    behaviorId: "closing-corridor",
+    ticksUntilActive: 30,
+    symbol: "↕",
+    label: "圧縮通路",
+  });
+  assert.match(view.accessibleSummary, /危険予告 圧縮通路/);
+});
+
 test("CORE-05: 無武装HUDは成長前のLv0を表示できる", () => {
   const view = createStageViewModel({
     stage: PHASE05_TEST_STAGE,

@@ -1,0 +1,1257 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-24",
+  "scope": {
+    "objective": "telegraph coverage, staged mechanic introduction, deterministic hit distribution, and finale weapon decisions",
+    "limitation": "stage-aware deterministic automation measures repeatable exposure, not human surprise or subjective difficulty"
+  },
+  "seeds": [
+    20261008,
+    20261015,
+    20261021
+  ],
+  "thresholds": {
+    "telegraphTicks": 90,
+    "minimumIntroductionGapTicks": 90,
+    "maximumSimultaneousIntroductions": 2
+  },
+  "stages": [
+    {
+      "stageId": "stage-01-orbital-wreck",
+      "introductions": {
+        "enemies": [
+          {
+            "tick": 240,
+            "entries": [
+              {
+                "kind": "enemy",
+                "behaviorId": "drift-left",
+                "startTick": 240,
+                "sectionId": "salvage-crossfire"
+              }
+            ]
+          },
+          {
+            "tick": 760,
+            "entries": [
+              {
+                "kind": "enemy",
+                "behaviorId": "sine-left",
+                "startTick": 760,
+                "sectionId": "salvage-crossfire"
+              }
+            ]
+          },
+          {
+            "tick": 1220,
+            "entries": [
+              {
+                "kind": "enemy",
+                "behaviorId": "armored-drift",
+                "startTick": 1220,
+                "sectionId": "salvage-crossfire"
+              }
+            ]
+          }
+        ],
+        "hazards": [
+          {
+            "tick": 1500,
+            "entries": [
+              {
+                "kind": "hazard",
+                "behaviorId": "closing-corridor",
+                "startTick": 1500,
+                "sectionId": "closing-wreck"
+              }
+            ]
+          }
+        ],
+        "all": [
+          {
+            "tick": 240,
+            "entries": [
+              {
+                "kind": "enemy",
+                "behaviorId": "drift-left",
+                "startTick": 240,
+                "sectionId": "salvage-crossfire"
+              }
+            ]
+          },
+          {
+            "tick": 760,
+            "entries": [
+              {
+                "kind": "enemy",
+                "behaviorId": "sine-left",
+                "startTick": 760,
+                "sectionId": "salvage-crossfire"
+              }
+            ]
+          },
+          {
+            "tick": 1220,
+            "entries": [
+              {
+                "kind": "enemy",
+                "behaviorId": "armored-drift",
+                "startTick": 1220,
+                "sectionId": "salvage-crossfire"
+              }
+            ]
+          },
+          {
+            "tick": 1500,
+            "entries": [
+              {
+                "kind": "hazard",
+                "behaviorId": "closing-corridor",
+                "startTick": 1500,
+                "sectionId": "closing-wreck"
+              }
+            ]
+          }
+        ]
+      },
+      "runs": [
+        {
+          "seed": 20261008,
+          "status": "cleared",
+          "clearTick": 2988,
+          "hitsTaken": 1,
+          "hitsBySection": {
+            "silent-approach": 0,
+            "salvage-crossfire": 0,
+            "closing-wreck": 0,
+            "wreck-warden": 1
+          },
+          "hitsByVerticalBand": {
+            "upper": 0,
+            "middle": 0,
+            "lower": 1
+          },
+          "telegraphs": [
+            {
+              "hazardId": "wreck-compression",
+              "behaviorId": "closing-corridor",
+              "tick": 1410,
+              "leadTicks": 90
+            }
+          ],
+          "weaponShots": {
+            "red-lv1": 97,
+            "blue-lv2": 45,
+            "yellow-lv2": 81,
+            "yellow-lv1": 99,
+            "blue-lv1": 15
+          },
+          "weaponBuilds": [
+            "blue-lv2",
+            "red-lv1",
+            "yellow-lv1",
+            "yellow-lv2"
+          ],
+          "exchanges": 4
+        },
+        {
+          "seed": 20261015,
+          "status": "cleared",
+          "clearTick": 2953,
+          "hitsTaken": 1,
+          "hitsBySection": {
+            "silent-approach": 0,
+            "salvage-crossfire": 0,
+            "closing-wreck": 0,
+            "wreck-warden": 1
+          },
+          "hitsByVerticalBand": {
+            "upper": 0,
+            "middle": 0,
+            "lower": 1
+          },
+          "telegraphs": [
+            {
+              "hazardId": "wreck-compression",
+              "behaviorId": "closing-corridor",
+              "tick": 1410,
+              "leadTicks": 90
+            }
+          ],
+          "weaponShots": {
+            "red-lv1": 100,
+            "red-lv2": 8,
+            "blue-lv1": 25,
+            "yellow-lv3": 30,
+            "yellow-lv2": 165,
+            "yellow-lv1": 10
+          },
+          "weaponBuilds": [
+            "blue-lv1",
+            "red-lv1",
+            "red-lv2",
+            "yellow-lv2",
+            "yellow-lv3"
+          ],
+          "exchanges": 8
+        },
+        {
+          "seed": 20261021,
+          "status": "cleared",
+          "clearTick": 2996,
+          "hitsTaken": 2,
+          "hitsBySection": {
+            "silent-approach": 0,
+            "salvage-crossfire": 0,
+            "closing-wreck": 0,
+            "wreck-warden": 2
+          },
+          "hitsByVerticalBand": {
+            "upper": 1,
+            "middle": 1,
+            "lower": 0
+          },
+          "telegraphs": [
+            {
+              "hazardId": "wreck-compression",
+              "behaviorId": "closing-corridor",
+              "tick": 1410,
+              "leadTicks": 90
+            }
+          ],
+          "weaponShots": {
+            "red-lv1": 108,
+            "blue-lv1": 24,
+            "yellow-lv2": 82,
+            "yellow-lv1": 24,
+            "yellow-lv3": 105
+          },
+          "weaponBuilds": [
+            "blue-lv1",
+            "red-lv1",
+            "yellow-lv1",
+            "yellow-lv2",
+            "yellow-lv3"
+          ],
+          "exchanges": 7
+        }
+      ],
+      "sectionHits": {
+        "total": 4,
+        "counts": {
+          "silent-approach": 0,
+          "salvage-crossfire": 0,
+          "closing-wreck": 0,
+          "wreck-warden": 4
+        },
+        "hotspot": {
+          "key": "wreck-warden",
+          "count": 4,
+          "share": 1
+        }
+      },
+      "verticalBandHits": {
+        "total": 4,
+        "counts": {
+          "upper": 1,
+          "middle": 1,
+          "lower": 2
+        },
+        "hotspot": {
+          "key": "lower",
+          "count": 2,
+          "share": 0.5
+        }
+      }
+    },
+    {
+      "stageId": "stage-02-cloud-refinery",
+      "introductions": {
+        "enemies": [
+          {
+            "tick": 240,
+            "entries": [
+              {
+                "kind": "enemy",
+                "behaviorId": "current-rider",
+                "startTick": 240,
+                "sectionId": "refinery-approach"
+              }
+            ]
+          },
+          {
+            "tick": 760,
+            "entries": [
+              {
+                "kind": "enemy",
+                "behaviorId": "cover-turret",
+                "startTick": 760,
+                "sectionId": "refinery-approach"
+              }
+            ]
+          },
+          {
+            "tick": 1180,
+            "entries": [
+              {
+                "kind": "enemy",
+                "behaviorId": "dive-striker",
+                "startTick": 1180,
+                "sectionId": "refinery-approach"
+              }
+            ]
+          }
+        ],
+        "hazards": [
+          {
+            "tick": 1500,
+            "entries": [
+              {
+                "kind": "hazard",
+                "behaviorId": "alternating-current",
+                "startTick": 1500,
+                "sectionId": "charged-shutters"
+              }
+            ]
+          },
+          {
+            "tick": 1620,
+            "entries": [
+              {
+                "kind": "hazard",
+                "behaviorId": "shutter-cover",
+                "startTick": 1620,
+                "sectionId": "charged-shutters"
+              }
+            ]
+          },
+          {
+            "tick": 1740,
+            "entries": [
+              {
+                "kind": "hazard",
+                "behaviorId": "charged-cloud",
+                "startTick": 1740,
+                "sectionId": "charged-shutters"
+              }
+            ]
+          }
+        ],
+        "all": [
+          {
+            "tick": 240,
+            "entries": [
+              {
+                "kind": "enemy",
+                "behaviorId": "current-rider",
+                "startTick": 240,
+                "sectionId": "refinery-approach"
+              }
+            ]
+          },
+          {
+            "tick": 760,
+            "entries": [
+              {
+                "kind": "enemy",
+                "behaviorId": "cover-turret",
+                "startTick": 760,
+                "sectionId": "refinery-approach"
+              }
+            ]
+          },
+          {
+            "tick": 1180,
+            "entries": [
+              {
+                "kind": "enemy",
+                "behaviorId": "dive-striker",
+                "startTick": 1180,
+                "sectionId": "refinery-approach"
+              }
+            ]
+          },
+          {
+            "tick": 1500,
+            "entries": [
+              {
+                "kind": "hazard",
+                "behaviorId": "alternating-current",
+                "startTick": 1500,
+                "sectionId": "charged-shutters"
+              }
+            ]
+          },
+          {
+            "tick": 1620,
+            "entries": [
+              {
+                "kind": "hazard",
+                "behaviorId": "shutter-cover",
+                "startTick": 1620,
+                "sectionId": "charged-shutters"
+              }
+            ]
+          },
+          {
+            "tick": 1740,
+            "entries": [
+              {
+                "kind": "hazard",
+                "behaviorId": "charged-cloud",
+                "startTick": 1740,
+                "sectionId": "charged-shutters"
+              }
+            ]
+          }
+        ]
+      },
+      "runs": [
+        {
+          "seed": 20261008,
+          "status": "cleared",
+          "clearTick": 3086,
+          "hitsTaken": 3,
+          "hitsBySection": {
+            "cloud-descent": 0,
+            "refinery-approach": 0,
+            "charged-shutters": 1,
+            "refinery-guardian": 2
+          },
+          "hitsByVerticalBand": {
+            "upper": 1,
+            "middle": 0,
+            "lower": 2
+          },
+          "telegraphs": [
+            {
+              "hazardId": "tower-current",
+              "behaviorId": "alternating-current",
+              "tick": 1410,
+              "leadTicks": 90
+            },
+            {
+              "hazardId": "tower-shutters",
+              "behaviorId": "shutter-cover",
+              "tick": 1530,
+              "leadTicks": 90
+            },
+            {
+              "hazardId": "charged-cloud-bank",
+              "behaviorId": "charged-cloud",
+              "tick": 1650,
+              "leadTicks": 90
+            }
+          ],
+          "weaponShots": {
+            "red-lv1": 84,
+            "yellow-lv3": 209,
+            "yellow-lv2": 57,
+            "yellow-lv1": 3
+          },
+          "weaponBuilds": [
+            "red-lv1",
+            "yellow-lv3"
+          ],
+          "exchanges": 2
+        },
+        {
+          "seed": 20261015,
+          "status": "cleared",
+          "clearTick": 3085,
+          "hitsTaken": 3,
+          "hitsBySection": {
+            "cloud-descent": 0,
+            "refinery-approach": 0,
+            "charged-shutters": 1,
+            "refinery-guardian": 2
+          },
+          "hitsByVerticalBand": {
+            "upper": 1,
+            "middle": 0,
+            "lower": 2
+          },
+          "telegraphs": [
+            {
+              "hazardId": "tower-current",
+              "behaviorId": "alternating-current",
+              "tick": 1410,
+              "leadTicks": 90
+            },
+            {
+              "hazardId": "tower-shutters",
+              "behaviorId": "shutter-cover",
+              "tick": 1530,
+              "leadTicks": 90
+            },
+            {
+              "hazardId": "charged-cloud-bank",
+              "behaviorId": "charged-cloud",
+              "tick": 1650,
+              "leadTicks": 90
+            }
+          ],
+          "weaponShots": {
+            "red-lv1": 70,
+            "blue-lv1": 12,
+            "yellow-lv3": 181,
+            "yellow-lv2": 84,
+            "yellow-lv1": 3
+          },
+          "weaponBuilds": [
+            "blue-lv1",
+            "red-lv1",
+            "yellow-lv3"
+          ],
+          "exchanges": 3
+        },
+        {
+          "seed": 20261021,
+          "status": "cleared",
+          "clearTick": 3104,
+          "hitsTaken": 4,
+          "hitsBySection": {
+            "cloud-descent": 0,
+            "refinery-approach": 0,
+            "charged-shutters": 2,
+            "refinery-guardian": 2
+          },
+          "hitsByVerticalBand": {
+            "upper": 1,
+            "middle": 1,
+            "lower": 2
+          },
+          "telegraphs": [
+            {
+              "hazardId": "tower-current",
+              "behaviorId": "alternating-current",
+              "tick": 1410,
+              "leadTicks": 90
+            },
+            {
+              "hazardId": "tower-shutters",
+              "behaviorId": "shutter-cover",
+              "tick": 1530,
+              "leadTicks": 90
+            },
+            {
+              "hazardId": "charged-cloud-bank",
+              "behaviorId": "charged-cloud",
+              "tick": 1650,
+              "leadTicks": 90
+            }
+          ],
+          "weaponShots": {
+            "red-lv1": 78,
+            "yellow-lv2": 145,
+            "blue-lv1": 32,
+            "yellow-lv1": 96
+          },
+          "weaponBuilds": [
+            "red-lv1",
+            "yellow-lv1",
+            "yellow-lv2"
+          ],
+          "exchanges": 1
+        }
+      ],
+      "sectionHits": {
+        "total": 10,
+        "counts": {
+          "cloud-descent": 0,
+          "refinery-approach": 0,
+          "charged-shutters": 4,
+          "refinery-guardian": 6
+        },
+        "hotspot": {
+          "key": "refinery-guardian",
+          "count": 6,
+          "share": 0.6
+        }
+      },
+      "verticalBandHits": {
+        "total": 10,
+        "counts": {
+          "upper": 3,
+          "middle": 1,
+          "lower": 6
+        },
+        "hotspot": {
+          "key": "lower",
+          "count": 6,
+          "share": 0.6
+        }
+      }
+    },
+    {
+      "stageId": "stage-03-living-ark",
+      "introductions": {
+        "enemies": [
+          {
+            "tick": 240,
+            "entries": [
+              {
+                "kind": "enemy",
+                "behaviorId": "regenerating-swarm",
+                "startTick": 240,
+                "sectionId": "brood-canals"
+              }
+            ]
+          },
+          {
+            "tick": 780,
+            "entries": [
+              {
+                "kind": "enemy",
+                "behaviorId": "parasite-turret",
+                "startTick": 780,
+                "sectionId": "brood-canals"
+              }
+            ]
+          },
+          {
+            "tick": 1210,
+            "entries": [
+              {
+                "kind": "enemy",
+                "behaviorId": "stalking-predator",
+                "startTick": 1210,
+                "sectionId": "brood-canals"
+              }
+            ]
+          }
+        ],
+        "hazards": [
+          {
+            "tick": 1560,
+            "entries": [
+              {
+                "kind": "hazard",
+                "behaviorId": "reactive-tissue",
+                "startTick": 1560,
+                "sectionId": "contracting-organs"
+              }
+            ]
+          },
+          {
+            "tick": 1680,
+            "entries": [
+              {
+                "kind": "hazard",
+                "behaviorId": "growth-source",
+                "startTick": 1680,
+                "sectionId": "contracting-organs"
+              }
+            ]
+          },
+          {
+            "tick": 1800,
+            "entries": [
+              {
+                "kind": "hazard",
+                "behaviorId": "contracting-tissue",
+                "startTick": 1800,
+                "sectionId": "contracting-organs"
+              }
+            ]
+          }
+        ],
+        "all": [
+          {
+            "tick": 240,
+            "entries": [
+              {
+                "kind": "enemy",
+                "behaviorId": "regenerating-swarm",
+                "startTick": 240,
+                "sectionId": "brood-canals"
+              }
+            ]
+          },
+          {
+            "tick": 780,
+            "entries": [
+              {
+                "kind": "enemy",
+                "behaviorId": "parasite-turret",
+                "startTick": 780,
+                "sectionId": "brood-canals"
+              }
+            ]
+          },
+          {
+            "tick": 1210,
+            "entries": [
+              {
+                "kind": "enemy",
+                "behaviorId": "stalking-predator",
+                "startTick": 1210,
+                "sectionId": "brood-canals"
+              }
+            ]
+          },
+          {
+            "tick": 1560,
+            "entries": [
+              {
+                "kind": "hazard",
+                "behaviorId": "reactive-tissue",
+                "startTick": 1560,
+                "sectionId": "contracting-organs"
+              }
+            ]
+          },
+          {
+            "tick": 1680,
+            "entries": [
+              {
+                "kind": "hazard",
+                "behaviorId": "growth-source",
+                "startTick": 1680,
+                "sectionId": "contracting-organs"
+              }
+            ]
+          },
+          {
+            "tick": 1800,
+            "entries": [
+              {
+                "kind": "hazard",
+                "behaviorId": "contracting-tissue",
+                "startTick": 1800,
+                "sectionId": "contracting-organs"
+              }
+            ]
+          }
+        ]
+      },
+      "runs": [
+        {
+          "seed": 20261008,
+          "status": "cleared",
+          "clearTick": 3164,
+          "hitsTaken": 2,
+          "hitsBySection": {
+            "outer-membrane": 0,
+            "brood-canals": 0,
+            "contracting-organs": 1,
+            "ark-core": 1
+          },
+          "hitsByVerticalBand": {
+            "upper": 0,
+            "middle": 2,
+            "lower": 0
+          },
+          "telegraphs": [
+            {
+              "hazardId": "living-gate",
+              "behaviorId": "reactive-tissue",
+              "tick": 1470,
+              "leadTicks": 90
+            },
+            {
+              "hazardId": "brood-heart",
+              "behaviorId": "growth-source",
+              "tick": 1590,
+              "leadTicks": 90
+            },
+            {
+              "hazardId": "organ-contraction",
+              "behaviorId": "contracting-tissue",
+              "tick": 1710,
+              "leadTicks": 90
+            }
+          ],
+          "weaponShots": {
+            "red-lv1": 119,
+            "red-lv2": 82,
+            "yellow-lv1": 64,
+            "blue-lv2": 11,
+            "blue-lv1": 4,
+            "yellow-lv3": 81,
+            "yellow-lv2": 12
+          },
+          "weaponBuilds": [
+            "blue-lv1",
+            "blue-lv2",
+            "red-lv1",
+            "red-lv2",
+            "yellow-lv1",
+            "yellow-lv3"
+          ],
+          "exchanges": 6
+        },
+        {
+          "seed": 20261015,
+          "status": "cleared",
+          "clearTick": 3339,
+          "hitsTaken": 4,
+          "hitsBySection": {
+            "outer-membrane": 0,
+            "brood-canals": 0,
+            "contracting-organs": 2,
+            "ark-core": 2
+          },
+          "hitsByVerticalBand": {
+            "upper": 1,
+            "middle": 3,
+            "lower": 0
+          },
+          "telegraphs": [
+            {
+              "hazardId": "living-gate",
+              "behaviorId": "reactive-tissue",
+              "tick": 1470,
+              "leadTicks": 90
+            },
+            {
+              "hazardId": "brood-heart",
+              "behaviorId": "growth-source",
+              "tick": 1590,
+              "leadTicks": 90
+            },
+            {
+              "hazardId": "organ-contraction",
+              "behaviorId": "contracting-tissue",
+              "tick": 1710,
+              "leadTicks": 90
+            }
+          ],
+          "weaponShots": {
+            "red-lv1": 163,
+            "blue-lv3": 63,
+            "blue-lv2": 70,
+            "blue-lv1": 49,
+            "red-lv2": 28
+          },
+          "weaponBuilds": [
+            "blue-lv1",
+            "blue-lv2",
+            "blue-lv3",
+            "red-lv1",
+            "red-lv2"
+          ],
+          "exchanges": 6
+        },
+        {
+          "seed": 20261021,
+          "status": "cleared",
+          "clearTick": 3378,
+          "hitsTaken": 2,
+          "hitsBySection": {
+            "outer-membrane": 0,
+            "brood-canals": 0,
+            "contracting-organs": 0,
+            "ark-core": 2
+          },
+          "hitsByVerticalBand": {
+            "upper": 1,
+            "middle": 0,
+            "lower": 1
+          },
+          "telegraphs": [
+            {
+              "hazardId": "living-gate",
+              "behaviorId": "reactive-tissue",
+              "tick": 1470,
+              "leadTicks": 90
+            },
+            {
+              "hazardId": "brood-heart",
+              "behaviorId": "growth-source",
+              "tick": 1590,
+              "leadTicks": 90
+            },
+            {
+              "hazardId": "organ-contraction",
+              "behaviorId": "contracting-tissue",
+              "tick": 1710,
+              "leadTicks": 90
+            }
+          ],
+          "weaponShots": {
+            "red-lv1": 110,
+            "yellow-lv1": 25,
+            "blue-lv3": 72,
+            "blue-lv2": 3,
+            "blue-lv1": 20,
+            "yellow-lv2": 148
+          },
+          "weaponBuilds": [
+            "blue-lv1",
+            "blue-lv2",
+            "blue-lv3",
+            "red-lv1",
+            "yellow-lv1",
+            "yellow-lv2"
+          ],
+          "exchanges": 6
+        }
+      ],
+      "sectionHits": {
+        "total": 8,
+        "counts": {
+          "outer-membrane": 0,
+          "brood-canals": 0,
+          "contracting-organs": 3,
+          "ark-core": 5
+        },
+        "hotspot": {
+          "key": "ark-core",
+          "count": 5,
+          "share": 0.625
+        }
+      },
+      "verticalBandHits": {
+        "total": 8,
+        "counts": {
+          "upper": 2,
+          "middle": 5,
+          "lower": 1
+        },
+        "hotspot": {
+          "key": "middle",
+          "count": 5,
+          "share": 0.625
+        }
+      }
+    },
+    {
+      "stageId": "stage-04-stellar-furnace",
+      "introductions": {
+        "enemies": [
+          {
+            "tick": 240,
+            "entries": [
+              {
+                "kind": "enemy",
+                "behaviorId": "heat-armored",
+                "startTick": 240,
+                "sectionId": "furnace-approach"
+              }
+            ]
+          },
+          {
+            "tick": 520,
+            "entries": [
+              {
+                "kind": "enemy",
+                "behaviorId": "solar-rammer",
+                "startTick": 520,
+                "sectionId": "furnace-approach"
+              }
+            ]
+          },
+          {
+            "tick": 1050,
+            "entries": [
+              {
+                "kind": "enemy",
+                "behaviorId": "omni-turret",
+                "startTick": 1050,
+                "sectionId": "furnace-approach"
+              }
+            ]
+          }
+        ],
+        "hazards": [
+          {
+            "tick": 1680,
+            "entries": [
+              {
+                "kind": "hazard",
+                "behaviorId": "periodic-heatwave",
+                "startTick": 1680,
+                "sectionId": "collapsing-chamber"
+              },
+              {
+                "kind": "hazard",
+                "behaviorId": "coolant-refuge",
+                "startTick": 1680,
+                "sectionId": "collapsing-chamber"
+              }
+            ]
+          },
+          {
+            "tick": 2400,
+            "entries": [
+              {
+                "kind": "hazard",
+                "behaviorId": "destruction-safe-zone",
+                "startTick": 2400,
+                "sectionId": "collapsing-chamber"
+              }
+            ]
+          }
+        ],
+        "all": [
+          {
+            "tick": 240,
+            "entries": [
+              {
+                "kind": "enemy",
+                "behaviorId": "heat-armored",
+                "startTick": 240,
+                "sectionId": "furnace-approach"
+              }
+            ]
+          },
+          {
+            "tick": 520,
+            "entries": [
+              {
+                "kind": "enemy",
+                "behaviorId": "solar-rammer",
+                "startTick": 520,
+                "sectionId": "furnace-approach"
+              }
+            ]
+          },
+          {
+            "tick": 1050,
+            "entries": [
+              {
+                "kind": "enemy",
+                "behaviorId": "omni-turret",
+                "startTick": 1050,
+                "sectionId": "furnace-approach"
+              }
+            ]
+          },
+          {
+            "tick": 1680,
+            "entries": [
+              {
+                "kind": "hazard",
+                "behaviorId": "periodic-heatwave",
+                "startTick": 1680,
+                "sectionId": "collapsing-chamber"
+              },
+              {
+                "kind": "hazard",
+                "behaviorId": "coolant-refuge",
+                "startTick": 1680,
+                "sectionId": "collapsing-chamber"
+              }
+            ]
+          },
+          {
+            "tick": 2400,
+            "entries": [
+              {
+                "kind": "hazard",
+                "behaviorId": "destruction-safe-zone",
+                "startTick": 2400,
+                "sectionId": "collapsing-chamber"
+              }
+            ]
+          }
+        ]
+      },
+      "runs": [
+        {
+          "seed": 20261008,
+          "status": "cleared",
+          "clearTick": 3478,
+          "hitsTaken": 4,
+          "hitsBySection": {
+            "collector-ring": 0,
+            "furnace-approach": 1,
+            "collapsing-chamber": 3,
+            "furnace-controller": 0
+          },
+          "hitsByVerticalBand": {
+            "upper": 2,
+            "middle": 0,
+            "lower": 2
+          },
+          "telegraphs": [
+            {
+              "hazardId": "furnace-heatwave",
+              "behaviorId": "periodic-heatwave",
+              "tick": 1590,
+              "leadTicks": 90
+            },
+            {
+              "hazardId": "coolant-refuges",
+              "behaviorId": "coolant-refuge",
+              "tick": 1590,
+              "leadTicks": 90
+            },
+            {
+              "hazardId": "collapsing-safe-zone",
+              "behaviorId": "destruction-safe-zone",
+              "tick": 2310,
+              "leadTicks": 90
+            }
+          ],
+          "weaponShots": {
+            "red-lv1": 192,
+            "blue-lv2": 78,
+            "yellow-lv1": 40,
+            "blue-lv3": 35,
+            "blue-lv1": 46
+          },
+          "weaponBuilds": [
+            "blue-lv1",
+            "blue-lv2",
+            "blue-lv3",
+            "red-lv1",
+            "yellow-lv1"
+          ],
+          "exchanges": 10
+        },
+        {
+          "seed": 20261015,
+          "status": "cleared",
+          "clearTick": 4149,
+          "hitsTaken": 12,
+          "hitsBySection": {
+            "collector-ring": 0,
+            "furnace-approach": 0,
+            "collapsing-chamber": 5,
+            "furnace-controller": 7
+          },
+          "hitsByVerticalBand": {
+            "upper": 2,
+            "middle": 3,
+            "lower": 7
+          },
+          "telegraphs": [
+            {
+              "hazardId": "furnace-heatwave",
+              "behaviorId": "periodic-heatwave",
+              "tick": 1590,
+              "leadTicks": 90
+            },
+            {
+              "hazardId": "coolant-refuges",
+              "behaviorId": "coolant-refuge",
+              "tick": 1590,
+              "leadTicks": 90
+            },
+            {
+              "hazardId": "collapsing-safe-zone",
+              "behaviorId": "destruction-safe-zone",
+              "tick": 2310,
+              "leadTicks": 90
+            }
+          ],
+          "weaponShots": {
+            "red-lv1": 165,
+            "red-lv2": 103,
+            "yellow-lv1": 59,
+            "blue-lv3": 25,
+            "blue-lv2": 17,
+            "blue-lv1": 51,
+            "yellow-lv2": 15,
+            "yellow-lv3": 2
+          },
+          "weaponBuilds": [
+            "blue-lv1",
+            "blue-lv2",
+            "blue-lv3",
+            "red-lv1",
+            "red-lv2",
+            "yellow-lv1",
+            "yellow-lv2",
+            "yellow-lv3"
+          ],
+          "exchanges": 5
+        },
+        {
+          "seed": 20261021,
+          "status": "cleared",
+          "clearTick": 3846,
+          "hitsTaken": 9,
+          "hitsBySection": {
+            "collector-ring": 0,
+            "furnace-approach": 1,
+            "collapsing-chamber": 4,
+            "furnace-controller": 4
+          },
+          "hitsByVerticalBand": {
+            "upper": 2,
+            "middle": 2,
+            "lower": 5
+          },
+          "telegraphs": [
+            {
+              "hazardId": "furnace-heatwave",
+              "behaviorId": "periodic-heatwave",
+              "tick": 1590,
+              "leadTicks": 90
+            },
+            {
+              "hazardId": "coolant-refuges",
+              "behaviorId": "coolant-refuge",
+              "tick": 1590,
+              "leadTicks": 90
+            },
+            {
+              "hazardId": "collapsing-safe-zone",
+              "behaviorId": "destruction-safe-zone",
+              "tick": 2310,
+              "leadTicks": 90
+            }
+          ],
+          "weaponShots": {
+            "red-lv1": 106,
+            "blue-lv1": 40,
+            "blue-lv2": 26,
+            "yellow-lv2": 62,
+            "yellow-lv1": 133,
+            "yellow-lv3": 34,
+            "red-lv2": 15
+          },
+          "weaponBuilds": [
+            "blue-lv1",
+            "blue-lv2",
+            "red-lv1",
+            "red-lv2",
+            "yellow-lv1",
+            "yellow-lv2",
+            "yellow-lv3"
+          ],
+          "exchanges": 7
+        }
+      ],
+      "sectionHits": {
+        "total": 25,
+        "counts": {
+          "collector-ring": 0,
+          "furnace-approach": 2,
+          "collapsing-chamber": 12,
+          "furnace-controller": 11
+        },
+        "hotspot": {
+          "key": "collapsing-chamber",
+          "count": 12,
+          "share": 0.48
+        }
+      },
+      "verticalBandHits": {
+        "total": 25,
+        "counts": {
+          "upper": 6,
+          "middle": 5,
+          "lower": 14
+        },
+        "hotspot": {
+          "key": "lower",
+          "count": 14,
+          "share": 0.56
+        }
+      }
+    }
+  ],
+  "finale": {
+    "weaponsUsed": [
+      "blue",
+      "red",
+      "yellow"
+    ],
+    "exchanges": 22
+  },
+  "violations": []
+}

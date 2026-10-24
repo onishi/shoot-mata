@@ -13,6 +13,7 @@ const PLAYER_SPEED_PER_TICK = 0.012;
 const ENEMY_SPEED_PER_TICK = 0.006;
 const PLAYER_SHOT_SPEED_PER_TICK = 0.045;
 const ENEMY_SHOT_SPEED_PER_TICK = 0.018;
+export const HAZARD_TELEGRAPH_TICKS = 90;
 
 export const DIFFICULTY_PROFILES = Object.freeze({
   standard: Object.freeze({
@@ -92,6 +93,8 @@ export function createStageSimulation(stageInput, options = {}) {
     score: 0,
     scoreBreakdown: createScoreBreakdown(),
     destroyedEnemyCount: 0,
+    telegraphedHazardIds: new Set(),
+    hazardWarnings: [],
     events: [],
     schedule,
   };
@@ -379,6 +382,8 @@ function damagePlayer(state, reason) {
   };
   emit(state, "player-hit", {
     reason,
+    x: impact.x,
+    y: impact.y,
     coreQueueBefore,
     lostCore: loss.lost,
     lives: state.player.lives,
@@ -390,6 +395,22 @@ function damagePlayer(state, reason) {
     emit(state, "stage-defeated", { reason });
   }
   return true;
+}
+
+function updateHazardTelegraphs(state) {
+  state.hazardWarnings = state.schedule.hazards
+    .filter(({ startTick }) => state.tick >= startTick - HAZARD_TELEGRAPH_TICKS && state.tick < startTick)
+    .map(({ id, behaviorId, startTick }) => ({
+      hazardId: id,
+      behaviorId,
+      ticksUntilActive: startTick - state.tick,
+    }));
+  for (const warning of state.hazardWarnings) {
+    if (warning.ticksUntilActive !== HAZARD_TELEGRAPH_TICKS
+      || state.telegraphedHazardIds.has(warning.hazardId)) continue;
+    state.telegraphedHazardIds.add(warning.hazardId);
+    emit(state, "hazard-telegraphed", warning);
+  }
 }
 
 function destroyEnemy(state, enemy) {
@@ -624,6 +645,7 @@ export function stepStageSimulation(state, stageInput, input = {}) {
   state.events = [];
   ageEffects(state);
   const command = normalizedCommand(input);
+  updateHazardTelegraphs(state);
   spawnScheduledEnemies(state, stage);
   spawnBoss(state, stage);
   movePlayer(state, command);
@@ -743,6 +765,7 @@ export function createStageSimulationSnapshot(state) {
       angle: Math.atan2(shot.vy ?? 0, shot.vx ?? PLAYER_SHOT_SPEED_PER_TICK),
     })),
     effects: state.effects.map((effect) => ({ ...effect })),
+    hazardWarnings: state.hazardWarnings.map((warning) => ({ ...warning })),
     transition: state.status === "cleared" ? { kind: "clear", progress: 1 } : null,
   };
 }

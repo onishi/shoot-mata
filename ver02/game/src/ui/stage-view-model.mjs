@@ -90,6 +90,18 @@ function actor(input, index) {
 
 const PROJECTILE_KINDS = Object.freeze(["lance", "spread", "seeker"]);
 const EFFECT_KINDS = Object.freeze(["hit", "damage", "destroy", "collect", "eject"]);
+const HAZARD_PRESENTATION = Object.freeze({
+  "closing-corridor": Object.freeze({ symbol: "↕", label: "圧縮通路" }),
+  "alternating-current": Object.freeze({ symbol: "⇅", label: "上下気流" }),
+  "shutter-cover": Object.freeze({ symbol: "▥", label: "開閉遮蔽" }),
+  "charged-cloud": Object.freeze({ symbol: "⚡", label: "帯電域" }),
+  "reactive-tissue": Object.freeze({ symbol: "◇", label: "反応組織" }),
+  "growth-source": Object.freeze({ symbol: "+", label: "増殖源" }),
+  "contracting-tissue": Object.freeze({ symbol: "↔", label: "収縮通路" }),
+  "periodic-heatwave": Object.freeze({ symbol: "≋", label: "周期熱波" }),
+  "coolant-refuge": Object.freeze({ symbol: "▽", label: "退避域" }),
+  "destruction-safe-zone": Object.freeze({ symbol: "◎", label: "可変安全圏" }),
+});
 
 function projectile(input, index) {
   if (!input || typeof input !== "object") throw new TypeError(`projectiles[${index}] is required`);
@@ -120,6 +132,18 @@ function effect(input, index) {
     y: normalized(input.y, `effects[${index}].y`),
     progress: ageTicks / lifetimeTicks,
     ...(input.kind === "eject" ? { core: input.core } : {}),
+  });
+}
+
+function hazardWarning(input, index) {
+  if (!input || typeof input !== "object") throw new TypeError(`hazardWarnings[${index}] is required`);
+  const presentation = HAZARD_PRESENTATION[input.behaviorId];
+  if (!presentation) throw new TypeError(`hazardWarnings[${index}].behaviorId is invalid`);
+  return Object.freeze({
+    hazardId: input.hazardId,
+    behaviorId: input.behaviorId,
+    ticksUntilActive: integer(input.ticksUntilActive, `hazardWarnings[${index}].ticksUntilActive`, 1),
+    ...presentation,
   });
 }
 
@@ -169,6 +193,7 @@ export function createStageViewModel(input) {
   const weapon = input.weapon ?? { label: "LANCE", level: 1 };
   if (typeof weapon.label !== "string" || weapon.label === "") throw new TypeError("weapon.label is required");
 
+  const hazardWarnings = Object.freeze((input.hazardWarnings ?? []).map(hazardWarning));
   return Object.freeze({
     width: GAME_WIDTH,
     height: GAME_HEIGHT,
@@ -182,6 +207,7 @@ export function createStageViewModel(input) {
     actors: Object.freeze((input.actors ?? []).map(actor)),
     projectiles: Object.freeze((input.projectiles ?? []).map(projectile)),
     effects: Object.freeze((input.effects ?? []).map(effect)),
+    hazardWarnings,
     transition: transition(input.transition),
     hud: Object.freeze({
       score: integer(input.score ?? 0, "score"),
@@ -190,6 +216,8 @@ export function createStageViewModel(input) {
       coreQueue: Object.freeze(queue),
       boss: bossMeter(input.boss),
     }),
-    accessibleSummary: `${stage.title}、${section.id}、スコア${input.score ?? 0}、残機${input.lives ?? 3}`,
+    accessibleSummary: `${stage.title}、${section.id}、スコア${input.score ?? 0}、残機${input.lives ?? 3}`
+      + (hazardWarnings.length > 0
+        ? `、危険予告 ${hazardWarnings.map(({ label }) => label).join("、")}` : ""),
   });
 }

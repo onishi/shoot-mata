@@ -159,6 +159,27 @@ test("AV-02/A11Y-02: actorの登場・攻撃・被弾・形態変化とクリア
   assert.ok(context.calls.filter(([method]) => method === "lineTo").length >= 12);
 });
 
+test("PROG-06/A11Y-03: 高コントラストでも危険名と記号を先行表示する", () => {
+  const view = createStageViewModel({
+    stage: PHASE05_TEST_STAGE,
+    settings: { reducedMotion: true, highContrast: true },
+    hazardWarnings: [{
+      hazardId: "wreck-compression",
+      behaviorId: "closing-corridor",
+      ticksUntilActive: 30,
+    }],
+  });
+  const assets = Object.fromEntries(view.layers.map(({ assetId }) => [assetId, fakeImage()]));
+  const context = fakeContext();
+  renderCanvasFrame(context, view, assets);
+  assert.ok(context.calls.some(([method, value]) => (
+    method === "fillText" && value === "CAUTION  ↕ 圧縮通路"
+  )));
+  assert.ok(context.calls.some(([method, x, y, width, height]) => (
+    method === "strokeRect" && x === 310 && y === 78 && width === 660 && height === 74
+  )));
+});
+
 test("reports every missing asset before drawing", () => {
   const view = createStageViewModel({ stage: PHASE05_TEST_STAGE });
   assert.deepEqual(missingAssetIds(view, {}), ["bg-stg01-far", "bg-stg01-mid", "bg-stg01-fore"]);

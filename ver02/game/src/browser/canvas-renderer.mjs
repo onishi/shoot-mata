@@ -399,6 +399,24 @@ function drawHud(context, view) {
   }
 }
 
+function drawHazardWarnings(context, view) {
+  if (view.hazardWarnings.length === 0) return;
+  const labels = view.hazardWarnings.map(({ symbol, label }) => `${symbol} ${label}`).join("  /  ");
+  const urgent = Math.min(...view.hazardWarnings.map(({ ticksUntilActive }) => ticksUntilActive)) <= 30;
+  context.save();
+  context.fillStyle = view.display.highContrast ? "#000" : "rgba(28, 6, 4, 0.9)";
+  context.fillRect(310, 78, 660, 74);
+  context.strokeStyle = view.display.highContrast ? "#fff" : urgent ? "#fff06a" : "#ff9b5f";
+  context.lineWidth = urgent ? 6 : 4;
+  context.strokeRect(310, 78, 660, 74);
+  context.fillStyle = "#fff";
+  context.textAlign = "center";
+  context.textBaseline = "middle";
+  context.font = "bold 24px ui-monospace, monospace";
+  context.fillText(`CAUTION  ${labels}`, 640, 115);
+  context.restore();
+}
+
 export function missingAssetIds(view, assets) {
   if (!view || typeof view !== "object") throw new TypeError("view is required");
   const needed = new Set([
@@ -432,6 +450,7 @@ export function renderCanvasFrame(context, view, assets) {
   }
   for (const projectile of view.projectiles) drawProjectile(context, projectile, view.width, view.height);
   for (const effect of view.effects) drawEffect(context, effect, view.width, view.height, view.display);
+  drawHazardWarnings(context, view);
   drawTransition(context, view.transition, view.width, view.height, view.display);
   drawHud(context, view);
   context.restore();

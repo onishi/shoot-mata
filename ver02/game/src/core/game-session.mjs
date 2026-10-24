@@ -203,6 +203,7 @@ export function getGameSessionSnapshot(session) {
     ],
     projectiles: [],
     effects: [],
+    hazardWarnings: [],
     transition: session.flow.screen === "stageIntro" ? { kind: "intro", progress: 0 } : null,
   };
 }
