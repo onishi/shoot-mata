@@ -51,7 +51,7 @@
 | INP-02 | P05 | P08, P10 | move＋fireのmulti-touch、pointerup/cancel/capture喪失、blur、破棄を自動検査。Chrome `?qa=campaign&input=touch`で4,086 Pointer Events、戦闘12,316 frames、4面→ending→creditsを完走。実タッチ端末は後続 | 実装済み未検証 |
 | INP-03 | P04, P05 | P09, P10 | P04表示設定は50×44px以上。P05で役割付きゲーム領域だけがpointer既定動作を抑止することを検査。実端末のスクロール競合は後続 | 実装中 |
 | INP-04 | P07 | P08, P10 | `automatic-input-replay.test.mjs`でkeydown/upとPointer Eventsを製品adapterへ通す両経路が同一score 49,620で完走。Chromeの240Hz QA clockでも両経路が同一score 54,140、戦闘12,316 frames、4面→ending→credits、console warning/error 0で完走。実タッチ端末はP09・P10で確認 | 実装済み未検証 |
-| A11Y-01 | P05 | P08, P10 | BGM/SFX別音量・ミュートのschema、保存復元、独立gainへの即時反映を自動検査。ChromeでBGM 0.45、SFX 0.65、動き軽減、高コントラストを変更し、再読込後の値・表示復元と主操作focusを確認 | 実装済み未検証 |
+| A11Y-01 | P05 | P08, P09, P10 | BGM/SFX別音量・ミュートのschema、保存復元、独立gainへの即時反映を自動検査。ChromeでBGM 0.45、SFX 0.65の復元を確認。P09の4 profile監査で独立gainと個別muteを再検証 | 実装済み未検証 |
 | A11Y-02 | P04, P05 | P09, P10 | 動き軽減に加え、保存のみだった明滅軽減を製品UIと描画へ接続。4面の全重要VFXが軽減時も静止形状を保持し、リアクターの約5回/秒の輝度変化を停止 | 実装済み未検証 |
 | A11Y-03 | P04, P07 | P09, P10 | 3コア記号、危険記号・名称、HUD、高コントラストを4面×4表示profileで監査。Chrome 3 viewportでoverflow 0 | 実装済み未検証 |
 | A11Y-04 | P05, P07 | P08, P10 | `menu-accessibility.test.mjs`でモーダル背面のTab除外、主操作フォーカス、文脈付きラベルを検査。ChromeでTab／Shift+TabとEnterを使い、タイトル→ステージ選択→導入→戦闘、3pxフォーカス輪郭、Canvasへのフォーカス移動、console warning/error 0を確認 | 実装済み未検証 |
@@ -59,8 +59,8 @@
 | AV-02 | P04, P06, P07 | P07, P10 | 自機、全通常敵、boss、コアの移動・登場・攻撃・被弾・形態変化と5 VFX、危険予告、クリアを4面×4表示profileでCanvas描画監査。主観品質は未評価 | 実装済み未検証 |
 | AV-03 | P04, P06, P07 | P07, P10 | 全4面の遠景・中景・前景を独立速度で合成し、動き軽減で全offset 0、通常時は3層維持。4面通しと3 viewportも確認。主観的な奥行き品質は未評価 | 実装済み未検証 |
 | AV-04 | P04, P06, P07 | P09, P10 | 9種のLv別弾、5 VFX、自機10構成・混色補助・無敵を4面×4表示profileで監査。色に依存しない形状、160描画の署名衝突0 | 実装済み未検証 |
-| AV-05 | P04, P06, P07 | P07, P10 | 自作共有音9点と第1〜4面各5点を台帳化・波形検査。通常2層／boss 3層、導入・クリア通知に加え、タイトル／メニュー、結果、エンディングの3 BGMを画面遷移へ接続。`game-application.test.mjs`で読込後再同期とending→credits継続を検査し、Chrome campaignは音声警告0で完走。聴感は未評価 | 実装中 |
-| AV-06 | P05 | P08, P10 | 音声異常系をunit検査し、Chrome `?qa=campaign&runs=3&audio=silent`でAudioContext作成失敗を注入。無音警告を保持したまま3 campaign・12面→creditsを完走し、console warning/error 0。正常時の音源取得も既存browser検査で確認 | 実装済み未検証 |
+| AV-05 | P04, P06, P07 | P07, P09, P10 | 自作共有音9点と第1〜4面各5点を台帳化・波形検査。通常2層／boss 3層、導入・クリア通知と画面別3 BGMを接続。P09で共通2層を止めず危機層だけを現在位相へ追加し、全4面を6分相当進めて位相差0 sample、boss合成ピーク−11.352dBFS以下を確認。Chromeで全29音源HTTP 200・音声警告0。聴感は未評価 | 実装済み未検証 |
+| AV-06 | P05 | P08, P09, P10 | 音声異常系をunit検査し、Chrome `?qa=campaign&runs=3&audio=silent`でAudioContext作成失敗を注入。P09で危機層欠落時に通常2層を維持して進行することを全4面で検査。無音警告を保持した12面完走と正常時の全29音源取得を確認 | 実装済み未検証 |
 | AV-07 | P04, P07 | P10 | 全画像32点は原本・完全prompt・配信WebP・最適化監査、全音声29点は生成式・用途・SHA-256・外部サンプル0を全量照合。2026-10-24の公式利用条件確認、非一意性・非侵害未保証の残存リスク、`THIRD_PARTY_NOTICES.html`を記録。P10で再確認 | 実装中 |
 | TECH-01 | P05 | P08, P10 | `fixed-step.test.mjs`で30/60/144Hz、長delta、非表示復帰を決定的検査。Chromeの実4面3 campaignで固定更新を継続し、5秒性能窓119.4fps、50ms超frame 0、最大24.0ms、simulation drop 0ms。`alpha-runtime-evidence.json` | 実装済み未検証 |
 | TECH-02 | P05, P07 | P07, P10 | `stage-schema.test.mjs`で背景、敵、drop、区間、wave、仕掛け、boss phase、音、遷移のschema・参照・登録behaviorを検査。`stage-schedule.test.mjs`でデータ差替えとseed再現を検査。完成4面のデータと条件分岐レビューはP07 | 実装中 |

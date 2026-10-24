@@ -29,7 +29,7 @@ function createFakeContext(options = {}) {
     },
     async decodeAudioData(value) {
       if (options.decodeFailure) throw new Error("bad audio");
-      return { decoded: value };
+      return { decoded: value, duration: options.bufferDuration ?? 3 };
     },
     createBufferSource() {
       if (options.playbackFailure) throw new Error("source failed");
@@ -39,7 +39,7 @@ function createFakeContext(options = {}) {
         started: false,
         stopped: false,
         connect(target) { this.connectedTo = target; },
-        start(when) { this.started = true; this.startedAt = when; },
+        start(when, offset = 0) { this.started = true; this.startedAt = when; this.startedOffset = offset; },
         stop() { this.stopped = true; },
       };
       sources.push(source);
@@ -180,7 +180,7 @@ test("A11Y-01/AV-06: mute中もBGM/SFX操作と破棄を安全に完了する", 
   assert.equal((await audio.activate()).audible, false);
 });
 
-test("AV-05: 複数BGM層を同時刻に開始し、危機層への切替で旧sourceを止める", async () => {
+test("AV-05: 共通BGM層を維持し、危機層を長時間後の同じループ位相へ追加する", async () => {
   const context = createFakeContext({ state: "running" });
   const audio = createBrowserAudioAdapter({ settings: DEFAULT_SETTINGS, createContext: () => context });
   await audio.activate();
@@ -192,11 +192,14 @@ test("AV-05: 複数BGM層を同時刻に開始し、危機層への切替で旧s
   assert.deepEqual(context.sources.slice(0, 2).map(({ startedAt }) => startedAt), [12, 12]);
   assert.equal(context.sources.slice(0, 2).every(({ loop }) => loop), true);
 
+  context.currentTime = 313.25;
   assert.equal(audio.playBgm(["rhythm", "melody", "danger"]).played, true);
-  assert.equal(context.sources.slice(0, 2).every(({ stopped }) => stopped), true);
-  assert.deepEqual(context.sources.slice(2).map(({ startedAt }) => startedAt), [12, 12, 12]);
+  assert.equal(context.sources.slice(0, 2).every(({ stopped }) => stopped), false);
+  assert.deepEqual(context.sources.slice(2).map(({ startedAt, startedOffset }) => [startedAt, startedOffset]), [
+    [313.25, 1.25],
+  ]);
   audio.stopBgm();
-  assert.equal(context.sources.slice(2).every(({ stopped }) => stopped), true);
+  assert.equal(context.sources.every(({ stopped }) => stopped), true);
 });
 
 test("AV-06: resume待機中に破棄してもactiveへ戻らない", async () => {

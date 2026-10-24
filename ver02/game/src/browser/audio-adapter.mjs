@@ -41,7 +41,8 @@ export function createBrowserAudioAdapter(options = {}) {
   let context = null;
   let gains = null;
   let activationPromise = null;
-  let currentBgm = new Set();
+  let currentBgm = new Map();
+  let bgmEpoch = null;
   const sounds = new Map();
   const activeSfx = new Set();
 
@@ -74,6 +75,7 @@ export function createBrowserAudioAdapter(options = {}) {
     gains = null;
     sounds.clear();
     currentBgm.clear();
+    bgmEpoch = null;
     activeSfx.clear();
     await closeContext(candidate);
     return result();
@@ -119,6 +121,53 @@ export function createBrowserAudioAdapter(options = {}) {
     }
   }
 
+  function createSource(sound, group, loop) {
+    const source = context.createBufferSource();
+    source.buffer = sound.buffer;
+    source.loop = loop;
+    source.connect(gains[group]);
+    return source;
+  }
+
+  function playBgmLayers(ids, requested) {
+    const startTime = context.currentTime ?? 0;
+    const retained = ids.filter((assetId) => currentBgm.has(assetId));
+    const created = new Map();
+    try {
+      for (let index = 0; index < ids.length; index += 1) {
+        const assetId = ids[index];
+        if (!currentBgm.has(assetId)) created.set(assetId, createSource(requested[index], "bgm", true));
+      }
+
+      if (retained.length === 0) bgmEpoch = startTime;
+      for (const [assetId, source] of currentBgm) {
+        if (!ids.includes(assetId)) stopSource(source);
+      }
+      const nextBgm = new Map(ids.filter((assetId) => currentBgm.has(assetId)).map((assetId) => (
+        [assetId, currentBgm.get(assetId)]
+      )));
+      for (const [assetId, source] of created) {
+        nextBgm.set(assetId, source);
+        source.onended = () => {
+          if (currentBgm.get(assetId) === source) currentBgm.delete(assetId);
+        };
+        const duration = source.buffer?.duration;
+        const elapsed = Math.max(0, startTime - (bgmEpoch ?? startTime));
+        const offset = retained.length > 0 && Number.isFinite(duration) && duration > 0
+          ? elapsed % duration
+          : 0;
+        source.start(startTime, offset);
+      }
+      currentBgm = nextBgm;
+      warning = null;
+      return result({ played: true });
+    } catch {
+      for (const source of created.values()) stopSource(source);
+      warning = "audio-playback-failed";
+      return result({ played: false });
+    }
+  }
+
   function play(id, group, loop) {
     if (mode !== "active") return result({ played: false });
     const ids = group === "bgm" && Array.isArray(id) ? id : [id];
@@ -131,24 +180,17 @@ export function createBrowserAudioAdapter(options = {}) {
       warning = "audio-source-missing";
       return result({ played: false });
     }
+    if (group === "bgm") return playBgmLayers(ids, requested);
+
     const created = [];
     try {
       for (const sound of requested) {
-        const source = context.createBufferSource();
-        source.buffer = sound.buffer;
-        source.loop = loop;
-        source.connect(gains[group]);
+        const source = createSource(sound, group, loop);
         created.push(source);
       }
-      if (group === "bgm") {
-        for (const source of currentBgm) stopSource(source);
-        currentBgm = new Set(created);
-        for (const source of created) source.onended = () => currentBgm.delete(source);
-      } else {
-        for (const source of created) {
-          activeSfx.add(source);
-          source.onended = () => activeSfx.delete(source);
-        }
+      for (const source of created) {
+        activeSfx.add(source);
+        source.onended = () => activeSfx.delete(source);
       }
       const startTime = context.currentTime ?? 0;
       for (const source of created) source.start(startTime);
@@ -215,14 +257,16 @@ export function createBrowserAudioAdapter(options = {}) {
     },
 
     stopBgm() {
-      for (const source of currentBgm) stopSource(source);
+      for (const source of currentBgm.values()) stopSource(source);
       currentBgm.clear();
+      bgmEpoch = null;
     },
 
     async dispose() {
       if (mode === "disposed") return;
-      for (const source of currentBgm) stopSource(source);
+      for (const source of currentBgm.values()) stopSource(source);
       currentBgm.clear();
+      bgmEpoch = null;
       for (const source of activeSfx) stopSource(source);
       activeSfx.clear();
       sounds.clear();

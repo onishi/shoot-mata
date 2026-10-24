@@ -1,0 +1,210 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-24",
+  "scope": {
+    "objective": "verify independent volume controls, stage-to-boss layer continuity, six-minute encoded-loop phase stability, mix headroom, and missing-layer degradation",
+    "limitation": "PCM and deterministic Web Audio adapter checks do not establish subjective loudness, sound quality, or physical-device output"
+  },
+  "thresholds": {
+    "minimumSoakSeconds": 300,
+    "minimumBossMixHeadroomDb": 6
+  },
+  "soakSeconds": 360,
+  "stages": [
+    {
+      "stageId": "stage-01-orbital-wreck",
+      "layerAssetIds": [
+        "audio-stg01-rhythm",
+        "audio-stg01-melody",
+        "audio-stg01-danger"
+      ],
+      "sampleRate": 48000,
+      "sampleCount": 144000,
+      "durationSeconds": 3,
+      "soakSeconds": 360,
+      "phaseSamplesAfterSoak": [
+        0,
+        0,
+        0
+      ],
+      "driftSamples": 0,
+      "mixedPeakDb": {
+        "stageAtUnity": -13.372,
+        "bossAtUnity": -11.37,
+        "stageAtDefaultGain": -15.311,
+        "bossAtDefaultGain": -13.308
+      },
+      "transition": {
+        "stagePlayback": true,
+        "bossPlayback": true,
+        "retainedLayerCount": 2,
+        "addedLayerCount": 1,
+        "addedLayerOffsetSeconds": 0.875,
+        "expectedOffsetSeconds": 0.875,
+        "missingDanger": {
+          "stagePlaybackContinues": true,
+          "bossPlaybackRejected": true,
+          "warning": "audio-source-missing"
+        }
+      }
+    },
+    {
+      "stageId": "stage-02-cloud-refinery",
+      "layerAssetIds": [
+        "audio-stg02-rhythm",
+        "audio-stg02-melody",
+        "audio-stg02-danger"
+      ],
+      "sampleRate": 48000,
+      "sampleCount": 192000,
+      "durationSeconds": 4,
+      "soakSeconds": 360,
+      "phaseSamplesAfterSoak": [
+        0,
+        0,
+        0
+      ],
+      "driftSamples": 0,
+      "mixedPeakDb": {
+        "stageAtUnity": -13.132,
+        "bossAtUnity": -11.623,
+        "stageAtDefaultGain": -15.07,
+        "bossAtDefaultGain": -13.561
+      },
+      "transition": {
+        "stagePlayback": true,
+        "bossPlayback": true,
+        "retainedLayerCount": 2,
+        "addedLayerCount": 1,
+        "addedLayerOffsetSeconds": 0.875,
+        "expectedOffsetSeconds": 0.875,
+        "missingDanger": {
+          "stagePlaybackContinues": true,
+          "bossPlaybackRejected": true,
+          "warning": "audio-source-missing"
+        }
+      }
+    },
+    {
+      "stageId": "stage-03-living-ark",
+      "layerAssetIds": [
+        "audio-stg03-rhythm",
+        "audio-stg03-melody",
+        "audio-stg03-danger"
+      ],
+      "sampleRate": 48000,
+      "sampleCount": 163200,
+      "durationSeconds": 3.4,
+      "soakSeconds": 360,
+      "phaseSamplesAfterSoak": [
+        144000,
+        144000,
+        144000
+      ],
+      "driftSamples": 0,
+      "mixedPeakDb": {
+        "stageAtUnity": -13.261,
+        "bossAtUnity": -11.352,
+        "stageAtDefaultGain": -15.199,
+        "bossAtDefaultGain": -13.291
+      },
+      "transition": {
+        "stagePlayback": true,
+        "bossPlayback": true,
+        "retainedLayerCount": 2,
+        "addedLayerCount": 1,
+        "addedLayerOffsetSeconds": 0.475,
+        "expectedOffsetSeconds": 0.475,
+        "missingDanger": {
+          "stagePlaybackContinues": true,
+          "bossPlaybackRejected": true,
+          "warning": "audio-source-missing"
+        }
+      }
+    },
+    {
+      "stageId": "stage-04-stellar-furnace",
+      "layerAssetIds": [
+        "audio-stg04-rhythm",
+        "audio-stg04-melody",
+        "audio-stg04-danger"
+      ],
+      "sampleRate": 48000,
+      "sampleCount": 144000,
+      "durationSeconds": 3,
+      "soakSeconds": 360,
+      "phaseSamplesAfterSoak": [
+        0,
+        0,
+        0
+      ],
+      "driftSamples": 0,
+      "mixedPeakDb": {
+        "stageAtUnity": -13.034,
+        "bossAtUnity": -12.015,
+        "stageAtDefaultGain": -14.972,
+        "bossAtDefaultGain": -13.953
+      },
+      "transition": {
+        "stagePlayback": true,
+        "bossPlayback": true,
+        "retainedLayerCount": 2,
+        "addedLayerCount": 1,
+        "addedLayerOffsetSeconds": 0.875,
+        "expectedOffsetSeconds": 0.875,
+        "missingDanger": {
+          "stagePlaybackContinues": true,
+          "bossPlaybackRejected": true,
+          "warning": "audio-source-missing"
+        }
+      }
+    }
+  ],
+  "volumeProfiles": [
+    {
+      "id": "default",
+      "actualGains": [
+        0.8,
+        0.8
+      ],
+      "expectedGains": [
+        0.8,
+        0.8
+      ]
+    },
+    {
+      "id": "bgm-muted",
+      "actualGains": [
+        0,
+        0.8
+      ],
+      "expectedGains": [
+        0,
+        0.8
+      ]
+    },
+    {
+      "id": "sfx-muted",
+      "actualGains": [
+        0.8,
+        0
+      ],
+      "expectedGains": [
+        0.8,
+        0
+      ]
+    },
+    {
+      "id": "independent-levels",
+      "actualGains": [
+        0.45,
+        0.65
+      ],
+      "expectedGains": [
+        0.45,
+        0.65
+      ]
+    }
+  ],
+  "violations": []
+}
