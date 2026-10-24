@@ -1,5 +1,13 @@
 # 開発ログ
 
+## 2026-10-25 — Phase 10固定RCの環境別検証を開始
+
+- 目的: Phase 09の別buildで得た互換性結果を流用せず、`phase10-rc1-20261024`に必須ブラウザ・実機・物理低性能端末の状態を結び付ける。
+- Chrome確認: Chrome 156 / macOS 26.6.2で固定RCをlocalhost配信し、製品keyboard / Pointer Events adapter経路の4面campaignからending・creditsまで計4回完走した。結果は各経路とも`QA PASS / 1 CAMPAIGNS / 4 STAGES / SINGLE RUN`、score 56,735。Pointer Eventsは1568×956、390×844、844×390で完走し、全条件で縦横overflow 0、console warning/error 0、宣言済みmodule・画像32点・音声29点はHTTP 200またはcache再検証304、外部origin 0だった。manifest外のブラウザ自動`/favicon.ico`要求1件は404だが、製品が明示するWebP faviconは正常取得した。
+- 環境棚卸し: EdgeとFirefoxは未導入。Safari 26.6.2はインストール済みだがcomputer-use操作が承認されず未実行。ADBは接続端末0件で、iOS/iPadOS実機、Android実機、条件を記録できる物理低性能端末も利用できなかった。
+- 判定: 必須ブラウザ・端末6対象中1対象だけ合格、実モバイル0対象。未確認環境を推定合格せず`phases/phase-10/browser-compatibility.json`へ記録し、Phase 10第4作業単位とrelease candidateの`accepted: false`を維持する。
+- 次: Edge、Firefox、Safari、iOS Safari実機、Android Chrome実機、物理低性能端末を同一RCで実行する。
+
 ## 2026-10-24 — Phase 10静的成果物・権利・依存を固定RCへ再結合
 
 - 目的: 自動検査、配信manifest、全素材、権利通知、利用条件記録、lockfile、依存監査が別buildの証拠を混在させないよう、`phase10-rc1-20261024`へ結び付ける。

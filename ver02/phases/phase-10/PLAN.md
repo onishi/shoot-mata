@@ -27,7 +27,7 @@ READMEと`02-product-requirements.md`の必須要件を、MVPではなく製品�
 1. [完了] release candidate build IDと再現manifestを固定する
 2. [完了] 受け入れマトリクスの全ID、証拠説明、状態を機械監査する
 3. [完了] 全自動検査、静的成果物、権利・通知、依存関係をrelease candidateで再検証する
-4. [未着手] 全必須ブラウザ・実端末・物理低性能端末を同一buildで検証する
+4. [進行中] 全必須ブラウザ・実端末・物理低性能端末を同一buildで検証する（Chrome desktop 1/6合格、実モバイル0/2、物理低性能端末未接続）
 5. [未着手] 全受け入れ行を更新し、中核未達0件と重大既知不具合0件を判定する
 6. [未着手] `REVIEW.md`へ合否、残存する低リスク、未測定の主観品質を記録する
 
@@ -62,3 +62,5 @@ OpenAI Terms of Useは2026-01-01発効版、Service Termsは2026-10-16更新版�
 ## 次の作業単位
 
 同じrelease candidateを必須ブラウザ、iOS Safari実機、Android Chrome実機、物理低性能端末で検証する。未導入または未接続の対象は推定合格にせず、利用可能な環境の証拠を更新したうえで残るblockerを明示する。
+
+2026-10-25に`browser-compatibility.json`を固定RCへ更新した。Chrome 156 / macOS 26.6.2はkeyboardとPointer Events経路の4面campaignからending・creditsまで完走し、Pointer Eventsは1568×956、390×844、844×390の3 viewportで完走した。全条件でoverflow 0、console warning/error 0、全宣言済み製品resourceはHTTP 200またはcache再検証304、外部origin 0だった。manifest外のブラウザ自動`/favicon.ico`要求1件は404だが、製品が明示するWebP faviconは正常取得した。EdgeとFirefoxは未導入、Safariはcomputer-use操作未承認、iOS/iPadOS実機とAndroid実機は未接続、物理低性能対象端末も未接続である。必須6対象中1対象、実モバイル0対象のため、この作業単位とPhase 10は未完了のまま維持する。

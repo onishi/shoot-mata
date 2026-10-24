@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 1,
+  "buildId": "phase10-rc1-20261024",
+  "recordedOn": "2026-10-25",
+  "targets": [
+    {
+      "id": "chrome-desktop",
+      "browser": "Google Chrome",
+      "version": "156.0.8078.48",
+      "platform": "macOS 26.6.2 arm64",
+      "environment": "desktop",
+      "status": "pass",
+      "notes": "固定release candidateをlocalhost HTTPで配信し、製品のkeyboard / Pointer Events adapterを通る自動入力で4面campaignからending・creditsまで完走した。Pointer Eventsはdesktop・縦長・横長の3 viewportで完走した。既存保存状態を保持したアシスト設定で実行したためscoreは56,735であり、Phase 09の初期状態記録54,140とは比較しない。",
+      "evidence": {
+        "viewports": ["1568x956", "390x844", "844x390"],
+        "inputModes": ["keyboard", "pointer-events"],
+        "checks": {
+          "loaded": true,
+          "primaryFlow": true,
+          "pauseResume": true,
+          "noHorizontalOverflow": true,
+          "noConsoleErrors": true,
+          "noMissingResources": true,
+          "noExternalOrigins": true
+        },
+        "campaign": {
+          "stages": 4,
+          "score": 56735,
+          "runs": 4,
+          "results": [
+            "1568x956: QA PASS / 1 CAMPAIGNS / 4 STAGES / SINGLE RUN / TOUCH INPUT",
+            "1568x956: QA PASS / 1 CAMPAIGNS / 4 STAGES / SINGLE RUN / KEYBOARD INPUT",
+            "390x844: QA PASS / 1 CAMPAIGNS / 4 STAGES / SINGLE RUN / TOUCH INPUT",
+            "844x390: QA PASS / 1 CAMPAIGNS / 4 STAGES / SINGLE RUN / TOUCH INPUT"
+          ]
+        },
+        "layout": {
+          "1568x956": { "horizontalOverflowPx": 0, "verticalOverflowPx": 0 },
+          "390x844": { "horizontalOverflowPx": 0, "verticalOverflowPx": 0 },
+          "844x390": { "horizontalOverflowPx": 0, "verticalOverflowPx": 0 }
+        },
+        "consoleWarningOrErrorCount": 0,
+        "httpStatus": "all declared product resources returned 200 or cache-validation 304; one browser-initiated /favicon.ico request outside the manifest returned 404 while the explicit WebP favicon loaded successfully",
+        "buildIdentity": "dist/build-manifest.json: phase10-rc1-20261024; 100 files; 10526479 bytes"
+      }
+    },
+    {
+      "id": "edge-desktop",
+      "browser": "Microsoft Edge",
+      "version": "n/a (not installed)",
+      "platform": "macOS 26.6.2 arm64",
+      "environment": "desktop",
+      "status": "unavailable",
+      "reason": "Microsoft Edge.appが検証機の/Applicationsに存在しない。",
+      "notes": "未確認。ChromeのChromium結果から推定合格しない。"
+    },
+    {
+      "id": "firefox-desktop",
+      "browser": "Mozilla Firefox",
+      "version": "n/a (not installed)",
+      "platform": "macOS 26.6.2 arm64",
+      "environment": "desktop",
+      "status": "unavailable",
+      "reason": "Firefox.appが検証機の/Applicationsに存在しない。",
+      "notes": "未確認。"
+    },
+    {
+      "id": "safari-desktop",
+      "browser": "Safari",
+      "version": "26.6.2",
+      "platform": "macOS 26.6.2 arm64",
+      "environment": "desktop",
+      "status": "not-run",
+      "reason": "Safariはインストール済みだが、今回のcomputer-use環境からSafari操作が承認されず、固定RCの実操作を開始できなかった。",
+      "notes": "未確認。WebKit互換性から推定合格しない。"
+    },
+    {
+      "id": "ios-safari-device",
+      "browser": "Mobile Safari",
+      "version": "n/a (no connected device)",
+      "platform": "iOS/iPadOS",
+      "environment": "real-device",
+      "status": "unavailable",
+      "reason": "利用可能な接続済みiOS/iPadOS実機がない。",
+      "notes": "未確認。desktop Safariまたはエミュレータを実機証拠に数えない。"
+    },
+    {
+      "id": "android-chrome-device",
+      "browser": "Chrome for Android",
+      "version": "n/a (no connected device)",
+      "platform": "Android",
+      "environment": "real-device",
+      "status": "unavailable",
+      "reason": "2026-10-25のadb devices -lが接続端末0件を返した。",
+      "notes": "未確認。エミュレータ結果を実端末の代替証拠に数えない。"
+    },
+    {
+      "id": "physical-low-performance-device",
+      "browser": "n/a (physical device gate)",
+      "version": "n/a (no target device)",
+      "platform": "physical low-performance target",
+      "environment": "real-device",
+      "status": "unavailable",
+      "reason": "CPU・GPU・memory条件を記録できる物理低性能対象端末が接続されていない。",
+      "notes": "未確認。Phase 09のdesktop 4倍描画負荷soakは補助証拠であり、物理端末の合格へ読み替えない。"
+    }
+  ]
+}

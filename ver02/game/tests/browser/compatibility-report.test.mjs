@@ -99,3 +99,24 @@ test("TECH-04/INP-02〜04: Phase 09 evidence records observed and unavailable ta
     realMobilePass: 0,
   });
 });
+
+test("TECH-04/05: Phase 10 RC evidence keeps unavailable browsers and physical devices as blockers", async () => {
+  const path = resolve(process.cwd(), "../phases/phase-10/browser-compatibility.json");
+  const report = JSON.parse(await readFile(path, "utf8"));
+  const result = validateCompatibilityReport(report);
+  assert.equal(result.valid, true, result.failures.join("\n"));
+  assert.equal(report.buildId, "phase10-rc1-20261024");
+  assert.deepEqual(summarizeCompatibilityReport(report), {
+    targetCount: 7,
+    pass: 1,
+    fail: 0,
+    "not-run": 1,
+    unavailable: 5,
+    requiredPass: 1,
+    requiredCount: 6,
+    realMobilePass: 0,
+  });
+  const lowPerformance = report.targets.find(({ id }) => id === "physical-low-performance-device");
+  assert.equal(lowPerformance.status, "unavailable");
+  assert.match(lowPerformance.notes, /物理端末の合格へ読み替えない/);
+});
