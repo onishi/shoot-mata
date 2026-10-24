@@ -1,4 +1,7 @@
-const REQUIREMENT_ID = /^[A-Z]+-\d{2}$/;
+// Requirement families may contain digits (for example A11Y-01). Keeping the
+// prefix letters-only silently excluded the entire accessibility family from
+// both sides of the comparison, making a missing family look valid.
+const REQUIREMENT_ID = /^[A-Z][A-Z0-9]*-\d{2}$/;
 export const ALLOWED_ACCEPTANCE_STATES = Object.freeze([
   "未着手",
   "実装中",

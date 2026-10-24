@@ -1,19 +1,19 @@
 {
   "schemaVersion": 1,
   "buildId": "phase10-rc1-20261024",
-  "recordedOn": "2026-10-24",
-  "requirementCount": 66,
-  "acceptanceRowCount": 66,
-  "phase10RequiredCount": 63,
+  "recordedOn": "2026-10-25",
+  "requirementCount": 70,
+  "acceptanceRowCount": 70,
+  "phase10RequiredCount": 67,
   "postPhase10Count": 3,
   "stateCounts": {
     "未着手": 4,
     "実装中": 19,
-    "実装済み未検証": 43,
+    "実装済み未検証": 47,
     "合格": 0,
     "不合格": 0,
     "ブロック": 0
   },
   "accepted": false,
-  "notes": "This is the Phase 10 entry baseline. State changes require evidence review; row presence alone is not acceptance."
+  "notes": "Corrected on 2026-10-25 after the audit ID parser was found to exclude A11Y-01 through A11Y-04. This is the Phase 10 entry baseline; state changes require evidence review, and row presence alone is not acceptance."
 }
