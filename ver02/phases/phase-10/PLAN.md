@@ -27,7 +27,7 @@ READMEと`02-product-requirements.md`の必須要件を、MVPではなく製品�
 1. [完了] release candidate build IDと再現manifestを固定する
 2. [完了] 受け入れマトリクスの全ID、証拠説明、状態を機械監査し、P10対象67件を実在する証拠へ追跡する
 3. [完了] 全自動検査、静的成果物、権利・通知、依存関係をrelease candidateで再検証する
-4. [進行中] 全必須ブラウザ・実端末・物理低性能端末を同一buildで検証する（Chrome desktop 1/6合格、実モバイル0/2、物理低性能端末未接続）
+4. [進行中] 全必須ブラウザ・実端末・物理低性能端末を同一buildで検証する（Chrome・Edge・Firefox desktop 3/6合格、実モバイル0/2、物理低性能端末未接続）
 5. [進行中] 全受け入れ行を更新し、中核未達0件と重大既知不具合0件を判定する（固定RCの既存証拠で60/67件を合格、実環境依存の7件をブロック）
 6. [未着手] `REVIEW.md`へ合否、残存する低リスク、未測定の主観品質を記録する
 
@@ -67,11 +67,15 @@ OpenAI Terms of Useは2026-01-01発効版、Service Termsは2026-10-16更新版�
 
 2026-10-25に`browser-compatibility.json`を固定RCへ更新した。Chrome 156 / macOS 26.6.2はkeyboardとPointer Events経路の4面campaignからending・creditsまで完走し、Pointer Eventsは1568×956、390×844、844×390の3 viewportで完走した。全条件でoverflow 0、console warning/error 0、全宣言済み製品resourceはHTTP 200またはcache再検証304、外部origin 0だった。manifest外のブラウザ自動`/favicon.ico`要求1件は404だが、製品が明示するWebP faviconは正常取得した。EdgeとFirefoxは未導入、Safariはcomputer-use操作未承認、iOS/iPadOS実機とAndroid実機は未接続、物理低性能対象端末も未接続である。必須6対象中1対象、実モバイル0対象のため、この作業単位とPhase 10は未完了のまま維持する。
 
+同日、Edge 156.0.4314.42とFirefox 158.0.1を導入し、固定RCを実ブラウザ本体の公式WebDriver headless modeで再検証した。両ブラウザともkeyboardとPointer Events経路で4面campaignからending・creditsまで完走し、keyboard経路ではP入力によるplaying→paused→playingを観測した。Pointer Eventsは1568×956、390×844、844×390の3 viewportでoverflow 0、外部origin 0、console warning/error 0だった。FirefoxのconsoleとviewportはWebDriver BiDi、Edgeのconsoleと390px viewportはWebDriver / DevTools protocolで採取した。Computer Useは両アプリの操作を承認しなかったが、Chrome互換性から推定せず実ブラウザ本体を起動した証拠である。これにより必須6対象中3対象が合格した。Safari、実モバイル2対象、物理低性能端末は未確認で、Phase 10は継続する。
+
 ## 開始した第5作業単位
 
 `final-acceptance.json`と`audit:final-acceptance`を追加し、受け入れ表、固定RC、証拠台帳、環境別記録を単一のfail-closed判定へ接続した。監査はP10対象とP11以降対象を再導出し、非合格要件、未合格の必須ブラウザ、実モバイル2対象、物理低性能端末、critical／major既知不具合を全て判定する。blocker一覧が実文書からずれた場合や、一部artifactだけが`accepted: true`へ進んだ場合は失敗する。
 
 2026-10-25時点では、P10対象67件のうち60件を固定RCの自動検査、Chrome実測、成果物監査から合格へ更新した。UX-05/06、INP-02/03/04、TECH-04/05は、必須6対象中5対象、実モバイル2対象、物理低性能端末が未合格のため`ブロック`であり、判定は`accepted: false`である。全自動検査の合格は未確認環境を閉じず、Phase 10完了を意味しない。SafariはComputer Useが今回も承認されなかった。設定を迂回せず`not-run`を維持した。
+
+EdgeとFirefoxの追加合格後も、同じ7要件はSafari、実モバイル2対象、物理低性能端末の証拠待ちで`ブロック`のままである。必須ブラウザの非合格対象は5件から3件へ減ったが、判定は引き続き`accepted: false`である。
 
 ## 完了した受け入れ状態遷移の修正
 

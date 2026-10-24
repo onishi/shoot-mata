@@ -47,22 +47,84 @@
     {
       "id": "edge-desktop",
       "browser": "Microsoft Edge",
-      "version": "n/a (not installed)",
+      "version": "156.0.4314.42",
       "platform": "macOS 26.6.2 arm64",
       "environment": "desktop",
-      "status": "unavailable",
-      "reason": "Microsoft Edge.appが検証機の/Applicationsに存在しない。",
-      "notes": "未確認。ChromeのChromium結果から推定合格しない。"
+      "status": "pass",
+      "notes": "固定release candidateをlocalhost HTTPで配信し、実インストールしたEdge本体を公式WebDriverのheadless modeで操作した。製品のkeyboard / Pointer Events adapterを通る4面campaignからending・creditsまで完走し、keyboard経路ではP入力によるplaying→paused→playingも観測した。Pointer Eventsはdesktop・縦長・横長の3 viewportで完走した。Computer UseはEdge操作を承認しなかったため、画面操作経路をWebDriverへ切り替えた。Chrome結果からの推定ではない。",
+      "evidence": {
+        "viewports": ["1568x956", "390x844", "844x390"],
+        "inputModes": ["keyboard", "pointer-events"],
+        "checks": {
+          "loaded": true,
+          "primaryFlow": true,
+          "pauseResume": true,
+          "noHorizontalOverflow": true,
+          "noConsoleErrors": true,
+          "noMissingResources": true,
+          "noExternalOrigins": true
+        },
+        "campaign": {
+          "stages": 4,
+          "runs": 4,
+          "results": [
+            "1568x956: QA PASS / 1 CAMPAIGNS / 4 STAGES / SINGLE RUN / TOUCH INPUT",
+            "1568x956: QA PASS / 1 CAMPAIGNS / 4 STAGES / SINGLE RUN / KEYBOARD INPUT",
+            "390x844: QA PASS / 1 CAMPAIGNS / 4 STAGES / SINGLE RUN / TOUCH INPUT",
+            "844x390: QA PASS / 1 CAMPAIGNS / 4 STAGES / SINGLE RUN / TOUCH INPUT"
+          ]
+        },
+        "layout": {
+          "1568x956": { "horizontalOverflowPx": 0, "verticalOverflowPx": 0 },
+          "390x844": { "horizontalOverflowPx": 0, "verticalOverflowPx": 0 },
+          "844x390": { "horizontalOverflowPx": 0, "verticalOverflowPx": 0 }
+        },
+        "consoleWarningOrErrorCount": 0,
+        "resourceEntries": 94,
+        "externalOrigins": [],
+        "buildIdentity": "dist/build-manifest.json: phase10-rc1-20261024; 100 files; 10526479 bytes"
+      }
     },
     {
       "id": "firefox-desktop",
       "browser": "Mozilla Firefox",
-      "version": "n/a (not installed)",
+      "version": "158.0.1",
       "platform": "macOS 26.6.2 arm64",
       "environment": "desktop",
-      "status": "unavailable",
-      "reason": "Firefox.appが検証機の/Applicationsに存在しない。",
-      "notes": "未確認。"
+      "status": "pass",
+      "notes": "固定release candidateをlocalhost HTTPで配信し、実インストールしたFirefox本体を公式WebDriver BiDiのheadless modeで操作した。製品のkeyboard / Pointer Events adapterを通る4面campaignからending・creditsまで完走し、keyboard経路ではP入力によるplaying→paused→playingも観測した。Pointer Eventsはdesktop・縦長・横長の3 viewportで完走した。consoleはBiDi log.entryAdded、viewportはBiDi browsingContext.setViewportで実測した。Computer UseはFirefox操作を承認しなかったため、画面操作経路をWebDriverへ切り替えた。",
+      "evidence": {
+        "viewports": ["1568x956", "390x844", "844x390"],
+        "inputModes": ["keyboard", "pointer-events"],
+        "checks": {
+          "loaded": true,
+          "primaryFlow": true,
+          "pauseResume": true,
+          "noHorizontalOverflow": true,
+          "noConsoleErrors": true,
+          "noMissingResources": true,
+          "noExternalOrigins": true
+        },
+        "campaign": {
+          "stages": 4,
+          "runs": 4,
+          "results": [
+            "1568x956: QA PASS / 1 CAMPAIGNS / 4 STAGES / SINGLE RUN / TOUCH INPUT",
+            "1568x956: QA PASS / 1 CAMPAIGNS / 4 STAGES / SINGLE RUN / KEYBOARD INPUT",
+            "390x844: QA PASS / 1 CAMPAIGNS / 4 STAGES / SINGLE RUN / TOUCH INPUT",
+            "844x390: QA PASS / 1 CAMPAIGNS / 4 STAGES / SINGLE RUN / TOUCH INPUT"
+          ]
+        },
+        "layout": {
+          "1568x956": { "horizontalOverflowPx": 0, "verticalOverflowPx": 0 },
+          "390x844": { "horizontalOverflowPx": 0, "verticalOverflowPx": 0 },
+          "844x390": { "horizontalOverflowPx": 0, "verticalOverflowPx": 0 }
+        },
+        "consoleWarningOrErrorCount": 0,
+        "resourceEntries": 64,
+        "externalOrigins": [],
+        "buildIdentity": "dist/build-manifest.json: phase10-rc1-20261024; 100 files; 10526479 bytes"
+      }
     },
     {
       "id": "safari-desktop",

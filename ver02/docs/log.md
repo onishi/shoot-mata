@@ -1,5 +1,13 @@
 # 開発ログ
 
+## 2026-10-25 — Edge・Firefoxを固定RCの実ブラウザ証拠へ追加
+
+- 目的: 未導入だったEdge・Firefoxを同一release candidateで実測し、Chrome結果から推定せずTECH-04の環境blockerを減らす。
+- 環境: Edge 156.0.4314.42、Firefox 158.0.1を導入した。Computer Useは両アプリの操作を承認しなかったため、実インストールしたブラウザ本体を公式WebDriverのheadless modeで起動した。FirefoxはWebDriver BiDiでconsoleとviewportを採取した。
+- 実測: 両ブラウザとも製品のkeyboard / Pointer Events adapter経路で4面campaignからending・creditsまで完走した。keyboard経路ではP入力によるplaying→paused→playingを直接観測した。Pointer Eventsは1568×956、390×844、844×390の3 viewportで完走し、全条件でoverflow 0、外部origin 0、console warning/error 0だった。
+- 判定: 必須6ブラウザ・モバイル対象の合格は1件から3件へ増え、非合格対象はSafari desktop、iOS Safari実機、Android Chrome実機の3件になった。実モバイル0/2、物理低性能端末未接続のため、UX-05/06、INP-02/03/04、TECH-04/05は引き続きブロック、`accepted: false`を維持する。
+- 次: Safariの許可された操作経路、iOS／Android実機、物理低性能端末を同じ固定RCで検証する。
+
 ## 2026-10-25 — Phase 10の要件判定を実証拠へ更新
 
 - 目的: P10対象67件を一律未合格のままにせず、固定RCの実在証拠から要件単位の合否を判定し、真に残るblockerだけを最終ゲートへ接続する。

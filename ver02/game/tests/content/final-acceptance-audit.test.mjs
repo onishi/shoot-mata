@@ -33,8 +33,6 @@ test("Phase 10 gate derives every current blocker and remains fail-closed", asyn
   ]);
   assert.deepEqual(result.deferredRequirementIds, ["REL-04", "REL-05", "REL-06"]);
   assert.deepEqual(result.nonPassingBrowserTargetIds, [
-    "edge-desktop",
-    "firefox-desktop",
     "safari-desktop",
     "ios-safari-device",
     "android-chrome-device",

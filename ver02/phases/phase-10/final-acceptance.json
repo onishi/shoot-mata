@@ -9,8 +9,6 @@
       "UX-05", "UX-06", "INP-02", "INP-03", "INP-04", "TECH-04", "TECH-05"
     ],
     "nonPassingBrowserTargetIds": [
-      "edge-desktop",
-      "firefox-desktop",
       "safari-desktop",
       "ios-safari-device",
       "android-chrome-device"
@@ -21,7 +19,7 @@
   "knownDefects": {
     "critical": [],
     "major": [],
-    "scope": "固定RCに対する205自動テスト、静的・証拠・素材・依存監査、Chrome desktopの観測範囲。未確認環境は欠陥0の根拠へ含めない。"
+    "scope": "固定RCに対する205自動テスト、静的・証拠・素材・依存監査、Chrome・Edge・Firefox desktopの観測範囲。未確認環境は欠陥0の根拠へ含めない。"
   },
   "decision": {
     "allPhase10RequirementsPass": false,
@@ -30,6 +28,6 @@
     "physicalLowPerformancePass": false,
     "noCriticalOrMajorDefects": true,
     "accepted": false,
-    "reason": "固定RCの既存証拠でPhase 10対象67行中60行を合格へ更新した。UX-05/06、INP-02/03/04、TECH-04/05は必須ブラウザ5対象、実モバイル2対象、物理低性能端末の証拠がなくブロック中である。SafariはComputer Useが今回も承認されず、推定合格せずPhase 10を継続する。"
+    "reason": "固定RCの既存証拠でPhase 10対象67行中60行が合格している。Edge 156とFirefox 158を追加検証し、必須6対象中3対象が合格した。UX-05/06、INP-02/03/04、TECH-04/05はSafari、実モバイル2対象、物理低性能端末の証拠がなくブロック中であり、Phase 10を継続する。"
   }
 }
