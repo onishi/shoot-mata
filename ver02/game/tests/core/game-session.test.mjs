@@ -24,7 +24,7 @@ function autoCommand(session) {
 
 function enterPlaying(session) {
   confirm(session);
-  if (session.flow.screen === "tutorial") confirm(session);
+  while (session.flow.screen === "tutorial") confirm(session);
   confirm(session);
   assert.equal(session.flow.screen, "playing");
 }
@@ -33,6 +33,10 @@ test("LOOP-01/INP-01: 共通commandで初回説明から戦闘へ入る", () => 
   const session = createGameSession({ seed: 77 });
   confirm(session);
   assert.equal(session.flow.screen, "tutorial");
+  confirm(session);
+  assert.equal(session.flow.tutorialStep, 1);
+  confirm(session);
+  assert.equal(session.flow.tutorialStep, 2);
   confirm(session);
   assert.equal(session.flow.screen, "stageIntro");
   confirm(session);

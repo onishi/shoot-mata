@@ -42,14 +42,18 @@ test("builds a frozen 16:9 view from stage data and HUD state", () => {
   assert.ok(Object.isFrozen(view.hud));
 });
 
-test("reduced motion freezes parallax without removing visual layers", () => {
+test("A11Y-02: 動き・明滅軽減と高コントラストを独立した描画設定へ渡す", () => {
   const view = createStageViewModel({
     stage: PHASE05_TEST_STAGE,
     tick: 500,
-    settings: { reducedMotion: true, highContrast: true },
+    settings: { reducedMotion: true, reducedFlashes: true, highContrast: true },
   });
   assert.deepEqual(view.layers.map(({ offsetX }) => offsetX), [0, 0, 0]);
-  assert.equal(view.display.highContrast, true);
+  assert.deepEqual(view.display, {
+    reducedMotion: true,
+    reducedFlashes: true,
+    highContrast: true,
+  });
 });
 
 test("PROG-06/A11Y-03: 危険予告を非色記号と読み上げ要約へ変換する", () => {

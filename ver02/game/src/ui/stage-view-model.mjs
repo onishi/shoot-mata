@@ -172,6 +172,7 @@ export function createStageViewModel(input) {
   const tick = integer(input.tick ?? 0, "tick");
   if (tick > stage.durationTicks) throw new RangeError("tick exceeds stage duration");
   const reducedMotion = input.settings?.reducedMotion === true;
+  const reducedFlashes = input.settings?.reducedFlashes === true;
   const highContrast = input.settings?.highContrast === true;
   const coreQueue = input.coreQueue ?? [];
   if (!Array.isArray(coreQueue) || coreQueue.length > 3 || coreQueue.some((id) => !CORE_PRESENTATION[id])) {
@@ -202,7 +203,7 @@ export function createStageViewModel(input) {
     sectionId: section.id,
     tick,
     progress: tick / stage.durationTicks,
-    display: Object.freeze({ reducedMotion, highContrast }),
+    display: Object.freeze({ reducedMotion, reducedFlashes, highContrast }),
     layers: Object.freeze(layers),
     actors: Object.freeze((input.actors ?? []).map(actor)),
     projectiles: Object.freeze((input.projectiles ?? []).map(projectile)),

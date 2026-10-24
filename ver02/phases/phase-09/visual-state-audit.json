@@ -1,0 +1,1374 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-24",
+  "scope": {
+    "objective": "render every product stage with weapon, core, projectile, actor-animation, VFX, warning, and clear states across accessible display profiles",
+    "limitation": "recorded Canvas commands prove deterministic state presence and non-color geometry; they do not measure subjective visual quality or human legibility"
+  },
+  "stageCount": 4,
+  "displayProfiles": [
+    "normal",
+    "high-contrast",
+    "reduced-motion",
+    "reduced-flashes"
+  ],
+  "thresholds": {
+    "weaponConfigurations": 10,
+    "projectileStates": 9,
+    "effectStates": 5,
+    "coreSymbols": 3
+  },
+  "flashCheck": {
+    "normalPulse": [
+      0.82,
+      1
+    ],
+    "reducedFlashPulse": [
+      0.95,
+      0.95
+    ]
+  },
+  "stages": [
+    {
+      "stageId": "stage-01-orbital-wreck",
+      "expectedAssets": [
+        "player-interceptor",
+        "core-red",
+        "core-blue",
+        "core-yellow",
+        "bg-stg01-far",
+        "bg-stg01-mid",
+        "bg-stg01-fore",
+        "enemy-stg01-collector",
+        "enemy-stg01-weaver",
+        "enemy-stg01-bulwark",
+        "boss-stg01-wreck-warden"
+      ],
+      "missingAssets": [],
+      "profiles": [
+        {
+          "id": "normal",
+          "commandSignature": "5e394a9b",
+          "weaponSignatures": [
+            {
+              "id": "unarmed-lv0",
+              "signature": "b4bca387"
+            },
+            {
+              "id": "red-lv1",
+              "signature": "f846219e"
+            },
+            {
+              "id": "red-lv2",
+              "signature": "b37be328"
+            },
+            {
+              "id": "red-lv3",
+              "signature": "5f1f482a"
+            },
+            {
+              "id": "blue-lv1",
+              "signature": "b0dbfe8c"
+            },
+            {
+              "id": "blue-lv2",
+              "signature": "17291a44"
+            },
+            {
+              "id": "blue-lv3",
+              "signature": "0c77902c"
+            },
+            {
+              "id": "yellow-lv1",
+              "signature": "fc5cd8c4"
+            },
+            {
+              "id": "yellow-lv2",
+              "signature": "7284e211"
+            },
+            {
+              "id": "yellow-lv3",
+              "signature": "b9a98818"
+            }
+          ],
+          "uniqueWeaponSignatures": 10,
+          "actorAnimationStates": [
+            "attack",
+            "enter",
+            "hit",
+            "move",
+            "phase"
+          ],
+          "projectileStates": [
+            "lance-lv1",
+            "lance-lv2",
+            "lance-lv3",
+            "spread-lv1",
+            "spread-lv2",
+            "spread-lv3",
+            "seeker-lv1",
+            "seeker-lv2",
+            "seeker-lv3"
+          ],
+          "effectStates": [
+            "hit",
+            "damage",
+            "destroy",
+            "collect",
+            "eject"
+          ],
+          "coreQueueSymbols": [
+            "I",
+            "+",
+            "◎"
+          ],
+          "transition": "clear",
+          "parallaxFrozen": false
+        },
+        {
+          "id": "high-contrast",
+          "commandSignature": "0fc94a1c",
+          "weaponSignatures": [
+            {
+              "id": "unarmed-lv0",
+              "signature": "118806d8"
+            },
+            {
+              "id": "red-lv1",
+              "signature": "0927aa8d"
+            },
+            {
+              "id": "red-lv2",
+              "signature": "2cb59557"
+            },
+            {
+              "id": "red-lv3",
+              "signature": "9e9f5251"
+            },
+            {
+              "id": "blue-lv1",
+              "signature": "023112c9"
+            },
+            {
+              "id": "blue-lv2",
+              "signature": "32a0c2b3"
+            },
+            {
+              "id": "blue-lv3",
+              "signature": "de547db5"
+            },
+            {
+              "id": "yellow-lv1",
+              "signature": "5963072f"
+            },
+            {
+              "id": "yellow-lv2",
+              "signature": "ef9ca600"
+            },
+            {
+              "id": "yellow-lv3",
+              "signature": "28c974ef"
+            }
+          ],
+          "uniqueWeaponSignatures": 10,
+          "actorAnimationStates": [
+            "attack",
+            "enter",
+            "hit",
+            "move",
+            "phase"
+          ],
+          "projectileStates": [
+            "lance-lv1",
+            "lance-lv2",
+            "lance-lv3",
+            "spread-lv1",
+            "spread-lv2",
+            "spread-lv3",
+            "seeker-lv1",
+            "seeker-lv2",
+            "seeker-lv3"
+          ],
+          "effectStates": [
+            "hit",
+            "damage",
+            "destroy",
+            "collect",
+            "eject"
+          ],
+          "coreQueueSymbols": [
+            "I",
+            "+",
+            "◎"
+          ],
+          "transition": "clear",
+          "parallaxFrozen": false
+        },
+        {
+          "id": "reduced-motion",
+          "commandSignature": "01bac679",
+          "weaponSignatures": [
+            {
+              "id": "unarmed-lv0",
+              "signature": "b4bca387"
+            },
+            {
+              "id": "red-lv1",
+              "signature": "f846219e"
+            },
+            {
+              "id": "red-lv2",
+              "signature": "b37be328"
+            },
+            {
+              "id": "red-lv3",
+              "signature": "5f1f482a"
+            },
+            {
+              "id": "blue-lv1",
+              "signature": "b0dbfe8c"
+            },
+            {
+              "id": "blue-lv2",
+              "signature": "17291a44"
+            },
+            {
+              "id": "blue-lv3",
+              "signature": "0c77902c"
+            },
+            {
+              "id": "yellow-lv1",
+              "signature": "fc5cd8c4"
+            },
+            {
+              "id": "yellow-lv2",
+              "signature": "7284e211"
+            },
+            {
+              "id": "yellow-lv3",
+              "signature": "b9a98818"
+            }
+          ],
+          "uniqueWeaponSignatures": 10,
+          "actorAnimationStates": [
+            "attack",
+            "enter",
+            "hit",
+            "move",
+            "phase"
+          ],
+          "projectileStates": [
+            "lance-lv1",
+            "lance-lv2",
+            "lance-lv3",
+            "spread-lv1",
+            "spread-lv2",
+            "spread-lv3",
+            "seeker-lv1",
+            "seeker-lv2",
+            "seeker-lv3"
+          ],
+          "effectStates": [
+            "hit",
+            "damage",
+            "destroy",
+            "collect",
+            "eject"
+          ],
+          "coreQueueSymbols": [
+            "I",
+            "+",
+            "◎"
+          ],
+          "transition": "clear",
+          "parallaxFrozen": true
+        },
+        {
+          "id": "reduced-flashes",
+          "commandSignature": "5e394a9b",
+          "weaponSignatures": [
+            {
+              "id": "unarmed-lv0",
+              "signature": "b4bca387"
+            },
+            {
+              "id": "red-lv1",
+              "signature": "f846219e"
+            },
+            {
+              "id": "red-lv2",
+              "signature": "b37be328"
+            },
+            {
+              "id": "red-lv3",
+              "signature": "5f1f482a"
+            },
+            {
+              "id": "blue-lv1",
+              "signature": "b0dbfe8c"
+            },
+            {
+              "id": "blue-lv2",
+              "signature": "17291a44"
+            },
+            {
+              "id": "blue-lv3",
+              "signature": "0c77902c"
+            },
+            {
+              "id": "yellow-lv1",
+              "signature": "fc5cd8c4"
+            },
+            {
+              "id": "yellow-lv2",
+              "signature": "7284e211"
+            },
+            {
+              "id": "yellow-lv3",
+              "signature": "b9a98818"
+            }
+          ],
+          "uniqueWeaponSignatures": 10,
+          "actorAnimationStates": [
+            "attack",
+            "enter",
+            "hit",
+            "move",
+            "phase"
+          ],
+          "projectileStates": [
+            "lance-lv1",
+            "lance-lv2",
+            "lance-lv3",
+            "spread-lv1",
+            "spread-lv2",
+            "spread-lv3",
+            "seeker-lv1",
+            "seeker-lv2",
+            "seeker-lv3"
+          ],
+          "effectStates": [
+            "hit",
+            "damage",
+            "destroy",
+            "collect",
+            "eject"
+          ],
+          "coreQueueSymbols": [
+            "I",
+            "+",
+            "◎"
+          ],
+          "transition": "clear",
+          "parallaxFrozen": false
+        }
+      ]
+    },
+    {
+      "stageId": "stage-02-cloud-refinery",
+      "expectedAssets": [
+        "player-interceptor",
+        "core-red",
+        "core-blue",
+        "core-yellow",
+        "bg-stg02-far",
+        "bg-stg02-mid",
+        "bg-stg02-fore",
+        "enemy-stg02-skimmer",
+        "enemy-stg02-turret",
+        "enemy-stg02-diver",
+        "boss-stg02-refinery-guardian"
+      ],
+      "missingAssets": [],
+      "profiles": [
+        {
+          "id": "normal",
+          "commandSignature": "46ae2d42",
+          "weaponSignatures": [
+            {
+              "id": "unarmed-lv0",
+              "signature": "b4bca387"
+            },
+            {
+              "id": "red-lv1",
+              "signature": "f846219e"
+            },
+            {
+              "id": "red-lv2",
+              "signature": "b37be328"
+            },
+            {
+              "id": "red-lv3",
+              "signature": "5f1f482a"
+            },
+            {
+              "id": "blue-lv1",
+              "signature": "b0dbfe8c"
+            },
+            {
+              "id": "blue-lv2",
+              "signature": "17291a44"
+            },
+            {
+              "id": "blue-lv3",
+              "signature": "0c77902c"
+            },
+            {
+              "id": "yellow-lv1",
+              "signature": "fc5cd8c4"
+            },
+            {
+              "id": "yellow-lv2",
+              "signature": "7284e211"
+            },
+            {
+              "id": "yellow-lv3",
+              "signature": "b9a98818"
+            }
+          ],
+          "uniqueWeaponSignatures": 10,
+          "actorAnimationStates": [
+            "attack",
+            "enter",
+            "hit",
+            "move",
+            "phase"
+          ],
+          "projectileStates": [
+            "lance-lv1",
+            "lance-lv2",
+            "lance-lv3",
+            "spread-lv1",
+            "spread-lv2",
+            "spread-lv3",
+            "seeker-lv1",
+            "seeker-lv2",
+            "seeker-lv3"
+          ],
+          "effectStates": [
+            "hit",
+            "damage",
+            "destroy",
+            "collect",
+            "eject"
+          ],
+          "coreQueueSymbols": [
+            "I",
+            "+",
+            "◎"
+          ],
+          "transition": "clear",
+          "parallaxFrozen": false
+        },
+        {
+          "id": "high-contrast",
+          "commandSignature": "067c1ac3",
+          "weaponSignatures": [
+            {
+              "id": "unarmed-lv0",
+              "signature": "118806d8"
+            },
+            {
+              "id": "red-lv1",
+              "signature": "0927aa8d"
+            },
+            {
+              "id": "red-lv2",
+              "signature": "2cb59557"
+            },
+            {
+              "id": "red-lv3",
+              "signature": "9e9f5251"
+            },
+            {
+              "id": "blue-lv1",
+              "signature": "023112c9"
+            },
+            {
+              "id": "blue-lv2",
+              "signature": "32a0c2b3"
+            },
+            {
+              "id": "blue-lv3",
+              "signature": "de547db5"
+            },
+            {
+              "id": "yellow-lv1",
+              "signature": "5963072f"
+            },
+            {
+              "id": "yellow-lv2",
+              "signature": "ef9ca600"
+            },
+            {
+              "id": "yellow-lv3",
+              "signature": "28c974ef"
+            }
+          ],
+          "uniqueWeaponSignatures": 10,
+          "actorAnimationStates": [
+            "attack",
+            "enter",
+            "hit",
+            "move",
+            "phase"
+          ],
+          "projectileStates": [
+            "lance-lv1",
+            "lance-lv2",
+            "lance-lv3",
+            "spread-lv1",
+            "spread-lv2",
+            "spread-lv3",
+            "seeker-lv1",
+            "seeker-lv2",
+            "seeker-lv3"
+          ],
+          "effectStates": [
+            "hit",
+            "damage",
+            "destroy",
+            "collect",
+            "eject"
+          ],
+          "coreQueueSymbols": [
+            "I",
+            "+",
+            "◎"
+          ],
+          "transition": "clear",
+          "parallaxFrozen": false
+        },
+        {
+          "id": "reduced-motion",
+          "commandSignature": "7ad6da48",
+          "weaponSignatures": [
+            {
+              "id": "unarmed-lv0",
+              "signature": "b4bca387"
+            },
+            {
+              "id": "red-lv1",
+              "signature": "f846219e"
+            },
+            {
+              "id": "red-lv2",
+              "signature": "b37be328"
+            },
+            {
+              "id": "red-lv3",
+              "signature": "5f1f482a"
+            },
+            {
+              "id": "blue-lv1",
+              "signature": "b0dbfe8c"
+            },
+            {
+              "id": "blue-lv2",
+              "signature": "17291a44"
+            },
+            {
+              "id": "blue-lv3",
+              "signature": "0c77902c"
+            },
+            {
+              "id": "yellow-lv1",
+              "signature": "fc5cd8c4"
+            },
+            {
+              "id": "yellow-lv2",
+              "signature": "7284e211"
+            },
+            {
+              "id": "yellow-lv3",
+              "signature": "b9a98818"
+            }
+          ],
+          "uniqueWeaponSignatures": 10,
+          "actorAnimationStates": [
+            "attack",
+            "enter",
+            "hit",
+            "move",
+            "phase"
+          ],
+          "projectileStates": [
+            "lance-lv1",
+            "lance-lv2",
+            "lance-lv3",
+            "spread-lv1",
+            "spread-lv2",
+            "spread-lv3",
+            "seeker-lv1",
+            "seeker-lv2",
+            "seeker-lv3"
+          ],
+          "effectStates": [
+            "hit",
+            "damage",
+            "destroy",
+            "collect",
+            "eject"
+          ],
+          "coreQueueSymbols": [
+            "I",
+            "+",
+            "◎"
+          ],
+          "transition": "clear",
+          "parallaxFrozen": true
+        },
+        {
+          "id": "reduced-flashes",
+          "commandSignature": "46ae2d42",
+          "weaponSignatures": [
+            {
+              "id": "unarmed-lv0",
+              "signature": "b4bca387"
+            },
+            {
+              "id": "red-lv1",
+              "signature": "f846219e"
+            },
+            {
+              "id": "red-lv2",
+              "signature": "b37be328"
+            },
+            {
+              "id": "red-lv3",
+              "signature": "5f1f482a"
+            },
+            {
+              "id": "blue-lv1",
+              "signature": "b0dbfe8c"
+            },
+            {
+              "id": "blue-lv2",
+              "signature": "17291a44"
+            },
+            {
+              "id": "blue-lv3",
+              "signature": "0c77902c"
+            },
+            {
+              "id": "yellow-lv1",
+              "signature": "fc5cd8c4"
+            },
+            {
+              "id": "yellow-lv2",
+              "signature": "7284e211"
+            },
+            {
+              "id": "yellow-lv3",
+              "signature": "b9a98818"
+            }
+          ],
+          "uniqueWeaponSignatures": 10,
+          "actorAnimationStates": [
+            "attack",
+            "enter",
+            "hit",
+            "move",
+            "phase"
+          ],
+          "projectileStates": [
+            "lance-lv1",
+            "lance-lv2",
+            "lance-lv3",
+            "spread-lv1",
+            "spread-lv2",
+            "spread-lv3",
+            "seeker-lv1",
+            "seeker-lv2",
+            "seeker-lv3"
+          ],
+          "effectStates": [
+            "hit",
+            "damage",
+            "destroy",
+            "collect",
+            "eject"
+          ],
+          "coreQueueSymbols": [
+            "I",
+            "+",
+            "◎"
+          ],
+          "transition": "clear",
+          "parallaxFrozen": false
+        }
+      ]
+    },
+    {
+      "stageId": "stage-03-living-ark",
+      "expectedAssets": [
+        "player-interceptor",
+        "core-red",
+        "core-blue",
+        "core-yellow",
+        "bg-stg03-far",
+        "bg-stg03-mid",
+        "bg-stg03-fore",
+        "enemy-stg03-swarm",
+        "enemy-stg03-parasite",
+        "enemy-stg03-predator",
+        "boss-stg03-ark-core"
+      ],
+      "missingAssets": [],
+      "profiles": [
+        {
+          "id": "normal",
+          "commandSignature": "d0ee1327",
+          "weaponSignatures": [
+            {
+              "id": "unarmed-lv0",
+              "signature": "b4bca387"
+            },
+            {
+              "id": "red-lv1",
+              "signature": "f846219e"
+            },
+            {
+              "id": "red-lv2",
+              "signature": "b37be328"
+            },
+            {
+              "id": "red-lv3",
+              "signature": "5f1f482a"
+            },
+            {
+              "id": "blue-lv1",
+              "signature": "b0dbfe8c"
+            },
+            {
+              "id": "blue-lv2",
+              "signature": "17291a44"
+            },
+            {
+              "id": "blue-lv3",
+              "signature": "0c77902c"
+            },
+            {
+              "id": "yellow-lv1",
+              "signature": "fc5cd8c4"
+            },
+            {
+              "id": "yellow-lv2",
+              "signature": "7284e211"
+            },
+            {
+              "id": "yellow-lv3",
+              "signature": "b9a98818"
+            }
+          ],
+          "uniqueWeaponSignatures": 10,
+          "actorAnimationStates": [
+            "attack",
+            "enter",
+            "hit",
+            "move",
+            "phase"
+          ],
+          "projectileStates": [
+            "lance-lv1",
+            "lance-lv2",
+            "lance-lv3",
+            "spread-lv1",
+            "spread-lv2",
+            "spread-lv3",
+            "seeker-lv1",
+            "seeker-lv2",
+            "seeker-lv3"
+          ],
+          "effectStates": [
+            "hit",
+            "damage",
+            "destroy",
+            "collect",
+            "eject"
+          ],
+          "coreQueueSymbols": [
+            "I",
+            "+",
+            "◎"
+          ],
+          "transition": "clear",
+          "parallaxFrozen": false
+        },
+        {
+          "id": "high-contrast",
+          "commandSignature": "c706dd26",
+          "weaponSignatures": [
+            {
+              "id": "unarmed-lv0",
+              "signature": "118806d8"
+            },
+            {
+              "id": "red-lv1",
+              "signature": "0927aa8d"
+            },
+            {
+              "id": "red-lv2",
+              "signature": "2cb59557"
+            },
+            {
+              "id": "red-lv3",
+              "signature": "9e9f5251"
+            },
+            {
+              "id": "blue-lv1",
+              "signature": "023112c9"
+            },
+            {
+              "id": "blue-lv2",
+              "signature": "32a0c2b3"
+            },
+            {
+              "id": "blue-lv3",
+              "signature": "de547db5"
+            },
+            {
+              "id": "yellow-lv1",
+              "signature": "5963072f"
+            },
+            {
+              "id": "yellow-lv2",
+              "signature": "ef9ca600"
+            },
+            {
+              "id": "yellow-lv3",
+              "signature": "28c974ef"
+            }
+          ],
+          "uniqueWeaponSignatures": 10,
+          "actorAnimationStates": [
+            "attack",
+            "enter",
+            "hit",
+            "move",
+            "phase"
+          ],
+          "projectileStates": [
+            "lance-lv1",
+            "lance-lv2",
+            "lance-lv3",
+            "spread-lv1",
+            "spread-lv2",
+            "spread-lv3",
+            "seeker-lv1",
+            "seeker-lv2",
+            "seeker-lv3"
+          ],
+          "effectStates": [
+            "hit",
+            "damage",
+            "destroy",
+            "collect",
+            "eject"
+          ],
+          "coreQueueSymbols": [
+            "I",
+            "+",
+            "◎"
+          ],
+          "transition": "clear",
+          "parallaxFrozen": false
+        },
+        {
+          "id": "reduced-motion",
+          "commandSignature": "4b6f195f",
+          "weaponSignatures": [
+            {
+              "id": "unarmed-lv0",
+              "signature": "b4bca387"
+            },
+            {
+              "id": "red-lv1",
+              "signature": "f846219e"
+            },
+            {
+              "id": "red-lv2",
+              "signature": "b37be328"
+            },
+            {
+              "id": "red-lv3",
+              "signature": "5f1f482a"
+            },
+            {
+              "id": "blue-lv1",
+              "signature": "b0dbfe8c"
+            },
+            {
+              "id": "blue-lv2",
+              "signature": "17291a44"
+            },
+            {
+              "id": "blue-lv3",
+              "signature": "0c77902c"
+            },
+            {
+              "id": "yellow-lv1",
+              "signature": "fc5cd8c4"
+            },
+            {
+              "id": "yellow-lv2",
+              "signature": "7284e211"
+            },
+            {
+              "id": "yellow-lv3",
+              "signature": "b9a98818"
+            }
+          ],
+          "uniqueWeaponSignatures": 10,
+          "actorAnimationStates": [
+            "attack",
+            "enter",
+            "hit",
+            "move",
+            "phase"
+          ],
+          "projectileStates": [
+            "lance-lv1",
+            "lance-lv2",
+            "lance-lv3",
+            "spread-lv1",
+            "spread-lv2",
+            "spread-lv3",
+            "seeker-lv1",
+            "seeker-lv2",
+            "seeker-lv3"
+          ],
+          "effectStates": [
+            "hit",
+            "damage",
+            "destroy",
+            "collect",
+            "eject"
+          ],
+          "coreQueueSymbols": [
+            "I",
+            "+",
+            "◎"
+          ],
+          "transition": "clear",
+          "parallaxFrozen": true
+        },
+        {
+          "id": "reduced-flashes",
+          "commandSignature": "d0ee1327",
+          "weaponSignatures": [
+            {
+              "id": "unarmed-lv0",
+              "signature": "b4bca387"
+            },
+            {
+              "id": "red-lv1",
+              "signature": "f846219e"
+            },
+            {
+              "id": "red-lv2",
+              "signature": "b37be328"
+            },
+            {
+              "id": "red-lv3",
+              "signature": "5f1f482a"
+            },
+            {
+              "id": "blue-lv1",
+              "signature": "b0dbfe8c"
+            },
+            {
+              "id": "blue-lv2",
+              "signature": "17291a44"
+            },
+            {
+              "id": "blue-lv3",
+              "signature": "0c77902c"
+            },
+            {
+              "id": "yellow-lv1",
+              "signature": "fc5cd8c4"
+            },
+            {
+              "id": "yellow-lv2",
+              "signature": "7284e211"
+            },
+            {
+              "id": "yellow-lv3",
+              "signature": "b9a98818"
+            }
+          ],
+          "uniqueWeaponSignatures": 10,
+          "actorAnimationStates": [
+            "attack",
+            "enter",
+            "hit",
+            "move",
+            "phase"
+          ],
+          "projectileStates": [
+            "lance-lv1",
+            "lance-lv2",
+            "lance-lv3",
+            "spread-lv1",
+            "spread-lv2",
+            "spread-lv3",
+            "seeker-lv1",
+            "seeker-lv2",
+            "seeker-lv3"
+          ],
+          "effectStates": [
+            "hit",
+            "damage",
+            "destroy",
+            "collect",
+            "eject"
+          ],
+          "coreQueueSymbols": [
+            "I",
+            "+",
+            "◎"
+          ],
+          "transition": "clear",
+          "parallaxFrozen": false
+        }
+      ]
+    },
+    {
+      "stageId": "stage-04-stellar-furnace",
+      "expectedAssets": [
+        "player-interceptor",
+        "core-red",
+        "core-blue",
+        "core-yellow",
+        "bg-stg04-far",
+        "bg-stg04-mid",
+        "bg-stg04-fore",
+        "enemy-stg04-heat-armor",
+        "enemy-stg04-rammer",
+        "enemy-stg04-omni-turret",
+        "boss-stg04-furnace-controller"
+      ],
+      "missingAssets": [],
+      "profiles": [
+        {
+          "id": "normal",
+          "commandSignature": "77b9a320",
+          "weaponSignatures": [
+            {
+              "id": "unarmed-lv0",
+              "signature": "b4bca387"
+            },
+            {
+              "id": "red-lv1",
+              "signature": "f846219e"
+            },
+            {
+              "id": "red-lv2",
+              "signature": "b37be328"
+            },
+            {
+              "id": "red-lv3",
+              "signature": "5f1f482a"
+            },
+            {
+              "id": "blue-lv1",
+              "signature": "b0dbfe8c"
+            },
+            {
+              "id": "blue-lv2",
+              "signature": "17291a44"
+            },
+            {
+              "id": "blue-lv3",
+              "signature": "0c77902c"
+            },
+            {
+              "id": "yellow-lv1",
+              "signature": "fc5cd8c4"
+            },
+            {
+              "id": "yellow-lv2",
+              "signature": "7284e211"
+            },
+            {
+              "id": "yellow-lv3",
+              "signature": "b9a98818"
+            }
+          ],
+          "uniqueWeaponSignatures": 10,
+          "actorAnimationStates": [
+            "attack",
+            "enter",
+            "hit",
+            "move",
+            "phase"
+          ],
+          "projectileStates": [
+            "lance-lv1",
+            "lance-lv2",
+            "lance-lv3",
+            "spread-lv1",
+            "spread-lv2",
+            "spread-lv3",
+            "seeker-lv1",
+            "seeker-lv2",
+            "seeker-lv3"
+          ],
+          "effectStates": [
+            "hit",
+            "damage",
+            "destroy",
+            "collect",
+            "eject"
+          ],
+          "coreQueueSymbols": [
+            "I",
+            "+",
+            "◎"
+          ],
+          "transition": "clear",
+          "parallaxFrozen": false
+        },
+        {
+          "id": "high-contrast",
+          "commandSignature": "796f540d",
+          "weaponSignatures": [
+            {
+              "id": "unarmed-lv0",
+              "signature": "118806d8"
+            },
+            {
+              "id": "red-lv1",
+              "signature": "0927aa8d"
+            },
+            {
+              "id": "red-lv2",
+              "signature": "2cb59557"
+            },
+            {
+              "id": "red-lv3",
+              "signature": "9e9f5251"
+            },
+            {
+              "id": "blue-lv1",
+              "signature": "023112c9"
+            },
+            {
+              "id": "blue-lv2",
+              "signature": "32a0c2b3"
+            },
+            {
+              "id": "blue-lv3",
+              "signature": "de547db5"
+            },
+            {
+              "id": "yellow-lv1",
+              "signature": "5963072f"
+            },
+            {
+              "id": "yellow-lv2",
+              "signature": "ef9ca600"
+            },
+            {
+              "id": "yellow-lv3",
+              "signature": "28c974ef"
+            }
+          ],
+          "uniqueWeaponSignatures": 10,
+          "actorAnimationStates": [
+            "attack",
+            "enter",
+            "hit",
+            "move",
+            "phase"
+          ],
+          "projectileStates": [
+            "lance-lv1",
+            "lance-lv2",
+            "lance-lv3",
+            "spread-lv1",
+            "spread-lv2",
+            "spread-lv3",
+            "seeker-lv1",
+            "seeker-lv2",
+            "seeker-lv3"
+          ],
+          "effectStates": [
+            "hit",
+            "damage",
+            "destroy",
+            "collect",
+            "eject"
+          ],
+          "coreQueueSymbols": [
+            "I",
+            "+",
+            "◎"
+          ],
+          "transition": "clear",
+          "parallaxFrozen": false
+        },
+        {
+          "id": "reduced-motion",
+          "commandSignature": "b172dbf6",
+          "weaponSignatures": [
+            {
+              "id": "unarmed-lv0",
+              "signature": "b4bca387"
+            },
+            {
+              "id": "red-lv1",
+              "signature": "f846219e"
+            },
+            {
+              "id": "red-lv2",
+              "signature": "b37be328"
+            },
+            {
+              "id": "red-lv3",
+              "signature": "5f1f482a"
+            },
+            {
+              "id": "blue-lv1",
+              "signature": "b0dbfe8c"
+            },
+            {
+              "id": "blue-lv2",
+              "signature": "17291a44"
+            },
+            {
+              "id": "blue-lv3",
+              "signature": "0c77902c"
+            },
+            {
+              "id": "yellow-lv1",
+              "signature": "fc5cd8c4"
+            },
+            {
+              "id": "yellow-lv2",
+              "signature": "7284e211"
+            },
+            {
+              "id": "yellow-lv3",
+              "signature": "b9a98818"
+            }
+          ],
+          "uniqueWeaponSignatures": 10,
+          "actorAnimationStates": [
+            "attack",
+            "enter",
+            "hit",
+            "move",
+            "phase"
+          ],
+          "projectileStates": [
+            "lance-lv1",
+            "lance-lv2",
+            "lance-lv3",
+            "spread-lv1",
+            "spread-lv2",
+            "spread-lv3",
+            "seeker-lv1",
+            "seeker-lv2",
+            "seeker-lv3"
+          ],
+          "effectStates": [
+            "hit",
+            "damage",
+            "destroy",
+            "collect",
+            "eject"
+          ],
+          "coreQueueSymbols": [
+            "I",
+            "+",
+            "◎"
+          ],
+          "transition": "clear",
+          "parallaxFrozen": true
+        },
+        {
+          "id": "reduced-flashes",
+          "commandSignature": "77b9a320",
+          "weaponSignatures": [
+            {
+              "id": "unarmed-lv0",
+              "signature": "b4bca387"
+            },
+            {
+              "id": "red-lv1",
+              "signature": "f846219e"
+            },
+            {
+              "id": "red-lv2",
+              "signature": "b37be328"
+            },
+            {
+              "id": "red-lv3",
+              "signature": "5f1f482a"
+            },
+            {
+              "id": "blue-lv1",
+              "signature": "b0dbfe8c"
+            },
+            {
+              "id": "blue-lv2",
+              "signature": "17291a44"
+            },
+            {
+              "id": "blue-lv3",
+              "signature": "0c77902c"
+            },
+            {
+              "id": "yellow-lv1",
+              "signature": "fc5cd8c4"
+            },
+            {
+              "id": "yellow-lv2",
+              "signature": "7284e211"
+            },
+            {
+              "id": "yellow-lv3",
+              "signature": "b9a98818"
+            }
+          ],
+          "uniqueWeaponSignatures": 10,
+          "actorAnimationStates": [
+            "attack",
+            "enter",
+            "hit",
+            "move",
+            "phase"
+          ],
+          "projectileStates": [
+            "lance-lv1",
+            "lance-lv2",
+            "lance-lv3",
+            "spread-lv1",
+            "spread-lv2",
+            "spread-lv3",
+            "seeker-lv1",
+            "seeker-lv2",
+            "seeker-lv3"
+          ],
+          "effectStates": [
+            "hit",
+            "damage",
+            "destroy",
+            "collect",
+            "eject"
+          ],
+          "coreQueueSymbols": [
+            "I",
+            "+",
+            "◎"
+          ],
+          "transition": "clear",
+          "parallaxFrozen": false
+        }
+      ]
+    }
+  ],
+  "violations": []
+}

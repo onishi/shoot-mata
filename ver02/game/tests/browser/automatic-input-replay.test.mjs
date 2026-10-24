@@ -26,14 +26,14 @@ class ReplayTarget extends EventTarget {
   setPointerCapture() {}
 }
 
-function primaryAction(screen) {
+function primaryAction(session) {
   return {
     title: "start-campaign",
-    tutorial: "complete-tutorial",
+    tutorial: session.flow.tutorialStep < 2 ? "next-tutorial" : "complete-tutorial",
     stageIntro: "begin-stage",
     result: "advance",
     ending: "complete-ending",
-  }[screen] ?? null;
+  }[session.flow.screen] ?? null;
 }
 
 function runCampaignThroughAdapter(mode) {
@@ -69,7 +69,7 @@ function runCampaignThroughAdapter(mode) {
     keyboardTarget,
     pointerTarget,
     activatePrimary() {
-      const action = primaryAction(session.flow.screen);
+      const action = primaryAction(session);
       assert.ok(action, `no primary action for ${session.flow.screen}`);
       primaryActivated = true;
       application.dispatch(action);
@@ -120,7 +120,7 @@ test("INP-04: Pointer Eventsを製品input adapterへ通して4面campaignを完
   assert.equal(getCampaignSummary(result.session).score, 49_620);
   assert.equal(result.evidence.keyboardEvents, 0);
   assert.ok(result.evidence.pointerEvents > 1_000);
-  assert.equal(result.evidence.primaryActivations, 11);
+  assert.equal(result.evidence.primaryActivations, 13);
   assert.ok(result.evidence.gameplayFrames > 10_000);
 });
 

@@ -7,6 +7,8 @@ import {
 
 const ACTION_EVENTS = Object.freeze({
   "start-campaign": "START_CAMPAIGN",
+  "open-tutorial": "OPEN_TUTORIAL",
+  "next-tutorial": "NEXT_TUTORIAL",
   "open-stage-select": "OPEN_STAGE_SELECT",
   "complete-tutorial": "COMPLETE_TUTORIAL",
   "begin-stage": "BEGIN_STAGE",
@@ -116,7 +118,10 @@ export function updateGameSession(session, stage, command = {}) {
       }
       break;
     case "tutorial":
-      if (command.confirm === true) dispatchGameAction(session, stage, "complete-tutorial");
+      if (command.confirm === true) {
+        dispatchGameAction(session, stage, session.flow.tutorialStep < 2
+          ? "next-tutorial" : "complete-tutorial");
+      }
       break;
     case "stageIntro":
       if (command.confirm === true) dispatchGameAction(session, stage, "begin-stage");

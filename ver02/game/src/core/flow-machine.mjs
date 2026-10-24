@@ -36,6 +36,7 @@ export function createFlowState(options = {}) {
     attempt: 0,
     continuesRemaining: INITIAL_CONTINUES,
     tutorialSeen: options.tutorialSeen === true,
+    tutorialStep: 0,
     stageCleared: false,
   };
 }
@@ -101,8 +102,16 @@ export function transitionFlow(state, event) {
         stageIndex: 0,
         attempt: 1,
         continuesRemaining: INITIAL_CONTINUES,
+        tutorialStep: 0,
         stageCleared: false,
       });
+    case "OPEN_TUTORIAL":
+      requireScreen(state, event.type, "title");
+      return nextState(state, { screen: "tutorial", returnScreen: "title", tutorialStep: 0 });
+    case "NEXT_TUTORIAL":
+      requireScreen(state, event.type, "tutorial");
+      if (state.tutorialStep >= 2) throw new Error("tutorial is already at its final step");
+      return nextState(state, { tutorialStep: state.tutorialStep + 1 });
     case "OPEN_STAGE_SELECT":
       requireScreen(state, event.type, "title", "result");
       return nextState(state, { screen: "stageSelect", mode: null, stageIndex: null });
@@ -120,6 +129,14 @@ export function transitionFlow(state, event) {
       return nextState(state, { screen: state.returnScreen, returnScreen: null });
     case "COMPLETE_TUTORIAL":
       requireScreen(state, event.type, "tutorial");
+      if (state.returnScreen !== null) {
+        return nextState(state, {
+          screen: state.returnScreen,
+          returnScreen: null,
+          tutorialSeen: true,
+          tutorialStep: 0,
+        });
+      }
       return nextState(state, { screen: "stageIntro", tutorialSeen: true });
     case "BEGIN_STAGE":
       requireScreen(state, event.type, "stageIntro");

@@ -85,6 +85,7 @@ const session = application.session;
 const savedSettings = application.getSettings();
 const displaySettings = {
   reducedMotion: savedSettings.reducedMotion || matchMedia("(prefers-reduced-motion: reduce)").matches,
+  reducedFlashes: savedSettings.reducedFlashes,
   highContrast: savedSettings.highContrast,
 };
 const qaEnabled = qaStageIndex !== null || qaCampaign || qaFailureReview;
@@ -188,6 +189,7 @@ function screenDefinition() {
       actions: [
         ["start-campaign", "CAMPAIGN START", true],
         ["toggle-difficulty", `難易度: ${difficultyLabel}（変更）`],
+        ["open-tutorial", "遊び方"],
         ["open-stage-select", "ステージ選択"],
         ["open-credits", "クレジット"],
       ],
@@ -207,12 +209,26 @@ function screenDefinition() {
         ["return-title", "タイトルへ戻る"],
       ],
     },
-    tutorial: {
-      kicker: "FIRST FLIGHT",
-      title: "操作説明",
-      copy: "矢印/WASDで移動、Z/Spaceで射撃、Pでポーズ。コアは取得順に3枠へ入り、先頭色が主武器になります。",
-      actions: [["complete-tutorial", "次へ", true]],
-    },
+    tutorial: [
+      {
+        kicker: "FIRST FLIGHT / 1 OF 3",
+        title: "まず移動とポーズ",
+        copy: "矢印またはWASDで移動します。危険予告の記号と名前を見て安全な空間へ移動し、Pでいつでもポーズできます。",
+        actions: [["next-tutorial", "射撃の説明へ", true]],
+      },
+      {
+        kicker: "FIRST FLIGHT / 2 OF 3",
+        title: "射撃して道を拓く",
+        copy: "ZまたはSpaceで射撃します。赤は貫通、青は広射線、黄は追尾。武器はコア構成で成長します。",
+        actions: [["next-tutorial", "コアの説明へ", true]],
+      },
+      {
+        kicker: "FIRST FLIGHT / 3 OF 3",
+        title: "3枠のリアクター",
+        copy: "コアは取得順に3枠へ入り、先頭色が主武器、同色数がLvです。4個目を取ると最古のコアを押し出すため、次の構成を選べます。",
+        actions: [["complete-tutorial", session.flow.returnScreen === "title" ? "タイトルへ戻る" : "出撃準備へ", true]],
+      },
+    ][session.flow.tutorialStep],
     stageIntro: {
       kicker: `ATTEMPT ${session.flow.attempt}`,
       title: selectedStage().title,
@@ -273,7 +289,7 @@ function syncScreen() {
   canvas.setAttribute("aria-label", `${stageName}。矢印またはWASDで移動、ZまたはSpaceで射撃、Pでポーズ`);
   document.title = `shoot-mata v02 — ${stage.title}`;
   const definition = screenDefinition();
-  const key = `${session.flow.screen}:${session.flow.confirmation}:${session.flow.attempt}:${session.lastRun?.score ?? 0}:${application.getSettings().difficulty}`;
+  const key = `${session.flow.screen}:${session.flow.confirmation}:${session.flow.attempt}:${session.flow.tutorialStep}:${session.lastRun?.score ?? 0}:${application.getSettings().difficulty}`;
   const playing = session.flow.screen === "playing";
   input.setGameplayActive(playing);
   inputRoot.hidden = !playing;

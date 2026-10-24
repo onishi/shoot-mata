@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { renderCanvasFrame, missingAssetIds } from "../../src/browser/canvas-renderer.mjs";
+import {
+  reactorIndicatorAlpha,
+  renderCanvasFrame,
+  missingAssetIds,
+} from "../../src/browser/canvas-renderer.mjs";
 import { PHASE05_TEST_STAGE } from "../../src/content/stages/phase05-test-segment.mjs";
 import { createStageViewModel } from "../../src/ui/stage-view-model.mjs";
 
@@ -108,6 +112,33 @@ test("A11Y-02: 混色補助と無敵リングは動き軽減・高コントラ�
   assert.ok(context.calls.filter(([method]) => method === "arc").length >= 3);
   assert.ok(context.calls.some(([method, dash]) => method === "setLineDash" && dash.length === 2));
   assert.ok(context.calls.filter(([method]) => method === "closePath").length >= 4);
+});
+
+test("A11Y-02: 明滅軽減はリアクター形状を消さず輝度変化だけを止める", () => {
+  assert.notEqual(reactorIndicatorAlpha({}, 5), reactorIndicatorAlpha({}, 7));
+  assert.equal(
+    reactorIndicatorAlpha({ reducedFlashes: true }, 5),
+    reactorIndicatorAlpha({ reducedFlashes: true }, 7),
+  );
+  assert.equal(reactorIndicatorAlpha({ reducedFlashes: true }, 5), 0.95);
+
+  const view = createStageViewModel({
+    stage: PHASE05_TEST_STAGE,
+    tick: 5,
+    settings: { reducedFlashes: true },
+    actors: [{
+      assetId: "player-interceptor", x: 0.2, y: 0.5, width: 0.12, height: 0.15,
+      tone: "player",
+      reactor: { primary: "yellow", level: 3, supports: ["blue"], invulnerable: true },
+    }],
+  });
+  const assets = Object.fromEntries([
+    ...view.layers.map(({ assetId }) => [assetId, fakeImage()]),
+    ["player-interceptor", fakeImage()],
+  ]);
+  const context = fakeContext();
+  renderCanvasFrame(context, view, assets);
+  assert.ok(context.calls.filter(([method]) => method === "arc").length >= 5);
 });
 
 test("AV-04/A11Y-02: 4種VFXを非色形状で描き、動き軽減でも残す", () => {

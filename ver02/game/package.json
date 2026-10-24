@@ -12,6 +12,7 @@
     "audit:core-supply": "node scripts/audit-core-supply.mjs",
     "audit:stage-difficulty": "node scripts/audit-stage-difficulty.mjs",
     "audit:learning-curve": "node scripts/audit-learning-curve.mjs",
+    "audit:visual-states": "node scripts/audit-visual-states.mjs",
     "audit:weapon-situations": "node scripts/audit-weapon-situations.mjs",
     "build": "node scripts/build-static.mjs",
     "audit:static": "node scripts/audit-static.mjs",

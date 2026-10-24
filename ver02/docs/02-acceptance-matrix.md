@@ -17,16 +17,16 @@
 | LOOP-04 | P05 | P08, P10 | `flow-machine.test.mjs`、`game-session.test.mjs`、`phase08-loop-flow.test.mjs`でポーズ・復帰、実第4面の再開始確認取消／確定、タイトル離脱確定を検査。Chrome通常入口の第4面でポーズ→再開始確認→取消→復帰を操作し、進行喪失が確認後だけ起きることを確認 | 実装済み未検証 |
 | LOOP-05 | P07 | P08, P10 | 4面別結果を重複なく集計し、固有エンディング、総合score内訳、クレジット、タイトル帰還を実装。Nodeの実4面連続通しとChromeで`QA PASS / 4 STAGES / ENDING + CREDITS`を確認 | 実装中 |
 | LOOP-06 | P05, P07 | P08, P10 | 第1〜4面のChrome自動入力各2クリアとsnapshot一致に加え、`phase08-loop-flow.test.mjs`で実4面の敗北／再挑戦とキャンペーン2回限定コンティニューを検査。Chrome `?qa=failure-review`で残数2→1→0、0回時のボタン消去、再挑戦継続を確認。320×844、390×844、844×390でoverflow 0、操作高44px、console warning/error 0 | 実装済み未検証 |
-| CORE-01 | P03, P04 | P09, P10 | P03試作の落下中コア・HUD・凡例で3色を外形・内部記号でも区別。`prototype/tests/model.test.mjs`、3画面画像。P04分離素材の48×48グレースケール検査は `docs/04-asset-inventory.md`。ゲーム内完成アートで再検証 | 実装中 |
+| CORE-01 | P03, P04 | P09, P10 | 製品4面×4表示profileで赤`I`・青`+`・黄`◎`、完成コアasset、自機上の菱形・十字・円を照合。`visual-state-audit.json`、Chrome 3 viewport | 実装済み未検証 |
 | CORE-02 | P03 | P03, P10 | `prototype/tests/model.test.mjs`、`prototype/objective-audit.mjs` の全729列 | 実装中 |
-| CORE-03 | P03, P07 | P07, P10 | P03試作に加え、製品戦闘で3系統×3段階の弾数・貫通・追尾、Lv別弾形状・発射音、自機上の菱形・十字・円と点灯数を自動検査。Chromeの第1面通しでLANCE Lv1とSEEKER Lv2を実表示。全区間の最終確認は後続 | 実装中 |
-| CORE-04 | P03, P07 | P09, P10 | P03全729列の混色・代償判定、P07の構成別戦闘シミュレーション | 実装中 |
+| CORE-03 | P03, P07 | P07, P10 | 3系統×3段階の機能、音、投射物と自機上の非色形状を検査。`visual-state-audit.json`で4面×4表示profile、各10構成の描画署名が全て一意 | 実装済み未検証 |
+| CORE-04 | P03, P07 | P09, P10 | P03全729列の混色・代償判定、構成別戦闘比較に加え、混色補助とFIFO排出を4面×4表示profileで描画監査 | 実装済み未検証 |
 | CORE-05 | P03, P05 | P08, P10 | 被弾時の最古コア喪失、空時の残機喪失、青補助無敵、ゲームオーバーに加え、全コア喪失後の標準範囲回収と`UNARMED Lv0`表示を検査。ミス・コンティニューと完成HUDは後続 | 実装中 |
-| CORE-06 | P04, P06 | P09, P10 | P04代表HUDに加え、製品自機へ無武装、3主武器×3Lv、混色補助、被弾後無敵を非色形状で接続。10構成の描画一意性、動き軽減、高コントラストを自動検査し、Chrome 390×844・844×390で確認 | 実装中 |
+| CORE-06 | P04, P06 | P09, P10 | 製品自機の無武装、3主武器×3Lv、混色補助、無敵を非色形状で接続。4面×4表示profile×10構成の描画一意性、Chrome 3 viewportを確認 | 実装済み未検証 |
 | CORE-07 | P07 | P08, P10 | 重み付き抽選後に各色の連続欠落を最大10ドロップへ制約。`core-supply-audit.test.mjs`と`phases/phase-07/core-supply-audit.json`で4面×16,384 seed、計65,536列・192,675,840 stage tickを検査し、各色最低2回以上、最大供給間隔1,540 tick以下、違反0。固定seedの4面通しとcampaign結果が不変 | 実装済み未検証 |
-| WPN-01 | P03, P07 | P07, P10 | P06製品戦闘で赤Lv1〜3の威力・貫通、Lv別菱形、専用音を検査。実ブラウザでLv1弾を確認 | 実装中 |
-| WPN-02 | P03, P07 | P07, P10 | P06製品戦闘で青Lv1〜3の3/5/7発広射線、Lv別山形、専用音を検査。全区間の画面確認は後続 | 実装中 |
-| WPN-03 | P03, P07 | P07, P10 | P06製品戦闘で黄Lv1〜3の1/2/3発追尾、Lv別円形、専用音を検査。全区間の画面確認は後続 | 実装中 |
+| WPN-01 | P03, P07 | P07, P10 | 赤Lv1〜3の威力・貫通、Lv別菱形、専用音を検査し、4面×4表示profileでLv別描画を照合 | 実装済み未検証 |
+| WPN-02 | P03, P07 | P07, P10 | 青Lv1〜3の3/5/7発広射線、Lv別山形、専用音を検査し、4面×4表示profileでLv別描画を照合 | 実装済み未検証 |
+| WPN-03 | P03, P07 | P07, P10 | 黄Lv1〜3の1/2/3発追尾、Lv別円形、専用音を検査し、4面×4表示profileでLv別描画を照合 | 実装済み未検証 |
 | WPN-04 | P03, P07 | P09, P10 | `weapon-situation-audit.json`と回帰テストで、同じLv3構成・seed・固定位置・連射入力を比較。単体高耐久は赤75tick、近接5機群は青47tick、遮蔽死角は黄63tickで優位が逆転し、再実行一致 | 実装済み未検証 |
 | STG-01 | P06 | P06, P10 | `stage-01-orbital-wreck.test.mjs`とChrome `?qa=stage01`で、通常戦、圧縮回廊、3段階boss、結果、同seed再挑戦を完走。390×844・844×390でoverflow 0、console warning/error 0 | 実装済み未検証 |
 | STG-02 | P07 | P07, P10 | 完成背景3層・敵3種・boss、上下気流・開閉遮蔽・帯電域、3段階boss、通常2層/Boss 3音層を接続。Chrome `?qa=stage02`で2完走・score 9525・snapshot一致、通常入口から選択・出撃、3 viewportを確認。個別アニメーションと主観品質は後続 | 実装中 |
@@ -41,9 +41,9 @@
 | PROG-05 | P05 | P08, P10 | version 1、v0移行、破損退避、未来version、storage取得・読込・書込失敗、確認付き初期化を自動検査。実第1面の書込拒否注入でもclear/bestをメモリ内維持し結果へ到達。警告UIと正常保存のChrome再読込を確認 | 実装済み未検証 |
 | PROG-06 | P07 | P09, P10 | 全10種のstage hazardへ90tick先行する非色記号・名称の予告を追加し、読み上げ要約へ接続。`learning-curve-audit.json`で4面×3 seed、全30予告、面・区間・上下3帯の被弾分布を再現。第4面の最大集中は区間48%、縦帯56%。Chromeで周期熱波／退避域の先行表示を通常・390×844・844×390、高コントラスト・動き軽減で確認。人間の初見驚きは未評価 | 実装済み未検証 |
 | UX-01 | P05, P07 | P08, P10 | タイトル、初回説明、stage select、stage intro、HUD、ポーズ、確認、結果、ゲームオーバー、再挑戦、ending、総合結果、creditsを製品入口へ接続。Chromeでキーボード／Pointer Eventsの4面campaignを各12,316戦闘frameで完走し、creditsまで確認。設定は戦闘中の製品UIから変更・復元を確認 | 実装済み未検証 |
-| UX-02 | P05, P06 | P09, P10 | 初回説明をブラウザ入口へ接続しChromeでEnter導線を確認。段階説明、再表示、初見観察は後続 | 実装中 |
-| UX-03 | P04, P06 | P09, P10 | P04代表HUDは11.58〜11.65%を3画面で確認。P05 Canvasへscore、残機、3コア、武器、boss meterを同一表示モデルから描画。P06ゲーム本体で再検証 | 実装中 |
-| UX-04 | P04, P07 | P09, P10 | P04実PNGをグレースケール・3種色覚シミュレーションで検査し、コア間37.02/255以上、自機・敵25.24/255以上、非色シグネチャ重複0。`reference-scene/visual-audit.test.mjs`。P07全素材で再検証 | 実装中 |
+| UX-02 | P05, P06 | P09, P10 | 初回説明を移動・射撃・3枠FIFOの3段階へ分離し、4個目の最古コア押し出しを説明。タイトルの「遊び方」から進行を変えず再表示可能。flow回帰とChromeで確認 | 実装済み未検証 |
+| UX-03 | P04, P06 | P09, P10 | score、残機、3コア、武器、boss meterを同一表示モデルから描画し、4面×4表示profileとChrome 3 viewportで維持 | 実装済み未検証 |
+| UX-04 | P04, P07 | P09, P10 | P04画素監査のグレースケール・3種色覚差と非色シグネチャに加え、製品4面の全重要状態を高コントラスト・非色形状のCanvas命令で監査。主観視認性は未評価 | 実装済み未検証 |
 | UX-05 | P05, P06 | P08, P10 | 16:9 Canvas、safe-area、縦長・横長CSSを実装。Chrome 1440×900、390×844、320×844、844×390の戦闘・GAME OVER・creditsで横溢れ0、横長の縦溢れ0。実端末は後続 | 実装済み未検証 |
 | UX-06 | P05, P06 | P08, P10 | 縦長Canvas下と横長overlayへmove/fire/pause領域を実装。Chrome 390×844と320×844で高さ96px、844×390で高さ76px、overflow 0。実端末完走は後続 | 実装済み未検証 |
 | UX-07 | P05 | P08, P10 | 明示ボタン、`aria-pressed`、専用live statusを実装。許可・解除・拒否・非対応を`fullscreen-controller.test.mjs`で検査し、Chrome自動化環境の拒否時に説明を保持して通常表示継続。実ブラウザの許可経路は環境制約により自動テスト証拠のみ | 実装済み未検証 |
@@ -52,13 +52,13 @@
 | INP-03 | P04, P05 | P09, P10 | P04表示設定は50×44px以上。P05で役割付きゲーム領域だけがpointer既定動作を抑止することを検査。実端末のスクロール競合は後続 | 実装中 |
 | INP-04 | P07 | P08, P10 | `automatic-input-replay.test.mjs`でkeydown/upとPointer Eventsを製品adapterへ通す両経路が同一score 49,620で完走。Chromeの240Hz QA clockでも両経路が同一score 54,140、戦闘12,316 frames、4面→ending→credits、console warning/error 0で完走。実タッチ端末はP09・P10で確認 | 実装済み未検証 |
 | A11Y-01 | P05 | P08, P10 | BGM/SFX別音量・ミュートのschema、保存復元、独立gainへの即時反映を自動検査。ChromeでBGM 0.45、SFX 0.65、動き軽減、高コントラストを変更し、再読込後の値・表示復元と主操作focusを確認 | 実装済み未検証 |
-| A11Y-02 | P04, P05 | P09, P10 | 命中・被弾・撃破・回収VFXに加え、自機の主武器・Lv・混色補助・無武装・無敵表示が動き軽減時も静止形状を保持する自動検査に合格。全製品演出は後続 | 実装中 |
-| A11Y-03 | P04, P07 | P09, P10 | P04 HUD記号、12px文字、高コントラスト表示を監査。P07全素材で再検証 | 実装中 |
+| A11Y-02 | P04, P05 | P09, P10 | 動き軽減に加え、保存のみだった明滅軽減を製品UIと描画へ接続。4面の全重要VFXが軽減時も静止形状を保持し、リアクターの約5回/秒の輝度変化を停止 | 実装済み未検証 |
+| A11Y-03 | P04, P07 | P09, P10 | 3コア記号、危険記号・名称、HUD、高コントラストを4面×4表示profileで監査。Chrome 3 viewportでoverflow 0 | 実装済み未検証 |
 | A11Y-04 | P05, P07 | P08, P10 | `menu-accessibility.test.mjs`でモーダル背面のTab除外、主操作フォーカス、文脈付きラベルを検査。ChromeでTab／Shift+TabとEnterを使い、タイトル→ステージ選択→導入→戦闘、3pxフォーカス輪郭、Canvasへのフォーカス移動、console warning/error 0を確認 | 実装済み未検証 |
 | AV-01 | P04, P06, P07 | P07, P10 | 製品画像32点と音声29点をruntime manifest、配信定義、原本、生成証拠へ全量照合。`product-asset-gate.test.mjs`が製品経路のplaceholder / planned / draftを拒否し、4面campaignと3 viewportで欠落0を確認。主観品質は未評価 | 実装中 |
-| AV-02 | P04, P06, P07 | P07, P10 | simulation由来の自機移動・射撃、全通常敵のbehavior別移動・登場・攻撃・被弾、boss登場・攻撃・被弾・形態変化、撃破VFX、コア出現・回収・排出、クリア表示をCanvasへ接続。状態別の非色輪郭と動き軽減を自動検査し、Chrome第4面2完走でクリア表示を確認。全状態の動画照合は後続 | 実装中 |
-| AV-03 | P04, P06, P07 | P07, P10 | 全4面の遠景・中景・前景を独立速度で製品Canvasへ合成。4面別2完走とcampaign完走、1568×1012・390×844・844×390で画像欠落とoverflow 0を確認。主観的な奥行き品質は未評価 | 実装中 |
-| AV-04 | P04, P06, P07 | P09, P10 | 3武器のLv別弾形状、命中・被弾・撃破・回収VFX、自機の3主武器×3Lv・混色補助・無武装・無敵表示をCanvasへ統合。色に依存しない形状、10構成の一意性、動き軽減時の残存を自動検査 | 実装中 |
+| AV-02 | P04, P06, P07 | P07, P10 | 自機、全通常敵、boss、コアの移動・登場・攻撃・被弾・形態変化と5 VFX、危険予告、クリアを4面×4表示profileでCanvas描画監査。主観品質は未評価 | 実装済み未検証 |
+| AV-03 | P04, P06, P07 | P07, P10 | 全4面の遠景・中景・前景を独立速度で合成し、動き軽減で全offset 0、通常時は3層維持。4面通しと3 viewportも確認。主観的な奥行き品質は未評価 | 実装済み未検証 |
+| AV-04 | P04, P06, P07 | P09, P10 | 9種のLv別弾、5 VFX、自機10構成・混色補助・無敵を4面×4表示profileで監査。色に依存しない形状、160描画の署名衝突0 | 実装済み未検証 |
 | AV-05 | P04, P06, P07 | P07, P10 | 自作共有音9点と第1〜4面各5点を台帳化・波形検査。通常2層／boss 3層、導入・クリア通知に加え、タイトル／メニュー、結果、エンディングの3 BGMを画面遷移へ接続。`game-application.test.mjs`で読込後再同期とending→credits継続を検査し、Chrome campaignは音声警告0で完走。聴感は未評価 | 実装中 |
 | AV-06 | P05 | P08, P10 | 音声異常系をunit検査し、Chrome `?qa=campaign&runs=3&audio=silent`でAudioContext作成失敗を注入。無音警告を保持したまま3 campaign・12面→creditsを完走し、console warning/error 0。正常時の音源取得も既存browser検査で確認 | 実装済み未検証 |
 | AV-07 | P04, P07 | P10 | 全画像32点は原本・完全prompt・配信WebP・最適化監査、全音声29点は生成式・用途・SHA-256・外部サンプル0を全量照合。2026-10-24の公式利用条件確認、非一意性・非侵害未保証の残存リスク、`THIRD_PARTY_NOTICES.html`を記録。P10で再確認 | 実装中 |

@@ -16,10 +16,28 @@ test("LOOP-01: 初回キャンペーンは説明を経てプレイへ入る", ()
   state = send(state, "START_CAMPAIGN");
   assert.equal(state.screen, "tutorial");
   assert.equal(state.stageIndex, 0);
+  state = send(state, "NEXT_TUTORIAL");
+  assert.equal(state.tutorialStep, 1);
+  state = send(state, "NEXT_TUTORIAL");
+  assert.equal(state.tutorialStep, 2);
   state = send(state, "COMPLETE_TUTORIAL");
   assert.equal(state.tutorialSeen, true);
   state = send(state, "BEGIN_STAGE");
   assert.equal(state.screen, "playing");
+});
+
+test("UX-02: 遊び方をタイトルから3段階で再表示して進行を変えずに戻る", () => {
+  let state = createFlowState({ tutorialSeen: true, maxUnlockedStage: 3 });
+  state = send(state, "OPEN_TUTORIAL");
+  assert.equal(state.screen, "tutorial");
+  assert.equal(state.returnScreen, "title");
+  state = send(state, "NEXT_TUTORIAL");
+  state = send(state, "NEXT_TUTORIAL");
+  assert.throws(() => send(state, "NEXT_TUTORIAL"), /final step/);
+  state = send(state, "COMPLETE_TUTORIAL");
+  assert.equal(state.screen, "title");
+  assert.equal(state.maxUnlockedStage, 3);
+  assert.equal(state.tutorialSeen, true);
 });
 
 test("LOOP-04: ポーズと再開はプレイ条件を保持する", () => {

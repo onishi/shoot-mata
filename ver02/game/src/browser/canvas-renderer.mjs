@@ -103,6 +103,11 @@ const REACTOR_COLORS = Object.freeze({
   yellow: "#ffe36e",
 });
 
+export function reactorIndicatorAlpha(display, tick) {
+  if (display?.reducedMotion === true || display?.reducedFlashes === true) return 0.95;
+  return tick % 12 < 6 ? 0.82 : 1;
+}
+
 function drawCoreGlyph(context, core, x, y, size, filled) {
   context.save();
   context.translate(x, y);
@@ -188,7 +193,7 @@ function drawPlayerReactorState(context, actor, width, height, display, tick) {
   const y = actor.y * height;
   const scale = Math.min(actor.width * width, actor.height * height);
   context.save();
-  context.globalAlpha = display.reducedMotion ? 0.95 : (tick % 12 < 6 ? 0.82 : 1);
+  context.globalAlpha = reactorIndicatorAlpha(display, tick);
 
   if (reactor.primary === null) {
     context.strokeStyle = display.highContrast ? "#fff" : "#9aabb5";
