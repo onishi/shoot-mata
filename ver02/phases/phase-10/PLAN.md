@@ -29,7 +29,7 @@ READMEと`02-product-requirements.md`の必須要件を、MVPではなく製品�
 3. [完了] 全自動検査、静的成果物、権利・通知、依存関係をrelease candidateで再検証する
 4. [進行中] 全必須ブラウザ・実端末・物理低性能端末を同一buildで検証する（Chrome・Edge・Firefox desktop 3/6合格、実モバイル0/2、物理低性能端末未接続）
 5. [進行中] 全受け入れ行を更新し、中核未達0件と重大既知不具合0件を判定する（固定RCの既存証拠で60/67件を合格、実環境依存の7件をブロック）
-6. [未着手] `REVIEW.md`へ合否、残存する低リスク、未測定の主観品質を記録する
+6. [完了] `REVIEW.md`へ現時点の不合格判定、検収blocker、残存する非blockerリスク、未測定の主観品質を記録する
 
 ## 完了条件
 
@@ -39,7 +39,7 @@ READMEと`02-product-requirements.md`の必須要件を、MVPではなく製品�
 - [ ] 必須ブラウザ4種、iOS Safari実機、Android Chrome実機が同一buildで合格する
 - [ ] 物理低性能端末で進行速度、入力、5分以上の停止・資源傾向を確認する
 - [x] 全素材・通知・依存関係をrelease candidateで再確認する
-- [ ] critical／majorの既知不具合が0件で、残存リスクと主観未測定を分離して記録する
+- [x] critical／majorの既知不具合が0件で、残存リスクと主観未測定を分離して記録する
 
 ## 最初の作業単位
 
@@ -76,6 +76,8 @@ OpenAI Terms of Useは2026-01-01発効版、Service Termsは2026-10-16更新版�
 2026-10-25時点では、P10対象67件のうち60件を固定RCの自動検査、Chrome実測、成果物監査から合格へ更新した。UX-05/06、INP-02/03/04、TECH-04/05は、必須6対象中5対象、実モバイル2対象、物理低性能端末が未合格のため`ブロック`であり、判定は`accepted: false`である。全自動検査の合格は未確認環境を閉じず、Phase 10完了を意味しない。SafariはComputer Useが今回も承認されなかった。設定を迂回せず`not-run`を維持した。
 
 EdgeとFirefoxの追加合格後も、同じ7要件はSafari、実モバイル2対象、物理低性能端末の証拠待ちで`ブロック`のままである。必須ブラウザの非合格対象は5件から3件へ減ったが、判定は引き続き`accepted: false`である。
+
+同日、`REVIEW.md`へ固定RCの現時点の不合格判定を記録した。60/67件の合格範囲、Safari・実モバイル2対象・物理低性能端末が止める7要件、観測範囲のcritical／major 0件、非blockerリスク、未測定の主観品質を分離した。Computer UseのSafari利用は再度承認されず、ADB接続は0台、Xcodeのdevice一覧はMac本体とSimulatorだけだったため、Phase 10と`accepted: false`を維持する。
 
 ## 完了した受け入れ状態遷移の修正
 
