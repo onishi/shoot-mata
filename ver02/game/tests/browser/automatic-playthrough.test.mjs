@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   createAutomaticCampaignPlaythrough,
+  createAutomaticFailureReview,
   createAutomaticPlaythrough,
 } from "../../src/browser/automatic-playthrough.mjs";
 import { STAGE_01_ORBITAL_WRECK } from "../../src/content/stages/stage-01-orbital-wreck.mjs";
@@ -128,6 +129,29 @@ test("QA driverは不正設定を拒否し、game overを合格にしない", ()
   driver.observe(session);
   assert.equal(driver.status(session).stopped, true);
   assert.match(driver.status(session).failure, /gameOver/);
+});
+
+test("EXP-03: browser用敗北QAは原因と直前コア列を保持したGAME OVERで停止する", () => {
+  const session = createGameSession({ seed: 20261022 });
+  const driver = createAutomaticFailureReview({ screenHoldTicks: 0 });
+  let updates = 0;
+  while (!driver.status(session).stopped && updates < 2_000) {
+    updateGameSession(session, STAGE_01_ORBITAL_WRECK, driver.nextCommand(session));
+    driver.observe(session);
+    updates += 1;
+  }
+  const status = driver.status(session);
+  assert.ok(updates < 2_000);
+  assert.equal(status.failure, null);
+  assert.equal(status.screen, "gameOver");
+  assert.equal(status.mode, "failure-review");
+  assert.deepEqual(status.milestones, [
+    "failure:enemy-shot",
+    "core-queue-recorded",
+    "retry-available",
+  ]);
+  assert.equal(session.lastRun.failure.reason, "enemy-shot");
+  assert.deepEqual(session.lastRun.failure.coreQueueBefore, []);
 });
 
 test("LOOP-01/05/TECH-03: browser用自動入力で4面からendingとcreditsまで連続完走する", () => {

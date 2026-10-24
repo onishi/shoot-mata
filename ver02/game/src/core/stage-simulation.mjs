@@ -65,6 +65,8 @@ export function createStageSimulation(stageInput, options = {}) {
     fireCooldownTicks: 0,
     streak: 0,
     hitsTaken: 0,
+    lastHit: null,
+    failure: null,
     score: 0,
     scoreBreakdown: createScoreBreakdown(),
     destroyedEnemyCount: 0,
@@ -327,6 +329,8 @@ function moveCombatants(state) {
 function damagePlayer(state, reason) {
   if (state.player.invulnerabilityTicks > 0 || state.status !== "playing") return false;
   const impact = { x: state.player.x, y: state.player.y };
+  const coreQueueBefore = [...state.loadout.queue];
+  const livesBefore = state.player.lives;
   const defenseBeforeHit = getWeaponProfile(state.loadout);
   const loss = loseReactorCore(state.loadout);
   state.hitsTaken += 1;
@@ -339,10 +343,24 @@ function damagePlayer(state, reason) {
   }
   if (loss.lost !== null) addEffect(state, "eject", impact.x, impact.y, { core: loss.lost });
   addEffect(state, "damage", impact.x, impact.y);
-  emit(state, "player-hit", { reason, lostCore: loss.lost, lives: state.player.lives });
+  state.lastHit = {
+    tick: state.tick,
+    reason,
+    coreQueueBefore,
+    lostCore: loss.lost,
+    livesBefore,
+    livesAfter: state.player.lives,
+  };
+  emit(state, "player-hit", {
+    reason,
+    coreQueueBefore,
+    lostCore: loss.lost,
+    lives: state.player.lives,
+  });
   if (state.player.lives <= 0) {
     state.status = "defeated";
     state.flowEvent = state.schedule.transitions.onDefeat;
+    state.failure = { ...state.lastHit, coreQueueBefore: [...state.lastHit.coreQueueBefore] };
     emit(state, "stage-defeated", { reason });
   }
   return true;
@@ -560,6 +578,14 @@ function resolveTerminalState(state) {
   if (state.tick + 1 >= state.schedule.durationTicks) {
     state.status = "defeated";
     state.flowEvent = state.schedule.transitions.onDefeat;
+    state.failure = {
+      tick: state.tick,
+      reason: "boss-timeout",
+      coreQueueBefore: [...state.loadout.queue],
+      lostCore: null,
+      livesBefore: state.player.lives,
+      livesAfter: state.player.lives,
+    };
     emit(state, "stage-defeated", { reason: "boss-timeout" });
   }
 }
@@ -608,6 +634,9 @@ export function createStageSimulationSnapshot(state) {
     scoreBreakdown: { ...state.scoreBreakdown },
     destroyedEnemyCount: state.destroyedEnemyCount,
     hitsTaken: state.hitsTaken,
+    failure: state.failure
+      ? { ...state.failure, coreQueueBefore: [...state.failure.coreQueueBefore] }
+      : null,
     boss,
     actors: [
       {

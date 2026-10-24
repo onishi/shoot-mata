@@ -247,3 +247,59 @@ export function createAutomaticCampaignPlaythrough(options = {}) {
 
   return Object.freeze({ nextCommand, observe, status });
 }
+
+export function createAutomaticFailureReview(options = {}) {
+  const screenHoldTicks = options.screenHoldTicks ?? 30;
+  if (!Number.isInteger(screenHoldTicks) || screenHoldTicks < 0) {
+    throw new TypeError("screenHoldTicks must be a non-negative integer");
+  }
+  const milestones = new Set();
+  let previousScreen = null;
+  let screenAge = 0;
+  let stopped = false;
+  let failure = null;
+
+  function observe(session) {
+    if (session.flow.screen !== "gameOver" || stopped) return;
+    const record = session.lastRun?.failure;
+    if (!record || typeof record.reason !== "string" || !Array.isArray(record.coreQueueBefore)) {
+      failure = "gameOver did not retain a failure review";
+    } else {
+      milestones.add(`failure:${record.reason}`);
+      milestones.add("core-queue-recorded");
+      milestones.add("retry-available");
+    }
+    stopped = true;
+  }
+
+  function nextCommand(session) {
+    observe(session);
+    const screen = session.flow.screen;
+    if (screen !== previousScreen) {
+      previousScreen = screen;
+      screenAge = 0;
+    } else {
+      screenAge += 1;
+    }
+    if (stopped || screenAge < screenHoldTicks) return {};
+    if (["title", "tutorial", "stageIntro"].includes(screen)) return { confirm: true };
+    return {};
+  }
+
+  function status(session) {
+    return Object.freeze({
+      active: true,
+      mode: "failure-review",
+      stopped,
+      failure,
+      screen: session.flow.screen,
+      attempt: session.flow.attempt,
+      tick: session.simulation?.tick ?? session.lastRun?.tick ?? 0,
+      completedAttempts: stopped && failure === null ? 1 : 0,
+      replayMatches: null,
+      milestones: Object.freeze([...milestones]),
+    });
+  }
+
+  return Object.freeze({ nextCommand, observe, status });
+}

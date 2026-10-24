@@ -1,5 +1,9 @@
 import { loadCanvasAssets, renderCanvasFrame } from "../src/browser/canvas-renderer.mjs";
-import { createAutomaticCampaignPlaythrough, createAutomaticPlaythrough } from "../src/browser/automatic-playthrough.mjs";
+import {
+  createAutomaticCampaignPlaythrough,
+  createAutomaticFailureReview,
+  createAutomaticPlaythrough,
+} from "../src/browser/automatic-playthrough.mjs";
 import { createAutomaticInputReplay } from "../src/browser/automatic-input-replay.mjs";
 import { loadBrowserAudioAssets } from "../src/browser/audio-assets.mjs";
 import { createBrowserAudioAdapter } from "../src/browser/audio-adapter.mjs";
@@ -16,6 +20,7 @@ import { getCampaignSummary, getGameSessionSnapshot } from "../src/core/game-ses
 import { consumeInput } from "../src/core/input-state.mjs";
 import { createSaveRepository } from "../src/ports/save-repository.mjs";
 import { createStageViewModel } from "../src/ui/stage-view-model.mjs";
+import { createFailureReview } from "../src/ui/failure-review.mjs";
 import {
   focusInitialMenuAction,
   getMenuActionLabel,
@@ -50,6 +55,7 @@ const stageLabels = Object.freeze(["ORBITAL WRECK", "CLOUD REFINERY", "LIVING AR
 const query = new URLSearchParams(location.search);
 const qaStageIndex = Object.freeze({ stage01: 0, stage02: 1, stage03: 2, stage04: 3 })[query.get("qa")] ?? null;
 const qaCampaign = query.get("qa") === "campaign";
+const qaFailureReview = query.get("qa") === "failure-review";
 const qaInputMode = ["keyboard", "touch"].includes(query.get("input")) ? query.get("input") : null;
 const qaSeeds = Object.freeze([20261022, 20261022, 20261023, 20261024]);
 const selectedStage = () => stages[session.flow.stageIndex ?? 0];
@@ -69,12 +75,14 @@ const displaySettings = {
   reducedMotion: savedSettings.reducedMotion || matchMedia("(prefers-reduced-motion: reduce)").matches,
   highContrast: savedSettings.highContrast,
 };
-const qaEnabled = qaStageIndex !== null || qaCampaign;
+const qaEnabled = qaStageIndex !== null || qaCampaign || qaFailureReview;
 const qaDriver = qaCampaign
   ? createAutomaticCampaignPlaythrough()
-  : qaStageIndex !== null
-    ? createAutomaticPlaythrough({ stageIndex: qaStageIndex })
-    : null;
+  : qaFailureReview
+    ? createAutomaticFailureReview()
+    : qaStageIndex !== null
+      ? createAutomaticPlaythrough({ stageIndex: qaStageIndex })
+      : null;
 const clock = createFixedStepClock(qaEnabled ? { stepMs: 1000 / 240 } : undefined);
 const input = createBrowserInputAdapter({ keyboardTarget: window, gameTarget: inputRoot });
 const qaInputReplay = qaCampaign && qaInputMode
@@ -150,9 +158,12 @@ function screenDefinition() {
   }
   const score = session.lastRun?.score ?? 0;
   const campaign = getCampaignSummary(session);
+  const failureReview = session.lastRun?.failure
+    ? createFailureReview(session.lastRun)
+    : null;
   const screens = {
     title: {
-      kicker: "PHASE 07 / CONTENT BUILD",
+      kicker: "PHASE 08 / ALPHA BUILD",
       title: "SHOOT MATA v02",
       copy: "キャンペーンを開始するか、解放済みステージを選択します。",
       actions: [
@@ -205,7 +216,9 @@ function screenDefinition() {
     gameOver: {
       kicker: "PLAYER DEFEATED",
       title: "GAME OVER",
-      copy: `SCORE ${score}。同じ条件で直ちに再挑戦できます。`,
+      copy: failureReview
+        ? `SCORE ${score}。原因: ${failureReview.cause} (tick ${failureReview.tick})。直前コア: ${failureReview.coreQueue}。結果: ${failureReview.loss}。次の試行: ${failureReview.advice}`
+        : `SCORE ${score}。敗北記録を取得できませんでした。同じ条件で直ちに再挑戦できます。`,
       actions: [
         ["retry", "再挑戦", true],
         ...(session.flow.continuesRemaining > 0
@@ -245,6 +258,7 @@ function syncScreen() {
   input.setGameplayActive(playing);
   inputRoot.hidden = !playing;
   screenPanel.hidden = definition === null;
+  screenPanel.dataset.screen = session.flow.screen;
   setMenuBackgroundInert(menuBackground, !playing);
   canvas.inert = !playing;
   canvas.setAttribute("aria-hidden", String(!playing));
@@ -313,6 +327,8 @@ function syncQaStatus() {
     : status.stopped
       ? status.mode === "campaign"
         ? `QA PASS / ${status.completedAttempts} STAGES / ENDING + CREDITS${inputEvidence ? ` / ${inputEvidence.mode.toUpperCase()} INPUT` : ""}`
+        : status.mode === "failure-review"
+          ? `QA PASS / FAILURE REVIEW / ${status.milestones.join(" / ").toUpperCase()}`
         : `QA PASS / ${status.completedAttempts} RUNS / SAME SEED ${status.replayMatches ? "MATCH" : "MISMATCH"}`
       : `QA AUTO / ATTEMPT ${status.attempt} / ${status.screen.toUpperCase()} / TICK ${status.tick}`;
 }

@@ -4,7 +4,7 @@ import { dirname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { ASSET_BUDGETS, DELIVERY_ASSETS } from "./delivery-asset-config.mjs";
 
-export const BUILD_ID = "phase07-content-gate-20261024";
+export const BUILD_ID = "phase08-exp03-failure-review-20261024";
 
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const GAME_DIR = resolve(SCRIPT_DIR, "..");

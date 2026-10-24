@@ -84,6 +84,68 @@ test("CORE-05/LOOP-06: 被弾、コア喪失、残機喪失からゲームオー
   assert.equal(simulation.flowEvent, "PLAYER_DEFEATED");
   assert.equal(simulation.player.lives, 0);
   assert.deepEqual(simulation.events.map(({ type }) => type), ["player-hit", "stage-defeated"]);
+  assert.deepEqual(createStageSimulationSnapshot(simulation).failure, {
+    tick: 0,
+    reason: "enemy-shot",
+    coreQueueBefore: [],
+    lostCore: null,
+    livesBefore: 1,
+    livesAfter: 0,
+  });
+});
+
+test("EXP-03: 敗北診断は被弾直前のコア列と喪失内容を保持する", () => {
+  const simulation = createStageSimulation(PHASE05_TEST_STAGE, {
+    seed: 3,
+    lives: 1,
+    coreQueue: ["yellow", "blue", "red"],
+  });
+  for (const expectedQueue of [
+    ["yellow", "blue", "red"],
+    ["blue", "red"],
+    ["red"],
+  ]) {
+    simulation.player.invulnerabilityTicks = 0;
+    simulation.enemyShots.push({
+      id: `forced-${expectedQueue.length}`,
+      x: simulation.player.x,
+      y: simulation.player.y,
+      vx: 0,
+      vy: 0,
+    });
+    stepStageSimulation(simulation, PHASE05_TEST_STAGE);
+    assert.deepEqual(simulation.lastHit.coreQueueBefore, expectedQueue);
+  }
+  simulation.player.invulnerabilityTicks = 0;
+  simulation.enemyShots.push({ id: "forced-final", x: simulation.player.x, y: simulation.player.y, vx: 0, vy: 0 });
+  stepStageSimulation(simulation, PHASE05_TEST_STAGE);
+
+  assert.deepEqual(createStageSimulationSnapshot(simulation).failure, {
+    tick: 3,
+    reason: "enemy-shot",
+    coreQueueBefore: [],
+    lostCore: null,
+    livesBefore: 1,
+    livesAfter: 0,
+  });
+});
+
+test("EXP-03: 時間切れは現在コア列を保持する敗北理由になる", () => {
+  const simulation = createStageSimulation(PHASE05_TEST_STAGE, {
+    seed: 4,
+    coreQueue: ["red", "yellow"],
+  });
+  simulation.tick = simulation.schedule.durationTicks - 1;
+  simulation.nextSpawnIndex = simulation.schedule.spawns.length;
+  stepStageSimulation(simulation, PHASE05_TEST_STAGE);
+  assert.deepEqual(createStageSimulationSnapshot(simulation).failure, {
+    tick: simulation.schedule.durationTicks - 1,
+    reason: "boss-timeout",
+    coreQueueBefore: ["red", "yellow"],
+    lostCore: null,
+    livesBefore: 3,
+    livesAfter: 3,
+  });
 });
 
 test("CORE-04/05: 青補助の無敵時間は、その青コアを失う被弾にも適用する", () => {

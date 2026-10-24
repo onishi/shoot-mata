@@ -126,8 +126,17 @@ test("CORE-05/LOOP-06: 敗北結果からタッチ用actionで再挑戦できる
   session.simulation.enemyShots.push({ id: "forced", x: 0.198, y: 0.5, vx: -0.018, vy: 0 });
   updateGameSession(session, PHASE05_TEST_STAGE);
   assert.equal(session.flow.screen, "gameOver");
-  assert.equal(getGameSessionSnapshot(session).status, "defeated");
+  assert.deepEqual(getGameSessionSnapshot(session).failure, {
+    tick: 0,
+    reason: "enemy-shot",
+    coreQueueBefore: [],
+    lostCore: null,
+    livesBefore: 1,
+    livesAfter: 0,
+  });
   dispatchGameAction(session, PHASE05_TEST_STAGE, "retry");
   assert.equal(session.flow.screen, "stageIntro");
   assert.equal(session.flow.attempt, 2);
+  confirm(session);
+  assert.equal(getGameSessionSnapshot(session).failure, null);
 });
