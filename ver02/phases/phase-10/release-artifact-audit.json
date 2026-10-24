@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "phase": "10",
+  "buildId": "phase10-rc1-20261024",
+  "recordedOn": "2026-10-24",
+  "artifact": {
+    "manifestPath": "game/dist/build-manifest.json",
+    "manifestSha256": "3c25733152691eadf21eaa5919a538c29919b5451a6d7045cf8420dde012e7ab",
+    "fileCount": 100,
+    "totalBytes": 10526479,
+    "budgetBytes": 16777216
+  },
+  "automatedSuite": {
+    "command": "npm run verify",
+    "status": "pass",
+    "testCount": 195,
+    "scope": "product tests, deterministic playthroughs, release-candidate reproduction, static audit, acceptance coverage, and release artifact audit"
+  },
+  "staticAudit": {
+    "command": "npm run audit:static",
+    "status": "pass",
+    "externalUrlCount": 0,
+    "unfinishedProductReferenceCount": 0,
+    "unexpectedFileTypeCount": 0
+  },
+  "assets": {
+    "imageCount": 32,
+    "audioCount": 29,
+    "totalCount": 61,
+    "finalCount": 61,
+    "missingRuntimeAssetCount": 0,
+    "thirdPartyAssetCount": 0,
+    "noticePath": "game/public/THIRD_PARTY_NOTICES.html"
+  },
+  "dependencies": {
+    "packageManager": "npm@11.19.1",
+    "runtimeCount": 0,
+    "developmentCount": 0,
+    "lockedPackageCount": 0,
+    "audit": {
+      "command": "npm audit --omit=dev --audit-level=high",
+      "status": "pass",
+      "vulnerabilityCount": 0
+    }
+  },
+  "rights": {
+    "termsOfUse": {
+      "url": "https://openai.com/policies/terms-of-use/",
+      "published": "2026-01-01",
+      "effective": "2026-01-01",
+      "finding": "As between the user and OpenAI and to the extent permitted by law, the user owns Output; output may not be unique and the user remains responsible for Content and lawful use."
+    },
+    "serviceTerms": {
+      "url": "https://openai.com/policies/service-terms/",
+      "updated": "2026-10-16",
+      "finding": "The current image and video capability terms add consent and necessary-rights restrictions for reproducing a person's likeness; the product ledger declares original fictional subjects and prompts prohibit identifiable existing characters, logos, and marks."
+    },
+    "noticeMatchesLedger": true,
+    "legalAdvice": false,
+    "nonInfringementGuaranteed": false,
+    "residualRisk": "generated-output-non-uniqueness-and-non-infringement-not-guaranteed"
+  },
+  "status": "pass",
+  "accepted": false,
+  "notes": "This passes the Phase 10 static artifact, asset, notice, rights-record, and dependency scope only. Browser/device blockers and per-row acceptance remain open, so the release candidate is not accepted or releasable."
+}

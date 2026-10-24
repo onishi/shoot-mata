@@ -55,13 +55,13 @@
 | A11Y-02 | P04, P05 | P09, P10 | 動き軽減に加え、保存のみだった明滅軽減を製品UIと描画へ接続。4面の全重要VFXが軽減時も静止形状を保持し、リアクターの約5回/秒の輝度変化を停止 | 実装済み未検証 |
 | A11Y-03 | P04, P07 | P09, P10 | 3コア記号、危険記号・名称、HUD、高コントラストを4面×4表示profileで監査。Chrome 3 viewportでoverflow 0 | 実装済み未検証 |
 | A11Y-04 | P05, P07 | P08, P10 | `menu-accessibility.test.mjs`でモーダル背面のTab除外、主操作フォーカス、文脈付きラベルを検査。ChromeでTab／Shift+TabとEnterを使い、タイトル→ステージ選択→導入→戦闘、3pxフォーカス輪郭、Canvasへのフォーカス移動、console warning/error 0を確認 | 実装済み未検証 |
-| AV-01 | P04, P06, P07 | P07, P10 | 製品画像32点と音声29点をruntime manifest、配信定義、原本、生成証拠へ全量照合。`product-asset-gate.test.mjs`が製品経路のplaceholder / planned / draftを拒否し、4面campaignと3 viewportで欠落0を確認。主観品質は未評価 | 実装中 |
+| AV-01 | P04, P06, P07 | P07, P10 | 製品画像32点と音声29点をruntime manifest、配信定義、原本、生成証拠へ全量照合。`product-asset-gate.test.mjs`が製品経路のplaceholder / planned / draftを拒否し、P10の`release-artifact-audit.json`が固定RCの61点と通知を再照合。主観品質は未評価 | 実装済み未検証 |
 | AV-02 | P04, P06, P07 | P07, P10 | 自機、全通常敵、boss、コアの移動・登場・攻撃・被弾・形態変化と5 VFX、危険予告、クリアを4面×4表示profileでCanvas描画監査。主観品質は未評価 | 実装済み未検証 |
 | AV-03 | P04, P06, P07 | P07, P10 | 全4面の遠景・中景・前景を独立速度で合成し、動き軽減で全offset 0、通常時は3層維持。4面通しと3 viewportも確認。主観的な奥行き品質は未評価 | 実装済み未検証 |
 | AV-04 | P04, P06, P07 | P09, P10 | 9種のLv別弾、5 VFX、自機10構成・混色補助・無敵を4面×4表示profileで監査。色に依存しない形状、160描画の署名衝突0 | 実装済み未検証 |
 | AV-05 | P04, P06, P07 | P07, P09, P10 | 自作共有音9点と第1〜4面各5点を台帳化・波形検査。通常2層／boss 3層、導入・クリア通知と画面別3 BGMを接続。P09で共通2層を止めず危機層だけを現在位相へ追加し、全4面を6分相当進めて位相差0 sample、boss合成ピーク−11.352dBFS以下を確認。Chromeで全29音源HTTP 200・音声警告0。聴感は未評価 | 実装済み未検証 |
 | AV-06 | P05 | P08, P09, P10 | 音声異常系をunit検査し、Chrome `?qa=campaign&runs=3&audio=silent`でAudioContext作成失敗を注入。P09で危機層欠落時に通常2層を維持して進行することを全4面で検査。無音警告を保持した12面完走と正常時の全29音源取得を確認 | 実装済み未検証 |
-| AV-07 | P04, P07 | P10 | 全画像32点は原本・完全prompt・配信WebP・最適化監査、全音声29点は生成式・用途・SHA-256・外部サンプル0を全量照合。2026-10-24の公式利用条件確認、非一意性・非侵害未保証の残存リスク、`THIRD_PARTY_NOTICES.html`を記録。P10で再確認 | 実装中 |
+| AV-07 | P04, P07 | P10 | 全画像32点は原本・完全prompt・配信WebP・最適化監査、全音声29点は生成式・用途・SHA-256・外部サンプル0を全量照合。P10で2026-01-01発効Terms of Useと2026-10-16更新Service Terms、非一意性・非侵害未保証の残存リスク、固定RCの`THIRD_PARTY_NOTICES.html`を再確認。`release-artifact-audit.json` | 実装済み未検証 |
 | TECH-01 | P05 | P08, P10 | `fixed-step.test.mjs`で30/60/144Hz、長delta、非表示復帰を決定的検査。Chromeの実4面3 campaignで固定更新を継続し、5秒性能窓119.4fps、50ms超frame 0、最大24.0ms、simulation drop 0ms。`alpha-runtime-evidence.json` | 実装済み未検証 |
 | TECH-02 | P05, P07 | P07, P10 | `stage-schema.test.mjs`で背景、敵、drop、区間、wave、仕掛け、boss phase、音、遷移のschema・参照・登録behaviorを検査。`stage-schedule.test.mjs`でデータ差替えとseed再現を検査。完成4面のデータと条件分岐レビューはP07 | 実装中 |
 | TECH-03 | P05, P07 | P08, P10 | 決定的simulation、第1〜4面のChrome各2完走・snapshot一致に加え、`automatic-playthrough.test.mjs`とChrome `?qa=campaign&runs=3&audio=silent`で同じ製品経路を3 campaign・12面→ending→creditsまで完走し、面別固定seedの結果一致、失敗0、console warning/error 0。`alpha-runtime-evidence.json` | 実装済み未検証 |
@@ -69,9 +69,9 @@
 | TECH-05 | P05, P09 | P09, P10 | Chromeの4倍描画負荷でplaying実時間300,000.9msを計測。116.1fps、最大259.7ms、simulation drop 2,109.7ms（0.703%）、5 campaign以上を停止なく継続。物理低性能端末の証拠ではない限界を明記。`performance-soak.json` | 実装済み未検証 |
 | TECH-06 | P05, P08 | P08, P10 | 全61配信assetとruntime参照を全量照合。Phase 05試作定義を製品buildから除外し、静的なplaceholder / planned / draft・外部URL 0を監査。Chromeの実4面3 campaignで63 resource、外部origin 0、console warning/error 0、欠落による停止0。3 viewportと接続喪失相当は別Phase 08証拠で確認。`alpha-runtime-evidence.json` | 実装済み未検証 |
 | TECH-07 | P05, P09 | P09, P10 | build `phase09-performance-soak-20261024` は100 files・10,526,479 bytes/16 MiB。4倍描画負荷の5分soakはwarmup後heap +782,631 bytes、resource/DOM増加0、console warning/error・外部origin 0。`performance-soak.json` | 実装済み未検証 |
-| TECH-08 | P05 | P10 | lockfile、runtime/dev依存0、`npm audit --omit=dev --audit-level=high`で既知脆弱性0。最終候補で再監査 | 実装中 |
-| REL-01 | P04, P07 | P10 | 2026-10-24に全画像・音声の出典、prompt／生成式、SHA-256、権利状態を再照合。OpenAI公式利用条件、非一意性・非侵害未保証、外部音源0、依存0を配布HTMLへ記録。P10で条件変更と成果物を再確認 | 実装中 |
-| REL-02 | P05 | P10 | 保存境界は同一origin storageだけを使用し個人情報処理を持たない。静的buildは外部URL 0、Chrome campaignは外部通信なしで完走。通知の規約所在は非リンク文字列で示す | 実装中 |
+| TECH-08 | P05 | P10 | 固定RCのlockfile、runtime/dev依存0を`release-artifact-audit.json`へ記録し、`npm run verify`内の`npm audit --omit=dev --audit-level=high`で既知脆弱性0を再監査 | 実装済み未検証 |
+| REL-01 | P04, P07 | P10 | P10で全画像32点・音声29点の出典、prompt／生成式、権利状態、固定RCの通知を再照合。OpenAI公式条件の版、非一意性・非侵害未保証、外部音源0、依存0を`release-artifact-audit.json`へ記録 | 実装済み未検証 |
+| REL-02 | P05 | P10 | 保存境界は同一origin storageだけを使用し個人情報処理を持たない。固定RCは外部URL 0、61配信assetと通知を同一manifestへ照合し、Chrome campaignは外部通信なしで完走。`release-artifact-audit.json` | 実装済み未検証 |
 | REL-03 | P05 | P08, P10 | storageだけで実4面bestを復元し、書込失敗時も実第1面のclear/bestをメモリ継続。Chromeで配信サーバー停止後も読み込み済み第4面を開始し、音源欠落警告から無音継続、復帰・再読込後の4面best不変を確認 | 実装済み未検証 |
 | REL-04 | P10, P11 | P11 | version、変更点、既知問題、build ID、通知の本番照合 | 未着手 |
 | REL-05 | P11 | P11 | Phase 10 build IDとの一致、公開URLの4面スモーク | 未着手 |

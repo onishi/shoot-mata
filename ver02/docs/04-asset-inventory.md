@@ -198,3 +198,9 @@
 - 音声29点は生成コード、原本WAV、manifestの用途・byte数・SHA-256・`project-authored; no third-party samples`を再照合した。製品から除外済みの旧`stage-01-rhythm-loop-v1.wav`はゲート対象に含めない。
 - `product-asset-gate.test.mjs`は製品経路の`placeholder / planned / draft`を拒否し、全4面の画像・音ID、実ファイル、prompt、音声manifest、権利状態、配布通知を一括検査する。以前の各検査記録に残る「製品入口未接続」「権利再確認未完了」は制作時点の履歴であり、この全量照合が現状を上書きする。
 - 配布物へ`THIRD_PARTY_NOTICES.html`を同梱し、画像生成、音声合成、外部素材0、外部runtime依存0、利用条件URL、残存リスクを利用者から参照可能にした。これは法的助言または独自性・非侵害性の保証ではなく、Phase 10でも再確認する。
+
+## Phase 10 release candidate再照合
+
+- build `phase10-rc1-20261024`に対し、画像32点、音声29点、runtime参照、配信manifest、権利通知を`phases/phase-10/release-artifact-audit.json`へ再固定した。全61点が`final`で、欠落0、外部素材0、runtime/dev npm依存0である。
+- 2026-10-24にOpenAI Terms of Useの2026-01-01発効版とService Termsの2026-10-16更新版を再確認した。既存台帳のOutput所有、非一意性、利用者の適法利用責任、人物の識別可能な外見を避ける制作方針と矛盾しない。
+- 生成画像の独自性・非侵害性は保証されず、法的助言でもない。`THIRD_PARTY_NOTICES.html`の残存リスク表記を維持し、機械監査がこれを欠落させたbuildを拒否する。

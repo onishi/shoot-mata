@@ -26,7 +26,7 @@ test("Phase 10 acceptance audit rejects missing, duplicate, unknown, and malform
   assert.match(result.failures.join("\n"), /EXTRA-01: invalid state 未知状態/);
 });
 
-test("Phase 10 acceptance baseline covers every product requirement without claiming acceptance", async () => {
+test("Phase 10 entry baseline stays immutable while the current matrix progresses", async () => {
   const requirements = await readFile(requirementsUrl, "utf8");
   const matrix = await readFile(matrixUrl, "utf8");
   const baseline = JSON.parse(await readFile(baselineUrl, "utf8"));
@@ -35,9 +35,17 @@ test("Phase 10 acceptance baseline covers every product requirement without clai
   assert.equal(result.valid, true, result.failures.join("\n"));
   assert.equal(result.requirementCount, 66);
   assert.equal(result.acceptanceRowCount, 66);
-  assert.deepEqual(result.stateCounts, baseline.stateCounts);
   assert.equal(result.phase10RequiredCount, baseline.phase10RequiredCount);
   assert.equal(result.postPhase10Count, baseline.postPhase10Count);
+  assert.deepEqual(baseline.stateCounts, {
+    未着手: 4,
+    実装中: 19,
+    実装済み未検証: 43,
+    合格: 0,
+    不合格: 0,
+    ブロック: 0,
+  });
+  assert.equal(Object.values(result.stateCounts).reduce((sum, count) => sum + count, 0), 66);
   assert.equal(baseline.accepted, false);
   assert.equal(baseline.stateCounts.合格, 0);
 });

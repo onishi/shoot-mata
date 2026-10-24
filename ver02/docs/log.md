@@ -1,5 +1,14 @@
 # 開発ログ
 
+## 2026-10-24 — Phase 10静的成果物・権利・依存を固定RCへ再結合
+
+- 目的: 自動検査、配信manifest、全素材、権利通知、利用条件記録、lockfile、依存監査が別buildの証拠を混在させないよう、`phase10-rc1-20261024`へ結び付ける。
+- 実装: `release-artifact-audit.json`とfail-closedな`audit:release`を追加した。manifest SHA-256、100 files・10,526,479 bytes、画像32点、音声29点、61点のfinal状態、配信通知、runtime/dev依存0を実ファイルから照合する。`npm run verify`へrelease監査と依存監査を組み込んだ。
+- 権利再確認: OpenAI Terms of Useは2026-01-01発効、Service Termsは2026-10-16更新。Output所有、非一意性、適法利用責任という通知の整理と矛盾しない。生成物の独自性・非侵害性は保証せず、法的助言ではない残存リスクを維持する。
+- 検査: Node.js 24.22.1 / npm 11.19.1で195テスト、再現build、静的監査、66行の受け入れID監査、release artifact監査、`npm audit --omit=dev --audit-level=high`に合格。既知脆弱性0、外部URL 0、unfinished product reference 0。
+- 判定: Phase 10第3作業単位だけを完了。release candidateの`accepted`はfalseのままで、必須ブラウザ・実モバイル・物理低性能端末と全受け入れ行の最終判定が残る。
+- 次: 同一RCを必須ブラウザ、実端末、物理低性能端末で検証し、未利用環境を推定合格にせずblockerを更新する。
+
 ## 2026-10-24 — Phase 10受け入れID監査を追加
 
 - 目的: 製品要件の欠落、重複、未知ID、不正状態を残したまま最終検収へ進むことを防ぐ。
