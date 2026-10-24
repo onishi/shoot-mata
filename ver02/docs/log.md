@@ -1,5 +1,14 @@
 # 開発ログ
 
+## 2026-10-25 — Phase 10最終検収ゲートをfail-closed化
+
+- 目的: 受け入れ行、固定RC、証拠台帳、ブラウザ・実端末記録が別々に更新されても、未確認を残したまま`accepted: true`へ進めない単一判定を作る。
+- Safari再試行: `phase10-rc1-20261024`のlocalhost配信を開始したが、Safariは今回もComputer Useの承認前に拒否され、ページを開けなかった。Safariの状態は`not-run`のまま維持し、互換性から推定合格しない。
+- 実装: `phases/phase-10/final-acceptance.json`と`audit:final-acceptance`を追加した。受け入れ表からP10対象・後続対象・非合格IDを、互換記録から必須ブラウザ・実モバイル・物理低性能端末の状態を毎回導出し、固定RC／証拠台帳とのbuild ID・`accepted`一致を検査する。
+- fail-closed: blocker一覧の欠落・陳腐化、環境未達中の合格宣言、release candidateまたは証拠台帳だけの先行合格を回帰テストで拒否する。`npm run verify`へ最終検収監査を組み込んだ。
+- 検査: 全203テスト、固定RCの100 files・10,526,479 bytes再現build、静的監査、70行の受け入れID監査、67/67件の証拠監査、最終検収監査、release artifact監査、依存監査に合格した。
+- 判定: 現在はP10対象67件が非合格状態、必須ブラウザ・端末5対象、実モバイル2対象、物理低性能端末が未確認で`accepted: false`。critical／majorの既知不具合は観測範囲で0件だが、未確認環境をその根拠へ含めない。Phase 10を継続する。
+
 ## 2026-10-25 — Phase 10の67要件を実在証拠へfail-closedで接続
 
 - 目的: 受け入れマトリクスの証拠欄が空でないことだけを検査する状態から、P10対象要件が実在する検査・記録へ到達することを機械監査する。
