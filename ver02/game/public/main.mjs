@@ -21,6 +21,7 @@ import { consumeInput } from "../src/core/input-state.mjs";
 import { createSaveRepository } from "../src/ports/save-repository.mjs";
 import { createStageViewModel } from "../src/ui/stage-view-model.mjs";
 import { createFailureReview } from "../src/ui/failure-review.mjs";
+import { createGameOverActions } from "../src/ui/game-over-actions.mjs";
 import {
   focusInitialMenuAction,
   getMenuActionLabel,
@@ -217,14 +218,9 @@ function screenDefinition() {
       kicker: "PLAYER DEFEATED",
       title: "GAME OVER",
       copy: failureReview
-        ? `SCORE ${score}。原因: ${failureReview.cause} (tick ${failureReview.tick})。直前コア: ${failureReview.coreQueue}。結果: ${failureReview.loss}。次の試行: ${failureReview.advice}`
+        ? `SCORE ${score}。原因: ${failureReview.cause} (tick ${failureReview.tick})。直前コア: ${failureReview.coreQueue}。結果: ${failureReview.loss}。次の試行: ${failureReview.advice}${session.flow.mode === "campaign" ? ` キャンペーン・コンティニュー残り${session.flow.continuesRemaining}回。` : ""}`
         : `SCORE ${score}。敗北記録を取得できませんでした。同じ条件で直ちに再挑戦できます。`,
-      actions: [
-        ["retry", "再挑戦", true],
-        ...(session.flow.continuesRemaining > 0
-          ? [["continue", `コンティニュー (${session.flow.continuesRemaining})`]]
-          : []),
-      ],
+      actions: createGameOverActions(session.flow),
     },
     ending: {
       kicker: "CAMPAIGN COMPLETE",

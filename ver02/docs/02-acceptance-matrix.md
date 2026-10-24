@@ -12,11 +12,11 @@
 | EXP-04 | P07 | P09, P10 | 4ステージの固有要素を通しプレイ、画像・動画で比較 | 未着手 |
 | EXP-05 | P04, P07 | P10 | P04代表シーン、音7点、制作規則と自作音権利台帳を整備。P07全製品素材の一貫性と権利を再検証 | 実装中 |
 | LOOP-01 | P05, P07 | P08, P10 | 製品入口へ4面キャンペーン、各結果からの次面遷移、面別固定seed、エンディング、総合結果、クレジットを接続。実コンテンツ4面の統合テストとChrome `?qa=campaign`で開始→4面→ending→creditsを連続完走し、240Hz QA clockで総合score 54,140を確認 | 実装中 |
-| LOOP-02 | P07 | P08, P10 | 4ステージ各々の開始→結果→再挑戦テスト | 未着手 |
+| LOOP-02 | P07 | P08, P10 | `phase08-loop-flow.test.mjs`で実4面それぞれの単独開始→敵弾敗北→attempt 2→クリア→attempt 3同seedクリア一致→ステージ選択復帰を連続検査。Chrome通常入口の解放済み第4面で開始→無操作敗北→再挑戦だけを表示し、単独プレイに実行不能なコンティニューが出ないことを確認 | 実装済み未検証 |
 | LOOP-03 | P03, P06 | P09, P10 | `phases/phase-03/prototype/objective-audit.mjs`、ゲーム内統合テスト | 実装中 |
-| LOOP-04 | P05 | P08, P10 | `flow-machine.test.mjs`と`game-session.test.mjs`でポーズ・復帰・再開始／離脱確認を検査。ChromeでPointer Eventsのポーズ、再開始確認取消、復帰を操作 | 実装中 |
+| LOOP-04 | P05 | P08, P10 | `flow-machine.test.mjs`、`game-session.test.mjs`、`phase08-loop-flow.test.mjs`でポーズ・復帰、実第4面の再開始確認取消／確定、タイトル離脱確定を検査。Chrome通常入口の第4面でポーズ→再開始確認→取消→復帰を操作し、進行喪失が確認後だけ起きることを確認 | 実装済み未検証 |
 | LOOP-05 | P07 | P08, P10 | 4面別結果を重複なく集計し、固有エンディング、総合score内訳、クレジット、タイトル帰還を実装。Nodeの実4面連続通しとChromeで`QA PASS / 4 STAGES / ENDING + CREDITS`を確認 | 実装中 |
-| LOOP-06 | P05, P07 | P08, P10 | Chrome自動入力で第1〜3面を各2回クリア。第3面はtick 3577・score 11950、結果→attempt 2、最終snapshot一致。第4面は後続 | 実装中 |
+| LOOP-06 | P05, P07 | P08, P10 | 第1〜4面のChrome自動入力各2クリアとsnapshot一致に加え、`phase08-loop-flow.test.mjs`で実4面の敗北／再挑戦とキャンペーン2回限定コンティニューを検査。Chrome `?qa=failure-review`で残数2→1→0、0回時のボタン消去、再挑戦継続を確認。320×844、390×844、844×390でoverflow 0、操作高44px、console warning/error 0 | 実装済み未検証 |
 | CORE-01 | P03, P04 | P09, P10 | P03試作の落下中コア・HUD・凡例で3色を外形・内部記号でも区別。`prototype/tests/model.test.mjs`、3画面画像。P04分離素材の48×48グレースケール検査は `docs/04-asset-inventory.md`。ゲーム内完成アートで再検証 | 実装中 |
 | CORE-02 | P03 | P03, P10 | `prototype/tests/model.test.mjs`、`prototype/objective-audit.mjs` の全729列 | 実装中 |
 | CORE-03 | P03, P07 | P07, P10 | P03試作に加え、製品戦闘で3系統×3段階の弾数・貫通・追尾、Lv別弾形状・発射音、自機上の菱形・十字・円と点灯数を自動検査。Chromeの第1面通しでLANCE Lv1とSEEKER Lv2を実表示。全区間の最終確認は後続 | 実装中 |
