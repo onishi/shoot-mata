@@ -223,6 +223,26 @@ test("Phase 10 gate has a valid transition to accepted after every required cond
     if (["ios-safari-device", "android-chrome-device"].includes(target.id)) {
       evidence.inputModes = ["touch"];
       evidence.orientations = ["portrait", "landscape"];
+      evidence.layout = {
+        portrait: {
+          viewportWidthCssPx: 390,
+          viewportHeightCssPx: 844,
+          horizontalOverflowPx: 0,
+          verticalOverflowPx: 0,
+        },
+        landscape: {
+          viewportWidthCssPx: 844,
+          viewportHeightCssPx: 390,
+          horizontalOverflowPx: 0,
+          verticalOverflowPx: 0,
+        },
+      };
+      evidence.interactionMeasurements = {
+        maximumSimultaneousTouches: 2,
+        scrollConflictCount: 0,
+        minimumTouchTargetCssPx: 44,
+        safeAreaViolationCount: 0,
+      };
       evidence.campaign.runs = 2;
       evidence.campaign.results = ["fixture portrait run", "fixture landscape run"];
       evidence.campaign.executions = [
@@ -414,6 +434,84 @@ test("UX-05/06・INP-02〜04: two portrait executions cannot substitute for both
   const result = validatePhase10EnvironmentEvidence(compatibility, inputs.releaseCandidate);
   assert.equal(result.valid, false);
   assert.match(result.failures.join("\n"), /exactly one touch:landscape run/);
+});
+
+test("UX-05/06・INP-02〜04: mobile pass checks must agree with concrete runtime measurements", async () => {
+  const inputs = await checkedInInputs();
+  const compatibility = structuredClone(inputs.compatibility);
+  const target = compatibility.targets.find(({ id }) => id === "ios-safari-device");
+  Object.assign(target, {
+    status: "pass",
+    version: "fixture-version",
+    notes: "contradictory runtime measurements fixture",
+    evidence: {
+      viewports: ["390x844", "844x390"],
+      inputModes: ["touch"],
+      orientations: ["portrait", "landscape"],
+      consoleWarningOrErrorCount: 1,
+      externalOrigins: ["https://unexpected.example"],
+      layout: {
+        portrait: {
+          viewportWidthCssPx: 844,
+          viewportHeightCssPx: 390,
+          horizontalOverflowPx: 12,
+          verticalOverflowPx: 0,
+        },
+        landscape: {
+          viewportWidthCssPx: 390,
+          viewportHeightCssPx: 844,
+          horizontalOverflowPx: 0,
+          verticalOverflowPx: 8,
+        },
+      },
+      interactionMeasurements: {
+        maximumSimultaneousTouches: 1,
+        scrollConflictCount: 1,
+        minimumTouchTargetCssPx: 43,
+        safeAreaViolationCount: 1,
+      },
+      campaign: {
+        stages: 4,
+        runs: 2,
+        results: ["fixture portrait run", "fixture landscape run"],
+        executions: [
+          { inputMode: "touch", orientation: "portrait", stages: 4, outcome: "pass", result: "fixture portrait run" },
+          { inputMode: "touch", orientation: "landscape", stages: 4, outcome: "pass", result: "fixture landscape run" },
+        ],
+      },
+      buildIdentity: {
+        buildId: inputs.releaseCandidate.buildId,
+        sha256: inputs.releaseCandidate.manifest.sha256,
+        fileCount: inputs.releaseCandidate.manifest.fileCount,
+        totalBytes: inputs.releaseCandidate.manifest.totalBytes,
+      },
+      checks: {
+        loaded: true,
+        primaryFlow: true,
+        pauseResume: true,
+        noHorizontalOverflow: true,
+        noConsoleErrors: true,
+        noMissingResources: true,
+        noExternalOrigins: true,
+        retryFlow: true,
+        multiTouch: true,
+        noScrollConflict: true,
+        touchTargetsAtLeast44CssPx: true,
+        safeAreaVisible: true,
+      },
+    },
+  });
+  const result = validatePhase10EnvironmentEvidence(compatibility, inputs.releaseCandidate);
+  assert.equal(result.valid, false);
+  const failures = result.failures.join("\n");
+  assert.match(failures, /consoleWarningOrErrorCount 0/);
+  assert.match(failures, /empty externalOrigins array/);
+  assert.match(failures, /portrait layout dimensions must match the orientation/);
+  assert.match(failures, /landscape layout must record zero horizontal and vertical overflow/);
+  assert.match(failures, /maximumSimultaneousTouches must be at least 2/);
+  assert.match(failures, /scrollConflictCount must be 0/);
+  assert.match(failures, /minimumTouchTargetCssPx must be at least 44/);
+  assert.match(failures, /safeAreaViolationCount must be 0/);
 });
 
 test("UX-05/06・INP-02〜04: an extra mobile execution cannot obscure the two required orientations", async () => {

@@ -121,6 +121,45 @@ function validateDesktopRuntimeMeasurements(target, failures) {
   }
 }
 
+function validateMobileRuntimeMeasurements(target, failures) {
+  const evidence = target.evidence;
+  if (evidence?.consoleWarningOrErrorCount !== 0) {
+    failures.push(`${target.id}: pass requires consoleWarningOrErrorCount 0`);
+  }
+  if (!Array.isArray(evidence?.externalOrigins) || evidence.externalOrigins.length !== 0) {
+    failures.push(`${target.id}: pass requires an empty externalOrigins array`);
+  }
+  for (const orientation of ["portrait", "landscape"]) {
+    const layout = evidence?.layout?.[orientation];
+    const width = layout?.viewportWidthCssPx;
+    const height = layout?.viewportHeightCssPx;
+    if (!Number.isFinite(width) || width <= 0 || !Number.isFinite(height) || height <= 0) {
+      failures.push(`${target.id}: ${orientation} layout must record positive CSS viewport dimensions`);
+    } else if ((orientation === "portrait" && width >= height)
+      || (orientation === "landscape" && width <= height)) {
+      failures.push(`${target.id}: ${orientation} layout dimensions must match the orientation`);
+    }
+    if (layout?.horizontalOverflowPx !== 0 || layout?.verticalOverflowPx !== 0) {
+      failures.push(`${target.id}: ${orientation} layout must record zero horizontal and vertical overflow`);
+    }
+  }
+  const interaction = evidence?.interactionMeasurements;
+  if (!Number.isInteger(interaction?.maximumSimultaneousTouches)
+    || interaction.maximumSimultaneousTouches < 2) {
+    failures.push(`${target.id}: maximumSimultaneousTouches must be at least 2`);
+  }
+  if (interaction?.scrollConflictCount !== 0) {
+    failures.push(`${target.id}: scrollConflictCount must be 0`);
+  }
+  if (!Number.isFinite(interaction?.minimumTouchTargetCssPx)
+    || interaction.minimumTouchTargetCssPx < 44) {
+    failures.push(`${target.id}: minimumTouchTargetCssPx must be at least 44`);
+  }
+  if (interaction?.safeAreaViolationCount !== 0) {
+    failures.push(`${target.id}: safeAreaViolationCount must be 0`);
+  }
+}
+
 export function validatePhase10EnvironmentEvidence(compatibility, releaseCandidate) {
   const failures = [];
   const targets = Array.isArray(compatibility?.targets) ? compatibility.targets : [];
@@ -179,6 +218,7 @@ export function validatePhase10EnvironmentEvidence(compatibility, releaseCandida
     ]) {
       if (evidence?.checks?.[check] !== true) failures.push(`${id}: ${check} must be true to pass`);
     }
+    validateMobileRuntimeMeasurements(target, failures);
   }
 
   const lowPerformance = targets.find(({ id }) => id === PHYSICAL_LOW_PERFORMANCE_TARGET);

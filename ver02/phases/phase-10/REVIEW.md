@@ -28,6 +28,8 @@
 
 これらにより、UX-05、UX-06、INP-02、INP-03、INP-04、TECH-04、TECH-05の7要件を`ブロック`として維持する。desktopのviewport縮小、合成Pointer Events、Simulator、開発機の4倍描画負荷は補助証拠であり、実機または物理端末の合格へ読み替えない。
 
+実モバイルを将来`pass`へ変更する際は、真偽値だけでなく、console warning/error 0件、外部origin 0件、縦横のCSS viewport寸法とoverflow 0、同時タッチ2点以上、スクロール競合0件、最小タッチ対象44 CSS px以上、safe-area違反0件の構造化実測値が必要である。これらと矛盾する合格記録は最終監査が拒否する。
+
 2026-10-25の再確認でも、Computer UseはSafari利用を承認せず、ADB接続は0台、Xcodeのdevice一覧はMac本体とSimulatorだけだった。認証設定の迂回や互換実装からの推定は行っていない。証拠日付は実在する暦日で、固定RC作成日以後かつ最終判定日以前でなければ監査が拒否する。
 
 ## 残存する非blockerリスク

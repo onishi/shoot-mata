@@ -142,3 +142,11 @@ desktop browserの`checks`が全てtrueでも、具体的なconsole件数、外�
 SafariはComputer Useから承認されず、公式SafariDriverの有効化も管理者認証を通過しなかった。設定を迂回せず`not-run`を維持した。固定RCの配信ファイル、60/67件合格、7件ブロック、`accepted: false`は変更していない。
 
 全217テスト、固定RCの100 files・10,526,479 bytes再現build、全監査、依存脆弱性0件を確認した。
+
+## 完了した実モバイル実測値の整合性検査
+
+実モバイルは4面実行と縦横、multi-touch、スクロール競合、44 CSS px、safe-areaの真偽値を満たしても、その具体的な実測値が欠落または矛盾する証拠を合格にできた。iOS Safari／Android Chrome実機の`pass`へ、console warning/error 0件、外部origin 0件、縦横それぞれの正しいCSS viewport寸法とoverflow 0、同時タッチ2点以上、スクロール競合0件、最小タッチ対象44 CSS px以上、safe-area違反0件を構造化して必須化した。
+
+真偽値だけをtrueにして実測値を悪化させたfixtureを拒否し、全条件を備えた将来の合格遷移fixtureは引き続き通過する回帰テストを追加した。現在は実モバイルが未接続のため新しい合格証拠はなく、固定RCの配信ファイル、60/67件合格、7件ブロック、`accepted: false`は変更していない。
+
+全218テスト、固定RCの100 files・10,526,479 bytes再現build、全監査、依存脆弱性0件を確認した。
