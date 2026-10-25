@@ -78,6 +78,9 @@ function validateCampaign(target, requiredExecutions, dimension, failures) {
     if (execution.stages !== 4) {
       failures.push(`${target.id}: campaign.executions[${index}].stages must be 4`);
     }
+    if (execution.outcome !== "pass") {
+      failures.push(`${target.id}: campaign.executions[${index}].outcome must be pass`);
+    }
     if (!nonEmptyString(execution.result)) {
       failures.push(`${target.id}: campaign.executions[${index}].result is required`);
     } else if (execution.result !== campaign.results?.[index]) {

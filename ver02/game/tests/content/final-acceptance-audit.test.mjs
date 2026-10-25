@@ -177,10 +177,10 @@ test("Phase 10 gate has a valid transition to accepted after every required cond
         runs: 4,
         results: ["fixture run 1", "fixture run 2", "fixture run 3", "fixture run 4"],
         executions: [
-          { inputMode: "keyboard", viewport: "1568x956", stages: 4, result: "fixture run 1" },
-          { inputMode: "pointer-events", viewport: "1568x956", stages: 4, result: "fixture run 2" },
-          { inputMode: "pointer-events", viewport: "390x844", stages: 4, result: "fixture run 3" },
-          { inputMode: "pointer-events", viewport: "844x390", stages: 4, result: "fixture run 4" },
+          { inputMode: "keyboard", viewport: "1568x956", stages: 4, outcome: "pass", result: "fixture run 1" },
+          { inputMode: "pointer-events", viewport: "1568x956", stages: 4, outcome: "pass", result: "fixture run 2" },
+          { inputMode: "pointer-events", viewport: "390x844", stages: 4, outcome: "pass", result: "fixture run 3" },
+          { inputMode: "pointer-events", viewport: "844x390", stages: 4, outcome: "pass", result: "fixture run 4" },
         ],
       },
       buildIdentity: {
@@ -205,8 +205,8 @@ test("Phase 10 gate has a valid transition to accepted after every required cond
       evidence.campaign.runs = 2;
       evidence.campaign.results = ["fixture portrait run", "fixture landscape run"];
       evidence.campaign.executions = [
-        { inputMode: "touch", orientation: "portrait", stages: 4, result: "fixture portrait run" },
-        { inputMode: "touch", orientation: "landscape", stages: 4, result: "fixture landscape run" },
+        { inputMode: "touch", orientation: "portrait", stages: 4, outcome: "pass", result: "fixture portrait run" },
+        { inputMode: "touch", orientation: "landscape", stages: 4, outcome: "pass", result: "fixture landscape run" },
       ];
       Object.assign(evidence.checks, {
         retryFlow: true,
@@ -304,6 +304,7 @@ test("TECH-04: an extra arbitrary execution cannot be mixed into the required de
     inputMode: "pointer-events",
     viewport: "1024x768",
     stages: 4,
+    outcome: "pass",
     result: extraResult,
   });
   const result = validatePhase10EnvironmentEvidence(compatibility, inputs.releaseCandidate);
@@ -319,6 +320,17 @@ test("TECH-04: structured execution result must match its recorded campaign resu
   const result = validatePhase10EnvironmentEvidence(compatibility, inputs.releaseCandidate);
   assert.equal(result.valid, false);
   assert.match(result.failures.join("\n"), /must match campaign\.results\[0\]/);
+});
+
+test("TECH-04: every structured campaign execution must explicitly pass", async () => {
+  const inputs = await checkedInInputs();
+  const compatibility = structuredClone(inputs.compatibility);
+  const target = compatibility.targets.find(({ id }) => id === "chrome-desktop");
+  target.evidence.campaign.executions[0].outcome = "fail";
+  target.evidence.campaign.executions[0].result = target.evidence.campaign.results[0] = "fixture failed run";
+  const result = validatePhase10EnvironmentEvidence(compatibility, inputs.releaseCandidate);
+  assert.equal(result.valid, false);
+  assert.match(result.failures.join("\n"), /executions\[0\]\.outcome must be pass/);
 });
 
 test("UX-05/06・INP-02〜04: two portrait executions cannot substitute for both mobile orientations", async () => {
@@ -338,8 +350,8 @@ test("UX-05/06・INP-02〜04: two portrait executions cannot substitute for both
         runs: 2,
         results: ["fixture portrait run 1", "fixture portrait run 2"],
         executions: [
-          { inputMode: "touch", orientation: "portrait", stages: 4, result: "fixture portrait run 1" },
-          { inputMode: "touch", orientation: "portrait", stages: 4, result: "fixture portrait run 2" },
+          { inputMode: "touch", orientation: "portrait", stages: 4, outcome: "pass", result: "fixture portrait run 1" },
+          { inputMode: "touch", orientation: "portrait", stages: 4, outcome: "pass", result: "fixture portrait run 2" },
         ],
       },
       buildIdentity: {
@@ -387,9 +399,9 @@ test("UX-05/06・INP-02〜04: an extra mobile execution cannot obscure the two r
         runs: 3,
         results,
         executions: [
-          { inputMode: "touch", orientation: "portrait", stages: 4, result: results[0] },
-          { inputMode: "touch", orientation: "landscape", stages: 4, result: results[1] },
-          { inputMode: "touch", orientation: "square", stages: 4, result: results[2] },
+          { inputMode: "touch", orientation: "portrait", stages: 4, outcome: "pass", result: results[0] },
+          { inputMode: "touch", orientation: "landscape", stages: 4, outcome: "pass", result: results[1] },
+          { inputMode: "touch", orientation: "square", stages: 4, outcome: "pass", result: results[2] },
         ],
       },
       buildIdentity: {

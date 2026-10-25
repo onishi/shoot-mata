@@ -34,10 +34,10 @@
             "844x390: QA PASS / 1 CAMPAIGNS / 4 STAGES / SINGLE RUN / TOUCH INPUT"
           ],
           "executions": [
-            { "inputMode": "pointer-events", "viewport": "1568x956", "stages": 4, "result": "1568x956: QA PASS / 1 CAMPAIGNS / 4 STAGES / SINGLE RUN / TOUCH INPUT" },
-            { "inputMode": "keyboard", "viewport": "1568x956", "stages": 4, "result": "1568x956: QA PASS / 1 CAMPAIGNS / 4 STAGES / SINGLE RUN / KEYBOARD INPUT" },
-            { "inputMode": "pointer-events", "viewport": "390x844", "stages": 4, "result": "390x844: QA PASS / 1 CAMPAIGNS / 4 STAGES / SINGLE RUN / TOUCH INPUT" },
-            { "inputMode": "pointer-events", "viewport": "844x390", "stages": 4, "result": "844x390: QA PASS / 1 CAMPAIGNS / 4 STAGES / SINGLE RUN / TOUCH INPUT" }
+            { "inputMode": "pointer-events", "viewport": "1568x956", "stages": 4, "outcome": "pass", "result": "1568x956: QA PASS / 1 CAMPAIGNS / 4 STAGES / SINGLE RUN / TOUCH INPUT" },
+            { "inputMode": "keyboard", "viewport": "1568x956", "stages": 4, "outcome": "pass", "result": "1568x956: QA PASS / 1 CAMPAIGNS / 4 STAGES / SINGLE RUN / KEYBOARD INPUT" },
+            { "inputMode": "pointer-events", "viewport": "390x844", "stages": 4, "outcome": "pass", "result": "390x844: QA PASS / 1 CAMPAIGNS / 4 STAGES / SINGLE RUN / TOUCH INPUT" },
+            { "inputMode": "pointer-events", "viewport": "844x390", "stages": 4, "outcome": "pass", "result": "844x390: QA PASS / 1 CAMPAIGNS / 4 STAGES / SINGLE RUN / TOUCH INPUT" }
           ]
         },
         "layout": {
@@ -85,10 +85,10 @@
             "844x390: QA PASS / 1 CAMPAIGNS / 4 STAGES / SINGLE RUN / TOUCH INPUT"
           ],
           "executions": [
-            { "inputMode": "pointer-events", "viewport": "1568x956", "stages": 4, "result": "1568x956: QA PASS / 1 CAMPAIGNS / 4 STAGES / SINGLE RUN / TOUCH INPUT" },
-            { "inputMode": "keyboard", "viewport": "1568x956", "stages": 4, "result": "1568x956: QA PASS / 1 CAMPAIGNS / 4 STAGES / SINGLE RUN / KEYBOARD INPUT" },
-            { "inputMode": "pointer-events", "viewport": "390x844", "stages": 4, "result": "390x844: QA PASS / 1 CAMPAIGNS / 4 STAGES / SINGLE RUN / TOUCH INPUT" },
-            { "inputMode": "pointer-events", "viewport": "844x390", "stages": 4, "result": "844x390: QA PASS / 1 CAMPAIGNS / 4 STAGES / SINGLE RUN / TOUCH INPUT" }
+            { "inputMode": "pointer-events", "viewport": "1568x956", "stages": 4, "outcome": "pass", "result": "1568x956: QA PASS / 1 CAMPAIGNS / 4 STAGES / SINGLE RUN / TOUCH INPUT" },
+            { "inputMode": "keyboard", "viewport": "1568x956", "stages": 4, "outcome": "pass", "result": "1568x956: QA PASS / 1 CAMPAIGNS / 4 STAGES / SINGLE RUN / KEYBOARD INPUT" },
+            { "inputMode": "pointer-events", "viewport": "390x844", "stages": 4, "outcome": "pass", "result": "390x844: QA PASS / 1 CAMPAIGNS / 4 STAGES / SINGLE RUN / TOUCH INPUT" },
+            { "inputMode": "pointer-events", "viewport": "844x390", "stages": 4, "outcome": "pass", "result": "844x390: QA PASS / 1 CAMPAIGNS / 4 STAGES / SINGLE RUN / TOUCH INPUT" }
           ]
         },
         "layout": {
@@ -137,10 +137,10 @@
             "844x390: QA PASS / 1 CAMPAIGNS / 4 STAGES / SINGLE RUN / TOUCH INPUT"
           ],
           "executions": [
-            { "inputMode": "pointer-events", "viewport": "1568x956", "stages": 4, "result": "1568x956: QA PASS / 1 CAMPAIGNS / 4 STAGES / SINGLE RUN / TOUCH INPUT" },
-            { "inputMode": "keyboard", "viewport": "1568x956", "stages": 4, "result": "1568x956: QA PASS / 1 CAMPAIGNS / 4 STAGES / SINGLE RUN / KEYBOARD INPUT" },
-            { "inputMode": "pointer-events", "viewport": "390x844", "stages": 4, "result": "390x844: QA PASS / 1 CAMPAIGNS / 4 STAGES / SINGLE RUN / TOUCH INPUT" },
-            { "inputMode": "pointer-events", "viewport": "844x390", "stages": 4, "result": "844x390: QA PASS / 1 CAMPAIGNS / 4 STAGES / SINGLE RUN / TOUCH INPUT" }
+            { "inputMode": "pointer-events", "viewport": "1568x956", "stages": 4, "outcome": "pass", "result": "1568x956: QA PASS / 1 CAMPAIGNS / 4 STAGES / SINGLE RUN / TOUCH INPUT" },
+            { "inputMode": "keyboard", "viewport": "1568x956", "stages": 4, "outcome": "pass", "result": "1568x956: QA PASS / 1 CAMPAIGNS / 4 STAGES / SINGLE RUN / KEYBOARD INPUT" },
+            { "inputMode": "pointer-events", "viewport": "390x844", "stages": 4, "outcome": "pass", "result": "390x844: QA PASS / 1 CAMPAIGNS / 4 STAGES / SINGLE RUN / TOUCH INPUT" },
+            { "inputMode": "pointer-events", "viewport": "844x390", "stages": 4, "outcome": "pass", "result": "844x390: QA PASS / 1 CAMPAIGNS / 4 STAGES / SINGLE RUN / TOUCH INPUT" }
           ]
         },
         "layout": {

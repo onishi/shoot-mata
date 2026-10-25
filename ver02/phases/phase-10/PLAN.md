@@ -120,3 +120,9 @@ Computer Useの環境一覧にはSafariが現れたが、今回もアプリ操�
 必須の構造化runを含んでいても、総run数は下限だけの検査だったため、desktopの4経路または実モバイルの縦横2経路へ任意の追加runを混在できた。desktopは厳密に4 run、実モバイルは厳密に2 runを要求し、余分な実行を拒否する回帰テストを追加した。全214テスト、固定RCの100 files・10,526,479 bytes再現build、全監査に合格した。
 
 固定RCのlocalhost配信に対して公式SafariDriver 26.6.2を起動したが、Safari設定の`Allow remote automation`が無効でセッション作成を拒否された。Computer UseもSafari操作を承認しなかったため、設定を変更せず`not-run`を維持した。固定RCの配信ファイル、60/67件合格、7件ブロック、`accepted: false`は変更していない。
+
+## 完了した実行成功状態の明示化
+
+構造化runの`result`は非空文字列と配列順の一致だけを要求していたため、入力方式、viewport／orientation、4面実行の組を満たしながら、失敗を表す自由記述を成功証拠として混入できた。各desktop／実モバイルrunへ機械判定可能な`outcome: "pass"`を必須化し、欠落または`fail`を拒否する回帰テストを追加した。既存3 desktop browserの実測記録も同じ形式へ移行した。
+
+全215テスト、固定RCの100 files・10,526,479 bytes再現build、全監査、依存脆弱性0件を確認した。Computer UseはSafari操作を今回も承認しなかったため、新しい環境証拠はなく、60/67件合格、7件ブロック、`accepted: false`を維持する。
