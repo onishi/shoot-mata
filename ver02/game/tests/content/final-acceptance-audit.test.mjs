@@ -192,6 +192,7 @@ test("Phase 10 gate has a valid transition to accepted after every required cond
         "844x390": { horizontalOverflowPx: 0, verticalOverflowPx: 0 },
       },
       consoleWarningOrErrorCount: 0,
+      failedDeclaredResourceCount: 0,
       externalOrigins: [],
       campaign: {
         stages: 4,
@@ -269,6 +270,7 @@ test("Phase 10 gate has a valid transition to accepted after every required cond
         progressDriftRatio: 0,
         heapGrowthBytes: 0,
         resourceCountGrowth: 0,
+        failedDeclaredResourceCount: 0,
         domNodeGrowth: 0,
         consoleWarningOrErrorCount: 0,
         externalOrigins: [],
@@ -387,11 +389,13 @@ test("TECH-04: desktop pass checks must agree with concrete runtime measurements
   const compatibility = structuredClone(inputs.compatibility);
   const target = compatibility.targets.find(({ id }) => id === "chrome-desktop");
   target.evidence.consoleWarningOrErrorCount = 1;
+  target.evidence.failedDeclaredResourceCount = 1;
   target.evidence.externalOrigins = ["https://unexpected.example"];
   target.evidence.layout["390x844"].horizontalOverflowPx = 12;
   const result = validatePhase10EnvironmentEvidence(compatibility, inputs.releaseCandidate);
   assert.equal(result.valid, false);
   assert.match(result.failures.join("\n"), /consoleWarningOrErrorCount 0/);
+  assert.match(result.failures.join("\n"), /failedDeclaredResourceCount 0/);
   assert.match(result.failures.join("\n"), /empty externalOrigins array/);
   assert.match(result.failures.join("\n"), /390x844 layout must record zero horizontal and vertical overflow/);
 });
@@ -457,6 +461,7 @@ test("UX-05/06・INP-02〜04: mobile pass checks must agree with concrete runtim
       inputModes: ["touch"],
       orientations: ["portrait", "landscape"],
       consoleWarningOrErrorCount: 1,
+      failedDeclaredResourceCount: 1,
       externalOrigins: ["https://unexpected.example"],
       layout: {
         portrait: {
@@ -513,6 +518,7 @@ test("UX-05/06・INP-02〜04: mobile pass checks must agree with concrete runtim
   assert.equal(result.valid, false);
   const failures = result.failures.join("\n");
   assert.match(failures, /consoleWarningOrErrorCount 0/);
+  assert.match(failures, /failedDeclaredResourceCount 0/);
   assert.match(failures, /empty externalOrigins array/);
   assert.match(failures, /portrait layout dimensions must match the orientation/);
   assert.match(failures, /landscape layout must record zero horizontal and vertical overflow/);
@@ -600,6 +606,7 @@ test("TECH-05: physical low-performance pass checks must agree with concrete run
         progressDriftRatio: 0.02,
         heapGrowthBytes: 16 * 1024 * 1024 + 1,
         resourceCountGrowth: 1,
+        failedDeclaredResourceCount: 1,
         domNodeGrowth: 1,
         consoleWarningOrErrorCount: 1,
         externalOrigins: ["https://unexpected.example"],
@@ -627,6 +634,7 @@ test("TECH-05: physical low-performance pass checks must agree with concrete run
   assert.match(failures, /progressDriftRatio must be between 0 and 0\.01/);
   assert.match(failures, /heapGrowthBytes must not exceed 16777216/);
   assert.match(failures, /resourceCountGrowth must be 0/);
+  assert.match(failures, /failedDeclaredResourceCount must be 0/);
   assert.match(failures, /domNodeGrowth must be 0/);
   assert.match(failures, /consoleWarningOrErrorCount must be 0/);
   assert.match(failures, /externalOrigins must be an empty array/);

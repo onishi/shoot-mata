@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "buildId": "phase10-rc1-20261024",
-  "recordedOn": "2026-10-25",
+  "recordedOn": "2026-10-26",
   "acceptance": {
     "phase10RequirementCount": 67,
     "deferredRequirementIds": ["REL-04", "REL-05", "REL-06"],
@@ -19,7 +19,7 @@
   "knownDefects": {
     "critical": [],
     "major": [],
-    "scope": "固定RCに対する218自動テスト、静的・証拠・素材・依存監査、Chrome・Edge・Firefox desktopの観測範囲。未確認環境は欠陥0の根拠へ含めない。"
+    "scope": "固定RCに対する219自動テスト、静的・証拠・素材・依存監査、Chrome・Edge・Firefox desktopの観測範囲。未確認環境は欠陥0の根拠へ含めない。"
   },
   "decision": {
     "allPhase10RequirementsPass": false,

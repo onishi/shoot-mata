@@ -1,5 +1,14 @@
 # 開発ログ
 
+## 2026-10-26 — Phase 10 resource欠落実測値のfail-closed化
+
+- 目的: `noMissingResources: true`と実際のresource失敗件数が矛盾する証拠を、desktop、実モバイル、物理低性能端末の合格へ混入させない。
+- 発見: 合格対象はresource欠落なしの真偽値を要求していたが、構造化した失敗件数自体は最終監査へ接続されていなかった。
+- 修正: desktopと実モバイルの合格に`failedDeclaredResourceCount: 0`、物理低性能端末の性能証拠に`performance.failedDeclaredResourceCount: 0`を必須化した。既存3 desktop browserへ観測済みの宣言済み製品resource失敗0件を記録し、真偽値だけをtrueにして失敗件数を1へ悪化させたfixtureを拒否する回帰検査を追加した。
+- 環境再確認: Android実機は0台、Apple側はMac本体とSimulatorだけで、Computer UseはSafari操作を承認しなかった。未接続環境を推定合格にはしていない。
+- 検査: 全219テスト、固定RCの100 files・10,526,479 bytes再現build、静的・受け入れ・証拠・最終検収・release artifact・依存監査に合格し、既知脆弱性は0件だった。
+- 判定: 固定RCの配信ファイル、60/67件合格、7件ブロック、`accepted: false`を維持する。
+
 ## 2026-10-25 — Phase 10物理低性能端末実測値のfail-closed化
 
 - 目的: 物理低性能端末の合格チェックが真でも、最大frame、入力遅延、進行時間差、resourceなどの具体値が矛盾する証拠を最終検収へ混入させない。

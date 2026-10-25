@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "buildId": "phase10-rc1-20261024",
-  "recordedOn": "2026-10-25",
+  "recordedOn": "2026-10-26",
   "targets": [
     {
       "id": "chrome-desktop",
@@ -46,6 +46,7 @@
           "844x390": { "horizontalOverflowPx": 0, "verticalOverflowPx": 0 }
         },
         "consoleWarningOrErrorCount": 0,
+        "failedDeclaredResourceCount": 0,
         "externalOrigins": [],
         "httpStatus": "all declared product resources returned 200 or cache-validation 304; one browser-initiated /favicon.ico request outside the manifest returned 404 while the explicit WebP favicon loaded successfully",
         "buildIdentity": {
@@ -98,6 +99,7 @@
           "844x390": { "horizontalOverflowPx": 0, "verticalOverflowPx": 0 }
         },
         "consoleWarningOrErrorCount": 0,
+        "failedDeclaredResourceCount": 0,
         "resourceEntries": 94,
         "externalOrigins": [],
         "buildIdentity": {
@@ -150,6 +152,7 @@
           "844x390": { "horizontalOverflowPx": 0, "verticalOverflowPx": 0 }
         },
         "consoleWarningOrErrorCount": 0,
+        "failedDeclaredResourceCount": 0,
         "resourceEntries": 64,
         "externalOrigins": [],
         "buildIdentity": {
@@ -167,7 +170,7 @@
       "platform": "macOS 26.6.2 arm64",
       "environment": "desktop",
       "status": "not-run",
-      "reason": "Safariはインストール済みだが、computer-use環境からのSafari操作が承認されず、公式safaridriverも永続的な認証省略設定を必要とするためセキュリティ承認されず、固定RCの実操作を開始できなかった。",
+      "reason": "2026-10-26もSafariはインストール済みだが、computer-use環境からのSafari操作が承認されず、公式safaridriverも永続的な認証省略設定を必要とするためセキュリティ承認されず、固定RCの実操作を開始できなかった。",
       "notes": "未確認。WebKit互換性から推定合格せず、認証設定の迂回も行わない。"
     },
     {
@@ -187,7 +190,7 @@
       "platform": "Android",
       "environment": "real-device",
       "status": "unavailable",
-      "reason": "2026-10-25のadb devices -lが接続端末0件を返した。",
+      "reason": "2026-10-26のadb devices -lが接続端末0件を返した。",
       "notes": "未確認。エミュレータ結果を実端末の代替証拠に数えない。"
     },
     {

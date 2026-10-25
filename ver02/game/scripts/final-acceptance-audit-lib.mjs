@@ -113,6 +113,9 @@ function validateDesktopRuntimeMeasurements(target, failures) {
   if (evidence?.consoleWarningOrErrorCount !== 0) {
     failures.push(`${target.id}: pass requires consoleWarningOrErrorCount 0`);
   }
+  if (evidence?.failedDeclaredResourceCount !== 0) {
+    failures.push(`${target.id}: pass requires failedDeclaredResourceCount 0`);
+  }
   if (!Array.isArray(evidence?.externalOrigins) || evidence.externalOrigins.length !== 0) {
     failures.push(`${target.id}: pass requires an empty externalOrigins array`);
   }
@@ -128,6 +131,9 @@ function validateMobileRuntimeMeasurements(target, failures) {
   const evidence = target.evidence;
   if (evidence?.consoleWarningOrErrorCount !== 0) {
     failures.push(`${target.id}: pass requires consoleWarningOrErrorCount 0`);
+  }
+  if (evidence?.failedDeclaredResourceCount !== 0) {
+    failures.push(`${target.id}: pass requires failedDeclaredResourceCount 0`);
   }
   if (!Array.isArray(evidence?.externalOrigins) || evidence.externalOrigins.length !== 0) {
     failures.push(`${target.id}: pass requires an empty externalOrigins array`);
@@ -278,6 +284,9 @@ export function validatePhase10EnvironmentEvidence(compatibility, releaseCandida
       }
       if (performance.resourceCountGrowth !== 0) {
         failures.push(`${PHYSICAL_LOW_PERFORMANCE_TARGET}: performance.resourceCountGrowth must be 0`);
+      }
+      if (performance.failedDeclaredResourceCount !== 0) {
+        failures.push(`${PHYSICAL_LOW_PERFORMANCE_TARGET}: performance.failedDeclaredResourceCount must be 0`);
       }
       if (performance.domNodeGrowth !== 0) {
         failures.push(`${PHYSICAL_LOW_PERFORMANCE_TARGET}: performance.domNodeGrowth must be 0`);
