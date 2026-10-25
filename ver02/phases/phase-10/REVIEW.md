@@ -12,7 +12,7 @@
 
 - 固定RCの100 files・10,526,479 bytesと全ファイルhashは再現buildに一致した。
 - Phase 10対象67要件は11 evidence setと57 artifact参照へ重複なく追跡できる。
-- 208件の自動テスト、静的成果物、製品画像32点、音声29点、権利通知、runtime/dev依存0、既知脆弱性0を固定RCで再検証した。
+- 220件の自動テスト、静的成果物、製品画像32点、音声29点、権利通知、runtime/dev依存0、既知脆弱性0を固定RCで再検証した。
 - Chrome 156、Edge 156、Firefox 158の実ブラウザ本体で、keyboardとPointer Eventsの4面campaignからending・creditsまで完走した。
 - 3 desktop browserのPointer Events経路を1568×956、390×844、844×390で完走し、overflow 0、外部origin 0、console warning/error 0を確認した。
 - 観測済み範囲のcritical／major既知不具合は0件である。未確認環境はこの0件判定の根拠に含めない。
@@ -35,6 +35,8 @@
 2026-10-26の再確認でも、Computer UseはSafari利用を承認せず、ADB接続は0台、Xcodeのdevice一覧はMac本体とSimulatorだけだった。認証設定の迂回や互換実装からの推定は行っていない。証拠日付は実在する暦日で、固定RC作成日以後かつ最終判定日以前でなければ監査が拒否する。
 
 合格対象では`noMissingResources`の真偽値だけでなく、desktop、実モバイル、物理低性能端末の各実測値として`failedDeclaredResourceCount: 0`を要求する。欠落なしのチェックをtrueにしながら宣言済み製品resourceの失敗件数を1以上にした証拠は最終監査が拒否する。
+
+環境証拠が参照するRC manifest identity自体も、64文字の小文字16進SHA-256、正の整数のfile count・total bytesでなければならない。RCと環境証拠を同じ不正値へ改変して見かけ上一致させても最終監査は拒否する。
 
 ## 残存する非blockerリスク
 

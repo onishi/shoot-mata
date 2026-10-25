@@ -37,6 +37,23 @@ function phaseIncludes(row, phase) {
   return row.finalVerification.split(",").map((value) => value.trim()).includes(phase);
 }
 
+function validateReleaseCandidateManifestIdentity(releaseCandidate, failures) {
+  const manifest = releaseCandidate?.manifest;
+  if (!manifest || typeof manifest !== "object" || Array.isArray(manifest)) {
+    failures.push("release candidate manifest identity must be an object");
+    return;
+  }
+  if (!/^[a-f0-9]{64}$/.test(manifest.sha256 ?? "")) {
+    failures.push("release candidate manifest.sha256 must be a lowercase SHA-256 digest");
+  }
+  if (!Number.isInteger(manifest.fileCount) || manifest.fileCount <= 0) {
+    failures.push("release candidate manifest.fileCount must be a positive integer");
+  }
+  if (!Number.isInteger(manifest.totalBytes) || manifest.totalBytes <= 0) {
+    failures.push("release candidate manifest.totalBytes must be a positive integer");
+  }
+}
+
 function validateBuildIdentity(target, releaseCandidate, failures) {
   const identity = target.evidence?.buildIdentity;
   const expectedManifest = releaseCandidate?.manifest;
@@ -172,6 +189,8 @@ function validateMobileRuntimeMeasurements(target, failures) {
 export function validatePhase10EnvironmentEvidence(compatibility, releaseCandidate) {
   const failures = [];
   const targets = Array.isArray(compatibility?.targets) ? compatibility.targets : [];
+
+  validateReleaseCandidateManifestIdentity(releaseCandidate, failures);
 
   for (const id of REQUIRED_BROWSER_TARGETS) {
     const target = targets.find((candidate) => candidate.id === id);

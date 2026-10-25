@@ -1,5 +1,14 @@
 # 開発ログ
 
+## 2026-10-26 — Phase 10 RC manifest identityのfail-closed化
+
+- 目的: 壊れたrelease candidate manifestと、それに合わせて壊したブラウザ・端末証拠が同一identityとして最終検収へ混入しないようにする。
+- 発見: 端末証拠とRCのbuild ID、manifest SHA-256、file count、total bytesは完全一致を要求していたが、最終検収監査単体ではRC側のSHA-256形式と件数・容量の型・正値を検査していなかった。
+- 修正: RC manifestを構造化object、SHA-256を64文字の小文字16進数、file countとtotal bytesを正の整数として必須化した。RCと合格済みブラウザ証拠を同じ不正値へ改変しても拒否する回帰テストを追加した。
+- 環境再確認: Computer UseはSafariとAndroid Tabletの操作を承認しなかった。権限内で再確認したADBは接続0台、Apple device一覧も`No devices found`であり、未接続環境を推定合格にはしていない。
+- 検査: 全220テスト、固定RCの100 files・10,526,479 bytes再現build、静的・受け入れ・証拠・最終検収・release artifact・依存監査に合格し、既知脆弱性は0件だった。
+- 判定: 固定RCの配信ファイル、60/67件合格、7件ブロック、`accepted: false`を維持する。
+
 ## 2026-10-26 — Phase 10 resource欠落実測値のfail-closed化
 
 - 目的: `noMissingResources: true`と実際のresource失敗件数が矛盾する証拠を、desktop、実モバイル、物理低性能端末の合格へ混入させない。

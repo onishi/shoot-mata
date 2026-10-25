@@ -158,3 +158,11 @@ SafariはComputer Useから承認されず、公式SafariDriverの有効化も�
 真偽値だけをtrueにして各実測値を閾値外へ悪化させたfixtureを拒否し、全条件を備えた将来の合格遷移fixtureは引き続き通過する回帰テストを追加した。Android実機は0台、Apple device一覧はMac本体とSimulatorだけで、Computer UseからのSafari操作も承認されなかったため、固定RCの配信ファイル、60/67件合格、7件ブロック、`accepted: false`は変更していない。
 
 全219テスト、固定RCの100 files・10,526,479 bytes再現build、静的・受け入れ・証拠・最終検収・release artifact・依存監査に合格し、既知脆弱性は0件だった。
+
+## 完了したRC manifest identityのfail-closed化
+
+端末証拠のbuild identityはRCと完全一致していたが、最終検収監査単体ではRC manifest側のSHA-256形式、file count、total bytesの型と正値を検査していなかった。RCと合格済み環境証拠を同じ不正値へ改変した場合でも一致扱いにしないよう、manifest object、64文字の小文字16進SHA-256、正の整数のfile count・total bytesを必須化した。
+
+不正manifestと、それに一致するよう改変した環境証拠を拒否する回帰テストを追加した。Computer UseはSafariとAndroid Tabletの操作を承認せず、ADBは接続0台、Apple device一覧も`No devices found`だったため、固定RCの配信ファイル、60/67件合格、7件ブロック、`accepted: false`は変更していない。
+
+全220テスト、固定RCの100 files・10,526,479 bytes再現build、静的・受け入れ・証拠・最終検収・release artifact・依存監査に合格し、既知脆弱性は0件だった。

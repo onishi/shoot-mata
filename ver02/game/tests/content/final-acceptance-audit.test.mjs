@@ -329,6 +329,33 @@ test("TECH-04: a build identity containing the RC name cannot substitute for exa
   assert.match(result.failures.join("\n"), /buildIdentity\.sha256 must exactly match/);
 });
 
+test("Phase 10 environment evidence rejects a malformed release-candidate manifest identity", async () => {
+  const inputs = await checkedInInputs();
+  const releaseCandidate = structuredClone(inputs.releaseCandidate);
+  releaseCandidate.manifest = {
+    ...releaseCandidate.manifest,
+    sha256: "not-a-sha256",
+    fileCount: "100",
+    totalBytes: 0,
+  };
+  const compatibility = structuredClone(inputs.compatibility);
+  for (const target of compatibility.targets.filter(({ status }) => status === "pass")) {
+    target.evidence.buildIdentity = {
+      buildId: releaseCandidate.buildId,
+      sha256: releaseCandidate.manifest.sha256,
+      fileCount: releaseCandidate.manifest.fileCount,
+      totalBytes: releaseCandidate.manifest.totalBytes,
+    };
+  }
+
+  const result = validatePhase10EnvironmentEvidence(compatibility, releaseCandidate);
+  assert.equal(result.valid, false);
+  const failures = result.failures.join("\n");
+  assert.match(failures, /manifest\.sha256 must be a lowercase SHA-256 digest/);
+  assert.match(failures, /manifest\.fileCount must be a positive integer/);
+  assert.match(failures, /manifest\.totalBytes must be a positive integer/);
+});
+
 test("TECH-04: duplicate campaign labels cannot substitute for required desktop execution coverage", async () => {
   const inputs = await checkedInInputs();
   const compatibility = structuredClone(inputs.compatibility);
