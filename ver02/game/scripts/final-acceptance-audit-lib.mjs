@@ -3,6 +3,13 @@ import { REQUIRED_BROWSER_TARGETS, validateCompatibilityReport } from "../src/br
 const PHASE_10 = "P10";
 const REAL_MOBILE_TARGETS = ["ios-safari-device", "android-chrome-device"];
 const PHYSICAL_LOW_PERFORMANCE_TARGET = "physical-low-performance-device";
+const DESKTOP_BROWSER_TARGETS = [
+  "chrome-desktop",
+  "edge-desktop",
+  "firefox-desktop",
+  "safari-desktop",
+];
+const DESKTOP_VIEWPORTS = ["1568x956", "390x844", "844x390"];
 
 function nonEmptyString(value) {
   return typeof value === "string" && value.trim().length > 0;
@@ -21,6 +28,34 @@ function phaseIncludes(row, phase) {
 export function validatePhase10EnvironmentEvidence(compatibility) {
   const failures = [];
   const targets = Array.isArray(compatibility?.targets) ? compatibility.targets : [];
+
+  for (const id of REQUIRED_BROWSER_TARGETS) {
+    const target = targets.find((candidate) => candidate.id === id);
+    if (target?.status !== "pass") continue;
+    if (target.evidence?.campaign?.stages !== 4) {
+      failures.push(`${id}: pass requires a four-stage campaign result`);
+    }
+    if (!nonEmptyString(target.evidence?.buildIdentity)
+      || !target.evidence.buildIdentity.includes(compatibility.buildId)) {
+      failures.push(`${id}: pass requires buildIdentity for ${compatibility.buildId}`);
+    }
+  }
+
+  for (const id of DESKTOP_BROWSER_TARGETS) {
+    const target = targets.find((candidate) => candidate.id === id);
+    if (target?.status !== "pass") continue;
+    if (target.environment !== "desktop") failures.push(`${id}: pass requires environment desktop`);
+    for (const inputMode of ["keyboard", "pointer-events"]) {
+      if (!target.evidence?.inputModes?.includes(inputMode)) {
+        failures.push(`${id}: pass requires ${inputMode} input evidence`);
+      }
+    }
+    for (const viewport of DESKTOP_VIEWPORTS) {
+      if (!target.evidence?.viewports?.includes(viewport)) {
+        failures.push(`${id}: pass requires ${viewport} viewport evidence`);
+      }
+    }
+  }
 
   for (const id of REAL_MOBILE_TARGETS) {
     const target = targets.find((candidate) => candidate.id === id);

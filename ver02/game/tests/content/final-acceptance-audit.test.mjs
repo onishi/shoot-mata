@@ -66,6 +66,37 @@ test("Phase 10 gate rejects stale requirement and browser blocker snapshots", as
   assert.match(result.failures.join("\n"), /nonPassingBrowserTargetIds must exactly match/);
 });
 
+test("TECH-04: desktop pass requires both product input paths, three viewports, campaign, and RC identity", async () => {
+  const inputs = await checkedInInputs();
+  const compatibility = structuredClone(inputs.compatibility);
+  const target = compatibility.targets.find(({ id }) => id === "safari-desktop");
+  Object.assign(target, {
+    status: "pass",
+    version: "fixture-version",
+    notes: "incomplete fixture",
+    evidence: {
+      viewports: ["1568x956"],
+      inputModes: ["keyboard"],
+      checks: {
+        loaded: true,
+        primaryFlow: true,
+        pauseResume: true,
+        noHorizontalOverflow: true,
+        noConsoleErrors: true,
+        noMissingResources: true,
+        noExternalOrigins: true,
+      },
+    },
+  });
+  const result = validatePhase10EnvironmentEvidence(compatibility);
+  assert.equal(result.valid, false);
+  assert.match(result.failures.join("\n"), /four-stage campaign result/);
+  assert.match(result.failures.join("\n"), /buildIdentity/);
+  assert.match(result.failures.join("\n"), /pointer-events input evidence/);
+  assert.match(result.failures.join("\n"), /390x844 viewport evidence/);
+  assert.match(result.failures.join("\n"), /844x390 viewport evidence/);
+});
+
 test("UX-05/06・INP-02〜04: real mobile pass requires both orientations and physical touch checks", async () => {
   const inputs = await checkedInInputs();
   const compatibility = structuredClone(inputs.compatibility);
@@ -137,8 +168,10 @@ test("Phase 10 gate has a valid transition to accepted after every required cond
   inputs.compatibility = structuredClone(inputs.compatibility);
   inputs.compatibility.targets = inputs.compatibility.targets.map((target) => {
     const evidence = {
-      viewports: ["fixture-viewport"],
-      inputModes: ["fixture-input"],
+      viewports: ["1568x956", "390x844", "844x390"],
+      inputModes: ["keyboard", "pointer-events"],
+      campaign: { stages: 4 },
+      buildIdentity: `${inputs.compatibility.buildId}: fixture`,
       checks: {
         loaded: true,
         primaryFlow: true,

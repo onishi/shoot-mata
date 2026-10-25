@@ -1,5 +1,13 @@
 # 開発ログ
 
+## 2026-10-25 — Phase 10のブラウザ証拠をfail-closed化
+
+- 目的: 未確認のSafariまたは実モバイルが利用可能になった際、単一入力・単一viewport・4面完走のない証拠でTECH-04を誤って閉じないようにする。
+- 発見: 汎用互換性schemaは`primaryFlow: true`と1件以上の入力・viewportを要求するだけで、固定RC identity、4面campaign結果、desktopのkeyboard／Pointer Events両経路、3 viewportを強制していなかった。
+- 修正: 必須6対象の`pass`へ固定RCを含むbuild identityと4面campaign結果を必須化した。desktop 4ブラウザにはkeyboard／Pointer Eventsと1568×956・390×844・844×390を追加で必須化し、不完全なSafari fixtureを拒否する回帰テストを追加した。受け入れマトリクスのTECH-04説明もEdge・Firefoxの実測済み状態へ同期した。
+- 検査: 全208テスト、固定RCの100 files・10,526,479 bytes再現build、静的・受け入れ・証拠・最終検収・release artifact・依存監査に合格した。
+- 環境再確認: Computer UseはSafariを承認せず、ADBは接続端末0台、Apple device一覧はMac本体とSimulatorだけだった。未確認を合格にせず、60/67件合格、7件ブロック、`accepted: false`を維持する。
+
 ## 2026-10-25 — Phase 10の実端末証拠をfail-closed化
 
 - 目的: 実端末が利用可能になった際、不足した証拠だけでPhase 10を誤って合格にできないよう最終検収監査を強化する。

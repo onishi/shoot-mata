@@ -92,3 +92,9 @@ EdgeとFirefoxの追加合格後も、同じ7要件はSafari、実モバイル2�
 - 不足証拠を`pass`にしたfixtureが最終検収で拒否され、全項目を持つfixtureだけが合格状態へ遷移できる回帰テストを追加した。
 
 Safariは今回もComputer Useからの操作を承認されなかった。ADB接続は0台、Apple device一覧はMac本体とSimulatorだけで実機はなかったため、現在の7要件と`accepted: false`は変更していない。
+
+## 完了したブラウザ証拠のfail-closed化
+
+汎用の互換性schemaと実端末追加条件だけでは、Safariを1入力・1 viewport・campaign結果なしでも`pass`にでき、実モバイルも主要フローの真偽値だけで4面完走を主張できる余地があった。Phase 10監査を追加で強化し、必須6ブラウザ・端末の合格には固定RCのbuild identityと4面campaign結果を要求する。desktop 4ブラウザにはkeyboardとPointer Eventsの両経路、および1568×956、390×844、844×390の3 viewportを必須化した。不足したSafari fixtureを拒否し、全条件を持つfixtureだけが合格状態へ遷移できる回帰テストを追加した。
+
+SafariはComputer Useからの操作を承認されず、ADB接続は0台、Apple device一覧はMac本体とSimulatorだけだった。受け入れマトリクスのTECH-04証拠説明は、既に合格済みのEdge・Firefoxを反映するよう訂正した。現在の7要件と`accepted: false`は変更していない。
