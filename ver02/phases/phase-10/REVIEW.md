@@ -30,6 +30,8 @@
 
 実モバイルを将来`pass`へ変更する際は、真偽値だけでなく、console warning/error 0件、外部origin 0件、縦横のCSS viewport寸法とoverflow 0、同時タッチ2点以上、スクロール競合0件、最小タッチ対象44 CSS px以上、safe-area違反0件の構造化実測値が必要である。これらと矛盾する合格記録は最終監査が拒否する。
 
+物理低性能端末を将来`pass`へ変更する際も、端末識別と固定RC identityに加え、5分以上、平均60fps以上、最大frame 1秒以下、最大入力遅延100ms以下、simulation drop・進行時間差1%以下、heap増加16 MiB以下、resource・DOM・console・外部origin増加0の構造化実測値が必要である。`inputResponsive`、`noLongStall`、`progressSpeedStable`、`resourceTrendStable`だけをtrueにした矛盾記録は最終監査が拒否する。
+
 2026-10-25の再確認でも、Computer UseはSafari利用を承認せず、ADB接続は0台、Xcodeのdevice一覧はMac本体とSimulatorだけだった。認証設定の迂回や互換実装からの推定は行っていない。証拠日付は実在する暦日で、固定RC作成日以後かつ最終判定日以前でなければ監査が拒否する。
 
 ## 残存する非blockerリスク

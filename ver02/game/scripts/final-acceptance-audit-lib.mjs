@@ -13,6 +13,9 @@ const DESKTOP_BROWSER_TARGETS = [
   "safari-desktop",
 ];
 const DESKTOP_VIEWPORTS = ["1568x956", "390x844", "844x390"];
+const PHYSICAL_MAX_FRAME_MS = 1_000;
+const PHYSICAL_MAX_INPUT_LATENCY_MS = 100;
+const PHYSICAL_MAX_HEAP_GROWTH_BYTES = 16 * 1024 * 1024;
 
 function nonEmptyString(value) {
   return typeof value === "string" && value.trim().length > 0;
@@ -253,6 +256,37 @@ export function validatePhase10EnvironmentEvidence(compatibility, releaseCandida
         || performance.simulationDroppedRatio < 0
         || performance.simulationDroppedRatio > 0.01) {
         failures.push(`${PHYSICAL_LOW_PERFORMANCE_TARGET}: performance.simulationDroppedRatio must be between 0 and 0.01`);
+      }
+      if (!Number.isFinite(performance.maximumFrameMs)
+        || performance.maximumFrameMs < 0
+        || performance.maximumFrameMs > PHYSICAL_MAX_FRAME_MS) {
+        failures.push(`${PHYSICAL_LOW_PERFORMANCE_TARGET}: performance.maximumFrameMs must be between 0 and ${PHYSICAL_MAX_FRAME_MS}`);
+      }
+      if (!Number.isFinite(performance.maximumInputLatencyMs)
+        || performance.maximumInputLatencyMs < 0
+        || performance.maximumInputLatencyMs > PHYSICAL_MAX_INPUT_LATENCY_MS) {
+        failures.push(`${PHYSICAL_LOW_PERFORMANCE_TARGET}: performance.maximumInputLatencyMs must be between 0 and ${PHYSICAL_MAX_INPUT_LATENCY_MS}`);
+      }
+      if (!Number.isFinite(performance.progressDriftRatio)
+        || performance.progressDriftRatio < 0
+        || performance.progressDriftRatio > 0.01) {
+        failures.push(`${PHYSICAL_LOW_PERFORMANCE_TARGET}: performance.progressDriftRatio must be between 0 and 0.01`);
+      }
+      if (!Number.isFinite(performance.heapGrowthBytes)
+        || performance.heapGrowthBytes > PHYSICAL_MAX_HEAP_GROWTH_BYTES) {
+        failures.push(`${PHYSICAL_LOW_PERFORMANCE_TARGET}: performance.heapGrowthBytes must not exceed ${PHYSICAL_MAX_HEAP_GROWTH_BYTES}`);
+      }
+      if (performance.resourceCountGrowth !== 0) {
+        failures.push(`${PHYSICAL_LOW_PERFORMANCE_TARGET}: performance.resourceCountGrowth must be 0`);
+      }
+      if (performance.domNodeGrowth !== 0) {
+        failures.push(`${PHYSICAL_LOW_PERFORMANCE_TARGET}: performance.domNodeGrowth must be 0`);
+      }
+      if (performance.consoleWarningOrErrorCount !== 0) {
+        failures.push(`${PHYSICAL_LOW_PERFORMANCE_TARGET}: performance.consoleWarningOrErrorCount must be 0`);
+      }
+      if (!Array.isArray(performance.externalOrigins) || performance.externalOrigins.length !== 0) {
+        failures.push(`${PHYSICAL_LOW_PERFORMANCE_TARGET}: performance.externalOrigins must be an empty array`);
       }
       for (const check of ["inputResponsive", "noLongStall", "progressSpeedStable", "resourceTrendStable"]) {
         if (performance[check] !== true) {

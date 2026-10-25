@@ -150,3 +150,11 @@ SafariはComputer Useから承認されず、公式SafariDriverの有効化も�
 真偽値だけをtrueにして実測値を悪化させたfixtureを拒否し、全条件を備えた将来の合格遷移fixtureは引き続き通過する回帰テストを追加した。現在は実モバイルが未接続のため新しい合格証拠はなく、固定RCの配信ファイル、60/67件合格、7件ブロック、`accepted: false`は変更していない。
 
 全218テスト、固定RCの100 files・10,526,479 bytes再現build、全監査、依存脆弱性0件を確認した。
+
+## 完了した物理低性能端末実測値のfail-closed化
+
+物理低性能端末は5分以上、目標fps、simulation drop、入力応答、停止なし、進行速度、resource傾向の真偽値を要求していたが、最大frame、入力遅延、進行時間差、heap・resource・DOM、console・外部originの具体値が矛盾していても合格にできた。合格時には平均60fps以上に加えて、最大frame 1秒以下、最大入力遅延100ms以下、simulation drop・進行時間差1%以下、heap増加16 MiB以下、resource・DOM・console・外部origin増加0の構造化実測値を必須化した。
+
+真偽値だけをtrueにして各実測値を閾値外へ悪化させたfixtureを拒否し、全条件を備えた将来の合格遷移fixtureは引き続き通過する回帰テストを追加した。Android実機は0台、Apple device一覧はMac本体とSimulatorだけで、Computer UseからのSafari操作も承認されなかったため、固定RCの配信ファイル、60/67件合格、7件ブロック、`accepted: false`は変更していない。
+
+全219テスト、固定RCの100 files・10,526,479 bytes再現build、静的・受け入れ・証拠・最終検収・release artifact・依存監査に合格し、既知脆弱性は0件だった。

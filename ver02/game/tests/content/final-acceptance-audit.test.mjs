@@ -264,6 +264,14 @@ test("Phase 10 gate has a valid transition to accepted after every required cond
         targetFps: 60,
         averageFps: 60,
         simulationDroppedRatio: 0,
+        maximumFrameMs: 16.7,
+        maximumInputLatencyMs: 16.7,
+        progressDriftRatio: 0,
+        heapGrowthBytes: 0,
+        resourceCountGrowth: 0,
+        domNodeGrowth: 0,
+        consoleWarningOrErrorCount: 0,
+        externalOrigins: [],
         inputResponsive: true,
         noLongStall: true,
         progressSpeedStable: true,
@@ -562,4 +570,64 @@ test("UX-05/06・INP-02〜04: an extra mobile execution cannot obscure the two r
   const result = validatePhase10EnvironmentEvidence(compatibility, inputs.releaseCandidate);
   assert.equal(result.valid, false);
   assert.match(result.failures.join("\n"), /exactly 2 campaign runs/);
+});
+
+test("TECH-05: physical low-performance pass checks must agree with concrete runtime measurements", async () => {
+  const inputs = await checkedInInputs();
+  const compatibility = structuredClone(inputs.compatibility);
+  const target = compatibility.targets.find(({ id }) => id === "physical-low-performance-device");
+  Object.assign(target, {
+    status: "pass",
+    version: "fixture-version",
+    notes: "contradictory physical performance measurements fixture",
+    evidence: {
+      viewports: ["390x844"],
+      inputModes: ["touch"],
+      buildIdentity: {
+        buildId: inputs.releaseCandidate.buildId,
+        sha256: inputs.releaseCandidate.manifest.sha256,
+        fileCount: inputs.releaseCandidate.manifest.fileCount,
+        totalBytes: inputs.releaseCandidate.manifest.totalBytes,
+      },
+      device: { model: "fixture", cpu: "fixture", gpu: "fixture", memoryMiB: 1024 },
+      performance: {
+        durationMs: 300_000,
+        targetFps: 60,
+        averageFps: 60,
+        simulationDroppedRatio: 0,
+        maximumFrameMs: 1_001,
+        maximumInputLatencyMs: 101,
+        progressDriftRatio: 0.02,
+        heapGrowthBytes: 16 * 1024 * 1024 + 1,
+        resourceCountGrowth: 1,
+        domNodeGrowth: 1,
+        consoleWarningOrErrorCount: 1,
+        externalOrigins: ["https://unexpected.example"],
+        inputResponsive: true,
+        noLongStall: true,
+        progressSpeedStable: true,
+        resourceTrendStable: true,
+      },
+      checks: {
+        loaded: true,
+        primaryFlow: true,
+        pauseResume: true,
+        noHorizontalOverflow: true,
+        noConsoleErrors: true,
+        noMissingResources: true,
+        noExternalOrigins: true,
+      },
+    },
+  });
+  const result = validatePhase10EnvironmentEvidence(compatibility, inputs.releaseCandidate);
+  assert.equal(result.valid, false);
+  const failures = result.failures.join("\n");
+  assert.match(failures, /maximumFrameMs must be between 0 and 1000/);
+  assert.match(failures, /maximumInputLatencyMs must be between 0 and 100/);
+  assert.match(failures, /progressDriftRatio must be between 0 and 0\.01/);
+  assert.match(failures, /heapGrowthBytes must not exceed 16777216/);
+  assert.match(failures, /resourceCountGrowth must be 0/);
+  assert.match(failures, /domNodeGrowth must be 0/);
+  assert.match(failures, /consoleWarningOrErrorCount must be 0/);
+  assert.match(failures, /externalOrigins must be an empty array/);
 });
