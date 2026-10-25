@@ -12,6 +12,14 @@ const DESKTOP_BROWSER_TARGETS = [
   "firefox-desktop",
   "safari-desktop",
 ];
+const REQUIRED_BROWSER_IDENTITIES = Object.freeze({
+  "chrome-desktop": { browser: "Google Chrome" },
+  "edge-desktop": { browser: "Microsoft Edge" },
+  "firefox-desktop": { browser: "Mozilla Firefox" },
+  "safari-desktop": { browser: "Safari", platformPattern: /^macOS\b/ },
+  "ios-safari-device": { browser: "Mobile Safari", platformPattern: /^iOS(?:\/iPadOS)?\b/ },
+  "android-chrome-device": { browser: "Chrome for Android", platformPattern: /^Android\b/ },
+});
 const DESKTOP_VIEWPORTS = ["1568x956", "390x844", "844x390"];
 const PHYSICAL_MAX_FRAME_MS = 1_000;
 const PHYSICAL_MAX_INPUT_LATENCY_MS = 100;
@@ -68,6 +76,20 @@ function validateBuildIdentity(target, releaseCandidate, failures) {
     if (identity[field] !== expectedManifest?.[field]) {
       failures.push(`${target.id}: buildIdentity.${field} must exactly match the release candidate manifest`);
     }
+  }
+}
+
+function validateBrowserIdentity(target, failures) {
+  const expected = REQUIRED_BROWSER_IDENTITIES[target.id];
+  if (!expected) return;
+  if (target.browser !== expected.browser) {
+    failures.push(`${target.id}: pass requires browser ${expected.browser}`);
+  }
+  if (/^n\/a(?:\b|\s|\()/i.test(target.version ?? "")) {
+    failures.push(`${target.id}: pass requires an observed browser version`);
+  }
+  if (expected.platformPattern && !expected.platformPattern.test(target.platform ?? "")) {
+    failures.push(`${target.id}: pass requires a matching target platform`);
   }
 }
 
@@ -195,6 +217,7 @@ export function validatePhase10EnvironmentEvidence(compatibility, releaseCandida
   for (const id of REQUIRED_BROWSER_TARGETS) {
     const target = targets.find((candidate) => candidate.id === id);
     if (target?.status !== "pass") continue;
+    validateBrowserIdentity(target, failures);
     if (DESKTOP_BROWSER_TARGETS.includes(id)) {
       validateCampaign(target, [
         { inputMode: "keyboard", viewport: "1568x956" },

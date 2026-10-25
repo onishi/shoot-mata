@@ -356,6 +356,67 @@ test("Phase 10 environment evidence rejects a malformed release-candidate manife
   assert.match(failures, /manifest\.totalBytes must be a positive integer/);
 });
 
+test("TECH-04: a pass cannot substitute another browser identity or an unobserved version", async () => {
+  const inputs = await checkedInInputs();
+  const compatibility = structuredClone(inputs.compatibility);
+  const target = compatibility.targets.find(({ id }) => id === "chrome-desktop");
+  target.browser = "Safari";
+  target.version = "n/a (copied evidence)";
+
+  const result = validatePhase10EnvironmentEvidence(compatibility, inputs.releaseCandidate);
+  assert.equal(result.valid, false);
+  assert.match(result.failures.join("\n"), /chrome-desktop: pass requires browser Google Chrome/);
+  assert.match(result.failures.join("\n"), /chrome-desktop: pass requires an observed browser version/);
+});
+
+test("TECH-04: real mobile pass must match its operating-system target", async () => {
+  const inputs = await checkedInInputs();
+  const compatibility = structuredClone(inputs.compatibility);
+  const source = compatibility.targets.find(({ id }) => id === "chrome-desktop");
+  const target = compatibility.targets.find(({ id }) => id === "ios-safari-device");
+  Object.assign(target, {
+    browser: "Mobile Safari",
+    version: "26.6",
+    platform: "Android 16",
+    environment: "real-device",
+    status: "pass",
+    notes: "wrong-platform fixture",
+    evidence: structuredClone(source.evidence),
+  });
+  target.evidence.inputModes = ["touch"];
+  target.evidence.orientations = ["portrait", "landscape"];
+  target.evidence.campaign = {
+    stages: 4,
+    runs: 2,
+    results: ["fixture portrait run", "fixture landscape run"],
+    executions: [
+      { inputMode: "touch", orientation: "portrait", stages: 4, outcome: "pass", result: "fixture portrait run" },
+      { inputMode: "touch", orientation: "landscape", stages: 4, outcome: "pass", result: "fixture landscape run" },
+    ],
+  };
+  target.evidence.layout = {
+    portrait: { viewportWidthCssPx: 390, viewportHeightCssPx: 844, horizontalOverflowPx: 0, verticalOverflowPx: 0 },
+    landscape: { viewportWidthCssPx: 844, viewportHeightCssPx: 390, horizontalOverflowPx: 0, verticalOverflowPx: 0 },
+  };
+  target.evidence.interactionMeasurements = {
+    maximumSimultaneousTouches: 2,
+    scrollConflictCount: 0,
+    minimumTouchTargetCssPx: 44,
+    safeAreaViolationCount: 0,
+  };
+  Object.assign(target.evidence.checks, {
+    retryFlow: true,
+    multiTouch: true,
+    noScrollConflict: true,
+    touchTargetsAtLeast44CssPx: true,
+    safeAreaVisible: true,
+  });
+
+  const result = validatePhase10EnvironmentEvidence(compatibility, inputs.releaseCandidate);
+  assert.equal(result.valid, false);
+  assert.match(result.failures.join("\n"), /ios-safari-device: pass requires a matching target platform/);
+});
+
 test("TECH-04: duplicate campaign labels cannot substitute for required desktop execution coverage", async () => {
   const inputs = await checkedInInputs();
   const compatibility = structuredClone(inputs.compatibility);

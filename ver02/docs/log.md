@@ -1,5 +1,14 @@
 # 開発ログ
 
+## 2026-10-26 — Phase 10ブラウザ・OS identityのfail-closed化
+
+- 目的: 必須ブラウザ・実モバイルのtarget IDへ、別ブラウザ、別OS、未実測versionの証拠を誤って対応付けないようにする。
+- 発見: 入力、viewport、4面campaign、固定RC identityは検査していたが、target IDとbrowser／platformの対応、および合格時の実測versionは検査していなかった。
+- 修正: 6つの必須対象についてbrowser名を固定し、Safari desktopはmacOS、Mobile Safari実機はiOS/iPadOS、Chrome for Android実機はAndroidとの対応を必須化した。合格時の`n/a` versionも拒否する回帰テストを追加した。
+- 環境再確認: Computer UseはSafari操作を承認せず、ADB接続は0台だった。Apple CoreDeviceは初期化timeoutとなり新しい実機を確認できなかったため、未確認対象を合格にはしていない。
+- 検査: 全222テスト、固定RCの100 files・10,526,479 bytes再現build、静的・受け入れ・証拠・最終検収・release artifact・依存監査に合格し、既知脆弱性は0件だった。
+- 判定: 固定RCの配信ファイル、60/67件合格、7件ブロック、`accepted: false`を維持する。
+
 ## 2026-10-26 — Phase 10 RC manifest identityのfail-closed化
 
 - 目的: 壊れたrelease candidate manifestと、それに合わせて壊したブラウザ・端末証拠が同一identityとして最終検収へ混入しないようにする。

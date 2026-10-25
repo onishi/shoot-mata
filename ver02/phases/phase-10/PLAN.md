@@ -166,3 +166,11 @@ SafariはComputer Useから承認されず、公式SafariDriverの有効化も�
 不正manifestと、それに一致するよう改変した環境証拠を拒否する回帰テストを追加した。Computer UseはSafariとAndroid Tabletの操作を承認せず、ADBは接続0台、Apple device一覧も`No devices found`だったため、固定RCの配信ファイル、60/67件合格、7件ブロック、`accepted: false`は変更していない。
 
 全220テスト、固定RCの100 files・10,526,479 bytes再現build、静的・受け入れ・証拠・最終検収・release artifact・依存監査に合格し、既知脆弱性は0件だった。
+
+## 完了したブラウザ・OS identityのfail-closed化
+
+必須ブラウザの合格証拠はtarget ID、入力、viewport、campaign、固定RC identityを検査していたが、target IDと実ブラウザ名・対象OSの対応、および実測バージョンであることを検査していなかった。`safari-desktop`へ別ブラウザの証拠を入れる、iOS SafariへAndroidの証拠を入れる、合格ブラウザのversionを`n/a`にする状態を拒否するよう最終検収監査を強化した。
+
+Computer Useは今回もSafari操作を承認しなかった。ADBは接続0台、AppleのCoreDevice確認は初期化timeoutで新しい実機を確認できなかったため、固定RCの配信ファイル、60/67件合格、7件ブロック、`accepted: false`は変更していない。
+
+全222テスト、固定RCの100 files・10,526,479 bytes再現build、静的・受け入れ・証拠・最終検収・release artifact・依存監査に合格し、既知脆弱性は0件だった。
