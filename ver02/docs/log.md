@@ -1,5 +1,14 @@
 # 開発ログ
 
+## 2026-10-25 — Phase 10のdesktop実測値を合格判定へ固定
+
+- 目的: browser互換性の合格フラグと、console・外部通信・layoutの具体的な実測値が矛盾したまま最終検収を通過しないようにする。
+- 発見: desktop targetは`checks`の真偽値、入力経路、viewport名、campaign結果を検査していたが、`consoleWarningOrErrorCount`、`externalOrigins`、viewport別overflowの値自体は最終監査へ接続されていなかった。
+- 修正: 合格したdesktop 4ブラウザへconsole warning/error 0件、外部originの空配列、1568×956・390×844・844×390の縦横overflow 0を必須化した。既存Chrome記録へ観測済みの空origin一覧を構造化して追記し、真偽値だけを合格にした矛盾fixtureを拒否する回帰テストを追加した。
+- 検査: 全217テスト、固定RCの100 files・10,526,479 bytes再現build、静的・受け入れ・証拠・最終検収・release artifact・依存監査に合格し、既知脆弱性は0件だった。
+- 環境再確認: Computer UseはSafariを承認しなかった。`safaridriver --enable`は管理者認証を通過せず、設定変更は完了していない。Safariを推定合格にせず`not-run`を維持する。
+- 判定: 固定RCの配信ファイル、60/67件合格、7件ブロック、`accepted: false`は変更していない。
+
 ## 2026-10-25 — Phase 10証拠の日付と時間順序をfail-closed化
 
 - 目的: 固定RCより古い環境証拠、存在しない暦日、参照証拠より古い最終判定日を受理しない。

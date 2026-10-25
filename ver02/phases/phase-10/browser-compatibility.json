@@ -46,6 +46,7 @@
           "844x390": { "horizontalOverflowPx": 0, "verticalOverflowPx": 0 }
         },
         "consoleWarningOrErrorCount": 0,
+        "externalOrigins": [],
         "httpStatus": "all declared product resources returned 200 or cache-validation 304; one browser-initiated /favicon.ico request outside the manifest returned 404 while the explicit WebP favicon loaded successfully",
         "buildIdentity": {
           "buildId": "phase10-rc1-20261024",

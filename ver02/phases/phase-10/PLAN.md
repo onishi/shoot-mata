@@ -134,3 +134,11 @@ Computer Useの環境一覧にはSafariが現れたが、今回もアプリ操�
 SafariはComputer Useから承認されず、ADB接続は0台、Apple device一覧はMac本体とSimulatorだけだった。固定RCの配信ファイル、60/67件合格、7件ブロック、`accepted: false`は変更していない。
 
 全216テスト、固定RCの100 files・10,526,479 bytes再現build、全監査、依存脆弱性0件を確認した。共通schemaを変更する初案は配信容量を247 bytes変え、RC再現性テストが拒否したため、変更を配信対象外のPhase 10監査層へ限定した。
+
+## 完了したdesktop実測値の整合性検査
+
+desktop browserの`checks`が全てtrueでも、具体的なconsole件数、外部origin一覧、viewport別overflow値が矛盾している状態を最終監査が受理できた。Chrome、Edge、Firefox、Safariの`pass`には、console warning/error 0件、外部originの空配列、1568×956・390×844・844×390の縦横overflow 0を構造化した実測値として必須化した。booleanだけをtrueにして実測値を悪化させたfixtureを拒否する回帰テストを追加した。
+
+SafariはComputer Useから承認されず、公式SafariDriverの有効化も管理者認証を通過しなかった。設定を迂回せず`not-run`を維持した。固定RCの配信ファイル、60/67件合格、7件ブロック、`accepted: false`は変更していない。
+
+全217テスト、固定RCの100 files・10,526,479 bytes再現build、全監査、依存脆弱性0件を確認した。

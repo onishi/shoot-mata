@@ -105,6 +105,22 @@ function validateCampaign(target, requiredExecutions, dimension, failures) {
   }
 }
 
+function validateDesktopRuntimeMeasurements(target, failures) {
+  const evidence = target.evidence;
+  if (evidence?.consoleWarningOrErrorCount !== 0) {
+    failures.push(`${target.id}: pass requires consoleWarningOrErrorCount 0`);
+  }
+  if (!Array.isArray(evidence?.externalOrigins) || evidence.externalOrigins.length !== 0) {
+    failures.push(`${target.id}: pass requires an empty externalOrigins array`);
+  }
+  for (const viewport of DESKTOP_VIEWPORTS) {
+    const layout = evidence?.layout?.[viewport];
+    if (layout?.horizontalOverflowPx !== 0 || layout?.verticalOverflowPx !== 0) {
+      failures.push(`${target.id}: ${viewport} layout must record zero horizontal and vertical overflow`);
+    }
+  }
+}
+
 export function validatePhase10EnvironmentEvidence(compatibility, releaseCandidate) {
   const failures = [];
   const targets = Array.isArray(compatibility?.targets) ? compatibility.targets : [];
@@ -140,6 +156,7 @@ export function validatePhase10EnvironmentEvidence(compatibility, releaseCandida
         failures.push(`${id}: pass requires ${viewport} viewport evidence`);
       }
     }
+    validateDesktopRuntimeMeasurements(target, failures);
   }
 
   for (const id of REAL_MOBILE_TARGETS) {

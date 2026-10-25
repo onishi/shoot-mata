@@ -186,6 +186,13 @@ test("Phase 10 gate has a valid transition to accepted after every required cond
     const evidence = {
       viewports: ["1568x956", "390x844", "844x390"],
       inputModes: ["keyboard", "pointer-events"],
+      layout: {
+        "1568x956": { horizontalOverflowPx: 0, verticalOverflowPx: 0 },
+        "390x844": { horizontalOverflowPx: 0, verticalOverflowPx: 0 },
+        "844x390": { horizontalOverflowPx: 0, verticalOverflowPx: 0 },
+      },
+      consoleWarningOrErrorCount: 0,
+      externalOrigins: [],
       campaign: {
         stages: 4,
         runs: 4,
@@ -345,6 +352,20 @@ test("TECH-04: every structured campaign execution must explicitly pass", async 
   const result = validatePhase10EnvironmentEvidence(compatibility, inputs.releaseCandidate);
   assert.equal(result.valid, false);
   assert.match(result.failures.join("\n"), /executions\[0\]\.outcome must be pass/);
+});
+
+test("TECH-04: desktop pass checks must agree with concrete runtime measurements", async () => {
+  const inputs = await checkedInInputs();
+  const compatibility = structuredClone(inputs.compatibility);
+  const target = compatibility.targets.find(({ id }) => id === "chrome-desktop");
+  target.evidence.consoleWarningOrErrorCount = 1;
+  target.evidence.externalOrigins = ["https://unexpected.example"];
+  target.evidence.layout["390x844"].horizontalOverflowPx = 12;
+  const result = validatePhase10EnvironmentEvidence(compatibility, inputs.releaseCandidate);
+  assert.equal(result.valid, false);
+  assert.match(result.failures.join("\n"), /consoleWarningOrErrorCount 0/);
+  assert.match(result.failures.join("\n"), /empty externalOrigins array/);
+  assert.match(result.failures.join("\n"), /390x844 layout must record zero horizontal and vertical overflow/);
 });
 
 test("UX-05/06・INP-02〜04: two portrait executions cannot substitute for both mobile orientations", async () => {
