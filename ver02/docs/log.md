@@ -1,5 +1,13 @@
 # 開発ログ
 
+## 2026-10-26 — release artifact入力JSONの重複キー拒否
+
+- 目的: 最終検収の4文書だけでなく、成果物・権利・依存監査が直接読むJSONでも、矛盾する同名キーを後勝ちで隠す経路を閉じる。
+- 修正: `release-artifact-audit.json`、`release-candidate.json`、build manifest、package manifest、lockfileを重複キー拒否parserへ接続し、矛盾する`status`を持つfixtureの回帰テストを追加した。監査証拠のtest countも現行227件へ同期した。
+- 環境再確認: Computer UseはSafari操作を今回も承認せず、実モバイルと4 GiB以下の物理端末も利用できなかった。未確認対象を合格にはしていない。
+- 検査: 全227テスト、固定RCの100 files・10,526,479 bytes再現build、静的・受け入れ・証拠・最終検収・release artifact・依存監査に合格し、既知脆弱性は0件だった。
+- 判定: 固定RCの配信ファイル、60/67件合格、7件ブロック、`accepted: false`を維持する。
+
 ## 2026-10-26 — Phase 10証拠JSONの重複キー拒否
 
 - 目的: Phase 10の証拠文書に矛盾する同名キーを併記し、標準JSON parserが先の値を捨てることで検収を通過する経路を閉じる。

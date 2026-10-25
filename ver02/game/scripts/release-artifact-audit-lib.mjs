@@ -3,6 +3,7 @@ import { readFile, stat } from "node:fs/promises";
 import { dirname, extname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { DELIVERY_ASSETS } from "./delivery-asset-config.mjs";
+import { parseJsonWithUniqueKeys } from "./strict-json.mjs";
 
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const GAME_DIR = resolve(SCRIPT_DIR, "..");
@@ -25,15 +26,19 @@ function assert(condition, message, failures) {
   if (!condition) failures.push(message);
 }
 
-export async function auditReleaseArtifact() {
+export async function auditReleaseArtifact({ evidencePath = EVIDENCE_PATH } = {}) {
   const failures = [];
+  const readJson = async (path) => parseJsonWithUniqueKeys(
+    await readFile(path, "utf8"),
+    path.replace(`${ROOT_DIR}/`, ""),
+  );
   const [evidence, candidate, manifest, manifestBytes, packageJson, lockfile] = await Promise.all([
-    readFile(EVIDENCE_PATH, "utf8").then(JSON.parse),
-    readFile(CANDIDATE_PATH, "utf8").then(JSON.parse),
-    readFile(resolve(DIST_DIR, "build-manifest.json"), "utf8").then(JSON.parse),
+    readJson(evidencePath),
+    readJson(CANDIDATE_PATH),
+    readJson(resolve(DIST_DIR, "build-manifest.json")),
     readFile(resolve(DIST_DIR, "build-manifest.json")),
-    readFile(PACKAGE_PATH, "utf8").then(JSON.parse),
-    readFile(LOCK_PATH, "utf8").then(JSON.parse),
+    readJson(PACKAGE_PATH),
+    readJson(LOCK_PATH),
   ]);
 
   assert(evidence.schemaVersion === 1, "evidence schemaVersion must be 1", failures);
@@ -118,6 +123,6 @@ export async function auditReleaseArtifact() {
     imageCount: imageAssets.length,
     audioCount: audioAssets.length,
     dependencyCount: nonRootLockEntries.length,
-    evidencePath: EVIDENCE_PATH.replace(`${ROOT_DIR}/`, ""),
+    evidencePath: evidencePath.replace(`${ROOT_DIR}/`, ""),
   };
 }
