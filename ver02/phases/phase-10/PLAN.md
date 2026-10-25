@@ -82,3 +82,13 @@ EdgeとFirefoxの追加合格後も、同じ7要件はSafari、実モバイル2�
 ## 完了した受け入れ状態遷移の修正
 
 証拠台帳監査とrelease candidate監査が`accepted: false`を常時強制する一方、最終検収監査は全条件合格時に同じartifactへ`accepted: true`を要求しており、Phase 10を将来も完了できない矛盾があった。各監査を、現在の未達状態は拒否しつつ、P10対象行が全件合格した場合だけ証拠台帳の合格遷移を許可し、release candidateの合格状態を最終検収ゲートへ委ねる形へ修正した。全要件、必須ブラウザ、実モバイル、物理低性能端末、重大不具合0が揃ったfixtureで`accepted: true`へ遷移できる回帰テストを追加した。現在の実データはP10対象60件合格・7件ブロックで、引き続き`accepted: false`である。
+
+## 完了した実端末証拠のfail-closed化
+
+汎用の互換性schemaだけでは、実モバイルを単一viewportまたは任意入力、物理低性能端末を一般ブラウザと同じ証拠だけで`pass`にできる余地があった。固定RCの配信hashを変えないPhase 10監査層に、対象別の追加条件を実装した。
+
+- iOS Safari／Android Chrome実機は、実タッチ入力、縦長・横長、4面主要フローと再挑戦、ポーズ・復帰、multi-touch、スクロール競合なし、44 CSS px以上、safe-area内表示を全て要求する。
+- 物理低性能端末は、機種・CPU・GPU・memory、5分以上、目標60fpsとその達成、simulation drop 1%以下、入力応答、長時間停止なし、進行速度維持、resource傾向安定を全て要求する。
+- 不足証拠を`pass`にしたfixtureが最終検収で拒否され、全項目を持つfixtureだけが合格状態へ遷移できる回帰テストを追加した。
+
+Safariは今回もComputer Useからの操作を承認されなかった。ADB接続は0台、Apple device一覧はMac本体とSimulatorだけで実機はなかったため、現在の7要件と`accepted: false`は変更していない。
