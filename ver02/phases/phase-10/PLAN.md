@@ -114,3 +114,9 @@ campaign件数と自由記述結果だけでは、同じrunを重複させてdes
 物理低性能端末の性能証拠にも固定RCのbuild ID、manifest SHA-256、file count、total bytesとの完全一致を必須化した。重複desktop run、縦向きだけの実モバイルrun、結果不一致、物理端末のidentity欠落を拒否する回帰テストを追加し、全212テストと全監査に合格した。
 
 Computer Useの環境一覧にはSafariが現れたが、今回もアプリ操作は承認されなかった。固定RCの配信ファイル、60/67件合格、7件ブロック、`accepted: false`は変更していない。
+
+## 完了した実行件数の厳密化
+
+必須の構造化runを含んでいても、総run数は下限だけの検査だったため、desktopの4経路または実モバイルの縦横2経路へ任意の追加runを混在できた。desktopは厳密に4 run、実モバイルは厳密に2 runを要求し、余分な実行を拒否する回帰テストを追加した。全214テスト、固定RCの100 files・10,526,479 bytes再現build、全監査に合格した。
+
+固定RCのlocalhost配信に対して公式SafariDriver 26.6.2を起動したが、Safari設定の`Allow remote automation`が無効でセッション作成を拒否された。Computer UseもSafari操作を承認しなかったため、設定を変更せず`not-run`を維持した。固定RCの配信ファイル、60/67件合格、7件ブロック、`accepted: false`は変更していない。

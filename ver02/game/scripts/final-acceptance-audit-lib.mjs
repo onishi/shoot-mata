@@ -51,8 +51,8 @@ function validateCampaign(target, requiredExecutions, dimension, failures) {
   if (campaign?.stages !== 4) {
     failures.push(`${target.id}: pass requires a four-stage campaign result`);
   }
-  if (!Number.isInteger(campaign?.runs) || campaign.runs < requiredExecutions.length) {
-    failures.push(`${target.id}: pass requires at least ${requiredExecutions.length} campaign runs`);
+  if (!Number.isInteger(campaign?.runs) || campaign.runs !== requiredExecutions.length) {
+    failures.push(`${target.id}: pass requires exactly ${requiredExecutions.length} campaign runs`);
   }
   if (!Array.isArray(campaign?.results)
     || campaign.results.length !== campaign?.runs

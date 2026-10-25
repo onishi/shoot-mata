@@ -1,5 +1,13 @@
 # 開発ログ
 
+## 2026-10-25 — Phase 10の実行件数を必須経路へ厳密化
+
+- 目的: 必須経路に余分な任意runを混在させ、件数と実行結果の対応を曖昧にした証拠で最終検収を通さない。
+- 発見: 構造化runは各必須組を1回だけ要求していたが、総run数は下限しか検査せず、desktopの4経路または実モバイルの縦横2経路に任意の追加runを混在できた。
+- 修正: desktopは厳密に4 run、実モバイルは厳密に2 runを要求し、余分なdesktop／mobile実行を拒否する回帰テストを追加した。
+- 検査: 全214テスト、固定RCの100 files・10,526,479 bytes再現build、静的・受け入れ・証拠・最終検収・release artifact・依存監査に合格した。
+- 環境再確認: 固定RCをlocalhost配信し、公式SafariDriver 26.6.2を起動できたが、Safari設定の`Allow remote automation`が無効なためセッション作成を拒否された。Computer UseもSafari操作を承認しなかった。設定を変更せず、60/67件合格、7件ブロック、`accepted: false`を維持する。
+
 ## 2026-10-25 — Phase 10の実行経路証拠を構造化
 
 - 目的: 件数だけを満たす重複runで、desktopのkeyboard／3 viewport Pointer Eventsまたは実モバイル縦横を検証したと誤認しないようにする。

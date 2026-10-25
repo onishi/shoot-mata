@@ -92,7 +92,7 @@ test("TECH-04: desktop pass requires both product input paths, three viewports, 
   assert.equal(result.valid, false);
   assert.match(result.failures.join("\n"), /four-stage campaign result/);
   assert.match(result.failures.join("\n"), /structured buildIdentity/);
-  assert.match(result.failures.join("\n"), /at least 4 campaign runs/);
+  assert.match(result.failures.join("\n"), /exactly 4 campaign runs/);
   assert.match(result.failures.join("\n"), /pointer-events input evidence/);
   assert.match(result.failures.join("\n"), /390x844 viewport evidence/);
   assert.match(result.failures.join("\n"), /844x390 viewport evidence/);
@@ -293,6 +293,24 @@ test("TECH-04: duplicate campaign labels cannot substitute for required desktop 
   assert.match(result.failures.join("\n"), /exactly one pointer-events:390x844 run/);
 });
 
+test("TECH-04: an extra arbitrary execution cannot be mixed into the required desktop coverage", async () => {
+  const inputs = await checkedInInputs();
+  const compatibility = structuredClone(inputs.compatibility);
+  const target = compatibility.targets.find(({ id }) => id === "chrome-desktop");
+  const extraResult = "1024x768: unrelated extra run";
+  target.evidence.campaign.runs += 1;
+  target.evidence.campaign.results.push(extraResult);
+  target.evidence.campaign.executions.push({
+    inputMode: "pointer-events",
+    viewport: "1024x768",
+    stages: 4,
+    result: extraResult,
+  });
+  const result = validatePhase10EnvironmentEvidence(compatibility, inputs.releaseCandidate);
+  assert.equal(result.valid, false);
+  assert.match(result.failures.join("\n"), /exactly 4 campaign runs/);
+});
+
 test("TECH-04: structured execution result must match its recorded campaign result", async () => {
   const inputs = await checkedInInputs();
   const compatibility = structuredClone(inputs.compatibility);
@@ -349,4 +367,54 @@ test("UX-05/06・INP-02〜04: two portrait executions cannot substitute for both
   const result = validatePhase10EnvironmentEvidence(compatibility, inputs.releaseCandidate);
   assert.equal(result.valid, false);
   assert.match(result.failures.join("\n"), /exactly one touch:landscape run/);
+});
+
+test("UX-05/06・INP-02〜04: an extra mobile execution cannot obscure the two required orientations", async () => {
+  const inputs = await checkedInInputs();
+  const compatibility = structuredClone(inputs.compatibility);
+  const target = compatibility.targets.find(({ id }) => id === "ios-safari-device");
+  const results = ["fixture portrait run", "fixture landscape run", "fixture extra run"];
+  Object.assign(target, {
+    status: "pass",
+    version: "fixture-version",
+    notes: "extra execution fixture",
+    evidence: {
+      viewports: ["390x844", "844x390"],
+      inputModes: ["touch"],
+      orientations: ["portrait", "landscape"],
+      campaign: {
+        stages: 4,
+        runs: 3,
+        results,
+        executions: [
+          { inputMode: "touch", orientation: "portrait", stages: 4, result: results[0] },
+          { inputMode: "touch", orientation: "landscape", stages: 4, result: results[1] },
+          { inputMode: "touch", orientation: "square", stages: 4, result: results[2] },
+        ],
+      },
+      buildIdentity: {
+        buildId: inputs.releaseCandidate.buildId,
+        sha256: inputs.releaseCandidate.manifest.sha256,
+        fileCount: inputs.releaseCandidate.manifest.fileCount,
+        totalBytes: inputs.releaseCandidate.manifest.totalBytes,
+      },
+      checks: {
+        loaded: true,
+        primaryFlow: true,
+        pauseResume: true,
+        noHorizontalOverflow: true,
+        noConsoleErrors: true,
+        noMissingResources: true,
+        noExternalOrigins: true,
+        retryFlow: true,
+        multiTouch: true,
+        noScrollConflict: true,
+        touchTargetsAtLeast44CssPx: true,
+        safeAreaVisible: true,
+      },
+    },
+  });
+  const result = validatePhase10EnvironmentEvidence(compatibility, inputs.releaseCandidate);
+  assert.equal(result.valid, false);
+  assert.match(result.failures.join("\n"), /exactly 2 campaign runs/);
 });
