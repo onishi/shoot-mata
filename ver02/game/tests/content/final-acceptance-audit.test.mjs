@@ -88,10 +88,11 @@ test("TECH-04: desktop pass requires both product input paths, three viewports, 
       },
     },
   });
-  const result = validatePhase10EnvironmentEvidence(compatibility);
+  const result = validatePhase10EnvironmentEvidence(compatibility, inputs.releaseCandidate);
   assert.equal(result.valid, false);
   assert.match(result.failures.join("\n"), /four-stage campaign result/);
-  assert.match(result.failures.join("\n"), /buildIdentity/);
+  assert.match(result.failures.join("\n"), /structured buildIdentity/);
+  assert.match(result.failures.join("\n"), /at least 4 campaign runs/);
   assert.match(result.failures.join("\n"), /pointer-events input evidence/);
   assert.match(result.failures.join("\n"), /390x844 viewport evidence/);
   assert.match(result.failures.join("\n"), /844x390 viewport evidence/);
@@ -125,7 +126,7 @@ test("UX-05/06・INP-02〜04: real mobile pass requires both orientations and ph
       },
     },
   });
-  const result = validatePhase10EnvironmentEvidence(compatibility);
+  const result = validatePhase10EnvironmentEvidence(compatibility, inputs.releaseCandidate);
   assert.equal(result.valid, false);
   assert.match(result.failures.join("\n"), /landscape orientation evidence/);
 });
@@ -152,7 +153,7 @@ test("TECH-05: physical low-performance pass requires device identity and measur
       },
     },
   });
-  const result = validatePhase10EnvironmentEvidence(compatibility);
+  const result = validatePhase10EnvironmentEvidence(compatibility, inputs.releaseCandidate);
   assert.equal(result.valid, false);
   assert.match(result.failures.join("\n"), /device\.model is required/);
   assert.match(result.failures.join("\n"), /performance evidence is required/);
@@ -170,8 +171,17 @@ test("Phase 10 gate has a valid transition to accepted after every required cond
     const evidence = {
       viewports: ["1568x956", "390x844", "844x390"],
       inputModes: ["keyboard", "pointer-events"],
-      campaign: { stages: 4 },
-      buildIdentity: `${inputs.compatibility.buildId}: fixture`,
+      campaign: {
+        stages: 4,
+        runs: 4,
+        results: ["fixture run 1", "fixture run 2", "fixture run 3", "fixture run 4"],
+      },
+      buildIdentity: {
+        buildId: inputs.releaseCandidate.buildId,
+        sha256: inputs.releaseCandidate.manifest.sha256,
+        fileCount: inputs.releaseCandidate.manifest.fileCount,
+        totalBytes: inputs.releaseCandidate.manifest.totalBytes,
+      },
       checks: {
         loaded: true,
         primaryFlow: true,
@@ -185,6 +195,8 @@ test("Phase 10 gate has a valid transition to accepted after every required cond
     if (["ios-safari-device", "android-chrome-device"].includes(target.id)) {
       evidence.inputModes = ["touch"];
       evidence.orientations = ["portrait", "landscape"];
+      evidence.campaign.runs = 2;
+      evidence.campaign.results = ["fixture portrait run", "fixture landscape run"];
       Object.assign(evidence.checks, {
         retryFlow: true,
         multiTouch: true,
@@ -237,4 +249,20 @@ test("Phase 10 gate has a valid transition to accepted after every required cond
   assert.equal(result.nonPassingBrowserTargetIds.length, 0);
   assert.equal(result.physicalLowPerformancePassed, true);
   assert.equal(result.decision.accepted, true);
+});
+
+test("TECH-04: a build identity containing the RC name cannot substitute for exact manifest identity", async () => {
+  const inputs = await checkedInInputs();
+  const compatibility = structuredClone(inputs.compatibility);
+  const target = compatibility.targets.find(({ id }) => id === "chrome-desktop");
+  target.evidence.buildIdentity = {
+    buildId: `not-${inputs.releaseCandidate.buildId}`,
+    sha256: "0".repeat(64),
+    fileCount: inputs.releaseCandidate.manifest.fileCount,
+    totalBytes: inputs.releaseCandidate.manifest.totalBytes,
+  };
+  const result = validatePhase10EnvironmentEvidence(compatibility, inputs.releaseCandidate);
+  assert.equal(result.valid, false);
+  assert.match(result.failures.join("\n"), /buildIdentity\.buildId must exactly match/);
+  assert.match(result.failures.join("\n"), /buildIdentity\.sha256 must exactly match/);
 });

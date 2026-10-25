@@ -98,3 +98,11 @@ Safariは今回もComputer Useからの操作を承認されなかった。ADB�
 汎用の互換性schemaと実端末追加条件だけでは、Safariを1入力・1 viewport・campaign結果なしでも`pass`にでき、実モバイルも主要フローの真偽値だけで4面完走を主張できる余地があった。Phase 10監査を追加で強化し、必須6ブラウザ・端末の合格には固定RCのbuild identityと4面campaign結果を要求する。desktop 4ブラウザにはkeyboardとPointer Eventsの両経路、および1568×956、390×844、844×390の3 viewportを必須化した。不足したSafari fixtureを拒否し、全条件を持つfixtureだけが合格状態へ遷移できる回帰テストを追加した。
 
 SafariはComputer Useからの操作を承認されず、ADB接続は0台、Apple device一覧はMac本体とSimulatorだけだった。受け入れマトリクスのTECH-04証拠説明は、既に合格済みのEdge・Firefoxを反映するよう訂正した。現在の7要件と`accepted: false`は変更していない。
+
+## 完了したRC identity・campaign内訳の完全一致化
+
+固定RC identityを単なるbuild ID入り文字列としていたため、別manifestや部分一致するbuild IDを持つ証拠を拒否できなかった。また、campaignは`stages: 4`だけでdesktopの4経路または実モバイル縦横2経路の実行内訳がなくても通過できた。
+
+合格対象のbuild identityをbuild ID、manifest SHA-256、file count、total bytesへ構造化し、`release-candidate.json`との完全一致を必須化した。desktopはkeyboard 1経路と3 viewportのPointer Eventsに対応する4 run以上、実モバイルは縦横に対応する2 run以上を要求し、run数と同数の非空結果を必須化した。既存Chrome・Edge・Firefox証拠を新形式へ移行し、部分一致の偽identityを拒否する回帰テストを追加した。
+
+Computer UseはSafariとAndroid Tabletを承認せず、ADB接続は0台、開発機はM4 Pro・48GBで物理低性能対象ではなかった。固定RCの配信ファイルと現在の60/67件合格、7件ブロック、`accepted: false`は変更していない。

@@ -1,5 +1,13 @@
 # 開発ログ
 
+## 2026-10-25 — Phase 10のRC identityとcampaign内訳を完全一致で検査
+
+- 目的: 未確認環境の証拠追加時に、RC名を部分的に含む別buildや、`stages: 4`だけの実行内訳がない記録でTECH-04を誤って閉じないようにする。
+- 発見: Phase 10監査は`buildIdentity`文字列がbuild IDを含むことと`campaign.stages === 4`だけを要求しており、manifest hash・件数・容量の不一致、desktop 4経路または実モバイル縦横2経路の実行結果欠落を拒否できなかった。
+- 修正: 合格対象のbuild identityを構造化し、固定RCのbuild ID、manifest SHA-256、file count、total bytesとの完全一致を必須化した。desktopは4 run以上、実モバイルは縦横に対応する2 run以上を要求し、run数と同数の非空結果を必須化した。部分一致の偽identityと不完全campaignを拒否する回帰テストを追加した。
+- 環境再確認: Computer UseはSafariとAndroid Tabletを承認せず、ADBは接続端末0台だった。開発機はM4 Pro・48GBで物理低性能対象ではない。未確認を合格にせず、60/67件合格、7件ブロック、`accepted: false`を維持する。
+- 検査: 追加テストを含む全209テストに合格した。固定RCの配信ファイルは変更していない。
+
 ## 2026-10-25 — Phase 10のブラウザ証拠をfail-closed化
 
 - 目的: 未確認のSafariまたは実モバイルが利用可能になった際、単一入力・単一viewport・4面完走のない証拠でTECH-04を誤って閉じないようにする。

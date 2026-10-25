@@ -25,20 +25,47 @@ function phaseIncludes(row, phase) {
   return row.finalVerification.split(",").map((value) => value.trim()).includes(phase);
 }
 
-export function validatePhase10EnvironmentEvidence(compatibility) {
+function validateBuildIdentity(target, releaseCandidate, failures) {
+  const identity = target.evidence?.buildIdentity;
+  const expectedManifest = releaseCandidate?.manifest;
+  if (!identity || typeof identity !== "object" || Array.isArray(identity)) {
+    failures.push(`${target.id}: pass requires structured buildIdentity`);
+    return;
+  }
+  if (identity.buildId !== releaseCandidate?.buildId) {
+    failures.push(`${target.id}: buildIdentity.buildId must exactly match the release candidate`);
+  }
+  for (const field of ["sha256", "fileCount", "totalBytes"]) {
+    if (identity[field] !== expectedManifest?.[field]) {
+      failures.push(`${target.id}: buildIdentity.${field} must exactly match the release candidate manifest`);
+    }
+  }
+}
+
+function validateCampaign(target, minimumRuns, failures) {
+  const campaign = target.evidence?.campaign;
+  if (campaign?.stages !== 4) {
+    failures.push(`${target.id}: pass requires a four-stage campaign result`);
+  }
+  if (!Number.isInteger(campaign?.runs) || campaign.runs < minimumRuns) {
+    failures.push(`${target.id}: pass requires at least ${minimumRuns} campaign runs`);
+  }
+  if (!Array.isArray(campaign?.results)
+    || campaign.results.length !== campaign?.runs
+    || campaign.results.some((result) => !nonEmptyString(result))) {
+    failures.push(`${target.id}: campaign.results must contain one non-empty result per run`);
+  }
+}
+
+export function validatePhase10EnvironmentEvidence(compatibility, releaseCandidate) {
   const failures = [];
   const targets = Array.isArray(compatibility?.targets) ? compatibility.targets : [];
 
   for (const id of REQUIRED_BROWSER_TARGETS) {
     const target = targets.find((candidate) => candidate.id === id);
     if (target?.status !== "pass") continue;
-    if (target.evidence?.campaign?.stages !== 4) {
-      failures.push(`${id}: pass requires a four-stage campaign result`);
-    }
-    if (!nonEmptyString(target.evidence?.buildIdentity)
-      || !target.evidence.buildIdentity.includes(compatibility.buildId)) {
-      failures.push(`${id}: pass requires buildIdentity for ${compatibility.buildId}`);
-    }
+    validateCampaign(target, DESKTOP_BROWSER_TARGETS.includes(id) ? 4 : 2, failures);
+    validateBuildIdentity(target, releaseCandidate, failures);
   }
 
   for (const id of DESKTOP_BROWSER_TARGETS) {
@@ -147,7 +174,7 @@ export function auditFinalAcceptance({
   if (!compatibilityResult.valid) {
     failures.push(...compatibilityResult.failures.map((failure) => `compatibility: ${failure}`));
   }
-  const environmentEvidenceResult = validatePhase10EnvironmentEvidence(compatibility);
+  const environmentEvidenceResult = validatePhase10EnvironmentEvidence(compatibility, releaseCandidate);
   if (!environmentEvidenceResult.valid) {
     failures.push(...environmentEvidenceResult.failures.map((failure) => `phase 10 environment evidence: ${failure}`));
   }

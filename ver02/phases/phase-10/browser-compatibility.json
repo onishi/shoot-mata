@@ -41,7 +41,12 @@
         },
         "consoleWarningOrErrorCount": 0,
         "httpStatus": "all declared product resources returned 200 or cache-validation 304; one browser-initiated /favicon.ico request outside the manifest returned 404 while the explicit WebP favicon loaded successfully",
-        "buildIdentity": "dist/build-manifest.json: phase10-rc1-20261024; 100 files; 10526479 bytes"
+        "buildIdentity": {
+          "buildId": "phase10-rc1-20261024",
+          "sha256": "3c25733152691eadf21eaa5919a538c29919b5451a6d7045cf8420dde012e7ab",
+          "fileCount": 100,
+          "totalBytes": 10526479
+        }
       }
     },
     {
@@ -82,7 +87,12 @@
         "consoleWarningOrErrorCount": 0,
         "resourceEntries": 94,
         "externalOrigins": [],
-        "buildIdentity": "dist/build-manifest.json: phase10-rc1-20261024; 100 files; 10526479 bytes"
+        "buildIdentity": {
+          "buildId": "phase10-rc1-20261024",
+          "sha256": "3c25733152691eadf21eaa5919a538c29919b5451a6d7045cf8420dde012e7ab",
+          "fileCount": 100,
+          "totalBytes": 10526479
+        }
       }
     },
     {
@@ -123,7 +133,12 @@
         "consoleWarningOrErrorCount": 0,
         "resourceEntries": 64,
         "externalOrigins": [],
-        "buildIdentity": "dist/build-manifest.json: phase10-rc1-20261024; 100 files; 10526479 bytes"
+        "buildIdentity": {
+          "buildId": "phase10-rc1-20261024",
+          "sha256": "3c25733152691eadf21eaa5919a538c29919b5451a6d7045cf8420dde012e7ab",
+          "fileCount": 100,
+          "totalBytes": 10526479
+        }
       }
     },
     {
