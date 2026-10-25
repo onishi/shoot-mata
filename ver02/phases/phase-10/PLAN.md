@@ -188,3 +188,9 @@ Computer Useは今回もSafari操作を承認しなかったため、新しい�
 Computer UseはSafari操作を承認せず、ADBの接続端末は0台、Apple CoreDeviceは初期化timeoutだった。新しい実測証拠はなく、固定RCの配信ファイル、60/67件合格、7件ブロック、`accepted: false`を維持する。
 
 全223テスト、固定RCの100 files・10,526,479 bytes再現build、静的・受け入れ・証拠・最終検収・release artifact・依存監査に合格し、既知脆弱性は0件だった。
+
+## 完了したPhase 10証拠JSONの重複キー拒否
+
+最終検収監査はPhase 10の4 JSON文書を標準の`JSON.parse`で読み込んでいたため、同じobject内に同名キーを複数記述すると先の値が黙って破棄され、矛盾する証拠を監査入力から隠せた。最終検収入口へ重複キーを拒否する厳格JSON parserを追加し、通常の同名キーに加えて`platform`と`plat\u0066orm`のようなescape後に同一となるキーもfail closedで拒否する。
+
+既存4文書が厳格parserで読み込めること、別object間の同名キーは許可することを回帰検査した。全226テストと全監査に合格し、固定RCの配信ファイル、60/67件合格、7件ブロック、`accepted: false`は変更していない。Computer Useは今回もSafari操作を承認しなかったため、新しい環境証拠はない。

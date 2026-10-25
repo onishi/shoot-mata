@@ -1,9 +1,13 @@
 import { readFile } from "node:fs/promises";
 import { extractAcceptanceRows } from "./acceptance-matrix-audit-lib.mjs";
 import { auditFinalAcceptance } from "./final-acceptance-audit-lib.mjs";
+import { parseJsonWithUniqueKeys } from "./strict-json.mjs";
 
 const rootUrl = new URL("../../", import.meta.url);
-const readJson = async (path) => JSON.parse(await readFile(new URL(path, rootUrl), "utf8"));
+const readJson = async (path) => parseJsonWithUniqueKeys(
+  await readFile(new URL(path, rootUrl), "utf8"),
+  path,
+);
 const acceptanceRows = extractAcceptanceRows(await readFile(new URL("docs/02-acceptance-matrix.md", rootUrl), "utf8"));
 const result = auditFinalAcceptance({
   gate: await readJson("phases/phase-10/final-acceptance.json"),
