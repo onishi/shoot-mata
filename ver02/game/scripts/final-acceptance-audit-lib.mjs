@@ -42,18 +42,54 @@ function validateBuildIdentity(target, releaseCandidate, failures) {
   }
 }
 
-function validateCampaign(target, minimumRuns, failures) {
+function executionKey(execution, dimension) {
+  return `${execution?.inputMode ?? ""}:${execution?.[dimension] ?? ""}`;
+}
+
+function validateCampaign(target, requiredExecutions, dimension, failures) {
   const campaign = target.evidence?.campaign;
   if (campaign?.stages !== 4) {
     failures.push(`${target.id}: pass requires a four-stage campaign result`);
   }
-  if (!Number.isInteger(campaign?.runs) || campaign.runs < minimumRuns) {
-    failures.push(`${target.id}: pass requires at least ${minimumRuns} campaign runs`);
+  if (!Number.isInteger(campaign?.runs) || campaign.runs < requiredExecutions.length) {
+    failures.push(`${target.id}: pass requires at least ${requiredExecutions.length} campaign runs`);
   }
   if (!Array.isArray(campaign?.results)
     || campaign.results.length !== campaign?.runs
     || campaign.results.some((result) => !nonEmptyString(result))) {
     failures.push(`${target.id}: campaign.results must contain one non-empty result per run`);
+  }
+  if (!Array.isArray(campaign?.executions)
+    || campaign.executions.length !== campaign?.runs) {
+    failures.push(`${target.id}: campaign.executions must contain one structured execution per run`);
+    return;
+  }
+  for (const [index, execution] of campaign.executions.entries()) {
+    if (!execution || typeof execution !== "object" || Array.isArray(execution)) {
+      failures.push(`${target.id}: campaign.executions[${index}] must be an object`);
+      continue;
+    }
+    if (!nonEmptyString(execution.inputMode)) {
+      failures.push(`${target.id}: campaign.executions[${index}].inputMode is required`);
+    }
+    if (!nonEmptyString(execution[dimension])) {
+      failures.push(`${target.id}: campaign.executions[${index}].${dimension} is required`);
+    }
+    if (execution.stages !== 4) {
+      failures.push(`${target.id}: campaign.executions[${index}].stages must be 4`);
+    }
+    if (!nonEmptyString(execution.result)) {
+      failures.push(`${target.id}: campaign.executions[${index}].result is required`);
+    } else if (execution.result !== campaign.results?.[index]) {
+      failures.push(`${target.id}: campaign.executions[${index}].result must match campaign.results[${index}]`);
+    }
+  }
+  const actualKeys = campaign.executions.map((execution) => executionKey(execution, dimension));
+  for (const required of requiredExecutions) {
+    const key = executionKey(required, dimension);
+    if (actualKeys.filter((actual) => actual === key).length !== 1) {
+      failures.push(`${target.id}: campaign executions must contain exactly one ${key} run`);
+    }
   }
 }
 
@@ -64,7 +100,17 @@ export function validatePhase10EnvironmentEvidence(compatibility, releaseCandida
   for (const id of REQUIRED_BROWSER_TARGETS) {
     const target = targets.find((candidate) => candidate.id === id);
     if (target?.status !== "pass") continue;
-    validateCampaign(target, DESKTOP_BROWSER_TARGETS.includes(id) ? 4 : 2, failures);
+    if (DESKTOP_BROWSER_TARGETS.includes(id)) {
+      validateCampaign(target, [
+        { inputMode: "keyboard", viewport: "1568x956" },
+        ...DESKTOP_VIEWPORTS.map((viewport) => ({ inputMode: "pointer-events", viewport })),
+      ], "viewport", failures);
+    } else {
+      validateCampaign(target, [
+        { inputMode: "touch", orientation: "portrait" },
+        { inputMode: "touch", orientation: "landscape" },
+      ], "orientation", failures);
+    }
     validateBuildIdentity(target, releaseCandidate, failures);
   }
 
@@ -109,6 +155,7 @@ export function validatePhase10EnvironmentEvidence(compatibility, releaseCandida
   const lowPerformance = targets.find(({ id }) => id === PHYSICAL_LOW_PERFORMANCE_TARGET);
   if (lowPerformance?.status === "pass") {
     const evidence = lowPerformance.evidence;
+    validateBuildIdentity(lowPerformance, releaseCandidate, failures);
     if (lowPerformance.environment !== "real-device") {
       failures.push(`${PHYSICAL_LOW_PERFORMANCE_TARGET}: pass requires environment real-device`);
     }

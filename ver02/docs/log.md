@@ -1,5 +1,13 @@
 # 開発ログ
 
+## 2026-10-25 — Phase 10の実行経路証拠を構造化
+
+- 目的: 件数だけを満たす重複runで、desktopのkeyboard／3 viewport Pointer Eventsまたは実モバイル縦横を検証したと誤認しないようにする。
+- 発見: `campaign.runs`と自由記述の`results`は件数を保証するだけで、各runの入力方式・viewport／orientation・4面完走を対応付けていなかった。また物理低性能端末の性能証拠は固定RC identityを要求していなかった。
+- 修正: 各runをinput mode、viewportまたはorientation、stage数、結果へ構造化した。desktopはkeyboard＋1568×956とPointer Events＋3 viewportの4組、実モバイルはtouch＋縦横の2組を各1回だけ必須化し、自由記述結果との一致も検査する。物理低性能端末にも固定RCのbuild ID、manifest hash、件数、容量の完全一致を要求した。
+- 回帰: 同じdesktop runの重複、実モバイル縦向き2件、結果不一致、物理端末のidentity欠落を拒否するテストを追加した。全212テスト、固定RCの100 files・10,526,479 bytes再現build、静的・受け入れ・証拠・最終検収・release artifact・依存監査に合格した。
+- 環境再確認: Computer Useの一覧にはSafariが現れたが操作は承認されず、実測を開始できなかった。未確認環境を合格にせず、60/67件合格、7件ブロック、`accepted: false`を維持する。
+
 ## 2026-10-25 — Phase 10のRC identityとcampaign内訳を完全一致で検査
 
 - 目的: 未確認環境の証拠追加時に、RC名を部分的に含む別buildや、`stages: 4`だけの実行内訳がない記録でTECH-04を誤って閉じないようにする。

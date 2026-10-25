@@ -106,3 +106,11 @@ SafariはComputer Useからの操作を承認されず、ADB接続は0台、Appl
 合格対象のbuild identityをbuild ID、manifest SHA-256、file count、total bytesへ構造化し、`release-candidate.json`との完全一致を必須化した。desktopはkeyboard 1経路と3 viewportのPointer Eventsに対応する4 run以上、実モバイルは縦横に対応する2 run以上を要求し、run数と同数の非空結果を必須化した。既存Chrome・Edge・Firefox証拠を新形式へ移行し、部分一致の偽identityを拒否する回帰テストを追加した。
 
 Computer UseはSafariとAndroid Tabletを承認せず、ADB接続は0台、開発機はM4 Pro・48GBで物理低性能対象ではなかった。固定RCの配信ファイルと現在の60/67件合格、7件ブロック、`accepted: false`は変更していない。
+
+## 完了した実行経路証拠の構造化
+
+campaign件数と自由記述結果だけでは、同じrunを重複させてdesktopのkeyboard／3 viewport Pointer Eventsまたは実モバイル縦横を検証済みと主張できた。各runをinput mode、viewportまたはorientation、stage数、結果へ構造化し、desktopの必須4組と実モバイルの必須2組を各1回だけ要求するよう最終検収監査を強化した。構造化結果と既存の結果列の不一致も拒否する。
+
+物理低性能端末の性能証拠にも固定RCのbuild ID、manifest SHA-256、file count、total bytesとの完全一致を必須化した。重複desktop run、縦向きだけの実モバイルrun、結果不一致、物理端末のidentity欠落を拒否する回帰テストを追加し、全212テストと全監査に合格した。
+
+Computer Useの環境一覧にはSafariが現れたが、今回もアプリ操作は承認されなかった。固定RCの配信ファイル、60/67件合格、7件ブロック、`accepted: false`は変更していない。

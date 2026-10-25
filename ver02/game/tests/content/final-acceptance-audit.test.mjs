@@ -157,6 +157,7 @@ test("TECH-05: physical low-performance pass requires device identity and measur
   assert.equal(result.valid, false);
   assert.match(result.failures.join("\n"), /device\.model is required/);
   assert.match(result.failures.join("\n"), /performance evidence is required/);
+  assert.match(result.failures.join("\n"), /structured buildIdentity/);
 });
 
 test("Phase 10 gate has a valid transition to accepted after every required condition passes", async () => {
@@ -175,6 +176,12 @@ test("Phase 10 gate has a valid transition to accepted after every required cond
         stages: 4,
         runs: 4,
         results: ["fixture run 1", "fixture run 2", "fixture run 3", "fixture run 4"],
+        executions: [
+          { inputMode: "keyboard", viewport: "1568x956", stages: 4, result: "fixture run 1" },
+          { inputMode: "pointer-events", viewport: "1568x956", stages: 4, result: "fixture run 2" },
+          { inputMode: "pointer-events", viewport: "390x844", stages: 4, result: "fixture run 3" },
+          { inputMode: "pointer-events", viewport: "844x390", stages: 4, result: "fixture run 4" },
+        ],
       },
       buildIdentity: {
         buildId: inputs.releaseCandidate.buildId,
@@ -197,6 +204,10 @@ test("Phase 10 gate has a valid transition to accepted after every required cond
       evidence.orientations = ["portrait", "landscape"];
       evidence.campaign.runs = 2;
       evidence.campaign.results = ["fixture portrait run", "fixture landscape run"];
+      evidence.campaign.executions = [
+        { inputMode: "touch", orientation: "portrait", stages: 4, result: "fixture portrait run" },
+        { inputMode: "touch", orientation: "landscape", stages: 4, result: "fixture landscape run" },
+      ];
       Object.assign(evidence.checks, {
         retryFlow: true,
         multiTouch: true,
@@ -265,4 +276,77 @@ test("TECH-04: a build identity containing the RC name cannot substitute for exa
   assert.equal(result.valid, false);
   assert.match(result.failures.join("\n"), /buildIdentity\.buildId must exactly match/);
   assert.match(result.failures.join("\n"), /buildIdentity\.sha256 must exactly match/);
+});
+
+test("TECH-04: duplicate campaign labels cannot substitute for required desktop execution coverage", async () => {
+  const inputs = await checkedInInputs();
+  const compatibility = structuredClone(inputs.compatibility);
+  const target = compatibility.targets.find(({ id }) => id === "chrome-desktop");
+  target.evidence.campaign.executions = target.evidence.campaign.executions.map((execution) => ({
+    ...execution,
+    inputMode: "pointer-events",
+    viewport: "1568x956",
+  }));
+  const result = validatePhase10EnvironmentEvidence(compatibility, inputs.releaseCandidate);
+  assert.equal(result.valid, false);
+  assert.match(result.failures.join("\n"), /exactly one keyboard:1568x956 run/);
+  assert.match(result.failures.join("\n"), /exactly one pointer-events:390x844 run/);
+});
+
+test("TECH-04: structured execution result must match its recorded campaign result", async () => {
+  const inputs = await checkedInInputs();
+  const compatibility = structuredClone(inputs.compatibility);
+  const target = compatibility.targets.find(({ id }) => id === "chrome-desktop");
+  target.evidence.campaign.executions[0].result = "different result";
+  const result = validatePhase10EnvironmentEvidence(compatibility, inputs.releaseCandidate);
+  assert.equal(result.valid, false);
+  assert.match(result.failures.join("\n"), /must match campaign\.results\[0\]/);
+});
+
+test("UX-05/06・INP-02〜04: two portrait executions cannot substitute for both mobile orientations", async () => {
+  const inputs = await checkedInInputs();
+  const compatibility = structuredClone(inputs.compatibility);
+  const target = compatibility.targets.find(({ id }) => id === "ios-safari-device");
+  Object.assign(target, {
+    status: "pass",
+    version: "fixture-version",
+    notes: "duplicate portrait fixture",
+    evidence: {
+      viewports: ["390x844", "844x390"],
+      inputModes: ["touch"],
+      orientations: ["portrait", "landscape"],
+      campaign: {
+        stages: 4,
+        runs: 2,
+        results: ["fixture portrait run 1", "fixture portrait run 2"],
+        executions: [
+          { inputMode: "touch", orientation: "portrait", stages: 4, result: "fixture portrait run 1" },
+          { inputMode: "touch", orientation: "portrait", stages: 4, result: "fixture portrait run 2" },
+        ],
+      },
+      buildIdentity: {
+        buildId: inputs.releaseCandidate.buildId,
+        sha256: inputs.releaseCandidate.manifest.sha256,
+        fileCount: inputs.releaseCandidate.manifest.fileCount,
+        totalBytes: inputs.releaseCandidate.manifest.totalBytes,
+      },
+      checks: {
+        loaded: true,
+        primaryFlow: true,
+        pauseResume: true,
+        noHorizontalOverflow: true,
+        noConsoleErrors: true,
+        noMissingResources: true,
+        noExternalOrigins: true,
+        retryFlow: true,
+        multiTouch: true,
+        noScrollConflict: true,
+        touchTargetsAtLeast44CssPx: true,
+        safeAreaVisible: true,
+      },
+    },
+  });
+  const result = validatePhase10EnvironmentEvidence(compatibility, inputs.releaseCandidate);
+  assert.equal(result.valid, false);
+  assert.match(result.failures.join("\n"), /exactly one touch:landscape run/);
 });
