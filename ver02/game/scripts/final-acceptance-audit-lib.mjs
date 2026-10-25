@@ -1,4 +1,7 @@
-import { REQUIRED_BROWSER_TARGETS, validateCompatibilityReport } from "../src/browser/compatibility-report.mjs";
+import {
+  REQUIRED_BROWSER_TARGETS,
+  validateCompatibilityReport,
+} from "../src/browser/compatibility-report.mjs";
 
 const PHASE_10 = "P10";
 const REAL_MOBILE_TARGETS = ["ios-safari-device", "android-chrome-device"];
@@ -13,6 +16,12 @@ const DESKTOP_VIEWPORTS = ["1568x956", "390x844", "844x390"];
 
 function nonEmptyString(value) {
   return typeof value === "string" && value.trim().length > 0;
+}
+
+function isIsoCalendarDate(value) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value ?? "")) return false;
+  const date = new Date(`${value}T00:00:00Z`);
+  return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value;
 }
 
 function sameValues(actual, expected) {
@@ -210,7 +219,7 @@ export function auditFinalAcceptance({
   const failures = [];
   if (gate?.schemaVersion !== 1) failures.push("schemaVersion must be 1");
   if (gate?.buildId !== expectedBuildId) failures.push(`buildId must be ${expectedBuildId}`);
-  if (!nonEmptyString(gate?.recordedOn)) failures.push("recordedOn is required");
+  if (!isIsoCalendarDate(gate?.recordedOn)) failures.push("recordedOn must be a valid YYYY-MM-DD calendar date");
 
   for (const [label, document] of [
     ["compatibility", compatibility],
@@ -218,6 +227,32 @@ export function auditFinalAcceptance({
     ["evidence registry", evidenceRegistry],
   ]) {
     if (document?.buildId !== expectedBuildId) failures.push(`${label} buildId must be ${expectedBuildId}`);
+  }
+
+  const datedDocuments = [
+    ["release candidate", releaseCandidate],
+    ["compatibility", compatibility],
+    ["evidence registry", evidenceRegistry],
+  ];
+  for (const [label, document] of datedDocuments) {
+    if (!isIsoCalendarDate(document?.recordedOn)) {
+      failures.push(`${label} recordedOn must be a valid YYYY-MM-DD calendar date`);
+    }
+  }
+  if (isIsoCalendarDate(releaseCandidate?.recordedOn)) {
+    for (const [label, document] of datedDocuments.slice(1)) {
+      if (isIsoCalendarDate(document?.recordedOn)
+        && document.recordedOn < releaseCandidate.recordedOn) {
+        failures.push(`${label} recordedOn must not predate the release candidate`);
+      }
+    }
+  }
+  if (isIsoCalendarDate(gate?.recordedOn)) {
+    for (const [label, document] of datedDocuments) {
+      if (isIsoCalendarDate(document?.recordedOn) && document.recordedOn > gate.recordedOn) {
+        failures.push(`${label} recordedOn must not postdate the final acceptance decision`);
+      }
+    }
   }
 
   const compatibilityResult = validateCompatibilityReport(compatibility);

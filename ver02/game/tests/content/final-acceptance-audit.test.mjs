@@ -66,6 +66,20 @@ test("Phase 10 gate rejects stale requirement and browser blocker snapshots", as
   assert.match(result.failures.join("\n"), /nonPassingBrowserTargetIds must exactly match/);
 });
 
+test("Phase 10 gate rejects evidence outside the release-candidate decision timeline", async () => {
+  const inputs = await checkedInInputs();
+  inputs.compatibility = structuredClone(inputs.compatibility);
+  inputs.evidenceRegistry = structuredClone(inputs.evidenceRegistry);
+  inputs.gate = structuredClone(inputs.gate);
+  inputs.compatibility.recordedOn = "2026-10-23";
+  inputs.evidenceRegistry.recordedOn = "2026-02-30";
+  inputs.gate.recordedOn = "2026-10-24";
+  const result = auditFinalAcceptance(inputs);
+  assert.equal(result.valid, false);
+  assert.match(result.failures.join("\n"), /compatibility recordedOn must not predate the release candidate/);
+  assert.match(result.failures.join("\n"), /evidence registry recordedOn must be a valid YYYY-MM-DD calendar date/);
+});
+
 test("TECH-04: desktop pass requires both product input paths, three viewports, campaign, and RC identity", async () => {
   const inputs = await checkedInInputs();
   const compatibility = structuredClone(inputs.compatibility);

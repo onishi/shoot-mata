@@ -28,7 +28,7 @@
 
 これらにより、UX-05、UX-06、INP-02、INP-03、INP-04、TECH-04、TECH-05の7要件を`ブロック`として維持する。desktopのviewport縮小、合成Pointer Events、Simulator、開発機の4倍描画負荷は補助証拠であり、実機または物理端末の合格へ読み替えない。
 
-2026-10-25の再確認でも、Computer UseはSafari利用を承認せず、ADB接続は0台、Xcodeのdevice一覧はMac本体とSimulatorだけだった。認証設定の迂回や互換実装からの推定は行っていない。
+2026-10-25の再確認でも、Computer UseはSafari利用を承認せず、ADB接続は0台、Xcodeのdevice一覧はMac本体とSimulatorだけだった。認証設定の迂回や互換実装からの推定は行っていない。証拠日付は実在する暦日で、固定RC作成日以後かつ最終判定日以前でなければ監査が拒否する。
 
 ## 残存する非blockerリスク
 
