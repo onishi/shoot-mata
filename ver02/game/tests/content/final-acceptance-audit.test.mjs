@@ -174,6 +174,59 @@ test("TECH-05: physical low-performance pass requires device identity and measur
   assert.match(result.failures.join("\n"), /structured buildIdentity/);
 });
 
+test("TECH-05: a high-memory development machine cannot substitute for the physical low-performance target", async () => {
+  const inputs = await checkedInInputs();
+  const compatibility = structuredClone(inputs.compatibility);
+  const target = compatibility.targets.find(({ id }) => id === "physical-low-performance-device");
+  Object.assign(target, {
+    status: "pass",
+    version: "26.6.2",
+    notes: "high-performance development machine fixture",
+    evidence: {
+      viewports: ["1568x956"],
+      inputModes: ["keyboard"],
+      buildIdentity: {
+        buildId: inputs.releaseCandidate.buildId,
+        sha256: inputs.releaseCandidate.manifest.sha256,
+        fileCount: inputs.releaseCandidate.manifest.fileCount,
+        totalBytes: inputs.releaseCandidate.manifest.totalBytes,
+      },
+      device: { model: "MacBook Pro", cpu: "M4 Pro", gpu: "M4 Pro", memoryMiB: 49_152 },
+      performance: {
+        durationMs: 300_000,
+        targetFps: 60,
+        averageFps: 120,
+        simulationDroppedRatio: 0,
+        maximumFrameMs: 16.7,
+        maximumInputLatencyMs: 16.7,
+        progressDriftRatio: 0,
+        heapGrowthBytes: 0,
+        resourceCountGrowth: 0,
+        failedDeclaredResourceCount: 0,
+        domNodeGrowth: 0,
+        consoleWarningOrErrorCount: 0,
+        externalOrigins: [],
+        inputResponsive: true,
+        noLongStall: true,
+        progressSpeedStable: true,
+        resourceTrendStable: true,
+      },
+      checks: {
+        loaded: true,
+        primaryFlow: true,
+        pauseResume: true,
+        noHorizontalOverflow: true,
+        noConsoleErrors: true,
+        noMissingResources: true,
+        noExternalOrigins: true,
+      },
+    },
+  });
+  const result = validatePhase10EnvironmentEvidence(compatibility, inputs.releaseCandidate);
+  assert.equal(result.valid, false);
+  assert.match(result.failures.join("\n"), /device\.memoryMiB must be a positive integer no greater than 4096/);
+});
+
 test("Phase 10 gate has a valid transition to accepted after every required condition passes", async () => {
   const inputs = await checkedInInputs();
   inputs.acceptanceRows = inputs.acceptanceRows.map((row) => (

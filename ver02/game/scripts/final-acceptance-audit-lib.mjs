@@ -25,6 +25,7 @@ const DESKTOP_VIEWPORTS = ["1568x956", "390x844", "844x390"];
 const PHYSICAL_MAX_FRAME_MS = 1_000;
 const PHYSICAL_MAX_INPUT_LATENCY_MS = 100;
 const PHYSICAL_MAX_HEAP_GROWTH_BYTES = 16 * 1024 * 1024;
+const PHYSICAL_MAX_DEVICE_MEMORY_MIB = 4 * 1024;
 
 function nonEmptyString(value) {
   return typeof value === "string" && value.trim().length > 0;
@@ -285,8 +286,10 @@ export function validatePhase10EnvironmentEvidence(compatibility, releaseCandida
         failures.push(`${PHYSICAL_LOW_PERFORMANCE_TARGET}: device.${field} is required to pass`);
       }
     }
-    if (!Number.isInteger(evidence?.device?.memoryMiB) || evidence.device.memoryMiB <= 0) {
-      failures.push(`${PHYSICAL_LOW_PERFORMANCE_TARGET}: device.memoryMiB must be a positive integer to pass`);
+    if (!Number.isInteger(evidence?.device?.memoryMiB)
+      || evidence.device.memoryMiB <= 0
+      || evidence.device.memoryMiB > PHYSICAL_MAX_DEVICE_MEMORY_MIB) {
+      failures.push(`${PHYSICAL_LOW_PERFORMANCE_TARGET}: device.memoryMiB must be a positive integer no greater than ${PHYSICAL_MAX_DEVICE_MEMORY_MIB}`);
     }
     const performance = evidence?.performance;
     if (!performance || typeof performance !== "object" || Array.isArray(performance)) {

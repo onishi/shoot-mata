@@ -180,3 +180,11 @@ Computer Useは今回もSafari操作を承認しなかった。ADBは接続0台�
 ブラウザ名の対応だけでは、数値でない仮versionや、Chrome・Edge・Firefox desktopへAndroidなど別OSのplatformを入れても合格にできた。全必須ブラウザへ数値から始まる実測versionを要求し、desktop 4対象は数値version付きmacOS、実モバイルは数値version付きiOS／iPadOSまたはAndroidとの対応を必須化した。別OSと`fixture-version`を拒否し、全条件合格への遷移は維持する回帰テストを追加した。
 
 Computer Useは今回もSafari操作を承認しなかったため、新しい環境証拠はない。全222テスト、固定RCの100 files・10,526,479 bytes再現build、全監査、依存脆弱性0件を確認し、60/67件合格、7件ブロック、`accepted: false`を維持する。
+
+## 完了した物理低性能端末の適格条件固定
+
+物理低性能端末は機種、CPU、GPU、memoryを記録していたが、低性能対象へ該当する上限がなく、高性能な開発機でも実測値さえ満たせば合格できた。Phase 10の対象を搭載memory 4 GiB（4,096 MiB）以下の実機へ固定し、4 GiB超の端末を拒否する回帰テストを追加した。CPU・GPU名は証拠として保持し、少なくとも再現可能な数値条件で高性能開発機を除外する。
+
+Computer UseはSafari操作を承認せず、ADBの接続端末は0台、Apple CoreDeviceは初期化timeoutだった。新しい実測証拠はなく、固定RCの配信ファイル、60/67件合格、7件ブロック、`accepted: false`を維持する。
+
+全223テスト、固定RCの100 files・10,526,479 bytes再現build、静的・受け入れ・証拠・最終検収・release artifact・依存監査に合格し、既知脆弱性は0件だった。
