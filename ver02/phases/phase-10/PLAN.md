@@ -174,3 +174,9 @@ SafariはComputer Useから承認されず、公式SafariDriverの有効化も�
 Computer Useは今回もSafari操作を承認しなかった。ADBは接続0台、AppleのCoreDevice確認は初期化timeoutで新しい実機を確認できなかったため、固定RCの配信ファイル、60/67件合格、7件ブロック、`accepted: false`は変更していない。
 
 全222テスト、固定RCの100 files・10,526,479 bytes再現build、静的・受け入れ・証拠・最終検収・release artifact・依存監査に合格し、既知脆弱性は0件だった。
+
+## 完了したブラウザ・OS実測identityの厳密化
+
+ブラウザ名の対応だけでは、数値でない仮versionや、Chrome・Edge・Firefox desktopへAndroidなど別OSのplatformを入れても合格にできた。全必須ブラウザへ数値から始まる実測versionを要求し、desktop 4対象は数値version付きmacOS、実モバイルは数値version付きiOS／iPadOSまたはAndroidとの対応を必須化した。別OSと`fixture-version`を拒否し、全条件合格への遷移は維持する回帰テストを追加した。
+
+Computer Useは今回もSafari操作を承認しなかったため、新しい環境証拠はない。全222テスト、固定RCの100 files・10,526,479 bytes再現build、全監査、依存脆弱性0件を確認し、60/67件合格、7件ブロック、`accepted: false`を維持する。

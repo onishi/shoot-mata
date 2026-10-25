@@ -13,13 +13,14 @@ const DESKTOP_BROWSER_TARGETS = [
   "safari-desktop",
 ];
 const REQUIRED_BROWSER_IDENTITIES = Object.freeze({
-  "chrome-desktop": { browser: "Google Chrome" },
-  "edge-desktop": { browser: "Microsoft Edge" },
-  "firefox-desktop": { browser: "Mozilla Firefox" },
-  "safari-desktop": { browser: "Safari", platformPattern: /^macOS\b/ },
-  "ios-safari-device": { browser: "Mobile Safari", platformPattern: /^iOS(?:\/iPadOS)?\b/ },
-  "android-chrome-device": { browser: "Chrome for Android", platformPattern: /^Android\b/ },
+  "chrome-desktop": { browser: "Google Chrome", platformPattern: /^macOS \d/ },
+  "edge-desktop": { browser: "Microsoft Edge", platformPattern: /^macOS \d/ },
+  "firefox-desktop": { browser: "Mozilla Firefox", platformPattern: /^macOS \d/ },
+  "safari-desktop": { browser: "Safari", platformPattern: /^macOS \d/ },
+  "ios-safari-device": { browser: "Mobile Safari", platformPattern: /^(?:iOS|iPadOS) \d/ },
+  "android-chrome-device": { browser: "Chrome for Android", platformPattern: /^Android \d/ },
 });
+const OBSERVED_BROWSER_VERSION_PATTERN = /^\d+(?:\.\d+)+(?:\s|$)/;
 const DESKTOP_VIEWPORTS = ["1568x956", "390x844", "844x390"];
 const PHYSICAL_MAX_FRAME_MS = 1_000;
 const PHYSICAL_MAX_INPUT_LATENCY_MS = 100;
@@ -85,8 +86,8 @@ function validateBrowserIdentity(target, failures) {
   if (target.browser !== expected.browser) {
     failures.push(`${target.id}: pass requires browser ${expected.browser}`);
   }
-  if (/^n\/a(?:\b|\s|\()/i.test(target.version ?? "")) {
-    failures.push(`${target.id}: pass requires an observed browser version`);
+  if (!OBSERVED_BROWSER_VERSION_PATTERN.test(target.version ?? "")) {
+    failures.push(`${target.id}: pass requires a numeric observed browser version`);
   }
   if (expected.platformPattern && !expected.platformPattern.test(target.platform ?? "")) {
     failures.push(`${target.id}: pass requires a matching target platform`);

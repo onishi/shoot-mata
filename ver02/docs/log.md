@@ -1,5 +1,14 @@
 # 開発ログ
 
+## 2026-10-26 — Phase 10ブラウザ・OS実測identityの厳密化
+
+- 目的: browser名だけが一致する仮versionや別OSの証拠で、必須desktop／実モバイル対象を合格にしない。
+- 発見: 合格versionは`n/a`だけを拒否していたため`fixture-version`など数値でない値が通り、Chrome・Edge・Firefox desktopはplatform文字列がAndroidでもtarget IDとenvironmentだけで通過できた。
+- 修正: 全必須ブラウザへ数値から始まる実測versionを要求した。desktop 4対象は数値version付きmacOS、実モバイルは数値version付きiOS／iPadOSまたはAndroidとの対応を必須化し、別OSと仮versionを拒否する回帰検査を追加した。
+- 環境再確認: Computer Useは今回もSafari操作を承認しなかったため、新しい実測証拠へは進めず`not-run`を維持した。
+- 検査: 全222テスト、固定RCの100 files・10,526,479 bytes再現build、静的・受け入れ・証拠・最終検収・release artifact・依存監査に合格し、既知脆弱性は0件だった。
+- 判定: 固定RCの配信ファイル、60/67件合格、7件ブロック、`accepted: false`を維持する。
+
 ## 2026-10-26 — Phase 10ブラウザ・OS identityのfail-closed化
 
 - 目的: 必須ブラウザ・実モバイルのtarget IDへ、別ブラウザ、別OS、未実測versionの証拠を誤って対応付けないようにする。

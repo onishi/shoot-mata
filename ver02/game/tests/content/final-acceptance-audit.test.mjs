@@ -283,7 +283,12 @@ test("Phase 10 gate has a valid transition to accepted after every required cond
     return {
       ...target,
       status: "pass",
-      version: target.version.startsWith("n/a") ? "fixture-version" : target.version,
+      version: target.version.startsWith("n/a") ? "26.6.1" : target.version,
+      platform: target.id === "ios-safari-device"
+        ? "iOS 26.6.1"
+        : target.id === "android-chrome-device"
+          ? "Android 16"
+          : target.platform,
       notes: "fixture pass evidence",
       evidence,
     };
@@ -361,12 +366,14 @@ test("TECH-04: a pass cannot substitute another browser identity or an unobserve
   const compatibility = structuredClone(inputs.compatibility);
   const target = compatibility.targets.find(({ id }) => id === "chrome-desktop");
   target.browser = "Safari";
-  target.version = "n/a (copied evidence)";
+  target.version = "fixture-version";
+  target.platform = "Android 16";
 
   const result = validatePhase10EnvironmentEvidence(compatibility, inputs.releaseCandidate);
   assert.equal(result.valid, false);
   assert.match(result.failures.join("\n"), /chrome-desktop: pass requires browser Google Chrome/);
-  assert.match(result.failures.join("\n"), /chrome-desktop: pass requires an observed browser version/);
+  assert.match(result.failures.join("\n"), /chrome-desktop: pass requires a numeric observed browser version/);
+  assert.match(result.failures.join("\n"), /chrome-desktop: pass requires a matching target platform/);
 });
 
 test("TECH-04: real mobile pass must match its operating-system target", async () => {
