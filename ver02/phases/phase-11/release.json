@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "version": "2.0.0",
+  "buildId": "phase10-rc1-20261024",
+  "releaseCandidate": {
+    "manifestSha256": "3c25733152691eadf21eaa5919a538c29919b5451a6d7045cf8420dde012e7ab",
+    "fileCount": 100,
+    "totalBytes": 10526479
+  },
+  "production": {
+    "siteUrl": "https://onishi.github.io/shoot-mata/",
+    "entrypointUrl": "https://onishi.github.io/shoot-mata/game/public/",
+    "status": "prepared",
+    "commit": null,
+    "workflowRunUrl": null,
+    "deploymentId": null,
+    "publishedAt": null,
+    "artifactAudit": "not-run",
+    "browserSmoke": "not-run"
+  },
+  "releaseNotes": "ver02/phases/phase-11/RELEASE_NOTES.md",
+  "rightsNoticePath": "game/public/THIRD_PARTY_NOTICES.html",
+  "rollback": {
+    "status": "prepared",
+    "release": "1.0.0",
+    "commit": "9abf0248aa5b8e97749a2e2c380d9ad3e3b69b28",
+    "workflowOption": "rollback-v01",
+    "procedure": "ver02/phases/phase-11/ROLLBACK.md"
+  }
+}

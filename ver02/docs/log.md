@@ -1,5 +1,13 @@
 # 開発ログ
 
+## 2026-10-26 — Phase 11公開準備と固定v01復旧経路
+
+- 目的: Phase 10で合格した固定RCを変更せず既存GitHub Pagesへ公開し、公開前に対象と手順を確認できる状態にする。
+- 実装: Phase 11 PLAN、v2.0.0リリースノート、構造化release記録、ロールバック手順を追加した。Pages workflowはpushで起動せず、手動選択と同値confirmationを要求する。v02は`npm run verify`後の`ver02/game/dist`だけを配信し、復旧時は固定commit `9abf0248aa5b8e97749a2e2c380d9ad3e3b69b28`のv1.0.0を再buildする。
+- fail-closed: 本番のraw manifest SHA-256、build ID、file count、total bytesと、manifest記載の全100ファイルのbyte数・SHA-256を照合する`audit:production`を追加した。変更ファイルを拒否し、workflowの手動起動、確認入力、固定rollback ref、artifact pathを回帰テストで検査する。
+- 検査: 全232テスト、固定RCの100 files・10,526,479 bytes再現build、静的・受け入れ・証拠・最終検収・release artifact・依存監査に合格した。固定v01 commitを一時ディレクトリへ展開し、33テスト、playtest、Vite production buildにも合格した。
+- 判定: 公開準備だけを完了した。本番は旧v1.0.0のままで、`release.json`のproductionは`prepared`、artifact／browser smokeは`not-run`を維持する。REL-04〜06は本番証拠がないため未着手のまま、外部公開前に対象URLと復旧手順を明示する。
+
 ## 2026-10-26 — Safari・mobile環境blockerの進行ゲート解除
 
 - 指示: Safariとmobile由来のblockerを無視して次へ進めるよう、ユーザーが明示承認した。

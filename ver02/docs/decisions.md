@@ -1,5 +1,13 @@
 # 意思決定記録
 
+## D-016: v02は手動確認付きGitHub Pages workflowで固定RCだけを配信する
+
+- 日付: 2026-10-26
+- 状態: 公開準備として採用。外部公開は未実行
+- 判断: 製品versionを2.0.0、公開先を既存GitHub Pages、入口を`/shoot-mata/game/public/`とする。workflowはpushで自動起動せず、release名と同値のconfirmationを要求し、Phase 10の`npm run verify`で再現した`ver02/game/dist`だけをPages artifactへ渡す。
+- 理由: 固定RCの配信内容を変えず、旧v1.0.0本番を意図しないpushで置換せず、対象と手順の確認後に公開するため。
+- 影響: 公開後はraw manifestと全100ファイルのSHA-256を本番から照合する。重大問題時は同じworkflowの`rollback-v01`を使い、固定commit `9abf0248aa5b8e97749a2e2c380d9ad3e3b69b28`から直前の正常版を再build・再配信する。resetとforce pushは使わない。
+
 ## D-015: Safari・実モバイル・物理低性能実機をPhase 10の必須ゲートから外す
 
 - 日付: 2026-10-26

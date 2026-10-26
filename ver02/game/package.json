@@ -19,6 +19,7 @@
     "audit:acceptance-evidence": "node scripts/audit-acceptance-evidence.mjs",
     "audit:final-acceptance": "node scripts/audit-final-acceptance.mjs",
     "audit:release": "node scripts/audit-release-artifact.mjs",
+    "audit:production": "node scripts/audit-production-artifact.mjs",
     "build": "node scripts/build-static.mjs",
     "audit:static": "node scripts/audit-static.mjs",
     "audit:deps": "npm audit --omit=dev --audit-level=high",
