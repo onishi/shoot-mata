@@ -20,6 +20,7 @@ export function render(ctx, game) {
   ctx.clip();
 
   if (game.screen === "title") drawTitle(ctx, game);
+  else if (game.screen === "how-to-play") drawHowToPlay(ctx);
   else {
     drawTerrain(ctx, game);
     drawBullets(ctx, game);
@@ -29,6 +30,7 @@ export function render(ctx, game) {
     drawPlayer(ctx, game);
     if (game.screen === "stage-intro") drawNotice(ctx, "STAGE 1", "ORBITAL WRECK");
     if (game.screen === "stage-result") drawResult(ctx, game);
+    if (game.screen === "continue") drawContinue(ctx);
     if (game.paused) drawNotice(ctx, "PAUSE", "PRESS P TO RESUME");
   }
   ctx.restore();
@@ -159,6 +161,7 @@ function drawEnemyBullets(ctx, game) {
 }
 
 function drawPlayer(ctx, game) {
+  if (game.respawnTicks > 0 || game.screen === "continue") return;
   const { x, y, invulnerable } = game.player;
   if (invulnerable > 0 && Math.floor(invulnerable / 5) % 2 === 0) return;
   ctx.save();
@@ -361,22 +364,70 @@ function drawNotice(ctx, title, subtitle) {
 
 function drawResult(ctx, game) {
   ctx.fillStyle = "#020814e8";
-  ctx.fillRect(330, 150, 620, 410);
+  ctx.fillRect(330, 95, 620, 540);
   ctx.strokeStyle = "#65dcf5";
   ctx.lineWidth = 3;
-  ctx.strokeRect(330, 150, 620, 410);
+  ctx.strokeRect(330, 95, 620, 540);
   ctx.textAlign = "center";
   ctx.fillStyle = "#ffcf67";
   ctx.font = "bold 44px Arial";
-  ctx.fillText("STAGE CLEAR", WIDTH / 2, 232);
+  ctx.fillText("STAGE CLEAR", WIDTH / 2, 165);
   ctx.fillStyle = "#bdeeff";
-  ctx.font = "22px monospace";
-  ctx.fillText(`SCORE  ${String(game.score).padStart(8, "0")}`, WIDTH / 2, 322);
-  ctx.fillText(`PULSE  ${game.pulseShots}`, WIDTH / 2, 368);
+  ctx.font = "20px monospace";
+  const rows = [
+    ["DEFEAT", game.scoreBreakdown.defeat], ["CORE", game.scoreBreakdown.pickup],
+    ["CHAIN", game.scoreBreakdown.chain], ["CLEAR", game.scoreBreakdown.clear],
+    ["NO MISS", game.scoreBreakdown.noMiss]
+  ];
+  rows.forEach(([label, value], index) => ctx.fillText(`${label.padEnd(9, " ")} ${String(value).padStart(7, "0")}`, WIDTH / 2, 225 + index * 42));
+  ctx.strokeStyle = "#386577";
+  ctx.beginPath(); ctx.moveTo(440, 440); ctx.lineTo(840, 440); ctx.stroke();
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 25px monospace";
+  ctx.fillText(`TOTAL  ${String(game.score).padStart(8, "0")}`, WIDTH / 2, 480);
   ctx.fillStyle = "#7499aa";
   ctx.font = "18px Arial";
-  ctx.fillText(`${reactorLoadout(game.cores).weapon} / ${game.coresCollected} CORES COLLECTED`, WIDTH / 2, 486);
+  ctx.fillText(`MAX CHAIN ${game.maxKillChain}  /  ${game.coresCollected} CORES`, WIDTH / 2, 525);
+  ctx.fillStyle = "#bdeeff";
+  ctx.font = "bold 18px Arial";
+  ctx.fillText("ENTER  RETURN TO TITLE", WIDTH / 2, 585);
   ctx.textAlign = "start";
+}
+
+function drawHowToPlay(ctx) {
+  ctx.fillStyle = "#020814f2";
+  ctx.fillRect(250, 85, 780, 550);
+  ctx.strokeStyle = "#65dcf5";
+  ctx.lineWidth = 3;
+  ctx.strokeRect(250, 85, 780, 550);
+  ctx.textAlign = "center";
+  ctx.fillStyle = "#ffcf67";
+  ctx.font = "bold 42px Arial";
+  ctx.fillText("HOW TO PLAY", WIDTH / 2, 155);
+  ctx.fillStyle = "#e7fbff";
+  ctx.font = "bold 23px Arial";
+  ctx.fillText("MOVE", 410, 235); ctx.fillText("FIRE", 640, 235); ctx.fillText("PAUSE", 870, 235);
+  ctx.fillStyle = "#8ddff0";
+  ctx.font = "20px monospace";
+  ctx.fillText("ARROWS / WASD", 410, 278); ctx.fillText("Z / SPACE", 640, 278); ctx.fillText("P", 870, 278);
+  ctx.fillStyle = "#ff8a62";
+  ctx.font = "bold 21px Arial";
+  ctx.fillText("TERRAIN CONTACT COSTS ONE LIFE", WIDTH / 2, 355);
+  ctx.fillStyle = "#bdeeff";
+  ctx.font = "19px Arial";
+  ctx.fillText("PULSE ALWAYS FIRES. COLLECT UP TO 3 CORES.", WIDTH / 2, 418);
+  for (const [x, color, label] of [[530, "#e94b4b", "LANCE"], [640, "#3ca8ff", "SPREAD"], [750, "#f1d84c", "SEEKER"]]) {
+    ctx.fillStyle = color; ctx.fillRect(x - 20, 455, 40, 32);
+    ctx.fillStyle = "#dffaff"; ctx.font = "15px Arial"; ctx.fillText(label, x, 515);
+  }
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 20px Arial";
+  ctx.fillText("PRESS ENTER", WIDTH / 2, 585);
+  ctx.textAlign = "start";
+}
+
+function drawContinue(ctx) {
+  drawNotice(ctx, "CONTINUE?", "ENTER: RETRY STAGE   ESC: TITLE");
 }
 
 function drawAsset(ctx, id, x, y, width, height, fallback) {

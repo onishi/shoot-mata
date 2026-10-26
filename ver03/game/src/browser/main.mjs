@@ -1,4 +1,4 @@
-import { automaticInput, beginStage, createGame, snapshot, updateGame } from "../core/game.mjs";
+import { automaticInput, beginCampaign, beginStage, createGame, snapshot, updateGame } from "../core/game.mjs";
 import { createAudioSystem } from "./audio.mjs";
 import { render } from "./renderer.mjs";
 
@@ -25,7 +25,10 @@ addEventListener("keydown", (event) => {
   keys.add(event.code);
   if (event.code === "Enter" && game.screen === "title") {
     void audio.activate(game);
-    beginStage(game);
+    const showHowTo = localStorage.getItem("shoot-mata-v03-how-to-seen") !== "1";
+    if (showHowTo) localStorage.setItem("shoot-mata-v03-how-to-seen", "1");
+    beginCampaign(game, { showHowTo });
+    pressed.delete("Enter");
   }
 });
 addEventListener("keyup", (event) => keys.delete(event.code));
@@ -75,7 +78,9 @@ function keyboardInput() {
     left: keys.has("ArrowLeft") || keys.has("KeyA"),
     right: keys.has("ArrowRight") || keys.has("KeyD"),
     fire: keys.has("KeyZ") || keys.has("Space"),
-    pausePressed: pressed.has("KeyP")
+    pausePressed: pressed.has("KeyP"),
+    confirmPressed: pressed.has("Enter"),
+    cancelPressed: pressed.has("Escape")
   };
 }
 
@@ -86,9 +91,12 @@ function frame(now) {
   const normalSteps = Math.min(5, Math.floor(accumulator / (1000 / 60)));
   if (normalSteps > 0) accumulator -= normalSteps * (1000 / 60);
   const steps = autoplay ? speed : normalSteps;
-  for (let i = 0; i < steps; i += 1) updateGame(game, autoplay ? automaticInput(game) : keyboardInput());
+  const input = autoplay ? null : keyboardInput();
+  for (let i = 0; i < steps; i += 1) {
+    updateGame(game, autoplay ? automaticInput(game) : { ...input, pausePressed: i === 0 && input.pausePressed, confirmPressed: i === 0 && input.confirmPressed, cancelPressed: i === 0 && input.cancelPressed });
+  }
   audio.sync(game);
-  pressed.clear();
+  if (steps > 0) pressed.clear();
   render(ctx, game);
   requestAnimationFrame(frame);
 }

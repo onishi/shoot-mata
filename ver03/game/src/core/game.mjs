@@ -11,6 +11,8 @@ const WEAPON_NAMES = Object.freeze({ red: "LANCE", blue: "SPREAD", yellow: "SEEK
 export function createGame() {
   return {
     screen: "title", tick: 0, scrollX: 0, score: 0, lives: 3, cores: [], pickups: [],
+    scoreBreakdown: { defeat: 0, pickup: 0, chain: 0, clear: 0, noMiss: 0 },
+    killChain: 0, maxKillChain: 0, misses: 0, respawnTicks: 0,
     nextCoreDrop: 0, coresCollected: 0,
     player: { x: 180, y: 360, radius: 5, invulnerable: 0 },
     bullets: [], enemyBullets: [], enemies: [], boss: null, nextWave: 0, nextCrawler: 0, pulseShots: 0,
@@ -25,12 +27,20 @@ export function beginStage(game) {
   Object.assign(game, createGame(), { screen: "stage-intro", introTicks: 90 });
 }
 
+export function beginCampaign(game, { showHowTo = false } = {}) {
+  Object.assign(game, createGame(), { screen: showHowTo ? "how-to-play" : "stage-intro", introTicks: showHowTo ? 0 : 90 });
+}
+
+export function returnToTitle(game) {
+  Object.assign(game, createGame());
+}
+
 export function collectCore(game, color) {
   if (!WEAPON_NAMES[color]) throw new TypeError(`Unknown core color: ${color}`);
   if (game.cores.length === 3) game.cores.shift();
   game.cores.push(color);
   game.coresCollected += 1;
-  game.score += 75;
+  addScore(game, "pickup", 75);
 }
 
 export function reactorLoadout(cores) {
@@ -47,6 +57,22 @@ export function reactorLoadout(cores) {
 }
 
 export function updateGame(game, input = {}) {
+  if (game.screen === "how-to-play") {
+    if (input.confirmPressed) {
+      game.screen = "stage-intro";
+      game.introTicks = 90;
+    }
+    return game;
+  }
+  if (game.screen === "continue") {
+    if (input.confirmPressed) beginStage(game);
+    else if (input.cancelPressed) returnToTitle(game);
+    return game;
+  }
+  if (game.screen === "stage-result") {
+    if (input.confirmPressed || input.cancelPressed) returnToTitle(game);
+    return game;
+  }
   if (input.pausePressed && game.screen === "playing") game.paused = !game.paused;
   if (game.paused) return game;
   if (game.screen === "stage-intro") {
@@ -72,6 +98,11 @@ export function updateGame(game, input = {}) {
 }
 
 function updatePlayer(game, input) {
+  if (game.respawnTicks > 0) {
+    game.respawnTicks -= 1;
+    if (game.respawnTicks === 0) game.player.invulnerable = 120;
+    return;
+  }
   const dx = (input.right ? 1 : 0) - (input.left ? 1 : 0);
   const dy = (input.down ? 1 : 0) - (input.up ? 1 : 0);
   const scale = dx && dy ? Math.SQRT1_2 : 1;
@@ -103,11 +134,12 @@ function updatePickups(game) {
 }
 
 function updateShots(game, input) {
-  if (input.fire && game.tick % SHOT_INTERVAL === 0) {
+  const canFire = input.fire && game.respawnTicks === 0;
+  if (canFire && game.tick % SHOT_INTERVAL === 0) {
     addBullet(game, { kind: "pulse", x: game.player.x + 28, y: game.player.y - 2, width: 18, height: 4, vx: 13, vy: 0, damage: 2, pierce: 0 });
     game.pulseShots += 1;
   }
-  if (input.fire) fireReactorWeapon(game, reactorLoadout(game.cores));
+  if (canFire) fireReactorWeapon(game, reactorLoadout(game.cores));
   moveShots(game);
   hitTerrain(game);
   hitTargets(game);
@@ -125,7 +157,7 @@ function hitTerrain(game) {
     game.terrainDamage[item.id] = (game.terrainDamage[item.id] ?? 0) + bullet.damage;
     if (game.terrainDamage[item.id] >= item.hp && !game.destroyedTerrain.includes(item.id)) {
       game.destroyedTerrain.push(item.id);
-      game.score += 250;
+      addScore(game, "defeat", 250);
     }
   }
 }
@@ -205,9 +237,14 @@ function damageTarget(game, bullet, target, score) {
   else bullet.dead = true;
   if (target.hp > 0) return;
   target.dead = true;
-  game.score += score;
+  addScore(game, "defeat", score);
+  game.killChain += 1;
+  game.maxKillChain = Math.max(game.maxKillChain, game.killChain);
+  if (game.killChain >= 3) addScore(game, "chain", game.killChain * 25);
   if (target !== game.boss) game.defeatedEnemies += 1;
   if (target === game.boss) {
+    addScore(game, "clear", 2000);
+    if (game.misses === 0) addScore(game, "noMiss", 2000);
     game.defeatedBoss = true;
     game.screen = "stage-result";
   }
@@ -253,7 +290,7 @@ function updateEnemies(game) {
     if (enemy.pattern === "weave") enemy.y += Math.sin(game.tick / 28 + enemy.phase) * 1.8;
     const dx = game.player.x - (enemy.x + enemy.width / 2);
     const dy = game.player.y - (enemy.y + enemy.height / 2);
-    if (!enemy.dead && game.player.invulnerable === 0 && dx * dx + dy * dy < 25 * 25) takeCombatHit(game);
+    if (!enemy.dead && game.respawnTicks === 0 && game.player.invulnerable === 0 && dx * dx + dy * dy < 25 * 25) takeCombatHit(game);
   }
   game.enemies = game.enemies.filter((enemy) => !enemy.dead && enemy.x > -80);
 }
@@ -282,7 +319,7 @@ function updateEnemyBullets(game) {
     const dx = game.player.x - bullet.x;
     const dy = game.player.y - bullet.y;
     const triggerRadius = bullet.kind === "mine" && bullet.age >= 40 ? 52 : game.player.radius + bullet.radius;
-    if (!bullet.dead && game.player.invulnerable === 0 && dx * dx + dy * dy < triggerRadius * triggerRadius) {
+    if (!bullet.dead && game.respawnTicks === 0 && game.player.invulnerable === 0 && dx * dx + dy * dy < triggerRadius * triggerRadius) {
       bullet.dead = true;
       game.combatHits += 1;
       takeCombatHit(game);
@@ -308,7 +345,7 @@ function updateBoss(game) {
   const cycle = boss.age % BOSS_CYCLE_TICKS;
   boss.attackWarning = cycle < BOSS_WARNING_TICKS;
   if (cycle >= BOSS_WARNING_TICKS && cycle < 228 && (cycle - BOSS_WARNING_TICKS) % 39 === 0) fireBossFan(game, boss);
-  if (game.player.invulnerable === 0 && overlapsCircleRect(game.player, boss)) loseLife(game);
+  if (game.respawnTicks === 0 && game.player.invulnerable === 0 && overlapsCircleRect(game.player, boss)) loseLife(game);
 }
 
 function fireBossFan(game, boss) {
@@ -344,7 +381,7 @@ export function bossShieldRects(boss) {
 }
 
 function checkTerrain(game) {
-  if (game.player.invulnerable > 0) return;
+  if (game.respawnTicks > 0 || game.player.invulnerable > 0) return;
   for (const item of visibleTerrain(game.scrollX, game.destroyedTerrain)) {
     if (overlapsCircleRect(game.player, { x: item.screenX, y: item.y, width: item.width, height: item.height })) {
       game.terrainHits += 1;
@@ -366,11 +403,26 @@ function takeCombatHit(game) {
 
 function loseLife(game) {
   game.lives -= 1;
+  game.misses += 1;
+  game.killChain = 0;
   game.cores.length = 0;
+  if (game.lives < 1) {
+    game.lives = 0;
+    game.screen = "continue";
+    game.paused = false;
+    game.bullets.length = 0;
+    game.enemyBullets.length = 0;
+    return;
+  }
   game.player.x = 180;
   game.player.y = findSafeY(game);
-  game.player.invulnerable = 120;
-  if (game.lives < 1) game.lives = 3;
+  game.player.invulnerable = 0;
+  game.respawnTicks = 120;
+}
+
+function addScore(game, category, points) {
+  game.score += points;
+  game.scoreBreakdown[category] += points;
 }
 
 function findSafeY(game) {
@@ -404,6 +456,8 @@ export function snapshot(game) {
   const loadout = reactorLoadout(game.cores);
   return {
     screen: game.screen, tick: game.tick, lives: game.lives, score: game.score,
+    scoreBreakdown: { ...game.scoreBreakdown }, killChain: game.killChain,
+    maxKillChain: game.maxKillChain, misses: game.misses, respawnTicks: game.respawnTicks,
     cores: [...game.cores], coresCollected: game.coresCollected, weapon: loadout.weapon,
     weaponLevel: loadout.level, pulseShots: game.pulseShots, weaponShots: { ...game.weaponShots },
     enemyShots: game.enemyShots, bossShots: game.bossShots, combatHits: game.combatHits,

@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { automaticInput, beginStage, bossShieldRects, bossWeakpoint, collectCore, createGame, reactorLoadout, updateGame } from "../../src/core/game.mjs";
+import { automaticInput, beginCampaign, beginStage, bossShieldRects, bossWeakpoint, collectCore, createGame, reactorLoadout, updateGame } from "../../src/core/game.mjs";
 
 test("PULSE always fires when the reactor is empty", () => {
   const game = createGame();
@@ -25,6 +25,36 @@ test("automatic input completes Stage 1 and defeats the boss", () => {
   assert.ok(game.weaponShots.seeker > 0);
   assert.ok(game.enemyShots > 0);
   assert.ok(game.destroyedTerrain.includes("breakable-wreck"));
+  assert.equal(game.score, Object.values(game.scoreBreakdown).reduce((sum, value) => sum + value, 0));
+  assert.equal(game.scoreBreakdown.clear, 2000);
+  assert.equal(game.scoreBreakdown.noMiss, game.misses === 0 ? 2000 : 0);
+});
+
+test("first-run instructions lead into the stage and result returns to title", () => {
+  const game = createGame();
+  beginCampaign(game, { showHowTo: true });
+  assert.equal(game.screen, "how-to-play");
+  updateGame(game, { confirmPressed: true });
+  assert.equal(game.screen, "stage-intro");
+  game.screen = "stage-result";
+  updateGame(game, { confirmPressed: true });
+  assert.equal(game.screen, "title");
+});
+
+test("losing the last life opens continue and retry resets the stage and score", () => {
+  const game = createGame();
+  game.screen = "playing";
+  game.lives = 1;
+  game.score = 999;
+  game.scoreBreakdown.defeat = 999;
+  game.enemyBullets.push({ kind: "enemy-shot", x: game.player.x, y: game.player.y, radius: 6, vx: 0, vy: 0, age: 0 });
+  updateGame(game, {});
+  assert.equal(game.screen, "continue");
+  assert.equal(game.lives, 0);
+  updateGame(game, { confirmPressed: true });
+  assert.equal(game.screen, "stage-intro");
+  assert.equal(game.lives, 3);
+  assert.equal(game.score, 0);
 });
 
 test("Hull Crawler stays attached to a ceiling beam and drops proximity mines", () => {

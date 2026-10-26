@@ -43,6 +43,9 @@ try {
   assert.equal((await page.evaluate(() => window.__shootMata.state().audio.settings.bgmVolume)).toFixed(2), "0.70");
   await page.keyboard.press("Escape");
   await page.keyboard.press("Enter");
+  await page.waitForFunction(() => window.__shootMata.state().screen === "how-to-play");
+  await page.screenshot({ path: path.join(root, "artifacts", "how-to-play.png"), fullPage: true });
+  await page.keyboard.press("Enter");
   await page.waitForFunction(() => window.__shootMata.state().screen === "playing");
   const initial = await page.evaluate(() => window.__shootMata.advance(60));
   assert.ok(initial.pulseShots > 0, "PULSE must fire with zero cores");
@@ -75,6 +78,8 @@ try {
   assert.equal(final.audio.explosionLimit, 6);
   assert.equal(final.audio.limiterDb, -1);
   assert.ok(final.destroyedTerrain.includes("breakable-wreck"));
+  assert.equal(final.score, Object.values(final.scoreBreakdown).reduce((sum, value) => sum + value, 0));
+  assert.equal(final.scoreBreakdown.clear, 2000);
   assert.equal(final.hudTop, 720);
   assert.equal(await page.evaluate(() => performance.getEntriesByType("resource").filter(({ name }) => name.includes("/assets/") && name.endsWith(".webp")).length), 12);
   assert.deepEqual(failedAssets, []);
