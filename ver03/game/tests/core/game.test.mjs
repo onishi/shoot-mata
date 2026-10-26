@@ -43,6 +43,28 @@ test("first-run instructions lead into Stage 1 and its result advances to Stage 
   game.screen = "stage-result";
   updateGame(game, { confirmPressed: true });
   assert.equal(game.stageId, "stage-03");
+  game.screen = "stage-result";
+  updateGame(game, { confirmPressed: true });
+  assert.equal(game.stageId, "stage-04");
+});
+
+test("automatic input completes Stage 4 through heat waves and all controller phases", () => {
+  const game = createGame();
+  beginStage(game, "stage-04");
+  const seen = new Set();
+  for (let tick = 0; tick < 24_000 && game.screen !== "stage-result"; tick += 1) {
+    updateGame(game, automaticInput(game));
+    for (const enemy of game.enemies) seen.add(enemy.type);
+  }
+  assert.equal(game.screen, "stage-result");
+  assert.equal(game.defeatedBoss, true);
+  assert.deepEqual(seen, new Set(["heat-armor", "solar-rammer", "omni-turret", "furnace-mole"]));
+  assert.deepEqual(game.furnacePhasesSeen, [0, 1, 2]);
+  assert.ok(game.heatWaveWarnings > 0);
+  assert.ok(game.bossShots > 0);
+  assert.ok(game.bossShieldBlocks > 0);
+  assert.ok(game.bossWeakpointHits > 0);
+  assert.equal(game.terrainHits, 0);
 });
 
 test("automatic input completes Stage 3 after opening cysts and both Ark Core organs", () => {

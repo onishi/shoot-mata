@@ -1,6 +1,6 @@
 import { visibleTerrainFor } from "../content/stages.mjs";
-import { BACKGROUND_LAYERS, IMAGE_ASSETS, STAGE_02_BACKGROUND_LAYERS, STAGE_03_BACKGROUND_LAYERS } from "../content/assets.mjs";
-import { arkCoreWeakpoint, bossShieldRects, bossWeakpoint, reactorLoadout } from "../core/game.mjs";
+import { BACKGROUND_LAYERS, IMAGE_ASSETS, STAGE_02_BACKGROUND_LAYERS, STAGE_03_BACKGROUND_LAYERS, STAGE_04_BACKGROUND_LAYERS } from "../content/assets.mjs";
+import { arkCoreWeakpoint, bossShieldRects, bossWeakpoint, furnaceControllerWeakpoint, reactorLoadout } from "../core/game.mjs";
 
 const WIDTH = 1280;
 const FIELD_HEIGHT = 720;
@@ -29,7 +29,7 @@ export function render(ctx, game) {
     drawEnemies(ctx, game);
     drawPlayer(ctx, game);
     if (game.screen === "stage-intro") {
-      const intro = game.stageId === "stage-03" ? ["STAGE 3", "LIVING ARK"] : game.stageId === "stage-02" ? ["STAGE 2", "CLOUD REFINERY"] : ["STAGE 1", "ORBITAL WRECK"];
+      const intro = game.stageId === "stage-04" ? ["STAGE 4", "STELLAR FURNACE"] : game.stageId === "stage-03" ? ["STAGE 3", "LIVING ARK"] : game.stageId === "stage-02" ? ["STAGE 2", "CLOUD REFINERY"] : ["STAGE 1", "ORBITAL WRECK"];
       drawNotice(ctx, ...intro);
     }
     if (game.screen === "stage-result") drawResult(ctx, game);
@@ -44,14 +44,15 @@ export function render(ctx, game) {
 function drawBackground(ctx, game) {
   const stageTwo = game.stageId === "stage-02";
   const stageThree = game.stageId === "stage-03";
+  const stageFour = game.stageId === "stage-04";
   const gradient = ctx.createLinearGradient(0, 0, 0, FIELD_HEIGHT);
-  gradient.addColorStop(0, stageThree ? "#251022" : stageTwo ? "#112735" : "#071122");
-  gradient.addColorStop(0.55, stageThree ? "#4a1b39" : stageTwo ? "#284956" : "#10213a");
-  gradient.addColorStop(1, stageThree ? "#120917" : stageTwo ? "#0b1d2a" : "#07101d");
+  gradient.addColorStop(0, stageFour ? "#38100a" : stageThree ? "#251022" : stageTwo ? "#112735" : "#071122");
+  gradient.addColorStop(0.55, stageFour ? "#6b2410" : stageThree ? "#4a1b39" : stageTwo ? "#284956" : "#10213a");
+  gradient.addColorStop(1, stageFour ? "#160806" : stageThree ? "#120917" : stageTwo ? "#0b1d2a" : "#07101d");
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, WIDTH, FIELD_HEIGHT);
 
-  const layers = stageThree ? STAGE_03_BACKGROUND_LAYERS : stageTwo ? STAGE_02_BACKGROUND_LAYERS : BACKGROUND_LAYERS;
+  const layers = stageFour ? STAGE_04_BACKGROUND_LAYERS : stageThree ? STAGE_03_BACKGROUND_LAYERS : stageTwo ? STAGE_02_BACKGROUND_LAYERS : BACKGROUND_LAYERS;
   for (const layer of layers) drawCrossfadedLayer(ctx, images.get(layer.asset), game.scrollX, layer);
 
   ctx.fillStyle = "rgba(3, 12, 24, 0.16)";
@@ -86,15 +87,16 @@ function drawTerrain(ctx, game) {
     const x = item.screenX;
     const refinery = game.stageId === "stage-02";
     const living = game.stageId === "stage-03";
+    const stellar = game.stageId === "stage-04";
     ctx.save();
     ctx.beginPath();
     ctx.rect(x, item.y, item.width, item.height);
     ctx.clip();
     const gradient = ctx.createLinearGradient(x, item.y, x, item.y + item.height);
-    gradient.addColorStop(0, living ? "#d7a8a0" : item.kind === "destructible-wreck" ? "#a95c35" : refinery ? "#d2c49f" : "#617983");
-    gradient.addColorStop(0.1, living ? "#743653" : refinery ? "#52696c" : "#263947");
-    gradient.addColorStop(0.55, living ? "#3b152c" : refinery ? "#1d363c" : "#111f2a");
-    gradient.addColorStop(1, living ? "#180b18" : refinery ? "#0b2028" : "#07111a");
+    gradient.addColorStop(0, stellar ? "#ffc066" : living ? "#d7a8a0" : item.kind === "destructible-wreck" ? "#a95c35" : refinery ? "#d2c49f" : "#617983");
+    gradient.addColorStop(0.1, stellar ? "#6f3322" : living ? "#743653" : refinery ? "#52696c" : "#263947");
+    gradient.addColorStop(0.55, stellar ? "#291719" : living ? "#3b152c" : refinery ? "#1d363c" : "#111f2a");
+    gradient.addColorStop(1, stellar ? "#10090b" : living ? "#180b18" : refinery ? "#0b2028" : "#07111a");
     ctx.fillStyle = gradient;
     ctx.fillRect(x, item.y, item.width, item.height);
 
@@ -134,7 +136,7 @@ function drawTerrain(ctx, game) {
     }
     ctx.restore();
 
-    ctx.strokeStyle = item.warning ? "#ffcf52" : item.kind === "destructible-cyst" ? "#ff89c8" : living ? "#e779b5" : item.kind === "charged-wall" ? "#72f4ff" : item.kind === "destructible-wreck" ? "#ffb35f" : refinery ? "#ffc16a" : "#9eeeff";
+    ctx.strokeStyle = item.warning ? "#fff071" : item.kind === "heat-wave" ? "#ff472f" : item.kind === "destructible-shield" ? "#ffb95f" : stellar ? "#ff7147" : item.kind === "destructible-cyst" ? "#ff89c8" : living ? "#e779b5" : item.kind === "charged-wall" ? "#72f4ff" : item.kind === "destructible-wreck" ? "#ffb35f" : refinery ? "#ffc16a" : "#9eeeff";
     ctx.shadowColor = ctx.strokeStyle;
     ctx.shadowBlur = item.warning ? 22 : 10;
     ctx.lineWidth = 4;
@@ -235,6 +237,10 @@ function drawEnemies(ctx, game) {
     drawArkCore(ctx, boss);
     return;
   }
+  if (boss.type === "furnace-controller") {
+    drawFurnaceController(ctx, boss);
+    return;
+  }
   if (boss.type === "refinery-guardian") {
     drawRefineryGuardian(ctx, boss);
     return;
@@ -264,6 +270,37 @@ function drawEnemies(ctx, game) {
     ctx.strokeStyle = `rgba(255, 62, 77, ${0.35 + Math.sin(boss.age / 5) * 0.2})`;
     ctx.lineWidth = 4;
     ctx.beginPath(); ctx.moveTo(0, weakpoint.y); ctx.lineTo(weakpoint.x - 34, weakpoint.y); ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function drawFurnaceController(ctx, boss) {
+  ctx.save();
+  ctx.shadowColor = boss.attackWarning ? "#fff071" : "#ff4d28";
+  ctx.shadowBlur = boss.attackWarning ? 30 : 18;
+  drawAsset(ctx, "furnace-controller", boss.x, boss.y, boss.width, boss.height, () => {
+    ctx.fillStyle = "#6d281b"; ctx.fillRect(boss.x, boss.y, boss.width, boss.height);
+  });
+  const weakpoint = furnaceControllerWeakpoint(boss);
+  ctx.fillStyle = boss.phase === 2 ? "#fff09a" : "#ff6b31";
+  ctx.strokeStyle = "#ffd05d"; ctx.lineWidth = 4;
+  const coreX = weakpoint.x + weakpoint.width / 2;
+  const coreY = weakpoint.y + weakpoint.height / 2;
+  ctx.beginPath();
+  ctx.ellipse(coreX, coreY, weakpoint.width * 0.32, weakpoint.height * 0.36, 0, 0, Math.PI * 2);
+  ctx.fill(); ctx.stroke();
+  if (boss.shieldClosed) {
+    ctx.fillStyle = "rgba(45, 30, 31, 0.9)"; ctx.strokeStyle = "#ff8a45"; ctx.lineWidth = 5;
+    ctx.beginPath();
+    ctx.moveTo(coreX - 8, coreY); ctx.lineTo(weakpoint.x - 10, weakpoint.y - 3); ctx.lineTo(weakpoint.x + weakpoint.width + 10, weakpoint.y - 3); ctx.closePath();
+    ctx.fill(); ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(coreX - 8, coreY); ctx.lineTo(weakpoint.x - 10, weakpoint.y + weakpoint.height + 3); ctx.lineTo(weakpoint.x + weakpoint.width + 10, weakpoint.y + weakpoint.height + 3); ctx.closePath();
+    ctx.fill(); ctx.stroke();
+  }
+  if (boss.attackWarning) {
+    ctx.strokeStyle = `rgba(255, 230, 92, ${0.45 + Math.sin(boss.age / 5) * 0.22})`;
+    ctx.beginPath(); ctx.moveTo(0, weakpoint.y + weakpoint.height / 2); ctx.lineTo(weakpoint.x, weakpoint.y + weakpoint.height / 2); ctx.stroke();
   }
   ctx.restore();
 }
@@ -357,7 +394,7 @@ function drawHud(ctx, game) {
   if (game.boss && !game.boss.dead) {
     ctx.fillStyle = "#bcefff";
     ctx.font = "bold 16px Arial";
-    ctx.fillText(game.boss.type === "ark-core" ? "ARK CORE" : game.boss.type === "refinery-guardian" ? "REFINERY GUARDIAN" : "WRECK WARDEN", 880, 744);
+    ctx.fillText(game.boss.type === "furnace-controller" ? "FURNACE CONTROLLER" : game.boss.type === "ark-core" ? "ARK CORE" : game.boss.type === "refinery-guardian" ? "REFINERY GUARDIAN" : "WRECK WARDEN", 880, 744);
     ctx.fillStyle = "#162b35";
     ctx.fillRect(880, 762, 360, 18);
     ctx.fillStyle = "#ff724e";
@@ -459,7 +496,7 @@ function drawResult(ctx, game) {
   ctx.fillText(`RUN ${String(game.score).padStart(8, "0")}  /  MAX CHAIN ${game.maxKillChain}  /  ${game.coresCollected} CORES`, WIDTH / 2, 525);
   ctx.fillStyle = "#bdeeff";
   ctx.font = "bold 18px Arial";
-  const nextLabel = game.stageId === "stage-01" ? "ENTER  NEXT STAGE   ESC  TITLE" : "ENTER  RETURN TO TITLE";
+  const nextLabel = game.stageId === "stage-04" ? "ENTER  RETURN TO TITLE" : "ENTER  NEXT STAGE   ESC  TITLE";
   ctx.fillText(nextLabel, WIDTH / 2, 585);
   ctx.textAlign = "start";
 }
