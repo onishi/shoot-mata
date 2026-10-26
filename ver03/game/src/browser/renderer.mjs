@@ -1,5 +1,5 @@
 import { visibleTerrain } from "../content/stage-01.mjs";
-import { IMAGE_ASSETS } from "../content/assets.mjs";
+import { BACKGROUND_LAYERS, IMAGE_ASSETS } from "../content/assets.mjs";
 import { bossShieldRects, bossWeakpoint, reactorLoadout } from "../core/game.mjs";
 
 const WIDTH = 1280;
@@ -44,52 +44,92 @@ function drawBackground(ctx, scrollX) {
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, WIDTH, FIELD_HEIGHT);
 
-  ctx.fillStyle = "#b8e9ff";
-  for (let i = 0; i < 70; i += 1) {
-    const x = ((i * 193 - scrollX * 0.08) % 1400 + 1400) % 1400 - 60;
-    const y = 36 + ((i * 89) % 620);
-    ctx.globalAlpha = 0.25 + (i % 4) * 0.12;
-    ctx.fillRect(x, y, i % 5 === 0 ? 3 : 2, i % 5 === 0 ? 3 : 2);
-  }
-  ctx.globalAlpha = 1;
+  for (const layer of BACKGROUND_LAYERS) drawCrossfadedLayer(ctx, images.get(layer.asset), scrollX, layer);
 
-  for (let i = 0; i < 9; i += 1) {
-    const x = ((i * 310 - scrollX * 0.23) % 1700 + 1700) % 1700 - 240;
-    const y = 100 + (i * 137) % 480;
-    ctx.save();
-    ctx.translate(x, y);
-    ctx.rotate(i * 0.37);
-    ctx.strokeStyle = "#2d5067";
-    ctx.lineWidth = 13;
-    ctx.strokeRect(-90, -28, 180, 56);
-    ctx.strokeStyle = "#142b3e";
-    ctx.lineWidth = 5;
-    ctx.strokeRect(-68, -12, 136, 24);
-    ctx.restore();
+  ctx.fillStyle = "rgba(3, 12, 24, 0.16)";
+  ctx.fillRect(0, 0, WIDTH, FIELD_HEIGHT);
+}
+
+function drawCrossfadedLayer(ctx, image, scrollX, { speed, overlap, opacity }) {
+  if (!image?.complete || image.naturalWidth < 1) return;
+  const tileWidth = WIDTH;
+  const stride = tileWidth - overlap;
+  const offset = ((scrollX * speed) % stride + stride) % stride;
+  const firstX = -offset - stride;
+  const stripWidth = 20;
+
+  ctx.save();
+  ctx.globalAlpha = opacity;
+  ctx.drawImage(image, firstX, 0, tileWidth, FIELD_HEIGHT);
+  for (let x = firstX + stride; x < WIDTH; x += stride) {
+    ctx.drawImage(image, overlap, 0, tileWidth - overlap, image.naturalHeight, x + overlap, 0, tileWidth - overlap, FIELD_HEIGHT);
+    for (let sourceX = 0; sourceX < overlap; sourceX += stripWidth) {
+      const width = Math.min(stripWidth, overlap - sourceX);
+      ctx.globalAlpha = opacity * Math.min(1, (sourceX + width) / overlap);
+      ctx.drawImage(image, sourceX, 0, width, image.naturalHeight, x + sourceX, 0, width, FIELD_HEIGHT);
+    }
+    ctx.globalAlpha = opacity;
   }
+  ctx.restore();
 }
 
 function drawTerrain(ctx, game) {
   for (const item of visibleTerrain(game.scrollX, game.destroyedTerrain)) {
     const x = item.screenX;
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(x, item.y, item.width, item.height);
+    ctx.clip();
     const gradient = ctx.createLinearGradient(x, item.y, x, item.y + item.height);
-    gradient.addColorStop(0, item.kind === "destructible-wreck" ? "#b06a45" : "#6f8d97");
-    gradient.addColorStop(0.08, "#223d4b");
-    gradient.addColorStop(0.7, "#122635");
-    gradient.addColorStop(1, "#091722");
+    gradient.addColorStop(0, item.kind === "destructible-wreck" ? "#a95c35" : "#617983");
+    gradient.addColorStop(0.1, "#263947");
+    gradient.addColorStop(0.55, "#111f2a");
+    gradient.addColorStop(1, "#07111a");
     ctx.fillStyle = gradient;
     ctx.fillRect(x, item.y, item.width, item.height);
-    ctx.strokeStyle = item.kind === "destructible-wreck" ? "#ffb35f" : "#9eeeff";
-    ctx.lineWidth = 4;
-    ctx.strokeRect(x + 2, item.y + 2, item.width - 4, item.height - 4);
-    ctx.strokeStyle = "#3e7888";
-    ctx.lineWidth = 2;
-    for (let rib = 26; rib < item.width; rib += 54) {
+
+    ctx.fillStyle = "rgba(118, 155, 169, 0.16)";
+    for (let panelX = 12; panelX < item.width; panelX += 82) {
+      ctx.fillRect(x + panelX, item.y + 14, 58, Math.max(18, item.height - 28));
+      ctx.strokeStyle = "rgba(158, 216, 228, 0.23)";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(x + panelX, item.y + 14, 58, Math.max(18, item.height - 28));
+      ctx.fillStyle = panelX % 164 === 12 ? "#ff9c42" : "#5bb3c5";
+      ctx.shadowColor = ctx.fillStyle;
+      ctx.shadowBlur = 8;
+      ctx.fillRect(x + panelX + 8, item.y + 23, 5, 5);
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = "rgba(118, 155, 169, 0.16)";
+    }
+
+    ctx.strokeStyle = item.kind === "destructible-wreck" ? "#b86238" : "#315a69";
+    ctx.lineWidth = 5;
+    for (let rib = 18; rib < item.width; rib += 64) {
       ctx.beginPath();
-      ctx.moveTo(x + rib - 16, item.y);
-      ctx.lineTo(x + rib + 16, item.y + item.height);
+      ctx.moveTo(x + rib - 20, item.y);
+      ctx.lineTo(x + rib + 20, item.y + item.height);
       ctx.stroke();
     }
+
+    if (item.kind === "destructible-wreck") {
+      ctx.strokeStyle = "#ff8b42";
+      ctx.lineWidth = 3;
+      for (let crack = 20; crack < item.height; crack += 38) {
+        ctx.beginPath();
+        ctx.moveTo(x + (crack * 3) % item.width, item.y + crack - 18);
+        ctx.lineTo(x + (crack * 3 + 24) % item.width, item.y + crack);
+        ctx.lineTo(x + (crack * 3 + 7) % item.width, item.y + crack + 19);
+        ctx.stroke();
+      }
+    }
+    ctx.restore();
+
+    ctx.strokeStyle = item.kind === "destructible-wreck" ? "#ffb35f" : "#9eeeff";
+    ctx.shadowColor = ctx.strokeStyle;
+    ctx.shadowBlur = 10;
+    ctx.lineWidth = 4;
+    ctx.strokeRect(x + 2, item.y + 2, item.width - 4, item.height - 4);
+    ctx.shadowBlur = 0;
   }
 }
 

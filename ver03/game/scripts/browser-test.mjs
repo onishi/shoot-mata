@@ -59,7 +59,7 @@ try {
   assert.ok(final.bossWeakpointHits > 0);
   assert.ok(final.destroyedTerrain.includes("breakable-wreck"));
   assert.equal(final.hudTop, 720);
-  assert.equal(await page.evaluate(() => performance.getEntriesByType("resource").filter(({ name }) => name.includes("/assets/") && name.endsWith(".webp")).length), 9);
+  assert.equal(await page.evaluate(() => performance.getEntriesByType("resource").filter(({ name }) => name.includes("/assets/") && name.endsWith(".webp")).length), 12);
   assert.deepEqual(failedAssets, []);
   assert.deepEqual(errors, []);
   await page.screenshot({ path: path.join(root, "artifacts", "stage-result.png"), fullPage: true });
