@@ -16,6 +16,24 @@ test("Phase 12 operations registry covers the published release and required dom
   assert.equal(result.successfulRunCount, 1);
   assert.equal(result.rightsReviewCount, 1);
   assert.equal(result.improvementTriageCount, 1);
+  assert.equal(result.phaseReviewStatus, "completed");
+});
+
+test("Phase 12 operations registry rejects an unsupported completion review", async (t) => {
+  const directory = await mkdtemp(join(tmpdir(), "shoot-mata-phase-review-"));
+  t.after(() => rm(directory, { recursive: true, force: true }));
+  const sourcePath = resolve(process.cwd(), "../phases/phase-12/operations.json");
+  const fixturePath = join(directory, "operations.json");
+  const operations = JSON.parse(await readFile(sourcePath, "utf8"));
+  operations.phaseReview.status = "in-progress";
+  operations.phaseReview.successfulMonitoringRuns = 0;
+  operations.phaseReview.residualRiskIds = operations.phaseReview.residualRiskIds.slice(1);
+  await writeFile(fixturePath, JSON.stringify(operations));
+
+  const result = await auditOperations({ operationsPath: fixturePath });
+  assert.match(result.failures.join("\n"), /review status must be completed/);
+  assert.match(result.failures.join("\n"), /monitoring run count differs/);
+  assert.match(result.failures.join("\n"), /residual risks differ from registry/);
 });
 
 test("Phase 12 operations registry rejects incomplete rights review evidence", async (t) => {

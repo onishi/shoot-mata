@@ -1,5 +1,11 @@
 # 開発ログ
 
+## 2026-10-26 — Phase 12の運用reviewを完了
+
+- 判定: 既定branchのproduction監視run #1、固定RCの全100ファイル一致、依存脆弱性0件、初回権利確認、改善要望triageを`phase-12/REVIEW.md`へ集約し、Phase 12の完了条件を満たした。
+- fail-closed化: `operations.json`にphase reviewの日付、証拠件数、7残存リスクの完全なID集合を追加した。`audit:operations`は未完了状態、証拠件数の不一致、リスクの欠落、review本文の必須節欠落を拒否する。
+- 継続運用: 5 work itemはactive / monitoring / openを維持する。Safari、実モバイル、物理低性能実機、主観品質、生成物権利、将来互換性は解決済みとせず、日次監視、2026-11-26のtriage、2027-01-26の権利確認へ引き継ぐ。
+
 ## 2026-10-26 — Phase 12の初回権利確認と改善要望triageを記録
 
 - 権利確認: OpenAI Terms of Useは公開・発効2026-01-01、Service Termsは更新2026-10-16でPhase 10記録と一致した。Output所有、非一意性、利用者の適法利用責任、人物の外見に関する制約と台帳を照合し、重要な差異なしと判定した。

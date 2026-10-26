@@ -195,9 +195,11 @@ export async function auditOperations({
 
   const workflowPath = resolve(ROOT_DIR, operations.workflow?.path ?? "");
   const runbookPath = resolve(ROOT_DIR, operations.runbook ?? "");
-  const [workflow, runbook] = await Promise.all([
+  const reviewPath = resolve(ROOT_DIR, operations.phaseReview?.path ?? "");
+  const [workflow, runbook, phaseReview] = await Promise.all([
     readFile(workflowPath, "utf8").catch(() => ""),
     readFile(runbookPath, "utf8").catch(() => ""),
+    readFile(reviewPath, "utf8").catch(() => ""),
   ]);
   assert(operations.workflow?.scheduled === true, "production monitoring must be scheduled", failures);
   assert(operations.workflow?.manual === true, "production monitoring must support manual dispatch", failures);
@@ -211,6 +213,20 @@ export async function auditOperations({
     assert(runbook.includes(section), `operations runbook omits ${section}`, failures);
   }
 
+  const review = operations.phaseReview ?? {};
+  assert(review.status === "completed", "Phase 12 review status must be completed", failures);
+  assert(isIsoDate(review.reviewedOn), "Phase 12 review date is invalid", failures);
+  assert(review.reviewedOn === operations.recordedOn, "Phase 12 review date differs from operations record", failures);
+  assert(review.successfulMonitoringRuns === successfulRunCount, "Phase 12 review monitoring run count differs", failures);
+  assert(review.rightsReviews === rightsReviews.length, "Phase 12 review rights review count differs", failures);
+  assert(review.improvementTriages === improvementTriages.length, "Phase 12 review improvement triage count differs", failures);
+  const reviewedRiskIds = Array.isArray(review.residualRiskIds) ? review.residualRiskIds : [];
+  assert(duplicates(reviewedRiskIds).length === 0, "Phase 12 review contains duplicate residual risk IDs", failures);
+  assert(JSON.stringify([...reviewedRiskIds].sort()) === JSON.stringify([...riskIds].sort()), "Phase 12 review residual risks differ from registry", failures);
+  for (const section of ["## 判定", "## 運用証拠", "## 継続する残存リスク", "## 次回アクション"]) {
+    assert(phaseReview.includes(section), `Phase 12 review omits ${section}`, failures);
+  }
+
   return {
     failures,
     buildId: operations.release?.buildId,
@@ -221,5 +237,6 @@ export async function auditOperations({
     successfulRunCount,
     rightsReviewCount: rightsReviews.length,
     improvementTriageCount: improvementTriages.length,
+    phaseReviewStatus: review.status,
   };
 }
