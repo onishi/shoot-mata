@@ -40,6 +40,28 @@ test("first-run instructions lead into Stage 1 and its result advances to Stage 
   updateGame(game, { confirmPressed: true });
   assert.equal(game.screen, "stage-intro");
   assert.equal(game.stageId, "stage-02");
+  game.screen = "stage-result";
+  updateGame(game, { confirmPressed: true });
+  assert.equal(game.stageId, "stage-03");
+});
+
+test("automatic input completes Stage 3 after opening cysts and both Ark Core organs", () => {
+  const game = createGame();
+  beginStage(game, "stage-03");
+  const seen = new Set();
+  for (let tick = 0; tick < 22_000 && game.screen !== "stage-result"; tick += 1) {
+    updateGame(game, automaticInput(game));
+    for (const enemy of game.enemies) seen.add(enemy.type);
+  }
+  assert.equal(game.screen, "stage-result");
+  assert.equal(game.defeatedBoss, true);
+  assert.deepEqual(seen, new Set(["regenerating-swarm", "parasite-turret", "ark-predator", "cilia-walker"]));
+  assert.ok(game.swarmRegenerations > 0);
+  assert.ok(game.destroyedTerrain.some((id) => id.startsWith("cyst-")));
+  assert.equal(game.arkOrgansDestroyed, 2);
+  assert.ok(game.bossShots > 0);
+  assert.ok(game.bossWeakpointHits > 0);
+  assert.equal(game.terrainHits, 0);
 });
 
 test("automatic input completes Stage 2 with four distinct enemies and the rail boss", () => {

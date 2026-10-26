@@ -16,12 +16,12 @@ export function createGame(stageId = "stage-01") {
     killChain: 0, maxKillChain: 0, misses: 0, stageMisses: 0, respawnTicks: 0,
     nextCoreDrop: 0, coresCollected: 0,
     player: { x: 180, y: 360, radius: 5, invulnerable: 0 },
-    bullets: [], enemyBullets: [], enemies: [], boss: null, nextWave: 0, nextCrawler: 0, nextLeech: 0, pulseShots: 0,
+    bullets: [], enemyBullets: [], enemies: [], boss: null, nextWave: 0, nextCrawler: 0, nextLeech: 0, nextWalker: 0, pulseShots: 0,
     enemyShots: 0, bossShots: 0, combatHits: 0, defeatedEnemies: 0, destroyedTerrain: [], terrainDamage: {},
     bossShieldBlocks: 0, bossWeakpointHits: 0,
     weaponShots: { lance: 0, spread: 0, seeker: 0 },
     terrainHits: 0, defeatedBoss: false, paused: false, introTicks: 0, resultTicks: 0,
-    currentTicks: 0, shutterWarnings: 0
+    currentTicks: 0, shutterWarnings: 0, membraneWarnings: 0, swarmRegenerations: 0, arkOrgansDestroyed: 0
   };
 }
 
@@ -99,6 +99,7 @@ export function updateGame(game, input = {}) {
   spawnWaves(game);
   spawnCrawlers(game);
   spawnLeeches(game);
+  spawnWalkers(game);
   spawnCoreDrops(game);
   updatePickups(game);
   updateShots(game, input);
@@ -172,7 +173,7 @@ function hitTerrain(game) {
     const item = terrain.find((candidate) => overlapsRect(bullet, { x: candidate.screenX, y: candidate.y, width: candidate.width, height: candidate.height }));
     if (!item) continue;
     bullet.dead = true;
-    if (item.kind !== "destructible-wreck") continue;
+    if (item.kind !== "destructible-wreck" && item.kind !== "destructible-cyst") continue;
     game.terrainDamage[item.id] = (game.terrainDamage[item.id] ?? 0) + bullet.damage;
     if (game.terrainDamage[item.id] >= item.hp && !game.destroyedTerrain.includes(item.id)) {
       game.destroyedTerrain.push(item.id);
@@ -234,6 +235,30 @@ function hitTargets(game) {
 
 function hitBoss(game, bullet) {
   const boss = game.boss;
+  if (boss.type === "ark-core") {
+    const weakpoint = arkCoreWeakpoint(boss);
+    if (!overlapsRect(bullet, weakpoint)) return;
+    game.bossWeakpointHits += 1;
+    boss.partHp -= bullet.damage;
+    boss.hp = Math.max(0, boss.hp - bullet.damage);
+    if (bullet.pierce > 0) bullet.pierce -= 1;
+    else bullet.dead = true;
+    if (boss.partHp > 0) return;
+    if (boss.phase < 2) {
+      boss.phase += 1;
+      boss.partHp = boss.phase === 2 ? 180 : 90;
+      game.arkOrgansDestroyed += 1;
+      addScore(game, "defeat", 750);
+      return;
+    }
+    boss.dead = true;
+    addScore(game, "defeat", 5000);
+    addScore(game, "clear", 2000);
+    if (game.stageMisses === 0) addScore(game, "noMiss", 2000);
+    game.defeatedBoss = true;
+    game.screen = "stage-result";
+    return;
+  }
   if (boss.type === "refinery-guardian") {
     if (boss.shuttersClosed && (bullet.y < boss.y + 48 || bullet.y > boss.y + boss.height - 48)) {
       bullet.dead = true;
@@ -266,6 +291,14 @@ function damageTarget(game, bullet, target, score) {
   if (bullet.pierce > 0) bullet.pierce -= 1;
   else bullet.dead = true;
   if (target.hp > 0) return;
+  if (target.type === "regenerating-swarm" && !target.regenerated) {
+    target.regenerated = true;
+    target.hp = 5;
+    target.width *= 0.82;
+    target.height *= 0.82;
+    game.swarmRegenerations += 1;
+    return;
+  }
   target.dead = true;
   addScore(game, "defeat", score);
   game.killChain += 1;
@@ -316,11 +349,29 @@ function spawnLeeches(game) {
   game.nextLeech += 1;
 }
 
+function spawnWalkers(game) {
+  const spawn = stageById(game.stageId).walkers?.[game.nextWalker];
+  if (!spawn || game.tick < spawn.tick) return;
+  const cystId = ["cyst-a", "cyst-b", "cyst-c", "cyst-refuge"][game.nextWalker];
+  if (!game.destroyedTerrain.includes(cystId)) {
+    game.enemies.push({
+      x: spawn.worldX - game.scrollX, y: spawn.side === "ceiling" ? spawn.surfaceY : spawn.surfaceY - 58,
+      width: 104, height: 58, hp: 18, phase: game.nextWalker, pattern: "surface-walk",
+      type: "cilia-walker", worldX: spawn.worldX, surfaceY: spawn.surfaceY,
+      side: spawn.side ?? "floor", spawnedTick: game.tick
+    });
+  }
+  game.nextWalker += 1;
+}
+
 function enemyStats(type) {
   if (type === "wreck-bulwark") return { width: 68, height: 45, hp: 22 };
   if (type === "shutter-turret") return { width: 76, height: 58, hp: 20 };
   if (type === "storm-diver") return { width: 60, height: 45, hp: 10 };
   if (type === "cloud-skimmer") return { width: 62, height: 42, hp: 8 };
+  if (type === "regenerating-swarm") return { width: 58, height: 42, hp: 7, regenerated: false };
+  if (type === "parasite-turret") return { width: 78, height: 58, hp: 20 };
+  if (type === "ark-predator") return { width: 86, height: 58, hp: 16 };
   return { width: 52, height: 36, hp: 7 };
 }
 
@@ -340,6 +391,10 @@ function updateEnemies(game) {
       enemy.y = enemy.side === "ceiling" ? enemy.surfaceY : enemy.surfaceY - enemy.height;
       const age = game.tick - enemy.spawnedTick;
       if (enemy.x > 350 && enemy.x < 1120 && age > 0 && age % 135 === 0) fireEnemyShot(game, enemy);
+    } else if (enemy.type === "cilia-walker") {
+      enemy.worldX -= 0.34;
+      enemy.x = enemy.worldX - game.scrollX;
+      enemy.y = enemy.side === "ceiling" ? enemy.surfaceY : enemy.surfaceY - enemy.height;
     } else {
       enemy.x -= enemy.type === "wreck-bulwark" ? 1.6 : 2.3;
       const age = game.tick - enemy.spawnedTick;
@@ -348,6 +403,16 @@ function updateEnemies(game) {
       if (enemy.type === "storm-diver" && age > 45) {
         enemy.x -= 2.2;
         enemy.y += Math.sign(game.player.y - enemy.y) * 2.6;
+      }
+      if (enemy.type === "parasite-turret") {
+        enemy.x += 1.5;
+        if (enemy.x < 1120 && enemy.x > 500 && age > 0 && age % 165 === 0) {
+          fireEnemyShot(game, enemy); fireEnemyShot(game, { ...enemy, y: enemy.y - 24 }); fireEnemyShot(game, { ...enemy, y: enemy.y + 24 });
+        }
+      }
+      if (enemy.type === "ark-predator") {
+        if (age < 70) enemy.x += 1.9;
+        else { enemy.x -= 3.8; enemy.y += Math.sign(game.player.y - enemy.y) * 2.2; }
       }
     }
     if (enemy.pattern === "weave" || enemy.pattern === "current-weave") enemy.y += Math.sin(game.tick / 28 + enemy.phase) * 1.8;
@@ -364,7 +429,8 @@ function fireEnemyShot(game, enemy) {
   const dx = game.player.x - x;
   const dy = game.player.y - y;
   const length = Math.hypot(dx, dy) || 1;
-  game.enemyBullets.push({ kind: "enemy-shot", x, y, radius: 6, vx: dx / length * 4.2, vy: dy / length * 4.2, age: 0 });
+  const speed = enemy.type === "parasite-turret" ? 3.35 : 4.2;
+  game.enemyBullets.push({ kind: "enemy-shot", x, y, radius: 6, vx: dx / length * speed, vy: dy / length * speed, age: 0 });
   game.enemyShots += 1;
 }
 
@@ -396,9 +462,11 @@ function updateBoss(game) {
   if (game.tick >= stage.bossStartTick && !game.boss) {
     game.enemies.length = 0;
     game.enemyBullets.length = 0;
-    game.boss = game.stageId === "stage-02"
-      ? { x: 1010, y: 245, width: 230, height: 190, hp: 300, maxHp: 300, dead: false, type: "refinery-guardian", age: 0, phase: 0, attackWarning: true, shuttersClosed: false }
-      : { x: 1020, y: 250, width: 220, height: 184, hp: 260, maxHp: 260, dead: false, type: "wreck-warden", age: 0, shieldAngle: 0, attackWarning: false };
+    game.boss = game.stageId === "stage-03"
+      ? { x: 970, y: 205, width: 270, height: 270, hp: 360, maxHp: 360, partHp: 90, dead: false, type: "ark-core", age: 0, phase: 0, attackWarning: true }
+      : game.stageId === "stage-02"
+        ? { x: 1010, y: 245, width: 230, height: 190, hp: 300, maxHp: 300, dead: false, type: "refinery-guardian", age: 0, phase: 0, attackWarning: true, shuttersClosed: false }
+        : { x: 1020, y: 250, width: 220, height: 184, hp: 260, maxHp: 260, dead: false, type: "wreck-warden", age: 0, shieldAngle: 0, attackWarning: false };
   }
   if (!game.boss || game.boss.dead) return;
   const boss = game.boss;
@@ -407,12 +475,39 @@ function updateBoss(game) {
     updateRefineryGuardian(game, boss);
     return;
   }
+  if (boss.type === "ark-core") {
+    updateArkCore(game, boss);
+    return;
+  }
   boss.y = 255 + Math.sin(boss.age / 75) * 145;
   boss.shieldAngle = boss.age * 0.021;
   const cycle = boss.age % BOSS_CYCLE_TICKS;
   boss.attackWarning = cycle < BOSS_WARNING_TICKS;
   if (cycle >= BOSS_WARNING_TICKS && cycle < 228 && (cycle - BOSS_WARNING_TICKS) % 39 === 0) fireBossFan(game, boss);
   if (game.respawnTicks === 0 && game.player.invulnerable === 0 && overlapsCircleRect(game.player, boss)) loseLife(game);
+}
+
+function updateArkCore(game, boss) {
+  const cycle = boss.age % 390;
+  boss.y = 210 + Math.sin(boss.age / 68) * 92;
+  boss.attackWarning = cycle < 90;
+  if (cycle === 1) game.membraneWarnings += 1;
+  if (cycle >= 90 && cycle < 285 && (cycle - 90) % Math.max(44, 68 - boss.phase * 8) === 0) {
+    const origin = arkCoreWeakpoint(boss);
+    for (const offset of [-0.28, 0, 0.28]) {
+      const aim = Math.atan2(game.player.y - (origin.y + origin.height / 2), game.player.x - origin.x) + offset;
+      game.enemyBullets.push({ kind: "ark-spore", x: origin.x, y: origin.y + origin.height / 2, radius: 8, vx: Math.cos(aim) * 3.7, vy: Math.sin(aim) * 3.7, age: 0 });
+      game.enemyShots += 1;
+      game.bossShots += 1;
+    }
+  }
+  if (game.respawnTicks === 0 && game.player.invulnerable === 0 && overlapsCircleRect(game.player, boss)) loseLife(game);
+}
+
+export function arkCoreWeakpoint(boss) {
+  if (boss.phase === 0) return { x: boss.x + 30, y: boss.y + 42, width: 62, height: 72 };
+  if (boss.phase === 1) return { x: boss.x + 30, y: boss.y + boss.height - 114, width: 62, height: 72 };
+  return { x: boss.x + 82, y: boss.y + 88, width: 92, height: 94 };
 }
 
 function updateRefineryGuardian(game, boss) {
@@ -527,12 +622,24 @@ function findSafeY(game) {
 
 export function automaticInput(game) {
   if (game.screen !== "playing") return {};
-  const ahead = terrainFor(game).filter((item) => item.screenX < 470 && item.screenX + item.width > game.player.x - 20);
+  const ahead = terrainFor(game).filter((item) => item.screenX < 650 && item.screenX + item.width > game.player.x - 20);
   let targetY = 360;
+  let safeMinY = 50;
+  let safeMaxY = FIELD_HEIGHT - 50;
   for (const item of ahead) {
-    if (item.y === 0) targetY = Math.max(targetY, item.height + 70);
-    else if (item.y + item.height >= FIELD_HEIGHT) targetY = Math.min(targetY, item.y - 70);
+    if (item.y === 0) safeMinY = Math.max(safeMinY, item.height + 70);
+    else if (item.y + item.height >= FIELD_HEIGHT) safeMaxY = Math.min(safeMaxY, item.y - 70);
   }
+  targetY = Math.max(safeMinY, Math.min(safeMaxY, targetY));
+  const destructible = terrainFor(game).find((item) => item.kind === "destructible-cyst" && item.screenX > game.player.x + 260 && item.screenX < 920);
+  if (destructible && !ahead.some((item) => item.kind !== "destructible-cyst" && item.screenX < 500)) {
+    targetY = destructible.y === 0 ? destructible.height - 22 : destructible.y + 22;
+  }
+  if (game.boss?.type === "ark-core") {
+    const weakpoint = arkCoreWeakpoint(game.boss);
+    targetY = weakpoint.y + weakpoint.height / 2;
+  }
+  targetY = Math.max(safeMinY, Math.min(safeMaxY, targetY));
   const pickup = game.pickups.find((item) => item.x > game.player.x - 20 && item.x < 720);
   if (pickup && !ahead.some((item) => pickup.y > item.y - 45 && pickup.y < item.y + item.height + 45)) targetY = pickup.y;
   const hazard = game.enemyBullets.find((item) => item.x > game.player.x - 30 && item.x < game.player.x + 280 && Math.abs(item.y - game.player.y) < 90);
@@ -560,6 +667,7 @@ export function snapshot(game) {
     terrainHits: game.terrainHits, terrainVisible: terrainFor(game).length,
     bossHp: game.boss?.hp ?? null, bossWarning: game.boss?.attackWarning ?? false,
     bossPhase: game.boss?.phase ?? null, currentTicks: game.currentTicks, shutterWarnings: game.shutterWarnings,
+    membraneWarnings: game.membraneWarnings, swarmRegenerations: game.swarmRegenerations, arkOrgansDestroyed: game.arkOrgansDestroyed,
     defeatedBoss: game.defeatedBoss, hudTop: 720
   };
 }

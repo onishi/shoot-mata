@@ -63,6 +63,8 @@ const normalBgm = combinedRms(["stage-rhythm", "stage-melody"], BGM_VOLUME);
 const bossBgm = combinedRms(["stage-rhythm", "stage-melody", "stage-danger"], BGM_VOLUME);
 const stageTwoBgm = combinedRms(["stage-02-rhythm", "stage-02-melody"], BGM_VOLUME);
 const stageTwoBossBgm = combinedRms(["stage-02-rhythm", "stage-02-melody", "stage-02-danger"], BGM_VOLUME);
+const stageThreeBgm = combinedRms(["stage-03-rhythm", "stage-03-melody"], BGM_VOLUME);
+const stageThreeBossBgm = combinedRms(["stage-03-rhythm", "stage-03-melody", "stage-03-danger"], BGM_VOLUME);
 let loudestFire = { weapon: "pulse", rms: 0 };
 for (const weapon of ["lance", "spread", "seeker"]) {
   const ids = ["pulse", weapon];
@@ -78,10 +80,11 @@ const hottestAssetPeak = Math.max(...AUDIO_ASSETS.map((asset) => (
 
 assert.ok(marginDb <= 3, `continuous fire exceeds BGM by ${marginDb.toFixed(2)} dB`);
 assert.ok(hottestAssetPeak < 1, `single asset clips at ${hottestAssetPeak.toFixed(3)}`);
-assert.equal(AUDIO_ASSETS.filter(({ group }) => group === "bgm").length, 6);
+assert.equal(AUDIO_ASSETS.filter(({ group }) => group === "bgm").length, 9);
 assert.ok(AUDIO_ASSETS.filter(({ group }) => group === "sfx").length >= 10);
 
 console.log(`Audio audit passed: normal BGM ${db(normalBgm).toFixed(1)} dBFS RMS, boss ${db(bossBgm).toFixed(1)} dBFS RMS`);
 console.log(`Stage 2 audio: normal BGM ${db(stageTwoBgm).toFixed(1)} dBFS RMS, boss ${db(stageTwoBossBgm).toFixed(1)} dBFS RMS`);
+console.log(`Stage 3 audio: normal BGM ${db(stageThreeBgm).toFixed(1)} dBFS RMS, boss ${db(stageThreeBossBgm).toFixed(1)} dBFS RMS`);
 console.log(`Loudest continuous fire: PULSE + ${loudestFire.weapon.toUpperCase()} ${db(loudestFire.rms).toFixed(1)} dBFS RMS (${marginDb.toFixed(1)} dB vs BGM)`);
 console.log(`Hottest single-source peak: ${db(hottestAssetPeak).toFixed(1)} dBFS; master limiter ceiling -1.0 dBFS`);

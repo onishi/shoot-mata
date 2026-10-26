@@ -1,6 +1,6 @@
 import { visibleTerrainFor } from "../content/stages.mjs";
-import { BACKGROUND_LAYERS, IMAGE_ASSETS, STAGE_02_BACKGROUND_LAYERS } from "../content/assets.mjs";
-import { bossShieldRects, bossWeakpoint, reactorLoadout } from "../core/game.mjs";
+import { BACKGROUND_LAYERS, IMAGE_ASSETS, STAGE_02_BACKGROUND_LAYERS, STAGE_03_BACKGROUND_LAYERS } from "../content/assets.mjs";
+import { arkCoreWeakpoint, bossShieldRects, bossWeakpoint, reactorLoadout } from "../core/game.mjs";
 
 const WIDTH = 1280;
 const FIELD_HEIGHT = 720;
@@ -28,7 +28,10 @@ export function render(ctx, game) {
     drawPickups(ctx, game);
     drawEnemies(ctx, game);
     drawPlayer(ctx, game);
-    if (game.screen === "stage-intro") drawNotice(ctx, game.stageId === "stage-02" ? "STAGE 2" : "STAGE 1", game.stageId === "stage-02" ? "CLOUD REFINERY" : "ORBITAL WRECK");
+    if (game.screen === "stage-intro") {
+      const intro = game.stageId === "stage-03" ? ["STAGE 3", "LIVING ARK"] : game.stageId === "stage-02" ? ["STAGE 2", "CLOUD REFINERY"] : ["STAGE 1", "ORBITAL WRECK"];
+      drawNotice(ctx, ...intro);
+    }
     if (game.screen === "stage-result") drawResult(ctx, game);
     if (game.screen === "continue") drawContinue(ctx);
     if (game.paused) drawNotice(ctx, "PAUSE", "PRESS P TO RESUME");
@@ -40,14 +43,15 @@ export function render(ctx, game) {
 
 function drawBackground(ctx, game) {
   const stageTwo = game.stageId === "stage-02";
+  const stageThree = game.stageId === "stage-03";
   const gradient = ctx.createLinearGradient(0, 0, 0, FIELD_HEIGHT);
-  gradient.addColorStop(0, stageTwo ? "#112735" : "#071122");
-  gradient.addColorStop(0.55, stageTwo ? "#284956" : "#10213a");
-  gradient.addColorStop(1, stageTwo ? "#0b1d2a" : "#07101d");
+  gradient.addColorStop(0, stageThree ? "#251022" : stageTwo ? "#112735" : "#071122");
+  gradient.addColorStop(0.55, stageThree ? "#4a1b39" : stageTwo ? "#284956" : "#10213a");
+  gradient.addColorStop(1, stageThree ? "#120917" : stageTwo ? "#0b1d2a" : "#07101d");
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, WIDTH, FIELD_HEIGHT);
 
-  const layers = stageTwo ? STAGE_02_BACKGROUND_LAYERS : BACKGROUND_LAYERS;
+  const layers = stageThree ? STAGE_03_BACKGROUND_LAYERS : stageTwo ? STAGE_02_BACKGROUND_LAYERS : BACKGROUND_LAYERS;
   for (const layer of layers) drawCrossfadedLayer(ctx, images.get(layer.asset), game.scrollX, layer);
 
   ctx.fillStyle = "rgba(3, 12, 24, 0.16)";
@@ -81,33 +85,34 @@ function drawTerrain(ctx, game) {
   for (const item of visibleTerrainFor(game.stageId, game.scrollX, game.destroyedTerrain, game.tick)) {
     const x = item.screenX;
     const refinery = game.stageId === "stage-02";
+    const living = game.stageId === "stage-03";
     ctx.save();
     ctx.beginPath();
     ctx.rect(x, item.y, item.width, item.height);
     ctx.clip();
     const gradient = ctx.createLinearGradient(x, item.y, x, item.y + item.height);
-    gradient.addColorStop(0, item.kind === "destructible-wreck" ? "#a95c35" : refinery ? "#d2c49f" : "#617983");
-    gradient.addColorStop(0.1, refinery ? "#52696c" : "#263947");
-    gradient.addColorStop(0.55, refinery ? "#1d363c" : "#111f2a");
-    gradient.addColorStop(1, refinery ? "#0b2028" : "#07111a");
+    gradient.addColorStop(0, living ? "#d7a8a0" : item.kind === "destructible-wreck" ? "#a95c35" : refinery ? "#d2c49f" : "#617983");
+    gradient.addColorStop(0.1, living ? "#743653" : refinery ? "#52696c" : "#263947");
+    gradient.addColorStop(0.55, living ? "#3b152c" : refinery ? "#1d363c" : "#111f2a");
+    gradient.addColorStop(1, living ? "#180b18" : refinery ? "#0b2028" : "#07111a");
     ctx.fillStyle = gradient;
     ctx.fillRect(x, item.y, item.width, item.height);
 
-    ctx.fillStyle = "rgba(118, 155, 169, 0.16)";
+    ctx.fillStyle = living ? "rgba(246, 124, 170, 0.15)" : "rgba(118, 155, 169, 0.16)";
     for (let panelX = 12; panelX < item.width; panelX += 82) {
       ctx.fillRect(x + panelX, item.y + 14, 58, Math.max(18, item.height - 28));
-      ctx.strokeStyle = "rgba(158, 216, 228, 0.23)";
+      ctx.strokeStyle = living ? "rgba(255, 164, 191, 0.3)" : "rgba(158, 216, 228, 0.23)";
       ctx.lineWidth = 2;
       ctx.strokeRect(x + panelX, item.y + 14, 58, Math.max(18, item.height - 28));
-      ctx.fillStyle = panelX % 164 === 12 ? "#ff9c42" : "#5bb3c5";
+      ctx.fillStyle = living ? (panelX % 164 === 12 ? "#ff9e57" : "#b151dc") : panelX % 164 === 12 ? "#ff9c42" : "#5bb3c5";
       ctx.shadowColor = ctx.fillStyle;
       ctx.shadowBlur = 8;
       ctx.fillRect(x + panelX + 8, item.y + 23, 5, 5);
       ctx.shadowBlur = 0;
-      ctx.fillStyle = "rgba(118, 155, 169, 0.16)";
+      ctx.fillStyle = living ? "rgba(246, 124, 170, 0.15)" : "rgba(118, 155, 169, 0.16)";
     }
 
-    ctx.strokeStyle = item.kind === "destructible-wreck" ? "#b86238" : refinery ? "#9b613d" : "#315a69";
+    ctx.strokeStyle = item.kind === "destructible-cyst" ? "#bf4f77" : living ? "#6e294d" : item.kind === "destructible-wreck" ? "#b86238" : refinery ? "#9b613d" : "#315a69";
     ctx.lineWidth = 5;
     for (let rib = 18; rib < item.width; rib += 64) {
       ctx.beginPath();
@@ -116,7 +121,7 @@ function drawTerrain(ctx, game) {
       ctx.stroke();
     }
 
-    if (item.kind === "destructible-wreck") {
+    if (item.kind === "destructible-wreck" || item.kind === "destructible-cyst") {
       ctx.strokeStyle = "#ff8b42";
       ctx.lineWidth = 3;
       for (let crack = 20; crack < item.height; crack += 38) {
@@ -129,7 +134,7 @@ function drawTerrain(ctx, game) {
     }
     ctx.restore();
 
-    ctx.strokeStyle = item.warning ? "#ffcf52" : item.kind === "charged-wall" ? "#72f4ff" : item.kind === "destructible-wreck" ? "#ffb35f" : refinery ? "#ffc16a" : "#9eeeff";
+    ctx.strokeStyle = item.warning ? "#ffcf52" : item.kind === "destructible-cyst" ? "#ff89c8" : living ? "#e779b5" : item.kind === "charged-wall" ? "#72f4ff" : item.kind === "destructible-wreck" ? "#ffb35f" : refinery ? "#ffc16a" : "#9eeeff";
     ctx.shadowColor = ctx.strokeStyle;
     ctx.shadowBlur = item.warning ? 22 : 10;
     ctx.lineWidth = 4;
@@ -226,6 +231,10 @@ function drawEnemies(ctx, game) {
   }
   if (!game.boss || game.boss.dead) return;
   const boss = game.boss;
+  if (boss.type === "ark-core") {
+    drawArkCore(ctx, boss);
+    return;
+  }
   if (boss.type === "refinery-guardian") {
     drawRefineryGuardian(ctx, boss);
     return;
@@ -255,6 +264,27 @@ function drawEnemies(ctx, game) {
     ctx.strokeStyle = `rgba(255, 62, 77, ${0.35 + Math.sin(boss.age / 5) * 0.2})`;
     ctx.lineWidth = 4;
     ctx.beginPath(); ctx.moveTo(0, weakpoint.y); ctx.lineTo(weakpoint.x - 34, weakpoint.y); ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function drawArkCore(ctx, boss) {
+  ctx.save();
+  ctx.shadowColor = boss.attackWarning ? "#ff5ca8" : "#a66bff";
+  ctx.shadowBlur = boss.attackWarning ? 28 : 18;
+  drawAsset(ctx, "ark-core", boss.x, boss.y, boss.width, boss.height, () => {
+    ctx.fillStyle = "#6f234f"; ctx.fillRect(boss.x, boss.y, boss.width, boss.height);
+  });
+  const weakpoint = arkCoreWeakpoint(boss);
+  ctx.fillStyle = boss.phase < 2 ? "rgba(255, 113, 188, 0.72)" : "rgba(183, 101, 255, 0.82)";
+  ctx.strokeStyle = boss.attackWarning ? "#fff0a6" : "#ff9dd1";
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.ellipse(weakpoint.x + weakpoint.width / 2, weakpoint.y + weakpoint.height / 2, weakpoint.width / 2, weakpoint.height / 2, 0, 0, Math.PI * 2);
+  ctx.fill(); ctx.stroke();
+  if (boss.attackWarning) {
+    ctx.strokeStyle = `rgba(255, 105, 174, ${0.42 + Math.sin(boss.age / 5) * 0.2})`;
+    ctx.beginPath(); ctx.moveTo(0, weakpoint.y + weakpoint.height / 2); ctx.lineTo(weakpoint.x, weakpoint.y + weakpoint.height / 2); ctx.stroke();
   }
   ctx.restore();
 }
@@ -327,7 +357,7 @@ function drawHud(ctx, game) {
   if (game.boss && !game.boss.dead) {
     ctx.fillStyle = "#bcefff";
     ctx.font = "bold 16px Arial";
-    ctx.fillText(game.boss.type === "refinery-guardian" ? "REFINERY GUARDIAN" : "WRECK WARDEN", 880, 744);
+    ctx.fillText(game.boss.type === "ark-core" ? "ARK CORE" : game.boss.type === "refinery-guardian" ? "REFINERY GUARDIAN" : "WRECK WARDEN", 880, 744);
     ctx.fillStyle = "#162b35";
     ctx.fillRect(880, 762, 360, 18);
     ctx.fillStyle = "#ff724e";

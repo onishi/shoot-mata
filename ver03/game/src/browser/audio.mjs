@@ -4,6 +4,8 @@ const NORMAL_LAYERS = Object.freeze(["stage-rhythm", "stage-melody"]);
 const DANGER_LAYERS = Object.freeze([...NORMAL_LAYERS, "stage-danger"]);
 const STAGE_02_NORMAL_LAYERS = Object.freeze(["stage-02-rhythm", "stage-02-melody"]);
 const STAGE_02_DANGER_LAYERS = Object.freeze([...STAGE_02_NORMAL_LAYERS, "stage-02-danger"]);
+const STAGE_03_NORMAL_LAYERS = Object.freeze(["stage-03-rhythm", "stage-03-melody"]);
+const STAGE_03_DANGER_LAYERS = Object.freeze([...STAGE_03_NORMAL_LAYERS, "stage-03-danger"]);
 
 export const AUDIO_ASSETS = Object.freeze([
   { id: "stage-rhythm", group: "bgm", url: "./assets/audio/stage-01/stage-01-orbital-wreck-rhythm-v1.wav", level: 0.72 },
@@ -16,6 +18,11 @@ export const AUDIO_ASSETS = Object.freeze([
   { id: "stage-02-danger", group: "bgm", url: "./assets/audio/stage-02/stage-02-cloud-refinery-danger-v1.wav", level: 0.42 },
   { id: "stage-02-intro", group: "sfx", url: "./assets/audio/stage-02/stage-02-cloud-refinery-intro-v1.wav", level: 0.72 },
   { id: "stage-02-clear", group: "sfx", url: "./assets/audio/stage-02/stage-02-cloud-refinery-clear-v1.wav", level: 0.8 },
+  { id: "stage-03-rhythm", group: "bgm", url: "./assets/audio/stage-03/stage-03-living-ark-rhythm-v1.wav", level: 0.72 },
+  { id: "stage-03-melody", group: "bgm", url: "./assets/audio/stage-03/stage-03-living-ark-melody-v1.wav", level: 0.5 },
+  { id: "stage-03-danger", group: "bgm", url: "./assets/audio/stage-03/stage-03-living-ark-danger-v1.wav", level: 0.42 },
+  { id: "stage-03-intro", group: "sfx", url: "./assets/audio/stage-03/stage-03-living-ark-intro-v1.wav", level: 0.72 },
+  { id: "stage-03-clear", group: "sfx", url: "./assets/audio/stage-03/stage-03-living-ark-clear-v1.wav", level: 0.8 },
   { id: "ui-confirm", group: "sfx", url: "./assets/audio/shared/ui-confirm-v1.wav", level: 0.58 },
   { id: "pulse", group: "sfx", url: "./assets/audio/generated/pulse-shot-v1.wav", level: 0.18 },
   { id: "lance", group: "sfx", url: "./assets/audio/shared/weapon-lance-shot-v1.wav", level: 0.24 },
@@ -35,6 +42,7 @@ export function clampVolume(value) {
 
 export function bgmLayersFor(game) {
   if (game.screen !== "playing") return [];
+  if (game.stageId === "stage-03") return game.boss || game.tick >= 150 * 60 ? STAGE_03_DANGER_LAYERS : STAGE_03_NORMAL_LAYERS;
   if (game.stageId === "stage-02") return game.boss || game.tick >= 150 * 60 ? STAGE_02_DANGER_LAYERS : STAGE_02_NORMAL_LAYERS;
   return game.boss || game.tick >= 150 * 60 ? DANGER_LAYERS : NORMAL_LAYERS;
 }
@@ -175,8 +183,8 @@ export function createAudioSystem(options = {}) {
       return;
     }
     if (next.screen !== previous.screen) {
-      if (next.screen === "stage-intro") playSfx(next.stageId === "stage-02" ? "stage-02-intro" : "stage-intro");
-      if (next.screen === "stage-result") { stopBgm(); playSfx(next.stageId === "stage-02" ? "stage-02-clear" : "stage-clear"); }
+      if (next.screen === "stage-intro") playSfx(next.stageId === "stage-03" ? "stage-03-intro" : next.stageId === "stage-02" ? "stage-02-intro" : "stage-intro");
+      if (next.screen === "stage-result") { stopBgm(); playSfx(next.stageId === "stage-03" ? "stage-03-clear" : next.stageId === "stage-02" ? "stage-02-clear" : "stage-clear"); }
     }
     if (next.pulse > previous.pulse) playSfx("pulse");
     if (next.lance > previous.lance) playSfx("lance");
@@ -225,7 +233,7 @@ export function createAudioSystem(options = {}) {
       mode = "active";
       previous = counterState(game);
       setBgm(bgmLayersFor(game));
-      if (game.screen === "stage-intro") playSfx(game.stageId === "stage-02" ? "stage-02-intro" : "stage-intro");
+      if (game.screen === "stage-intro") playSfx(game.stageId === "stage-03" ? "stage-03-intro" : game.stageId === "stage-02" ? "stage-02-intro" : "stage-intro");
       return status();
     }).catch(() => {
       mode = "silent";
