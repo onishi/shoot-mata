@@ -41,7 +41,11 @@ try {
   assert.ok(combat.enemyShots > 0);
   await mkdir(path.join(root, "artifacts"), { recursive: true });
   await page.screenshot({ path: path.join(root, "artifacts", "stage-01-combat.png"), fullPage: true });
-  const final = await page.evaluate(() => window.__shootMata.advance(13_000));
+  const boss = await page.evaluate(() => window.__shootMata.advance(9_560));
+  assert.ok(boss.bossHp > 0);
+  assert.equal(boss.bossWarning, true);
+  await page.screenshot({ path: path.join(root, "artifacts", "stage-01-boss.png"), fullPage: true });
+  const final = await page.evaluate(() => window.__shootMata.advance(4_240));
   assert.equal(final.screen, "stage-result");
   assert.equal(final.defeatedBoss, true);
   assert.ok(final.pulseShots > 100);
@@ -50,6 +54,9 @@ try {
   assert.ok(final.weaponShots.spread > 0);
   assert.ok(final.weaponShots.seeker > 0);
   assert.ok(final.enemyShots > 0);
+  assert.ok(final.bossShots > 0);
+  assert.ok(final.bossShieldBlocks > 0);
+  assert.ok(final.bossWeakpointHits > 0);
   assert.ok(final.destroyedTerrain.includes("breakable-wreck"));
   assert.equal(final.hudTop, 720);
   assert.equal(await page.evaluate(() => performance.getEntriesByType("resource").filter(({ name }) => name.includes("/assets/") && name.endsWith(".webp")).length), 9);

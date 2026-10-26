@@ -1,6 +1,6 @@
 import { visibleTerrain } from "../content/stage-01.mjs";
 import { IMAGE_ASSETS } from "../content/assets.mjs";
-import { reactorLoadout } from "../core/game.mjs";
+import { bossShieldRects, bossWeakpoint, reactorLoadout } from "../core/game.mjs";
 
 const WIDTH = 1280;
 const FIELD_HEIGHT = 720;
@@ -99,10 +99,10 @@ function drawEnemyBullets(ctx, game) {
     const pulse = 1 + Math.sin(bullet.age / 6) * 0.16;
     ctx.translate(bullet.x, bullet.y);
     ctx.scale(pulse, pulse);
-    ctx.shadowColor = bullet.kind === "mine" ? "#ff4b20" : "#ff8a35";
+    ctx.shadowColor = bullet.kind === "mine" ? "#ff4b20" : bullet.kind === "warden-shot" ? "#ff315f" : "#ff8a35";
     ctx.shadowBlur = bullet.kind === "mine" ? 18 : 11;
-    ctx.fillStyle = bullet.kind === "mine" ? "#3a1a16" : "#ffb04f";
-    ctx.strokeStyle = "#ff6b2c";
+    ctx.fillStyle = bullet.kind === "mine" ? "#3a1a16" : bullet.kind === "warden-shot" ? "#ffcf4d" : "#ffb04f";
+    ctx.strokeStyle = bullet.kind === "warden-shot" ? "#ff315f" : "#ff6b2c";
     ctx.lineWidth = 3;
     ctx.beginPath();
     ctx.arc(0, 0, bullet.radius, 0, Math.PI * 2);
@@ -181,6 +181,27 @@ function drawEnemies(ctx, game) {
   drawAsset(ctx, "wreck-warden", boss.x, boss.y, boss.width, boss.height, () => {
     ctx.fillStyle = "#812f38"; ctx.fillRect(boss.x, boss.y, boss.width, boss.height);
   });
+  const weakpoint = bossWeakpoint(boss);
+  ctx.shadowColor = boss.attackWarning ? "#ff304f" : "#ffb13b";
+  ctx.shadowBlur = boss.attackWarning ? 28 : 16;
+  ctx.fillStyle = boss.attackWarning ? "#fff0a6" : "#ff6f38";
+  ctx.beginPath(); ctx.arc(weakpoint.x, weakpoint.y, weakpoint.radius, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = "#551b25";
+  ctx.beginPath(); ctx.arc(weakpoint.x, weakpoint.y, 13, 0, Math.PI * 2); ctx.fill();
+  for (const shield of bossShieldRects(boss)) {
+    const gradient = ctx.createLinearGradient(shield.x, shield.y, shield.x + shield.width, shield.y + shield.height);
+    gradient.addColorStop(0, "#ffd17a"); gradient.addColorStop(0.18, "#843941"); gradient.addColorStop(1, "#321c2b");
+    ctx.fillStyle = gradient;
+    ctx.strokeStyle = "#ff9c55";
+    ctx.lineWidth = 4;
+    ctx.fillRect(shield.x, shield.y, shield.width, shield.height);
+    ctx.strokeRect(shield.x, shield.y, shield.width, shield.height);
+  }
+  if (boss.attackWarning) {
+    ctx.strokeStyle = `rgba(255, 62, 77, ${0.35 + Math.sin(boss.age / 5) * 0.2})`;
+    ctx.lineWidth = 4;
+    ctx.beginPath(); ctx.moveTo(0, weakpoint.y); ctx.lineTo(weakpoint.x - 34, weakpoint.y); ctx.stroke();
+  }
   ctx.restore();
 }
 

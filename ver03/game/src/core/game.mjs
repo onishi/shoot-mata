@@ -4,6 +4,8 @@ import { overlapsCircleRect, overlapsRect } from "./geometry.mjs";
 const FIELD_HEIGHT = 720;
 const PLAYER_SPEED = 5;
 const SHOT_INTERVAL = 8;
+const BOSS_CYCLE_TICKS = 360;
+const BOSS_WARNING_TICKS = 72;
 const WEAPON_NAMES = Object.freeze({ red: "LANCE", blue: "SPREAD", yellow: "SEEKER" });
 
 export function createGame() {
@@ -12,7 +14,8 @@ export function createGame() {
     nextCoreDrop: 0, coresCollected: 0,
     player: { x: 180, y: 360, radius: 5, invulnerable: 0 },
     bullets: [], enemyBullets: [], enemies: [], boss: null, nextWave: 0, nextCrawler: 0, pulseShots: 0,
-    enemyShots: 0, combatHits: 0, destroyedTerrain: [], terrainDamage: {},
+    enemyShots: 0, bossShots: 0, combatHits: 0, destroyedTerrain: [], terrainDamage: {},
+    bossShieldBlocks: 0, bossWeakpointHits: 0,
     weaponShots: { lance: 0, spread: 0, seeker: 0 },
     terrainHits: 0, defeatedBoss: false, paused: false, introTicks: 0, resultTicks: 0
   };
@@ -174,8 +177,26 @@ function hitTargets(game) {
     for (const enemy of game.enemies) {
       if (!bullet.dead && !enemy.dead && overlapsRect(bullet, enemy)) damageTarget(game, bullet, enemy, 100);
     }
-    if (!bullet.dead && game.boss && !game.boss.dead && overlapsRect(bullet, game.boss)) damageTarget(game, bullet, game.boss, 5000);
+    if (!bullet.dead && game.boss && !game.boss.dead) hitBoss(game, bullet);
   }
+}
+
+function hitBoss(game, bullet) {
+  const boss = game.boss;
+  const shields = bossShieldRects(boss);
+  if (shields.some((shield) => overlapsRect(bullet, shield))) {
+    bullet.dead = true;
+    game.bossShieldBlocks += 1;
+    return;
+  }
+  const weakpoint = bossWeakpoint(boss);
+  const closestX = Math.max(bullet.x, Math.min(weakpoint.x, bullet.x + bullet.width));
+  const closestY = Math.max(bullet.y, Math.min(weakpoint.y, bullet.y + bullet.height));
+  const dx = weakpoint.x - closestX;
+  const dy = weakpoint.y - closestY;
+  if (dx * dx + dy * dy > weakpoint.radius * weakpoint.radius) return;
+  game.bossWeakpointHits += 1;
+  damageTarget(game, bullet, boss, 5000);
 }
 
 function damageTarget(game, bullet, target, score) {
@@ -272,10 +293,53 @@ function updateEnemyBullets(game) {
 function updateBoss(game) {
   if (game.tick >= BOSS_START_TICK && !game.boss) {
     game.enemies.length = 0;
-    game.boss = { x: 1020, y: 250, width: 220, height: 184, hp: 900, maxHp: 900, dead: false, type: "wreck-warden" };
+    game.enemyBullets.length = 0;
+    game.boss = {
+      x: 1020, y: 250, width: 220, height: 184, hp: 260, maxHp: 260,
+      dead: false, type: "wreck-warden", age: 0, shieldAngle: 0, attackWarning: false
+    };
   }
   if (!game.boss || game.boss.dead) return;
-  game.boss.y = 255 + Math.sin((game.tick - BOSS_START_TICK) / 75) * 145;
+  const boss = game.boss;
+  boss.age += 1;
+  boss.y = 255 + Math.sin(boss.age / 75) * 145;
+  boss.shieldAngle = boss.age * 0.021;
+  const cycle = boss.age % BOSS_CYCLE_TICKS;
+  boss.attackWarning = cycle < BOSS_WARNING_TICKS;
+  if (cycle >= BOSS_WARNING_TICKS && cycle < 228 && (cycle - BOSS_WARNING_TICKS) % 39 === 0) fireBossFan(game, boss);
+  if (game.player.invulnerable === 0 && overlapsCircleRect(game.player, boss)) loseLife(game);
+}
+
+function fireBossFan(game, boss) {
+  const originX = boss.x + 36;
+  const originY = boss.y + boss.height / 2;
+  const aim = Math.atan2(game.player.y - originY, game.player.x - originX);
+  for (const offset of [-0.24, 0, 0.24]) {
+    const angle = aim + offset;
+    game.enemyBullets.push({
+      kind: "warden-shot", x: originX, y: originY, radius: 8,
+      vx: Math.cos(angle) * 4.5, vy: Math.sin(angle) * 4.5, age: 0
+    });
+    game.enemyShots += 1;
+    game.bossShots += 1;
+  }
+}
+
+export function bossWeakpoint(boss) {
+  return { x: boss.x + 54, y: boss.y + boss.height / 2, radius: 30 };
+}
+
+export function bossShieldRects(boss) {
+  const center = bossWeakpoint(boss);
+  return [0, Math.PI].map((offset) => {
+    const angle = boss.shieldAngle + offset;
+    return {
+      x: center.x + Math.cos(angle) * 76 - 27,
+      y: center.y + Math.sin(angle) * 76 - 36,
+      width: 54,
+      height: 72
+    };
+  });
 }
 
 function checkTerrain(game) {
@@ -341,9 +405,11 @@ export function snapshot(game) {
     screen: game.screen, tick: game.tick, lives: game.lives, score: game.score,
     cores: [...game.cores], coresCollected: game.coresCollected, weapon: loadout.weapon,
     weaponLevel: loadout.level, pulseShots: game.pulseShots, weaponShots: { ...game.weaponShots },
-    enemyShots: game.enemyShots, combatHits: game.combatHits,
+    enemyShots: game.enemyShots, bossShots: game.bossShots, combatHits: game.combatHits,
+    bossShieldBlocks: game.bossShieldBlocks, bossWeakpointHits: game.bossWeakpointHits,
     destroyedTerrain: [...game.destroyedTerrain],
     terrainHits: game.terrainHits, terrainVisible: visibleTerrain(game.scrollX, game.destroyedTerrain).length,
-    bossHp: game.boss?.hp ?? null, defeatedBoss: game.defeatedBoss, hudTop: 720
+    bossHp: game.boss?.hp ?? null, bossWarning: game.boss?.attackWarning ?? false,
+    defeatedBoss: game.defeatedBoss, hudTop: 720
   };
 }

@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { automaticInput, beginStage, collectCore, createGame, reactorLoadout, updateGame } from "../../src/core/game.mjs";
+import { automaticInput, beginStage, bossShieldRects, bossWeakpoint, collectCore, createGame, reactorLoadout, updateGame } from "../../src/core/game.mjs";
 
 test("PULSE always fires when the reactor is empty", () => {
   const game = createGame();
@@ -46,6 +46,27 @@ test("enemy projectiles consume a core before a life", () => {
   assert.equal(game.cores.length, 0);
   assert.equal(game.lives, 3);
   assert.equal(game.combatHits, 1);
+});
+
+test("Wreck Warden telegraphs fan attacks and only takes damage at its rotating weakpoint", () => {
+  const game = createGame();
+  game.screen = "playing";
+  game.tick = 190 * 60 - 1;
+  updateGame(game, {});
+  assert.equal(game.boss.attackWarning, true);
+  const initialHp = game.boss.hp;
+  const shield = bossShieldRects(game.boss)[0];
+  game.bullets.push({ kind: "pulse", x: shield.x + 10, y: shield.y + 10, width: 18, height: 4, vx: 0, vy: 0, damage: 2, pierce: 0 });
+  updateGame(game, {});
+  assert.equal(game.boss.hp, initialHp);
+  assert.equal(game.bossShieldBlocks, 1);
+  const weakpoint = bossWeakpoint(game.boss);
+  game.bullets.push({ kind: "pulse", x: weakpoint.x - 4, y: weakpoint.y - 2, width: 8, height: 4, vx: 0, vy: 0, damage: 2, pierce: 0 });
+  updateGame(game, {});
+  assert.equal(game.boss.hp, initialHp - 2);
+  assert.equal(game.bossWeakpointHits, 1);
+  for (let tick = 0; tick < 90; tick += 1) updateGame(game, {});
+  assert.ok(game.bossShots >= 3);
 });
 
 test("reactor queue is FIFO and derives levels and auxiliary effects", () => {
