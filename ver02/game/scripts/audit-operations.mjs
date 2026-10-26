@@ -6,5 +6,5 @@ if (result.failures.length > 0) {
   console.error(result.failures.join("\n"));
   process.exitCode = 1;
 } else {
-  console.log(`operations audit passed: ${result.buildId}, ${result.controlCount} controls, ${result.riskCount} risks, ${result.workItemCount} work items, ${result.successfulRunCount}/${result.monitoringRunCount} successful runs`);
+  console.log(`operations audit passed: ${result.buildId}, ${result.controlCount} controls, ${result.riskCount} risks, ${result.workItemCount} work items, ${result.successfulRunCount}/${result.monitoringRunCount} successful runs, ${result.rightsReviewCount} rights reviews, ${result.improvementTriageCount} improvement triages`);
 }

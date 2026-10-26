@@ -46,6 +46,49 @@
       }
     }
   ],
+  "rightsReviews": [
+    {
+      "id": "RIGHTS-2026-10-26",
+      "reviewedOn": "2026-10-26",
+      "status": "passed",
+      "termsOfUse": {
+        "url": "https://openai.com/policies/terms-of-use/",
+        "published": "2026-01-01",
+        "effective": "2026-01-01"
+      },
+      "serviceTerms": {
+        "url": "https://openai.com/policies/service-terms/",
+        "updated": "2026-10-16"
+      },
+      "assets": {
+        "imageCount": 32,
+        "audioCount": 29,
+        "thirdPartyAssetCount": 0,
+        "noticeMatchesLedger": true
+      },
+      "finding": "no-material-change",
+      "legalAdvice": false,
+      "nonInfringementGuaranteed": false,
+      "nextReviewOn": "2027-01-26"
+    }
+  ],
+  "improvementTriages": [
+    {
+      "id": "TRIAGE-2026-10-26",
+      "reviewedOn": "2026-10-26",
+      "status": "completed",
+      "issueSource": {
+        "url": "https://github.com/onishi/shoot-mata/issues",
+        "queriedAt": "2026-10-26T06:53:56Z",
+        "openCount": 0,
+        "closedCount": 0
+      },
+      "reviewedBacklogIds": ["R-001", "R-002", "R-003"],
+      "newRequestCount": 0,
+      "decision": "No incident, defect, improvement, or feature request requires scheduling; retain the three evaluated optional candidates without changing product requirements.",
+      "nextReviewOn": "2026-11-26"
+    }
+  ],
   "runbook": "ver02/phases/phase-12/OPERATIONS.md",
   "controls": [
     { "id": "MON-01", "domain": "availability-integrity", "cadence": "daily", "command": "npm run audit:production", "failurePriority": "P0" },

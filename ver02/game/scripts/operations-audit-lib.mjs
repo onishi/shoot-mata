@@ -9,6 +9,8 @@ const VER02_DIR = resolve(GAME_DIR, "..");
 const ROOT_DIR = resolve(VER02_DIR, "..");
 const OPERATIONS_PATH = resolve(VER02_DIR, "phases", "phase-12", "operations.json");
 const RELEASE_PATH = resolve(VER02_DIR, "phases", "phase-11", "release.json");
+const RELEASE_AUDIT_PATH = resolve(VER02_DIR, "phases", "phase-10", "release-artifact-audit.json");
+const BACKLOG_PATH = resolve(VER02_DIR, "docs", "backlog.md");
 const REQUIRED_DOMAINS = new Set([
   "availability-integrity",
   "compatibility",
@@ -27,6 +29,7 @@ const REQUIRED_RISKS = new Set([
   "RISK-FUTURE-COMPAT",
 ]);
 const PRIORITIES = new Set(["P0", "P1", "P2", "P3"]);
+const REVIEW_STATUSES = new Set(["passed", "failed"]);
 
 function assert(condition, message, failures) {
   if (!condition) failures.push(message);
@@ -36,10 +39,26 @@ function duplicates(values) {
   return values.filter((value, index) => values.indexOf(value) !== index);
 }
 
-export async function auditOperations({ operationsPath = OPERATIONS_PATH, releasePath = RELEASE_PATH } = {}) {
+function isIsoDate(value) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value ?? "")) return false;
+  const timestamp = Date.parse(`${value}T00:00:00Z`);
+  return !Number.isNaN(timestamp) && new Date(timestamp).toISOString().startsWith(value);
+}
+
+export async function auditOperations({
+  operationsPath = OPERATIONS_PATH,
+  releasePath = RELEASE_PATH,
+  releaseAuditPath = RELEASE_AUDIT_PATH,
+  backlogPath = BACKLOG_PATH,
+} = {}) {
   const failures = [];
   const readJson = async (path) => parseJsonWithUniqueKeys(await readFile(path, "utf8"), path);
-  const [operations, release] = await Promise.all([readJson(operationsPath), readJson(releasePath)]);
+  const [operations, release, releaseAudit, backlog] = await Promise.all([
+    readJson(operationsPath),
+    readJson(releasePath),
+    readJson(releaseAuditPath),
+    readFile(backlogPath, "utf8"),
+  ]);
 
   assert(operations.schemaVersion === 1, "operations schemaVersion must be 1", failures);
   assert(operations.phase === "12", "operations phase must be 12", failures);
@@ -120,6 +139,60 @@ export async function auditOperations({ operationsPath = OPERATIONS_PATH, releas
   }
   assert(successfulRunCount > 0, "operations have no successful monitoring run", failures);
 
+  const rightsReviews = Array.isArray(operations.rightsReviews) ? operations.rightsReviews : [];
+  const rightsReviewIds = rightsReviews.map(({ id }) => id);
+  assert(rightsReviews.length > 0, "operations rights reviews are missing", failures);
+  assert(duplicates(rightsReviewIds).length === 0, "operations rights reviews contain duplicate IDs", failures);
+  for (const review of rightsReviews) {
+    const label = `rights review ${review.id ?? "unknown"}`;
+    assert(/^RIGHTS-\d{4}-\d{2}-\d{2}$/.test(review.id ?? ""), `${label}: invalid ID`, failures);
+    assert(isIsoDate(review.reviewedOn), `${label}: invalid review date`, failures);
+    assert(review.id === `RIGHTS-${review.reviewedOn}`, `${label}: ID differs from review date`, failures);
+    assert(REVIEW_STATUSES.has(review.status), `${label}: invalid status`, failures);
+    assert(review.finding === "no-material-change" || review.finding === "action-required", `${label}: invalid finding`, failures);
+    assert(isIsoDate(review.nextReviewOn), `${label}: invalid next review date`, failures);
+    assert(Date.parse(review.nextReviewOn) > Date.parse(review.reviewedOn), `${label}: next review must follow review date`, failures);
+    assert(review.termsOfUse?.url === releaseAudit.rights?.termsOfUse?.url, `${label}: Terms of Use URL differs from release audit`, failures);
+    assert(review.termsOfUse?.published === releaseAudit.rights?.termsOfUse?.published, `${label}: Terms of Use publication differs from release audit`, failures);
+    assert(review.termsOfUse?.effective === releaseAudit.rights?.termsOfUse?.effective, `${label}: Terms of Use effective date differs from release audit`, failures);
+    assert(review.serviceTerms?.url === releaseAudit.rights?.serviceTerms?.url, `${label}: Service Terms URL differs from release audit`, failures);
+    assert(review.serviceTerms?.updated === releaseAudit.rights?.serviceTerms?.updated, `${label}: Service Terms update differs from release audit`, failures);
+    assert(review.assets?.imageCount === releaseAudit.assets?.imageCount, `${label}: image count differs from release audit`, failures);
+    assert(review.assets?.audioCount === releaseAudit.assets?.audioCount, `${label}: audio count differs from release audit`, failures);
+    assert(review.assets?.thirdPartyAssetCount === 0, `${label}: third-party asset count must be zero`, failures);
+    assert(review.assets?.noticeMatchesLedger === true, `${label}: notice must match the ledger`, failures);
+    assert(review.legalAdvice === false, `${label}: review must not claim legal advice`, failures);
+    assert(review.nonInfringementGuaranteed === false, `${label}: review must not guarantee non-infringement`, failures);
+    if (review.status === "passed") {
+      assert(review.finding === "no-material-change", `${label}: passed review must have no material change`, failures);
+    }
+  }
+
+  const backlogIds = [...backlog.matchAll(/^\| (R-\d{3}) \|/gm)].map((match) => match[1]);
+  const improvementTriages = Array.isArray(operations.improvementTriages) ? operations.improvementTriages : [];
+  const triageIds = improvementTriages.map(({ id }) => id);
+  assert(improvementTriages.length > 0, "operations improvement triages are missing", failures);
+  assert(duplicates(triageIds).length === 0, "operations improvement triages contain duplicate IDs", failures);
+  for (const triage of improvementTriages) {
+    const label = `improvement triage ${triage.id ?? "unknown"}`;
+    assert(/^TRIAGE-\d{4}-\d{2}-\d{2}$/.test(triage.id ?? ""), `${label}: invalid ID`, failures);
+    assert(isIsoDate(triage.reviewedOn), `${label}: invalid review date`, failures);
+    assert(triage.id === `TRIAGE-${triage.reviewedOn}`, `${label}: ID differs from review date`, failures);
+    assert(triage.status === "completed", `${label}: status must be completed`, failures);
+    assert(isIsoDate(triage.nextReviewOn), `${label}: invalid next review date`, failures);
+    assert(Date.parse(triage.nextReviewOn) > Date.parse(triage.reviewedOn), `${label}: next review must follow review date`, failures);
+    assert(triage.issueSource?.url === "https://github.com/onishi/shoot-mata/issues", `${label}: issue source URL is invalid`, failures);
+    assert(!Number.isNaN(Date.parse(triage.issueSource?.queriedAt)), `${label}: invalid issue query time`, failures);
+    assert(triage.issueSource?.queriedAt?.startsWith(`${triage.reviewedOn}T`), `${label}: issue query date differs from review date`, failures);
+    assert(Number.isSafeInteger(triage.issueSource?.openCount) && triage.issueSource.openCount >= 0, `${label}: invalid open issue count`, failures);
+    assert(Number.isSafeInteger(triage.issueSource?.closedCount) && triage.issueSource.closedCount >= 0, `${label}: invalid closed issue count`, failures);
+    const reviewedBacklogIds = Array.isArray(triage.reviewedBacklogIds) ? triage.reviewedBacklogIds : [];
+    assert(duplicates(reviewedBacklogIds).length === 0, `${label}: duplicate reviewed backlog IDs`, failures);
+    assert(JSON.stringify([...reviewedBacklogIds].sort()) === JSON.stringify([...backlogIds].sort()), `${label}: reviewed backlog IDs differ from backlog`, failures);
+    assert(Number.isSafeInteger(triage.newRequestCount) && triage.newRequestCount >= 0, `${label}: invalid new request count`, failures);
+    assert(typeof triage.decision === "string" && triage.decision.length > 0, `${label}: decision is missing`, failures);
+  }
+
   const workflowPath = resolve(ROOT_DIR, operations.workflow?.path ?? "");
   const runbookPath = resolve(ROOT_DIR, operations.runbook ?? "");
   const [workflow, runbook] = await Promise.all([
@@ -146,5 +219,7 @@ export async function auditOperations({ operationsPath = OPERATIONS_PATH, releas
     workItemCount: workItems.length,
     monitoringRunCount: monitoringRuns.length,
     successfulRunCount,
+    rightsReviewCount: rightsReviews.length,
+    improvementTriageCount: improvementTriages.length,
   };
 }

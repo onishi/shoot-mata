@@ -14,6 +14,42 @@ test("Phase 12 operations registry covers the published release and required dom
   assert.equal(result.workItemCount, 5);
   assert.equal(result.monitoringRunCount, 1);
   assert.equal(result.successfulRunCount, 1);
+  assert.equal(result.rightsReviewCount, 1);
+  assert.equal(result.improvementTriageCount, 1);
+});
+
+test("Phase 12 operations registry rejects incomplete rights review evidence", async (t) => {
+  const directory = await mkdtemp(join(tmpdir(), "shoot-mata-rights-review-"));
+  t.after(() => rm(directory, { recursive: true, force: true }));
+  const sourcePath = resolve(process.cwd(), "../phases/phase-12/operations.json");
+  const fixturePath = join(directory, "operations.json");
+  const operations = JSON.parse(await readFile(sourcePath, "utf8"));
+  operations.rightsReviews[0].serviceTerms.updated = "2026-01-01";
+  operations.rightsReviews[0].nonInfringementGuaranteed = true;
+  operations.rightsReviews[0].nextReviewOn = operations.rightsReviews[0].reviewedOn;
+  await writeFile(fixturePath, JSON.stringify(operations));
+
+  const result = await auditOperations({ operationsPath: fixturePath });
+  assert.match(result.failures.join("\n"), /Service Terms update differs/);
+  assert.match(result.failures.join("\n"), /must not guarantee non-infringement/);
+  assert.match(result.failures.join("\n"), /next review must follow review date/);
+});
+
+test("Phase 12 operations registry rejects incomplete improvement triage", async (t) => {
+  const directory = await mkdtemp(join(tmpdir(), "shoot-mata-improvement-triage-"));
+  t.after(() => rm(directory, { recursive: true, force: true }));
+  const sourcePath = resolve(process.cwd(), "../phases/phase-12/operations.json");
+  const fixturePath = join(directory, "operations.json");
+  const operations = JSON.parse(await readFile(sourcePath, "utf8"));
+  operations.improvementTriages[0].reviewedBacklogIds = ["R-001", "R-002"];
+  operations.improvementTriages[0].issueSource.openCount = -1;
+  operations.improvementTriages[0].decision = "";
+  await writeFile(fixturePath, JSON.stringify(operations));
+
+  const result = await auditOperations({ operationsPath: fixturePath });
+  assert.match(result.failures.join("\n"), /invalid open issue count/);
+  assert.match(result.failures.join("\n"), /reviewed backlog IDs differ/);
+  assert.match(result.failures.join("\n"), /decision is missing/);
 });
 
 test("Phase 12 operations registry rejects incomplete or mismatched successful run evidence", async (t) => {
