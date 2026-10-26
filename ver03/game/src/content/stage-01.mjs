@@ -11,6 +11,17 @@ export const STAGE_01 = Object.freeze({
   durationTicks: STAGE_DURATION_TICKS,
   bossStartTick: BOSS_START_TICK,
   checkpoints: [0, 55 * 60, 125 * 60, 185 * 60],
+  coreDrops: Object.freeze([
+    { tick: 18 * 60, color: "red", y: 350 },
+    { tick: 42 * 60, color: "red", y: 465 },
+    { tick: 61 * 60, color: "red", y: 340 },
+    { tick: 82 * 60, color: "blue", y: 360 },
+    { tick: 106 * 60, color: "blue", y: 280 },
+    { tick: 129 * 60, color: "blue", y: 380 },
+    { tick: 148 * 60, color: "yellow", y: 310 },
+    { tick: 166 * 60, color: "yellow", y: 440 },
+    { tick: 181 * 60, color: "yellow", y: 350 }
+  ]),
   terrain: Object.freeze([
     beam("floor-a", 820, 610, 620, 110),
     beam("ceiling-a", 1610, 0, 570, 190),
@@ -27,12 +38,12 @@ export const STAGE_01 = Object.freeze({
     beam("ceiling-f", 10180, 0, 650, 210)
   ]),
   waves: Object.freeze([
-    { tick: 12 * 60, y: 210, count: 4, pattern: "line" },
-    { tick: 34 * 60, y: 420, count: 5, pattern: "weave" },
-    { tick: 68 * 60, y: 320, count: 6, pattern: "weave" },
-    { tick: 96 * 60, y: 270, count: 4, pattern: "line" },
-    { tick: 132 * 60, y: 410, count: 7, pattern: "weave" },
-    { tick: 158 * 60, y: 250, count: 6, pattern: "line" }
+    { tick: 12 * 60, y: 210, count: 4, pattern: "line", type: "salvage-collector" },
+    { tick: 34 * 60, y: 420, count: 5, pattern: "weave", type: "salvage-weaver" },
+    { tick: 68 * 60, y: 320, count: 6, pattern: "weave", type: "salvage-weaver" },
+    { tick: 96 * 60, y: 270, count: 4, pattern: "line", type: "wreck-bulwark" },
+    { tick: 132 * 60, y: 410, count: 7, pattern: "weave", type: "salvage-weaver" },
+    { tick: 158 * 60, y: 250, count: 6, pattern: "line", type: "wreck-bulwark" }
   ])
 });
 

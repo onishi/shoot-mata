@@ -10,6 +10,7 @@ await mkdir(dist, { recursive: true });
 await Promise.all([
   cp(path.join(root, "index.html"), path.join(dist, "index.html")),
   cp(path.join(root, "styles.css"), path.join(dist, "styles.css")),
-  cp(path.join(root, "src"), path.join(dist, "src"), { recursive: true })
+  cp(path.join(root, "src"), path.join(dist, "src"), { recursive: true }),
+  cp(path.join(root, "assets"), path.join(dist, "assets"), { recursive: true })
 ]);
 console.log("Built ver03/game/dist");

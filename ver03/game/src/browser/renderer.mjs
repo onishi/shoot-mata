@@ -1,7 +1,14 @@
 import { visibleTerrain } from "../content/stage-01.mjs";
+import { IMAGE_ASSETS } from "../content/assets.mjs";
+import { reactorLoadout } from "../core/game.mjs";
 
 const WIDTH = 1280;
 const FIELD_HEIGHT = 720;
+const images = new Map(Object.entries(IMAGE_ASSETS).map(([id, url]) => {
+  const image = new Image();
+  image.src = url;
+  return [id, image];
+}));
 
 export function render(ctx, game) {
   ctx.save();
@@ -16,6 +23,7 @@ export function render(ctx, game) {
   else {
     drawTerrain(ctx, game);
     drawBullets(ctx, game);
+    drawPickups(ctx, game);
     drawEnemies(ctx, game);
     drawPlayer(ctx, game);
     if (game.screen === "stage-intro") drawNotice(ctx, "STAGE 1", "ORBITAL WRECK");
@@ -88,64 +96,70 @@ function drawPlayer(ctx, game) {
   const { x, y, invulnerable } = game.player;
   if (invulnerable > 0 && Math.floor(invulnerable / 5) % 2 === 0) return;
   ctx.save();
-  ctx.translate(x, y);
-  ctx.shadowBlur = 16;
+  ctx.shadowBlur = 13;
   ctx.shadowColor = "#38e8ff";
-  ctx.fillStyle = "#e8fbff";
-  ctx.beginPath();
-  ctx.moveTo(34, 0);
-  ctx.lineTo(-20, -18);
-  ctx.lineTo(-10, -5);
-  ctx.lineTo(-32, 0);
-  ctx.lineTo(-10, 5);
-  ctx.lineTo(-20, 18);
-  ctx.closePath();
-  ctx.fill();
-  ctx.fillStyle = "#25dfff";
-  ctx.fillRect(-14, -5, 28, 10);
+  drawAsset(ctx, "player", x - 42, y - 24, 86, 48, () => {
+    ctx.fillStyle = "#e8fbff";
+    ctx.beginPath();
+    ctx.moveTo(x + 34, y); ctx.lineTo(x - 25, y - 19); ctx.lineTo(x - 14, y); ctx.lineTo(x - 25, y + 19); ctx.closePath(); ctx.fill();
+  });
   ctx.fillStyle = "#ffdf61";
   ctx.beginPath();
-  ctx.arc(0, 0, 5, 0, Math.PI * 2);
+  ctx.arc(x, y, 5, 0, Math.PI * 2);
   ctx.fill();
   ctx.restore();
 }
 
 function drawBullets(ctx, game) {
-  ctx.fillStyle = "#8dffff";
-  ctx.shadowBlur = 9;
-  ctx.shadowColor = "#39e5ff";
-  for (const bullet of game.bullets) ctx.fillRect(bullet.x, bullet.y - 2, bullet.width, bullet.height);
+  for (const bullet of game.bullets) {
+    ctx.save();
+    if (bullet.kind === "lance") {
+      ctx.fillStyle = "#ff7766"; ctx.shadowColor = "#ff382f"; ctx.shadowBlur = 13;
+      ctx.beginPath(); ctx.moveTo(bullet.x + bullet.width, bullet.y + bullet.height / 2); ctx.lineTo(bullet.x + 8, bullet.y); ctx.lineTo(bullet.x, bullet.y + bullet.height / 2); ctx.lineTo(bullet.x + 8, bullet.y + bullet.height); ctx.closePath(); ctx.fill();
+    } else if (bullet.kind === "spread") {
+      ctx.strokeStyle = "#6ebcff"; ctx.lineWidth = 4; ctx.shadowColor = "#3198ff"; ctx.shadowBlur = 9;
+      ctx.beginPath(); ctx.moveTo(bullet.x, bullet.y + bullet.height); ctx.lineTo(bullet.x + bullet.width / 2, bullet.y); ctx.lineTo(bullet.x + bullet.width, bullet.y + bullet.height); ctx.stroke();
+    } else if (bullet.kind === "seeker") {
+      ctx.strokeStyle = "#ffe74f"; ctx.lineWidth = 4; ctx.shadowColor = "#ffbe2f"; ctx.shadowBlur = 10;
+      ctx.beginPath(); ctx.ellipse(bullet.x + bullet.width / 2, bullet.y + bullet.height / 2, bullet.width / 2, bullet.height / 2, 0, 0, Math.PI * 2); ctx.stroke();
+    } else {
+      ctx.fillStyle = "#8dffff"; ctx.shadowBlur = 9; ctx.shadowColor = "#39e5ff";
+      ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
+    }
+    ctx.restore();
+  }
   ctx.shadowBlur = 0;
+}
+
+function drawPickups(ctx, game) {
+  for (const pickup of game.pickups) {
+    const bob = Math.sin(game.tick / 12 + pickup.x / 80) * 5;
+    ctx.save();
+    ctx.shadowBlur = 18;
+    ctx.shadowColor = pickup.color === "red" ? "#ff443f" : pickup.color === "blue" ? "#39aaff" : "#ffe24e";
+    drawAsset(ctx, `core-${pickup.color}`, pickup.x - 25, pickup.y - 25 + bob, 50, 50);
+    ctx.restore();
+  }
 }
 
 function drawEnemies(ctx, game) {
   for (const enemy of game.enemies) {
-    ctx.fillStyle = "#ff8659";
-    ctx.strokeStyle = "#ffd27a";
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.moveTo(enemy.x, enemy.y + enemy.height / 2);
-    ctx.lineTo(enemy.x + enemy.width * .65, enemy.y);
-    ctx.lineTo(enemy.x + enemy.width, enemy.y + enemy.height / 2);
-    ctx.lineTo(enemy.x + enemy.width * .65, enemy.y + enemy.height);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
+    drawAsset(ctx, enemy.type, enemy.x, enemy.y, enemy.width, enemy.height, () => {
+      ctx.fillStyle = "#ff8659"; ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
+    });
   }
   if (!game.boss || game.boss.dead) return;
   const boss = game.boss;
-  ctx.fillStyle = "#812f38";
-  ctx.strokeStyle = "#ffb760";
-  ctx.lineWidth = 7;
-  ctx.fillRect(boss.x, boss.y, boss.width, boss.height);
-  ctx.strokeRect(boss.x, boss.y, boss.width, boss.height);
-  ctx.fillStyle = "#ffeb8a";
-  ctx.beginPath();
-  ctx.arc(boss.x + 30, boss.y + boss.height / 2, 18, 0, Math.PI * 2);
-  ctx.fill();
+  ctx.save();
+  ctx.shadowColor = "#ff713d"; ctx.shadowBlur = 18;
+  drawAsset(ctx, "wreck-warden", boss.x, boss.y, boss.width, boss.height, () => {
+    ctx.fillStyle = "#812f38"; ctx.fillRect(boss.x, boss.y, boss.width, boss.height);
+  });
+  ctx.restore();
 }
 
 function drawHud(ctx, game) {
+  const loadout = reactorLoadout(game.cores);
   ctx.fillStyle = "#07101a";
   ctx.fillRect(0, FIELD_HEIGHT, WIDTH, 80);
   ctx.fillStyle = "#2b6073";
@@ -167,13 +181,20 @@ function drawHud(ctx, game) {
   ctx.font = "bold 18px Arial";
   ctx.fillText("REACTOR", 450, 744);
   for (let i = 0; i < 3; i += 1) {
-    ctx.strokeStyle = "#426477";
+    const color = game.cores[i];
+    ctx.fillStyle = color === "red" ? "#a82e31" : color === "blue" ? "#235f9b" : color === "yellow" ? "#a17e21" : "#0c1b25";
+    ctx.fillRect(450 + i * 46, 758, 34, 27);
+    ctx.strokeStyle = i === 0 && color ? "#f2fbff" : "#426477";
     ctx.lineWidth = 2;
-    ctx.strokeRect(450 + i * 46, 760, 34, 24);
+    ctx.strokeRect(450 + i * 46, 758, 34, 27);
+    if (color) {
+      ctx.fillStyle = "#ffffff"; ctx.font = "bold 17px Arial";
+      ctx.fillText(color === "red" ? "I" : color === "blue" ? "+" : "◎", 461 + i * 46, 772);
+    }
   }
-  ctx.fillStyle = "#78f4ff";
+  ctx.fillStyle = loadout.color === "red" ? "#ff8177" : loadout.color === "blue" ? "#6ebcff" : loadout.color === "yellow" ? "#ffe36e" : "#78f4ff";
   ctx.font = "bold 21px Arial";
-  ctx.fillText("PULSE", 640, 770);
+  ctx.fillText(loadout.level ? `${loadout.weapon} Lv${loadout.level}` : "PULSE", 610, 770);
   if (game.boss && !game.boss.dead) {
     ctx.fillStyle = "#bcefff";
     ctx.font = "bold 16px Arial";
@@ -234,6 +255,12 @@ function drawResult(ctx, game) {
   ctx.fillText(`PULSE  ${game.pulseShots}`, WIDTH / 2, 368);
   ctx.fillStyle = "#7499aa";
   ctx.font = "18px Arial";
-  ctx.fillText("M1 FOUNDATION BUILD", WIDTH / 2, 486);
+  ctx.fillText(`${reactorLoadout(game.cores).weapon} / ${game.coresCollected} CORES COLLECTED`, WIDTH / 2, 486);
   ctx.textAlign = "start";
+}
+
+function drawAsset(ctx, id, x, y, width, height, fallback) {
+  const image = images.get(id);
+  if (image?.complete && image.naturalWidth > 0) ctx.drawImage(image, x, y, width, height);
+  else fallback?.();
 }

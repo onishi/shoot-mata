@@ -4,26 +4,16 @@ import { overlapsCircleRect, overlapsRect } from "./geometry.mjs";
 const FIELD_HEIGHT = 720;
 const PLAYER_SPEED = 5;
 const SHOT_INTERVAL = 8;
+const WEAPON_NAMES = Object.freeze({ red: "LANCE", blue: "SPREAD", yellow: "SEEKER" });
 
 export function createGame() {
   return {
-    screen: "title",
-    tick: 0,
-    scrollX: 0,
-    score: 0,
-    lives: 3,
-    cores: [],
+    screen: "title", tick: 0, scrollX: 0, score: 0, lives: 3, cores: [], pickups: [],
+    nextCoreDrop: 0, coresCollected: 0,
     player: { x: 180, y: 360, radius: 5, invulnerable: 0 },
-    bullets: [],
-    enemies: [],
-    boss: null,
-    nextWave: 0,
-    pulseShots: 0,
-    terrainHits: 0,
-    defeatedBoss: false,
-    paused: false,
-    introTicks: 0,
-    resultTicks: 0
+    bullets: [], enemies: [], boss: null, nextWave: 0, pulseShots: 0,
+    weaponShots: { lance: 0, spread: 0, seeker: 0 },
+    terrainHits: 0, defeatedBoss: false, paused: false, introTicks: 0, resultTicks: 0
   };
 }
 
@@ -31,10 +21,30 @@ export function beginStage(game) {
   Object.assign(game, createGame(), { screen: "stage-intro", introTicks: 90 });
 }
 
+export function collectCore(game, color) {
+  if (!WEAPON_NAMES[color]) throw new TypeError(`Unknown core color: ${color}`);
+  if (game.cores.length === 3) game.cores.shift();
+  game.cores.push(color);
+  game.coresCollected += 1;
+  game.score += 75;
+}
+
+export function reactorLoadout(cores) {
+  if (cores.length === 0) return { weapon: "PULSE", color: null, level: 0, pierce: 0, invulnerability: 0, collectionRadius: 0 };
+  const color = cores[0];
+  return {
+    weapon: WEAPON_NAMES[color],
+    color,
+    level: Math.min(3, cores.filter((core) => core === color).length),
+    pierce: cores.filter((core) => core !== color && core === "red").length,
+    invulnerability: cores.filter((core) => core !== color && core === "blue").length * 15,
+    collectionRadius: cores.filter((core) => core !== color && core === "yellow").length * 32
+  };
+}
+
 export function updateGame(game, input = {}) {
   if (input.pausePressed && game.screen === "playing") game.paused = !game.paused;
   if (game.paused) return game;
-
   if (game.screen === "stage-intro") {
     game.introTicks -= 1;
     if (game.introTicks <= 0) game.screen = "playing";
@@ -46,6 +56,8 @@ export function updateGame(game, input = {}) {
   game.scrollX = Math.min(BOSS_START_TICK * SCROLL_SPEED, game.tick * SCROLL_SPEED);
   updatePlayer(game, input);
   spawnWaves(game);
+  spawnCoreDrops(game);
+  updatePickups(game);
   updateShots(game, input);
   updateEnemies(game);
   updateBoss(game);
@@ -62,59 +74,120 @@ function updatePlayer(game, input) {
   if (game.player.invulnerable > 0) game.player.invulnerable -= 1;
 }
 
+function spawnCoreDrops(game) {
+  const drop = STAGE_01.coreDrops[game.nextCoreDrop];
+  if (!drop || game.tick < drop.tick) return;
+  game.pickups.push({ x: 1300, y: drop.y, color: drop.color, radius: 20 });
+  game.nextCoreDrop += 1;
+}
+
+function updatePickups(game) {
+  const loadout = reactorLoadout(game.cores);
+  for (const pickup of game.pickups) {
+    pickup.x -= 2.7;
+    const dx = game.player.x - pickup.x;
+    const dy = game.player.y - pickup.y;
+    const radius = 28 + loadout.collectionRadius;
+    if (dx * dx + dy * dy <= radius * radius) {
+      collectCore(game, pickup.color);
+      pickup.collected = true;
+    }
+  }
+  game.pickups = game.pickups.filter((pickup) => !pickup.collected && pickup.x > -40);
+}
+
 function updateShots(game, input) {
   if (input.fire && game.tick % SHOT_INTERVAL === 0) {
-    game.bullets.push({ x: game.player.x + 28, y: game.player.y, width: 18, height: 4, damage: 2 });
+    addBullet(game, { kind: "pulse", x: game.player.x + 28, y: game.player.y - 2, width: 18, height: 4, vx: 13, vy: 0, damage: 2, pierce: 0 });
     game.pulseShots += 1;
   }
-  for (const bullet of game.bullets) bullet.x += 13;
+  if (input.fire) fireReactorWeapon(game, reactorLoadout(game.cores));
+  moveShots(game);
+  hitTargets(game);
+  game.bullets = game.bullets.filter((bullet) => !bullet.dead && bullet.x < 1340 && bullet.y > -40 && bullet.y < FIELD_HEIGHT + 40);
+}
 
+function fireReactorWeapon(game, loadout) {
+  const origin = { x: game.player.x + 30, y: game.player.y };
+  if (loadout.color === "red" && game.tick % 12 === 0) {
+    addBullet(game, { kind: "lance", x: origin.x, y: origin.y - 4, width: 34 + loadout.level * 7, height: 8, vx: 17, vy: 0, damage: [0, 3, 4, 6][loadout.level], pierce: loadout.level + loadout.pierce });
+    game.weaponShots.lance += 1;
+  }
+  if (loadout.color === "blue" && game.tick % 15 === 0) {
+    const angles = loadout.level === 1 ? [-0.18, 0, 0.18] : loadout.level === 2 ? [-0.3, -0.15, 0, 0.15, 0.3] : [-0.39, -0.26, -0.13, 0, 0.13, 0.26, 0.39];
+    for (const angle of angles) addBullet(game, { kind: "spread", x: origin.x, y: origin.y - 3, width: 19, height: 6, vx: 12 * Math.cos(angle), vy: 12 * Math.sin(angle), damage: loadout.level === 3 ? 1.2 : 1, pierce: loadout.pierce });
+    game.weaponShots.spread += angles.length;
+  }
+  if (loadout.color === "yellow" && game.tick % 20 === 0) {
+    for (let index = 0; index < loadout.level; index += 1) {
+      addBullet(game, { kind: "seeker", x: origin.x, y: origin.y - 4 + (index - (loadout.level - 1) / 2) * 13, width: 15, height: 8, vx: 9.5, vy: (index - (loadout.level - 1) / 2) * 1.2, damage: 1.5, pierce: loadout.pierce, turn: loadout.level === 3 ? 0.2 : 0.13 });
+    }
+    game.weaponShots.seeker += loadout.level;
+  }
+}
+
+function addBullet(game, bullet) { game.bullets.push(bullet); }
+
+function moveShots(game) {
+  const targets = game.boss && !game.boss.dead ? [game.boss] : game.enemies.filter((enemy) => !enemy.dead);
+  for (const bullet of game.bullets) {
+    if (bullet.kind === "seeker" && targets.length) {
+      let target = targets[0];
+      let distance = Infinity;
+      for (const candidate of targets) {
+        const dx = candidate.x - bullet.x;
+        const dy = candidate.y + candidate.height / 2 - bullet.y;
+        const nextDistance = dx * dx + dy * dy;
+        if (dx > -20 && nextDistance < distance) { target = candidate; distance = nextDistance; }
+      }
+      const targetY = target.y + target.height / 2;
+      bullet.vy += Math.sign(targetY - bullet.y) * bullet.turn;
+      bullet.vy = Math.max(-5, Math.min(5, bullet.vy));
+    }
+    bullet.x += bullet.vx;
+    bullet.y += bullet.vy;
+  }
+}
+
+function hitTargets(game) {
   for (const bullet of game.bullets) {
     for (const enemy of game.enemies) {
-      if (!enemy.dead && overlapsRect(bullet, enemy)) {
-        enemy.hp -= bullet.damage;
-        bullet.dead = true;
-        if (enemy.hp <= 0) { enemy.dead = true; game.score += 100; }
-      }
+      if (!bullet.dead && !enemy.dead && overlapsRect(bullet, enemy)) damageTarget(game, bullet, enemy, 100);
     }
-    if (game.boss && !game.boss.dead && overlapsRect(bullet, game.boss)) {
-      game.boss.hp -= bullet.damage;
-      bullet.dead = true;
-      if (game.boss.hp <= 0) {
-        game.boss.dead = true;
-        game.defeatedBoss = true;
-        game.score += 5000;
-        game.screen = "stage-result";
-      }
-    }
+    if (!bullet.dead && game.boss && !game.boss.dead && overlapsRect(bullet, game.boss)) damageTarget(game, bullet, game.boss, 5000);
   }
-  game.bullets = game.bullets.filter((bullet) => !bullet.dead && bullet.x < 1300);
+}
+
+function damageTarget(game, bullet, target, score) {
+  target.hp -= bullet.damage;
+  if (bullet.pierce > 0) bullet.pierce -= 1;
+  else bullet.dead = true;
+  if (target.hp > 0) return;
+  target.dead = true;
+  game.score += score;
+  if (target === game.boss) {
+    game.defeatedBoss = true;
+    game.screen = "stage-result";
+  }
 }
 
 function spawnWaves(game) {
   const wave = STAGE_01.waves[game.nextWave];
   if (!wave || game.tick < wave.tick) return;
+  const stats = wave.type === "wreck-bulwark" ? { width: 68, height: 45, hp: 22 } : { width: 52, height: 36, hp: 7 };
   for (let i = 0; i < wave.count; i += 1) {
-    game.enemies.push({
-      x: 1280 + i * 80,
-      y: wave.y + (wave.pattern === "weave" ? Math.sin(i) * 100 : i * 22),
-      width: 42,
-      height: 28,
-      hp: 6,
-      phase: i * 0.8,
-      pattern: wave.pattern
-    });
+    game.enemies.push({ x: 1280 + i * 80, y: wave.y + (wave.pattern === "weave" ? Math.sin(i) * 100 : i * 22), ...stats, phase: i * 0.8, pattern: wave.pattern, type: wave.type });
   }
   game.nextWave += 1;
 }
 
 function updateEnemies(game) {
   for (const enemy of game.enemies) {
-    enemy.x -= 2.3;
+    enemy.x -= enemy.type === "wreck-bulwark" ? 1.6 : 2.3;
     if (enemy.pattern === "weave") enemy.y += Math.sin(game.tick / 28 + enemy.phase) * 1.8;
     const dx = game.player.x - (enemy.x + enemy.width / 2);
     const dy = game.player.y - (enemy.y + enemy.height / 2);
-    if (!enemy.dead && game.player.invulnerable === 0 && dx * dx + dy * dy < 25 * 25) loseLife(game);
+    if (!enemy.dead && game.player.invulnerable === 0 && dx * dx + dy * dy < 25 * 25) takeCombatHit(game);
   }
   game.enemies = game.enemies.filter((enemy) => !enemy.dead && enemy.x > -80);
 }
@@ -122,7 +195,7 @@ function updateEnemies(game) {
 function updateBoss(game) {
   if (game.tick >= BOSS_START_TICK && !game.boss) {
     game.enemies.length = 0;
-    game.boss = { x: 1050, y: 250, width: 170, height: 210, hp: 360, maxHp: 360, dead: false };
+    game.boss = { x: 1020, y: 250, width: 220, height: 184, hp: 900, maxHp: 900, dead: false, type: "wreck-warden" };
   }
   if (!game.boss || game.boss.dead) return;
   game.boss.y = 255 + Math.sin((game.tick - BOSS_START_TICK) / 75) * 145;
@@ -137,6 +210,16 @@ function checkTerrain(game) {
       break;
     }
   }
+}
+
+function takeCombatHit(game) {
+  if (game.cores.length) {
+    const loadout = reactorLoadout(game.cores);
+    game.cores.shift();
+    game.player.invulnerable = 90 + loadout.invulnerability;
+    return;
+  }
+  loseLife(game);
 }
 
 function loseLife(game) {
@@ -164,25 +247,18 @@ export function automaticInput(game) {
     if (item.y === 0) targetY = Math.max(targetY, item.height + 70);
     else if (item.y + item.height >= FIELD_HEIGHT) targetY = Math.min(targetY, item.y - 70);
   }
-  return {
-    up: game.player.y > targetY + 8,
-    down: game.player.y < targetY - 8,
-    fire: true
-  };
+  const pickup = game.pickups.find((item) => item.x > game.player.x - 20 && item.x < 720);
+  if (pickup && !ahead.some((item) => pickup.y > item.y - 45 && pickup.y < item.y + item.height + 45)) targetY = pickup.y;
+  return { up: game.player.y > targetY + 8, down: game.player.y < targetY - 8, fire: true };
 }
 
 export function snapshot(game) {
+  const loadout = reactorLoadout(game.cores);
   return {
-    screen: game.screen,
-    tick: game.tick,
-    lives: game.lives,
-    score: game.score,
-    cores: game.cores.length,
-    pulseShots: game.pulseShots,
-    terrainHits: game.terrainHits,
-    terrainVisible: visibleTerrain(game.scrollX).length,
-    bossHp: game.boss?.hp ?? null,
-    defeatedBoss: game.defeatedBoss,
-    hudTop: 720
+    screen: game.screen, tick: game.tick, lives: game.lives, score: game.score,
+    cores: [...game.cores], coresCollected: game.coresCollected, weapon: loadout.weapon,
+    weaponLevel: loadout.level, pulseShots: game.pulseShots, weaponShots: { ...game.weaponShots },
+    terrainHits: game.terrainHits, terrainVisible: visibleTerrain(game.scrollX).length,
+    bossHp: game.boss?.hp ?? null, defeatedBoss: game.defeatedBoss, hudTop: 720
   };
 }
