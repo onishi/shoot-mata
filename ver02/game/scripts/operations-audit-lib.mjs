@@ -151,7 +151,7 @@ export async function auditOperations({
   const rightsReviewIds = rightsReviews.map(({ id }) => id);
   assert(rightsReviews.length > 0, "operations rights reviews are missing", failures);
   assert(duplicates(rightsReviewIds).length === 0, "operations rights reviews contain duplicate IDs", failures);
-  for (const review of rightsReviews) {
+  for (const [index, review] of rightsReviews.entries()) {
     const label = `rights review ${review.id ?? "unknown"}`;
     assert(/^RIGHTS-\d{4}-\d{2}-\d{2}$/.test(review.id ?? ""), `${label}: invalid ID`, failures);
     assert(isIsoDate(review.reviewedOn), `${label}: invalid review date`, failures);
@@ -173,7 +173,16 @@ export async function auditOperations({
     assert(review.nonInfringementGuaranteed === false, `${label}: review must not guarantee non-infringement`, failures);
     if (review.status === "passed") {
       assert(review.finding === "no-material-change", `${label}: passed review must have no material change`, failures);
+    } else if (review.status === "failed") {
+      assert(review.finding === "action-required", `${label}: failed review must require action`, failures);
     }
+    if (index > 0) {
+      const previous = rightsReviews[index - 1];
+      assert(Date.parse(review.reviewedOn) > Date.parse(previous.reviewedOn), `${label}: review dates must increase`, failures);
+    }
+  }
+  if (rightsReviews.length > 0) {
+    assert(rightsReviews.at(-1).status === "passed", "latest rights review must pass", failures);
   }
 
   const backlogIds = [...backlog.matchAll(/^\| (R-\d{3}) \|/gm)].map((match) => match[1]);
@@ -181,7 +190,7 @@ export async function auditOperations({
   const triageIds = improvementTriages.map(({ id }) => id);
   assert(improvementTriages.length > 0, "operations improvement triages are missing", failures);
   assert(duplicates(triageIds).length === 0, "operations improvement triages contain duplicate IDs", failures);
-  for (const triage of improvementTriages) {
+  for (const [index, triage] of improvementTriages.entries()) {
     const label = `improvement triage ${triage.id ?? "unknown"}`;
     assert(/^TRIAGE-\d{4}-\d{2}-\d{2}$/.test(triage.id ?? ""), `${label}: invalid ID`, failures);
     assert(isIsoDate(triage.reviewedOn), `${label}: invalid review date`, failures);
@@ -199,6 +208,10 @@ export async function auditOperations({
     assert(JSON.stringify([...reviewedBacklogIds].sort()) === JSON.stringify([...backlogIds].sort()), `${label}: reviewed backlog IDs differ from backlog`, failures);
     assert(Number.isSafeInteger(triage.newRequestCount) && triage.newRequestCount >= 0, `${label}: invalid new request count`, failures);
     assert(typeof triage.decision === "string" && triage.decision.length > 0, `${label}: decision is missing`, failures);
+    if (index > 0) {
+      const previous = improvementTriages[index - 1];
+      assert(Date.parse(triage.reviewedOn) > Date.parse(previous.reviewedOn), `${label}: review dates must increase`, failures);
+    }
   }
 
   const workflowPath = resolve(ROOT_DIR, operations.workflow?.path ?? "");

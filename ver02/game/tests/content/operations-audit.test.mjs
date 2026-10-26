@@ -53,6 +53,28 @@ test("Phase 12 operations registry rejects incomplete rights review evidence", a
   assert.match(result.failures.join("\n"), /next review must follow review date/);
 });
 
+test("Phase 12 operations registry rejects a failed or out-of-order latest rights review", async (t) => {
+  const directory = await mkdtemp(join(tmpdir(), "shoot-mata-latest-rights-review-"));
+  t.after(() => rm(directory, { recursive: true, force: true }));
+  const sourcePath = resolve(process.cwd(), "../phases/phase-12/operations.json");
+  const fixturePath = join(directory, "operations.json");
+  const operations = JSON.parse(await readFile(sourcePath, "utf8"));
+  const latestReview = structuredClone(operations.rightsReviews[0]);
+  latestReview.id = "RIGHTS-2026-10-25";
+  latestReview.reviewedOn = "2026-10-25";
+  latestReview.status = "failed";
+  latestReview.finding = "no-material-change";
+  latestReview.nextReviewOn = "2027-01-25";
+  operations.rightsReviews.push(latestReview);
+  operations.phaseReview.rightsReviews = 2;
+  await writeFile(fixturePath, JSON.stringify(operations));
+
+  const result = await auditOperations({ operationsPath: fixturePath });
+  assert.match(result.failures.join("\n"), /failed review must require action/);
+  assert.match(result.failures.join("\n"), /review dates must increase/);
+  assert.match(result.failures.join("\n"), /latest rights review must pass/);
+});
+
 test("Phase 12 operations registry rejects incomplete improvement triage", async (t) => {
   const directory = await mkdtemp(join(tmpdir(), "shoot-mata-improvement-triage-"));
   t.after(() => rm(directory, { recursive: true, force: true }));
@@ -68,6 +90,25 @@ test("Phase 12 operations registry rejects incomplete improvement triage", async
   assert.match(result.failures.join("\n"), /invalid open issue count/);
   assert.match(result.failures.join("\n"), /reviewed backlog IDs differ/);
   assert.match(result.failures.join("\n"), /decision is missing/);
+});
+
+test("Phase 12 operations registry rejects an out-of-order improvement triage", async (t) => {
+  const directory = await mkdtemp(join(tmpdir(), "shoot-mata-triage-order-"));
+  t.after(() => rm(directory, { recursive: true, force: true }));
+  const sourcePath = resolve(process.cwd(), "../phases/phase-12/operations.json");
+  const fixturePath = join(directory, "operations.json");
+  const operations = JSON.parse(await readFile(sourcePath, "utf8"));
+  const latestTriage = structuredClone(operations.improvementTriages[0]);
+  latestTriage.id = "TRIAGE-2026-10-25";
+  latestTriage.reviewedOn = "2026-10-25";
+  latestTriage.issueSource.queriedAt = "2026-10-25T06:53:56Z";
+  latestTriage.nextReviewOn = "2026-11-25";
+  operations.improvementTriages.push(latestTriage);
+  operations.phaseReview.improvementTriages = 2;
+  await writeFile(fixturePath, JSON.stringify(operations));
+
+  const result = await auditOperations({ operationsPath: fixturePath });
+  assert.match(result.failures.join("\n"), /review dates must increase/);
 });
 
 test("Phase 12 operations registry rejects incomplete or mismatched successful run evidence", async (t) => {
