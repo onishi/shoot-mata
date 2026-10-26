@@ -4,7 +4,7 @@ set -eu
 
 usage() {
   echo "Usage: $0 [run-count] [wait-minutes]"
-  echo "Defaults: run-count=12, wait-minutes=60"
+  echo "Defaults: run-count=12, wait-minutes=30"
 }
 
 case "${1:-}" in
@@ -15,7 +15,7 @@ case "${1:-}" in
 esac
 
 run_limit=${1:-12}
-wait_minutes=${2:-60}
+wait_minutes=${2:-30}
 
 case "$run_limit" in
   ''|*[!0-9]*)
