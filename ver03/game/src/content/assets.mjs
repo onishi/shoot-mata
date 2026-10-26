@@ -10,11 +10,25 @@ export const IMAGE_ASSETS = Object.freeze({
   "salvage-weaver": new URL("../../assets/enemies/stage-01/salvage-weaver-v1.webp", import.meta.url).href,
   "wreck-bulwark": new URL("../../assets/enemies/stage-01/wreck-bulwark-v1.webp", import.meta.url).href,
   "hull-crawler": new URL("../../assets/enemies/stage-01/hull-crawler-v1.webp", import.meta.url).href,
-  "wreck-warden": new URL("../../assets/bosses/stage-01/wreck-warden-v1.webp", import.meta.url).href
+  "wreck-warden": new URL("../../assets/bosses/stage-01/wreck-warden-v1.webp", import.meta.url).href,
+  "background-stage-02-far": new URL("../../assets/backgrounds/stage-02/cloud-refinery-far-v1.webp", import.meta.url).href,
+  "background-stage-02-mid": new URL("../../assets/backgrounds/stage-02/cloud-refinery-mid-v1.webp", import.meta.url).href,
+  "background-stage-02-fore": new URL("../../assets/backgrounds/stage-02/cloud-refinery-fore-v1.webp", import.meta.url).href,
+  "cloud-skimmer": new URL("../../assets/enemies/stage-02/cloud-skimmer-v1.webp", import.meta.url).href,
+  "shutter-turret": new URL("../../assets/enemies/stage-02/shutter-turret-v1.webp", import.meta.url).href,
+  "storm-diver": new URL("../../assets/enemies/stage-02/storm-diver-v1.webp", import.meta.url).href,
+  "condenser-leech": new URL("../../assets/enemies/stage-02/condenser-leech-v1.webp", import.meta.url).href,
+  "refinery-guardian": new URL("../../assets/bosses/stage-02/refinery-guardian-v1.webp", import.meta.url).href
 });
 
 export const BACKGROUND_LAYERS = Object.freeze([
   Object.freeze({ asset: "background-far", speed: 0.07, overlap: 240, opacity: 1 }),
   Object.freeze({ asset: "background-mid", speed: 0.18, overlap: 220, opacity: 0.68 }),
   Object.freeze({ asset: "background-fore", speed: 0.36, overlap: 200, opacity: 0.32 })
+]);
+
+export const STAGE_02_BACKGROUND_LAYERS = Object.freeze([
+  Object.freeze({ asset: "background-stage-02-far", speed: 0.06, overlap: 240, opacity: 1 }),
+  Object.freeze({ asset: "background-stage-02-mid", speed: 0.2, overlap: 220, opacity: 0.7 }),
+  Object.freeze({ asset: "background-stage-02-fore", speed: 0.42, overlap: 200, opacity: 0.34 })
 ]);

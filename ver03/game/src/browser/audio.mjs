@@ -2,6 +2,8 @@ const DEFAULT_SETTINGS = Object.freeze({ bgmVolume: 0.65, sfxVolume: 0.45 });
 const DUCK_GAIN = 10 ** (-3 / 20);
 const NORMAL_LAYERS = Object.freeze(["stage-rhythm", "stage-melody"]);
 const DANGER_LAYERS = Object.freeze([...NORMAL_LAYERS, "stage-danger"]);
+const STAGE_02_NORMAL_LAYERS = Object.freeze(["stage-02-rhythm", "stage-02-melody"]);
+const STAGE_02_DANGER_LAYERS = Object.freeze([...STAGE_02_NORMAL_LAYERS, "stage-02-danger"]);
 
 export const AUDIO_ASSETS = Object.freeze([
   { id: "stage-rhythm", group: "bgm", url: "./assets/audio/stage-01/stage-01-orbital-wreck-rhythm-v1.wav", level: 0.72 },
@@ -9,6 +11,11 @@ export const AUDIO_ASSETS = Object.freeze([
   { id: "stage-danger", group: "bgm", url: "./assets/audio/stage-01/stage-01-orbital-wreck-danger-v1.wav", level: 0.42 },
   { id: "stage-intro", group: "sfx", url: "./assets/audio/stage-01/stage-01-orbital-wreck-intro-v1.wav", level: 0.72 },
   { id: "stage-clear", group: "sfx", url: "./assets/audio/stage-01/stage-01-orbital-wreck-clear-v1.wav", level: 0.8 },
+  { id: "stage-02-rhythm", group: "bgm", url: "./assets/audio/stage-02/stage-02-cloud-refinery-rhythm-v1.wav", level: 0.72 },
+  { id: "stage-02-melody", group: "bgm", url: "./assets/audio/stage-02/stage-02-cloud-refinery-melody-v1.wav", level: 0.5 },
+  { id: "stage-02-danger", group: "bgm", url: "./assets/audio/stage-02/stage-02-cloud-refinery-danger-v1.wav", level: 0.42 },
+  { id: "stage-02-intro", group: "sfx", url: "./assets/audio/stage-02/stage-02-cloud-refinery-intro-v1.wav", level: 0.72 },
+  { id: "stage-02-clear", group: "sfx", url: "./assets/audio/stage-02/stage-02-cloud-refinery-clear-v1.wav", level: 0.8 },
   { id: "ui-confirm", group: "sfx", url: "./assets/audio/shared/ui-confirm-v1.wav", level: 0.58 },
   { id: "pulse", group: "sfx", url: "./assets/audio/generated/pulse-shot-v1.wav", level: 0.18 },
   { id: "lance", group: "sfx", url: "./assets/audio/shared/weapon-lance-shot-v1.wav", level: 0.24 },
@@ -28,6 +35,7 @@ export function clampVolume(value) {
 
 export function bgmLayersFor(game) {
   if (game.screen !== "playing") return [];
+  if (game.stageId === "stage-02") return game.boss || game.tick >= 150 * 60 ? STAGE_02_DANGER_LAYERS : STAGE_02_NORMAL_LAYERS;
   return game.boss || game.tick >= 150 * 60 ? DANGER_LAYERS : NORMAL_LAYERS;
 }
 
@@ -40,6 +48,7 @@ function defaultContext() {
 function counterState(game) {
   return {
     screen: game.screen,
+    stageId: game.stageId,
     tick: game.tick,
     lives: game.lives,
     pulse: game.pulseShots,
@@ -166,8 +175,8 @@ export function createAudioSystem(options = {}) {
       return;
     }
     if (next.screen !== previous.screen) {
-      if (next.screen === "stage-intro") playSfx("stage-intro");
-      if (next.screen === "stage-result") { stopBgm(); playSfx("stage-clear"); }
+      if (next.screen === "stage-intro") playSfx(next.stageId === "stage-02" ? "stage-02-intro" : "stage-intro");
+      if (next.screen === "stage-result") { stopBgm(); playSfx(next.stageId === "stage-02" ? "stage-02-clear" : "stage-clear"); }
     }
     if (next.pulse > previous.pulse) playSfx("pulse");
     if (next.lance > previous.lance) playSfx("lance");
@@ -216,7 +225,7 @@ export function createAudioSystem(options = {}) {
       mode = "active";
       previous = counterState(game);
       setBgm(bgmLayersFor(game));
-      if (game.screen === "stage-intro") playSfx("stage-intro");
+      if (game.screen === "stage-intro") playSfx(game.stageId === "stage-02" ? "stage-02-intro" : "stage-intro");
       return status();
     }).catch(() => {
       mode = "silent";

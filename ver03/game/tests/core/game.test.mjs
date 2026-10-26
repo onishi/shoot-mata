@@ -30,7 +30,7 @@ test("automatic input completes Stage 1 and defeats the boss", () => {
   assert.equal(game.scoreBreakdown.noMiss, game.misses === 0 ? 2000 : 0);
 });
 
-test("first-run instructions lead into the stage and result returns to title", () => {
+test("first-run instructions lead into Stage 1 and its result advances to Stage 2", () => {
   const game = createGame();
   beginCampaign(game, { showHowTo: true });
   assert.equal(game.screen, "how-to-play");
@@ -38,7 +38,28 @@ test("first-run instructions lead into the stage and result returns to title", (
   assert.equal(game.screen, "stage-intro");
   game.screen = "stage-result";
   updateGame(game, { confirmPressed: true });
-  assert.equal(game.screen, "title");
+  assert.equal(game.screen, "stage-intro");
+  assert.equal(game.stageId, "stage-02");
+});
+
+test("automatic input completes Stage 2 with four distinct enemies and the rail boss", () => {
+  const game = createGame();
+  beginStage(game, "stage-02");
+  const seen = new Set();
+  for (let tick = 0; tick < 20_000 && game.screen !== "stage-result"; tick += 1) {
+    updateGame(game, automaticInput(game));
+    for (const enemy of game.enemies) seen.add(enemy.type);
+  }
+  assert.equal(game.screen, "stage-result");
+  assert.equal(game.defeatedBoss, true);
+  assert.deepEqual(seen, new Set(["cloud-skimmer", "shutter-turret", "storm-diver", "condenser-leech"]));
+  assert.ok(game.currentTicks > 0);
+  assert.ok(game.shutterWarnings > 0);
+  assert.ok(game.bossShots > 0);
+  assert.ok(game.bossShieldBlocks > 0);
+  assert.ok(game.bossWeakpointHits > 0);
+  assert.equal(game.terrainHits, 0);
+  assert.equal(game.score - game.stageStartScore, Object.values(game.scoreBreakdown).reduce((sum, value) => sum + value, 0));
 });
 
 test("losing the last life opens continue and retry resets the stage and score", () => {

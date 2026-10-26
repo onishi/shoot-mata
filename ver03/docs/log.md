@@ -2,6 +2,16 @@
 
 新しい記録を上に追加する。
 
+## 2026-10-27 — M3 Stage 2 雲海精製塔
+
+- やったこと: Stage 1結果からStage 2へ進むキャンペーン遷移を追加し、260秒の雲海精製塔を実装した。上下気流、90tick予告後に閉じる上下シャッター、帯電壁、上下移動する昇降壁は、描画と当たり判定で同じ地形データを使う。
+- 敵・ボス: Cloud Skimmer、Shutter Turret、Storm Diverに加え、配管面を移動する新規素材のCondenser Leechを実装した。Refinery Guardianは上下レール移動、120tickの照準予告、閉じる上下装甲、3段階の射撃間隔を持ち、PULSEだけでも撃破できる。
+- アート・音: v02のStage 2背景3層、通常敵3種、ボス、BGM 3層、開始・クリア音を再利用し、新規の透過Condenser Leechを追加した。背景は200〜240pxのクロスフェードを維持し、Stage 2通常BGMは-29.0dBFS、ボスBGMは-28.7dBFSだった。
+- 不具合修正: Stage 2結果でStage 1分を含むCLEAR / NO MISS内訳が表示されていたため、面内訳、面得点、ラン合計を分離した。検証中にnpmが触れた読み取り専用ver01のlockfileは変更を破棄した。
+- 検証: `npm run verify` でビルド、Node単体テスト20件、音量監査、PC版Google ChromeのStage 1→Stage 2連続通しに合格した。Stage 1は13,986 tick、Stage 2は16,857 tickでボスを撃破し、両面とも地形接触0、素材読込失敗0、ブラウザ例外0だった。
+- 画面確認: Stage 2通常戦・ボス・結果で、背景接続部に硬い縦線がないこと、地形輪郭と本体が一致すること、敵・弾・地形が識別できること、常時HUDがプレイ領域外にあること、通常画面にデバッグ表示がないことを確認した。
+- 次: Stage 3の開閉膜、収縮通路、壊せる嚢胞、Regenerating Swarm / Parasite Turret / Ark Predator / Cilia Walker、Ark Coreを実装する。
+
 ## 2026-10-26 — M2 Stage 1完成フロー・スコア
 
 - やったこと: 初回だけ表示するHOW TO PLAY、ポーズ、残機0時のCONTINUE、Stage 1結果からタイトルへ戻る画面遷移を接続した。ミス後は2秒待って安全位置へ復帰し、コンティニュー時は3機・スコア0で面の先頭から再開する。

@@ -7,9 +7,11 @@ const beam = (id, x, y, width, height, kind = "beam", hp = null) => ({ id, x, y,
 
 export const STAGE_01 = Object.freeze({
   id: "stage-01",
+  number: 1,
   name: "ORBITAL WRECK",
   durationTicks: STAGE_DURATION_TICKS,
   bossStartTick: BOSS_START_TICK,
+  scrollSpeed: SCROLL_SPEED,
   checkpoints: [0, 55 * 60, 125 * 60, 185 * 60],
   coreDrops: Object.freeze([
     { tick: 18 * 60, color: "red", y: 350 },

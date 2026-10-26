@@ -16,10 +16,16 @@ test("Stage 1 adds the danger layer at the climax and boss", () => {
   assert.deepEqual(bgmLayersFor({ screen: "playing", tick: 10, boss: {} }), ["stage-rhythm", "stage-melody", "stage-danger"]);
 });
 
+test("Stage 2 selects its own synchronized music layers", () => {
+  assert.deepEqual(bgmLayersFor({ screen: "playing", stageId: "stage-02", tick: 60, boss: null }), ["stage-02-rhythm", "stage-02-melody"]);
+  assert.deepEqual(bgmLayersFor({ screen: "playing", stageId: "stage-02", tick: 150 * 60, boss: null }), ["stage-02-rhythm", "stage-02-melody", "stage-02-danger"]);
+});
+
 test("audio inventory covers layered BGM and gameplay feedback", () => {
   const ids = new Set(AUDIO_ASSETS.map(({ id }) => id));
   for (const id of ["stage-rhythm", "stage-melody", "stage-danger", "pulse", "lance", "spread", "seeker", "core", "enemy-shot", "impact", "explosion", "miss", "warning"]) {
     assert.ok(ids.has(id), `missing ${id}`);
   }
+  for (const id of ["stage-02-rhythm", "stage-02-melody", "stage-02-danger", "stage-02-intro", "stage-02-clear"]) assert.ok(ids.has(id), `missing ${id}`);
   assert.equal(ids.size, AUDIO_ASSETS.length);
 });

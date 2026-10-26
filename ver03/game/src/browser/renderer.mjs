@@ -1,5 +1,5 @@
-import { visibleTerrain } from "../content/stage-01.mjs";
-import { BACKGROUND_LAYERS, IMAGE_ASSETS } from "../content/assets.mjs";
+import { visibleTerrainFor } from "../content/stages.mjs";
+import { BACKGROUND_LAYERS, IMAGE_ASSETS, STAGE_02_BACKGROUND_LAYERS } from "../content/assets.mjs";
 import { bossShieldRects, bossWeakpoint, reactorLoadout } from "../core/game.mjs";
 
 const WIDTH = 1280;
@@ -13,7 +13,7 @@ const images = new Map(Object.entries(IMAGE_ASSETS).map(([id, url]) => {
 export function render(ctx, game) {
   ctx.save();
   ctx.clearRect(0, 0, WIDTH, 800);
-  drawBackground(ctx, game.scrollX);
+  drawBackground(ctx, game);
   ctx.save();
   ctx.beginPath();
   ctx.rect(0, 0, WIDTH, FIELD_HEIGHT);
@@ -28,7 +28,7 @@ export function render(ctx, game) {
     drawPickups(ctx, game);
     drawEnemies(ctx, game);
     drawPlayer(ctx, game);
-    if (game.screen === "stage-intro") drawNotice(ctx, "STAGE 1", "ORBITAL WRECK");
+    if (game.screen === "stage-intro") drawNotice(ctx, game.stageId === "stage-02" ? "STAGE 2" : "STAGE 1", game.stageId === "stage-02" ? "CLOUD REFINERY" : "ORBITAL WRECK");
     if (game.screen === "stage-result") drawResult(ctx, game);
     if (game.screen === "continue") drawContinue(ctx);
     if (game.paused) drawNotice(ctx, "PAUSE", "PRESS P TO RESUME");
@@ -38,15 +38,17 @@ export function render(ctx, game) {
   ctx.restore();
 }
 
-function drawBackground(ctx, scrollX) {
+function drawBackground(ctx, game) {
+  const stageTwo = game.stageId === "stage-02";
   const gradient = ctx.createLinearGradient(0, 0, 0, FIELD_HEIGHT);
-  gradient.addColorStop(0, "#071122");
-  gradient.addColorStop(0.55, "#10213a");
-  gradient.addColorStop(1, "#07101d");
+  gradient.addColorStop(0, stageTwo ? "#112735" : "#071122");
+  gradient.addColorStop(0.55, stageTwo ? "#284956" : "#10213a");
+  gradient.addColorStop(1, stageTwo ? "#0b1d2a" : "#07101d");
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, WIDTH, FIELD_HEIGHT);
 
-  for (const layer of BACKGROUND_LAYERS) drawCrossfadedLayer(ctx, images.get(layer.asset), scrollX, layer);
+  const layers = stageTwo ? STAGE_02_BACKGROUND_LAYERS : BACKGROUND_LAYERS;
+  for (const layer of layers) drawCrossfadedLayer(ctx, images.get(layer.asset), game.scrollX, layer);
 
   ctx.fillStyle = "rgba(3, 12, 24, 0.16)";
   ctx.fillRect(0, 0, WIDTH, FIELD_HEIGHT);
@@ -76,17 +78,18 @@ function drawCrossfadedLayer(ctx, image, scrollX, { speed, overlap, opacity }) {
 }
 
 function drawTerrain(ctx, game) {
-  for (const item of visibleTerrain(game.scrollX, game.destroyedTerrain)) {
+  for (const item of visibleTerrainFor(game.stageId, game.scrollX, game.destroyedTerrain, game.tick)) {
     const x = item.screenX;
+    const refinery = game.stageId === "stage-02";
     ctx.save();
     ctx.beginPath();
     ctx.rect(x, item.y, item.width, item.height);
     ctx.clip();
     const gradient = ctx.createLinearGradient(x, item.y, x, item.y + item.height);
-    gradient.addColorStop(0, item.kind === "destructible-wreck" ? "#a95c35" : "#617983");
-    gradient.addColorStop(0.1, "#263947");
-    gradient.addColorStop(0.55, "#111f2a");
-    gradient.addColorStop(1, "#07111a");
+    gradient.addColorStop(0, item.kind === "destructible-wreck" ? "#a95c35" : refinery ? "#d2c49f" : "#617983");
+    gradient.addColorStop(0.1, refinery ? "#52696c" : "#263947");
+    gradient.addColorStop(0.55, refinery ? "#1d363c" : "#111f2a");
+    gradient.addColorStop(1, refinery ? "#0b2028" : "#07111a");
     ctx.fillStyle = gradient;
     ctx.fillRect(x, item.y, item.width, item.height);
 
@@ -104,7 +107,7 @@ function drawTerrain(ctx, game) {
       ctx.fillStyle = "rgba(118, 155, 169, 0.16)";
     }
 
-    ctx.strokeStyle = item.kind === "destructible-wreck" ? "#b86238" : "#315a69";
+    ctx.strokeStyle = item.kind === "destructible-wreck" ? "#b86238" : refinery ? "#9b613d" : "#315a69";
     ctx.lineWidth = 5;
     for (let rib = 18; rib < item.width; rib += 64) {
       ctx.beginPath();
@@ -126,12 +129,16 @@ function drawTerrain(ctx, game) {
     }
     ctx.restore();
 
-    ctx.strokeStyle = item.kind === "destructible-wreck" ? "#ffb35f" : "#9eeeff";
+    ctx.strokeStyle = item.warning ? "#ffcf52" : item.kind === "charged-wall" ? "#72f4ff" : item.kind === "destructible-wreck" ? "#ffb35f" : refinery ? "#ffc16a" : "#9eeeff";
     ctx.shadowColor = ctx.strokeStyle;
-    ctx.shadowBlur = 10;
+    ctx.shadowBlur = item.warning ? 22 : 10;
     ctx.lineWidth = 4;
     ctx.strokeRect(x + 2, item.y + 2, item.width - 4, item.height - 4);
     ctx.shadowBlur = 0;
+    if (item.warning) {
+      ctx.fillStyle = `rgba(255, 206, 70, ${0.12 + Math.sin(game.tick / 5) * 0.06})`;
+      ctx.fillRect(x, item.y, item.width, item.height);
+    }
   }
 }
 
@@ -219,6 +226,10 @@ function drawEnemies(ctx, game) {
   }
   if (!game.boss || game.boss.dead) return;
   const boss = game.boss;
+  if (boss.type === "refinery-guardian") {
+    drawRefineryGuardian(ctx, boss);
+    return;
+  }
   ctx.save();
   ctx.shadowColor = "#ff713d"; ctx.shadowBlur = 18;
   drawAsset(ctx, "wreck-warden", boss.x, boss.y, boss.width, boss.height, () => {
@@ -244,6 +255,34 @@ function drawEnemies(ctx, game) {
     ctx.strokeStyle = `rgba(255, 62, 77, ${0.35 + Math.sin(boss.age / 5) * 0.2})`;
     ctx.lineWidth = 4;
     ctx.beginPath(); ctx.moveTo(0, weakpoint.y); ctx.lineTo(weakpoint.x - 34, weakpoint.y); ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function drawRefineryGuardian(ctx, boss) {
+  ctx.save();
+  ctx.shadowColor = boss.attackWarning ? "#ffe064" : "#ff713d";
+  ctx.shadowBlur = boss.attackWarning ? 28 : 18;
+  drawAsset(ctx, "refinery-guardian", boss.x, boss.y, boss.width, boss.height, () => {
+    ctx.fillStyle = "#724735"; ctx.fillRect(boss.x, boss.y, boss.width, boss.height);
+  });
+  const coreX = boss.x + 64;
+  const coreY = boss.y + boss.height / 2;
+  ctx.fillStyle = boss.attackWarning ? "#fff0a6" : "#ff7b37";
+  ctx.beginPath(); ctx.arc(coreX, coreY, 25, 0, Math.PI * 2); ctx.fill();
+  if (boss.shuttersClosed) {
+    ctx.fillStyle = "#263b42";
+    ctx.strokeStyle = "#ffc05b";
+    ctx.lineWidth = 4;
+    ctx.fillRect(boss.x + 18, boss.y + 6, 106, 46);
+    ctx.strokeRect(boss.x + 18, boss.y + 6, 106, 46);
+    ctx.fillRect(boss.x + 18, boss.y + boss.height - 52, 106, 46);
+    ctx.strokeRect(boss.x + 18, boss.y + boss.height - 52, 106, 46);
+  }
+  if (boss.attackWarning) {
+    ctx.strokeStyle = `rgba(255, 224, 82, ${0.45 + Math.sin(boss.age / 5) * 0.22})`;
+    ctx.lineWidth = 5;
+    ctx.beginPath(); ctx.moveTo(0, coreY); ctx.lineTo(coreX - 28, coreY); ctx.stroke();
   }
   ctx.restore();
 }
@@ -288,7 +327,7 @@ function drawHud(ctx, game) {
   if (game.boss && !game.boss.dead) {
     ctx.fillStyle = "#bcefff";
     ctx.font = "bold 16px Arial";
-    ctx.fillText("WRECK WARDEN", 880, 744);
+    ctx.fillText(game.boss.type === "refinery-guardian" ? "REFINERY GUARDIAN" : "WRECK WARDEN", 880, 744);
     ctx.fillStyle = "#162b35";
     ctx.fillRect(880, 762, 360, 18);
     ctx.fillStyle = "#ff724e";
@@ -384,13 +423,14 @@ function drawResult(ctx, game) {
   ctx.beginPath(); ctx.moveTo(440, 440); ctx.lineTo(840, 440); ctx.stroke();
   ctx.fillStyle = "#ffffff";
   ctx.font = "bold 25px monospace";
-  ctx.fillText(`TOTAL  ${String(game.score).padStart(8, "0")}`, WIDTH / 2, 480);
+  ctx.fillText(`STAGE  ${String(game.score - game.stageStartScore).padStart(8, "0")}`, WIDTH / 2, 480);
   ctx.fillStyle = "#7499aa";
   ctx.font = "18px Arial";
-  ctx.fillText(`MAX CHAIN ${game.maxKillChain}  /  ${game.coresCollected} CORES`, WIDTH / 2, 525);
+  ctx.fillText(`RUN ${String(game.score).padStart(8, "0")}  /  MAX CHAIN ${game.maxKillChain}  /  ${game.coresCollected} CORES`, WIDTH / 2, 525);
   ctx.fillStyle = "#bdeeff";
   ctx.font = "bold 18px Arial";
-  ctx.fillText("ENTER  RETURN TO TITLE", WIDTH / 2, 585);
+  const nextLabel = game.stageId === "stage-01" ? "ENTER  NEXT STAGE   ESC  TITLE" : "ENTER  RETURN TO TITLE";
+  ctx.fillText(nextLabel, WIDTH / 2, 585);
   ctx.textAlign = "start";
 }
 

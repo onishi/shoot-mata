@@ -1,4 +1,5 @@
-import { BOSS_START_TICK, SCROLL_SPEED, STAGE_01, visibleTerrain } from "../content/stage-01.mjs";
+import { activeCurrent } from "../content/stage-02.mjs";
+import { CAMPAIGN, stageById, visibleTerrainFor } from "../content/stages.mjs";
 import { overlapsCircleRect, overlapsRect } from "./geometry.mjs";
 
 const FIELD_HEIGHT = 720;
@@ -8,27 +9,31 @@ const BOSS_CYCLE_TICKS = 360;
 const BOSS_WARNING_TICKS = 72;
 const WEAPON_NAMES = Object.freeze({ red: "LANCE", blue: "SPREAD", yellow: "SEEKER" });
 
-export function createGame() {
+export function createGame(stageId = "stage-01") {
   return {
-    screen: "title", tick: 0, scrollX: 0, score: 0, lives: 3, cores: [], pickups: [],
+    screen: "title", stageId, tick: 0, scrollX: 0, score: 0, stageStartScore: 0, lives: 3, cores: [], pickups: [],
     scoreBreakdown: { defeat: 0, pickup: 0, chain: 0, clear: 0, noMiss: 0 },
-    killChain: 0, maxKillChain: 0, misses: 0, respawnTicks: 0,
+    killChain: 0, maxKillChain: 0, misses: 0, stageMisses: 0, respawnTicks: 0,
     nextCoreDrop: 0, coresCollected: 0,
     player: { x: 180, y: 360, radius: 5, invulnerable: 0 },
-    bullets: [], enemyBullets: [], enemies: [], boss: null, nextWave: 0, nextCrawler: 0, pulseShots: 0,
+    bullets: [], enemyBullets: [], enemies: [], boss: null, nextWave: 0, nextCrawler: 0, nextLeech: 0, pulseShots: 0,
     enemyShots: 0, bossShots: 0, combatHits: 0, defeatedEnemies: 0, destroyedTerrain: [], terrainDamage: {},
     bossShieldBlocks: 0, bossWeakpointHits: 0,
     weaponShots: { lance: 0, spread: 0, seeker: 0 },
-    terrainHits: 0, defeatedBoss: false, paused: false, introTicks: 0, resultTicks: 0
+    terrainHits: 0, defeatedBoss: false, paused: false, introTicks: 0, resultTicks: 0,
+    currentTicks: 0, shutterWarnings: 0
   };
 }
 
-export function beginStage(game) {
-  Object.assign(game, createGame(), { screen: "stage-intro", introTicks: 90 });
+export function beginStage(game, stageId = "stage-01", { preserveProgress = false } = {}) {
+  const progress = preserveProgress ? {
+    score: game.score, stageStartScore: game.score, lives: game.lives, misses: game.misses
+  } : {};
+  Object.assign(game, createGame(stageId), progress, { screen: "stage-intro", introTicks: 90 });
 }
 
 export function beginCampaign(game, { showHowTo = false } = {}) {
-  Object.assign(game, createGame(), { screen: showHowTo ? "how-to-play" : "stage-intro", introTicks: showHowTo ? 0 : 90 });
+  Object.assign(game, createGame("stage-01"), { screen: showHowTo ? "how-to-play" : "stage-intro", introTicks: showHowTo ? 0 : 90 });
 }
 
 export function returnToTitle(game) {
@@ -70,7 +75,12 @@ export function updateGame(game, input = {}) {
     return game;
   }
   if (game.screen === "stage-result") {
-    if (input.confirmPressed || input.cancelPressed) returnToTitle(game);
+    if (input.cancelPressed) returnToTitle(game);
+    else if (input.confirmPressed) {
+      const nextStage = CAMPAIGN[CAMPAIGN.indexOf(game.stageId) + 1];
+      if (nextStage) beginStage(game, nextStage, { preserveProgress: true });
+      else returnToTitle(game);
+    }
     return game;
   }
   if (input.pausePressed && game.screen === "playing") game.paused = !game.paused;
@@ -83,10 +93,12 @@ export function updateGame(game, input = {}) {
   if (game.screen !== "playing") return game;
 
   game.tick += 1;
-  game.scrollX = Math.min(BOSS_START_TICK * SCROLL_SPEED, game.tick * SCROLL_SPEED);
+  const stage = stageById(game.stageId);
+  game.scrollX = Math.min(stage.bossStartTick * stage.scrollSpeed, game.tick * stage.scrollSpeed);
   updatePlayer(game, input);
   spawnWaves(game);
   spawnCrawlers(game);
+  spawnLeeches(game);
   spawnCoreDrops(game);
   updatePickups(game);
   updateShots(game, input);
@@ -108,11 +120,18 @@ function updatePlayer(game, input) {
   const scale = dx && dy ? Math.SQRT1_2 : 1;
   game.player.x = Math.max(24, Math.min(620, game.player.x + dx * PLAYER_SPEED * scale));
   game.player.y = Math.max(18, Math.min(FIELD_HEIGHT - 18, game.player.y + dy * PLAYER_SPEED * scale));
+  if (game.stageId === "stage-02") {
+    const current = activeCurrent(game.tick);
+    if (current) {
+      game.player.y = Math.max(18, Math.min(FIELD_HEIGHT - 18, game.player.y + current.direction * current.strength));
+      game.currentTicks += 1;
+    }
+  }
   if (game.player.invulnerable > 0) game.player.invulnerable -= 1;
 }
 
 function spawnCoreDrops(game) {
-  const drop = STAGE_01.coreDrops[game.nextCoreDrop];
+  const drop = stageById(game.stageId).coreDrops[game.nextCoreDrop];
   if (!drop || game.tick < drop.tick) return;
   game.pickups.push({ x: 1300, y: drop.y, color: drop.color, radius: 20 });
   game.nextCoreDrop += 1;
@@ -147,7 +166,7 @@ function updateShots(game, input) {
 }
 
 function hitTerrain(game) {
-  const terrain = visibleTerrain(game.scrollX, game.destroyedTerrain);
+  const terrain = terrainFor(game);
   for (const bullet of game.bullets) {
     if (bullet.dead) continue;
     const item = terrain.find((candidate) => overlapsRect(bullet, { x: candidate.screenX, y: candidate.y, width: candidate.width, height: candidate.height }));
@@ -215,6 +234,17 @@ function hitTargets(game) {
 
 function hitBoss(game, bullet) {
   const boss = game.boss;
+  if (boss.type === "refinery-guardian") {
+    if (boss.shuttersClosed && (bullet.y < boss.y + 48 || bullet.y > boss.y + boss.height - 48)) {
+      bullet.dead = true;
+      game.bossShieldBlocks += 1;
+      return;
+    }
+    if (!overlapsRect(bullet, { x: boss.x + 24, y: boss.y + 42, width: 82, height: boss.height - 84 })) return;
+    game.bossWeakpointHits += 1;
+    damageTarget(game, bullet, boss, 5000);
+    return;
+  }
   const shields = bossShieldRects(boss);
   if (shields.some((shield) => overlapsRect(bullet, shield))) {
     bullet.dead = true;
@@ -244,16 +274,16 @@ function damageTarget(game, bullet, target, score) {
   if (target !== game.boss) game.defeatedEnemies += 1;
   if (target === game.boss) {
     addScore(game, "clear", 2000);
-    if (game.misses === 0) addScore(game, "noMiss", 2000);
+    if (game.stageMisses === 0) addScore(game, "noMiss", 2000);
     game.defeatedBoss = true;
     game.screen = "stage-result";
   }
 }
 
 function spawnWaves(game) {
-  const wave = STAGE_01.waves[game.nextWave];
+  const wave = stageById(game.stageId).waves[game.nextWave];
   if (!wave || game.tick < wave.tick) return;
-  const stats = wave.type === "wreck-bulwark" ? { width: 68, height: 45, hp: 22 } : { width: 52, height: 36, hp: 7 };
+  const stats = enemyStats(wave.type);
   for (let i = 0; i < wave.count; i += 1) {
     game.enemies.push({ x: 1280 + i * 80, y: wave.y + (wave.pattern === "weave" ? Math.sin(i) * 100 : i * 22), ...stats, phase: i * 0.8, pattern: wave.pattern, type: wave.type, spawnedTick: game.tick + i * 14 });
   }
@@ -261,9 +291,10 @@ function spawnWaves(game) {
 }
 
 function spawnCrawlers(game) {
-  const spawn = STAGE_01.crawlers[game.nextCrawler];
+  const stage = stageById(game.stageId);
+  const spawn = stage.crawlers?.[game.nextCrawler];
   if (!spawn || game.tick < spawn.tick) return;
-  const terrain = STAGE_01.terrain.find((item) => item.id === spawn.terrainId);
+  const terrain = stage.terrain.find((item) => item.id === spawn.terrainId);
   game.enemies.push({
     x: spawn.worldX - game.scrollX, y: terrain.y + terrain.height - 4,
     width: 86, height: 50, hp: 18, phase: game.nextCrawler,
@@ -273,21 +304,53 @@ function spawnCrawlers(game) {
   game.nextCrawler += 1;
 }
 
+function spawnLeeches(game) {
+  const spawn = stageById(game.stageId).leeches?.[game.nextLeech];
+  if (!spawn || game.tick < spawn.tick) return;
+  game.enemies.push({
+    x: spawn.worldX - game.scrollX, y: spawn.side === "ceiling" ? spawn.surfaceY : spawn.surfaceY - 52,
+    width: 94, height: 52, hp: 16, phase: game.nextLeech, pattern: "wall-crawl",
+    type: "condenser-leech", worldX: spawn.worldX, surfaceY: spawn.surfaceY,
+    side: spawn.side, spawnedTick: game.tick
+  });
+  game.nextLeech += 1;
+}
+
+function enemyStats(type) {
+  if (type === "wreck-bulwark") return { width: 68, height: 45, hp: 22 };
+  if (type === "shutter-turret") return { width: 76, height: 58, hp: 20 };
+  if (type === "storm-diver") return { width: 60, height: 45, hp: 10 };
+  if (type === "cloud-skimmer") return { width: 62, height: 42, hp: 8 };
+  return { width: 52, height: 36, hp: 7 };
+}
+
 function updateEnemies(game) {
+  const stage = stageById(game.stageId);
   for (const enemy of game.enemies) {
     if (enemy.type === "hull-crawler") {
-      const anchor = STAGE_01.terrain.find((item) => item.id === enemy.terrainId);
+      const anchor = stage.terrain.find((item) => item.id === enemy.terrainId);
       enemy.worldX -= 0.18;
       enemy.x = enemy.worldX - game.scrollX;
       enemy.y = anchor.y + anchor.height - 4;
       const age = game.tick - enemy.spawnedTick;
       if (enemy.x > 260 && enemy.x < 1160 && age > 0 && age % 150 === 0) dropMine(game, enemy);
+    } else if (enemy.type === "condenser-leech") {
+      enemy.worldX -= 0.28;
+      enemy.x = enemy.worldX - game.scrollX;
+      enemy.y = enemy.side === "ceiling" ? enemy.surfaceY : enemy.surfaceY - enemy.height;
+      const age = game.tick - enemy.spawnedTick;
+      if (enemy.x > 350 && enemy.x < 1120 && age > 0 && age % 135 === 0) fireEnemyShot(game, enemy);
     } else {
       enemy.x -= enemy.type === "wreck-bulwark" ? 1.6 : 2.3;
       const age = game.tick - enemy.spawnedTick;
       if (enemy.type === "salvage-collector" && enemy.x < 1120 && enemy.x > 500 && age > 0 && age % 180 === 0) fireEnemyShot(game, enemy);
+      if (enemy.type === "shutter-turret" && enemy.x < 1120 && enemy.x > 480 && age > 0 && age % 150 === 0) fireEnemyShot(game, enemy);
+      if (enemy.type === "storm-diver" && age > 45) {
+        enemy.x -= 2.2;
+        enemy.y += Math.sign(game.player.y - enemy.y) * 2.6;
+      }
     }
-    if (enemy.pattern === "weave") enemy.y += Math.sin(game.tick / 28 + enemy.phase) * 1.8;
+    if (enemy.pattern === "weave" || enemy.pattern === "current-weave") enemy.y += Math.sin(game.tick / 28 + enemy.phase) * 1.8;
     const dx = game.player.x - (enemy.x + enemy.width / 2);
     const dy = game.player.y - (enemy.y + enemy.height / 2);
     if (!enemy.dead && game.respawnTicks === 0 && game.player.invulnerable === 0 && dx * dx + dy * dy < 25 * 25) takeCombatHit(game);
@@ -329,23 +392,51 @@ function updateEnemyBullets(game) {
 }
 
 function updateBoss(game) {
-  if (game.tick >= BOSS_START_TICK && !game.boss) {
+  const stage = stageById(game.stageId);
+  if (game.tick >= stage.bossStartTick && !game.boss) {
     game.enemies.length = 0;
     game.enemyBullets.length = 0;
-    game.boss = {
-      x: 1020, y: 250, width: 220, height: 184, hp: 260, maxHp: 260,
-      dead: false, type: "wreck-warden", age: 0, shieldAngle: 0, attackWarning: false
-    };
+    game.boss = game.stageId === "stage-02"
+      ? { x: 1010, y: 245, width: 230, height: 190, hp: 300, maxHp: 300, dead: false, type: "refinery-guardian", age: 0, phase: 0, attackWarning: true, shuttersClosed: false }
+      : { x: 1020, y: 250, width: 220, height: 184, hp: 260, maxHp: 260, dead: false, type: "wreck-warden", age: 0, shieldAngle: 0, attackWarning: false };
   }
   if (!game.boss || game.boss.dead) return;
   const boss = game.boss;
   boss.age += 1;
+  if (boss.type === "refinery-guardian") {
+    updateRefineryGuardian(game, boss);
+    return;
+  }
   boss.y = 255 + Math.sin(boss.age / 75) * 145;
   boss.shieldAngle = boss.age * 0.021;
   const cycle = boss.age % BOSS_CYCLE_TICKS;
   boss.attackWarning = cycle < BOSS_WARNING_TICKS;
   if (cycle >= BOSS_WARNING_TICKS && cycle < 228 && (cycle - BOSS_WARNING_TICKS) % 39 === 0) fireBossFan(game, boss);
   if (game.respawnTicks === 0 && game.player.invulnerable === 0 && overlapsCircleRect(game.player, boss)) loseLife(game);
+}
+
+function updateRefineryGuardian(game, boss) {
+  const cycle = boss.age % 420;
+  boss.phase = Math.min(2, Math.floor((1 - boss.hp / boss.maxHp) * 3));
+  boss.y = 245 + Math.sin(boss.age / (70 - boss.phase * 8)) * (155 + boss.phase * 15);
+  boss.attackWarning = cycle < 120;
+  boss.shuttersClosed = cycle >= 120 && cycle < 270;
+  if (cycle === 1) game.shutterWarnings += 1;
+  if (cycle >= 120 && cycle < 300 && (cycle - 120) % Math.max(30, 55 - boss.phase * 9) === 0) {
+    fireGuardianShot(game, boss);
+  }
+  if (game.respawnTicks === 0 && game.player.invulnerable === 0 && overlapsCircleRect(game.player, boss)) loseLife(game);
+}
+
+function fireGuardianShot(game, boss) {
+  const originX = boss.x + 30;
+  const originY = boss.y + boss.height / 2;
+  for (const offset of [-0.18, 0.18]) {
+    const aim = Math.atan2(game.player.y - originY, game.player.x - originX) + offset;
+    game.enemyBullets.push({ kind: "guardian-shot", x: originX, y: originY, radius: 8, vx: Math.cos(aim) * 4.7, vy: Math.sin(aim) * 4.7, age: 0 });
+    game.enemyShots += 1;
+    game.bossShots += 1;
+  }
 }
 
 function fireBossFan(game, boss) {
@@ -382,7 +473,7 @@ export function bossShieldRects(boss) {
 
 function checkTerrain(game) {
   if (game.respawnTicks > 0 || game.player.invulnerable > 0) return;
-  for (const item of visibleTerrain(game.scrollX, game.destroyedTerrain)) {
+  for (const item of terrainFor(game)) {
     if (overlapsCircleRect(game.player, { x: item.screenX, y: item.y, width: item.width, height: item.height })) {
       game.terrainHits += 1;
       loseLife(game);
@@ -404,6 +495,7 @@ function takeCombatHit(game) {
 function loseLife(game) {
   game.lives -= 1;
   game.misses += 1;
+  game.stageMisses += 1;
   game.killChain = 0;
   game.cores.length = 0;
   if (game.lives < 1) {
@@ -426,7 +518,7 @@ function addScore(game, category, points) {
 }
 
 function findSafeY(game) {
-  const obstacles = visibleTerrain(game.scrollX).filter((item) => item.screenX < 260 && item.screenX + item.width > 120);
+  const obstacles = terrainFor(game).filter((item) => item.screenX < 260 && item.screenX + item.width > 120);
   for (const y of [360, 300, 420, 240, 480, 180, 540]) {
     if (!obstacles.some((item) => y > item.y - 20 && y < item.y + item.height + 20)) return y;
   }
@@ -435,7 +527,7 @@ function findSafeY(game) {
 
 export function automaticInput(game) {
   if (game.screen !== "playing") return {};
-  const ahead = visibleTerrain(game.scrollX, game.destroyedTerrain).filter((item) => item.screenX < 420 && item.screenX + item.width > game.player.x - 20);
+  const ahead = terrainFor(game).filter((item) => item.screenX < 470 && item.screenX + item.width > game.player.x - 20);
   let targetY = 360;
   for (const item of ahead) {
     if (item.y === 0) targetY = Math.max(targetY, item.height + 70);
@@ -455,17 +547,23 @@ export function automaticInput(game) {
 export function snapshot(game) {
   const loadout = reactorLoadout(game.cores);
   return {
-    screen: game.screen, tick: game.tick, lives: game.lives, score: game.score,
+    screen: game.screen, stageId: game.stageId, tick: game.tick, lives: game.lives, score: game.score,
     scoreBreakdown: { ...game.scoreBreakdown }, killChain: game.killChain,
-    maxKillChain: game.maxKillChain, misses: game.misses, respawnTicks: game.respawnTicks,
+    maxKillChain: game.maxKillChain, misses: game.misses, stageMisses: game.stageMisses,
+    stageScore: game.score - game.stageStartScore, respawnTicks: game.respawnTicks,
     cores: [...game.cores], coresCollected: game.coresCollected, weapon: loadout.weapon,
     weaponLevel: loadout.level, pulseShots: game.pulseShots, weaponShots: { ...game.weaponShots },
     enemyShots: game.enemyShots, bossShots: game.bossShots, combatHits: game.combatHits,
     defeatedEnemies: game.defeatedEnemies,
     bossShieldBlocks: game.bossShieldBlocks, bossWeakpointHits: game.bossWeakpointHits,
     destroyedTerrain: [...game.destroyedTerrain],
-    terrainHits: game.terrainHits, terrainVisible: visibleTerrain(game.scrollX, game.destroyedTerrain).length,
+    terrainHits: game.terrainHits, terrainVisible: terrainFor(game).length,
     bossHp: game.boss?.hp ?? null, bossWarning: game.boss?.attackWarning ?? false,
+    bossPhase: game.boss?.phase ?? null, currentTicks: game.currentTicks, shutterWarnings: game.shutterWarnings,
     defeatedBoss: game.defeatedBoss, hudTop: 720
   };
+}
+
+function terrainFor(game) {
+  return visibleTerrainFor(game.stageId, game.scrollX, game.destroyedTerrain, game.tick);
 }
