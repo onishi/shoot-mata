@@ -19,7 +19,7 @@ export function render(ctx, game) {
   ctx.rect(0, 0, WIDTH, FIELD_HEIGHT);
   ctx.clip();
 
-  if (game.screen === "title") drawTitle(ctx);
+  if (game.screen === "title") drawTitle(ctx, game);
   else {
     drawTerrain(ctx, game);
     drawBullets(ctx, game);
@@ -293,7 +293,7 @@ function drawHud(ctx, game) {
   }
 }
 
-function drawTitle(ctx) {
+function drawTitle(ctx, game) {
   ctx.fillStyle = "#dffaff";
   ctx.textAlign = "center";
   ctx.shadowBlur = 24;
@@ -310,7 +310,40 @@ function drawTitle(ctx) {
   ctx.fillStyle = "#eafcff";
   ctx.font = "bold 24px Arial";
   ctx.fillText("PRESS ENTER", WIDTH / 2, 505);
+  ctx.fillStyle = "#83aabb";
+  ctx.font = "bold 18px Arial";
+  ctx.fillText("S  SOUND SETTINGS", WIDTH / 2, 552);
+  if (game.audioSettingsOpen) drawAudioSettings(ctx, game);
   ctx.textAlign = "start";
+}
+
+function drawAudioSettings(ctx, game) {
+  const settings = game.audioSettings ?? { bgmVolume: 0.65, sfxVolume: 0.45 };
+  ctx.fillStyle = "#020814f2";
+  ctx.fillRect(350, 165, 580, 390);
+  ctx.strokeStyle = "#65dcf5";
+  ctx.lineWidth = 3;
+  ctx.strokeRect(350, 165, 580, 390);
+  ctx.fillStyle = "#e7fbff";
+  ctx.font = "bold 34px Arial";
+  ctx.fillText("SOUND SETTINGS", WIDTH / 2, 225);
+  const rows = [["BGM", settings.bgmVolume], ["SFX", settings.sfxVolume]];
+  rows.forEach(([label, volume], index) => {
+    const y = 310 + index * 92;
+    ctx.fillStyle = game.audioSettingRow === index ? "#ffcf67" : "#bdeeff";
+    ctx.font = "bold 23px Arial";
+    ctx.fillText(`${game.audioSettingRow === index ? "▶ " : "  "}${label}`, 445, y);
+    ctx.fillStyle = "#173344";
+    ctx.fillRect(550, y - 17, 270, 24);
+    ctx.fillStyle = index === 0 ? "#48cbed" : "#ff9e4a";
+    ctx.fillRect(550, y - 17, 270 * volume, 24);
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "bold 21px monospace";
+    ctx.fillText(String(Math.round(volume * 100)).padStart(3, " "), 860, y);
+  });
+  ctx.fillStyle = "#8aabba";
+  ctx.font = "17px Arial";
+  ctx.fillText("↑↓ SELECT   ←→ ADJUST   ENTER / ESC BACK", WIDTH / 2, 500);
 }
 
 function drawNotice(ctx, title, subtitle) {

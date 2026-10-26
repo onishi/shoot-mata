@@ -1,4 +1,5 @@
 import { automaticInput, beginStage, createGame, snapshot, updateGame } from "../core/game.mjs";
+import { createAudioSystem } from "./audio.mjs";
 import { render } from "./renderer.mjs";
 
 const canvas = document.querySelector("#game");
@@ -9,16 +10,63 @@ const speed = Math.max(1, Math.min(240, Number(params.get("speed")) || 1));
 const keys = new Set();
 const pressed = new Set();
 const game = createGame();
+const savedAudio = loadAudioSettings();
+const audio = createAudioSystem({ settings: savedAudio });
+game.audioSettingsOpen = false;
+game.audioSettingRow = 0;
+game.audioSettings = audio.status().settings;
 let previous = performance.now();
 let accumulator = 0;
 
 addEventListener("keydown", (event) => {
   if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space"].includes(event.code)) event.preventDefault();
+  if (game.screen === "title" && handleAudioSettingsKey(event.code)) return;
   if (!keys.has(event.code)) pressed.add(event.code);
   keys.add(event.code);
-  if (event.code === "Enter" && game.screen === "title") beginStage(game);
+  if (event.code === "Enter" && game.screen === "title") {
+    void audio.activate(game);
+    beginStage(game);
+  }
 });
 addEventListener("keyup", (event) => keys.delete(event.code));
+
+function loadAudioSettings() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem("shoot-mata-v03-audio") ?? "null");
+    return parsed && typeof parsed === "object" ? parsed : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+function saveAudioSettings(settings) {
+  try { localStorage.setItem("shoot-mata-v03-audio", JSON.stringify(settings)); } catch { /* Storage is optional. */ }
+}
+
+function handleAudioSettingsKey(code) {
+  if (!game.audioSettingsOpen && code !== "KeyS") return false;
+  if (code === "KeyS" || code === "Escape" || code === "Enter") {
+    game.audioSettingsOpen = !game.audioSettingsOpen;
+    if (game.audioSettingsOpen) void audio.activate(game).then(() => audio.playUi());
+    else audio.playUi();
+    return true;
+  }
+  if (["ArrowUp", "ArrowDown"].includes(code)) {
+    game.audioSettingRow = game.audioSettingRow === 0 ? 1 : 0;
+    audio.playUi();
+    return true;
+  }
+  if (["ArrowLeft", "ArrowRight"].includes(code)) {
+    const key = game.audioSettingRow === 0 ? "bgmVolume" : "sfxVolume";
+    const delta = code === "ArrowRight" ? 0.05 : -0.05;
+    const settings = audio.setVolumes({ [key]: game.audioSettings[key] + delta });
+    game.audioSettings = settings;
+    saveAudioSettings(settings);
+    audio.playUi();
+    return true;
+  }
+  return true;
+}
 
 function keyboardInput() {
   return {
@@ -39,6 +87,7 @@ function frame(now) {
   if (normalSteps > 0) accumulator -= normalSteps * (1000 / 60);
   const steps = autoplay ? speed : normalSteps;
   for (let i = 0; i < steps; i += 1) updateGame(game, autoplay ? automaticInput(game) : keyboardInput());
+  audio.sync(game);
   pressed.clear();
   render(ctx, game);
   requestAnimationFrame(frame);
@@ -46,11 +95,18 @@ function frame(now) {
 
 window.__shootMata = {
   start: () => beginStage(game),
-  state: () => snapshot(game),
+  state: () => ({ ...snapshot(game), audio: audio.status() }),
+  setAudio(settings) {
+    const next = audio.setVolumes(settings);
+    game.audioSettings = next;
+    saveAudioSettings(next);
+    return next;
+  },
   advance(ticks) {
     for (let i = 0; i < ticks; i += 1) updateGame(game, automaticInput(game));
+    audio.sync(game);
     render(ctx, game);
-    return snapshot(game);
+    return { ...snapshot(game), audio: audio.status() };
   }
 };
 

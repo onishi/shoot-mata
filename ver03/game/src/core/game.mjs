@@ -14,7 +14,7 @@ export function createGame() {
     nextCoreDrop: 0, coresCollected: 0,
     player: { x: 180, y: 360, radius: 5, invulnerable: 0 },
     bullets: [], enemyBullets: [], enemies: [], boss: null, nextWave: 0, nextCrawler: 0, pulseShots: 0,
-    enemyShots: 0, bossShots: 0, combatHits: 0, destroyedTerrain: [], terrainDamage: {},
+    enemyShots: 0, bossShots: 0, combatHits: 0, defeatedEnemies: 0, destroyedTerrain: [], terrainDamage: {},
     bossShieldBlocks: 0, bossWeakpointHits: 0,
     weaponShots: { lance: 0, spread: 0, seeker: 0 },
     terrainHits: 0, defeatedBoss: false, paused: false, introTicks: 0, resultTicks: 0
@@ -206,6 +206,7 @@ function damageTarget(game, bullet, target, score) {
   if (target.hp > 0) return;
   target.dead = true;
   game.score += score;
+  if (target !== game.boss) game.defeatedEnemies += 1;
   if (target === game.boss) {
     game.defeatedBoss = true;
     game.screen = "stage-result";
@@ -406,6 +407,7 @@ export function snapshot(game) {
     cores: [...game.cores], coresCollected: game.coresCollected, weapon: loadout.weapon,
     weaponLevel: loadout.level, pulseShots: game.pulseShots, weaponShots: { ...game.weaponShots },
     enemyShots: game.enemyShots, bossShots: game.bossShots, combatHits: game.combatHits,
+    defeatedEnemies: game.defeatedEnemies,
     bossShieldBlocks: game.bossShieldBlocks, bossWeakpointHits: game.bossWeakpointHits,
     destroyedTerrain: [...game.destroyedTerrain],
     terrainHits: game.terrainHits, terrainVisible: visibleTerrain(game.scrollX, game.destroyedTerrain).length,
