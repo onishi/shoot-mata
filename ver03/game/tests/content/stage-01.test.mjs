@@ -6,6 +6,8 @@ test("Stage 1 is a four-minute data-driven route with three safe checkpoints", (
   assert.equal(STAGE_DURATION_TICKS, 240 * 60);
   assert.ok(STAGE_01.terrain.length >= 12);
   assert.ok(STAGE_01.waves.length >= 6);
+  assert.ok(STAGE_01.crawlers.length >= 5);
+  assert.ok(STAGE_01.terrain.some(({ kind, hp }) => kind === "destructible-wreck" && hp > 0));
   assert.ok(STAGE_01.coreDrops.length >= 9);
   assert.deepEqual(new Set(STAGE_01.coreDrops.map(({ color }) => color)), new Set(["red", "blue", "yellow"]));
   assert.ok(STAGE_01.checkpoints.length >= 4);

@@ -3,7 +3,7 @@ export const STAGE_DURATION_TICKS = 240 * TICKS_PER_SECOND;
 export const BOSS_START_TICK = 190 * TICKS_PER_SECOND;
 export const SCROLL_SPEED = 0.8;
 
-const beam = (id, x, y, width, height, kind = "beam") => ({ id, x, y, width, height, kind });
+const beam = (id, x, y, width, height, kind = "beam", hp = null) => ({ id, x, y, width, height, kind, hp });
 
 export const STAGE_01 = Object.freeze({
   id: "stage-01",
@@ -31,7 +31,7 @@ export const STAGE_01 = Object.freeze({
     beam("ceiling-c", 4890, 0, 650, 205),
     beam("floor-d", 5660, 530, 720, 190),
     beam("ceiling-d", 6500, 0, 600, 220),
-    beam("wall-upper", 7240, 0, 150, 465, "wreck-wall"),
+    beam("breakable-wreck", 7240, 260, 150, 200, "destructible-wreck", 48),
     beam("floor-e", 7650, 605, 710, 115),
     beam("ceiling-e", 8500, 0, 590, 215),
     beam("floor-f", 9240, 555, 760, 165),
@@ -44,11 +44,20 @@ export const STAGE_01 = Object.freeze({
     { tick: 96 * 60, y: 270, count: 4, pattern: "line", type: "wreck-bulwark" },
     { tick: 132 * 60, y: 410, count: 7, pattern: "weave", type: "salvage-weaver" },
     { tick: 158 * 60, y: 250, count: 6, pattern: "line", type: "wreck-bulwark" }
+  ]),
+  crawlers: Object.freeze([
+    { tick: 15 * 60, terrainId: "ceiling-a", worldX: 1990 },
+    { tick: 50 * 60, terrainId: "ceiling-b", worldX: 3680 },
+    { tick: 84 * 60, terrainId: "ceiling-c", worldX: 5290 },
+    { tick: 117 * 60, terrainId: "ceiling-d", worldX: 6880 },
+    { tick: 159 * 60, terrainId: "ceiling-e", worldX: 8870 }
   ])
 });
 
-export function visibleTerrain(scrollX) {
+export function visibleTerrain(scrollX, destroyedIds = []) {
+  const destroyed = destroyedIds instanceof Set ? destroyedIds : new Set(destroyedIds);
   return STAGE_01.terrain
+    .filter((item) => !destroyed.has(item.id))
     .map((item) => ({ ...item, screenX: item.x - scrollX }))
     .filter((item) => item.screenX < 1280 && item.screenX + item.width > 0);
 }

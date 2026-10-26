@@ -11,7 +11,8 @@ export function createGame() {
     screen: "title", tick: 0, scrollX: 0, score: 0, lives: 3, cores: [], pickups: [],
     nextCoreDrop: 0, coresCollected: 0,
     player: { x: 180, y: 360, radius: 5, invulnerable: 0 },
-    bullets: [], enemies: [], boss: null, nextWave: 0, pulseShots: 0,
+    bullets: [], enemyBullets: [], enemies: [], boss: null, nextWave: 0, nextCrawler: 0, pulseShots: 0,
+    enemyShots: 0, combatHits: 0, destroyedTerrain: [], terrainDamage: {},
     weaponShots: { lance: 0, spread: 0, seeker: 0 },
     terrainHits: 0, defeatedBoss: false, paused: false, introTicks: 0, resultTicks: 0
   };
@@ -56,10 +57,12 @@ export function updateGame(game, input = {}) {
   game.scrollX = Math.min(BOSS_START_TICK * SCROLL_SPEED, game.tick * SCROLL_SPEED);
   updatePlayer(game, input);
   spawnWaves(game);
+  spawnCrawlers(game);
   spawnCoreDrops(game);
   updatePickups(game);
   updateShots(game, input);
   updateEnemies(game);
+  updateEnemyBullets(game);
   updateBoss(game);
   checkTerrain(game);
   return game;
@@ -103,8 +106,25 @@ function updateShots(game, input) {
   }
   if (input.fire) fireReactorWeapon(game, reactorLoadout(game.cores));
   moveShots(game);
+  hitTerrain(game);
   hitTargets(game);
   game.bullets = game.bullets.filter((bullet) => !bullet.dead && bullet.x < 1340 && bullet.y > -40 && bullet.y < FIELD_HEIGHT + 40);
+}
+
+function hitTerrain(game) {
+  const terrain = visibleTerrain(game.scrollX, game.destroyedTerrain);
+  for (const bullet of game.bullets) {
+    if (bullet.dead) continue;
+    const item = terrain.find((candidate) => overlapsRect(bullet, { x: candidate.screenX, y: candidate.y, width: candidate.width, height: candidate.height }));
+    if (!item) continue;
+    bullet.dead = true;
+    if (item.kind !== "destructible-wreck") continue;
+    game.terrainDamage[item.id] = (game.terrainDamage[item.id] ?? 0) + bullet.damage;
+    if (game.terrainDamage[item.id] >= item.hp && !game.destroyedTerrain.includes(item.id)) {
+      game.destroyedTerrain.push(item.id);
+      game.score += 250;
+    }
+  }
 }
 
 function fireReactorWeapon(game, loadout) {
@@ -176,20 +196,77 @@ function spawnWaves(game) {
   if (!wave || game.tick < wave.tick) return;
   const stats = wave.type === "wreck-bulwark" ? { width: 68, height: 45, hp: 22 } : { width: 52, height: 36, hp: 7 };
   for (let i = 0; i < wave.count; i += 1) {
-    game.enemies.push({ x: 1280 + i * 80, y: wave.y + (wave.pattern === "weave" ? Math.sin(i) * 100 : i * 22), ...stats, phase: i * 0.8, pattern: wave.pattern, type: wave.type });
+    game.enemies.push({ x: 1280 + i * 80, y: wave.y + (wave.pattern === "weave" ? Math.sin(i) * 100 : i * 22), ...stats, phase: i * 0.8, pattern: wave.pattern, type: wave.type, spawnedTick: game.tick + i * 14 });
   }
   game.nextWave += 1;
 }
 
+function spawnCrawlers(game) {
+  const spawn = STAGE_01.crawlers[game.nextCrawler];
+  if (!spawn || game.tick < spawn.tick) return;
+  const terrain = STAGE_01.terrain.find((item) => item.id === spawn.terrainId);
+  game.enemies.push({
+    x: spawn.worldX - game.scrollX, y: terrain.y + terrain.height - 4,
+    width: 86, height: 50, hp: 18, phase: game.nextCrawler,
+    pattern: "ceiling-crawl", type: "hull-crawler", worldX: spawn.worldX,
+    terrainId: spawn.terrainId, spawnedTick: game.tick
+  });
+  game.nextCrawler += 1;
+}
+
 function updateEnemies(game) {
   for (const enemy of game.enemies) {
-    enemy.x -= enemy.type === "wreck-bulwark" ? 1.6 : 2.3;
+    if (enemy.type === "hull-crawler") {
+      const anchor = STAGE_01.terrain.find((item) => item.id === enemy.terrainId);
+      enemy.worldX -= 0.18;
+      enemy.x = enemy.worldX - game.scrollX;
+      enemy.y = anchor.y + anchor.height - 4;
+      const age = game.tick - enemy.spawnedTick;
+      if (enemy.x > 260 && enemy.x < 1160 && age > 0 && age % 150 === 0) dropMine(game, enemy);
+    } else {
+      enemy.x -= enemy.type === "wreck-bulwark" ? 1.6 : 2.3;
+      const age = game.tick - enemy.spawnedTick;
+      if (enemy.type === "salvage-collector" && enemy.x < 1120 && enemy.x > 500 && age > 0 && age % 180 === 0) fireEnemyShot(game, enemy);
+    }
     if (enemy.pattern === "weave") enemy.y += Math.sin(game.tick / 28 + enemy.phase) * 1.8;
     const dx = game.player.x - (enemy.x + enemy.width / 2);
     const dy = game.player.y - (enemy.y + enemy.height / 2);
     if (!enemy.dead && game.player.invulnerable === 0 && dx * dx + dy * dy < 25 * 25) takeCombatHit(game);
   }
   game.enemies = game.enemies.filter((enemy) => !enemy.dead && enemy.x > -80);
+}
+
+function fireEnemyShot(game, enemy) {
+  const x = enemy.x;
+  const y = enemy.y + enemy.height / 2;
+  const dx = game.player.x - x;
+  const dy = game.player.y - y;
+  const length = Math.hypot(dx, dy) || 1;
+  game.enemyBullets.push({ kind: "enemy-shot", x, y, radius: 6, vx: dx / length * 4.2, vy: dy / length * 4.2, age: 0 });
+  game.enemyShots += 1;
+}
+
+function dropMine(game, enemy) {
+  game.enemyBullets.push({ kind: "mine", x: enemy.x + enemy.width / 2, y: enemy.y + enemy.height - 2, radius: 11, vx: -0.35, vy: 1.2, age: 0 });
+  game.enemyShots += 1;
+}
+
+function updateEnemyBullets(game) {
+  for (const bullet of game.enemyBullets) {
+    bullet.age += 1;
+    bullet.x += bullet.vx;
+    bullet.y += bullet.vy;
+    if (bullet.kind === "mine") bullet.vy = Math.min(2.5, bullet.vy + 0.025);
+    const dx = game.player.x - bullet.x;
+    const dy = game.player.y - bullet.y;
+    const triggerRadius = bullet.kind === "mine" && bullet.age >= 40 ? 52 : game.player.radius + bullet.radius;
+    if (!bullet.dead && game.player.invulnerable === 0 && dx * dx + dy * dy < triggerRadius * triggerRadius) {
+      bullet.dead = true;
+      game.combatHits += 1;
+      takeCombatHit(game);
+    }
+  }
+  game.enemyBullets = game.enemyBullets.filter((bullet) => !bullet.dead && bullet.x > -40 && bullet.x < 1320 && bullet.y > -40 && bullet.y < FIELD_HEIGHT + 40);
 }
 
 function updateBoss(game) {
@@ -203,7 +280,7 @@ function updateBoss(game) {
 
 function checkTerrain(game) {
   if (game.player.invulnerable > 0) return;
-  for (const item of visibleTerrain(game.scrollX)) {
+  for (const item of visibleTerrain(game.scrollX, game.destroyedTerrain)) {
     if (overlapsCircleRect(game.player, { x: item.screenX, y: item.y, width: item.width, height: item.height })) {
       game.terrainHits += 1;
       loseLife(game);
@@ -241,7 +318,7 @@ function findSafeY(game) {
 
 export function automaticInput(game) {
   if (game.screen !== "playing") return {};
-  const ahead = visibleTerrain(game.scrollX).filter((item) => item.screenX < 420 && item.screenX + item.width > game.player.x - 20);
+  const ahead = visibleTerrain(game.scrollX, game.destroyedTerrain).filter((item) => item.screenX < 420 && item.screenX + item.width > game.player.x - 20);
   let targetY = 360;
   for (const item of ahead) {
     if (item.y === 0) targetY = Math.max(targetY, item.height + 70);
@@ -249,6 +326,12 @@ export function automaticInput(game) {
   }
   const pickup = game.pickups.find((item) => item.x > game.player.x - 20 && item.x < 720);
   if (pickup && !ahead.some((item) => pickup.y > item.y - 45 && pickup.y < item.y + item.height + 45)) targetY = pickup.y;
+  const hazard = game.enemyBullets.find((item) => item.x > game.player.x - 30 && item.x < game.player.x + 280 && Math.abs(item.y - game.player.y) < 90);
+  if (hazard) {
+    const evadeY = game.player.y <= hazard.y ? game.player.y - 100 : game.player.y + 100;
+    const blocked = ahead.some((item) => evadeY > item.y - 30 && evadeY < item.y + item.height + 30);
+    if (!blocked) targetY = Math.max(50, Math.min(FIELD_HEIGHT - 50, evadeY));
+  }
   return { up: game.player.y > targetY + 8, down: game.player.y < targetY - 8, fire: true };
 }
 
@@ -258,7 +341,9 @@ export function snapshot(game) {
     screen: game.screen, tick: game.tick, lives: game.lives, score: game.score,
     cores: [...game.cores], coresCollected: game.coresCollected, weapon: loadout.weapon,
     weaponLevel: loadout.level, pulseShots: game.pulseShots, weaponShots: { ...game.weaponShots },
-    terrainHits: game.terrainHits, terrainVisible: visibleTerrain(game.scrollX).length,
+    enemyShots: game.enemyShots, combatHits: game.combatHits,
+    destroyedTerrain: [...game.destroyedTerrain],
+    terrainHits: game.terrainHits, terrainVisible: visibleTerrain(game.scrollX, game.destroyedTerrain).length,
     bossHp: game.boss?.hp ?? null, defeatedBoss: game.defeatedBoss, hudTop: 720
   };
 }

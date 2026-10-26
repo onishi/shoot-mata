@@ -23,6 +23,29 @@ test("automatic input completes Stage 1 and defeats the boss", () => {
   assert.ok(game.weaponShots.lance > 0);
   assert.ok(game.weaponShots.spread > 0);
   assert.ok(game.weaponShots.seeker > 0);
+  assert.ok(game.enemyShots > 0);
+  assert.ok(game.destroyedTerrain.includes("breakable-wreck"));
+});
+
+test("Hull Crawler stays attached to a ceiling beam and drops proximity mines", () => {
+  const game = createGame();
+  game.screen = "playing";
+  for (let tick = 0; tick < 1_100; tick += 1) updateGame(game, {});
+  const crawler = game.enemies.find(({ type }) => type === "hull-crawler");
+  assert.ok(crawler);
+  assert.equal(crawler.terrainId, "ceiling-a");
+  assert.ok(game.enemyBullets.some(({ kind }) => kind === "mine"));
+});
+
+test("enemy projectiles consume a core before a life", () => {
+  const game = createGame();
+  game.screen = "playing";
+  collectCore(game, "red");
+  game.enemyBullets.push({ kind: "enemy-shot", x: game.player.x, y: game.player.y, radius: 6, vx: 0, vy: 0, age: 0 });
+  updateGame(game, {});
+  assert.equal(game.cores.length, 0);
+  assert.equal(game.lives, 3);
+  assert.equal(game.combatHits, 1);
 });
 
 test("reactor queue is FIFO and derives levels and auxiliary effects", () => {

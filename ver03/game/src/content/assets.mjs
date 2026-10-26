@@ -6,5 +6,6 @@ export const IMAGE_ASSETS = Object.freeze({
   "salvage-collector": new URL("../../assets/enemies/stage-01/salvage-collector-v1.webp", import.meta.url).href,
   "salvage-weaver": new URL("../../assets/enemies/stage-01/salvage-weaver-v1.webp", import.meta.url).href,
   "wreck-bulwark": new URL("../../assets/enemies/stage-01/wreck-bulwark-v1.webp", import.meta.url).href,
+  "hull-crawler": new URL("../../assets/enemies/stage-01/hull-crawler-v1.webp", import.meta.url).href,
   "wreck-warden": new URL("../../assets/bosses/stage-01/wreck-warden-v1.webp", import.meta.url).href
 });

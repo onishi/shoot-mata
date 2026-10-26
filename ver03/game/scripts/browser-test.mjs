@@ -36,8 +36,9 @@ try {
   const initial = await page.evaluate(() => window.__shootMata.advance(60));
   assert.ok(initial.pulseShots > 0, "PULSE must fire with zero cores");
   assert.deepEqual(initial.cores, []);
-  const combat = await page.evaluate(() => window.__shootMata.advance(2_500));
+  const combat = await page.evaluate(() => window.__shootMata.advance(1_800));
   assert.ok(combat.coresCollected > 0);
+  assert.ok(combat.enemyShots > 0);
   await mkdir(path.join(root, "artifacts"), { recursive: true });
   await page.screenshot({ path: path.join(root, "artifacts", "stage-01-combat.png"), fullPage: true });
   const final = await page.evaluate(() => window.__shootMata.advance(13_000));
@@ -48,8 +49,10 @@ try {
   assert.ok(final.weaponShots.lance > 0);
   assert.ok(final.weaponShots.spread > 0);
   assert.ok(final.weaponShots.seeker > 0);
+  assert.ok(final.enemyShots > 0);
+  assert.ok(final.destroyedTerrain.includes("breakable-wreck"));
   assert.equal(final.hudTop, 720);
-  assert.equal(await page.evaluate(() => performance.getEntriesByType("resource").filter(({ name }) => name.includes("/assets/") && name.endsWith(".webp")).length), 8);
+  assert.equal(await page.evaluate(() => performance.getEntriesByType("resource").filter(({ name }) => name.includes("/assets/") && name.endsWith(".webp")).length), 9);
   assert.deepEqual(failedAssets, []);
   assert.deepEqual(errors, []);
   await page.screenshot({ path: path.join(root, "artifacts", "stage-result.png"), fullPage: true });

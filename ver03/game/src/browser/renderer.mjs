@@ -23,6 +23,7 @@ export function render(ctx, game) {
   else {
     drawTerrain(ctx, game);
     drawBullets(ctx, game);
+    drawEnemyBullets(ctx, game);
     drawPickups(ctx, game);
     drawEnemies(ctx, game);
     drawPlayer(ctx, game);
@@ -69,16 +70,16 @@ function drawBackground(ctx, scrollX) {
 }
 
 function drawTerrain(ctx, game) {
-  for (const item of visibleTerrain(game.scrollX)) {
+  for (const item of visibleTerrain(game.scrollX, game.destroyedTerrain)) {
     const x = item.screenX;
     const gradient = ctx.createLinearGradient(x, item.y, x, item.y + item.height);
-    gradient.addColorStop(0, "#6f8d97");
+    gradient.addColorStop(0, item.kind === "destructible-wreck" ? "#b06a45" : "#6f8d97");
     gradient.addColorStop(0.08, "#223d4b");
     gradient.addColorStop(0.7, "#122635");
     gradient.addColorStop(1, "#091722");
     ctx.fillStyle = gradient;
     ctx.fillRect(x, item.y, item.width, item.height);
-    ctx.strokeStyle = "#9eeeff";
+    ctx.strokeStyle = item.kind === "destructible-wreck" ? "#ffb35f" : "#9eeeff";
     ctx.lineWidth = 4;
     ctx.strokeRect(x + 2, item.y + 2, item.width - 4, item.height - 4);
     ctx.strokeStyle = "#3e7888";
@@ -89,6 +90,31 @@ function drawTerrain(ctx, game) {
       ctx.lineTo(x + rib + 16, item.y + item.height);
       ctx.stroke();
     }
+  }
+}
+
+function drawEnemyBullets(ctx, game) {
+  for (const bullet of game.enemyBullets) {
+    ctx.save();
+    const pulse = 1 + Math.sin(bullet.age / 6) * 0.16;
+    ctx.translate(bullet.x, bullet.y);
+    ctx.scale(pulse, pulse);
+    ctx.shadowColor = bullet.kind === "mine" ? "#ff4b20" : "#ff8a35";
+    ctx.shadowBlur = bullet.kind === "mine" ? 18 : 11;
+    ctx.fillStyle = bullet.kind === "mine" ? "#3a1a16" : "#ffb04f";
+    ctx.strokeStyle = "#ff6b2c";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(0, 0, bullet.radius, 0, Math.PI * 2);
+    ctx.fill(); ctx.stroke();
+    if (bullet.kind === "mine") {
+      ctx.fillStyle = "#ffdf73";
+      ctx.beginPath(); ctx.arc(0, 0, 4, 0, Math.PI * 2); ctx.fill();
+      for (let i = 0; i < 4; i += 1) {
+        ctx.rotate(Math.PI / 2); ctx.fillRect(bullet.radius - 1, -2, 7, 4);
+      }
+    }
+    ctx.restore();
   }
 }
 
