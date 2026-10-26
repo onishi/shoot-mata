@@ -33,9 +33,9 @@ Phase 09の長時間回帰は `?qa=campaign&runs=10&monitorMs=300000&renderPasse
 
 ## ブラウザと画面
 
-開発中の各UIスライスはChromeで1440×900、390×844、320×844、844×390を確認する。Phase 05ゲートでは現行安定版Chrome、Edge、Firefox、Safariと、利用可能なiOS Safari・Android Chrome相当の実績表を作る。未確認環境を合格扱いにしない。
+開発中の各UIスライスはChromeで1440×900、390×844、320×844、844×390を確認する。製品ゲートではChrome、Edge、Firefoxを必須とし、SafariとiOS Safari・Android Chrome実機は利用可能な場合に追加確認する。未確認環境を合格扱いにはせず、非blockerの残存リスクとして記録する。
 
-2026-10-22時点の静的成果物runtime監査はChromeだけで完了している。結果は `phases/phase-05/browser-compatibility.json` に固定し、passには主要フロー、ポーズ復帰、overflow、console、欠落resource、外部originの全項目を要求する。Edge、Firefox、Safari、実iOS、実Androidは未確認であり、合格数には数えない。検証表とfail-closedな記録方式の成立をPhase 05の完了証拠とし、対象環境の製品合格はPhase 09・10まで持ち越す。
+2026-10-22時点の静的成果物runtime監査はChromeだけで完了した。Phase 10ではChrome、Edge、Firefoxが固定RCで合格した。Safari、実iOS、実Androidは未確認のまま互換性表へ保持し、対応確認済みとは扱わないが、2026-10-26のユーザー指示によりPhase 10完了を止めない。
 
 ## 証拠
 

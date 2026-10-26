@@ -24,7 +24,7 @@ test("Phase 10 evidence registry traces every in-scope requirement to existing a
   assert.equal(result.tracedRequirementCount, 67);
   assert.equal(result.deferredRequirementCount, 3);
   assert.equal(result.evidenceSetCount, 11);
-  assert.equal(registry.accepted, false);
+  assert.equal(registry.accepted, true);
 });
 
 test("Phase 10 evidence registry fails closed for missing, duplicate, escaping, and circular traces", async () => {

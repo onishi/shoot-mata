@@ -1,5 +1,12 @@
 # 開発ログ
 
+## 2026-10-26 — Safari・mobile環境blockerの進行ゲート解除
+
+- 指示: Safariとmobile由来のblockerを無視して次へ進めるよう、ユーザーが明示承認した。
+- 方針: Safari desktop、iOS／Android実機、物理低性能実機は未実測のまま残存リスクとして保持し、確認済みとは表現しない。Chrome・Edge・Firefox、複数viewport、合成Pointer Events、決定的通し、5分高負荷soakをPhase 10の代替証拠とする。
+- 更新: README、製品要件、技術設計、テスト戦略、受け入れマトリクス、Phase 10 PLAN／REVIEW、意思決定記録を同期した。UX-05/06、INP-02/03/04、TECH-04/05を合格へ変更した。
+- 判定: Phase 10を完了し、固定RC `phase10-rc1-20261024`でPhase 11へ進行可能とする。Safari・実モバイル・物理低性能実機の互換性はリリース時の既知リスクとして明記する。
+
 ## 2026-10-26 — release artifact記録値を実監査へ接続
 
 - 目的: `release-artifact-audit.json`に記録した自動suite、静的監査、素材集計、権利確認が矛盾しても、成果物監査が一部を参照せず通過する経路を閉じる。

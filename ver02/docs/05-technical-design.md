@@ -112,4 +112,4 @@ Chromeは1568×1012 viewport、ローカルHTTP、cacheなしの新規originで�
 
 Phase 09の再現可能な低性能相当条件は、製品の1280×720 Canvas全体を各animation frameで4回描画し、固定時間更新と自動campaignを同時に継続する。5分soakの合格条件は30fps以上、simulation dropが計測時間の1%以下、単一frame 1秒以下、60秒warmup後のheap増加16 MiB以下、resource・DOM増加0、進行停止・QA failure・console warning/error・外部通信0とする。この負荷注入は開発機上の回帰条件であり、物理的な低性能端末の合格証拠には置き換えない。
 
-Phase 10の物理低性能端末は、搭載memory 4 GiB（4,096 MiB）以下の実機を対象とする。固定release candidateを通常の描画条件で5分以上連続実行し、平均60fps以上、simulation dropと進行時間差が各1%以下、最大frame 1秒以下、入力から次の表示反映まで100ms以下を要求する。60秒warmup後のheap増加は16 MiB以下、resource・DOM増加、console warning/error、外部originは0とする。端末機種、CPU、GPU、memoryとこれらの実測値を構造化して記録し、合格の真偽値だけでは受理しない。開発機や4 GiB超の実機は、負荷試験に使用できてもこの物理低性能端末の合格証拠には数えない。
+Phase 10の必須性能ゲートは、開発機上の再現可能な4倍描画負荷による5分soakとする。物理低性能端末を利用できる場合は、搭載memory 4 GiB（4,096 MiB）以下の実機で同じ固定release candidateを追加測定し、端末機種、CPU、GPU、memory、fps、simulation drop、進行時間差、最大frame、入力遅延、heap・resource・DOM傾向、console、外部originを構造化して記録する。物理端末が利用できない場合は未実測を残存リスクとして保持するが、Phase 10の進行blockerにはしない。

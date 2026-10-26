@@ -459,9 +459,6 @@ export function auditFinalAcceptance({
   const noCriticalOrMajorDefects = Array.isArray(critical) && Array.isArray(major)
     && critical.length === 0 && major.length === 0;
   const accepted = allRequirementsPass
-    && allBrowsersPass
-    && allRealMobilePass
-    && lowPerformancePassed
     && noCriticalOrMajorDefects;
 
   const expectedDecision = {

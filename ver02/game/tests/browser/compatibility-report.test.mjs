@@ -100,7 +100,7 @@ test("TECH-04/INP-02〜04: Phase 09 evidence records observed and unavailable ta
   });
 });
 
-test("TECH-04/05: Phase 10 RC evidence records three desktop browsers and keeps physical devices as blockers", async () => {
+test("TECH-04/05: Phase 10 RC evidence records three desktop browsers and preserves unverified device status", async () => {
   const path = resolve(process.cwd(), "../phases/phase-10/browser-compatibility.json");
   const report = JSON.parse(await readFile(path, "utf8"));
   const result = validateCompatibilityReport(report);

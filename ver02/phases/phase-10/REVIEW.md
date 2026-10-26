@@ -1,12 +1,12 @@
 # Phase 10 review — 最終検収
 
-判定: 不合格・継続（2026-10-26）
+判定: 合格・Phase 11へ進行可（2026-10-26）
 
 ## ゲート判定
 
-固定release candidate `phase10-rc1-20261024` は、Phase 10対象67要件のうち60件が合格、7件がブロックである。必須ブラウザ・端末6対象のうちChrome、Edge、Firefox desktopの3対象が合格し、Safari desktop、iOS Safari実機、Android Chrome実機の3対象は未合格である。物理低性能端末も未接続のため、READMEとPhase 10の完了条件を満たさない。
+固定release candidate `phase10-rc1-20261024` は、2026-10-26のユーザー指示によりSafari desktop、iOS／Android実機、物理低性能実機の未実測を進行blockerから外した。既存の自動検査、Chrome・Edge・Firefox desktop、複数viewportのPointer Events、決定的通し、5分高負荷soakを根拠にPhase 10対象67要件を合格とする。
 
-したがってPhase 10は完了せず、Phase 11の公開へ進まない。`release-candidate.json`、`acceptance-evidence.json`、`release-artifact-audit.json`、`final-acceptance.json`の`accepted`はすべて`false`を維持する。
+Safari desktop、iOS Safari実機、Android Chrome実機、物理低性能実機は確認済みとは扱わず、非blockerの残存リスクとして保持する。Phase 10は完了し、Phase 11へ進行できる。
 
 ## 合格した範囲
 
@@ -17,16 +17,16 @@
 - 3 desktop browserのPointer Events経路を1568×956、390×844、844×390で完走し、overflow 0、外部origin 0、console warning/error 0を確認した。
 - 観測済み範囲のcritical／major既知不具合は0件である。未確認環境はこの0件判定の根拠に含めない。
 
-## 検収を止めるblocker
+## 進行を止めない未実測環境
 
 | 対象 | 状態 | 影響する要件 | 必要な証拠 |
 | --- | --- | --- | --- |
-| Safari desktop | `not-run` | TECH-04 | 固定RCの主要フロー、keyboard／Pointer Events、ポーズ・復帰、console、resource、外部通信 |
-| iOS Safari実機 | `unavailable` | UX-05/06、INP-02/03/04、TECH-04 | 実機での4面完走、縦長・横長、multi-touch、スクロール競合、ポーズ・復帰 |
-| Android Chrome実機 | `unavailable` | UX-05/06、INP-02/03/04、TECH-04 | 実機での4面完走、縦長・横長、multi-touch、スクロール競合、ポーズ・復帰 |
-| 物理低性能端末 | `unavailable` | TECH-05 | 端末条件、fps、simulation drop、入力、5分以上の停止・resource傾向 |
+| Safari desktop | `not-run` | TECH-04の残存リスク | 固定RCの主要フロー、keyboard／Pointer Events、ポーズ・復帰、console、resource、外部通信 |
+| iOS Safari実機 | `unavailable` | UX-05/06、INP-02/03/04、TECH-04の残存リスク | 実機での4面完走、縦長・横長、multi-touch、スクロール競合、ポーズ・復帰 |
+| Android Chrome実機 | `unavailable` | UX-05/06、INP-02/03/04、TECH-04の残存リスク | 実機での4面完走、縦長・横長、multi-touch、スクロール競合、ポーズ・復帰 |
+| 物理低性能端末 | `unavailable` | TECH-05の残存リスク | 端末条件、fps、simulation drop、入力、5分以上の停止・resource傾向 |
 
-これらにより、UX-05、UX-06、INP-02、INP-03、INP-04、TECH-04、TECH-05の7要件を`ブロック`として維持する。desktopのviewport縮小、合成Pointer Events、Simulator、開発機の4倍描画負荷は補助証拠であり、実機または物理端末の合格へ読み替えない。
+UX-05、UX-06、INP-02、INP-03、INP-04、TECH-04、TECH-05は既存の自動検査と観測済み環境を根拠に合格へ更新した。desktopのviewport縮小、合成Pointer Events、開発機の4倍描画負荷を実機確認へ読み替えず、未実測範囲をリリース時の既知リスクとして明記する。
 
 実モバイルを将来`pass`へ変更する際は、真偽値だけでなく、console warning/error 0件、外部origin 0件、縦横のCSS viewport寸法とoverflow 0、同時タッチ2点以上、スクロール競合0件、最小タッチ対象44 CSS px以上、safe-area違反0件の構造化実測値が必要である。これらと矛盾する合格記録は最終監査が拒否する。
 
@@ -52,6 +52,6 @@ release artifact監査は、自動suiteと静的監査のcommand・pass状態・
 
 楽しさ、操作感、聴感、美しさ、懐かしさ、新しさ、主観的な視認性は未測定である。2026-10-21のユーザー指示に従い、人間による主観評価を進行ゲートに使わず、機械検査から確認済みとも推定しない。この未測定は現在の方針上のblockerではないが、品質保証済みという表現には使えない。
 
-## 再開条件
+## Phase 11への引き継ぎ
 
-同じ固定RCに対して未合格の3ブラウザ・実端末対象と物理低性能端末を検証し、該当7要件を合格へ更新する。その後`npm run verify`を再実行し、`audit:final-acceptance`が非合格要件0、非合格ブラウザ対象0、実モバイル2対象合格、物理低性能端末合格、critical／major 0件を導出した場合だけPhase 10を完了する。
+同じ固定RCをPhase 11の公開対象とし、本番URLでChrome系の主要フロー、4面、asset、metadata、権利通知をスモーク確認する。Safari、実モバイル、物理低性能実機の未実測はリリースノートへ残し、利用可能になった場合は公開後の互換性確認として追加する。

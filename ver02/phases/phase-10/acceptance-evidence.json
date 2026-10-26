@@ -151,5 +151,5 @@
     }
   ],
   "deferredRequirementIds": ["REL-04", "REL-05", "REL-06"],
-  "accepted": false
+  "accepted": true
 }

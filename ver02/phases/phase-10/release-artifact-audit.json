@@ -62,5 +62,5 @@
   },
   "status": "pass",
   "accepted": false,
-  "notes": "This passes the Phase 10 static artifact, asset, notice, rights-record, and dependency scope only. Browser/device blockers and per-row acceptance remain open, so the release candidate is not accepted or releasable."
+  "notes": "This passes the Phase 10 static artifact, asset, notice, rights-record, and dependency scope only. Overall acceptance is decided by final-acceptance.json; Safari, real-mobile, and physical low-performance coverage remain unverified residual risks."
 }

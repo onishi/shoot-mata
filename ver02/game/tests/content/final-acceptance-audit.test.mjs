@@ -18,19 +18,11 @@ async function checkedInInputs() {
   };
 }
 
-test("Phase 10 gate derives every current blocker and remains fail-closed", async () => {
+test("Phase 10 gate records waived environment gaps without blocking acceptance", async () => {
   const result = auditFinalAcceptance(await checkedInInputs());
   assert.equal(result.valid, true, result.failures.join("\n"));
   assert.equal(result.phase10RequirementCount, 67);
-  assert.deepEqual(result.nonPassingRequirementIds, [
-    "UX-05",
-    "UX-06",
-    "INP-02",
-    "INP-03",
-    "INP-04",
-    "TECH-04",
-    "TECH-05",
-  ]);
+  assert.deepEqual(result.nonPassingRequirementIds, []);
   assert.deepEqual(result.deferredRequirementIds, ["REL-04", "REL-05", "REL-06"]);
   assert.deepEqual(result.nonPassingBrowserTargetIds, [
     "safari-desktop",
@@ -39,26 +31,24 @@ test("Phase 10 gate derives every current blocker and remains fail-closed", asyn
   ]);
   assert.deepEqual(result.nonPassingRealMobileTargetIds, ["ios-safari-device", "android-chrome-device"]);
   assert.equal(result.physicalLowPerformancePassed, false);
-  assert.equal(result.decision.accepted, false);
+  assert.equal(result.decision.accepted, true);
 });
 
-test("Phase 10 gate rejects a claimed pass while required environments remain missing", async () => {
+test("Phase 10 gate accepts while explicitly waived environments remain missing", async () => {
   const inputs = await checkedInInputs();
   inputs.gate = structuredClone(inputs.gate);
   inputs.gate.decision.accepted = true;
   inputs.releaseCandidate = { ...inputs.releaseCandidate, accepted: true };
   inputs.evidenceRegistry = { ...inputs.evidenceRegistry, accepted: true };
   const result = auditFinalAcceptance(inputs);
-  assert.equal(result.valid, false);
-  assert.match(result.failures.join("\n"), /decision.accepted must be false/);
-  assert.match(result.failures.join("\n"), /release candidate accepted must be false/);
-  assert.match(result.failures.join("\n"), /evidence registry accepted must be false/);
+  assert.equal(result.valid, true, result.failures.join("\n"));
+  assert.equal(result.decision.accepted, true);
 });
 
 test("Phase 10 gate rejects stale requirement and browser blocker snapshots", async () => {
   const inputs = await checkedInInputs();
   inputs.gate = structuredClone(inputs.gate);
-  inputs.gate.acceptance.nonPassingRequirementIds = [];
+  inputs.gate.acceptance.nonPassingRequirementIds = ["UX-05"];
   inputs.gate.acceptance.nonPassingBrowserTargetIds = [];
   const result = auditFinalAcceptance(inputs);
   assert.equal(result.valid, false);

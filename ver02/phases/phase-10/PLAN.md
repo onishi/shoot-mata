@@ -1,6 +1,6 @@
 # Phase 10 plan — 最終検収
 
-状態: 進行中（2026-10-24開始）
+状態: 完了（2026-10-24開始、2026-10-26ユーザー承認による環境blocker解除）
 
 ## 目的
 
@@ -12,32 +12,33 @@ READMEと`02-product-requirements.md`の必須要件を、MVPではなく製品�
 - 受け入れマトリクス全必須IDの実装・証拠・状態
 - 全4面、3武器×3段階、主要フロー、保存、異常系
 - キーボード、Pointer Events、PC、縦長、横長
-- Chrome、Edge、Firefox、Safari、iOS Safari実機、Android Chrome実機
-- 物理低性能端末、5分以上の連続実行、console、resource、外部通信
+- Chrome、Edge、Firefox、PC・縦長・横長、keyboard・Pointer Events
+- 5分以上の高負荷連続実行、console、resource、外部通信
+- Safari、iOS／Android実機、物理低性能実機の状態記録（未実測でも非blocker）
 - 全素材、生成証拠、利用条件、配布通知、依存脆弱性
 
 ## 対象外
 
 - 本番URLへの公開、公開後スモーク、ロールバック実行（Phase 11）
 - 未測定の楽しさ、操作感、聴感、美しさを機械検査から推定すること
-- 必須環境を互換実装やエミュレータだけで合格扱いすること
+- 未実測のSafari・実モバイル・物理低性能実機を確認済みと表現すること
 
 ## 実装順
 
 1. [完了] release candidate build IDと再現manifestを固定する
 2. [完了] 受け入れマトリクスの全ID、証拠説明、状態を機械監査し、P10対象67件を実在する証拠へ追跡する
 3. [完了] 全自動検査、静的成果物、権利・通知、依存関係をrelease candidateで再検証する
-4. [進行中] 全必須ブラウザ・実端末・物理低性能端末を同一buildで検証する（Chrome・Edge・Firefox desktop 3/6合格、実モバイル0/2、物理低性能端末未接続）
-5. [進行中] 全受け入れ行を更新し、中核未達0件と重大既知不具合0件を判定する（固定RCの既存証拠で60/67件を合格、実環境依存の7件をブロック）
-6. [完了] `REVIEW.md`へ現時点の不合格判定、検収blocker、残存する非blockerリスク、未測定の主観品質を記録する
+4. [完了] 必須のChrome・Edge・Firefoxと複数viewport・入力経路を同一buildで検証し、Safari・実モバイル・物理低性能実機の未実測を記録する
+5. [完了] 全受け入れ行を更新し、中核未達0件と重大既知不具合0件を判定する（環境依存7件はユーザー承認の代替証拠で合格、未実測範囲は残存リスク）
+6. [完了] `REVIEW.md`へ合格判定、残存する非blockerリスク、未測定の主観品質を記録する
 
 ## 完了条件
 
 - [x] release candidateが単一build IDと全ファイルhashで固定され、再現buildと一致する
 - [x] P10対象の全必須IDが実在する証拠へ追跡できる（67 IDを11 evidence set・57 artifact参照へ対応。P11以降のREL-04〜06は将来証拠のため別管理）
-- [ ] READMEの必須要件に未達・不合格・blockが0件である
-- [ ] 必須ブラウザ4種、iOS Safari実機、Android Chrome実機が同一buildで合格する
-- [ ] 物理低性能端末で進行速度、入力、5分以上の停止・資源傾向を確認する
+- [x] READMEの必須要件に未達・不合格・blockが0件である（2026-10-26承認の環境例外を適用）
+- [x] Chrome、Edge、Firefoxが同一buildで合格し、Safari・実モバイルの未実測を残存リスクとして記録する
+- [x] 開発機の4倍描画負荷で進行速度と5分以上の停止・資源傾向を確認し、物理低性能実機の未実測を残存リスクとして記録する
 - [x] 全素材・通知・依存関係をrelease candidateで再確認する
 - [x] critical／majorの既知不具合が0件で、残存リスクと主観未測定を分離して記録する
 
@@ -61,13 +62,15 @@ build manifestは100 files・10,526,479 bytes、SHA-256 `3c25733152691eadf21eaa5
 
 OpenAI Terms of Useは2026-01-01発効版、Service Termsは2026-10-16更新版を2026-10-24に再確認した。Output所有、非一意性、利用者の適法利用責任という既存通知の整理と矛盾しない。これは法的助言、独自性、非侵害性の保証ではなく、残存リスクを通知と監査証拠に維持する。この作業単位だけではrelease candidate全体を合格にせず、`accepted: false`を保持する。
 
-## 次の作業単位
+## 環境検証の結果
 
-同じrelease candidateを必須ブラウザ、iOS Safari実機、Android Chrome実機、物理低性能端末で検証する。未導入または未接続の対象は推定合格にせず、利用可能な環境の証拠を更新したうえで残るblockerを明示する。
+同じrelease candidateをChrome、Edge、Firefoxで検証した。Safari、iOS Safari実機、Android Chrome実機、物理低性能端末は未実測として記録し、2026-10-26のユーザー指示により進行blockerにはしない。
 
 2026-10-25に`browser-compatibility.json`を固定RCへ更新した。Chrome 156 / macOS 26.6.2はkeyboardとPointer Events経路の4面campaignからending・creditsまで完走し、Pointer Eventsは1568×956、390×844、844×390の3 viewportで完走した。全条件でoverflow 0、console warning/error 0、全宣言済み製品resourceはHTTP 200またはcache再検証304、外部origin 0だった。manifest外のブラウザ自動`/favicon.ico`要求1件は404だが、製品が明示するWebP faviconは正常取得した。EdgeとFirefoxは未導入、Safariはcomputer-use操作未承認、iOS/iPadOS実機とAndroid実機は未接続、物理低性能対象端末も未接続である。必須6対象中1対象、実モバイル0対象のため、この作業単位とPhase 10は未完了のまま維持する。
 
 同日、Edge 156.0.4314.42とFirefox 158.0.1を導入し、固定RCを実ブラウザ本体の公式WebDriver headless modeで再検証した。両ブラウザともkeyboardとPointer Events経路で4面campaignからending・creditsまで完走し、keyboard経路ではP入力によるplaying→paused→playingを観測した。Pointer Eventsは1568×956、390×844、844×390の3 viewportでoverflow 0、外部origin 0、console warning/error 0だった。FirefoxのconsoleとviewportはWebDriver BiDi、Edgeのconsoleと390px viewportはWebDriver / DevTools protocolで採取した。Computer Useは両アプリの操作を承認しなかったが、Chrome互換性から推定せず実ブラウザ本体を起動した証拠である。これにより必須6対象中3対象が合格した。Safari、実モバイル2対象、物理低性能端末は未確認で、Phase 10は継続する。
+
+2026-10-26のユーザー承認により、ここから下に残る`60/67件合格`、`7件ブロック`、`accepted: false`の記述は、承認前に実施した各監査強化時点の履歴としてのみ保持する。現在判定は67/67件合格、`accepted: true`であり、未実測環境は非blockerの残存リスクである。
 
 ## 開始した第5作業単位
 

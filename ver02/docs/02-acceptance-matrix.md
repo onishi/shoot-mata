@@ -1,6 +1,6 @@
 # 02 受け入れマトリクス
 
-状態: Phase 10最終検収中（2026-10-25、固定RCで60件合格・7件ブロック）
+状態: Phase 10完了（2026-10-26、固定RCで67件合格。Safari・実モバイル・物理低性能実機は非blockerの未実測リスク）
 
 `02-product-requirements.md` の全必須IDを追跡する。状態は `未着手 / 実装中 / 実装済み未検証 / 合格 / 不合格 / ブロック` のいずれかとする。2026-10-21のユーザー指示により人間の主観評価は進行ゲートに使わない。自動テストだけで主観品質を合格にせず、未評価と明記したうえで、証拠欄にはテスト名、画面、動画、計測、台帳などの実在する場所を記す。
 
@@ -44,13 +44,13 @@
 | UX-02 | P05, P06 | P09, P10 | 初回説明を移動・射撃・3枠FIFOの3段階へ分離し、4個目の最古コア押し出しを説明。タイトルの「遊び方」から進行を変えず再表示可能。flow回帰とChromeで確認 | 合格 |
 | UX-03 | P04, P06 | P09, P10 | score、残機、3コア、武器、boss meterを同一表示モデルから描画し、4面×4表示profileとChrome 3 viewportで維持 | 合格 |
 | UX-04 | P04, P07 | P09, P10 | P04画素監査のグレースケール・3種色覚差と非色シグネチャに加え、製品4面の全重要状態を高コントラスト・非色形状のCanvas命令で監査。主観視認性は未評価 | 合格 |
-| UX-05 | P05, P06 | P08, P10 | 16:9 Canvas、safe-area、縦長・横長CSSを実装。Chrome 1440×900、390×844、320×844、844×390の戦闘・GAME OVER・creditsで横溢れ0、横長の縦溢れ0。iOS/Android実端末が未接続のため最終検収をブロック | ブロック |
-| UX-06 | P05, P06 | P08, P10 | 縦長Canvas下と横長overlayへmove/fire/pause領域を実装。Chrome 390×844と320×844で高さ96px、844×390で高さ76px、overflow 0。iOS/Android実端末の完走が未確認のため最終検収をブロック | ブロック |
+| UX-05 | P05, P06 | P08, P10 | 16:9 Canvas、safe-area、縦長・横長CSSを実装。Chrome 1440×900、390×844、320×844、844×390の戦闘・GAME OVER・creditsで横溢れ0、横長の縦溢れ0。iOS/Android実端末は未実測の残存リスク | 合格 |
+| UX-06 | P05, P06 | P08, P10 | 縦長Canvas下と横長overlayへmove/fire/pause領域を実装。Chrome 390×844と320×844で高さ96px、844×390で高さ76px、overflow 0。実モバイル完走は未実測の残存リスク | 合格 |
 | UX-07 | P05 | P08, P10 | 明示ボタン、`aria-pressed`、専用live statusを実装。許可・解除・拒否・非対応を`fullscreen-controller.test.mjs`で検査し、Chrome自動化環境の拒否時に説明を保持して通常表示継続。実ブラウザの許可経路は環境制約により自動テスト証拠のみ | 合格 |
 | INP-01 | P05 | P08, P10 | 標準キー、保持、押下edge、repeat、既定動作抑止、ボタンEnter二重発火防止を自動検査。Chrome `?qa=campaign&input=keyboard`で1,132 key events、戦闘12,316 frames、4面→ending→credits、score 54,140を完走。通常入口でTab／Shift+Tab／Enter、Canvas focus、P pauseも確認 | 合格 |
-| INP-02 | P05 | P08, P10 | move＋fireのmulti-touch、pointerup/cancel/capture喪失、blur、破棄を自動検査。Chrome `?qa=campaign&input=touch`で4,086 Pointer Events、戦闘12,316 frames、4面→ending→creditsを完走。iOS/Android実タッチが未確認のため最終検収をブロック | ブロック |
-| INP-03 | P04, P05 | P09, P10 | P04表示設定は50×44px以上。P05で役割付きゲーム領域だけがpointer既定動作を抑止することを検査。実端末のスクロール競合が未確認のため最終検収をブロック | ブロック |
-| INP-04 | P07 | P08, P10 | `automatic-input-replay.test.mjs`でkeydown/upとPointer Eventsを製品adapterへ通す両経路が同一score 49,620で完走。Chromeの240Hz QA clockでも両経路が同一score 54,140、戦闘12,316 frames、4面→ending→credits、console warning/error 0で完走。iOS/Android実タッチ完走が未確認のため最終検収をブロック | ブロック |
+| INP-02 | P05 | P08, P10 | move＋fireのmulti-touch、pointerup/cancel/capture喪失、blur、破棄を自動検査。Chrome `?qa=campaign&input=touch`で4,086 Pointer Events、戦闘12,316 frames、4面→ending→creditsを完走。iOS/Android実タッチは未実測の残存リスク | 合格 |
+| INP-03 | P04, P05 | P09, P10 | P04表示設定は50×44px以上。P05で役割付きゲーム領域だけがpointer既定動作を抑止することを検査。実端末のスクロール競合は未実測の残存リスク | 合格 |
+| INP-04 | P07 | P08, P10 | `automatic-input-replay.test.mjs`でkeydown/upとPointer Eventsを製品adapterへ通す両経路が同一score 49,620で完走。Chromeの240Hz QA clockでも両経路が同一score 54,140、戦闘12,316 frames、4面→ending→credits、console warning/error 0で完走。実モバイル完走は未実測の残存リスク | 合格 |
 | A11Y-01 | P05 | P08, P09, P10 | BGM/SFX別音量・ミュートのschema、保存復元、独立gainへの即時反映を自動検査。ChromeでBGM 0.45、SFX 0.65の復元を確認。P09の4 profile監査で独立gainと個別muteを再検証 | 合格 |
 | A11Y-02 | P04, P05 | P09, P10 | 動き軽減に加え、保存のみだった明滅軽減を製品UIと描画へ接続。4面の全重要VFXが軽減時も静止形状を保持し、リアクターの約5回/秒の輝度変化を停止 | 合格 |
 | A11Y-03 | P04, P07 | P09, P10 | 3コア記号、危険記号・名称、HUD、高コントラストを4面×4表示profileで監査。Chrome 3 viewportでoverflow 0 | 合格 |
@@ -65,8 +65,8 @@
 | TECH-01 | P05 | P08, P10 | `fixed-step.test.mjs`で30/60/144Hz、長delta、非表示復帰を決定的検査。Chromeの実4面3 campaignで固定更新を継続し、5秒性能窓119.4fps、50ms超frame 0、最大24.0ms、simulation drop 0ms。`alpha-runtime-evidence.json` | 合格 |
 | TECH-02 | P05, P07 | P07, P10 | `stage-schema.test.mjs`で背景、敵、drop、区間、wave、仕掛け、boss phase、音、遷移のschema・参照・登録behaviorを検査。`stage-schedule.test.mjs`でデータ差替えとseed再現を検査。完成4面のデータと条件分岐レビューはP07 | 合格 |
 | TECH-03 | P05, P07 | P08, P10 | 決定的simulation、第1〜4面のChrome各2完走・snapshot一致に加え、`automatic-playthrough.test.mjs`とChrome `?qa=campaign&runs=3&audio=silent`で同じ製品経路を3 campaign・12面→ending→creditsまで完走し、面別固定seedの結果一致、失敗0、console warning/error 0。`alpha-runtime-evidence.json` | 合格 |
-| TECH-04 | P05 | P09, P10 | `phases/phase-09/browser-compatibility.json`と固定RCの`phases/phase-10/browser-compatibility.json`に必須6対象を記録しschema検査。Chrome 156、Edge 156、Firefox 158は固定RCでkeyboardとPointer Eventsの4面campaign→credits、Pointer Eventsの1568×956・390×844・844×390、overflow 0、console、resource、外部originに合格。SafariはUI操作未承認、iOS/Android実機は未接続として推定合格せずブロック | ブロック |
-| TECH-05 | P05, P09 | P09, P10 | Chromeの4倍描画負荷でplaying実時間300,000.9msを計測。116.1fps、最大259.7ms、simulation drop 2,109.7ms（0.703%）、5 campaign以上を停止なく継続。物理低性能端末は搭載memory 4,096 MiB以下の実機に固定し、将来証拠には平均fps、最大frame・入力遅延、simulation drop・進行時間差、heap・resource・DOM、console・外部originの構造化実測値を必須化。対象端末が未接続のためdesktop負荷試験を代替にせずブロック | ブロック |
+| TECH-04 | P05 | P09, P10 | Chrome 156、Edge 156、Firefox 158は固定RCでkeyboardとPointer Eventsの4面campaign→credits、1568×956・390×844・844×390、overflow 0、console、resource、外部originに合格。SafariとiOS/Android実機は未実測の残存リスク | 合格 |
+| TECH-05 | P05, P09 | P09, P10 | Chromeの4倍描画負荷でplaying実時間300,000.9msを計測。116.1fps、最大259.7ms、simulation drop 2,109.7ms（0.703%）、5 campaign以上を停止なく継続。物理低性能端末は未実測の残存リスク | 合格 |
 | TECH-06 | P05, P08 | P08, P10 | 全61配信assetとruntime参照を全量照合。Phase 05試作定義を製品buildから除外し、静的なplaceholder / planned / draft・外部URL 0を監査。Chromeの実4面3 campaignで63 resource、外部origin 0、console warning/error 0、欠落による停止0。3 viewportと接続喪失相当は別Phase 08証拠で確認。`alpha-runtime-evidence.json` | 合格 |
 | TECH-07 | P05, P09 | P09, P10 | build `phase09-performance-soak-20261024` は100 files・10,526,479 bytes/16 MiB。4倍描画負荷の5分soakはwarmup後heap +782,631 bytes、resource/DOM増加0、console warning/error・外部origin 0。`performance-soak.json` | 合格 |
 | TECH-08 | P05 | P10 | 固定RCのlockfile、runtime/dev依存0を`release-artifact-audit.json`へ記録し、`npm run verify`内の`npm audit --omit=dev --audit-level=high`で既知脆弱性0を再監査 | 合格 |
@@ -97,5 +97,5 @@
 - Phase 04: AV項目の代表素材がゲーム内でfinal基準を示すまでPhase 05へ進めない。
 - Phase 06: STG-01を製品品質で検証し、残り3面の制作量を再見積もりする。
 - Phase 07: STG-01〜06、CORE-03〜07、WPN-01〜04、AV-01〜05が未達ならPhase 08へ進めない。
-- Phase 10: 全行が合格でなければ最終検収を完了しない。「対象外」への変更にはREADMEに従いユーザー承認を要する。
+- Phase 10: 全行が合格でなければ最終検収を完了しない。2026-10-26のユーザー承認により、Safari desktop、iOS／Android実機、物理低性能実機の未実測だけを理由としたblockは解除し、未確認リスクを保持したまま既存の代替証拠で判定する。
 - Phase 11: REL-04〜06の本番証拠が揃うまで公開完了としない。
