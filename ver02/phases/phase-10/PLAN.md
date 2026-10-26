@@ -206,3 +206,9 @@ Computer UseはSafari操作を承認せず、ADBの接続端末は0台、Apple C
 最終検収とrelease artifact監査を厳格化した後も、`audit:acceptance-evidence`が直接読む`acceptance-evidence.json`と`audit:static`が直接読むbuild manifestは標準の`JSON.parse`を使っていた。同じ証拠に対する統合監査と専用監査の判定差をなくすため、両入口を共通の重複キー拒否parserへ接続した。
 
 Phase 10の直接JSON監査入口が厳格parserを参照し、標準`JSON.parse`へ戻らない配線回帰テストを追加した。全228テスト、固定RCの100 files・10,526,479 bytes再現build、静的・受け入れ・証拠・最終検収・release artifact・依存監査に合格し、既知脆弱性は0件だった。SafariはComputer Useから今回も承認されず、実モバイルと4 GiB以下の物理端末も利用できないため、60/67件合格、7件ブロック、`accepted: false`を維持する。
+
+## 完了したrelease artifact記録値の実監査接続
+
+`release-artifact-audit.json`に記録した自動suiteと静的監査の状態、素材集計、権利確認の一部が判定へ接続されず、矛盾値でも監査を通過できる欠落を修正した。`npm run verify`と静的監査のcommand・pass状態・正のtest count・scope、想定外拡張子数、final／欠落／第三者素材数、通知path、通知と台帳の一致、法的助言・非侵害保証の限界を実測または固定条件へ照合する。
+
+矛盾値を同時に持つfixtureを拒否する回帰テストを追加した。全229テスト、固定RCの100 files・10,526,479 bytes再現build、全監査、依存脆弱性0件を確認した。SafariはComputer Useから今回も承認されず、実モバイルと4 GiB以下の物理端末も利用できないため、固定RCの配信ファイル、60/67件合格、7件ブロック、`accepted: false`を維持する。

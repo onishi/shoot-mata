@@ -16,6 +16,8 @@ const PACKAGE_PATH = resolve(GAME_DIR, "package.json");
 const LOCK_PATH = resolve(GAME_DIR, "package-lock.json");
 const ALLOWED_EXTENSIONS = new Set([".css", ".html", ".json", ".mjs", ".wav", ".webp"]);
 const NOTICE_PATH = "game/public/THIRD_PARTY_NOTICES.html";
+const AUTOMATED_SUITE_TEST_COUNT = 229;
+const AUTOMATED_SUITE_SCOPE = "product tests, deterministic playthroughs, release-candidate reproduction, static audit, acceptance coverage, acceptance evidence traceability, acceptance-state transition, and release artifact audit";
 const DISALLOWED_PRODUCT_TEXT = /\b(?:placeholder|planned|draft)\b/i;
 const EXTERNAL_URL = /\b(?:https?:)?\/\//i;
 
@@ -51,15 +53,23 @@ export async function auditReleaseArtifact({ evidencePath = EVIDENCE_PATH } = {}
   assert(evidence.artifact.manifestSha256 === candidate.manifest.sha256, "evidence manifest hash differs from release candidate", failures);
   assert(evidence.artifact.fileCount === manifest.files.length, "evidence file count differs from dist", failures);
   assert(evidence.artifact.totalBytes === manifest.totalBytes, "evidence byte count differs from dist", failures);
+  assert(evidence.automatedSuite?.command === "npm run verify", "automated suite command is not fixed", failures);
+  assert(evidence.automatedSuite?.status === "pass", "automated suite is not recorded as pass", failures);
+  assert(evidence.automatedSuite?.testCount === AUTOMATED_SUITE_TEST_COUNT, `automated suite test count must be ${AUTOMATED_SUITE_TEST_COUNT}`, failures);
+  assert(evidence.automatedSuite?.scope === AUTOMATED_SUITE_SCOPE, "automated suite scope differs from the audited suite", failures);
+  assert(evidence.staticAudit?.command === "npm run audit:static", "static audit command is not fixed", failures);
+  assert(evidence.staticAudit?.status === "pass", "static audit is not recorded as pass", failures);
 
   let externalUrlCount = 0;
   let unfinishedReferenceCount = 0;
+  let unexpectedFileTypeCount = 0;
   for (const file of manifest.files) {
     const path = resolve(DIST_DIR, file.path);
     const content = await readFile(path);
     const actual = await stat(path);
     assert(actual.size === file.bytes, `${file.path}: size differs from manifest`, failures);
     assert(sha256(content) === file.sha256, `${file.path}: sha256 differs from manifest`, failures);
+    if (!ALLOWED_EXTENSIONS.has(extname(file.path))) unexpectedFileTypeCount += 1;
     assert(ALLOWED_EXTENSIONS.has(extname(file.path)), `${file.path}: unexpected file type`, failures);
     if ([".css", ".html", ".mjs"].includes(extname(file.path))) {
       const source = content.toString("utf8");
@@ -69,6 +79,7 @@ export async function auditReleaseArtifact({ evidencePath = EVIDENCE_PATH } = {}
   }
   assert(externalUrlCount === evidence.staticAudit.externalUrlCount, "static external URL result differs from evidence", failures);
   assert(unfinishedReferenceCount === evidence.staticAudit.unfinishedProductReferenceCount, "unfinished product reference result differs from evidence", failures);
+  assert(unexpectedFileTypeCount === evidence.staticAudit.unexpectedFileTypeCount, "unexpected file type result differs from evidence", failures);
 
   const deliveredPaths = new Set(manifest.files.map(({ path }) => path));
   const imageAssets = DELIVERY_ASSETS.filter(({ kind }) => kind === "webp");
@@ -91,8 +102,15 @@ export async function auditReleaseArtifact({ evidencePath = EVIDENCE_PATH } = {}
   assert(imageAssets.length === evidence.assets.imageCount, "image count differs from evidence", failures);
   assert(audioAssets.length === evidence.assets.audioCount, "audio count differs from evidence", failures);
   assert(DELIVERY_ASSETS.length === evidence.assets.totalCount, "asset total differs from evidence", failures);
+  assert(DELIVERY_ASSETS.filter(({ status }) => status === "final").length === evidence.assets.finalCount, "final asset count differs from evidence", failures);
+  assert(expectedBuildPaths.filter((path) => !deliveredPaths.has(path)).length === evidence.assets.missingRuntimeAssetCount, "missing runtime asset count differs from evidence", failures);
+  assert(DELIVERY_ASSETS.filter(({ origin }) => ![
+    "openai-image-generation",
+    "project-authored-deterministic-synthesis",
+  ].includes(origin)).length === evidence.assets.thirdPartyAssetCount, "third-party asset count differs from evidence", failures);
   assert(unique(expectedBuildPaths).length === DELIVERY_ASSETS.length, "duplicate delivery asset path", failures);
 
+  assert(evidence.assets.noticePath === NOTICE_PATH, "rights notice path differs from evidence", failures);
   const notice = await readFile(resolve(DIST_DIR, NOTICE_PATH), "utf8");
   assert(deliveredPaths.has(NOTICE_PATH), "rights notice missing from release candidate", failures);
   assert(notice.includes(`確認日: ${evidence.recordedOn}`), "rights notice review date differs from evidence", failures);
@@ -110,6 +128,9 @@ export async function auditReleaseArtifact({ evidencePath = EVIDENCE_PATH } = {}
 
   assert(evidence.rights.termsOfUse.effective === "2026-01-01", "Terms of Use effective date not recorded", failures);
   assert(evidence.rights.serviceTerms.updated === "2026-10-16", "Service Terms update date not recorded", failures);
+  assert(evidence.rights.noticeMatchesLedger === true, "rights notice is not recorded as matching the ledger", failures);
+  assert(evidence.rights.legalAdvice === false, "rights evidence must preserve the legal-advice limitation", failures);
+  assert(evidence.rights.nonInfringementGuaranteed === false, "rights evidence must not claim a non-infringement guarantee", failures);
   assert(evidence.rights.residualRisk === "generated-output-non-uniqueness-and-non-infringement-not-guaranteed", "rights residual risk was removed", failures);
   assert(evidence.status === "pass", "release artifact audit is not recorded as pass", failures);
   assert(evidence.accepted === false, "artifact audit must not decide full release-candidate acceptance", failures);

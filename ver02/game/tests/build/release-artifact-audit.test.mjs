@@ -31,3 +31,38 @@ test("Phase 10 RC: release evidence rejects contradictory duplicate JSON keys", 
     /duplicate key "status" at \$\.automatedSuite\.status/,
   );
 });
+
+test("Phase 10 RC: recorded verification, asset, and rights claims must match audited facts", async (t) => {
+  const directory = await mkdtemp(join(tmpdir(), "shoot-mata-release-claims-"));
+  t.after(() => rm(directory, { recursive: true, force: true }));
+  const sourcePath = resolve(process.cwd(), "../phases/phase-10/release-artifact-audit.json");
+  const fixturePath = join(directory, "release-artifact-audit.json");
+  const evidence = JSON.parse(await readFile(sourcePath, "utf8"));
+  evidence.automatedSuite.status = "fail";
+  evidence.automatedSuite.testCount = 1;
+  evidence.automatedSuite.scope = "partial suite";
+  evidence.staticAudit.status = "fail";
+  evidence.staticAudit.unexpectedFileTypeCount = 1;
+  evidence.assets.finalCount -= 1;
+  evidence.assets.missingRuntimeAssetCount = 1;
+  evidence.assets.thirdPartyAssetCount = 1;
+  evidence.assets.noticePath = "game/public/WRONG.html";
+  evidence.rights.noticeMatchesLedger = false;
+  evidence.rights.legalAdvice = true;
+  evidence.rights.nonInfringementGuaranteed = true;
+  await writeFile(fixturePath, JSON.stringify(evidence));
+
+  const result = await auditReleaseArtifact({ evidencePath: fixturePath });
+  assert.match(result.failures.join("\n"), /automated suite is not recorded as pass/);
+  assert.match(result.failures.join("\n"), /automated suite test count must be 229/);
+  assert.match(result.failures.join("\n"), /automated suite scope differs from the audited suite/);
+  assert.match(result.failures.join("\n"), /static audit is not recorded as pass/);
+  assert.match(result.failures.join("\n"), /unexpected file type result differs from evidence/);
+  assert.match(result.failures.join("\n"), /final asset count differs from evidence/);
+  assert.match(result.failures.join("\n"), /missing runtime asset count differs from evidence/);
+  assert.match(result.failures.join("\n"), /third-party asset count differs from evidence/);
+  assert.match(result.failures.join("\n"), /rights notice path differs from evidence/);
+  assert.match(result.failures.join("\n"), /rights notice is not recorded as matching the ledger/);
+  assert.match(result.failures.join("\n"), /legal-advice limitation/);
+  assert.match(result.failures.join("\n"), /must not claim a non-infringement guarantee/);
+});

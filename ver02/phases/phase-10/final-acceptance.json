@@ -19,7 +19,7 @@
   "knownDefects": {
     "critical": [],
     "major": [],
-    "scope": "固定RCに対する228自動テスト、静的・証拠・素材・依存監査、Chrome・Edge・Firefox desktopの観測範囲。未確認環境は欠陥0の根拠へ含めない。"
+    "scope": "固定RCに対する229自動テスト、静的・証拠・素材・依存監査、Chrome・Edge・Firefox desktopの観測範囲。未確認環境は欠陥0の根拠へ含めない。"
   },
   "decision": {
     "allPhase10RequirementsPass": false,
