@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "phase": "12",
+  "recordedOn": "2026-10-26",
+  "release": {
+    "version": "2.0.0",
+    "buildId": "phase10-rc1-20261024",
+    "manifestSha256": "3c25733152691eadf21eaa5919a538c29919b5451a6d7045cf8420dde012e7ab",
+    "fileCount": 100,
+    "totalBytes": 10526479,
+    "siteUrl": "https://onishi.github.io/shoot-mata/",
+    "entrypointUrl": "https://onishi.github.io/shoot-mata/game/public/"
+  },
+  "workflow": {
+    "path": ".github/workflows/production-monitor.yml",
+    "scheduled": true,
+    "manual": true,
+    "automaticDeploy": false
+  },
+  "runbook": "ver02/phases/phase-12/OPERATIONS.md",
+  "controls": [
+    { "id": "MON-01", "domain": "availability-integrity", "cadence": "daily", "command": "npm run audit:production", "failurePriority": "P0" },
+    { "id": "MON-02", "domain": "compatibility", "cadence": "browser-update-or-report", "command": "documented-browser-smoke", "failurePriority": "P2" },
+    { "id": "MON-03", "domain": "performance", "cadence": "release-or-report", "command": "documented-performance-soak", "failurePriority": "P2" },
+    { "id": "MON-04", "domain": "dependencies", "cadence": "daily", "command": "npm audit --omit=dev --audit-level=high", "failurePriority": "P1" },
+    { "id": "MON-05", "domain": "rights", "cadence": "quarterly-or-terms-change", "command": "documented-rights-review", "failurePriority": "P1" },
+    { "id": "MON-06", "domain": "improvements", "cadence": "monthly-or-report", "command": "documented-backlog-triage", "failurePriority": "P3" }
+  ],
+  "residualRisks": [
+    { "id": "RISK-SAFARI", "priority": "P2", "status": "monitoring", "verified": false, "trigger": "Safari desktop becomes available or a reproducible report arrives" },
+    { "id": "RISK-IOS", "priority": "P2", "status": "monitoring", "verified": false, "trigger": "iOS Safari hardware becomes available or a reproducible report arrives" },
+    { "id": "RISK-ANDROID", "priority": "P2", "status": "monitoring", "verified": false, "trigger": "Android Chrome hardware becomes available or a reproducible report arrives" },
+    { "id": "RISK-LOW-END", "priority": "P2", "status": "monitoring", "verified": false, "trigger": "physical device with 4 GiB memory or less becomes available" },
+    { "id": "RISK-SUBJECTIVE", "priority": "P3", "status": "monitoring", "verified": false, "trigger": "structured human playtest is authorized and available" },
+    { "id": "RISK-GENERATED-RIGHTS", "priority": "P1", "status": "monitoring", "verified": false, "trigger": "applicable terms change or a rights claim is received" },
+    { "id": "RISK-FUTURE-COMPAT", "priority": "P2", "status": "monitoring", "verified": false, "trigger": "supported browser or OS changes" }
+  ],
+  "workItems": [
+    { "id": "OPS-001", "kind": "monitoring", "priority": "P0", "status": "active", "trigger": "daily schedule or manual dispatch", "nextAction": "run production artifact and dependency audits" },
+    { "id": "OPS-002", "kind": "compatibility", "priority": "P2", "status": "monitoring", "trigger": "browser update, device availability, or report", "nextAction": "repeat the fixed-build browser smoke without inferred passes" },
+    { "id": "OPS-003", "kind": "performance", "priority": "P2", "status": "monitoring", "trigger": "performance report or physical low-end device availability", "nextAction": "repeat the documented five-minute soak on the reported environment" },
+    { "id": "OPS-004", "kind": "rights", "priority": "P1", "status": "monitoring", "trigger": "quarter boundary or terms-change notice", "nextAction": "compare applicable terms, ledger, and delivered notice" },
+    { "id": "OPS-005", "kind": "improvement", "priority": "P3", "status": "open", "trigger": "monthly triage or new request", "nextAction": "record value, evidence, scope, and acceptance impact before scheduling" }
+  ]
+}

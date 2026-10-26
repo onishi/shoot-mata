@@ -1,5 +1,14 @@
 # 開発ログ
 
+## 2026-10-26 — Phase 12の運用監視基盤を実装
+
+- 目的: Phase 11で公開した固定v2.0.0を、手順書だけでなく継続的に失敗検知できる運用へ移す。
+- 実装: `phases/phase-12/`へPLAN、運用台帳、障害・更新runbookを追加した。availability/integrity、compatibility、performance、dependencies、rights、improvementsの6領域と、7件の残存リスク、5件の優先順位付き作業を固定公開物へ接続した。
+- fail-closed監査: 公開version、build ID、manifest SHA-256、件数、容量、URLの差異、必須監視領域の欠落、重複ID、trigger／次action欠落、未実測リスクの証拠なし解消を拒否する`audit:operations`と3件の回帰テストを追加した。
+- 定期実行: 日次と手動起動の`production-monitor.yml`を追加した。固定RCを再現後、運用台帳、本番全ファイル、high以上の依存脆弱性を検査し、deployは行わない。既定branchへ反映後の初回runは未実行のため、稼働済みとは判定しない。
+- 検査: 全236テスト、固定RCの100 files・10,526,479 bytes再現build、静的・受け入れ・証拠・最終検収・release artifact・運用・依存監査に合格した。ローカルからの本番監査も全100ファイルのSHA-256一致、既知脆弱性0件に合格した。
+- 判定: Phase 12第1作業単位を完了し、フェーズは継続する。Safari desktop、iOS／Android実機、4 GiB以下の物理低性能実機、楽しさ・操作感・聴感・美しさ、生成物の非一意性・非侵害未保証は未解消の運用リスクとして保持する。
+
 ## 2026-10-26 — Phase 11本番検証完了
 
 - 公開: 手動run `40263130154`、deployment `7323254407`がcommit `12bc335fda0e56f089ed4869fbcb755d8d47ddef`をGitHub Pagesへ正常配信した。
