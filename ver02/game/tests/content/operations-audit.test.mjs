@@ -12,6 +12,25 @@ test("Phase 12 operations registry covers the published release and required dom
   assert.equal(result.controlCount, 6);
   assert.equal(result.riskCount, 7);
   assert.equal(result.workItemCount, 5);
+  assert.equal(result.monitoringRunCount, 1);
+  assert.equal(result.successfulRunCount, 1);
+});
+
+test("Phase 12 operations registry rejects incomplete or mismatched successful run evidence", async (t) => {
+  const directory = await mkdtemp(join(tmpdir(), "shoot-mata-monitoring-run-"));
+  t.after(() => rm(directory, { recursive: true, force: true }));
+  const sourcePath = resolve(process.cwd(), "../phases/phase-12/operations.json");
+  const fixturePath = join(directory, "operations.json");
+  const operations = JSON.parse(await readFile(sourcePath, "utf8"));
+  operations.monitoringRuns[0].url = "https://github.com/onishi/shoot-mata/actions/runs/1";
+  operations.monitoringRuns[0].productionAudit.fileCount = 99;
+  operations.monitoringRuns[0].dependencyAudit.vulnerabilities = 1;
+  await writeFile(fixturePath, JSON.stringify(operations));
+
+  const result = await auditOperations({ operationsPath: fixturePath });
+  assert.match(result.failures.join("\n"), /run URL differs from ID/);
+  assert.match(result.failures.join("\n"), /production file count differs/);
+  assert.match(result.failures.join("\n"), /dependency vulnerabilities must be zero/);
 });
 
 test("Phase 12 operations registry rejects release drift and missing monitoring domains", async (t) => {

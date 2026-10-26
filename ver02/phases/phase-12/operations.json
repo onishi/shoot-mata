@@ -17,6 +17,35 @@
     "manual": true,
     "automaticDeploy": false
   },
+  "monitoringRuns": [
+    {
+      "id": 40276253417,
+      "runNumber": 1,
+      "event": "workflow_dispatch",
+      "branch": "main",
+      "commit": "6cb19613cb20d62772593681d3d48ea470bed9a3",
+      "status": "passed",
+      "startedAt": "2026-10-26T05:48:47Z",
+      "completedAt": "2026-10-26T05:49:12Z",
+      "url": "https://github.com/onishi/shoot-mata/actions/runs/40276253417",
+      "operationsAudit": {
+        "status": "passed",
+        "controls": 6,
+        "residualRisks": 7,
+        "workItems": 5
+      },
+      "productionAudit": {
+        "status": "passed",
+        "buildId": "phase10-rc1-20261024",
+        "fileCount": 100,
+        "totalBytes": 10526479
+      },
+      "dependencyAudit": {
+        "status": "passed",
+        "vulnerabilities": 0
+      }
+    }
+  ],
   "runbook": "ver02/phases/phase-12/OPERATIONS.md",
   "controls": [
     { "id": "MON-01", "domain": "availability-integrity", "cadence": "daily", "command": "npm run audit:production", "failurePriority": "P0" },

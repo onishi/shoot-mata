@@ -85,6 +85,41 @@ export async function auditOperations({ operationsPath = OPERATIONS_PATH, releas
     assert(typeof item.nextAction === "string" && item.nextAction.length > 0, `${item.id}: next action is missing`, failures);
   }
 
+  const monitoringRuns = Array.isArray(operations.monitoringRuns) ? operations.monitoringRuns : [];
+  const runIds = monitoringRuns.map(({ id }) => id);
+  const runNumbers = monitoringRuns.map(({ runNumber }) => runNumber);
+  assert(monitoringRuns.length > 0, "operations monitoring runs are missing", failures);
+  assert(duplicates(runIds).length === 0, "operations monitoring runs contain duplicate IDs", failures);
+  assert(duplicates(runNumbers).length === 0, "operations monitoring runs contain duplicate run numbers", failures);
+  let successfulRunCount = 0;
+  for (const run of monitoringRuns) {
+    const label = `monitoring run ${run.id ?? "unknown"}`;
+    assert(Number.isSafeInteger(run.id) && run.id > 0, `${label}: invalid run ID`, failures);
+    assert(Number.isSafeInteger(run.runNumber) && run.runNumber > 0, `${label}: invalid run number`, failures);
+    assert(["workflow_dispatch", "schedule"].includes(run.event), `${label}: invalid event`, failures);
+    assert(run.branch === "main", `${label}: default branch must be main`, failures);
+    assert(/^[0-9a-f]{40}$/.test(run.commit ?? ""), `${label}: invalid commit`, failures);
+    assert(["passed", "failed"].includes(run.status), `${label}: invalid status`, failures);
+    assert(!Number.isNaN(Date.parse(run.startedAt)), `${label}: invalid start time`, failures);
+    assert(!Number.isNaN(Date.parse(run.completedAt)), `${label}: invalid completion time`, failures);
+    assert(Date.parse(run.completedAt) >= Date.parse(run.startedAt), `${label}: completion precedes start`, failures);
+    assert(run.url === `https://github.com/onishi/shoot-mata/actions/runs/${run.id}`, `${label}: run URL differs from ID`, failures);
+    if (run.status === "passed") {
+      successfulRunCount += 1;
+      assert(run.operationsAudit?.status === "passed", `${label}: operations audit did not pass`, failures);
+      assert(run.operationsAudit?.controls === controls.length, `${label}: operations control count differs`, failures);
+      assert(run.operationsAudit?.residualRisks === risks.length, `${label}: residual risk count differs`, failures);
+      assert(run.operationsAudit?.workItems === workItems.length, `${label}: work item count differs`, failures);
+      assert(run.productionAudit?.status === "passed", `${label}: production audit did not pass`, failures);
+      assert(run.productionAudit?.buildId === release.buildId, `${label}: production build ID differs`, failures);
+      assert(run.productionAudit?.fileCount === release.releaseCandidate?.fileCount, `${label}: production file count differs`, failures);
+      assert(run.productionAudit?.totalBytes === release.releaseCandidate?.totalBytes, `${label}: production byte count differs`, failures);
+      assert(run.dependencyAudit?.status === "passed", `${label}: dependency audit did not pass`, failures);
+      assert(run.dependencyAudit?.vulnerabilities === 0, `${label}: dependency vulnerabilities must be zero`, failures);
+    }
+  }
+  assert(successfulRunCount > 0, "operations have no successful monitoring run", failures);
+
   const workflowPath = resolve(ROOT_DIR, operations.workflow?.path ?? "");
   const runbookPath = resolve(ROOT_DIR, operations.runbook ?? "");
   const [workflow, runbook] = await Promise.all([
@@ -109,5 +144,7 @@ export async function auditOperations({ operationsPath = OPERATIONS_PATH, releas
     controlCount: controls.length,
     riskCount: risks.length,
     workItemCount: workItems.length,
+    monitoringRunCount: monitoringRuns.length,
+    successfulRunCount,
   };
 }
