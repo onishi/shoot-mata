@@ -3,13 +3,17 @@ import { readFile, stat } from "node:fs/promises";
 import { dirname, extname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { ASSET_BUDGETS } from "./delivery-asset-config.mjs";
+import { parseJsonWithUniqueKeys } from "./strict-json.mjs";
 
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const DIST_DIR = resolve(SCRIPT_DIR, "..", "dist");
 const MAX_TOTAL_BYTES = ASSET_BUDGETS.build;
 const ALLOWED_EXTENSIONS = new Set([".css", ".html", ".json", ".mjs", ".wav", ".webp"]);
 
-const manifest = JSON.parse(await readFile(resolve(DIST_DIR, "build-manifest.json"), "utf8"));
+const manifest = parseJsonWithUniqueKeys(
+  await readFile(resolve(DIST_DIR, "build-manifest.json"), "utf8"),
+  "dist/build-manifest.json",
+);
 const failures = [];
 
 if (manifest.totalBytes > MAX_TOTAL_BYTES) {

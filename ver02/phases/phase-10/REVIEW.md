@@ -12,7 +12,7 @@
 
 - 固定RCの100 files・10,526,479 bytesと全ファイルhashは再現buildに一致した。
 - Phase 10対象67要件は11 evidence setと57 artifact参照へ重複なく追跡できる。
-- 227件の自動テスト、静的成果物、製品画像32点、音声29点、権利通知、runtime/dev依存0、既知脆弱性0を固定RCで再検証した。
+- 228件の自動テスト、静的成果物、製品画像32点、音声29点、権利通知、runtime/dev依存0、既知脆弱性0を固定RCで再検証した。
 - Chrome 156、Edge 156、Firefox 158の実ブラウザ本体で、keyboardとPointer Eventsの4面campaignからending・creditsまで完走した。
 - 3 desktop browserのPointer Events経路を1568×956、390×844、844×390で完走し、overflow 0、外部origin 0、console warning/error 0を確認した。
 - 観測済み範囲のcritical／major既知不具合は0件である。未確認環境はこの0件判定の根拠に含めない。

@@ -1,5 +1,13 @@
 # 開発ログ
 
+## 2026-10-26 — 専用監査JSON入口の重複キー拒否統一
+
+- 目的: 統合監査では拒否される重複キーが、受け入れ証拠監査または静的成果物監査の単独実行では標準JSON parserにより後勝ちになる不一致を閉じる。
+- 修正: `audit:acceptance-evidence`が直接読む`acceptance-evidence.json`と、`audit:static`が直接読むbuild manifestを共通の重複キー拒否parserへ接続した。Phase 10の直接JSON監査入口が標準`JSON.parse`へ戻らない配線回帰テストを追加し、監査証拠のtest countを228件へ同期した。
+- 環境再確認: Computer UseはSafari操作を今回も承認せず、実モバイルと4 GiB以下の物理端末も利用できなかった。未確認対象を合格にはしていない。
+- 検査: 全228テスト、固定RCの100 files・10,526,479 bytes再現build、静的・受け入れ・証拠・最終検収・release artifact・依存監査に合格し、既知脆弱性は0件だった。
+- 判定: 固定RCの配信ファイル、60/67件合格、7件ブロック、`accepted: false`を維持する。
+
 ## 2026-10-26 — release artifact入力JSONの重複キー拒否
 
 - 目的: 最終検収の4文書だけでなく、成果物・権利・依存監査が直接読むJSONでも、矛盾する同名キーを後勝ちで隠す経路を閉じる。
