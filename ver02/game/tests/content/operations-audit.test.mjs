@@ -87,6 +87,29 @@ test("Phase 12 operations registry rejects incomplete or mismatched successful r
   assert.match(result.failures.join("\n"), /dependency vulnerabilities must be zero/);
 });
 
+test("Phase 12 operations registry rejects a failed or out-of-order latest monitoring run", async (t) => {
+  const directory = await mkdtemp(join(tmpdir(), "shoot-mata-latest-monitoring-run-"));
+  t.after(() => rm(directory, { recursive: true, force: true }));
+  const sourcePath = resolve(process.cwd(), "../phases/phase-12/operations.json");
+  const fixturePath = join(directory, "operations.json");
+  const operations = JSON.parse(await readFile(sourcePath, "utf8"));
+  const latestRun = structuredClone(operations.monitoringRuns[0]);
+  latestRun.id += 1;
+  latestRun.runNumber = 1;
+  latestRun.status = "failed";
+  latestRun.startedAt = "2026-10-26T05:49:00Z";
+  latestRun.completedAt = "2026-10-26T05:50:00Z";
+  latestRun.url = `https://github.com/onishi/shoot-mata/actions/runs/${latestRun.id}`;
+  operations.monitoringRuns.push(latestRun);
+  operations.phaseReview.successfulMonitoringRuns = 1;
+  await writeFile(fixturePath, JSON.stringify(operations));
+
+  const result = await auditOperations({ operationsPath: fixturePath });
+  assert.match(result.failures.join("\n"), /run numbers must increase/);
+  assert.match(result.failures.join("\n"), /run starts before the previous run completed/);
+  assert.match(result.failures.join("\n"), /latest monitoring run must pass/);
+});
+
 test("Phase 12 operations registry rejects release drift and missing monitoring domains", async (t) => {
   const directory = await mkdtemp(join(tmpdir(), "shoot-mata-operations-"));
   t.after(() => rm(directory, { recursive: true, force: true }));

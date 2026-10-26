@@ -1,5 +1,12 @@
 # 開発ログ
 
+## 2026-10-26 — 最新production monitorの失敗を運用監査へ接続
+
+- 目的: 過去に成功したrunが1件あれば、その後の最新runが失敗していても`audit:operations`を通過できる状態を解消する。
+- 修正: monitoring runを記録順に検査し、run numberの単調増加、前run完了後の開始、最新runの成功を必須化した。過去の失敗履歴は保持でき、後続の再実行が成功するまで監査を失敗させる。
+- 回帰: 失敗した最新run、重複run number、前run完了前の開始を同時に拒否するfixtureを追加した。
+- 実運用確認: Actionsの最新run #1は成功。本番artifactは固定RC `phase10-rc1-20261024`の100 files・10,526,479 bytesと一致した。
+
 ## 2026-10-26 — Phase 12の運用reviewを完了
 
 - 判定: 既定branchのproduction監視run #1、固定RCの全100ファイル一致、依存脆弱性0件、初回権利確認、改善要望triageを`phase-12/REVIEW.md`へ集約し、Phase 12の完了条件を満たした。

@@ -111,7 +111,7 @@ export async function auditOperations({
   assert(duplicates(runIds).length === 0, "operations monitoring runs contain duplicate IDs", failures);
   assert(duplicates(runNumbers).length === 0, "operations monitoring runs contain duplicate run numbers", failures);
   let successfulRunCount = 0;
-  for (const run of monitoringRuns) {
+  for (const [index, run] of monitoringRuns.entries()) {
     const label = `monitoring run ${run.id ?? "unknown"}`;
     assert(Number.isSafeInteger(run.id) && run.id > 0, `${label}: invalid run ID`, failures);
     assert(Number.isSafeInteger(run.runNumber) && run.runNumber > 0, `${label}: invalid run number`, failures);
@@ -123,6 +123,11 @@ export async function auditOperations({
     assert(!Number.isNaN(Date.parse(run.completedAt)), `${label}: invalid completion time`, failures);
     assert(Date.parse(run.completedAt) >= Date.parse(run.startedAt), `${label}: completion precedes start`, failures);
     assert(run.url === `https://github.com/onishi/shoot-mata/actions/runs/${run.id}`, `${label}: run URL differs from ID`, failures);
+    if (index > 0) {
+      const previous = monitoringRuns[index - 1];
+      assert(run.runNumber > previous.runNumber, `${label}: run numbers must increase`, failures);
+      assert(Date.parse(run.startedAt) >= Date.parse(previous.completedAt), `${label}: run starts before the previous run completed`, failures);
+    }
     if (run.status === "passed") {
       successfulRunCount += 1;
       assert(run.operationsAudit?.status === "passed", `${label}: operations audit did not pass`, failures);
@@ -138,6 +143,9 @@ export async function auditOperations({
     }
   }
   assert(successfulRunCount > 0, "operations have no successful monitoring run", failures);
+  if (monitoringRuns.length > 0) {
+    assert(monitoringRuns.at(-1).status === "passed", "latest monitoring run must pass", failures);
+  }
 
   const rightsReviews = Array.isArray(operations.rightsReviews) ? operations.rightsReviews : [];
   const rightsReviewIds = rightsReviews.map(({ id }) => id);
