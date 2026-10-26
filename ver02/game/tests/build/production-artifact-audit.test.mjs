@@ -64,6 +64,16 @@ test("Phase 11 production audit rejects a changed deployed file", async () => {
   assert.match(result.failures.join("\n"), /byte count differs|SHA-256 differs/);
 });
 
+test("Phase 11 production audit CLI imports the exported strict JSON parser", async () => {
+  const [entrypoint, strictJson] = await Promise.all([
+    readFile(new URL("../../scripts/audit-production-artifact.mjs", import.meta.url), "utf8"),
+    import("../../scripts/strict-json.mjs"),
+  ]);
+  const importedName = entrypoint.match(/import \{ ([A-Za-z0-9_$]+) \} from "\.\/strict-json\.mjs";/)?.[1];
+  assert.ok(importedName, "production audit CLI must import a named strict JSON parser");
+  assert.equal(typeof strictJson[importedName], "function", `${importedName} must be exported by strict-json.mjs`);
+});
+
 test("Phase 11 deployment remains manual, confirms the target, and pins the rollback source", async () => {
   const workflow = await readFile(new URL("../../../../.github/workflows/pages.yml", import.meta.url), "utf8");
   assert.match(workflow, /workflow_dispatch:/);

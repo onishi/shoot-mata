@@ -73,9 +73,9 @@
 | REL-01 | P04, P07 | P10 | P10で全画像32点・音声29点の出典、prompt／生成式、権利状態、固定RCの通知を再照合。OpenAI公式条件の版、非一意性・非侵害未保証、外部音源0、依存0を`release-artifact-audit.json`へ記録 | 合格 |
 | REL-02 | P05 | P10 | 保存境界は同一origin storageだけを使用し個人情報処理を持たない。固定RCは外部URL 0、61配信assetと通知を同一manifestへ照合し、Chrome campaignは外部通信なしで完走。`release-artifact-audit.json` | 合格 |
 | REL-03 | P05 | P08, P10 | storageだけで実4面bestを復元し、書込失敗時も実第1面のclear/bestをメモリ継続。Chromeで配信サーバー停止後も読み込み済み第4面を開始し、音源欠落警告から無音継続、復帰・再読込後の4面best不変を確認 | 合格 |
-| REL-04 | P10, P11 | P11 | version、変更点、既知問題、build ID、通知の本番照合 | 未着手 |
-| REL-05 | P11 | P11 | Phase 10 build IDとの一致、公開URLの4面スモーク | 未着手 |
-| REL-06 | P11, P12 | P11, P12 | ロールバック演習と運用ログ・優先順位表 | 未着手 |
+| REL-04 | P10, P11 | P11 | `RELEASE_NOTES.md`のv2.0.0、変更点、既知リスク、build ID、権利・データ取扱いを固定RCと本番へ照合。`phases/phase-11/release.json`、`REVIEW.md` | 合格 |
+| REL-05 | P11 | P11 | run `40263130154`／deployment `7323254407`で公開し、本番manifestと全100 files・10,526,479 bytesを固定RCへSHA-256照合。Chrome 156.0.8078.48でkeyboard／Pointer Events×3 viewportの6 campaignを4面→ending→creditsまで完走し、overflow、resource失敗、外部origin、console warning/error 0 | 合格 |
+| REL-06 | P11, P12 | P11, P12 | 固定v1.0.0 commitを一時展開し、33テスト、決定的playtest、production buildに合格。本番deployなし、履歴書換えなし。`ROLLBACK.md`、`release.json`、`REVIEW.md` | 合格 |
 
 ## README逆引き
 

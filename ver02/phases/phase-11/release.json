@@ -10,21 +10,56 @@
   "production": {
     "siteUrl": "https://onishi.github.io/shoot-mata/",
     "entrypointUrl": "https://onishi.github.io/shoot-mata/game/public/",
-    "status": "prepared",
-    "commit": null,
-    "workflowRunUrl": null,
-    "deploymentId": null,
-    "publishedAt": null,
-    "artifactAudit": "not-run",
-    "browserSmoke": "not-run"
+    "status": "published",
+    "commit": "12bc335fda0e56f089ed4869fbcb755d8d47ddef",
+    "workflowRunUrl": "https://github.com/onishi/shoot-mata/actions/runs/40263130154",
+    "deploymentId": 7323254407,
+    "publishedAt": "2026-10-26T03:15:54Z",
+    "artifactAudit": {
+      "status": "passed",
+      "checkedAt": "2026-10-26T04:14:27Z",
+      "manifestSha256": "3c25733152691eadf21eaa5919a538c29919b5451a6d7045cf8420dde012e7ab",
+      "checkedFiles": 100,
+      "totalBytes": 10526479
+    },
+    "browserSmoke": {
+      "status": "passed",
+      "checkedAt": "2026-10-26T04:14:27Z",
+      "browser": "Google Chrome",
+      "version": "156.0.8078.48",
+      "inputModes": [
+        "keyboard",
+        "touch"
+      ],
+      "viewports": [
+        "1568x956",
+        "390x844",
+        "844x390"
+      ],
+      "campaigns": 6,
+      "completedStagesPerCampaign": 4,
+      "endingAndCredits": true,
+      "pauseAndResume": true,
+      "resourceCount": 63,
+      "failedResourceCount": 0,
+      "externalOrigins": [],
+      "consoleWarningCount": 0,
+      "consoleErrorCount": 0,
+      "overflowCount": 0
+    }
   },
   "releaseNotes": "ver02/phases/phase-11/RELEASE_NOTES.md",
   "rightsNoticePath": "game/public/THIRD_PARTY_NOTICES.html",
   "rollback": {
-    "status": "prepared",
+    "status": "dry-run-passed",
     "release": "1.0.0",
     "commit": "9abf0248aa5b8e97749a2e2c380d9ad3e3b69b28",
     "workflowOption": "rollback-v01",
-    "procedure": "ver02/phases/phase-11/ROLLBACK.md"
+    "procedure": "ver02/phases/phase-11/ROLLBACK.md",
+    "checkedAt": "2026-10-26T04:14:27Z",
+    "testCount": 33,
+    "playtest": "passed",
+    "build": "passed",
+    "deployed": false
   }
 }

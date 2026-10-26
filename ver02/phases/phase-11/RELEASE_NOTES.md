@@ -12,10 +12,11 @@ build ID: `phase10-rc1-20261024`
 
 ## 検証済み範囲
 
-- 固定RCは100 files・10,526,479 bytesで、229件の自動テスト、静的監査、受け入れ監査、依存監査に合格した。
+- 固定RCは100 files・10,526,479 bytesで、233件の自動テスト、静的監査、受け入れ監査、依存監査に合格した。
 - Chrome 156、Edge 156、Firefox 158でkeyboard／Pointer Eventsの4面campaignからending・creditsまで完走した。
 - 1568×956、390×844、844×390でoverflow、console warning/error、外部originが0件だった。
 - 既知のcritical／major不具合は観測済み範囲で0件、runtime/dev npm依存と既知脆弱性は0件だった。
+- 本番manifestと全100配信ファイルを固定RCへSHA-256照合し、Chrome 156.0.8078.48で両入力経路・3 viewportの4面campaign、pause／復帰、ending／creditsを再確認した。
 
 ## 既知問題・残存リスク
 

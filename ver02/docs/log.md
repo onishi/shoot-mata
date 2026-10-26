@@ -1,11 +1,22 @@
 # 開発ログ
 
+## 2026-10-26 — Phase 11本番検証完了
+
+- 公開: 手動run `40263130154`、deployment `7323254407`がcommit `12bc335fda0e56f089ed4869fbcb755d8d47ddef`をGitHub Pagesへ正常配信した。
+- 成果物監査: CLIのstrict JSON parser import名を訂正し、`npm run audit:production`で本番manifestのraw SHA-256、build ID、file count、total bytesと全100配信ファイルのbyte数・SHA-256を固定RCへ照合した。100 files・10,526,479 bytes、差異0件。
+- ブラウザsmoke: Chrome 156.0.8078.48でkeyboard／Pointer Eventsを1568×956、390×844、844×390の各viewportから実行し、計6 campaignすべて4面→ending→creditsを完走した。通常入口でpause／復帰も確認した。各実行はoverflow 0、63 resource、失敗resource 0、外部origin 0、console warning/error 0。
+- ロールバックdry-run: 固定v1.0.0 commit `9abf0248aa5b8e97749a2e2c380d9ad3e3b69b28`を一時ディレクトリへ展開し、`npm ci`、33テスト、決定的playtest、Vite production buildに合格した。本番deployは実行していない。
+- 検査: 現行v02は全233テスト、固定RC再現build、静的・受け入れ・証拠・最終検収・release artifact・依存監査に合格し、既知脆弱性0件。本番配信物自体はPhase 10固定RCから変更していない。
+- 判定: REL-04〜06を合格としPhase 11を完了する。Safari desktop、iOS／Android実機、4 GiB以下の物理低性能実機と、楽しさ・操作感・聴感・美しさは未実測の残存リスクとして維持する。
+
 ## 2026-10-26 — Phase 11初回workflowのfresh checkout修正
 
 - 実行: 12コミットを公開`main`へpushし、`v02-phase10-rc1`を確認文字列付きで手動run `40262742358`として起動した。
 - 失敗: deploy前のverifyで、fresh checkoutに`ver02/game/dist/build-manifest.json`が存在せず成果物監査test 3件が失敗した。本番Pagesは置き換わっていない。
 - 原因: ローカルには既存`dist/`があったが、`verify`がbuildより先にtestを実行していた。
 - 修正: `verify`をbuild→test→静的・受け入れ・証拠・最終検収・release artifact・依存監査の順へ変更した。同一固定RCを再生成してからtestするため、fresh checkoutでも成果物監査を実行できる。
+- 再実行: run `40263130154`はcommit `12bc335fda0e56f089ed4869fbcb755d8d47ddef`でbuild・GitHub Pages deployに成功した。
+- 公開後監査修正: `audit:production`のCLI入口が存在しないstrict JSON parser名をimportしていたため、`parseJsonWithUniqueKeys`へ訂正した。配信済みartifactには影響しない。
 
 ## 2026-10-26 — Phase 11公開準備と固定v01復旧経路
 
