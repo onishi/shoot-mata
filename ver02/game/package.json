@@ -24,6 +24,6 @@
     "audit:static": "node scripts/audit-static.mjs",
     "audit:deps": "npm audit --omit=dev --audit-level=high",
     "test": "node --test tests/**/*.test.mjs",
-    "verify": "npm test && npm run build && npm run audit:static && npm run audit:acceptance && npm run audit:acceptance-evidence && npm run audit:final-acceptance && npm run audit:release && npm run audit:deps"
+    "verify": "npm run build && npm test && npm run audit:static && npm run audit:acceptance && npm run audit:acceptance-evidence && npm run audit:final-acceptance && npm run audit:release && npm run audit:deps"
   }
 }

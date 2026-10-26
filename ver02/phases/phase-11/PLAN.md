@@ -26,7 +26,7 @@ Phase 10で合格した固定release candidate `phase10-rc1-20261024`だけを�
 
 1. [x] 手動確認付きPages workflow、version付きリリースノート、固定v01復旧経路を用意する。
 2. [x] 本番のmanifestと全100ファイルをSHA-256で固定RCへ照合する監査を用意する。
-3. [ ] 公開対象、URL、復旧手順を確認してからv02 workflowを手動実行する。
+3. [x] 公開対象、URL、復旧手順を確認してからv02 workflowを手動実行する。
 4. [ ] Actionsのbuild/deploy成功と公開URLの全ファイル同一性を確認する。
 5. [ ] Chrome系でkeyboard／Pointer Eventsの4面campaign、PC／縦長／横長、pause／復帰、ending／creditsを確認する。
 6. [ ] version、変更点、既知問題、build ID、権利通知、データ取扱いを本番とrelease記録で照合する。
@@ -46,3 +46,5 @@ Phase 10で合格した固定release candidate `phase10-rc1-20261024`だけを�
 公開前に`ver02/game`で`npm run verify`を実行する。公開後は`npm run audit:production`で本番全ファイルを照合し、実ブラウザで`?qa=campaign&input=keyboard`と`?qa=campaign&input=touch`をPC、390×844、844×390で確認する。GitHub Actionsのrun URL、deployment ID、公開commit、ブラウザversion、console／network結果を`release.json`へ記録する。
 
 外部公開はREADMEの作業ルールに従い、対象と手順を明示してから手動起動する。workflowはpushでは起動しない。
+
+2026-10-26の初回手動run `40262742358` はdeploy前に停止した。fresh checkoutにはgitignore済み`dist/`がなく、`verify`がbuildより先に成果物監査testを実行して`build-manifest.json`を読めなかったことが原因である。`verify`をbuild→test→各監査の順へ修正し、公開物が置換されていないことを確認してから同じrelease入力で再実行する。

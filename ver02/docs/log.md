@@ -1,5 +1,12 @@
 # 開発ログ
 
+## 2026-10-26 — Phase 11初回workflowのfresh checkout修正
+
+- 実行: 12コミットを公開`main`へpushし、`v02-phase10-rc1`を確認文字列付きで手動run `40262742358`として起動した。
+- 失敗: deploy前のverifyで、fresh checkoutに`ver02/game/dist/build-manifest.json`が存在せず成果物監査test 3件が失敗した。本番Pagesは置き換わっていない。
+- 原因: ローカルには既存`dist/`があったが、`verify`がbuildより先にtestを実行していた。
+- 修正: `verify`をbuild→test→静的・受け入れ・証拠・最終検収・release artifact・依存監査の順へ変更した。同一固定RCを再生成してからtestするため、fresh checkoutでも成果物監査を実行できる。
+
 ## 2026-10-26 — Phase 11公開準備と固定v01復旧経路
 
 - 目的: Phase 10で合格した固定RCを変更せず既存GitHub Pagesへ公開し、公開前に対象と手順を確認できる状態にする。
