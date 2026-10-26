@@ -1,19 +1,16 @@
-name: Deploy shoot-mata production
+name: Verify and deploy shoot-mata v03
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - "ver03/game/**"
+      - ".github/workflows/pages.yml"
+  pull_request:
+    paths:
+      - "ver03/game/**"
+      - ".github/workflows/pages.yml"
   workflow_dispatch:
-    inputs:
-      release:
-        description: Release artifact to deploy
-        required: true
-        type: choice
-        options:
-          - v02-phase10-rc1
-          - rollback-v01
-      confirmation:
-        description: Type the selected release name to confirm the production replacement
-        required: true
-        type: string
 
 permissions:
   contents: read
@@ -22,65 +19,38 @@ permissions:
 
 concurrency:
   group: github-pages-production
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   build:
     runs-on: ubuntu-24.04
     steps:
-      - name: Require an explicit production confirmation
-        env:
-          SELECTED_RELEASE: ${{ inputs.release }}
-          CONFIRMATION: ${{ inputs.confirmation }}
-        run: test "$SELECTED_RELEASE" = "$CONFIRMATION"
-
-      - name: Check out the accepted v02 source
-        if: inputs.release == 'v02-phase10-rc1'
-        uses: actions/checkout@v7
-
-      - name: Check out the last known-good v01 source
-        if: inputs.release == 'rollback-v01'
-        uses: actions/checkout@v7
-        with:
-          ref: 9abf0248aa5b8e97749a2e2c380d9ad3e3b69b28
-
+      - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
         with:
           node-version: 24.22.1
+          cache: npm
+          cache-dependency-path: ver03/game/package-lock.json
 
-      - name: Install the pinned npm version for v02
-        if: inputs.release == 'v02-phase10-rc1'
+      - name: Install the pinned npm version
         run: npm install --global npm@11.19.1
 
-      - name: Verify and reproduce the accepted v02 release candidate
-        if: inputs.release == 'v02-phase10-rc1'
-        working-directory: ver02/game
-        run: |
-          npm ci
-          npm run verify
+      - name: Install the locked dependency tree
+        working-directory: ver03/game
+        run: npm ci
 
-      - name: Rebuild the last known-good v01 release
-        if: inputs.release == 'rollback-v01'
-        working-directory: phase-11-01
-        run: |
-          npm ci
-          npm test
-          npm run playtest
-          npm run build
+      - name: Build, test, and run the Chrome playthrough
+        working-directory: ver03/game
+        run: npm run verify
 
       - uses: actions/configure-pages@v6
+        if: github.event_name != 'pull_request'
 
-      - name: Upload the accepted v02 artifact
-        if: inputs.release == 'v02-phase10-rc1'
+      - name: Upload the verified v03 artifact
+        if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v5
         with:
-          path: ver02/game/dist
-
-      - name: Upload the last known-good v01 artifact
-        if: inputs.release == 'rollback-v01'
-        uses: actions/upload-pages-artifact@v5
-        with:
-          path: phase-11-01/dist
+          path: ver03/game/dist
 
   deploy:
     environment:
@@ -88,6 +58,7 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-24.04
     needs: build
+    if: github.event_name != 'pull_request'
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
