@@ -653,7 +653,7 @@ function drawHowToPlay(ctx) {
   }
   ctx.fillStyle = "#ffffff";
   ctx.font = "bold 20px Arial";
-  ctx.fillText("PRESS ENTER", WIDTH / 2, 585);
+  ctx.fillText("ENTER  START   ESC  TITLE", WIDTH / 2, 585);
   ctx.textAlign = "start";
 }
 

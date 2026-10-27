@@ -121,6 +121,16 @@ test("first-run instructions lead into Stage 1 and its result advances to Stage 
   assert.equal(game.screen, "title");
 });
 
+test("first-run instructions return to the title with cancel", () => {
+  const game = createGame();
+  beginCampaign(game, { showHowTo: true });
+
+  assert.equal(game.screen, "how-to-play");
+  updateGame(game, { cancelPressed: true });
+  assert.equal(game.screen, "title");
+  assert.equal(game.stageId, "stage-01");
+});
+
 test("automatic input completes Stage 6 and exposes the Sovereign core", () => {
   const game = createGame();
   beginStage(game, "stage-06");

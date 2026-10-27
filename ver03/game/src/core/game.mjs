@@ -101,6 +101,7 @@ export function updateGame(game, input = {}) {
     return game;
   }
   if (game.screen === "how-to-play") {
+    if (input.cancelPressed) returnToTitle(game);
     if (input.confirmPressed) {
       game.screen = "stage-intro";
       game.introTicks = 90;

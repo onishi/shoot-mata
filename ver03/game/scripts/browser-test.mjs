@@ -66,6 +66,8 @@ try {
   await page.keyboard.press("Enter");
   await page.waitForFunction(() => window.__shootMata.state().screen === "how-to-play");
   await page.screenshot({ path: path.join(root, "artifacts", "how-to-play.png"), fullPage: true });
+  await page.keyboard.press("Escape");
+  await page.waitForFunction(() => window.__shootMata.state().screen === "title");
   await page.keyboard.press("Enter");
   await page.waitForFunction(() => window.__shootMata.state().screen === "playing");
   await page.keyboard.down("KeyZ");
