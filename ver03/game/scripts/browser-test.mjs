@@ -56,6 +56,15 @@ try {
   await page.screenshot({ path: path.join(root, "artifacts", "how-to-play.png"), fullPage: true });
   await page.keyboard.press("Enter");
   await page.waitForFunction(() => window.__shootMata.state().screen === "playing");
+  await page.keyboard.down("KeyZ");
+  await page.evaluate(() => dispatchEvent(new Event("blur")));
+  await page.waitForFunction(() => window.__shootMata.state().paused);
+  const pulseAtFocusLoss = await page.evaluate(() => window.__shootMata.state().pulseShots);
+  await page.keyboard.press("KeyP");
+  await page.waitForFunction(() => !window.__shootMata.state().paused);
+  await page.waitForTimeout(250);
+  assert.equal(await page.evaluate(() => window.__shootMata.state().pulseShots), pulseAtFocusLoss, "focus loss must release held controls");
+  await page.keyboard.up("KeyZ");
   await page.keyboard.press("KeyP");
   await page.waitForFunction(() => window.__shootMata.state().paused);
   await page.screenshot({ path: path.join(root, "artifacts", "pause.png"), fullPage: true });

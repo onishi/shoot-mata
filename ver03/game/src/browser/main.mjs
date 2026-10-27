@@ -71,6 +71,16 @@ addEventListener("keydown", (event) => {
   }
 });
 addEventListener("keyup", (event) => keys.delete(event.code));
+addEventListener("blur", suspendForFocusLoss);
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) suspendForFocusLoss();
+});
+
+function suspendForFocusLoss() {
+  keys.clear();
+  pressed.clear();
+  if (game.screen === "playing") game.paused = true;
+}
 
 function loadAudioSettings() {
   try {
