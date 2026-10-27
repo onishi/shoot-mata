@@ -22,20 +22,32 @@ let accumulator = 0;
 let frameMonitor = createFrameMonitor();
 
 function createFrameMonitor() {
-  return { active: false, skipNext: false, intervals: [] };
+  return { active: false, skipNext: false, intervals: [], workTimes: [] };
 }
 
 function framePerformance() {
-  const sorted = [...frameMonitor.intervals].sort((a, b) => a - b);
-  const percentile = (value) => sorted.length ? sorted[Math.min(sorted.length - 1, Math.ceil(sorted.length * value) - 1)] : 0;
-  const droppedFrames = sorted.filter((interval) => interval > 25).length;
+  const summarize = (values) => {
+    const sorted = [...values].sort((a, b) => a - b);
+    const percentile = (value) => sorted.length ? sorted[Math.min(sorted.length - 1, Math.ceil(sorted.length * value) - 1)] : 0;
+    return {
+      average: sorted.length ? sorted.reduce((sum, value) => sum + value, 0) / sorted.length : 0,
+      p95: percentile(0.95),
+      max: sorted.at(-1) ?? 0
+    };
+  };
+  const intervals = summarize(frameMonitor.intervals);
+  const work = summarize(frameMonitor.workTimes);
+  const droppedFrames = frameMonitor.intervals.filter((interval) => interval > 25).length;
   return {
-    samples: sorted.length,
-    averageMs: sorted.length ? sorted.reduce((sum, interval) => sum + interval, 0) / sorted.length : 0,
-    p95Ms: percentile(0.95),
-    maxMs: sorted.at(-1) ?? 0,
+    samples: frameMonitor.workTimes.length,
+    averageMs: intervals.average,
+    p95Ms: intervals.p95,
+    maxMs: intervals.max,
     droppedFrames,
-    droppedRatio: sorted.length ? droppedFrames / sorted.length : 0
+    droppedRatio: frameMonitor.intervals.length ? droppedFrames / frameMonitor.intervals.length : 0,
+    averageWorkMs: work.average,
+    p95WorkMs: work.p95,
+    maxWorkMs: work.max
   };
 }
 
@@ -122,11 +134,16 @@ function keyboardInput() {
 }
 
 function frame(now) {
+  const frameStart = performance.now();
+  let recordPerformance = false;
   const elapsed = Math.min(100, now - previous);
   previous = now;
   if (frameMonitor.active) {
     if (frameMonitor.skipNext) frameMonitor.skipNext = false;
-    else frameMonitor.intervals.push(elapsed);
+    else {
+      frameMonitor.intervals.push(elapsed);
+      recordPerformance = true;
+    }
   }
   accumulator += elapsed;
   const normalSteps = Math.min(5, Math.floor(accumulator / (1000 / 60)));
@@ -150,6 +167,7 @@ function frame(now) {
   audio.sync(game);
   if (steps > 0) pressed.clear();
   render(ctx, game);
+  if (recordPerformance) frameMonitor.workTimes.push(performance.now() - frameStart);
   requestAnimationFrame(frame);
 }
 
@@ -169,7 +187,7 @@ window.__shootMata = {
     return { ...snapshot(game), audio: audio.status() };
   },
   startPerformanceMonitor() {
-    frameMonitor = { active: true, skipNext: true, intervals: [] };
+    frameMonitor = { active: true, skipNext: true, intervals: [], workTimes: [] };
   },
   stopPerformanceMonitor() {
     frameMonitor.active = false;
