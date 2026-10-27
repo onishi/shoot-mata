@@ -953,7 +953,7 @@ export function automaticInput(game) {
 export function snapshot(game) {
   const loadout = reactorLoadout(game.cores);
   return {
-    screen: game.screen, stageId: game.stageId, tick: game.tick, lives: game.lives, score: game.score,
+    screen: game.screen, stageId: game.stageId, tick: game.tick, paused: game.paused, lives: game.lives, score: game.score,
     unlockedStage: game.unlockedStage, selectedStageIndex: game.selectedStageIndex, practiceMode: game.practiceMode,
     scoreBreakdown: { ...game.scoreBreakdown }, killChain: game.killChain,
     maxKillChain: game.maxKillChain, misses: game.misses, stageMisses: game.stageMisses,

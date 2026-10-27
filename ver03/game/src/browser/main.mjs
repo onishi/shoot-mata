@@ -19,6 +19,25 @@ game.audioSettingRow = 0;
 game.audioSettings = audio.status().settings;
 let previous = performance.now();
 let accumulator = 0;
+let frameMonitor = createFrameMonitor();
+
+function createFrameMonitor() {
+  return { active: false, skipNext: false, intervals: [] };
+}
+
+function framePerformance() {
+  const sorted = [...frameMonitor.intervals].sort((a, b) => a - b);
+  const percentile = (value) => sorted.length ? sorted[Math.min(sorted.length - 1, Math.ceil(sorted.length * value) - 1)] : 0;
+  const droppedFrames = sorted.filter((interval) => interval > 25).length;
+  return {
+    samples: sorted.length,
+    averageMs: sorted.length ? sorted.reduce((sum, interval) => sum + interval, 0) / sorted.length : 0,
+    p95Ms: percentile(0.95),
+    maxMs: sorted.at(-1) ?? 0,
+    droppedFrames,
+    droppedRatio: sorted.length ? droppedFrames / sorted.length : 0
+  };
+}
 
 addEventListener("keydown", (event) => {
   if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space"].includes(event.code)) event.preventDefault();
@@ -105,6 +124,10 @@ function keyboardInput() {
 function frame(now) {
   const elapsed = Math.min(100, now - previous);
   previous = now;
+  if (frameMonitor.active) {
+    if (frameMonitor.skipNext) frameMonitor.skipNext = false;
+    else frameMonitor.intervals.push(elapsed);
+  }
   accumulator += elapsed;
   const normalSteps = Math.min(5, Math.floor(accumulator / (1000 / 60)));
   if (normalSteps > 0) accumulator -= normalSteps * (1000 / 60);
@@ -139,11 +162,18 @@ window.__shootMata = {
     saveAudioSettings(next);
     return next;
   },
-  advance(ticks) {
-    for (let i = 0; i < ticks; i += 1) updateGame(game, automaticInput(game));
+  advance(ticks, useAutomaticInput = true) {
+    for (let i = 0; i < ticks; i += 1) updateGame(game, useAutomaticInput ? automaticInput(game) : {});
     audio.sync(game);
     render(ctx, game);
     return { ...snapshot(game), audio: audio.status() };
+  },
+  startPerformanceMonitor() {
+    frameMonitor = { active: true, skipNext: true, intervals: [] };
+  },
+  stopPerformanceMonitor() {
+    frameMonitor.active = false;
+    return framePerformance();
   }
 };
 

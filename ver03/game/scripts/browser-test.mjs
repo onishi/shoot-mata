@@ -56,6 +56,11 @@ try {
   await page.screenshot({ path: path.join(root, "artifacts", "how-to-play.png"), fullPage: true });
   await page.keyboard.press("Enter");
   await page.waitForFunction(() => window.__shootMata.state().screen === "playing");
+  await page.keyboard.press("KeyP");
+  await page.waitForFunction(() => window.__shootMata.state().paused);
+  await page.screenshot({ path: path.join(root, "artifacts", "pause.png"), fullPage: true });
+  await page.keyboard.press("KeyP");
+  await page.waitForFunction(() => !window.__shootMata.state().paused);
   const initial = await page.evaluate(() => window.__shootMata.advance(60));
   assert.ok(initial.pulseShots > 0, "PULSE must fire with zero cores");
   assert.deepEqual(initial.cores, []);
@@ -223,7 +228,21 @@ try {
   await page.waitForFunction(() => window.__shootMata.state().selectedStageIndex === 5);
   await page.keyboard.press("Enter");
   await page.waitForFunction(() => window.__shootMata.state().stageId === "stage-06" && window.__shootMata.state().practiceMode);
+  await page.evaluate(() => window.__shootMata.advance(14_000));
+  assert.equal(await page.evaluate(() => window.__shootMata.state().screen), "playing");
+  assert.ok(await page.evaluate(() => window.__shootMata.state().bossHp > 0));
+  await page.evaluate(() => window.__shootMata.startPerformanceMonitor());
+  await page.waitForTimeout(3_000);
+  const framePerformance = await page.evaluate(() => window.__shootMata.stopPerformanceMonitor());
+  assert.ok(framePerformance.samples >= 120, `only ${framePerformance.samples} animation frames were sampled`);
+  assert.ok(framePerformance.p95Ms <= 25, `95th percentile frame interval was ${framePerformance.p95Ms.toFixed(2)}ms`);
+  assert.ok(framePerformance.droppedRatio <= 0.05, `${(framePerformance.droppedRatio * 100).toFixed(1)}% of frames exceeded 25ms`);
+  assert.ok(framePerformance.maxMs <= 50, `slowest frame interval was ${framePerformance.maxMs.toFixed(2)}ms`);
+  await page.evaluate(() => window.__shootMata.advance(12_000, false));
+  assert.equal(await page.evaluate(() => window.__shootMata.state().screen), "continue");
+  await page.screenshot({ path: path.join(root, "artifacts", "continue.png"), fullPage: true });
   console.log(`Chrome playthrough passed: Stage 1 ${final.tick} ticks, Stage 2 ${stageTwoFinal.tick} ticks, Stage 3 ${stageThreeFinal.tick} ticks, Stage 4 ${stageFourFinal.tick} ticks, Stage 5 ${stageFiveFinal.tick} ticks, Stage 6 ${stageSixFinal.tick} ticks, zero terrain hits`);
+  console.log(`Stage 6 boss performance: ${framePerformance.samples} frames, ${framePerformance.averageMs.toFixed(2)}ms average, ${framePerformance.p95Ms.toFixed(2)}ms p95, ${framePerformance.droppedFrames} frames over 25ms`);
 } finally {
   await browser?.close();
   server.kill("SIGTERM");
