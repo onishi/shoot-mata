@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { automaticInput, beginCampaign, beginStage, bossShieldRects, bossWeakpoint, collectCore, createGame, openStageSelect, reactorLoadout, setDifficulty, updateGame } from "../../src/core/game.mjs";
+import { CAMPAIGN, stageById } from "../../src/content/stages.mjs";
 
 test("PULSE always fires when the reactor is empty", () => {
   const game = createGame();
@@ -8,6 +9,27 @@ test("PULSE always fires when the reactor is empty", () => {
   for (let tick = 0; tick < 110; tick += 1) updateGame(game, { fire: true });
   assert.equal(game.cores.length, 0);
   assert.ok(game.pulseShots >= 2);
+});
+
+test("PULSE alone can defeat every campaign boss", () => {
+  for (const stageId of CAMPAIGN) {
+    const game = createGame(stageId);
+    const stage = stageById(stageId);
+    game.screen = "playing";
+    game.tick = stage.bossStartTick - 1;
+    game.scrollX = game.tick * stage.scrollSpeed;
+    game.player.invulnerable = 1_000_000;
+
+    for (let tick = 0; tick < 15_000 && game.screen === "playing"; tick += 1) {
+      game.pickups.length = 0;
+      game.cores.length = 0;
+      updateGame(game, automaticInput(game));
+    }
+
+    assert.equal(game.screen, "stage-result", `${stageId} was not cleared with PULSE`);
+    assert.equal(game.defeatedBoss, true, `${stageId} boss survived PULSE`);
+    assert.deepEqual(game.weaponShots, { lance: 0, spread: 0, seeker: 0 });
+  }
 });
 
 test("high score updates with points and survives resets", () => {
