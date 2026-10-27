@@ -12,7 +12,9 @@ const keys = new Set();
 const pressed = new Set();
 const game = createGame();
 game.unlockedStage = loadUnlockedStage();
+game.highScore = loadHighScore();
 let savedUnlockedStage = game.unlockedStage;
+let savedHighScore = game.highScore;
 const savedAudio = loadAudioSettings();
 const audio = createAudioSystem({ settings: savedAudio });
 game.audioSettingsOpen = false;
@@ -116,6 +118,15 @@ function saveUnlockedStage(value) {
   writeStorage("shoot-mata-v03-unlocked-stage", String(value));
 }
 
+function loadHighScore() {
+  const value = Number(readStorage("shoot-mata-v03-high-score"));
+  return Number.isSafeInteger(value) && value > 0 ? value : 0;
+}
+
+function saveHighScore(value) {
+  writeStorage("shoot-mata-v03-high-score", String(value));
+}
+
 function handleAudioSettingsKey(code) {
   if (!game.audioSettingsOpen && code !== "KeyS") return false;
   if (code === "KeyS" || code === "Escape" || code === "Enter") {
@@ -186,6 +197,10 @@ function frame(now) {
   if (game.unlockedStage !== savedUnlockedStage) {
     saveUnlockedStage(game.unlockedStage);
     savedUnlockedStage = game.unlockedStage;
+  }
+  if (game.highScore !== savedHighScore) {
+    saveHighScore(game.highScore);
+    savedHighScore = game.highScore;
   }
   audio.sync(game);
   if (steps > 0) pressed.clear();

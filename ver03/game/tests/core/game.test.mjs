@@ -10,6 +10,26 @@ test("PULSE always fires when the reactor is empty", () => {
   assert.ok(game.pulseShots >= 2);
 });
 
+test("high score updates with points and survives resets", () => {
+  const game = createGame();
+  game.highScore = 500;
+  collectCore(game, "red");
+  assert.equal(game.score, 75);
+  assert.equal(game.highScore, 500);
+
+  game.score = 475;
+  collectCore(game, "blue");
+  assert.equal(game.highScore, 550);
+  beginCampaign(game);
+  assert.equal(game.score, 0);
+  assert.equal(game.highScore, 550);
+
+  game.screen = "continue";
+  updateGame(game, { confirmPressed: true });
+  assert.equal(game.score, 0);
+  assert.equal(game.highScore, 550);
+});
+
 test("assist difficulty applies all four documented aids and survives campaign setup", () => {
   const game = createGame();
   setDifficulty(game, "assist");

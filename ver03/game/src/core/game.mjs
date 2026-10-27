@@ -16,7 +16,7 @@ export const DIFFICULTY_RULES = Object.freeze({
 export function createGame(stageId = "stage-01", difficulty = "standard") {
   if (!DIFFICULTY_RULES[difficulty]) throw new TypeError(`Unknown difficulty: ${difficulty}`);
   return {
-    screen: "title", stageId, difficulty, tick: 0, scrollX: 0, score: 0, stageStartScore: 0, lives: DIFFICULTY_RULES[difficulty].lives, cores: [], pickups: [],
+    screen: "title", stageId, difficulty, tick: 0, scrollX: 0, score: 0, highScore: 0, stageStartScore: 0, lives: DIFFICULTY_RULES[difficulty].lives, cores: [], pickups: [],
     unlockedStage: 1, selectedStageIndex: 0, practiceMode: false,
     scoreBreakdown: { defeat: 0, pickup: 0, chain: 0, clear: 0, noMiss: 0 },
     killChain: 0, maxKillChain: 0, misses: 0, stageMisses: 0, respawnTicks: 0,
@@ -35,7 +35,7 @@ export function createGame(stageId = "stage-01", difficulty = "standard") {
 }
 
 export function beginStage(game, stageId = "stage-01", { preserveProgress = false } = {}) {
-  const navigation = { unlockedStage: game.unlockedStage ?? 1, difficulty: game.difficulty ?? "standard" };
+  const navigation = { unlockedStage: game.unlockedStage ?? 1, highScore: game.highScore ?? 0, difficulty: game.difficulty ?? "standard" };
   const progress = preserveProgress ? {
     score: game.score, stageStartScore: game.score, lives: game.lives, misses: game.misses
   } : {};
@@ -44,14 +44,16 @@ export function beginStage(game, stageId = "stage-01", { preserveProgress = fals
 
 export function beginCampaign(game, { showHowTo = false } = {}) {
   const unlockedStage = game.unlockedStage ?? 1;
+  const highScore = game.highScore ?? 0;
   const difficulty = game.difficulty ?? "standard";
-  Object.assign(game, createGame("stage-01", difficulty), { unlockedStage, screen: showHowTo ? "how-to-play" : "stage-intro", introTicks: showHowTo ? 0 : 90 });
+  Object.assign(game, createGame("stage-01", difficulty), { unlockedStage, highScore, screen: showHowTo ? "how-to-play" : "stage-intro", introTicks: showHowTo ? 0 : 90 });
 }
 
 export function returnToTitle(game) {
   const unlockedStage = game.unlockedStage ?? 1;
+  const highScore = game.highScore ?? 0;
   const difficulty = game.difficulty ?? "standard";
-  Object.assign(game, createGame("stage-01", difficulty), { unlockedStage });
+  Object.assign(game, createGame("stage-01", difficulty), { unlockedStage, highScore });
 }
 
 export function setDifficulty(game, difficulty) {
@@ -912,6 +914,7 @@ function loseLife(game) {
 
 function addScore(game, category, points) {
   game.score += points;
+  game.highScore = Math.max(game.highScore ?? 0, game.score);
   game.scoreBreakdown[category] += points;
 }
 
@@ -971,7 +974,7 @@ export function automaticInput(game) {
 export function snapshot(game) {
   const loadout = reactorLoadout(game.cores);
   return {
-    screen: game.screen, stageId: game.stageId, difficulty: game.difficulty, tick: game.tick, paused: game.paused, lives: game.lives, score: game.score,
+    screen: game.screen, stageId: game.stageId, difficulty: game.difficulty, tick: game.tick, paused: game.paused, lives: game.lives, score: game.score, highScore: game.highScore,
     audioSettingsOpen: game.audioSettingsOpen === true, audioSettingRow: game.audioSettingRow ?? 0,
     unlockedStage: game.unlockedStage, selectedStageIndex: game.selectedStageIndex, practiceMode: game.practiceMode,
     scoreBreakdown: { ...game.scoreBreakdown }, killChain: game.killChain,

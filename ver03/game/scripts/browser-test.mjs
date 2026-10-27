@@ -122,6 +122,8 @@ try {
   assert.equal(final.audio.limiterDb, -1);
   assert.ok(final.destroyedTerrain.includes("breakable-wreck"));
   assert.equal(final.score, Object.values(final.scoreBreakdown).reduce((sum, value) => sum + value, 0));
+  assert.equal(final.highScore, final.score);
+  assert.equal(await page.evaluate(() => localStorage.getItem("shoot-mata-v03-high-score")), String(final.highScore));
   assert.equal(final.scoreBreakdown.clear, 2000);
   assert.equal(final.hudTop, 720);
   assert.equal(await page.evaluate(() => performance.getEntriesByType("resource").filter(({ name }) => name.includes("/assets/") && name.endsWith(".webp")).length), 52);
@@ -251,6 +253,10 @@ try {
   await page.keyboard.press("Enter");
   await page.waitForFunction(() => window.__shootMata.state().screen === "title");
   assert.equal(await page.evaluate(() => localStorage.getItem("shoot-mata-v03-unlocked-stage")), "6");
+  const completedHighScore = await page.evaluate(() => window.__shootMata.state().highScore);
+  await page.reload({ waitUntil: "networkidle" });
+  assert.equal(await page.evaluate(() => window.__shootMata.state().highScore), completedHighScore);
+  assert.equal(await page.evaluate(() => window.__shootMata.state().unlockedStage), 6);
   await page.keyboard.press("KeyT");
   await page.waitForFunction(() => window.__shootMata.state().screen === "stage-select");
   await page.keyboard.press("ArrowUp");
