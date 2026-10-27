@@ -46,6 +46,39 @@ test("first-run instructions lead into Stage 1 and its result advances to Stage 
   game.screen = "stage-result";
   updateGame(game, { confirmPressed: true });
   assert.equal(game.stageId, "stage-04");
+  game.screen = "stage-result";
+  updateGame(game, { confirmPressed: true });
+  assert.equal(game.stageId, "stage-05");
+});
+
+test("automatic input completes Stage 5 with reflected crystal combat and all Oracle phases", () => {
+  const game = createGame();
+  beginStage(game, "stage-05");
+  const seen = new Set();
+  for (let tick = 0; tick < 25_000 && game.screen !== "stage-result"; tick += 1) {
+    updateGame(game, automaticInput(game));
+    for (const enemy of game.enemies) seen.add(enemy.type);
+  }
+  assert.equal(game.screen, "stage-result");
+  assert.equal(game.defeatedBoss, true);
+  assert.deepEqual(seen, new Set(["shard-skater", "mirror-nest", "phase-ray", "lattice-keeper"]));
+  assert.deepEqual(game.prismPhasesSeen, [0, 1, 2]);
+  assert.ok(game.phaseRayWarnings > 0);
+  assert.ok(game.bossShots > 0);
+  assert.ok(game.bossWeakpointHits > 0);
+  assert.equal(game.terrainHits, 0);
+});
+
+test("enemy crystal shots reflect once from Stage 5 reflective terrain", () => {
+  const game = createGame("stage-05");
+  game.screen = "playing";
+  game.tick = 1087;
+  game.player.y = 300;
+  game.enemyBullets.push({ kind: "mirror-orb", x: 210, y: 600, radius: 7, vx: -1, vy: 4, age: 0, reflected: false });
+  updateGame(game, {});
+  assert.equal(game.crystalReflections, 1);
+  assert.equal(game.enemyBullets[0].reflected, true);
+  assert.ok(game.enemyBullets[0].vy < 0);
 });
 
 test("automatic input completes Stage 4 through heat waves and all controller phases", () => {

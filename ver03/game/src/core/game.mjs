@@ -21,7 +21,8 @@ export function createGame(stageId = "stage-01") {
     bossShieldBlocks: 0, bossWeakpointHits: 0,
     weaponShots: { lance: 0, spread: 0, seeker: 0 },
     terrainHits: 0, defeatedBoss: false, paused: false, introTicks: 0, resultTicks: 0,
-    currentTicks: 0, shutterWarnings: 0, membraneWarnings: 0, heatWaveWarnings: 0, swarmRegenerations: 0, arkOrgansDestroyed: 0, furnacePhasesSeen: []
+    currentTicks: 0, shutterWarnings: 0, membraneWarnings: 0, heatWaveWarnings: 0, swarmRegenerations: 0, arkOrgansDestroyed: 0, furnacePhasesSeen: [],
+    crystalReflections: 0, phaseRayWarnings: 0, prismPhasesSeen: []
   };
 }
 
@@ -171,7 +172,7 @@ function hitTerrain(game) {
   const terrain = terrainFor(game);
   for (const bullet of game.bullets) {
     if (bullet.dead) continue;
-    const item = terrain.find((candidate) => overlapsRect(bullet, { x: candidate.screenX, y: candidate.y, width: candidate.width, height: candidate.height }));
+    const item = terrain.find((candidate) => !candidate.warning && overlapsRect(bullet, { x: candidate.screenX, y: candidate.y, width: candidate.width, height: candidate.height }));
     if (!item) continue;
     bullet.dead = true;
     if (!["destructible-wreck", "destructible-cyst", "destructible-shield"].includes(item.kind)) continue;
@@ -236,6 +237,13 @@ function hitTargets(game) {
 
 function hitBoss(game, bullet) {
   const boss = game.boss;
+  if (boss.type === "prism-oracle") {
+    const weakpoint = prismOracleWeakpoint(boss);
+    if (!overlapsRect(bullet, weakpoint)) return;
+    game.bossWeakpointHits += 1;
+    damageTarget(game, bullet, boss, 6000);
+    return;
+  }
   if (boss.type === "furnace-controller") {
     const weakpoint = furnaceControllerWeakpoint(boss);
     if (boss.shieldClosed && bullet.x > weakpoint.x - 16) {
@@ -400,6 +408,10 @@ function enemyStats(type) {
   if (type === "heat-armor") return { width: 88, height: 58, hp: 24 };
   if (type === "solar-rammer") return { width: 78, height: 48, hp: 14 };
   if (type === "omni-turret") return { width: 76, height: 62, hp: 22 };
+  if (type === "shard-skater") return { width: 92, height: 54, hp: 15 };
+  if (type === "mirror-nest") return { width: 88, height: 72, hp: 22 };
+  if (type === "phase-ray") return { width: 104, height: 62, hp: 18 };
+  if (type === "lattice-keeper") return { width: 98, height: 74, hp: 24 };
   return { width: 52, height: 36, hp: 7 };
 }
 
@@ -457,6 +469,24 @@ function updateEnemies(game) {
           fireEnemyShot(game, { ...enemy, y: enemy.y - 28 }); fireEnemyShot(game, enemy); fireEnemyShot(game, { ...enemy, y: enemy.y + 28 });
         }
       }
+      if (enemy.type === "shard-skater") {
+        enemy.x -= 1.5;
+        enemy.y += Math.sin(age / 24 + enemy.phase) * 0.75;
+      }
+      if (enemy.type === "mirror-nest") {
+        enemy.x += 1.7;
+        if (enemy.x < 1120 && enemy.x > 500 && age > 0 && age % 300 === 0) fireCrystalShot(game, enemy, "mirror-orb", 2.2);
+      }
+      if (enemy.type === "phase-ray") {
+        enemy.x += 1.65;
+        if (enemy.x < 1140 && enemy.x > 540 && age > 0 && age % 240 === 1) game.phaseRayWarnings += 1;
+        if (enemy.x < 1140 && enemy.x > 540 && age > 75 && age % 420 === 76) fireCrystalShot(game, enemy, "phase-beam", 3.2);
+      }
+      if (enemy.type === "lattice-keeper") {
+        enemy.x += 1.55;
+        enemy.y += Math.sin(age / 35 + enemy.phase) * 1.2;
+        if (enemy.x < 1120 && enemy.x > 520 && age > 0 && age % 280 === 0) fireCrystalShot(game, enemy, "lattice-shot", 2.5);
+      }
     }
     if (enemy.pattern === "weave" || enemy.pattern === "current-weave") enemy.y += Math.sin(game.tick / 28 + enemy.phase) * 1.8;
     const dx = game.player.x - (enemy.x + enemy.width / 2);
@@ -464,6 +494,16 @@ function updateEnemies(game) {
     if (!enemy.dead && game.respawnTicks === 0 && game.player.invulnerable === 0 && dx * dx + dy * dy < 25 * 25) takeCombatHit(game);
   }
   game.enemies = game.enemies.filter((enemy) => !enemy.dead && enemy.x > -80);
+}
+
+function fireCrystalShot(game, enemy, kind, speed) {
+  const x = enemy.x;
+  const y = enemy.y + enemy.height / 2;
+  const dx = game.player.x - x;
+  const dy = game.player.y - y;
+  const length = Math.hypot(dx, dy) || 1;
+  game.enemyBullets.push({ kind, x, y, radius: kind === "phase-beam" ? 7 : 6, vx: dx / length * speed, vy: dy / length * speed, age: 0, reflected: false });
+  game.enemyShots += 1;
 }
 
 function fireEnemyShot(game, enemy) {
@@ -483,11 +523,21 @@ function dropMine(game, enemy) {
 }
 
 function updateEnemyBullets(game) {
+  const reflectors = terrainFor(game).filter(({ kind }) => kind === "reflective-crystal");
   for (const bullet of game.enemyBullets) {
     bullet.age += 1;
     bullet.x += bullet.vx;
     bullet.y += bullet.vy;
     if (bullet.kind === "mine") bullet.vy = Math.min(2.5, bullet.vy + 0.025);
+    if (!bullet.reflected && ["mirror-orb", "lattice-shot", "oracle-shard"].includes(bullet.kind)) {
+      const reflector = reflectors.find((item) => overlapsCircleRect(bullet, { x: item.screenX, y: item.y, width: item.width, height: item.height }));
+      if (reflector) {
+        bullet.reflected = true;
+        bullet.vy = reflector.reflectSide === "ceiling" ? Math.abs(bullet.vy) : -Math.abs(bullet.vy);
+        bullet.y = reflector.reflectSide === "ceiling" ? reflector.y + reflector.height + bullet.radius + 1 : reflector.y - bullet.radius - 1;
+        game.crystalReflections += 1;
+      }
+    }
     const dx = game.player.x - bullet.x;
     const dy = game.player.y - bullet.y;
     const triggerRadius = bullet.kind === "mine" && bullet.age >= 40 ? 52 : game.player.radius + bullet.radius;
@@ -505,7 +555,9 @@ function updateBoss(game) {
   if (game.tick >= stage.bossStartTick && !game.boss) {
     game.enemies.length = 0;
     game.enemyBullets.length = 0;
-    game.boss = game.stageId === "stage-04"
+    game.boss = game.stageId === "stage-05"
+      ? { x: 930, y: 190, width: 320, height: 300, hp: 430, maxHp: 430, dead: false, type: "prism-oracle", age: 0, phase: 0, attackWarning: true, realIndex: 1 }
+      : game.stageId === "stage-04"
       ? { x: 965, y: 205, width: 280, height: 270, hp: 390, maxHp: 390, dead: false, type: "furnace-controller", age: 0, phase: 0, attackWarning: true, shieldClosed: true }
       : game.stageId === "stage-03"
       ? { x: 970, y: 205, width: 270, height: 270, hp: 360, maxHp: 360, partHp: 90, dead: false, type: "ark-core", age: 0, phase: 0, attackWarning: true }
@@ -516,6 +568,10 @@ function updateBoss(game) {
   if (!game.boss || game.boss.dead) return;
   const boss = game.boss;
   boss.age += 1;
+  if (boss.type === "prism-oracle") {
+    updatePrismOracle(game, boss);
+    return;
+  }
   if (boss.type === "furnace-controller") {
     updateFurnaceController(game, boss);
     return;
@@ -534,6 +590,31 @@ function updateBoss(game) {
   boss.attackWarning = cycle < BOSS_WARNING_TICKS;
   if (cycle >= BOSS_WARNING_TICKS && cycle < 228 && (cycle - BOSS_WARNING_TICKS) % 39 === 0) fireBossFan(game, boss);
   if (game.respawnTicks === 0 && game.player.invulnerable === 0 && overlapsCircleRect(game.player, boss)) loseLife(game);
+}
+
+function updatePrismOracle(game, boss) {
+  boss.phase = Math.min(2, Math.floor((1 - boss.hp / boss.maxHp) * 3));
+  if (!game.prismPhasesSeen.includes(boss.phase)) game.prismPhasesSeen.push(boss.phase);
+  const cycle = boss.age % 420;
+  boss.realIndex = 1;
+  boss.y = 205 + Math.sin(boss.age / (74 - boss.phase * 8)) * 105;
+  boss.attackWarning = cycle < 90;
+  if (cycle === 1) game.phaseRayWarnings += 1;
+  if (cycle >= 90 && cycle < 330 && (cycle - 90) % Math.max(35, 58 - boss.phase * 9) === 0) {
+    const origin = prismOracleWeakpoint(boss);
+    const centerY = origin.y + origin.height / 2;
+    const aim = Math.atan2(game.player.y - centerY, game.player.x - origin.x);
+    const offsets = boss.phase === 0 ? [-0.22, 0.22] : boss.phase === 1 ? [-0.3, 0, 0.3] : [-0.38, -0.13, 0.13, 0.38];
+    for (const offset of offsets) {
+      game.enemyBullets.push({ kind: "oracle-shard", x: origin.x, y: centerY, radius: 8, vx: Math.cos(aim + offset) * 3.55, vy: Math.sin(aim + offset) * 3.55, age: 0, reflected: false });
+      game.enemyShots += 1; game.bossShots += 1;
+    }
+  }
+  if (game.respawnTicks === 0 && game.player.invulnerable === 0 && overlapsCircleRect(game.player, boss)) loseLife(game);
+}
+
+export function prismOracleWeakpoint(boss) {
+  return { x: boss.x + 52, y: boss.y + 98, width: 92, height: 104 };
 }
 
 function updateFurnaceController(game, boss) {
@@ -643,6 +724,7 @@ export function bossShieldRects(boss) {
 function checkTerrain(game) {
   if (game.respawnTicks > 0 || game.player.invulnerable > 0) return;
   for (const item of terrainFor(game)) {
+    if (item.warning) continue;
     if (overlapsCircleRect(game.player, { x: item.screenX, y: item.y, width: item.width, height: item.height })) {
       game.terrainHits += 1;
       loseLife(game);
@@ -713,6 +795,10 @@ export function automaticInput(game) {
     const weakpoint = arkCoreWeakpoint(game.boss);
     targetY = weakpoint.y + weakpoint.height / 2;
   }
+  if (game.boss?.type === "prism-oracle") {
+    const weakpoint = prismOracleWeakpoint(game.boss);
+    targetY = weakpoint.y + weakpoint.height / 2;
+  }
   targetY = Math.max(safeMinY, Math.min(safeMaxY, targetY));
   const pickup = game.pickups.find((item) => item.x > game.player.x - 20 && item.x < 720);
   if (pickup && !ahead.some((item) => pickup.y > item.y - 45 && pickup.y < item.y + item.height + 45)) targetY = pickup.y;
@@ -743,7 +829,8 @@ export function snapshot(game) {
     bossPhase: game.boss?.phase ?? null, currentTicks: game.currentTicks, shutterWarnings: game.shutterWarnings,
     membraneWarnings: game.membraneWarnings, heatWaveWarnings: game.heatWaveWarnings,
     swarmRegenerations: game.swarmRegenerations, arkOrgansDestroyed: game.arkOrgansDestroyed,
-    furnacePhasesSeen: [...game.furnacePhasesSeen],
+    furnacePhasesSeen: [...game.furnacePhasesSeen], crystalReflections: game.crystalReflections,
+    phaseRayWarnings: game.phaseRayWarnings, prismPhasesSeen: [...game.prismPhasesSeen],
     defeatedBoss: game.defeatedBoss, hudTop: 720
   };
 }

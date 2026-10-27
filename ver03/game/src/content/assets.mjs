@@ -34,7 +34,15 @@ export const IMAGE_ASSETS = Object.freeze({
   "solar-rammer": new URL("../../assets/enemies/stage-04/solar-rammer-v1.webp", import.meta.url).href,
   "omni-turret": new URL("../../assets/enemies/stage-04/omni-turret-v1.webp", import.meta.url).href,
   "furnace-mole": new URL("../../assets/enemies/stage-04/furnace-mole-v1.webp", import.meta.url).href,
-  "furnace-controller": new URL("../../assets/bosses/stage-04/furnace-controller-v1.webp", import.meta.url).href
+  "furnace-controller": new URL("../../assets/bosses/stage-04/furnace-controller-v1.webp", import.meta.url).href,
+  "background-stage-05-far": new URL("../../assets/backgrounds/stage-05/crystal-sea-far-v1.webp", import.meta.url).href,
+  "background-stage-05-mid": new URL("../../assets/backgrounds/stage-05/crystal-sea-mid-v1.webp", import.meta.url).href,
+  "background-stage-05-fore": new URL("../../assets/backgrounds/stage-05/crystal-sea-fore-v1.webp", import.meta.url).href,
+  "shard-skater": new URL("../../assets/enemies/stage-05/shard-skater-v1.webp", import.meta.url).href,
+  "mirror-nest": new URL("../../assets/enemies/stage-05/mirror-nest-v1.webp", import.meta.url).href,
+  "phase-ray": new URL("../../assets/enemies/stage-05/phase-ray-v1.webp", import.meta.url).href,
+  "lattice-keeper": new URL("../../assets/enemies/stage-05/lattice-keeper-v1.webp", import.meta.url).href,
+  "prism-oracle": new URL("../../assets/bosses/stage-05/prism-oracle-v1.webp", import.meta.url).href
 });
 
 export const BACKGROUND_LAYERS = Object.freeze([
@@ -59,4 +67,10 @@ export const STAGE_04_BACKGROUND_LAYERS = Object.freeze([
   Object.freeze({ asset: "background-stage-04-far", speed: 0.06, overlap: 240, opacity: 1 }),
   Object.freeze({ asset: "background-stage-04-mid", speed: 0.21, overlap: 220, opacity: 0.72 }),
   Object.freeze({ asset: "background-stage-04-fore", speed: 0.44, overlap: 200, opacity: 0.36 })
+]);
+
+export const STAGE_05_BACKGROUND_LAYERS = Object.freeze([
+  Object.freeze({ asset: "background-stage-05-far", speed: 0.055, overlap: 240, opacity: 1 }),
+  Object.freeze({ asset: "background-stage-05-mid", speed: 0.18, overlap: 220, opacity: 0.68 }),
+  Object.freeze({ asset: "background-stage-05-fore", speed: 0.4, overlap: 200, opacity: 0.34 })
 ]);
