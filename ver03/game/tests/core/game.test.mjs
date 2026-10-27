@@ -49,6 +49,37 @@ test("first-run instructions lead into Stage 1 and its result advances to Stage 
   game.screen = "stage-result";
   updateGame(game, { confirmPressed: true });
   assert.equal(game.stageId, "stage-05");
+  game.screen = "stage-result";
+  updateGame(game, { confirmPressed: true });
+  assert.equal(game.stageId, "stage-06");
+  game.screen = "stage-result";
+  updateGame(game, { confirmPressed: true });
+  assert.equal(game.screen, "ending");
+  updateGame(game, { confirmPressed: true });
+  assert.equal(game.screen, "credits");
+  updateGame(game, { confirmPressed: true });
+  assert.equal(game.screen, "title");
+});
+
+test("automatic input completes Stage 6 and exposes the Sovereign core", () => {
+  const game = createGame();
+  beginStage(game, "stage-06");
+  const seen = new Set();
+  for (let tick = 0; tick < 28_000 && game.screen !== "stage-result"; tick += 1) {
+    updateGame(game, automaticInput(game));
+    for (const enemy of game.enemies) seen.add(enemy.type);
+  }
+  assert.equal(game.screen, "stage-result");
+  assert.equal(game.defeatedBoss, true);
+  for (const type of ["gate-mite", "vector-inverter", "relay-sniper", "null-carrier"]) assert.ok(seen.has(type));
+  assert.deepEqual(game.sovereignPhasesSeen, [0, 1, 2, 3]);
+  assert.ok(game.phaseWallWarnings > 0);
+  assert.ok(game.gravityFlips > 0);
+  assert.ok(game.relaySniperWarnings > 0);
+  assert.ok(game.relayPillarsDestroyed >= 3);
+  assert.ok(game.bossShots > 0);
+  assert.ok(game.bossWeakpointHits > 0);
+  assert.equal(game.terrainHits, 0);
 });
 
 test("automatic input completes Stage 5 with reflected crystal combat and all Oracle phases", () => {

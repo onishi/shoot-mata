@@ -1,6 +1,6 @@
 import { visibleTerrainFor } from "../content/stages.mjs";
-import { BACKGROUND_LAYERS, IMAGE_ASSETS, STAGE_02_BACKGROUND_LAYERS, STAGE_03_BACKGROUND_LAYERS, STAGE_04_BACKGROUND_LAYERS, STAGE_05_BACKGROUND_LAYERS } from "../content/assets.mjs";
-import { arkCoreWeakpoint, bossShieldRects, bossWeakpoint, furnaceControllerWeakpoint, prismOracleWeakpoint, reactorLoadout } from "../core/game.mjs";
+import { BACKGROUND_LAYERS, IMAGE_ASSETS, STAGE_02_BACKGROUND_LAYERS, STAGE_03_BACKGROUND_LAYERS, STAGE_04_BACKGROUND_LAYERS, STAGE_05_BACKGROUND_LAYERS, STAGE_06_BACKGROUND_LAYERS } from "../content/assets.mjs";
+import { arkCoreWeakpoint, bossShieldRects, bossWeakpoint, furnaceControllerWeakpoint, prismOracleWeakpoint, reactorLoadout, relaySovereignWeakpoint } from "../core/game.mjs";
 
 const WIDTH = 1280;
 const FIELD_HEIGHT = 720;
@@ -21,6 +21,8 @@ export function render(ctx, game) {
 
   if (game.screen === "title") drawTitle(ctx, game);
   else if (game.screen === "how-to-play") drawHowToPlay(ctx);
+  else if (game.screen === "ending") drawEnding(ctx, game);
+  else if (game.screen === "credits") drawCredits(ctx, game);
   else {
     drawTerrain(ctx, game);
     drawBullets(ctx, game);
@@ -29,7 +31,7 @@ export function render(ctx, game) {
     drawEnemies(ctx, game);
     drawPlayer(ctx, game);
     if (game.screen === "stage-intro") {
-      const intro = game.stageId === "stage-05" ? ["STAGE 5", "CRYSTAL COMPUTATION SEA"] : game.stageId === "stage-04" ? ["STAGE 4", "STELLAR FURNACE"] : game.stageId === "stage-03" ? ["STAGE 3", "LIVING ARK"] : game.stageId === "stage-02" ? ["STAGE 2", "CLOUD REFINERY"] : ["STAGE 1", "ORBITAL WRECK"];
+      const intro = game.stageId === "stage-06" ? ["FINAL STAGE", "ZERO-POINT RELAY CORE"] : game.stageId === "stage-05" ? ["STAGE 5", "CRYSTAL COMPUTATION SEA"] : game.stageId === "stage-04" ? ["STAGE 4", "STELLAR FURNACE"] : game.stageId === "stage-03" ? ["STAGE 3", "LIVING ARK"] : game.stageId === "stage-02" ? ["STAGE 2", "CLOUD REFINERY"] : ["STAGE 1", "ORBITAL WRECK"];
       drawNotice(ctx, ...intro);
     }
     if (game.screen === "stage-result") drawResult(ctx, game);
@@ -46,14 +48,15 @@ function drawBackground(ctx, game) {
   const stageThree = game.stageId === "stage-03";
   const stageFour = game.stageId === "stage-04";
   const stageFive = game.stageId === "stage-05";
+  const stageSix = game.stageId === "stage-06";
   const gradient = ctx.createLinearGradient(0, 0, 0, FIELD_HEIGHT);
-  gradient.addColorStop(0, stageFive ? "#06112d" : stageFour ? "#38100a" : stageThree ? "#251022" : stageTwo ? "#112735" : "#071122");
-  gradient.addColorStop(0.55, stageFive ? "#12385a" : stageFour ? "#6b2410" : stageThree ? "#4a1b39" : stageTwo ? "#284956" : "#10213a");
-  gradient.addColorStop(1, stageFive ? "#040b20" : stageFour ? "#160806" : stageThree ? "#120917" : stageTwo ? "#0b1d2a" : "#07101d");
+  gradient.addColorStop(0, stageSix ? "#06081c" : stageFive ? "#06112d" : stageFour ? "#38100a" : stageThree ? "#251022" : stageTwo ? "#112735" : "#071122");
+  gradient.addColorStop(0.55, stageSix ? "#19143a" : stageFive ? "#12385a" : stageFour ? "#6b2410" : stageThree ? "#4a1b39" : stageTwo ? "#284956" : "#10213a");
+  gradient.addColorStop(1, stageSix ? "#030611" : stageFive ? "#040b20" : stageFour ? "#160806" : stageThree ? "#120917" : stageTwo ? "#0b1d2a" : "#07101d");
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, WIDTH, FIELD_HEIGHT);
 
-  const layers = stageFive ? STAGE_05_BACKGROUND_LAYERS : stageFour ? STAGE_04_BACKGROUND_LAYERS : stageThree ? STAGE_03_BACKGROUND_LAYERS : stageTwo ? STAGE_02_BACKGROUND_LAYERS : BACKGROUND_LAYERS;
+  const layers = stageSix ? STAGE_06_BACKGROUND_LAYERS : stageFive ? STAGE_05_BACKGROUND_LAYERS : stageFour ? STAGE_04_BACKGROUND_LAYERS : stageThree ? STAGE_03_BACKGROUND_LAYERS : stageTwo ? STAGE_02_BACKGROUND_LAYERS : BACKGROUND_LAYERS;
   for (const layer of layers) drawCrossfadedLayer(ctx, images.get(layer.asset), game.scrollX, layer);
 
   ctx.fillStyle = "rgba(3, 12, 24, 0.16)";
@@ -90,15 +93,16 @@ function drawTerrain(ctx, game) {
     const living = game.stageId === "stage-03";
     const stellar = game.stageId === "stage-04";
     const crystal = game.stageId === "stage-05";
+    const relay = game.stageId === "stage-06";
     ctx.save();
     ctx.beginPath();
     ctx.rect(x, item.y, item.width, item.height);
     ctx.clip();
     const gradient = ctx.createLinearGradient(x, item.y, x, item.y + item.height);
-    gradient.addColorStop(0, crystal ? "#a9ffff" : stellar ? "#ffc066" : living ? "#d7a8a0" : item.kind === "destructible-wreck" ? "#a95c35" : refinery ? "#d2c49f" : "#617983");
-    gradient.addColorStop(0.1, crystal ? "#277d91" : stellar ? "#6f3322" : living ? "#743653" : refinery ? "#52696c" : "#263947");
-    gradient.addColorStop(0.55, crystal ? "#17304e" : stellar ? "#291719" : living ? "#3b152c" : refinery ? "#1d363c" : "#111f2a");
-    gradient.addColorStop(1, crystal ? "#080d27" : stellar ? "#10090b" : living ? "#180b18" : refinery ? "#0b2028" : "#07111a");
+    gradient.addColorStop(0, relay ? "#abf7ff" : crystal ? "#a9ffff" : stellar ? "#ffc066" : living ? "#d7a8a0" : item.kind === "destructible-wreck" ? "#a95c35" : refinery ? "#d2c49f" : "#617983");
+    gradient.addColorStop(0.1, relay ? "#4e4c8c" : crystal ? "#277d91" : stellar ? "#6f3322" : living ? "#743653" : refinery ? "#52696c" : "#263947");
+    gradient.addColorStop(0.55, relay ? "#211938" : crystal ? "#17304e" : stellar ? "#291719" : living ? "#3b152c" : refinery ? "#1d363c" : "#111f2a");
+    gradient.addColorStop(1, relay ? "#080817" : crystal ? "#080d27" : stellar ? "#10090b" : living ? "#180b18" : refinery ? "#0b2028" : "#07111a");
     ctx.fillStyle = gradient;
     ctx.fillRect(x, item.y, item.width, item.height);
 
@@ -138,7 +142,7 @@ function drawTerrain(ctx, game) {
     }
     ctx.restore();
 
-    ctx.strokeStyle = item.warning ? "#fff071" : crystal ? (item.kind === "freeze-gate" ? "#a8ffff" : "#52e9e1") : item.kind === "heat-wave" ? "#ff472f" : item.kind === "destructible-shield" ? "#ffb95f" : stellar ? "#ff7147" : item.kind === "destructible-cyst" ? "#ff89c8" : living ? "#e779b5" : item.kind === "charged-wall" ? "#72f4ff" : item.kind === "destructible-wreck" ? "#ffb35f" : refinery ? "#ffc16a" : "#9eeeff";
+    ctx.strokeStyle = item.warning ? "#fff071" : relay ? (item.kind === "destructible-relay" ? "#ff9b4d" : item.kind === "phase-wall" ? "#c778ff" : "#59e9ff") : crystal ? (item.kind === "freeze-gate" ? "#a8ffff" : "#52e9e1") : item.kind === "heat-wave" ? "#ff472f" : item.kind === "destructible-shield" ? "#ffb95f" : stellar ? "#ff7147" : item.kind === "destructible-cyst" ? "#ff89c8" : living ? "#e779b5" : item.kind === "charged-wall" ? "#72f4ff" : item.kind === "destructible-wreck" ? "#ffb35f" : refinery ? "#ffc16a" : "#9eeeff";
     ctx.shadowColor = ctx.strokeStyle;
     ctx.shadowBlur = item.warning ? 22 : 10;
     ctx.lineWidth = 4;
@@ -236,9 +240,24 @@ function drawEnemies(ctx, game) {
     drawAsset(ctx, enemy.type, enemy.x, enemy.y, enemy.width, enemy.height, () => {
       ctx.fillStyle = "#ff8659"; ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
     });
+    if (enemy.type === "relay-sniper") {
+      const age = game.tick - enemy.spawnedTick;
+      if (age > 0 && age % 420 < 111) {
+        ctx.save();
+        ctx.strokeStyle = `rgba(255, 112, 52, ${0.28 + Math.sin(age / 5) * 0.14})`;
+        ctx.lineWidth = 3;
+        ctx.setLineDash([14, 10]);
+        ctx.beginPath(); ctx.moveTo(enemy.x, enemy.y + enemy.height / 2); ctx.lineTo(0, game.player.y); ctx.stroke();
+        ctx.restore();
+      }
+    }
   }
   if (!game.boss || game.boss.dead) return;
   const boss = game.boss;
+  if (boss.type === "relay-sovereign") {
+    drawRelaySovereign(ctx, boss);
+    return;
+  }
   if (boss.type === "ark-core") {
     drawArkCore(ctx, boss);
     return;
@@ -280,6 +299,40 @@ function drawEnemies(ctx, game) {
     ctx.strokeStyle = `rgba(255, 62, 77, ${0.35 + Math.sin(boss.age / 5) * 0.2})`;
     ctx.lineWidth = 4;
     ctx.beginPath(); ctx.moveTo(0, weakpoint.y); ctx.lineTo(weakpoint.x - 34, weakpoint.y); ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function drawRelaySovereign(ctx, boss) {
+  ctx.save();
+  ctx.shadowColor = boss.attackWarning ? "#ff7a45" : "#745cff";
+  ctx.shadowBlur = boss.attackWarning ? 30 : 18;
+  drawAsset(ctx, "relay-sovereign", boss.x, boss.y, boss.width, boss.height, () => {
+    ctx.fillStyle = "#34264f"; ctx.fillRect(boss.x, boss.y, boss.width, boss.height);
+  });
+  const nodes = [
+    { x: boss.x + 62, y: boss.y + 26, width: 55, height: 86 },
+    { x: boss.x + 158, y: boss.y + 8, width: 55, height: 94 },
+    { x: boss.x + 254, y: boss.y + 42, width: 55, height: 88 }
+  ];
+  nodes.forEach((node, index) => {
+    if (index < boss.nodesDestroyed) return;
+    ctx.strokeStyle = index === boss.nodesDestroyed ? "#ffbc58" : "#65e8ff";
+    ctx.fillStyle = index === boss.nodesDestroyed ? "rgba(255, 117, 45, 0.42)" : "rgba(83, 210, 255, 0.18)";
+    ctx.lineWidth = index === boss.nodesDestroyed ? 5 : 3;
+    ctx.fillRect(node.x, node.y, node.width, node.height);
+    ctx.strokeRect(node.x, node.y, node.width, node.height);
+  });
+  const weakpoint = relaySovereignWeakpoint(boss);
+  if (boss.nodesDestroyed >= 3) {
+    ctx.fillStyle = boss.attackWarning ? "#fff09a" : "#c46aff";
+    ctx.strokeStyle = "#65f2ff"; ctx.lineWidth = 5;
+    ctx.beginPath(); ctx.ellipse(weakpoint.x + weakpoint.width / 2, weakpoint.y + weakpoint.height / 2, weakpoint.width * 0.42, weakpoint.height * 0.42, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+  }
+  if (boss.attackWarning) {
+    ctx.strokeStyle = `rgba(255, 102, 62, ${0.4 + Math.sin(boss.age / 5) * 0.2})`;
+    ctx.lineWidth = 4;
+    ctx.beginPath(); ctx.moveTo(0, weakpoint.y + weakpoint.height / 2); ctx.lineTo(weakpoint.x, weakpoint.y + weakpoint.height / 2); ctx.stroke();
   }
   ctx.restore();
 }
@@ -433,7 +486,7 @@ function drawHud(ctx, game) {
   if (game.boss && !game.boss.dead) {
     ctx.fillStyle = "#bcefff";
     ctx.font = "bold 16px Arial";
-    ctx.fillText(game.boss.type === "prism-oracle" ? "PRISM ORACLE" : game.boss.type === "furnace-controller" ? "FURNACE CONTROLLER" : game.boss.type === "ark-core" ? "ARK CORE" : game.boss.type === "refinery-guardian" ? "REFINERY GUARDIAN" : "WRECK WARDEN", 880, 744);
+    ctx.fillText(game.boss.type === "relay-sovereign" ? "RELAY SOVEREIGN" : game.boss.type === "prism-oracle" ? "PRISM ORACLE" : game.boss.type === "furnace-controller" ? "FURNACE CONTROLLER" : game.boss.type === "ark-core" ? "ARK CORE" : game.boss.type === "refinery-guardian" ? "REFINERY GUARDIAN" : "WRECK WARDEN", 880, 744);
     ctx.fillStyle = "#162b35";
     ctx.fillRect(880, 762, 360, 18);
     ctx.fillStyle = "#ff724e";
@@ -535,7 +588,7 @@ function drawResult(ctx, game) {
   ctx.fillText(`RUN ${String(game.score).padStart(8, "0")}  /  MAX CHAIN ${game.maxKillChain}  /  ${game.coresCollected} CORES`, WIDTH / 2, 525);
   ctx.fillStyle = "#bdeeff";
   ctx.font = "bold 18px Arial";
-  const nextLabel = game.stageId === "stage-05" ? "ENTER  RETURN TO TITLE" : "ENTER  NEXT STAGE   ESC  TITLE";
+  const nextLabel = game.stageId === "stage-06" ? "ENTER  ENDING" : "ENTER  NEXT STAGE   ESC  TITLE";
   ctx.fillText(nextLabel, WIDTH / 2, 585);
   ctx.textAlign = "start";
 }
@@ -574,6 +627,35 @@ function drawHowToPlay(ctx) {
 
 function drawContinue(ctx) {
   drawNotice(ctx, "CONTINUE?", "ENTER: RETRY STAGE   ESC: TITLE");
+}
+
+function drawEnding(ctx, game) {
+  const glow = ctx.createRadialGradient(WIDTH / 2, 330, 30, WIDTH / 2, 330, 560);
+  glow.addColorStop(0, "rgba(102, 242, 255, 0.36)"); glow.addColorStop(0.45, "rgba(105, 69, 204, 0.2)"); glow.addColorStop(1, "rgba(1, 5, 16, 0.94)");
+  ctx.fillStyle = glow; ctx.fillRect(0, 0, WIDTH, FIELD_HEIGHT);
+  ctx.textAlign = "center";
+  ctx.fillStyle = "#eafcff"; ctx.shadowColor = "#5eeaff"; ctx.shadowBlur = 24; ctx.font = "900 46px Arial";
+  ctx.fillText("THE RELAY IS SILENT", WIDTH / 2, 205);
+  ctx.shadowBlur = 0; ctx.fillStyle = "#b9dce8"; ctx.font = "21px Arial";
+  ctx.fillText("MATA-03 escapes as the broken route opens to the stars.", WIDTH / 2, 292);
+  ctx.fillText("The defense network releases every world it held in isolation.", WIDTH / 2, 332);
+  ctx.fillStyle = "#ffcf67"; ctx.font = "bold 24px monospace";
+  ctx.fillText(`FINAL SCORE  ${String(game.score).padStart(8, "0")}`, WIDTH / 2, 425);
+  ctx.fillStyle = "#ffffff"; ctx.font = "bold 19px Arial"; ctx.fillText("PRESS ENTER", WIDTH / 2, 545);
+  ctx.textAlign = "start";
+}
+
+function drawCredits(ctx, game) {
+  ctx.fillStyle = "rgba(2, 7, 20, 0.88)"; ctx.fillRect(0, 0, WIDTH, FIELD_HEIGHT);
+  ctx.textAlign = "center";
+  ctx.fillStyle = "#ffcf67"; ctx.font = "bold 42px Arial"; ctx.fillText("RELAY BREAKER", WIDTH / 2, 145);
+  ctx.fillStyle = "#dffaff"; ctx.font = "bold 24px Arial"; ctx.fillText("MISSION COMPLETE", WIDTH / 2, 210);
+  ctx.fillStyle = "#8fc9da"; ctx.font = "19px Arial";
+  ctx.fillText("DESIGN / CODE / ART DIRECTION / AUDIO", WIDTH / 2, 320);
+  ctx.fillStyle = "#ffffff"; ctx.font = "bold 23px Arial"; ctx.fillText("SHOOT MATA AUTONOMOUS PRODUCTION", WIDTH / 2, 360);
+  ctx.fillStyle = "#8fc9da"; ctx.font = "18px Arial"; ctx.fillText("ORIGINAL PRODUCTION · ARCHIVED V02 ASSETS REUSED WHERE DOCUMENTED", WIDTH / 2, 430);
+  ctx.fillStyle = "#ffffff"; ctx.font = "bold 19px Arial"; ctx.fillText("ENTER / ESC  TITLE", WIDTH / 2, 565);
+  ctx.textAlign = "start";
 }
 
 function drawAsset(ctx, id, x, y, width, height, fallback) {

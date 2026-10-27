@@ -36,6 +36,11 @@ test("Stage 5 selects its own synchronized music layers", () => {
   assert.deepEqual(bgmLayersFor({ screen: "playing", stageId: "stage-05", tick: 150 * 60, boss: null }), ["stage-05-rhythm", "stage-05-melody", "stage-05-danger"]);
 });
 
+test("Stage 6 selects its own synchronized music layers", () => {
+  assert.deepEqual(bgmLayersFor({ screen: "playing", stageId: "stage-06", tick: 60, boss: null }), ["stage-06-rhythm", "stage-06-melody"]);
+  assert.deepEqual(bgmLayersFor({ screen: "playing", stageId: "stage-06", tick: 150 * 60, boss: null }), ["stage-06-rhythm", "stage-06-melody", "stage-06-danger"]);
+});
+
 test("audio inventory covers layered BGM and gameplay feedback", () => {
   const ids = new Set(AUDIO_ASSETS.map(({ id }) => id));
   for (const id of ["stage-rhythm", "stage-melody", "stage-danger", "pulse", "lance", "spread", "seeker", "core", "enemy-shot", "impact", "explosion", "miss", "warning"]) {
@@ -45,5 +50,6 @@ test("audio inventory covers layered BGM and gameplay feedback", () => {
   for (const id of ["stage-03-rhythm", "stage-03-melody", "stage-03-danger", "stage-03-intro", "stage-03-clear"]) assert.ok(ids.has(id), `missing ${id}`);
   for (const id of ["stage-04-rhythm", "stage-04-melody", "stage-04-danger", "stage-04-intro", "stage-04-clear"]) assert.ok(ids.has(id), `missing ${id}`);
   for (const id of ["stage-05-rhythm", "stage-05-melody", "stage-05-danger", "stage-05-intro", "stage-05-clear"]) assert.ok(ids.has(id), `missing ${id}`);
+  for (const id of ["stage-06-rhythm", "stage-06-melody", "stage-06-danger", "stage-06-intro", "stage-06-clear"]) assert.ok(ids.has(id), `missing ${id}`);
   assert.equal(ids.size, AUDIO_ASSETS.length);
 });

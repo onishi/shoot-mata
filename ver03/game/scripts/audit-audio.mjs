@@ -69,6 +69,8 @@ const stageFourBgm = combinedRms(["stage-04-rhythm", "stage-04-melody"], BGM_VOL
 const stageFourBossBgm = combinedRms(["stage-04-rhythm", "stage-04-melody", "stage-04-danger"], BGM_VOLUME);
 const stageFiveBgm = combinedRms(["stage-05-rhythm", "stage-05-melody"], BGM_VOLUME);
 const stageFiveBossBgm = combinedRms(["stage-05-rhythm", "stage-05-melody", "stage-05-danger"], BGM_VOLUME);
+const stageSixBgm = combinedRms(["stage-06-rhythm", "stage-06-melody"], BGM_VOLUME);
+const stageSixBossBgm = combinedRms(["stage-06-rhythm", "stage-06-melody", "stage-06-danger"], BGM_VOLUME);
 let loudestFire = { weapon: "pulse", rms: 0 };
 for (const weapon of ["lance", "spread", "seeker"]) {
   const ids = ["pulse", weapon];
@@ -84,7 +86,7 @@ const hottestAssetPeak = Math.max(...AUDIO_ASSETS.map((asset) => (
 
 assert.ok(marginDb <= 3, `continuous fire exceeds BGM by ${marginDb.toFixed(2)} dB`);
 assert.ok(hottestAssetPeak < 1, `single asset clips at ${hottestAssetPeak.toFixed(3)}`);
-assert.equal(AUDIO_ASSETS.filter(({ group }) => group === "bgm").length, 15);
+assert.equal(AUDIO_ASSETS.filter(({ group }) => group === "bgm").length, 18);
 assert.ok(AUDIO_ASSETS.filter(({ group }) => group === "sfx").length >= 10);
 
 console.log(`Audio audit passed: normal BGM ${db(normalBgm).toFixed(1)} dBFS RMS, boss ${db(bossBgm).toFixed(1)} dBFS RMS`);
@@ -92,5 +94,6 @@ console.log(`Stage 2 audio: normal BGM ${db(stageTwoBgm).toFixed(1)} dBFS RMS, b
 console.log(`Stage 3 audio: normal BGM ${db(stageThreeBgm).toFixed(1)} dBFS RMS, boss ${db(stageThreeBossBgm).toFixed(1)} dBFS RMS`);
 console.log(`Stage 4 audio: normal BGM ${db(stageFourBgm).toFixed(1)} dBFS RMS, boss ${db(stageFourBossBgm).toFixed(1)} dBFS RMS`);
 console.log(`Stage 5 audio: normal BGM ${db(stageFiveBgm).toFixed(1)} dBFS RMS, boss ${db(stageFiveBossBgm).toFixed(1)} dBFS RMS`);
+console.log(`Stage 6 audio: normal BGM ${db(stageSixBgm).toFixed(1)} dBFS RMS, boss ${db(stageSixBossBgm).toFixed(1)} dBFS RMS`);
 console.log(`Loudest continuous fire: PULSE + ${loudestFire.weapon.toUpperCase()} ${db(loudestFire.rms).toFixed(1)} dBFS RMS (${marginDb.toFixed(1)} dB vs BGM)`);
 console.log(`Hottest single-source peak: ${db(hottestAssetPeak).toFixed(1)} dBFS; master limiter ceiling -1.0 dBFS`);

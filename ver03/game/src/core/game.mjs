@@ -22,7 +22,9 @@ export function createGame(stageId = "stage-01") {
     weaponShots: { lance: 0, spread: 0, seeker: 0 },
     terrainHits: 0, defeatedBoss: false, paused: false, introTicks: 0, resultTicks: 0,
     currentTicks: 0, shutterWarnings: 0, membraneWarnings: 0, heatWaveWarnings: 0, swarmRegenerations: 0, arkOrgansDestroyed: 0, furnacePhasesSeen: [],
-    crystalReflections: 0, phaseRayWarnings: 0, prismPhasesSeen: []
+    crystalReflections: 0, phaseRayWarnings: 0, prismPhasesSeen: [],
+    phaseWallWarnings: 0, gravityFlips: 0, gravityDirection: 0, relaySniperWarnings: 0,
+    relayPillarsDestroyed: 0, sovereignPhasesSeen: []
   };
 }
 
@@ -80,8 +82,17 @@ export function updateGame(game, input = {}) {
     else if (input.confirmPressed) {
       const nextStage = CAMPAIGN[CAMPAIGN.indexOf(game.stageId) + 1];
       if (nextStage) beginStage(game, nextStage, { preserveProgress: true });
-      else returnToTitle(game);
+      else game.screen = "ending";
     }
+    return game;
+  }
+  if (game.screen === "ending") {
+    if (input.confirmPressed) game.screen = "credits";
+    else if (input.cancelPressed) returnToTitle(game);
+    return game;
+  }
+  if (game.screen === "credits") {
+    if (input.confirmPressed || input.cancelPressed) returnToTitle(game);
     return game;
   }
   if (input.pausePressed && game.screen === "playing") game.paused = !game.paused;
@@ -108,6 +119,7 @@ export function updateGame(game, input = {}) {
   updateEnemies(game);
   updateEnemyBullets(game);
   updateBoss(game);
+  if (game.stageId === "stage-06" && game.tick % 90 === 1 && terrainFor(game).some((item) => item.warning && item.kind === "phase-wall")) game.phaseWallWarnings += 1;
   checkTerrain(game);
   return game;
 }
@@ -129,6 +141,13 @@ function updatePlayer(game, input) {
       game.player.y = Math.max(18, Math.min(FIELD_HEIGHT - 18, game.player.y + current.direction * current.strength));
       game.currentTicks += 1;
     }
+  }
+  if (game.stageId === "stage-06") {
+    const inverter = game.enemies.find((enemy) => enemy.type === "vector-inverter" && !enemy.dead);
+    const nextDirection = inverter ? (Math.floor((game.tick - inverter.spawnedTick) / 180) % 2 === 0 ? 1 : -1) : 0;
+    if (nextDirection && game.gravityDirection && nextDirection !== game.gravityDirection) game.gravityFlips += 1;
+    game.gravityDirection = nextDirection;
+    game.player.y = Math.max(18, Math.min(FIELD_HEIGHT - 18, game.player.y + nextDirection * 0.72));
   }
   if (game.player.invulnerable > 0) game.player.invulnerable -= 1;
 }
@@ -175,10 +194,11 @@ function hitTerrain(game) {
     const item = terrain.find((candidate) => !candidate.warning && overlapsRect(bullet, { x: candidate.screenX, y: candidate.y, width: candidate.width, height: candidate.height }));
     if (!item) continue;
     bullet.dead = true;
-    if (!["destructible-wreck", "destructible-cyst", "destructible-shield"].includes(item.kind)) continue;
+    if (!["destructible-wreck", "destructible-cyst", "destructible-shield", "destructible-relay"].includes(item.kind)) continue;
     game.terrainDamage[item.id] = (game.terrainDamage[item.id] ?? 0) + bullet.damage;
     if (game.terrainDamage[item.id] >= item.hp && !game.destroyedTerrain.includes(item.id)) {
       game.destroyedTerrain.push(item.id);
+      if (item.kind === "destructible-relay") game.relayPillarsDestroyed += 1;
       addScore(game, "defeat", 250);
     }
   }
@@ -237,6 +257,27 @@ function hitTargets(game) {
 
 function hitBoss(game, bullet) {
   const boss = game.boss;
+  if (boss.type === "relay-sovereign") {
+    const weakpoint = relaySovereignWeakpoint(boss);
+    if (!overlapsRect(bullet, weakpoint)) return;
+    game.bossWeakpointHits += 1;
+    if (boss.nodesDestroyed < 3) {
+      boss.nodeHp -= bullet.damage;
+      boss.hp = Math.max(480, boss.hp - bullet.damage);
+      if (bullet.pierce > 0) bullet.pierce -= 1;
+      else bullet.dead = true;
+      if (boss.nodeHp <= 0) {
+        boss.nodesDestroyed += 1;
+        boss.phase = boss.nodesDestroyed;
+        boss.nodeHp = 60;
+        game.relayPillarsDestroyed += 1;
+        addScore(game, "defeat", 600);
+      }
+      return;
+    }
+    damageTarget(game, bullet, boss, 8000);
+    return;
+  }
   if (boss.type === "prism-oracle") {
     const weakpoint = prismOracleWeakpoint(boss);
     if (!overlapsRect(bullet, weakpoint)) return;
@@ -412,6 +453,10 @@ function enemyStats(type) {
   if (type === "mirror-nest") return { width: 88, height: 72, hp: 22 };
   if (type === "phase-ray") return { width: 104, height: 62, hp: 18 };
   if (type === "lattice-keeper") return { width: 98, height: 74, hp: 24 };
+  if (type === "gate-mite") return { width: 86, height: 52, hp: 14 };
+  if (type === "vector-inverter") return { width: 92, height: 68, hp: 20 };
+  if (type === "relay-sniper") return { width: 112, height: 62, hp: 14 };
+  if (type === "null-carrier") return { width: 126, height: 78, hp: 30 };
   return { width: 52, height: 36, hp: 7 };
 }
 
@@ -487,6 +532,28 @@ function updateEnemies(game) {
         enemy.y += Math.sin(age / 35 + enemy.phase) * 1.2;
         if (enemy.x < 1120 && enemy.x > 520 && age > 0 && age % 280 === 0) fireCrystalShot(game, enemy, "lattice-shot", 2.5);
       }
+      if (enemy.type === "gate-mite") {
+        enemy.x -= 1.1;
+        enemy.y += Math.sin(age / 18 + enemy.phase) * 1.15;
+      }
+      if (enemy.type === "vector-inverter") {
+        enemy.x += 0.8;
+        enemy.y += Math.sin(age / 32 + enemy.phase) * 1.4;
+        if (enemy.x < 1120 && enemy.x > 520 && age > 0 && age % 360 === 0) fireCrystalShot(game, enemy, "vector-shot", 2.25);
+      }
+      if (enemy.type === "relay-sniper") {
+        enemy.x += 0.5;
+        if (enemy.x < 1140 && enemy.x > 520 && age > 0 && age % 420 === 1) game.relaySniperWarnings += 1;
+        if (enemy.x < 1140 && enemy.x > 520 && age > 110 && age % 420 === 111) fireCrystalShot(game, enemy, "relay-lance", 3.8);
+      }
+      if (enemy.type === "null-carrier") {
+        enemy.x += 0.9;
+        enemy.y += Math.sin(age / 42 + enemy.phase) * 0.9;
+        if (enemy.x < 1120 && enemy.x > 540 && age > 0 && age % 180 === 0) {
+          fireCrystalShot(game, enemy, "carrier-shot", 2.9);
+          game.enemies.push({ x: enemy.x + 15, y: enemy.y + enemy.height - 8, ...enemyStats("gate-mite"), phase: age, pattern: "wall-run", type: "gate-mite", spawnedTick: game.tick });
+        }
+      }
     }
     if (enemy.pattern === "weave" || enemy.pattern === "current-weave") enemy.y += Math.sin(game.tick / 28 + enemy.phase) * 1.8;
     const dx = game.player.x - (enemy.x + enemy.width / 2);
@@ -555,7 +622,9 @@ function updateBoss(game) {
   if (game.tick >= stage.bossStartTick && !game.boss) {
     game.enemies.length = 0;
     game.enemyBullets.length = 0;
-    game.boss = game.stageId === "stage-05"
+    game.boss = game.stageId === "stage-06"
+      ? { x: 900, y: 170, width: 340, height: 330, hp: 660, maxHp: 660, nodeHp: 60, nodesDestroyed: 0, dead: false, type: "relay-sovereign", age: 0, phase: 0, attackWarning: true }
+      : game.stageId === "stage-05"
       ? { x: 930, y: 190, width: 320, height: 300, hp: 430, maxHp: 430, dead: false, type: "prism-oracle", age: 0, phase: 0, attackWarning: true, realIndex: 1 }
       : game.stageId === "stage-04"
       ? { x: 965, y: 205, width: 280, height: 270, hp: 390, maxHp: 390, dead: false, type: "furnace-controller", age: 0, phase: 0, attackWarning: true, shieldClosed: true }
@@ -568,6 +637,10 @@ function updateBoss(game) {
   if (!game.boss || game.boss.dead) return;
   const boss = game.boss;
   boss.age += 1;
+  if (boss.type === "relay-sovereign") {
+    updateRelaySovereign(game, boss);
+    return;
+  }
   if (boss.type === "prism-oracle") {
     updatePrismOracle(game, boss);
     return;
@@ -590,6 +663,35 @@ function updateBoss(game) {
   boss.attackWarning = cycle < BOSS_WARNING_TICKS;
   if (cycle >= BOSS_WARNING_TICKS && cycle < 228 && (cycle - BOSS_WARNING_TICKS) % 39 === 0) fireBossFan(game, boss);
   if (game.respawnTicks === 0 && game.player.invulnerable === 0 && overlapsCircleRect(game.player, boss)) loseLife(game);
+}
+
+function updateRelaySovereign(game, boss) {
+  boss.phase = boss.nodesDestroyed;
+  if (!game.sovereignPhasesSeen.includes(boss.phase)) game.sovereignPhasesSeen.push(boss.phase);
+  const cycle = boss.age % 420;
+  boss.y = 175 + Math.sin(boss.age / 78) * 78;
+  boss.attackWarning = cycle < 90;
+  if (cycle >= 90 && cycle < 330 && (cycle - 90) % Math.max(34, 62 - boss.phase * 7) === 0) {
+    const origin = relaySovereignWeakpoint(boss);
+    const originX = origin.x + origin.width / 2;
+    const originY = origin.y + origin.height / 2;
+    const aim = Math.atan2(game.player.y - originY, game.player.x - originX);
+    const patterns = [[-0.24, 0, 0.24], [-0.34, -0.12, 0.12, 0.34], [-0.42, -0.2, 0, 0.2, 0.42], [-0.48, -0.29, -0.1, 0.1, 0.29, 0.48]];
+    for (const offset of patterns[boss.phase]) {
+      game.enemyBullets.push({ kind: "sovereign-shot", x: originX, y: originY, radius: 8, vx: Math.cos(aim + offset) * 3.55, vy: Math.sin(aim + offset) * 3.55, age: 0 });
+      game.enemyShots += 1; game.bossShots += 1;
+    }
+  }
+  if (game.respawnTicks === 0 && game.player.invulnerable === 0 && overlapsCircleRect(game.player, boss)) loseLife(game);
+}
+
+export function relaySovereignWeakpoint(boss) {
+  const nodes = [
+    { x: boss.x + 62, y: boss.y + 26, width: 55, height: 86 },
+    { x: boss.x + 158, y: boss.y + 8, width: 55, height: 94 },
+    { x: boss.x + 254, y: boss.y + 42, width: 55, height: 88 }
+  ];
+  return boss.nodesDestroyed < 3 ? nodes[boss.nodesDestroyed] : { x: boss.x + 34, y: boss.y + 126, width: 104, height: 105 };
 }
 
 function updatePrismOracle(game, boss) {
@@ -787,6 +889,12 @@ export function automaticInput(game) {
     else if (item.y + item.height >= FIELD_HEIGHT) safeMaxY = Math.min(safeMaxY, item.y - 70);
   }
   targetY = Math.max(safeMinY, Math.min(safeMaxY, targetY));
+  const middleObstacle = ahead.find((item) => !item.warning && item.y > 0 && item.y + item.height < FIELD_HEIGHT);
+  if (middleObstacle) {
+    const above = middleObstacle.y - 45;
+    const below = middleObstacle.y + middleObstacle.height + 45;
+    targetY = Math.abs(game.player.y - above) <= Math.abs(game.player.y - below) ? above : below;
+  }
   const destructible = terrainFor(game).find((item) => item.kind === "destructible-cyst" && item.screenX > game.player.x + 260 && item.screenX < 920);
   if (destructible && !ahead.some((item) => item.kind !== "destructible-cyst" && item.screenX < 500)) {
     targetY = destructible.y === 0 ? destructible.height - 22 : destructible.y + 22;
@@ -797,6 +905,10 @@ export function automaticInput(game) {
   }
   if (game.boss?.type === "prism-oracle") {
     const weakpoint = prismOracleWeakpoint(game.boss);
+    targetY = weakpoint.y + weakpoint.height / 2;
+  }
+  if (game.boss?.type === "relay-sovereign") {
+    const weakpoint = relaySovereignWeakpoint(game.boss);
     targetY = weakpoint.y + weakpoint.height / 2;
   }
   targetY = Math.max(safeMinY, Math.min(safeMaxY, targetY));
@@ -831,6 +943,9 @@ export function snapshot(game) {
     swarmRegenerations: game.swarmRegenerations, arkOrgansDestroyed: game.arkOrgansDestroyed,
     furnacePhasesSeen: [...game.furnacePhasesSeen], crystalReflections: game.crystalReflections,
     phaseRayWarnings: game.phaseRayWarnings, prismPhasesSeen: [...game.prismPhasesSeen],
+    phaseWallWarnings: game.phaseWallWarnings, gravityFlips: game.gravityFlips, gravityDirection: game.gravityDirection,
+    relaySniperWarnings: game.relaySniperWarnings, relayPillarsDestroyed: game.relayPillarsDestroyed,
+    sovereignPhasesSeen: [...game.sovereignPhasesSeen],
     defeatedBoss: game.defeatedBoss, hudTop: 720
   };
 }
