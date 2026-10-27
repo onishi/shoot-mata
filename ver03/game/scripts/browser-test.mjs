@@ -65,11 +65,14 @@ try {
   await page.waitForTimeout(250);
   assert.equal(await page.evaluate(() => window.__shootMata.state().pulseShots), pulseAtFocusLoss, "focus loss must release held controls");
   await page.keyboard.up("KeyZ");
-  await page.evaluate(() => window.__shootMata.start());
-  await page.evaluate(() => window.__shootMata.advance(90, false));
-  assert.equal(await page.evaluate(() => window.__shootMata.state().tick), 0, "focus regression setup must not shift the deterministic playthrough");
-  await page.keyboard.press("KeyP");
-  await page.waitForFunction(() => window.__shootMata.state().paused);
+  const resetAfterFocusTest = await page.evaluate(() => {
+    window.__shootMata.start();
+    window.__shootMata.advance(90, false);
+    dispatchEvent(new Event("blur"));
+    return window.__shootMata.state();
+  });
+  assert.equal(resetAfterFocusTest.tick, 0, "focus regression setup must not shift the deterministic playthrough");
+  assert.equal(resetAfterFocusTest.paused, true);
   await page.screenshot({ path: path.join(root, "artifacts", "pause.png"), fullPage: true });
   await page.keyboard.press("KeyP");
   await page.waitForFunction(() => !window.__shootMata.state().paused);
