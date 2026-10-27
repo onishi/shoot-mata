@@ -1,6 +1,7 @@
 import { automaticInput, beginCampaign, beginStage, createGame, openStageSelect, snapshot, updateGame } from "../core/game.mjs";
 import { createAudioSystem } from "./audio.mjs";
 import { render } from "./renderer.mjs";
+import { readStorage, writeStorage } from "./storage.mjs";
 
 const canvas = document.querySelector("#game");
 const ctx = canvas.getContext("2d");
@@ -63,8 +64,8 @@ addEventListener("keydown", (event) => {
   keys.add(event.code);
   if (event.code === "Enter" && game.screen === "title") {
     void audio.activate(game);
-    const showHowTo = localStorage.getItem("shoot-mata-v03-how-to-seen") !== "1";
-    if (showHowTo) localStorage.setItem("shoot-mata-v03-how-to-seen", "1");
+    const showHowTo = readStorage("shoot-mata-v03-how-to-seen") !== "1";
+    if (showHowTo) writeStorage("shoot-mata-v03-how-to-seen", "1");
     beginCampaign(game, { showHowTo });
     pressed.delete("Enter");
   }
@@ -73,7 +74,7 @@ addEventListener("keyup", (event) => keys.delete(event.code));
 
 function loadAudioSettings() {
   try {
-    const parsed = JSON.parse(localStorage.getItem("shoot-mata-v03-audio") ?? "null");
+    const parsed = JSON.parse(readStorage("shoot-mata-v03-audio") ?? "null");
     return parsed && typeof parsed === "object" ? parsed : undefined;
   } catch {
     return undefined;
@@ -81,16 +82,16 @@ function loadAudioSettings() {
 }
 
 function saveAudioSettings(settings) {
-  try { localStorage.setItem("shoot-mata-v03-audio", JSON.stringify(settings)); } catch { /* Storage is optional. */ }
+  writeStorage("shoot-mata-v03-audio", JSON.stringify(settings));
 }
 
 function loadUnlockedStage() {
-  const value = Number(localStorage.getItem("shoot-mata-v03-unlocked-stage"));
+  const value = Number(readStorage("shoot-mata-v03-unlocked-stage"));
   return Number.isInteger(value) ? Math.max(1, Math.min(6, value)) : 1;
 }
 
 function saveUnlockedStage(value) {
-  try { localStorage.setItem("shoot-mata-v03-unlocked-stage", String(value)); } catch { /* Storage is optional. */ }
+  writeStorage("shoot-mata-v03-unlocked-stage", String(value));
 }
 
 function handleAudioSettingsKey(code) {
