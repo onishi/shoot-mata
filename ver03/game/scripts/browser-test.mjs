@@ -42,6 +42,15 @@ try {
   await page.keyboard.press("ArrowRight");
   assert.equal((await page.evaluate(() => window.__shootMata.state().audio.settings.bgmVolume)).toFixed(2), "0.70");
   await page.keyboard.press("Escape");
+  await page.keyboard.press("KeyT");
+  await page.waitForFunction(() => window.__shootMata.state().screen === "stage-select");
+  const initialSelect = await page.evaluate(() => window.__shootMata.state());
+  assert.equal(initialSelect.unlockedStage, 1);
+  assert.equal(initialSelect.selectedStageIndex, 0);
+  await page.screenshot({ path: path.join(root, "artifacts", "stage-select.png"), fullPage: true });
+  await page.keyboard.press("Escape");
+  await page.waitForFunction(() => window.__shootMata.state().screen === "title");
+  await page.screenshot({ path: path.join(root, "artifacts", "title.png"), fullPage: true });
   await page.keyboard.press("Enter");
   await page.waitForFunction(() => window.__shootMata.state().screen === "how-to-play");
   await page.screenshot({ path: path.join(root, "artifacts", "how-to-play.png"), fullPage: true });
@@ -189,6 +198,7 @@ try {
   const stageSixFinal = await page.evaluate(() => window.__shootMata.advance(9_000));
   assert.equal(stageSixFinal.screen, "stage-result");
   assert.equal(stageSixFinal.defeatedBoss, true);
+  assert.equal(stageSixFinal.unlockedStage, 6);
   assert.deepEqual(stageSixFinal.sovereignPhasesSeen, [0, 1, 2, 3]);
   assert.ok(stageSixFinal.relaySniperWarnings > 0);
   assert.ok(stageSixFinal.relayPillarsDestroyed >= 3);
@@ -204,6 +214,15 @@ try {
   await page.keyboard.press("Enter");
   await page.waitForFunction(() => window.__shootMata.state().screen === "credits");
   await page.screenshot({ path: path.join(root, "artifacts", "credits.png"), fullPage: true });
+  await page.keyboard.press("Enter");
+  await page.waitForFunction(() => window.__shootMata.state().screen === "title");
+  assert.equal(await page.evaluate(() => localStorage.getItem("shoot-mata-v03-unlocked-stage")), "6");
+  await page.keyboard.press("KeyT");
+  await page.waitForFunction(() => window.__shootMata.state().screen === "stage-select");
+  await page.keyboard.press("ArrowUp");
+  await page.waitForFunction(() => window.__shootMata.state().selectedStageIndex === 5);
+  await page.keyboard.press("Enter");
+  await page.waitForFunction(() => window.__shootMata.state().stageId === "stage-06" && window.__shootMata.state().practiceMode);
   console.log(`Chrome playthrough passed: Stage 1 ${final.tick} ticks, Stage 2 ${stageTwoFinal.tick} ticks, Stage 3 ${stageThreeFinal.tick} ticks, Stage 4 ${stageFourFinal.tick} ticks, Stage 5 ${stageFiveFinal.tick} ticks, Stage 6 ${stageSixFinal.tick} ticks, zero terrain hits`);
 } finally {
   await browser?.close();

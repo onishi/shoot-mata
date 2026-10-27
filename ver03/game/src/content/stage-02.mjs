@@ -12,6 +12,13 @@ export const STAGE_02 = Object.freeze({
   durationTicks: STAGE_DURATION_TICKS,
   bossStartTick: BOSS_START_TICK,
   scrollSpeed: SCROLL_SPEED,
+  enemyTypes: Object.freeze(["cloud-skimmer", "shutter-turret", "storm-diver", "condenser-leech"]),
+  sections: Object.freeze([
+    { id: "introduction", startTick: 0, endTick: 60 * 60 },
+    { id: "development", startTick: 60 * 60, endTick: 130 * 60 },
+    { id: "climax", startTick: 130 * 60, endTick: BOSS_START_TICK },
+    { id: "boss", startTick: BOSS_START_TICK, endTick: STAGE_DURATION_TICKS }
+  ]),
   checkpoints: [0, 60 * 60, 130 * 60, 200 * 60],
   coreDrops: Object.freeze([
     { tick: 12 * 60, color: "yellow", y: 330 },

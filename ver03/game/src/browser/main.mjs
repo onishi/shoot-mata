@@ -1,4 +1,4 @@
-import { automaticInput, beginCampaign, beginStage, createGame, snapshot, updateGame } from "../core/game.mjs";
+import { automaticInput, beginCampaign, beginStage, createGame, openStageSelect, snapshot, updateGame } from "../core/game.mjs";
 import { createAudioSystem } from "./audio.mjs";
 import { render } from "./renderer.mjs";
 
@@ -10,6 +10,8 @@ const speed = Math.max(1, Math.min(240, Number(params.get("speed")) || 1));
 const keys = new Set();
 const pressed = new Set();
 const game = createGame();
+game.unlockedStage = loadUnlockedStage();
+let savedUnlockedStage = game.unlockedStage;
 const savedAudio = loadAudioSettings();
 const audio = createAudioSystem({ settings: savedAudio });
 game.audioSettingsOpen = false;
@@ -21,6 +23,11 @@ let accumulator = 0;
 addEventListener("keydown", (event) => {
   if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space"].includes(event.code)) event.preventDefault();
   if (game.screen === "title" && handleAudioSettingsKey(event.code)) return;
+  if (event.code === "KeyT" && game.screen === "title") {
+    void audio.activate(game);
+    openStageSelect(game);
+    return;
+  }
   if (!keys.has(event.code)) pressed.add(event.code);
   keys.add(event.code);
   if (event.code === "Enter" && game.screen === "title") {
@@ -44,6 +51,15 @@ function loadAudioSettings() {
 
 function saveAudioSettings(settings) {
   try { localStorage.setItem("shoot-mata-v03-audio", JSON.stringify(settings)); } catch { /* Storage is optional. */ }
+}
+
+function loadUnlockedStage() {
+  const value = Number(localStorage.getItem("shoot-mata-v03-unlocked-stage"));
+  return Number.isInteger(value) ? Math.max(1, Math.min(6, value)) : 1;
+}
+
+function saveUnlockedStage(value) {
+  try { localStorage.setItem("shoot-mata-v03-unlocked-stage", String(value)); } catch { /* Storage is optional. */ }
 }
 
 function handleAudioSettingsKey(code) {
@@ -78,6 +94,8 @@ function keyboardInput() {
     left: keys.has("ArrowLeft") || keys.has("KeyA"),
     right: keys.has("ArrowRight") || keys.has("KeyD"),
     fire: keys.has("KeyZ") || keys.has("Space"),
+    upPressed: pressed.has("ArrowUp") || pressed.has("KeyW"),
+    downPressed: pressed.has("ArrowDown") || pressed.has("KeyS"),
     pausePressed: pressed.has("KeyP"),
     confirmPressed: pressed.has("Enter"),
     cancelPressed: pressed.has("Escape")
@@ -93,7 +111,18 @@ function frame(now) {
   const steps = autoplay ? speed : normalSteps;
   const input = autoplay ? null : keyboardInput();
   for (let i = 0; i < steps; i += 1) {
-    updateGame(game, autoplay ? automaticInput(game) : { ...input, pausePressed: i === 0 && input.pausePressed, confirmPressed: i === 0 && input.confirmPressed, cancelPressed: i === 0 && input.cancelPressed });
+    updateGame(game, autoplay ? automaticInput(game) : {
+      ...input,
+      upPressed: i === 0 && input.upPressed,
+      downPressed: i === 0 && input.downPressed,
+      pausePressed: i === 0 && input.pausePressed,
+      confirmPressed: i === 0 && input.confirmPressed,
+      cancelPressed: i === 0 && input.cancelPressed
+    });
+  }
+  if (game.unlockedStage !== savedUnlockedStage) {
+    saveUnlockedStage(game.unlockedStage);
+    savedUnlockedStage = game.unlockedStage;
   }
   audio.sync(game);
   if (steps > 0) pressed.clear();

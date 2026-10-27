@@ -12,6 +12,7 @@ const WEAPON_NAMES = Object.freeze({ red: "LANCE", blue: "SPREAD", yellow: "SEEK
 export function createGame(stageId = "stage-01") {
   return {
     screen: "title", stageId, tick: 0, scrollX: 0, score: 0, stageStartScore: 0, lives: 3, cores: [], pickups: [],
+    unlockedStage: 1, selectedStageIndex: 0, practiceMode: false,
     scoreBreakdown: { defeat: 0, pickup: 0, chain: 0, clear: 0, noMiss: 0 },
     killChain: 0, maxKillChain: 0, misses: 0, stageMisses: 0, respawnTicks: 0,
     nextCoreDrop: 0, coresCollected: 0,
@@ -29,18 +30,26 @@ export function createGame(stageId = "stage-01") {
 }
 
 export function beginStage(game, stageId = "stage-01", { preserveProgress = false } = {}) {
+  const navigation = { unlockedStage: game.unlockedStage ?? 1 };
   const progress = preserveProgress ? {
     score: game.score, stageStartScore: game.score, lives: game.lives, misses: game.misses
   } : {};
-  Object.assign(game, createGame(stageId), progress, { screen: "stage-intro", introTicks: 90 });
+  Object.assign(game, createGame(stageId), navigation, progress, { screen: "stage-intro", introTicks: 90 });
 }
 
 export function beginCampaign(game, { showHowTo = false } = {}) {
-  Object.assign(game, createGame("stage-01"), { screen: showHowTo ? "how-to-play" : "stage-intro", introTicks: showHowTo ? 0 : 90 });
+  const unlockedStage = game.unlockedStage ?? 1;
+  Object.assign(game, createGame("stage-01"), { unlockedStage, screen: showHowTo ? "how-to-play" : "stage-intro", introTicks: showHowTo ? 0 : 90 });
 }
 
 export function returnToTitle(game) {
-  Object.assign(game, createGame());
+  const unlockedStage = game.unlockedStage ?? 1;
+  Object.assign(game, createGame(), { unlockedStage });
+}
+
+export function openStageSelect(game) {
+  game.screen = "stage-select";
+  game.selectedStageIndex = Math.min((game.unlockedStage ?? 1) - 1, CAMPAIGN.indexOf(game.stageId));
 }
 
 export function collectCore(game, color) {
@@ -65,6 +74,17 @@ export function reactorLoadout(cores) {
 }
 
 export function updateGame(game, input = {}) {
+  if (game.screen === "stage-select") {
+    const lastUnlockedIndex = Math.max(0, Math.min(CAMPAIGN.length, game.unlockedStage ?? 1) - 1);
+    if (input.upPressed) game.selectedStageIndex = game.selectedStageIndex <= 0 ? lastUnlockedIndex : game.selectedStageIndex - 1;
+    if (input.downPressed) game.selectedStageIndex = game.selectedStageIndex >= lastUnlockedIndex ? 0 : game.selectedStageIndex + 1;
+    if (input.confirmPressed) {
+      const stageId = CAMPAIGN[game.selectedStageIndex];
+      beginStage(game, stageId);
+      game.practiceMode = true;
+    } else if (input.cancelPressed) returnToTitle(game);
+    return game;
+  }
   if (game.screen === "how-to-play") {
     if (input.confirmPressed) {
       game.screen = "stage-intro";
@@ -73,12 +93,17 @@ export function updateGame(game, input = {}) {
     return game;
   }
   if (game.screen === "continue") {
-    if (input.confirmPressed) beginStage(game);
+    if (input.confirmPressed) {
+      const { stageId, practiceMode } = game;
+      beginStage(game, stageId);
+      game.practiceMode = practiceMode;
+    }
     else if (input.cancelPressed) returnToTitle(game);
     return game;
   }
   if (game.screen === "stage-result") {
     if (input.cancelPressed) returnToTitle(game);
+    else if (input.confirmPressed && game.practiceMode) returnToTitle(game);
     else if (input.confirmPressed) {
       const nextStage = CAMPAIGN[CAMPAIGN.indexOf(game.stageId) + 1];
       if (nextStage) beginStage(game, nextStage, { preserveProgress: true });
@@ -318,6 +343,7 @@ function hitBoss(game, bullet) {
     addScore(game, "clear", 2000);
     if (game.stageMisses === 0) addScore(game, "noMiss", 2000);
     game.defeatedBoss = true;
+    unlockNextStage(game);
     game.screen = "stage-result";
     return;
   }
@@ -371,6 +397,7 @@ function damageTarget(game, bullet, target, score) {
     addScore(game, "clear", 2000);
     if (game.stageMisses === 0) addScore(game, "noMiss", 2000);
     game.defeatedBoss = true;
+    unlockNextStage(game);
     game.screen = "stage-result";
   }
 }
@@ -927,6 +954,7 @@ export function snapshot(game) {
   const loadout = reactorLoadout(game.cores);
   return {
     screen: game.screen, stageId: game.stageId, tick: game.tick, lives: game.lives, score: game.score,
+    unlockedStage: game.unlockedStage, selectedStageIndex: game.selectedStageIndex, practiceMode: game.practiceMode,
     scoreBreakdown: { ...game.scoreBreakdown }, killChain: game.killChain,
     maxKillChain: game.maxKillChain, misses: game.misses, stageMisses: game.stageMisses,
     stageScore: game.score - game.stageStartScore, respawnTicks: game.respawnTicks,
@@ -948,6 +976,11 @@ export function snapshot(game) {
     sovereignPhasesSeen: [...game.sovereignPhasesSeen],
     defeatedBoss: game.defeatedBoss, hudTop: 720
   };
+}
+
+function unlockNextStage(game) {
+  const clearedIndex = CAMPAIGN.indexOf(game.stageId);
+  game.unlockedStage = Math.max(game.unlockedStage ?? 1, Math.min(CAMPAIGN.length, clearedIndex + 2));
 }
 
 function terrainFor(game) {

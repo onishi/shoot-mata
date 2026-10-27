@@ -8,6 +8,13 @@ const furnace = (id, x, y, width, height, kind = "furnace-wall", extra = {}) => 
 export const STAGE_04 = Object.freeze({
   id: "stage-04", number: 4, name: "STELLAR FURNACE",
   durationTicks: STAGE_DURATION_TICKS, bossStartTick: BOSS_START_TICK, scrollSpeed: SCROLL_SPEED,
+  enemyTypes: Object.freeze(["heat-armor", "solar-rammer", "omni-turret", "furnace-mole"]),
+  sections: Object.freeze([
+    { id: "introduction", startTick: 0, endTick: 60 * 60 },
+    { id: "development", startTick: 60 * 60, endTick: 135 * 60 },
+    { id: "climax", startTick: 135 * 60, endTick: BOSS_START_TICK },
+    { id: "boss", startTick: BOSS_START_TICK, endTick: STAGE_DURATION_TICKS }
+  ]),
   checkpoints: [0, 60 * 60, 135 * 60, 210 * 60],
   coreDrops: Object.freeze([
     { tick: 13 * 60, color: "red", y: 330 }, { tick: 38 * 60, color: "blue", y: 420 },

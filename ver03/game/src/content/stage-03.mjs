@@ -12,6 +12,13 @@ export const STAGE_03 = Object.freeze({
   durationTicks: STAGE_DURATION_TICKS,
   bossStartTick: BOSS_START_TICK,
   scrollSpeed: SCROLL_SPEED,
+  enemyTypes: Object.freeze(["regenerating-swarm", "parasite-turret", "ark-predator", "cilia-walker"]),
+  sections: Object.freeze([
+    { id: "introduction", startTick: 0, endTick: 60 * 60 },
+    { id: "development", startTick: 60 * 60, endTick: 135 * 60 },
+    { id: "climax", startTick: 135 * 60, endTick: BOSS_START_TICK },
+    { id: "boss", startTick: BOSS_START_TICK, endTick: STAGE_DURATION_TICKS }
+  ]),
   checkpoints: [0, 60 * 60, 135 * 60, 210 * 60],
   coreDrops: Object.freeze([
     { tick: 14 * 60, color: "blue", y: 345 },

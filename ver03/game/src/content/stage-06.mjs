@@ -8,6 +8,13 @@ const relay = (id, x, y, width, height, kind = "relay-hull", extra = {}) => ({ i
 export const STAGE_06 = Object.freeze({
   id: "stage-06", number: 6, name: "ZERO-POINT RELAY CORE",
   durationTicks: STAGE_DURATION_TICKS, bossStartTick: BOSS_START_TICK, scrollSpeed: SCROLL_SPEED,
+  enemyTypes: Object.freeze(["gate-mite", "vector-inverter", "relay-sniper", "null-carrier"]),
+  sections: Object.freeze([
+    { id: "introduction", startTick: 0, endTick: 60 * 60 },
+    { id: "development", startTick: 60 * 60, endTick: 145 * 60 },
+    { id: "climax", startTick: 145 * 60, endTick: BOSS_START_TICK },
+    { id: "boss", startTick: BOSS_START_TICK, endTick: STAGE_DURATION_TICKS }
+  ]),
   checkpoints: [0, 60 * 60, 145 * 60, 225 * 60],
   coreDrops: Object.freeze([
     { tick: 12 * 60, color: "red", y: 320 }, { tick: 38 * 60, color: "yellow", y: 405 },

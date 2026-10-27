@@ -8,6 +8,13 @@ const crystal = (id, x, y, width, height, kind = "crystal-wall", extra = {}) => 
 export const STAGE_05 = Object.freeze({
   id: "stage-05", number: 5, name: "CRYSTAL COMPUTATION SEA",
   durationTicks: STAGE_DURATION_TICKS, bossStartTick: BOSS_START_TICK, scrollSpeed: SCROLL_SPEED,
+  enemyTypes: Object.freeze(["shard-skater", "mirror-nest", "phase-ray", "lattice-keeper"]),
+  sections: Object.freeze([
+    { id: "introduction", startTick: 0, endTick: 65 * 60 },
+    { id: "development", startTick: 65 * 60, endTick: 140 * 60 },
+    { id: "climax", startTick: 140 * 60, endTick: BOSS_START_TICK },
+    { id: "boss", startTick: BOSS_START_TICK, endTick: STAGE_DURATION_TICKS }
+  ]),
   checkpoints: [0, 65 * 60, 140 * 60, 215 * 60],
   coreDrops: Object.freeze([
     { tick: 14 * 60, color: "blue", y: 335 }, { tick: 40 * 60, color: "yellow", y: 420 },

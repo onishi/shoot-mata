@@ -20,6 +20,7 @@ export function render(ctx, game) {
   ctx.clip();
 
   if (game.screen === "title") drawTitle(ctx, game);
+  else if (game.screen === "stage-select") drawStageSelect(ctx, game);
   else if (game.screen === "how-to-play") drawHowToPlay(ctx);
   else if (game.screen === "ending") drawEnding(ctx, game);
   else if (game.screen === "credits") drawCredits(ctx, game);
@@ -508,13 +509,43 @@ function drawTitle(ctx, game) {
   ctx.fillStyle = "#94bccc";
   ctx.font = "20px Arial";
   ctx.fillText("A 90s ARCADE SIDE-SCROLLING SHOOTER", WIDTH / 2, 386);
+  ctx.fillStyle = "#020814c9";
+  ctx.fillRect(420, 458, 440, 160);
+  ctx.strokeStyle = "#315b73";
+  ctx.lineWidth = 2;
+  ctx.strokeRect(420, 458, 440, 160);
   ctx.fillStyle = "#eafcff";
   ctx.font = "bold 24px Arial";
   ctx.fillText("PRESS ENTER", WIDTH / 2, 505);
-  ctx.fillStyle = "#83aabb";
+  ctx.fillStyle = "#a9cfdd";
   ctx.font = "bold 18px Arial";
   ctx.fillText("S  SOUND SETTINGS", WIDTH / 2, 552);
+  ctx.fillText("T  STAGE SELECT", WIDTH / 2, 590);
   if (game.audioSettingsOpen) drawAudioSettings(ctx, game);
+  ctx.textAlign = "start";
+}
+
+function drawStageSelect(ctx, game) {
+  ctx.fillStyle = "#020814f2";
+  ctx.fillRect(270, 70, 740, 580);
+  ctx.strokeStyle = "#65dcf5";
+  ctx.lineWidth = 3;
+  ctx.strokeRect(270, 70, 740, 580);
+  ctx.textAlign = "center";
+  ctx.fillStyle = "#ffcf67";
+  ctx.font = "bold 40px Arial";
+  ctx.fillText("STAGE SELECT", WIDTH / 2, 132);
+  const names = ["ORBITAL WRECK", "CLOUD REFINERY", "LIVING ARK", "STELLAR FURNACE", "CRYSTAL COMPUTATION SEA", "ZERO-POINT RELAY CORE"];
+  names.forEach((name, index) => {
+    const unlocked = index < game.unlockedStage;
+    const selected = index === game.selectedStageIndex;
+    ctx.fillStyle = !unlocked ? "#3f5662" : selected ? "#ffcf67" : "#bdeeff";
+    ctx.font = selected ? "bold 23px monospace" : "21px monospace";
+    ctx.fillText(`${selected ? "▶" : " "} ${String(index + 1).padStart(2, "0")}  ${unlocked ? name : "LOCKED"}`, WIDTH / 2, 205 + index * 58);
+  });
+  ctx.fillStyle = "#8aabba";
+  ctx.font = "17px Arial";
+  ctx.fillText("↑↓ SELECT   ENTER PRACTICE   ESC BACK", WIDTH / 2, 590);
   ctx.textAlign = "start";
 }
 
@@ -588,7 +619,7 @@ function drawResult(ctx, game) {
   ctx.fillText(`RUN ${String(game.score).padStart(8, "0")}  /  MAX CHAIN ${game.maxKillChain}  /  ${game.coresCollected} CORES`, WIDTH / 2, 525);
   ctx.fillStyle = "#bdeeff";
   ctx.font = "bold 18px Arial";
-  const nextLabel = game.stageId === "stage-06" ? "ENTER  ENDING" : "ENTER  NEXT STAGE   ESC  TITLE";
+  const nextLabel = game.practiceMode ? "ENTER / ESC  TITLE" : game.stageId === "stage-06" ? "ENTER  ENDING" : "ENTER  NEXT STAGE   ESC  TITLE";
   ctx.fillText(nextLabel, WIDTH / 2, 585);
   ctx.textAlign = "start";
 }

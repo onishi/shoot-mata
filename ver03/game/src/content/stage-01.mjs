@@ -12,6 +12,13 @@ export const STAGE_01 = Object.freeze({
   durationTicks: STAGE_DURATION_TICKS,
   bossStartTick: BOSS_START_TICK,
   scrollSpeed: SCROLL_SPEED,
+  enemyTypes: Object.freeze(["salvage-collector", "salvage-weaver", "wreck-bulwark", "hull-crawler"]),
+  sections: Object.freeze([
+    { id: "introduction", startTick: 0, endTick: 55 * 60 },
+    { id: "development", startTick: 55 * 60, endTick: 125 * 60 },
+    { id: "climax", startTick: 125 * 60, endTick: BOSS_START_TICK },
+    { id: "boss", startTick: BOSS_START_TICK, endTick: STAGE_DURATION_TICKS }
+  ]),
   checkpoints: [0, 55 * 60, 125 * 60, 185 * 60],
   coreDrops: Object.freeze([
     { tick: 18 * 60, color: "red", y: 350 },

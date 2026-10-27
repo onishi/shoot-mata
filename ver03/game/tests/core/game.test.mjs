@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { automaticInput, beginCampaign, beginStage, bossShieldRects, bossWeakpoint, collectCore, createGame, reactorLoadout, updateGame } from "../../src/core/game.mjs";
+import { automaticInput, beginCampaign, beginStage, bossShieldRects, bossWeakpoint, collectCore, createGame, openStageSelect, reactorLoadout, updateGame } from "../../src/core/game.mjs";
 
 test("PULSE always fires when the reactor is empty", () => {
   const game = createGame();
@@ -28,6 +28,33 @@ test("automatic input completes Stage 1 and defeats the boss", () => {
   assert.equal(game.score, Object.values(game.scoreBreakdown).reduce((sum, value) => sum + value, 0));
   assert.equal(game.scoreBreakdown.clear, 2000);
   assert.equal(game.scoreBreakdown.noMiss, game.misses === 0 ? 2000 : 0);
+  assert.equal(game.unlockedStage, 2);
+});
+
+test("stage select only offers unlocked stages and practice returns to title", () => {
+  const game = createGame();
+  game.unlockedStage = 5;
+  openStageSelect(game);
+  assert.equal(game.screen, "stage-select");
+  updateGame(game, { upPressed: true });
+  assert.equal(game.selectedStageIndex, 4);
+  updateGame(game, { confirmPressed: true });
+  assert.equal(game.stageId, "stage-05");
+  assert.equal(game.practiceMode, true);
+  game.screen = "stage-result";
+  updateGame(game, { confirmPressed: true });
+  assert.equal(game.screen, "title");
+  assert.equal(game.unlockedStage, 5);
+});
+
+test("continue retries the current stage and preserves practice mode", () => {
+  const game = createGame("stage-04");
+  game.screen = "continue";
+  game.practiceMode = true;
+  updateGame(game, { confirmPressed: true });
+  assert.equal(game.stageId, "stage-04");
+  assert.equal(game.screen, "stage-intro");
+  assert.equal(game.practiceMode, true);
 });
 
 test("first-run instructions lead into Stage 1 and its result advances to Stage 2", () => {
