@@ -8,10 +8,15 @@ const SHOT_INTERVAL = 8;
 const BOSS_CYCLE_TICKS = 360;
 const BOSS_WARNING_TICKS = 72;
 const WEAPON_NAMES = Object.freeze({ red: "LANCE", blue: "SPREAD", yellow: "SEEKER" });
+export const DIFFICULTY_RULES = Object.freeze({
+  standard: Object.freeze({ lives: 3, enemyBulletSpeed: 1, collectionRadius: 1, respawnInvulnerability: 120 }),
+  assist: Object.freeze({ lives: 4, enemyBulletSpeed: 0.75, collectionRadius: 1.25, respawnInvulnerability: 180 })
+});
 
-export function createGame(stageId = "stage-01") {
+export function createGame(stageId = "stage-01", difficulty = "standard") {
+  if (!DIFFICULTY_RULES[difficulty]) throw new TypeError(`Unknown difficulty: ${difficulty}`);
   return {
-    screen: "title", stageId, tick: 0, scrollX: 0, score: 0, stageStartScore: 0, lives: 3, cores: [], pickups: [],
+    screen: "title", stageId, difficulty, tick: 0, scrollX: 0, score: 0, stageStartScore: 0, lives: DIFFICULTY_RULES[difficulty].lives, cores: [], pickups: [],
     unlockedStage: 1, selectedStageIndex: 0, practiceMode: false,
     scoreBreakdown: { defeat: 0, pickup: 0, chain: 0, clear: 0, noMiss: 0 },
     killChain: 0, maxKillChain: 0, misses: 0, stageMisses: 0, respawnTicks: 0,
@@ -30,21 +35,31 @@ export function createGame(stageId = "stage-01") {
 }
 
 export function beginStage(game, stageId = "stage-01", { preserveProgress = false } = {}) {
-  const navigation = { unlockedStage: game.unlockedStage ?? 1 };
+  const navigation = { unlockedStage: game.unlockedStage ?? 1, difficulty: game.difficulty ?? "standard" };
   const progress = preserveProgress ? {
     score: game.score, stageStartScore: game.score, lives: game.lives, misses: game.misses
   } : {};
-  Object.assign(game, createGame(stageId), navigation, progress, { screen: "stage-intro", introTicks: 90 });
+  Object.assign(game, createGame(stageId, navigation.difficulty), navigation, progress, { screen: "stage-intro", introTicks: 90 });
 }
 
 export function beginCampaign(game, { showHowTo = false } = {}) {
   const unlockedStage = game.unlockedStage ?? 1;
-  Object.assign(game, createGame("stage-01"), { unlockedStage, screen: showHowTo ? "how-to-play" : "stage-intro", introTicks: showHowTo ? 0 : 90 });
+  const difficulty = game.difficulty ?? "standard";
+  Object.assign(game, createGame("stage-01", difficulty), { unlockedStage, screen: showHowTo ? "how-to-play" : "stage-intro", introTicks: showHowTo ? 0 : 90 });
 }
 
 export function returnToTitle(game) {
   const unlockedStage = game.unlockedStage ?? 1;
-  Object.assign(game, createGame(), { unlockedStage });
+  const difficulty = game.difficulty ?? "standard";
+  Object.assign(game, createGame("stage-01", difficulty), { unlockedStage });
+}
+
+export function setDifficulty(game, difficulty) {
+  const rules = DIFFICULTY_RULES[difficulty];
+  if (!rules) throw new TypeError(`Unknown difficulty: ${difficulty}`);
+  game.difficulty = difficulty;
+  if (game.screen === "title") game.lives = rules.lives;
+  return game;
 }
 
 export function openStageSelect(game) {
@@ -152,7 +167,7 @@ export function updateGame(game, input = {}) {
 function updatePlayer(game, input) {
   if (game.respawnTicks > 0) {
     game.respawnTicks -= 1;
-    if (game.respawnTicks === 0) game.player.invulnerable = 120;
+    if (game.respawnTicks === 0) game.player.invulnerable = DIFFICULTY_RULES[game.difficulty].respawnInvulnerability;
     return;
   }
   const dx = (input.right ? 1 : 0) - (input.left ? 1 : 0);
@@ -186,11 +201,12 @@ function spawnCoreDrops(game) {
 
 function updatePickups(game) {
   const loadout = reactorLoadout(game.cores);
+  const collectionScale = DIFFICULTY_RULES[game.difficulty].collectionRadius;
   for (const pickup of game.pickups) {
     pickup.x -= 2.7;
     const dx = game.player.x - pickup.x;
     const dy = game.player.y - pickup.y;
-    const radius = 28 + loadout.collectionRadius;
+    const radius = (28 + loadout.collectionRadius) * collectionScale;
     if (dx * dx + dy * dy <= radius * radius) {
       collectCore(game, pickup.color);
       pickup.collected = true;
@@ -618,10 +634,11 @@ function dropMine(game, enemy) {
 
 function updateEnemyBullets(game) {
   const reflectors = terrainFor(game).filter(({ kind }) => kind === "reflective-crystal");
+  const speedScale = DIFFICULTY_RULES[game.difficulty].enemyBulletSpeed;
   for (const bullet of game.enemyBullets) {
     bullet.age += 1;
-    bullet.x += bullet.vx;
-    bullet.y += bullet.vy;
+    bullet.x += bullet.vx * speedScale;
+    bullet.y += bullet.vy * speedScale;
     if (bullet.kind === "mine") bullet.vy = Math.min(2.5, bullet.vy + 0.025);
     if (!bullet.reflected && ["mirror-orb", "lattice-shot", "oracle-shard"].includes(bullet.kind)) {
       const reflector = reflectors.find((item) => overlapsCircleRect(bullet, { x: item.screenX, y: item.y, width: item.width, height: item.height }));
@@ -953,7 +970,7 @@ export function automaticInput(game) {
 export function snapshot(game) {
   const loadout = reactorLoadout(game.cores);
   return {
-    screen: game.screen, stageId: game.stageId, tick: game.tick, paused: game.paused, lives: game.lives, score: game.score,
+    screen: game.screen, stageId: game.stageId, difficulty: game.difficulty, tick: game.tick, paused: game.paused, lives: game.lives, score: game.score,
     unlockedStage: game.unlockedStage, selectedStageIndex: game.selectedStageIndex, practiceMode: game.practiceMode,
     scoreBreakdown: { ...game.scoreBreakdown }, killChain: game.killChain,
     maxKillChain: game.maxKillChain, misses: game.misses, stageMisses: game.stageMisses,

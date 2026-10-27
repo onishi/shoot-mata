@@ -1,4 +1,4 @@
-import { automaticInput, beginCampaign, beginStage, createGame, openStageSelect, snapshot, updateGame } from "../core/game.mjs";
+import { automaticInput, beginCampaign, beginStage, createGame, openStageSelect, setDifficulty, snapshot, updateGame } from "../core/game.mjs";
 import { createAudioSystem } from "./audio.mjs";
 import { render } from "./renderer.mjs";
 import { readStorage, writeStorage } from "./storage.mjs";
@@ -55,6 +55,11 @@ function framePerformance() {
 addEventListener("keydown", (event) => {
   if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space"].includes(event.code)) event.preventDefault();
   if (game.screen === "title" && handleAudioSettingsKey(event.code)) return;
+  if (event.code === "KeyA" && game.screen === "title") {
+    setDifficulty(game, game.difficulty === "standard" ? "assist" : "standard");
+    void audio.activate(game).then(() => audio.playUi());
+    return;
+  }
   if (event.code === "KeyT" && game.screen === "title") {
     void audio.activate(game);
     openStageSelect(game);

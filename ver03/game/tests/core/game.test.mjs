@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { automaticInput, beginCampaign, beginStage, bossShieldRects, bossWeakpoint, collectCore, createGame, openStageSelect, reactorLoadout, updateGame } from "../../src/core/game.mjs";
+import { automaticInput, beginCampaign, beginStage, bossShieldRects, bossWeakpoint, collectCore, createGame, openStageSelect, reactorLoadout, setDifficulty, updateGame } from "../../src/core/game.mjs";
 
 test("PULSE always fires when the reactor is empty", () => {
   const game = createGame();
@@ -8,6 +8,39 @@ test("PULSE always fires when the reactor is empty", () => {
   for (let tick = 0; tick < 110; tick += 1) updateGame(game, { fire: true });
   assert.equal(game.cores.length, 0);
   assert.ok(game.pulseShots >= 2);
+});
+
+test("assist difficulty applies all four documented aids and survives campaign setup", () => {
+  const game = createGame();
+  setDifficulty(game, "assist");
+  beginCampaign(game);
+  assert.equal(game.difficulty, "assist");
+  assert.equal(game.lives, 4);
+  game.screen = "playing";
+
+  game.enemyBullets.push({ kind: "enemy-shot", x: 500, y: 600, radius: 6, vx: -4, vy: 0, age: 0 });
+  updateGame(game, {});
+  assert.equal(game.enemyBullets[0].x, 497, "enemy bullets move at 75% speed");
+
+  game.pickups.push({ x: game.player.x + 2.7, y: game.player.y + 32, color: "yellow", radius: 20 });
+  updateGame(game, {});
+  assert.deepEqual(game.cores, ["yellow"], "assist collection radius is 1.25x");
+  game.cores.length = 0;
+
+  game.enemyBullets.push({ kind: "enemy-shot", x: game.player.x, y: game.player.y, radius: 6, vx: 0, vy: 0, age: 0 });
+  updateGame(game, {});
+  assert.equal(game.lives, 3);
+  assert.equal(game.respawnTicks, 120);
+  for (let tick = 0; tick < 120; tick += 1) updateGame(game, {});
+  assert.equal(game.player.invulnerable, 180, "assist respawn invulnerability is 1.5x");
+});
+
+test("standard difficulty does not collect a core inside only the assist radius", () => {
+  const game = createGame();
+  game.screen = "playing";
+  game.pickups.push({ x: game.player.x + 2.7, y: game.player.y + 32, color: "yellow", radius: 20 });
+  updateGame(game, {});
+  assert.deepEqual(game.cores, []);
 });
 
 test("automatic input completes Stage 1 and defeats the boss", () => {

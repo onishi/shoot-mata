@@ -51,6 +51,13 @@ try {
   await page.keyboard.press("Escape");
   await page.waitForFunction(() => window.__shootMata.state().screen === "title");
   await page.screenshot({ path: path.join(root, "artifacts", "title.png"), fullPage: true });
+  await page.keyboard.press("KeyA");
+  const assistTitle = await page.evaluate(() => window.__shootMata.state());
+  assert.equal(assistTitle.difficulty, "assist");
+  assert.equal(assistTitle.lives, 4);
+  await page.screenshot({ path: path.join(root, "artifacts", "assist-title.png"), fullPage: true });
+  await page.keyboard.press("KeyA");
+  assert.equal(await page.evaluate(() => window.__shootMata.state().difficulty), "standard");
   await page.keyboard.press("Enter");
   await page.waitForFunction(() => window.__shootMata.state().screen === "how-to-play");
   await page.screenshot({ path: path.join(root, "artifacts", "how-to-play.png"), fullPage: true });

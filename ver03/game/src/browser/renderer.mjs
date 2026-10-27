@@ -510,17 +510,18 @@ function drawTitle(ctx, game) {
   ctx.font = "20px Arial";
   ctx.fillText("A 90s ARCADE SIDE-SCROLLING SHOOTER", WIDTH / 2, 386);
   ctx.fillStyle = "#020814c9";
-  ctx.fillRect(420, 458, 440, 160);
+  ctx.fillRect(420, 448, 440, 200);
   ctx.strokeStyle = "#315b73";
   ctx.lineWidth = 2;
-  ctx.strokeRect(420, 458, 440, 160);
+  ctx.strokeRect(420, 448, 440, 200);
   ctx.fillStyle = "#eafcff";
   ctx.font = "bold 24px Arial";
-  ctx.fillText("PRESS ENTER", WIDTH / 2, 505);
+  ctx.fillText("PRESS ENTER", WIDTH / 2, 493);
   ctx.fillStyle = "#a9cfdd";
   ctx.font = "bold 18px Arial";
-  ctx.fillText("S  SOUND SETTINGS", WIDTH / 2, 552);
-  ctx.fillText("T  STAGE SELECT", WIDTH / 2, 590);
+  ctx.fillText(`A  DIFFICULTY: ${game.difficulty === "assist" ? "ASSIST" : "STANDARD"}`, WIDTH / 2, 535);
+  ctx.fillText("S  SOUND SETTINGS", WIDTH / 2, 575);
+  ctx.fillText("T  STAGE SELECT", WIDTH / 2, 615);
   if (game.audioSettingsOpen) drawAudioSettings(ctx, game);
   ctx.textAlign = "start";
 }
