@@ -54,6 +54,7 @@ function framePerformance() {
 
 addEventListener("keydown", (event) => {
   if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space"].includes(event.code)) event.preventDefault();
+  if (event.repeat && isSingleActionKey(event.code)) return;
   if (game.screen === "title" && handleAudioSettingsKey(event.code)) return;
   if (event.code === "KeyA" && game.screen === "title") {
     setDifficulty(game, game.difficulty === "standard" ? "assist" : "standard");
@@ -85,6 +86,12 @@ function suspendForFocusLoss() {
   keys.clear();
   pressed.clear();
   if (game.screen === "playing") game.paused = true;
+}
+
+function isSingleActionKey(code) {
+  if (game.screen !== "title") return false;
+  if (["Enter", "Escape", "KeyA", "KeyS", "KeyT"].includes(code)) return true;
+  return game.audioSettingsOpen && ["ArrowUp", "ArrowDown"].includes(code);
 }
 
 function loadAudioSettings() {

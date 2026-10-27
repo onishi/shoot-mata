@@ -971,6 +971,7 @@ export function snapshot(game) {
   const loadout = reactorLoadout(game.cores);
   return {
     screen: game.screen, stageId: game.stageId, difficulty: game.difficulty, tick: game.tick, paused: game.paused, lives: game.lives, score: game.score,
+    audioSettingsOpen: game.audioSettingsOpen === true, audioSettingRow: game.audioSettingRow ?? 0,
     unlockedStage: game.unlockedStage, selectedStageIndex: game.selectedStageIndex, practiceMode: game.practiceMode,
     scoreBreakdown: { ...game.scoreBreakdown }, killChain: game.killChain,
     maxKillChain: game.maxKillChain, misses: game.misses, stageMisses: game.stageMisses,

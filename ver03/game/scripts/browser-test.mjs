@@ -37,11 +37,15 @@ try {
   assert.equal(audioReady.loaded, audioReady.assetCount);
   assert.equal(audioReady.settings.bgmVolume, 0.65);
   assert.equal(audioReady.settings.sfxVolume, 0.45);
+  await page.evaluate(() => dispatchEvent(new KeyboardEvent("keydown", { code: "KeyS", repeat: true })));
+  assert.equal(await page.evaluate(() => window.__shootMata.state().audioSettingsOpen), true, "key repeat must not close sound settings");
   await mkdir(path.join(root, "artifacts"), { recursive: true });
   await page.screenshot({ path: path.join(root, "artifacts", "audio-settings.png"), fullPage: true });
   await page.keyboard.press("ArrowRight");
   assert.equal((await page.evaluate(() => window.__shootMata.state().audio.settings.bgmVolume)).toFixed(2), "0.70");
-  await page.keyboard.press("Escape");
+  await page.keyboard.press("Enter");
+  await page.evaluate(() => dispatchEvent(new KeyboardEvent("keydown", { code: "Enter", repeat: true })));
+  assert.equal(await page.evaluate(() => window.__shootMata.state().screen), "title", "key repeat must not start the campaign after closing settings");
   await page.keyboard.press("KeyT");
   await page.waitForFunction(() => window.__shootMata.state().screen === "stage-select");
   const initialSelect = await page.evaluate(() => window.__shootMata.state());
@@ -52,6 +56,7 @@ try {
   await page.waitForFunction(() => window.__shootMata.state().screen === "title");
   await page.screenshot({ path: path.join(root, "artifacts", "title.png"), fullPage: true });
   await page.keyboard.press("KeyA");
+  await page.evaluate(() => dispatchEvent(new KeyboardEvent("keydown", { code: "KeyA", repeat: true })));
   const assistTitle = await page.evaluate(() => window.__shootMata.state());
   assert.equal(assistTitle.difficulty, "assist");
   assert.equal(assistTitle.lives, 4);
