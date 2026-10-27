@@ -88,8 +88,16 @@ try {
   assert.equal(resetAfterFocusTest.tick, 0, "focus regression setup must not shift the deterministic playthrough");
   assert.equal(resetAfterFocusTest.paused, true);
   await page.screenshot({ path: path.join(root, "artifacts", "pause.png"), fullPage: true });
-  await page.keyboard.press("KeyP");
-  await page.waitForFunction(() => !window.__shootMata.state().paused);
+  await page.keyboard.press("Escape");
+  await page.waitForFunction(() => window.__shootMata.state().screen === "title");
+  await page.keyboard.press("Enter");
+  await page.waitForFunction(() => window.__shootMata.state().screen === "playing");
+  const restartAfterPauseExit = await page.evaluate(() => {
+    window.__shootMata.start();
+    window.__shootMata.advance(90, false);
+    return window.__shootMata.state();
+  });
+  assert.equal(restartAfterPauseExit.tick, 0, "pause exit regression setup must not shift the deterministic playthrough");
   const initial = await page.evaluate(() => window.__shootMata.advance(60));
   assert.ok(initial.pulseShots > 0, "PULSE must fire with zero cores");
   assert.deepEqual(initial.cores, []);

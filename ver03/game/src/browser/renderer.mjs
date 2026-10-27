@@ -37,7 +37,7 @@ export function render(ctx, game) {
     }
     if (game.screen === "stage-result") drawResult(ctx, game);
     if (game.screen === "continue") drawContinue(ctx);
-    if (game.paused) drawNotice(ctx, "PAUSE", "PRESS P TO RESUME");
+    if (game.paused) drawNotice(ctx, "PAUSE", "P: RESUME   ESC: TITLE");
   }
   ctx.restore();
   drawHud(ctx, game);

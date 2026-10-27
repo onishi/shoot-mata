@@ -139,7 +139,10 @@ export function updateGame(game, input = {}) {
     return game;
   }
   if (input.pausePressed && game.screen === "playing") game.paused = !game.paused;
-  if (game.paused) return game;
+  if (game.paused) {
+    if (input.cancelPressed) returnToTitle(game);
+    return game;
+  }
   if (game.screen === "stage-intro") {
     game.introTicks -= 1;
     if (game.introTicks <= 0) game.screen = "playing";

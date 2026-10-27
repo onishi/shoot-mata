@@ -173,6 +173,23 @@ test("first-run instructions return to the title with cancel", () => {
   assert.equal(game.stageId, "stage-01");
 });
 
+test("pause can return to the title without advancing the simulation", () => {
+  const game = createGame("stage-04");
+  beginStage(game, "stage-04");
+  game.screen = "playing";
+  game.tick = 240;
+
+  updateGame(game, { pausePressed: true });
+  assert.equal(game.paused, true);
+  assert.equal(game.tick, 240);
+
+  updateGame(game, { cancelPressed: true });
+  assert.equal(game.screen, "title");
+  assert.equal(game.paused, false);
+  assert.equal(game.tick, 0);
+  assert.equal(game.stageId, "stage-01");
+});
+
 test("automatic input completes Stage 6 and exposes the Sovereign core", () => {
   const game = createGame();
   beginStage(game, "stage-06");
