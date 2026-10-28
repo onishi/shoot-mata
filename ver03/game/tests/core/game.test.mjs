@@ -190,6 +190,31 @@ test("pause can return to the title without advancing the simulation", () => {
   assert.equal(game.stageId, "stage-01");
 });
 
+test("a miss restores the last safe checkpoint and rebuilds its encounters", () => {
+  const game = createGame();
+  game.screen = "playing";
+  game.tick = 130 * 60;
+  game.scrollX = game.tick * stageById(game.stageId).scrollSpeed;
+  game.cores.length = 0;
+  game.destroyedTerrain.push("breakable-wreck");
+  game.terrainDamage["breakable-wreck"] = 48;
+  game.enemies.push({ x: 900, y: 300, width: 50, height: 40, hp: 1, type: "salvage-collector", spawnedTick: game.tick });
+  game.enemyBullets.push({ kind: "enemy-shot", x: game.player.x, y: game.player.y, radius: 6, vx: 0, vy: 0, age: 0 });
+
+  updateGame(game, {});
+
+  assert.equal(game.lives, 2);
+  assert.equal(game.tick, 125 * 60);
+  assert.equal(game.checkpointTick, 125 * 60);
+  assert.equal(game.scrollX, 125 * 60 * stageById(game.stageId).scrollSpeed);
+  assert.equal(game.respawnTicks, 120);
+  assert.deepEqual(game.enemies, []);
+  assert.deepEqual(game.enemyBullets, []);
+  assert.deepEqual(game.destroyedTerrain, [], "destructible terrain ahead of the checkpoint must be rebuilt");
+  assert.equal(game.nextWave, 4, "the climax wave must replay after respawn");
+  assert.equal(game.nextCoreDrop, 4, "one recovery core and the climax drops must replay after respawn");
+});
+
 test("automatic input completes Stage 6 and exposes the Sovereign core", () => {
   const game = createGame();
   beginStage(game, "stage-06");
@@ -260,6 +285,23 @@ test("automatic input completes Stage 4 through heat waves and all controller ph
   assert.equal(game.terrainHits, 0);
 });
 
+test("Omni Turret fires a spread instead of three converging aimed shots", () => {
+  const game = createGame("stage-04");
+  game.screen = "playing";
+  game.tick = 1_000;
+  game.player.invulnerable = 1_000;
+  game.enemies.push({ x: 700, y: 250, width: 76, height: 62, hp: 22, phase: 0, pattern: "ceiling-turret", type: "omni-turret", spawnedTick: 856 });
+
+  updateGame(game, {});
+
+  assert.equal(game.enemyBullets.length, 3);
+  const crossings = game.enemyBullets.map((bullet) => {
+    const ticks = (bullet.x - game.player.x) / -bullet.vx;
+    return bullet.y + bullet.vy * ticks;
+  });
+  assert.ok(Math.max(...crossings) - Math.min(...crossings) > 200, "the three trajectories must leave dodgeable gaps");
+});
+
 test("automatic input completes Stage 3 after opening cysts and both Ark Core organs", () => {
   const game = createGame();
   beginStage(game, "stage-03");
@@ -318,6 +360,7 @@ test("losing the last life opens continue and retry resets the stage and score",
 test("Hull Crawler stays attached to a ceiling beam and drops proximity mines", () => {
   const game = createGame();
   game.screen = "playing";
+  game.player.invulnerable = 2_000;
   for (let tick = 0; tick < 1_100; tick += 1) updateGame(game, {});
   const crawler = game.enemies.find(({ type }) => type === "hull-crawler");
   assert.ok(crawler);

@@ -16,7 +16,7 @@ export const DIFFICULTY_RULES = Object.freeze({
 export function createGame(stageId = "stage-01", difficulty = "standard") {
   if (!DIFFICULTY_RULES[difficulty]) throw new TypeError(`Unknown difficulty: ${difficulty}`);
   return {
-    screen: "title", stageId, difficulty, tick: 0, scrollX: 0, score: 0, highScore: 0, stageStartScore: 0, lives: DIFFICULTY_RULES[difficulty].lives, cores: [], pickups: [],
+    screen: "title", stageId, difficulty, tick: 0, checkpointTick: 0, scrollX: 0, score: 0, highScore: 0, stageStartScore: 0, lives: DIFFICULTY_RULES[difficulty].lives, cores: [], pickups: [],
     unlockedStage: 1, selectedStageIndex: 0, practiceMode: false,
     scoreBreakdown: { defeat: 0, pickup: 0, chain: 0, clear: 0, noMiss: 0 },
     killChain: 0, maxKillChain: 0, misses: 0, stageMisses: 0, respawnTicks: 0,
@@ -152,6 +152,7 @@ export function updateGame(game, input = {}) {
 
   game.tick += 1;
   const stage = stageById(game.stageId);
+  game.checkpointTick = latestCheckpoint(stage, game.tick);
   game.scrollX = Math.min(stage.bossStartTick * stage.scrollSpeed, game.tick * stage.scrollSpeed);
   updatePlayer(game, input);
   spawnWaves(game);
@@ -560,7 +561,7 @@ function updateEnemies(game) {
       if (enemy.type === "omni-turret") {
         enemy.x += 1.6;
         if (enemy.x < 1120 && enemy.x > 480 && age > 0 && age % 145 === 0) {
-          fireEnemyShot(game, { ...enemy, y: enemy.y - 28 }); fireEnemyShot(game, enemy); fireEnemyShot(game, { ...enemy, y: enemy.y + 28 });
+          fireOmniFan(game, enemy);
         }
       }
       if (enemy.type === "shard-skater") {
@@ -631,6 +632,16 @@ function fireEnemyShot(game, enemy) {
   const speed = enemy.type === "parasite-turret" || enemy.type === "furnace-mole" ? 3.35 : 4.2;
   game.enemyBullets.push({ kind: "enemy-shot", x, y, radius: 6, vx: dx / length * speed, vy: dy / length * speed, age: 0 });
   game.enemyShots += 1;
+}
+
+function fireOmniFan(game, enemy) {
+  const x = enemy.x;
+  const y = enemy.y + enemy.height / 2;
+  const aim = Math.atan2(game.player.y - y, game.player.x - x);
+  for (const offset of [-0.48, -0.2, 0.28]) {
+    game.enemyBullets.push({ kind: "enemy-shot", x, y, radius: 6, vx: Math.cos(aim + offset) * 3.6, vy: Math.sin(aim + offset) * 3.6, age: 0 });
+    game.enemyShots += 1;
+  }
 }
 
 function dropMine(game, enemy) {
@@ -909,10 +920,50 @@ function loseLife(game) {
     game.enemyBullets.length = 0;
     return;
   }
+  restoreCheckpoint(game);
   game.player.x = 180;
   game.player.y = findSafeY(game);
   game.player.invulnerable = 0;
   game.respawnTicks = 120;
+}
+
+function latestCheckpoint(stage, tick) {
+  let checkpoint = 0;
+  for (const candidate of stage.checkpoints) {
+    if (candidate > tick) break;
+    checkpoint = candidate;
+  }
+  return checkpoint;
+}
+
+function firstAtOrAfter(items = [], tick) {
+  const index = items.findIndex((item) => item.tick >= tick);
+  return index < 0 ? items.length : index;
+}
+
+function restoreCheckpoint(game) {
+  const stage = stageById(game.stageId);
+  const checkpoint = latestCheckpoint(stage, game.tick);
+  const checkpointX = checkpoint * stage.scrollSpeed;
+  game.tick = checkpoint;
+  game.checkpointTick = checkpoint;
+  game.scrollX = Math.min(stage.bossStartTick * stage.scrollSpeed, checkpointX);
+  game.bullets.length = 0;
+  game.enemyBullets.length = 0;
+  game.enemies.length = 0;
+  game.pickups.length = 0;
+  game.boss = null;
+  game.nextWave = firstAtOrAfter(stage.waves, checkpoint);
+  game.nextCoreDrop = Math.max(0, firstAtOrAfter(stage.coreDrops, checkpoint) - 1);
+  game.nextCrawler = firstAtOrAfter(stage.crawlers, checkpoint);
+  game.nextLeech = firstAtOrAfter(stage.leeches, checkpoint);
+  game.nextWalker = firstAtOrAfter(stage.walkers, checkpoint);
+  game.nextMole = firstAtOrAfter(stage.moles, checkpoint);
+  game.destroyedTerrain = game.destroyedTerrain.filter((id) => {
+    const item = stage.terrain.find((candidate) => candidate.id === id);
+    return item && item.x + item.width < checkpointX;
+  });
+  game.terrainDamage = {};
 }
 
 function addScore(game, category, points) {
@@ -977,7 +1028,7 @@ export function automaticInput(game) {
 export function snapshot(game) {
   const loadout = reactorLoadout(game.cores);
   return {
-    screen: game.screen, stageId: game.stageId, difficulty: game.difficulty, tick: game.tick, paused: game.paused, lives: game.lives, score: game.score, highScore: game.highScore,
+    screen: game.screen, stageId: game.stageId, difficulty: game.difficulty, tick: game.tick, checkpointTick: game.checkpointTick, paused: game.paused, lives: game.lives, score: game.score, highScore: game.highScore,
     audioSettingsOpen: game.audioSettingsOpen === true, audioSettingRow: game.audioSettingRow ?? 0,
     unlockedStage: game.unlockedStage, selectedStageIndex: game.selectedStageIndex, practiceMode: game.practiceMode,
     scoreBreakdown: { ...game.scoreBreakdown }, killChain: game.killChain,
