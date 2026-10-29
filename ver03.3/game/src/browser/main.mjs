@@ -1,0 +1,240 @@
+import { automaticInput, beginCampaign, beginStage, createGame, openStageSelect, setDifficulty, snapshot, updateGame } from "../core/game.mjs";
+import { createAudioSystem } from "./audio.mjs";
+import { render } from "./renderer.mjs";
+import { readStorage, writeStorage } from "./storage.mjs";
+
+const canvas = document.querySelector("#game");
+const ctx = canvas.getContext("2d");
+const params = new URLSearchParams(location.search);
+const autoplay = params.get("autoplay") === "1";
+const speed = Math.max(1, Math.min(240, Number(params.get("speed")) || 1));
+const keys = new Set();
+const pressed = new Set();
+const game = createGame();
+game.unlockedStage = loadUnlockedStage();
+game.highScore = loadHighScore();
+let savedUnlockedStage = game.unlockedStage;
+let savedHighScore = game.highScore;
+const savedAudio = loadAudioSettings();
+const audio = createAudioSystem({ settings: savedAudio });
+game.audioSettingsOpen = false;
+game.audioSettingRow = 0;
+game.audioSettings = audio.status().settings;
+let previous = performance.now();
+let accumulator = 0;
+let frameMonitor = createFrameMonitor();
+
+function createFrameMonitor() {
+  return { active: false, skipNext: false, intervals: [], workTimes: [] };
+}
+
+function framePerformance() {
+  const summarize = (values) => {
+    const sorted = [...values].sort((a, b) => a - b);
+    const percentile = (value) => sorted.length ? sorted[Math.min(sorted.length - 1, Math.ceil(sorted.length * value) - 1)] : 0;
+    return {
+      average: sorted.length ? sorted.reduce((sum, value) => sum + value, 0) / sorted.length : 0,
+      p95: percentile(0.95),
+      max: sorted.at(-1) ?? 0
+    };
+  };
+  const intervals = summarize(frameMonitor.intervals);
+  const work = summarize(frameMonitor.workTimes);
+  const droppedFrames = frameMonitor.intervals.filter((interval) => interval > 25).length;
+  return {
+    samples: frameMonitor.workTimes.length,
+    averageMs: intervals.average,
+    p95Ms: intervals.p95,
+    maxMs: intervals.max,
+    droppedFrames,
+    droppedRatio: frameMonitor.intervals.length ? droppedFrames / frameMonitor.intervals.length : 0,
+    averageWorkMs: work.average,
+    p95WorkMs: work.p95,
+    maxWorkMs: work.max
+  };
+}
+
+addEventListener("keydown", (event) => {
+  if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space"].includes(event.code)) event.preventDefault();
+  if (event.repeat && isSingleActionKey(event.code)) return;
+  if (game.screen === "title" && handleAudioSettingsKey(event.code)) return;
+  if (event.code === "KeyA" && game.screen === "title") {
+    setDifficulty(game, game.difficulty === "standard" ? "assist" : "standard");
+    void audio.activate(game).then(() => audio.playUi());
+    return;
+  }
+  if (event.code === "KeyT" && game.screen === "title") {
+    void audio.activate(game);
+    openStageSelect(game);
+    return;
+  }
+  if (!keys.has(event.code)) pressed.add(event.code);
+  keys.add(event.code);
+  if (event.code === "Enter" && game.screen === "title") {
+    void audio.activate(game);
+    const showHowTo = readStorage("shoot-mata-v033-how-to-seen") !== "1";
+    if (showHowTo) writeStorage("shoot-mata-v033-how-to-seen", "1");
+    beginCampaign(game, { showHowTo });
+    pressed.delete("Enter");
+  }
+});
+addEventListener("keyup", (event) => keys.delete(event.code));
+addEventListener("blur", suspendForFocusLoss);
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) suspendForFocusLoss();
+});
+
+function suspendForFocusLoss() {
+  keys.clear();
+  pressed.clear();
+  if (game.screen === "playing") game.paused = true;
+}
+
+function isSingleActionKey(code) {
+  if (game.screen !== "title") return false;
+  if (["Enter", "Escape", "KeyA", "KeyS", "KeyT"].includes(code)) return true;
+  return game.audioSettingsOpen && ["ArrowUp", "ArrowDown"].includes(code);
+}
+
+function loadAudioSettings() {
+  try {
+    const parsed = JSON.parse(readStorage("shoot-mata-v033-audio") ?? "null");
+    return parsed && typeof parsed === "object" ? parsed : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+function saveAudioSettings(settings) {
+  writeStorage("shoot-mata-v033-audio", JSON.stringify(settings));
+}
+
+function loadUnlockedStage() {
+  const value = Number(readStorage("shoot-mata-v033-unlocked-stage"));
+  return Number.isInteger(value) ? Math.max(1, Math.min(6, value)) : 1;
+}
+
+function saveUnlockedStage(value) {
+  writeStorage("shoot-mata-v033-unlocked-stage", String(value));
+}
+
+function loadHighScore() {
+  const value = Number(readStorage("shoot-mata-v033-high-score"));
+  return Number.isSafeInteger(value) && value > 0 ? value : 0;
+}
+
+function saveHighScore(value) {
+  writeStorage("shoot-mata-v033-high-score", String(value));
+}
+
+function handleAudioSettingsKey(code) {
+  if (!game.audioSettingsOpen && code !== "KeyS") return false;
+  if (code === "KeyS" || code === "Escape" || code === "Enter") {
+    game.audioSettingsOpen = !game.audioSettingsOpen;
+    if (game.audioSettingsOpen) void audio.activate(game).then(() => audio.playUi());
+    else audio.playUi();
+    return true;
+  }
+  if (["ArrowUp", "ArrowDown"].includes(code)) {
+    game.audioSettingRow = game.audioSettingRow === 0 ? 1 : 0;
+    audio.playUi();
+    return true;
+  }
+  if (["ArrowLeft", "ArrowRight"].includes(code)) {
+    const key = game.audioSettingRow === 0 ? "bgmVolume" : "sfxVolume";
+    const delta = code === "ArrowRight" ? 0.05 : -0.05;
+    const settings = audio.setVolumes({ [key]: game.audioSettings[key] + delta });
+    game.audioSettings = settings;
+    saveAudioSettings(settings);
+    audio.playUi();
+    return true;
+  }
+  return true;
+}
+
+function keyboardInput() {
+  return {
+    up: keys.has("ArrowUp") || keys.has("KeyW"),
+    down: keys.has("ArrowDown") || keys.has("KeyS"),
+    left: keys.has("ArrowLeft") || keys.has("KeyA"),
+    right: keys.has("ArrowRight") || keys.has("KeyD"),
+    fire: keys.has("KeyZ") || keys.has("Space"),
+    altPressed: pressed.has("KeyX") || pressed.has("ShiftLeft") || pressed.has("ShiftRight"),
+    upPressed: pressed.has("ArrowUp") || pressed.has("KeyW"),
+    downPressed: pressed.has("ArrowDown") || pressed.has("KeyS"),
+    pausePressed: pressed.has("KeyP"),
+    confirmPressed: pressed.has("Enter"),
+    cancelPressed: pressed.has("Escape")
+  };
+}
+
+function frame(now) {
+  const frameStart = performance.now();
+  let recordPerformance = false;
+  const elapsed = Math.min(100, now - previous);
+  previous = now;
+  if (frameMonitor.active) {
+    if (frameMonitor.skipNext) frameMonitor.skipNext = false;
+    else {
+      frameMonitor.intervals.push(elapsed);
+      recordPerformance = true;
+    }
+  }
+  accumulator += elapsed;
+  const normalSteps = Math.min(5, Math.floor(accumulator / (1000 / 60)));
+  if (normalSteps > 0) accumulator -= normalSteps * (1000 / 60);
+  const steps = autoplay ? speed : normalSteps;
+  const input = autoplay ? null : keyboardInput();
+  for (let i = 0; i < steps; i += 1) {
+    updateGame(game, autoplay ? automaticInput(game) : {
+      ...input,
+      upPressed: i === 0 && input.upPressed,
+      downPressed: i === 0 && input.downPressed,
+      pausePressed: i === 0 && input.pausePressed,
+      altPressed: i === 0 && input.altPressed,
+      confirmPressed: i === 0 && input.confirmPressed,
+      cancelPressed: i === 0 && input.cancelPressed
+    });
+  }
+  if (game.unlockedStage !== savedUnlockedStage) {
+    saveUnlockedStage(game.unlockedStage);
+    savedUnlockedStage = game.unlockedStage;
+  }
+  if (game.highScore !== savedHighScore) {
+    saveHighScore(game.highScore);
+    savedHighScore = game.highScore;
+  }
+  audio.sync(game);
+  if (steps > 0) pressed.clear();
+  render(ctx, game);
+  if (recordPerformance) frameMonitor.workTimes.push(performance.now() - frameStart);
+  requestAnimationFrame(frame);
+}
+
+window.__shootMata = {
+  start: () => beginStage(game),
+  state: () => ({ ...snapshot(game), audio: audio.status() }),
+  setAudio(settings) {
+    const next = audio.setVolumes(settings);
+    game.audioSettings = next;
+    saveAudioSettings(next);
+    return next;
+  },
+  advance(ticks, useAutomaticInput = true) {
+    for (let i = 0; i < ticks; i += 1) updateGame(game, useAutomaticInput ? automaticInput(game) : {});
+    audio.sync(game);
+    render(ctx, game);
+    return { ...snapshot(game), audio: audio.status() };
+  },
+  startPerformanceMonitor() {
+    frameMonitor = { active: true, skipNext: true, intervals: [], workTimes: [] };
+  },
+  stopPerformanceMonitor() {
+    frameMonitor.active = false;
+    return framePerformance();
+  }
+};
+
+if (autoplay) beginStage(game);
+render(ctx, game);
+requestAnimationFrame(frame);

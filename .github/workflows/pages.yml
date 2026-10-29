@@ -1,4 +1,4 @@
-name: Verify and deploy shoot-mata v3.2
+name: Verify and deploy shoot-mata v3.3
 
 on:
   push:
@@ -7,12 +7,14 @@ on:
       - "ver03/game/**"
       - "ver03.1/game/**"
       - "ver03.2/game/**"
+      - "ver03.3/game/**"
       - ".github/workflows/pages.yml"
   pull_request:
     paths:
       - "ver03/game/**"
       - "ver03.1/game/**"
       - "ver03.2/game/**"
+      - "ver03.3/game/**"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
 
@@ -34,27 +36,27 @@ jobs:
         with:
           node-version: 24.22.1
           cache: npm
-          cache-dependency-path: ver03.2/game/package-lock.json
+          cache-dependency-path: ver03.3/game/package-lock.json
 
       - name: Install the pinned npm version
         run: npm install --global npm@11.19.1
 
       - name: Install the locked dependency tree
-        working-directory: ver03.2/game
+        working-directory: ver03.3/game
         run: npm ci
 
       - name: Build, test, and run the Chrome playthrough
-        working-directory: ver03.2/game
+        working-directory: ver03.3/game
         run: npm run verify
 
       - uses: actions/configure-pages@v6
         if: github.event_name != 'pull_request'
 
-      - name: Upload the verified v3.2 artifact with preserved v3.1 and v3
+      - name: Upload verified v3.3 with preserved v3.2, v3.1, and v3
         if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v5
         with:
-          path: ver03.2/game/dist
+          path: ver03.3/game/dist
 
   deploy:
     environment:
