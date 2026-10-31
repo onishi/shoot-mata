@@ -21,7 +21,8 @@ const nearestThreat = (state: GameState) => state.bullets
 
 const visibleTarget = (state: GameState) => state.enemies
   .slice()
-  .sort((a, b) => Number(b.kind === 'folio-hauler') - Number(a.kind === 'folio-hauler') || a.id - b.id)[0] ?? state.boss;
+  .sort((a, b) => Number(b.kind === 'folio-hauler' || b.kind === 'tab-binder')
+    - Number(a.kind === 'folio-hauler' || a.kind === 'tab-binder') || a.id - b.id)[0] ?? state.boss;
 
 export const countCandidateTargets = (state: GameState): number => {
   if (!state.candidate) return 0;

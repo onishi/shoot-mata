@@ -10,11 +10,15 @@ for (const asset of manifest.assets) {
   for (const field of required) if (!(field in asset)) throw new Error(`${asset.id ?? 'unknown'} is missing ${field}`);
   if (ids.has(asset.id)) throw new Error(`duplicate asset id: ${asset.id}`);
   ids.add(asset.id);
-  if (asset.status !== 'final') throw new Error(`${asset.id} remains ${asset.status}`);
+  if (!['prototype', 'review', 'final'].includes(asset.status)) throw new Error(`${asset.id} has an invalid status`);
   if (asset.license !== 'project-original') throw new Error(`${asset.id} has an invalid license`);
   await access(resolve(root, asset.path));
 }
 
 const expected = ['stage-01-erased-harbor-far-v1', 'stage-01-erased-harbor-mid-v1', 'stage-01-erased-harbor-fore-v1', 'stage-01-sprites-v1', 'stage-01-canvas-effects-v1', 'stage-01-ambient-v1', 'stage-01-pulse-v1', 'stage-01-crisis-v1', 'stage-01-effects-v1'];
-for (const id of expected) if (!ids.has(id)) throw new Error(`required Stage 1 asset is unregistered: ${id}`);
-console.log(`asset audit passed: ${manifest.assets.length} final project-original entries`);
+for (const id of expected) {
+  if (!ids.has(id)) throw new Error(`required Stage 1 asset is unregistered: ${id}`);
+  if (manifest.assets.find((asset) => asset.id === id).status !== 'final') throw new Error(`required Stage 1 asset is not final: ${id}`);
+}
+const provisional = manifest.assets.filter((asset) => asset.status !== 'final');
+console.log(`asset audit passed: ${expected.length} Stage 1 final entries; ${provisional.length} tracked provisional entries`);

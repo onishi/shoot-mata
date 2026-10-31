@@ -54,6 +54,14 @@
       "stage": "Stage 1: The Erased Harbor", "usage": "shot, annotation, candidate, COLLATE success/failure, RETRACE start/end, damage, warning and UI cues", "version": 1, "status": "final", "createdBy": "procedural",
       "sourcePrompt": "scripts/generate-audio.mjs deterministic synthesis; eleven distinct immediate proofing, paper-light and wooden UI gestures", "generatedAt": "2026-10-31",
       "editHistory": ["Synthesized as eleven 44.1 kHz stereo PCM16 files; all files and worst-case mix inspected by scripts/audit-audio.mjs."], "dimensions": "11 files, 0.12s to 0.72s, stereo 44.1kHz PCM16", "license": "project-original"
+    },
+    {
+      "id": "stage-02-simulation-preview-v1", "kind": "procedural-visual", "path": "src/render/render.ts",
+      "stage": "Stage 2: The Crosswind Index", "usage": "developer-only role silhouettes for Index Kite, Vane Scribe, Cross-Reference Pair and Tab Binder; not connected to campaign UI",
+      "version": 1, "status": "prototype", "createdBy": "procedural",
+      "sourcePrompt": "none; temporary Canvas geometry for M3-01 simulation inspection",
+      "generatedAt": "2026-10-31", "editHistory": ["Added simple distinct silhouettes while Stage 2 remains simulation-only; must be replaced by the Stage 2 production atlas before its visual slice is complete."],
+      "dimensions": "1280x720 logical canvas", "license": "project-original"
     }
   ]
 }

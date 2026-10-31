@@ -52,7 +52,7 @@ describe('M2-01 Stage 1 evidence', () => {
       scheduledSpawns: STAGE_01_SPAWNS.length, seed: 2401,
       finalHash: first.hash, replayHashes, maxEnemies: first.maxEnemies,
       maxEnemyBullets: first.maxEnemyBullets, maxCombatGapTicks: first.maxCombatGap,
-      stats, rejectedEnemies: first.state.metrics.rejectedEnemies,
+      stats: Object.fromEntries(enemyKinds.map((kind) => [kind, stats[kind]])), rejectedEnemies: first.state.metrics.rejectedEnemies,
       rejectedEnemyBullets: first.state.metrics.rejectedEnemyBullets, gates
     };
     const evidenceDir = resolve(import.meta.dirname, '../../docs/evidence');

@@ -15,7 +15,10 @@ export interface Bullet extends Point {
   capturable: boolean;
   sourceAttack?: 'enemy-volley' | 'boss-fan' | 'boss-sweep';
 }
-export type EnemyKind = 'eraser-mite' | 'bracket-gull' | 'margin-skiff' | 'folio-hauler';
+export type StageId = 'stage-01' | 'stage-02';
+export type EnemyKind =
+  | 'eraser-mite' | 'bracket-gull' | 'margin-skiff' | 'folio-hauler'
+  | 'index-kite' | 'vane-scribe' | 'cross-reference-pair' | 'tab-binder';
 export interface Enemy extends Point {
   id: number;
   kind: EnemyKind;
@@ -96,6 +99,14 @@ export interface Metrics {
   enemyStats: Record<EnemyKind, { spawned: number; attacks: number; defeated: number; exited: number }>;
   rejectedEnemies: number;
   rejectedEnemyBullets: number;
+  wind: {
+    reversals: number;
+    playerDrift: number;
+    trailDrift: number;
+    collatesLeft: number;
+    collatesRight: number;
+    collatesNearReversal: number;
+  };
   boss: {
     spawned: boolean;
     defeated: boolean;
@@ -111,6 +122,7 @@ export interface Metrics {
   };
 }
 export interface GameState {
+  stageId: StageId;
   tick: number;
   nextId: number;
   seed: number;

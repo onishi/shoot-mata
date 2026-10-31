@@ -75,14 +75,32 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
   for (const enemy of state.enemies) {
     const x = enemy.x / SCALE;
     const y = enemy.y / SCALE;
-    const size = { 'eraser-mite': 17, 'bracket-gull': 25, 'margin-skiff': 29, 'folio-hauler': 52 }[enemy.kind];
-    const dimensions = {
-      'eraser-mite': [58, 48], 'bracket-gull': [82, 62], 'margin-skiff': [94, 48], 'folio-hauler': [150, 90]
-    }[enemy.kind];
-    if (enemy.markedUntil >= state.tick) {
-      ctx.save(); ctx.shadowColor = '#ffd477'; ctx.shadowBlur = 20;
-      drawSprite(ctx, enemy.kind, x, y, dimensions[0], dimensions[1]); ctx.restore();
-    } else drawSprite(ctx, enemy.kind, x, y, dimensions[0], dimensions[1]);
+    const size = state.stageId === 'stage-01'
+      ? { 'eraser-mite': 17, 'bracket-gull': 25, 'margin-skiff': 29, 'folio-hauler': 52 }[enemy.kind as 'eraser-mite' | 'bracket-gull' | 'margin-skiff' | 'folio-hauler']
+      : enemy.radius;
+    if (state.stageId === 'stage-01') {
+      const kind = enemy.kind as 'eraser-mite' | 'bracket-gull' | 'margin-skiff' | 'folio-hauler';
+      const dimensions = {
+        'eraser-mite': [58, 48], 'bracket-gull': [82, 62], 'margin-skiff': [94, 48], 'folio-hauler': [150, 90]
+      }[kind];
+      if (enemy.markedUntil >= state.tick) {
+        ctx.save(); ctx.shadowColor = '#ffd477'; ctx.shadowBlur = 20;
+        drawSprite(ctx, kind, x, y, dimensions[0], dimensions[1]); ctx.restore();
+      } else drawSprite(ctx, kind, x, y, dimensions[0], dimensions[1]);
+    } else {
+      // Stage 2 production art is a later M3 slice; keep simulation previews
+      // deliberately procedural and role-readable until that asset pass.
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.strokeStyle = enemy.markedUntil >= state.tick ? '#ffd477' : '#d7f6ff';
+      ctx.fillStyle = '#245b78';
+      ctx.lineWidth = 3;
+      if (enemy.kind === 'index-kite') diamond(ctx, 0, 0, 22);
+      else if (enemy.kind === 'vane-scribe') { ctx.beginPath(); ctx.arc(0, 0, 27, 0, Math.PI * 2); }
+      else if (enemy.kind === 'cross-reference-pair') { ctx.beginPath(); ctx.rect(-28, -12, 56, 24); }
+      else { ctx.beginPath(); ctx.rect(-50, -38, 100, 76); }
+      ctx.fill(); ctx.stroke(); ctx.restore();
+    }
     ctx.fillStyle = '#131725';
     ctx.fillRect(x - size, y + size + 14, size * 2, 7);
     ctx.fillStyle = '#ff8b72';

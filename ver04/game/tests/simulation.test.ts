@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { px } from '../src/core/math';
 import { createInitialState, step } from '../src/simulation/game';
 import { STAGE_01_BOSS_START_TICK, STAGE_01_SPAWNS } from '../src/content/stage-01';
+import { STAGE_02_SPAWNS } from '../src/content/stage-02';
 import { findLoopCandidate } from '../src/simulation/trail';
 import type { GameState, InputFrame, TrailPoint } from '../src/core/types';
 
@@ -183,5 +184,36 @@ describe('M1 deterministic playground', () => {
     expect(result.state.boss?.phase).toBe(2);
     expect(result.state.boss?.armorLayers).toBe(2);
     expect(result.events).toContainEqual({ type: 'boss-phase', phase: 2 });
+  });
+
+  it('applies weaker crosswind to the player than to the existing trail and reverses deterministically', () => {
+    let state = createInitialState(22, 'stage-02');
+    state.tick = 719;
+    state.encounterIndex = STAGE_02_SPAWNS.length;
+    state.enemies = [];
+    state.player.x = px(500);
+    state.trail = [trailPoint(400, 300, 700)];
+    const playerX = state.player.x;
+    const trailX = state.trail[0].x;
+    state = step(state, {}).state;
+    expect(state.player.x).toBeLessThan(playerX);
+    expect(state.trail[0].x).toBeLessThan(trailX);
+    expect(trailX - state.trail[0].x).toBeGreaterThan(playerX - state.player.x);
+    expect(state.metrics.wind.reversals).toBe(1);
+  });
+
+  it('gives all four Stage 2 enemies a distinct scheduled attack', () => {
+    const kinds = ['index-kite', 'vane-scribe', 'cross-reference-pair', 'tab-binder'] as const;
+    for (const kind of kinds) {
+      let state = createInitialState(23, 'stage-02');
+      state.encounterIndex = STAGE_02_SPAWNS.length;
+      state.enemies[0].kind = kind;
+      state.enemies[0].x = px(1000);
+      state.enemies[0].spawnX = px(1000);
+      state.enemies[0].fireCooldown = 0;
+      state = step(state, {}).state;
+      expect(state.metrics.enemyStats[kind].attacks).toBe(1);
+      expect(state.bullets.some((bullet) => bullet.kind === 'enemy')).toBe(true);
+    }
   });
 });

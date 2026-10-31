@@ -1,6 +1,8 @@
 import { clamp, distanceSq, pointInPolygon } from '../core/math';
-import { HEIGHT, SCALE, TICK_RATE, WIDTH, type BossState, type Bullet, type Enemy, type EnemyKind, type GameEvent, type GameState, type InputFrame, type Point } from '../core/types';
-import { STAGE_01_BOSS_START_TICK, STAGE_01_DURATION_TICKS, STAGE_01_ENTITY_LIMITS, STAGE_01_SPAWNS, type StageEnemySpawn } from '../content/stage-01';
+import { HEIGHT, SCALE, TICK_RATE, WIDTH, type BossState, type Bullet, type Enemy, type EnemyKind, type GameEvent, type GameState, type InputFrame, type Point, type StageId } from '../core/types';
+import { stageDefinition } from '../content/campaign';
+import { STAGE_01_BOSS_START_TICK, STAGE_01_DURATION_TICKS, type StageEnemySpawn } from '../content/stage-01';
+import { STAGE_02_WIND_HALF_CYCLE_TICKS } from '../content/stage-02';
 import { findLoopCandidate, shotCrossedTrail, shouldAddTrailPoint } from './trail';
 
 const PLAYER_SPEED = Math.round(320 * SCALE / TICK_RATE);
@@ -18,6 +20,7 @@ const nextRandom = (state: GameState): number => {
 };
 
 const createEnemy = (state: GameState, encounter: StageEnemySpawn): Enemy => {
+  const stage = stageDefinition(state.stageId);
   const phaseJitter = Math.floor(nextRandom(state) * 180);
   const cooldownJitter = Math.floor(nextRandom(state) * 30);
   return {
@@ -25,10 +28,16 @@ const createEnemy = (state: GameState, encounter: StageEnemySpawn): Enemy => {
     x: encounter.x * SCALE, y: encounter.y * SCALE,
     health: encounter.health, maxHealth: encounter.health,
     markedUntil: 0,
-    fireCooldown: ({ 'eraser-mite': 72, 'bracket-gull': 150, 'margin-skiff': 120, 'folio-hauler': 100 }[encounter.kind]) + cooldownJitter,
-    radius: ({ 'eraser-mite': 17, 'bracket-gull': 25, 'margin-skiff': 30, 'folio-hauler': 58 }[encounter.kind]),
+    fireCooldown: ({
+      'eraser-mite': 72, 'bracket-gull': 150, 'margin-skiff': 120, 'folio-hauler': 100,
+      'index-kite': 108, 'vane-scribe': 132, 'cross-reference-pair': 144, 'tab-binder': 96
+    }[encounter.kind]) + cooldownJitter,
+    radius: ({
+      'eraser-mite': 17, 'bracket-gull': 25, 'margin-skiff': 30, 'folio-hauler': 58,
+      'index-kite': 21, 'vane-scribe': 31, 'cross-reference-pair': 27, 'tab-binder': 56
+    }[encounter.kind]),
     baseY: encounter.y * SCALE, amplitude: encounter.amplitude,
-    phase: phaseJitter, spawnedAt: state.tick, expiresAt: Math.min(state.tick + encounter.lifetime, STAGE_01_DURATION_TICKS - 1),
+    phase: phaseJitter, spawnedAt: state.tick, expiresAt: Math.min(state.tick + encounter.lifetime, stage.durationTicks - 1),
     spawnX: encounter.x * SCALE, lane: encounter.lane ?? 0, groupId: encounter.groupId ?? 0,
     state: 'entering', stateTick: state.tick
   };
@@ -38,11 +47,17 @@ const emptyEnemyStats = (): GameState['metrics']['enemyStats'] => ({
   'eraser-mite': { spawned: 0, attacks: 0, defeated: 0, exited: 0 },
   'bracket-gull': { spawned: 0, attacks: 0, defeated: 0, exited: 0 },
   'margin-skiff': { spawned: 0, attacks: 0, defeated: 0, exited: 0 },
-  'folio-hauler': { spawned: 0, attacks: 0, defeated: 0, exited: 0 }
+  'folio-hauler': { spawned: 0, attacks: 0, defeated: 0, exited: 0 },
+  'index-kite': { spawned: 0, attacks: 0, defeated: 0, exited: 0 },
+  'vane-scribe': { spawned: 0, attacks: 0, defeated: 0, exited: 0 },
+  'cross-reference-pair': { spawned: 0, attacks: 0, defeated: 0, exited: 0 },
+  'tab-binder': { spawned: 0, attacks: 0, defeated: 0, exited: 0 }
 });
 
-export const createInitialState = (seed = 1): GameState => {
+export const createInitialState = (seed = 1, stageId: StageId = 'stage-01'): GameState => {
+  const stage = stageDefinition(stageId);
   const state: GameState = {
+  stageId,
   tick: 0,
   nextId: 1,
   seed: seed || 1,
@@ -57,11 +72,14 @@ export const createInitialState = (seed = 1): GameState => {
   encounterIndex: 0,
   retrace: null,
   metrics: { candidates: 0, loops: 0, emptyLoops: 0, missedCollates: 0, captured: 0, annotatedShots: 0, retraces: 0, damage: 0, enemiesDefeated: 0, haulersDefeated: 0, firstHaulerDefeatTick: null, enemyShots: 0, enemyStats: emptyEnemyStats(), rejectedEnemies: 0, rejectedEnemyBullets: 0,
+    wind: { reversals: 0, playerDrift: 0, trailDrift: 0, collatesLeft: 0, collatesRight: 0, collatesNearReversal: 0 },
     boss: { spawned: false, defeated: false, defeatTick: null, phaseReached: [false, false, false], fanWarnings: 0, fanErases: 0, trailPointsErased: 0, returnedHits: 0, ordinaryHits: 0, armorLayersStripped: 0, damageByAttack: { fan: 0, sweep: 0, volley: 0 } } }
   };
-  state.enemies.push(createEnemy(state, STAGE_01_SPAWNS[0]));
-  state.metrics.enemyStats[STAGE_01_SPAWNS[0].kind].spawned += 1;
-  state.encounterIndex = 1;
+  if (stage.spawns[0]?.tick === 0) {
+    state.enemies.push(createEnemy(state, stage.spawns[0]));
+    state.metrics.enemyStats[stage.spawns[0].kind].spawned += 1;
+    state.encounterIndex = 1;
+  }
   return state;
 };
 
@@ -74,11 +92,11 @@ export const copyState = (state: GameState): GameState => ({
   enemies: state.enemies.map((enemy) => ({ ...enemy })),
   boss: state.boss ? { ...state.boss } : null,
   retrace: state.retrace ? { index: state.retrace.index, points: state.retrace.points.map((point) => ({ ...point })) } : null,
-  metrics: { ...state.metrics, enemyStats: Object.fromEntries(Object.entries(state.metrics.enemyStats).map(([kind, stats]) => [kind, { ...stats }])) as GameState['metrics']['enemyStats'], boss: { ...state.metrics.boss, phaseReached: [...state.metrics.boss.phaseReached], damageByAttack: { ...state.metrics.boss.damageByAttack } } }
+  metrics: { ...state.metrics, wind: { ...state.metrics.wind }, enemyStats: Object.fromEntries(Object.entries(state.metrics.enemyStats).map(([kind, stats]) => [kind, { ...stats }])) as GameState['metrics']['enemyStats'], boss: { ...state.metrics.boss, phaseReached: [...state.metrics.boss.phaseReached], damageByAttack: { ...state.metrics.boss.damageByAttack } } }
 });
 
 const spawnEnemyBullet = (state: GameState, enemy: Point, angleOffset = 0, speedPx = 145, sourceAttack: Bullet['sourceAttack'] = 'enemy-volley'): boolean => {
-  if (state.bullets.filter((bullet) => bullet.kind === 'enemy').length >= STAGE_01_ENTITY_LIMITS.enemyBullets) {
+  if (state.bullets.filter((bullet) => bullet.kind === 'enemy').length >= stageDefinition(state.stageId).entityLimits.enemyBullets) {
     state.metrics.rejectedEnemyBullets += 1;
     return false;
   }
@@ -103,6 +121,7 @@ const createBoss = (state: GameState): BossState => ({
 const angleDifference = (a: number, b: number): number => Math.abs(Math.atan2(Math.sin(a - b), Math.cos(a - b)));
 
 const updateBoss = (state: GameState, events: GameEvent[]): void => {
+  if (state.stageId !== 'stage-01') return;
   if (!state.boss && state.tick >= STAGE_01_BOSS_START_TICK && !state.metrics.boss.defeated) {
     // The harbor route closes before the duel: stale formation fire must not
     // obscure the Bailiff's first authored warning.
@@ -146,9 +165,10 @@ const updateBoss = (state: GameState, events: GameEvent[]): void => {
 };
 
 const spawnDueEncounters = (state: GameState): void => {
-  while (state.encounterIndex < STAGE_01_SPAWNS.length && STAGE_01_SPAWNS[state.encounterIndex].tick <= state.tick) {
-    const encounter = STAGE_01_SPAWNS[state.encounterIndex];
-    if (state.enemies.length < STAGE_01_ENTITY_LIMITS.enemies) {
+  const stage = stageDefinition(state.stageId);
+  while (state.encounterIndex < stage.spawns.length && stage.spawns[state.encounterIndex].tick <= state.tick) {
+    const encounter = stage.spawns[state.encounterIndex];
+    if (state.enemies.length < stage.entityLimits.enemies) {
       state.enemies.push(createEnemy(state, encounter));
       state.metrics.enemyStats[encounter.kind].spawned += 1;
     } else state.metrics.rejectedEnemies += 1;
@@ -175,6 +195,25 @@ const moveTowardPoint = (enemy: Enemy, target: Point, speedPx: number): void => 
   enemy.y += Math.round(Math.sin(angle) * speedPx * SCALE / TICK_RATE);
 };
 
+export const stageTwoWindDirection = (tick: number): -1 | 1 =>
+  Math.floor(tick / STAGE_02_WIND_HALF_CYCLE_TICKS) % 2 === 0 ? 1 : -1;
+
+const applyCrosswind = (state: GameState): void => {
+  if (state.stageId !== 'stage-02' || state.tick >= stageDefinition(state.stageId).durationTicks) return;
+  const direction = stageTwoWindDirection(state.tick);
+  const playerDrift = direction * Math.round(0.18 * SCALE);
+  const trailDrift = direction * Math.round(0.35 * SCALE);
+  if (state.tick > 0 && state.tick % STAGE_02_WIND_HALF_CYCLE_TICKS === 0) state.metrics.wind.reversals += 1;
+  state.player.x = clamp(state.player.x + playerDrift, PLAYER_RADIUS * SCALE, (WIDTH - PLAYER_RADIUS) * SCALE);
+  for (const point of state.trail) point.x += trailDrift;
+  if (state.candidate) {
+    state.candidate.intersection.x += trailDrift;
+    for (const point of state.candidate.polygon) point.x += trailDrift;
+  }
+  state.metrics.wind.playerDrift += Math.abs(playerDrift);
+  state.metrics.wind.trailDrift += Math.abs(trailDrift) * state.trail.length;
+};
+
 const updateEnemy = (state: GameState, enemy: Enemy): void => {
   const age = state.tick - enemy.spawnedAt;
   if (age > 90) enemy.state = 'active';
@@ -187,6 +226,58 @@ const updateEnemy = (state: GameState, enemy: Enemy): void => {
     if (enemy.fireCooldown <= 0) {
       if (eraseTrailNear(state, enemy)) state.metrics.enemyStats[enemy.kind].attacks += 1;
       enemy.fireCooldown = 72;
+    }
+    return;
+  }
+
+  if (enemy.kind === 'index-kite') {
+    const wind = stageTwoWindDirection(state.tick);
+    enemy.x = enemy.spawnX - Math.min(age, 170) * 2.2 * SCALE + wind * Math.round(Math.sin((age + enemy.phase) / 55) * 34 * SCALE);
+    enemy.y = enemy.baseY + Math.round(Math.sin((age + enemy.phase) / 82) * enemy.amplitude * SCALE);
+    if (enemy.state === 'exiting') enemy.x += (state.tick - (enemy.expiresAt - 120)) * 3 * SCALE;
+    if (enemy.fireCooldown <= 0) {
+      for (const offset of [-0.12, 0.12]) spawnEnemyBullet(state, enemy, offset, 126);
+      enemy.fireCooldown = 216;
+      state.metrics.enemyStats[enemy.kind].attacks += 1;
+    }
+    return;
+  }
+
+  if (enemy.kind === 'vane-scribe') {
+    enemy.x = Math.max(1015 * SCALE, enemy.spawnX - Math.min(age, 120) * 2.5 * SCALE);
+    enemy.y = enemy.baseY + Math.round(Math.sin((age + enemy.phase) / 150) * enemy.amplitude * SCALE);
+    if (enemy.state === 'exiting') enemy.x += (state.tick - (enemy.expiresAt - 120)) * 3 * SCALE;
+    if (enemy.fireCooldown <= 0) {
+      const windBias = stageTwoWindDirection(state.tick) * 0.16;
+      for (const offset of [-0.32, -0.16, 0, 0.16, 0.32]) spawnEnemyBullet(state, enemy, offset + windBias, 112);
+      enemy.fireCooldown = 264;
+      state.metrics.enemyStats[enemy.kind].attacks += 1;
+    }
+    return;
+  }
+
+  if (enemy.kind === 'cross-reference-pair') {
+    enemy.x = Math.max(1005 * SCALE, enemy.spawnX - Math.min(age, 135) * 2.4 * SCALE);
+    enemy.y = enemy.baseY + Math.round(Math.sin((age + enemy.phase) / 120) * enemy.amplitude * SCALE * enemy.lane);
+    if (enemy.state === 'exiting') enemy.x += (state.tick - (enemy.expiresAt - 120)) * 3 * SCALE;
+    if (enemy.fireCooldown <= 0) {
+      const origin = { x: enemy.x, y: enemy.y - enemy.lane * 52 * SCALE };
+      for (const offset of [-0.18, 0, 0.18]) spawnEnemyBullet(state, origin, offset, 120);
+      enemy.fireCooldown = 228;
+      state.metrics.enemyStats[enemy.kind].attacks += 1;
+    }
+    return;
+  }
+
+  if (enemy.kind === 'tab-binder') {
+    const wind = stageTwoWindDirection(state.tick);
+    enemy.x = Math.max(960 * SCALE, enemy.spawnX - Math.min(age, 150) * 2.2 * SCALE + wind * 32 * SCALE);
+    enemy.y = enemy.baseY + Math.round(Math.sin((age + enemy.phase) / 135) * enemy.amplitude * SCALE);
+    if (enemy.state === 'exiting') enemy.x += (state.tick - (enemy.expiresAt - 120)) * 3 * SCALE;
+    if (enemy.fireCooldown <= 0) {
+      for (const offset of [-0.42, -0.28, -0.14, 0, 0.14, 0.28, 0.42]) spawnEnemyBullet(state, enemy, offset, 104);
+      enemy.fireCooldown = 204;
+      state.metrics.enemyStats[enemy.kind].attacks += 1;
     }
     return;
   }
@@ -253,6 +344,12 @@ const collate = (state: GameState, events: GameEvent[]): void => {
   // safe bullet erasure during the M1 strategy comparison.
   state.score += selected.length * 100 + Math.round(candidate.area / 15);
   state.metrics.loops += 1;
+  if (state.stageId === 'stage-02') {
+    if (stageTwoWindDirection(state.tick) < 0) state.metrics.wind.collatesLeft += 1;
+    else state.metrics.wind.collatesRight += 1;
+    const phase = state.tick % STAGE_02_WIND_HALF_CYCLE_TICKS;
+    if (phase <= 180 || phase >= STAGE_02_WIND_HALF_CYCLE_TICKS - 180) state.metrics.wind.collatesNearReversal += 1;
+  }
   if (selected.length === 0 && !state.enemies.some((enemy) => pointInPolygon(enemy, candidate.polygon))) state.metrics.emptyLoops += 1;
   state.metrics.captured += selected.length;
   state.trail = state.trail.slice(0, candidate.startIndex);
@@ -274,6 +371,7 @@ export const step = (previous: GameState, input: InputFrame): { state: GameState
       events.push({ type: 'retrace-started' });
     } else events.push({ type: 'retrace-denied' });
   }
+  applyCrosswind(state);
   updatePlayer(state, input, events);
 
   spawnDueEncounters(state);
@@ -371,7 +469,9 @@ export const step = (previous: GameState, input: InputFrame): { state: GameState
           enemy.health -= damage;
           consumed = true;
           if (enemy.health <= 0) {
-            state.score += enemy.kind === 'folio-hauler' ? 5000 : enemy.kind === 'margin-skiff' ? 1600 : enemy.kind === 'bracket-gull' ? 1000 : 700;
+            state.score += enemy.kind === 'folio-hauler' || enemy.kind === 'tab-binder' ? 5000
+              : enemy.kind === 'margin-skiff' || enemy.kind === 'vane-scribe' ? 1600
+                : enemy.kind === 'bracket-gull' || enemy.kind === 'cross-reference-pair' ? 1000 : 700;
             events.push({ type: 'enemy-defeated' });
             defeated.add(enemy.id);
             state.metrics.enemiesDefeated += 1;
