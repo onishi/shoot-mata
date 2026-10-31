@@ -1,0 +1,53 @@
+{
+  "generatedAt": "2026-10-31",
+  "durationTicks": 21600,
+  "scheduledSpawns": 76,
+  "seed": 2401,
+  "finalHash": "042adf795061c696",
+  "replayHashes": [
+    "042adf795061c696",
+    "042adf795061c696",
+    "042adf795061c696"
+  ],
+  "maxEnemies": 10,
+  "maxEnemyBullets": 113,
+  "maxCombatGapTicks": 0,
+  "stats": {
+    "eraser-mite": {
+      "spawned": 25,
+      "attacks": 231,
+      "defeated": 12,
+      "exited": 13
+    },
+    "bracket-gull": {
+      "spawned": 32,
+      "attacks": 257,
+      "defeated": 3,
+      "exited": 29
+    },
+    "margin-skiff": {
+      "spawned": 17,
+      "attacks": 245,
+      "defeated": 1,
+      "exited": 16
+    },
+    "folio-hauler": {
+      "spawned": 2,
+      "attacks": 56,
+      "defeated": 0,
+      "exited": 2
+    }
+  },
+  "rejectedEnemies": 0,
+  "rejectedEnemyBullets": 0,
+  "gates": {
+    "allKindsSpawned": true,
+    "allKindsAttacked": true,
+    "allSpawnsAccounted": true,
+    "noUnintendedFourSecondGap": true,
+    "enemyLimit": true,
+    "bulletLimit": true,
+    "deterministicReplay": true,
+    "stageDrained": true
+  }
+}

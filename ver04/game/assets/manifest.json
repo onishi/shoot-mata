@@ -7,14 +7,15 @@
       "path": "src/render/render.ts",
       "stage": "M1 playground",
       "usage": "player, enemy, bullets, trail, loop candidate, HUD and background",
-      "version": 2,
+      "version": 3,
       "status": "prototype",
       "createdBy": "procedural",
       "sourcePrompt": "none; Canvas 2D primitives authored for the v4 M1 rules prototype",
       "generatedAt": "2026-10-31",
       "editHistory": [
         "Initial M1 deterministic playground",
-        "M1-02: distinguish the large Hauler silhouette and add the 180 second encounter timer"
+        "M1-02: distinguish the large Hauler silhouette and add the 180 second encounter timer",
+        "M2-01: add distinct prototype silhouettes for four Stage 1 enemy roles"
       ],
       "dimensions": "1280x720 logical canvas",
       "license": "project-original"

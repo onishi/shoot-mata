@@ -14,9 +14,10 @@ export interface Bullet extends Point {
   annotated: boolean;
   capturable: boolean;
 }
+export type EnemyKind = 'eraser-mite' | 'bracket-gull' | 'margin-skiff' | 'folio-hauler';
 export interface Enemy extends Point {
   id: number;
-  kind: 'skiff' | 'hauler';
+  kind: EnemyKind;
   health: number;
   maxHealth: number;
   markedUntil: number;
@@ -27,6 +28,11 @@ export interface Enemy extends Point {
   phase: number;
   spawnedAt: number;
   expiresAt: number;
+  spawnX: number;
+  lane: number;
+  groupId: number;
+  state: 'entering' | 'active' | 'exiting';
+  stateTick: number;
 }
 export interface LoopCandidate {
   polygon: Point[];
@@ -66,6 +72,9 @@ export interface Metrics {
   haulersDefeated: number;
   firstHaulerDefeatTick: number | null;
   enemyShots: number;
+  enemyStats: Record<EnemyKind, { spawned: number; attacks: number; defeated: number; exited: number }>;
+  rejectedEnemies: number;
+  rejectedEnemyBullets: number;
 }
 export interface GameState {
   tick: number;

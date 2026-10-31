@@ -1,39 +1,12 @@
 import { clamp, distanceSq, pointInPolygon } from '../core/math';
-import { HEIGHT, SCALE, TICK_RATE, WIDTH, type Bullet, type Enemy, type GameEvent, type GameState, type InputFrame, type Point } from '../core/types';
+import { HEIGHT, SCALE, TICK_RATE, WIDTH, type Bullet, type Enemy, type EnemyKind, type GameEvent, type GameState, type InputFrame, type Point } from '../core/types';
+import { STAGE_01_DURATION_TICKS, STAGE_01_ENTITY_LIMITS, STAGE_01_SPAWNS, type StageEnemySpawn } from '../content/stage-01';
 import { findLoopCandidate, shotCrossedTrail, shouldAddTrailPoint } from './trail';
 
 const PLAYER_SPEED = Math.round(320 * SCALE / TICK_RATE);
 const TRAIL_LIFETIME = Math.round(3.2 * TICK_RATE);
 const PLAYER_RADIUS = 13;
-export const PLAYGROUND_DURATION_TICKS = 180 * TICK_RATE;
-
-interface Encounter {
-  tick: number;
-  kind: Enemy['kind'];
-  x: number;
-  y: number;
-  health: number;
-  amplitude: number;
-  lifetime: number;
-}
-
-// Three minutes of escalating, overlapping pressure. Values are rules data rather
-// than render data so the same encounter can be replayed headlessly.
-const ENCOUNTERS: Encounter[] = [
-  { tick: 0, kind: 'hauler', x: 1010, y: 360, health: 1100, amplitude: 48, lifetime: 5400 },
-  { tick: 900, kind: 'skiff', x: 920, y: 190, health: 180, amplitude: 90, lifetime: 2700 },
-  { tick: 2100, kind: 'skiff', x: 960, y: 530, health: 220, amplitude: 72, lifetime: 3000 },
-  { tick: 4200, kind: 'hauler', x: 1030, y: 300, health: 1400, amplitude: 74, lifetime: 5100 },
-  { tick: 5100, kind: 'skiff', x: 900, y: 520, health: 260, amplitude: 115, lifetime: 3000 },
-  { tick: 6900, kind: 'skiff', x: 950, y: 180, health: 280, amplitude: 105, lifetime: 3300 },
-  { tick: 8400, kind: 'hauler', x: 1000, y: 430, health: 1650, amplitude: 96, lifetime: 5400 },
-  { tick: 9900, kind: 'skiff', x: 930, y: 215, health: 320, amplitude: 125, lifetime: 3300 },
-  { tick: 11400, kind: 'skiff', x: 970, y: 500, health: 340, amplitude: 120, lifetime: 3600 },
-  { tick: 12600, kind: 'hauler', x: 1035, y: 350, health: 1900, amplitude: 118, lifetime: 5700 },
-  { tick: 14400, kind: 'skiff', x: 900, y: 170, health: 380, amplitude: 145, lifetime: 3900 },
-  { tick: 15900, kind: 'skiff', x: 950, y: 535, health: 400, amplitude: 135, lifetime: 3900 },
-  { tick: 17400, kind: 'hauler', x: 1010, y: 360, health: 2200, amplitude: 135, lifetime: 4200 }
-];
+export const PLAYGROUND_DURATION_TICKS = STAGE_01_DURATION_TICKS;
 
 const nextRandom = (state: GameState): number => {
   let value = state.seed | 0;
@@ -44,19 +17,29 @@ const nextRandom = (state: GameState): number => {
   return state.seed / 0x100000000;
 };
 
-const createEnemy = (state: GameState, encounter: Encounter): Enemy => {
+const createEnemy = (state: GameState, encounter: StageEnemySpawn): Enemy => {
   const phaseJitter = Math.floor(nextRandom(state) * 180);
   const cooldownJitter = Math.floor(nextRandom(state) * 30);
   return {
     id: state.nextId++, kind: encounter.kind,
     x: encounter.x * SCALE, y: encounter.y * SCALE,
     health: encounter.health, maxHealth: encounter.health,
-    markedUntil: 0, fireCooldown: (encounter.kind === 'hauler' ? 62 : 82) + cooldownJitter,
-    radius: encounter.kind === 'hauler' ? 48 : 28,
+    markedUntil: 0,
+    fireCooldown: ({ 'eraser-mite': 72, 'bracket-gull': 150, 'margin-skiff': 120, 'folio-hauler': 100 }[encounter.kind]) + cooldownJitter,
+    radius: ({ 'eraser-mite': 17, 'bracket-gull': 25, 'margin-skiff': 30, 'folio-hauler': 58 }[encounter.kind]),
     baseY: encounter.y * SCALE, amplitude: encounter.amplitude,
-    phase: phaseJitter, spawnedAt: state.tick, expiresAt: state.tick + encounter.lifetime
+    phase: phaseJitter, spawnedAt: state.tick, expiresAt: Math.min(state.tick + encounter.lifetime, STAGE_01_DURATION_TICKS - 1),
+    spawnX: encounter.x * SCALE, lane: encounter.lane ?? 0, groupId: encounter.groupId ?? 0,
+    state: 'entering', stateTick: state.tick
   };
 };
+
+const emptyEnemyStats = (): GameState['metrics']['enemyStats'] => ({
+  'eraser-mite': { spawned: 0, attacks: 0, defeated: 0, exited: 0 },
+  'bracket-gull': { spawned: 0, attacks: 0, defeated: 0, exited: 0 },
+  'margin-skiff': { spawned: 0, attacks: 0, defeated: 0, exited: 0 },
+  'folio-hauler': { spawned: 0, attacks: 0, defeated: 0, exited: 0 }
+});
 
 export const createInitialState = (seed = 1): GameState => {
   const state: GameState = {
@@ -72,9 +55,10 @@ export const createInitialState = (seed = 1): GameState => {
   enemies: [],
   encounterIndex: 0,
   retrace: null,
-  metrics: { candidates: 0, loops: 0, emptyLoops: 0, missedCollates: 0, captured: 0, annotatedShots: 0, retraces: 0, damage: 0, enemiesDefeated: 0, haulersDefeated: 0, firstHaulerDefeatTick: null, enemyShots: 0 }
+  metrics: { candidates: 0, loops: 0, emptyLoops: 0, missedCollates: 0, captured: 0, annotatedShots: 0, retraces: 0, damage: 0, enemiesDefeated: 0, haulersDefeated: 0, firstHaulerDefeatTick: null, enemyShots: 0, enemyStats: emptyEnemyStats(), rejectedEnemies: 0, rejectedEnemyBullets: 0 }
   };
-  state.enemies.push(createEnemy(state, ENCOUNTERS[0]));
+  state.enemies.push(createEnemy(state, STAGE_01_SPAWNS[0]));
+  state.metrics.enemyStats[STAGE_01_SPAWNS[0].kind].spawned += 1;
   state.encounterIndex = 1;
   return state;
 };
@@ -87,23 +71,89 @@ const copyState = (state: GameState): GameState => ({
   bullets: state.bullets.map((bullet) => ({ ...bullet })),
   enemies: state.enemies.map((enemy) => ({ ...enemy })),
   retrace: state.retrace ? { index: state.retrace.index, points: state.retrace.points.map((point) => ({ ...point })) } : null,
-  metrics: { ...state.metrics }
+  metrics: { ...state.metrics, enemyStats: Object.fromEntries(Object.entries(state.metrics.enemyStats).map(([kind, stats]) => [kind, { ...stats }])) as GameState['metrics']['enemyStats'] }
 });
 
-const spawnEnemyBullet = (state: GameState, enemy: Point): void => {
-  const dx = state.player.x - enemy.x;
-  const dy = state.player.y - enemy.y;
+const spawnEnemyBullet = (state: GameState, enemy: Point, angleOffset = 0, speedPx = 145): boolean => {
+  if (state.bullets.filter((bullet) => bullet.kind === 'enemy').length >= STAGE_01_ENTITY_LIMITS.enemyBullets) {
+    state.metrics.rejectedEnemyBullets += 1;
+    return false;
+  }
+  const aim = Math.atan2(state.player.y - enemy.y, state.player.x - enemy.x) + angleOffset;
+  const dx = Math.cos(aim);
+  const dy = Math.sin(aim);
   const length = Math.max(1, Math.hypot(dx, dy));
-  const speed = 145 * SCALE / TICK_RATE;
+  const speed = speedPx * SCALE / TICK_RATE;
   state.bullets.push({ id: state.nextId++, x: enemy.x, y: enemy.y, vx: Math.round(dx / length * speed), vy: Math.round(dy / length * speed), radius: 8, kind: 'enemy', annotated: false, capturable: true });
   state.metrics.enemyShots += 1;
+  return true;
 };
 
 const spawnDueEncounters = (state: GameState): void => {
-  while (state.encounterIndex < ENCOUNTERS.length && ENCOUNTERS[state.encounterIndex].tick <= state.tick) {
-    state.enemies.push(createEnemy(state, ENCOUNTERS[state.encounterIndex]));
+  while (state.encounterIndex < STAGE_01_SPAWNS.length && STAGE_01_SPAWNS[state.encounterIndex].tick <= state.tick) {
+    const encounter = STAGE_01_SPAWNS[state.encounterIndex];
+    if (state.enemies.length < STAGE_01_ENTITY_LIMITS.enemies) {
+      state.enemies.push(createEnemy(state, encounter));
+      state.metrics.enemyStats[encounter.kind].spawned += 1;
+    } else state.metrics.rejectedEnemies += 1;
     state.encounterIndex += 1;
   }
+};
+
+const eraseTrailNear = (state: GameState, enemy: Enemy): boolean => {
+  let closest = -1;
+  let closestDistance = (34 * SCALE) ** 2;
+  for (let index = 0; index < state.trail.length; index += 1) {
+    const candidateDistance = distanceSq(enemy, state.trail[index]);
+    if (candidateDistance <= closestDistance) { closest = index; closestDistance = candidateDistance; }
+  }
+  if (closest < 0) return false;
+  state.trail.splice(Math.max(0, closest - 3), 7);
+  state.candidate = null;
+  return true;
+};
+
+const moveTowardPoint = (enemy: Enemy, target: Point, speedPx: number): void => {
+  const angle = Math.atan2(target.y - enemy.y, target.x - enemy.x);
+  enemy.x += Math.round(Math.cos(angle) * speedPx * SCALE / TICK_RATE);
+  enemy.y += Math.round(Math.sin(angle) * speedPx * SCALE / TICK_RATE);
+};
+
+const updateEnemy = (state: GameState, enemy: Enemy): void => {
+  const age = state.tick - enemy.spawnedAt;
+  if (age > 90) enemy.state = 'active';
+  if (enemy.expiresAt - state.tick < 120) enemy.state = 'exiting';
+  enemy.fireCooldown -= 1;
+
+  if (enemy.kind === 'eraser-mite') {
+    const target = state.trail.slice().sort((a, b) => distanceSq(enemy, a) - distanceSq(enemy, b) || a.segmentId - b.segmentId)[0];
+    moveTowardPoint(enemy, target ?? { x: -30 * SCALE, y: enemy.y }, target ? 185 : 135);
+    if (enemy.fireCooldown <= 0) {
+      if (eraseTrailNear(state, enemy)) state.metrics.enemyStats[enemy.kind].attacks += 1;
+      enemy.fireCooldown = 72;
+    }
+    return;
+  }
+
+  enemy.x = Math.max(enemy.kind === 'folio-hauler' ? 1010 * SCALE : 1015 * SCALE, enemy.spawnX - Math.min(age, 120) * 2.5 * SCALE);
+  enemy.y = enemy.baseY + Math.round(Math.sin((age + enemy.phase) / (enemy.kind === 'margin-skiff' ? 105 : 180)) * enemy.amplitude * SCALE);
+  if (enemy.state === 'exiting') enemy.x += (state.tick - (enemy.expiresAt - 120)) * 3 * SCALE;
+  if (enemy.fireCooldown > 0) return;
+
+  if (enemy.kind === 'bracket-gull') {
+    // Both brackets write toward the space between the pair; staggered slow
+    // bullets form a readable vertical fence that is profitable to surround.
+    const origin = { x: enemy.x, y: enemy.y - enemy.lane * 38 * SCALE };
+    for (const offset of [-0.1, 0, 0.1]) spawnEnemyBullet(state, origin, offset, 105);
+    enemy.fireCooldown = 240;
+  } else if (enemy.kind === 'margin-skiff') {
+    for (const offset of [-0.18, 0, 0.18]) spawnEnemyBullet(state, enemy, offset, 150);
+    enemy.fireCooldown = 180;
+  } else {
+    for (const offset of [-0.26, -0.13, 0, 0.13, 0.26]) spawnEnemyBullet(state, enemy, offset, 132);
+    enemy.fireCooldown = 160;
+  }
+  state.metrics.enemyStats[enemy.kind].attacks += 1;
 };
 
 const updatePlayer = (state: GameState, input: InputFrame): void => {
@@ -188,15 +238,7 @@ export const step = (previous: GameState, input: InputFrame): { state: GameState
     events.push({ type: 'shot-fired' });
   }
 
-  for (const enemy of state.enemies) {
-    enemy.y = enemy.baseY + Math.round(Math.sin((state.tick - enemy.spawnedAt + enemy.phase) / 220) * enemy.amplitude * SCALE);
-    enemy.fireCooldown -= 1;
-    if (enemy.fireCooldown <= 0) {
-      spawnEnemyBullet(state, enemy);
-      const cadence = enemy.kind === 'hauler' ? 62 : 82;
-      enemy.fireCooldown = cadence + Math.floor(nextRandom(state) * 22);
-    }
-  }
+  for (const enemy of state.enemies) updateEnemy(state, enemy);
 
   for (const bullet of state.bullets) {
     const from = { x: bullet.x, y: bullet.y };
@@ -217,18 +259,26 @@ export const step = (previous: GameState, input: InputFrame): { state: GameState
     let consumed = false;
     if (bullet.kind !== 'enemy') {
       for (const enemy of state.enemies) {
+        if (defeated.has(enemy.id)) continue;
         if (distanceSq(bullet, enemy) <= ((bullet.radius + enemy.radius) * SCALE) ** 2) {
           // A successful loop must repay the travel and firing opportunity cost.
           // M1 measurement showed 9 damage left ordinary tracking fire dominant.
-          const damage = bullet.kind === 'return' ? 16 : bullet.annotated && enemy.markedUntil >= state.tick ? 28 : bullet.annotated ? 6 : 4;
+          let damage = bullet.kind === 'return' ? 16 : bullet.annotated && enemy.markedUntil >= state.tick ? 28 : bullet.annotated ? 6 : 4;
+          if (enemy.kind === 'folio-hauler') {
+            // Ordinary fire hits the broad front plate. Returned fire and shots
+            // carried around its rear edge by a loop reach the exposed binding.
+            const rearHit = bullet.x > enemy.x + 12 * SCALE;
+            damage = bullet.kind === 'return' ? 32 : rearHit ? damage * 2 : Math.min(2, damage);
+          }
           enemy.health -= damage;
           consumed = true;
           if (enemy.health <= 0) {
-            state.score += enemy.kind === 'hauler' ? 5000 : 1200;
+            state.score += enemy.kind === 'folio-hauler' ? 5000 : enemy.kind === 'margin-skiff' ? 1600 : enemy.kind === 'bracket-gull' ? 1000 : 700;
             events.push({ type: 'enemy-defeated' });
             defeated.add(enemy.id);
             state.metrics.enemiesDefeated += 1;
-            if (enemy.kind === 'hauler') {
+            state.metrics.enemyStats[enemy.kind].defeated += 1;
+            if (enemy.kind === 'folio-hauler') {
               state.metrics.haulersDefeated += 1;
               state.metrics.firstHaulerDefeatTick ??= state.tick;
             }
@@ -249,6 +299,13 @@ export const step = (previous: GameState, input: InputFrame): { state: GameState
     if (!consumed && bullet.x > -30 * SCALE && bullet.x < (WIDTH + 30) * SCALE && bullet.y > -30 * SCALE && bullet.y < (HEIGHT + 30) * SCALE) remaining.push(bullet);
   }
   state.bullets = remaining;
-  state.enemies = state.enemies.filter((enemy) => !defeated.has(enemy.id) && enemy.expiresAt >= state.tick);
+  state.enemies = state.enemies.filter((enemy) => {
+    if (defeated.has(enemy.id)) return false;
+    if (enemy.expiresAt < state.tick) {
+      state.metrics.enemyStats[enemy.kind].exited += 1;
+      return false;
+    }
+    return true;
+  });
   return { state, events };
 };

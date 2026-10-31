@@ -60,4 +60,14 @@ const frame = (now: number): void => {
 };
 requestAnimationFrame(frame);
 
-Object.assign(window, { __PALIMPSEST_STATE__: () => state });
+Object.assign(window, {
+  __PALIMPSEST_STATE__: () => state,
+  // Deterministic QA hook used to inspect later Stage 1 compositions without
+  // waiting in wall-clock time. It accepts no hidden input or state mutation.
+  __PALIMPSEST_ADVANCE__: (ticks: number) => {
+    const count = Math.max(0, Math.min(21600, Math.floor(ticks)));
+    for (let index = 0; index < count; index += 1) state = step(state, {}).state;
+    render(ctx, state, paused);
+    return state.tick;
+  }
+});

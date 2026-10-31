@@ -77,6 +77,7 @@ describe('M1 deterministic playground', () => {
 
   it('removes a defeated hauler and records its first defeat tick instead of resetting it', () => {
     let state = createInitialState(99);
+    state.enemies[0].kind = 'folio-hauler';
     state.enemies[0].health = 1;
     state.enemies[0].amplitude = 0;
     state.bullets = [{ id: 20, x: state.enemies[0].x, y: state.enemies[0].y, vx: 0, vy: 0, radius: 5, kind: 'player', annotated: false, capturable: false }];
@@ -90,5 +91,51 @@ describe('M1 deterministic playground', () => {
     const result = step(createInitialState(), { collate: true });
     expect(result.state.metrics.missedCollates).toBe(1);
     expect(result.state.metrics.loops).toBe(0);
+  });
+
+  it('lets an Eraser Mite seek and remove a local trail section', () => {
+    let state = createInitialState();
+    state.tick = 100;
+    state.trail = Array.from({ length: 12 }, (_, index) => trailPoint(600 + index * 4, 300, 80 + index));
+    state.enemies[0].x = px(620); state.enemies[0].y = px(300);
+    state.enemies[0].fireCooldown = 0;
+    const before = state.trail.length;
+    state = step(state, {}).state;
+    expect(state.trail.length).toBeLessThan(before);
+    expect(state.metrics.enemyStats['eraser-mite'].attacks).toBe(1);
+  });
+
+  it('gives Bracket Gulls a slow three-bullet fence and Margin Skiffs a faster three-shot burst', () => {
+    let gull = createInitialState();
+    gull.enemies[0].kind = 'bracket-gull'; gull.enemies[0].lane = -1; gull.enemies[0].fireCooldown = 0;
+    gull = step(gull, {}).state;
+    expect(gull.bullets.filter((bullet) => bullet.kind === 'enemy')).toHaveLength(3);
+    expect(gull.metrics.enemyStats['bracket-gull'].attacks).toBe(1);
+
+    let skiff = createInitialState();
+    skiff.enemies[0].kind = 'margin-skiff'; skiff.enemies[0].fireCooldown = 0;
+    skiff = step(skiff, {}).state;
+    expect(skiff.bullets.filter((bullet) => bullet.kind === 'enemy')).toHaveLength(3);
+    expect(skiff.metrics.enemyStats['margin-skiff'].attacks).toBe(1);
+  });
+
+  it('makes returned fire bypass the Folio Hauler front plate', () => {
+    const makeState = (kind: 'player' | 'return') => {
+      const state = createInitialState();
+      state.enemies[0].kind = 'folio-hauler'; state.enemies[0].health = 100; state.enemies[0].maxHealth = 100;
+      state.bullets = [{ id: 40, x: state.enemies[0].x, y: state.enemies[0].y, vx: 0, vy: 0, radius: 5, kind, annotated: kind === 'return', capturable: false }];
+      return step(state, {}).state.enemies[0].health;
+    };
+    expect(makeState('player')).toBe(98);
+    expect(makeState('return')).toBe(68);
+  });
+
+  it('counts an enemy defeat once when multiple shots overlap on the same tick', () => {
+    let state = createInitialState();
+    state.enemies[0].health = 1;
+    state.bullets = [50, 51].map((id) => ({ id, x: state.enemies[0].x, y: state.enemies[0].y, vx: 0, vy: 0, radius: 5, kind: 'player' as const, annotated: false, capturable: false }));
+    state = step(state, {}).state;
+    expect(state.metrics.enemiesDefeated).toBe(1);
+    expect(state.metrics.enemyStats['eraser-mite'].defeated).toBe(1);
   });
 });

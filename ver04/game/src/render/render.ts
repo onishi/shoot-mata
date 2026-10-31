@@ -59,15 +59,30 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
   for (const enemy of state.enemies) {
     const x = enemy.x / SCALE;
     const y = enemy.y / SCALE;
-    const size = enemy.kind === 'hauler' ? 42 : 27;
+    const size = { 'eraser-mite': 17, 'bracket-gull': 25, 'margin-skiff': 29, 'folio-hauler': 52 }[enemy.kind];
     ctx.save();
     ctx.translate(x, y);
-    ctx.rotate(Math.PI / 4);
     ctx.strokeStyle = enemy.markedUntil >= state.tick ? '#fcd170' : '#ff8b72';
     ctx.fillStyle = '#241526';
     ctx.lineWidth = enemy.markedUntil >= state.tick ? 6 : 3;
-    ctx.fillRect(-size, -size, size * 2, size * 2);
-    ctx.strokeRect(-size, -size, size * 2, size * 2);
+    ctx.beginPath();
+    if (enemy.kind === 'eraser-mite') {
+      ctx.moveTo(size, 0); ctx.lineTo(-size, -size * .65); ctx.lineTo(-size * .35, 0); ctx.lineTo(-size, size * .65); ctx.closePath();
+    } else if (enemy.kind === 'bracket-gull') {
+      ctx.moveTo(size, -size); ctx.lineTo(-size * .7, -size); ctx.lineTo(-size, 0); ctx.lineTo(-size * .7, size); ctx.lineTo(size, size);
+    } else if (enemy.kind === 'margin-skiff') {
+      ctx.moveTo(size, 0); ctx.lineTo(size * .2, -size); ctx.lineTo(-size, -size * .55); ctx.lineTo(-size, size * .55); ctx.lineTo(size * .2, size); ctx.closePath();
+    } else {
+      ctx.roundRect(-size, -size * .7, size * 2, size * 1.4, 12);
+    }
+    ctx.fill(); ctx.stroke();
+    if (enemy.kind === 'folio-hauler') {
+      ctx.fillStyle = '#fcd170';
+      ctx.fillRect(size - 4, -15, 9, 30);
+      ctx.strokeStyle = '#ff8b72';
+      ctx.lineWidth = 7;
+      ctx.beginPath(); ctx.moveTo(-size, -size * .55); ctx.lineTo(-size, size * .55); ctx.stroke();
+    }
     ctx.restore();
     ctx.fillStyle = '#131725';
     ctx.fillRect(x - size, y + size + 14, size * 2, 7);
@@ -111,7 +126,7 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
   ctx.fillRect(0, 0, WIDTH, 52);
   ctx.fillStyle = '#dceaf0';
   ctx.font = '600 18px system-ui, sans-serif';
-  ctx.fillText('PALIMPSEST WAKE  /  M1 PLAYGROUND', 24, 33);
+  ctx.fillText('PALIMPSEST WAKE  /  STAGE 1: THE ERASED HARBOR', 24, 33);
   ctx.fillStyle = '#f4c36a';
   ctx.fillText(`SCORE ${String(state.score).padStart(7, '0')}`, 1035, 33);
   ctx.fillStyle = '#8ea6bd';
