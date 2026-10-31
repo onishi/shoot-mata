@@ -239,3 +239,13 @@
 - `m3-17-apocrypha-twins-phase-1/2/3.png`を1280×720で目視し、点線の切断同期、金色の弱点側、通常側、位置交換、実弾・偽弾、耐久線、自機、HUDを識別でき、文字切れ・重なりがないことを確認した。ボスCanvas表現はStage 5完成素材まで`prototype`として扱う。
 - `npm run verify`で単体51件、自動計測10件、素材監査36 final・1 prototype、音量監査41素材、型検査、production build、Chrome E2E 12件に合格した。
 - 次回はStage 4結果からStage 5章導入・通常区間・APOCRYPHA TWINS・結果までをAppStateで接続し、Stage 5開始地点とボス直前のコンティニューを実装する。
+
+## 2026-11-01 — M3-18 Stage 4→5キャンペーン遷移と復帰
+
+- Stage 4結果の決定入力からStage 5章導入、210秒通常区間、APOCRYPHA TWINS、Stage 5結果、タイトル帰還までをAppStateで接続した。Stage 1〜4の既存結果遷移とEscapeによる終了も維持した。
+- Stage 5へ`mirror-chamber-entry`と`apocrypha-gate`を接続した。各面1回のコンティニューで、開始地点または25,200tickのボス直前へ耐久3・ゲージ50・未確定航跡なし・敵弾なしで復帰する。
+- 鏡写し議場の章題、偽像航跡は射撃を強めるが閉路に使えない教材、APOCRYPHA TWINSの同期切断文、Stage 5結果文を通しで確認した。Stage 4結果の案内もStage 5継続へ更新した。
+- 最初の対象Chrome試験は変更前の`dist`を配信して失敗した。production buildを更新して再実行し、入口・ボス直前の両復帰、ポーズ・コンティニュー中のtick停止、APOCRYPHA TWINS撃破、Stage 5結果からタイトル帰還に合格した。
+- `m3-18-stage-05-intro.png`と`m3-18-stage-05-result.png`を1280×720で目視し、章題、教材、結果、操作案内に文字切れ・重なりがなく、Stage 4との状態差を識別できることを確認した。
+- `npm run verify`で単体52件、自動計測10件、素材監査36 final・1 prototype、音量監査41素材、型検査、production build、Chrome E2E 12件に合格した。
+- 次回はStage 5の背景3層、4通常敵、APOCRYPHA TWINS、鏡面帯・偽像航跡・同期切断・片側弱点を完成素材へ置き換え、通常戦、固定鏡山場、ボス3形態を画像確認する。

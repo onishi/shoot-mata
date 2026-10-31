@@ -25,7 +25,7 @@ const bossCheckpoints: Record<StageId, CheckpointName> = {
   'stage-01': 'bailiff-gate', 'stage-02': 'compiler-gate', 'stage-03': 'eel-gate', 'stage-04': 'advocate-gate', 'stage-05': 'apocrypha-gate'
 };
 const nextStages: Partial<Record<StageId, StageId>> = {
-  'stage-01': 'stage-02', 'stage-02': 'stage-03', 'stage-03': 'stage-04'
+  'stage-01': 'stage-02', 'stage-02': 'stage-03', 'stage-03': 'stage-04', 'stage-04': 'stage-05'
 };
 
 const beginStage = (stageId: StageId, seed: number): AppState => {

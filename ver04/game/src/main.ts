@@ -94,7 +94,9 @@ const runStep = (frameInput: InputFrame): void => {
       ? 'Stage 2 complete. Continue into the Rain-Annotated Gallery.'
       : app.game.stageId === 'stage-03'
         ? 'Stage 3 complete. Continue into the Burnt Footnote.'
-        : 'Stage 4 complete. The footnote cools.';
+        : app.game.stageId === 'stage-04'
+          ? 'Stage 4 complete. Continue into the Mirror Chamber.'
+          : 'Stage 5 complete. The mirror testimony breaks.';
 };
 
 const frame = (now: number): void => {
