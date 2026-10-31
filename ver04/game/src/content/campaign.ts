@@ -3,6 +3,7 @@ import { STAGE_01_DURATION_TICKS, STAGE_01_ENTITY_LIMITS, STAGE_01_SPAWNS, type 
 import { STAGE_02_DURATION_TICKS, STAGE_02_ENTITY_LIMITS, STAGE_02_SPAWNS } from './stage-02';
 import { STAGE_03_DURATION_TICKS, STAGE_03_ENTITY_LIMITS, STAGE_03_SPAWNS } from './stage-03';
 import { STAGE_04_DURATION_TICKS, STAGE_04_ENTITY_LIMITS, STAGE_04_SPAWNS } from './stage-04';
+import { STAGE_05_DURATION_TICKS, STAGE_05_ENTITY_LIMITS, STAGE_05_SPAWNS } from './stage-05';
 
 export interface StageDefinition {
   id: StageId;
@@ -10,7 +11,7 @@ export interface StageDefinition {
   spawns: StageEnemySpawn[];
   entityLimits: { enemies: number; enemyBullets: number };
   boss: 'blank-bailiff' | 'crosswind-compiler' | 'lacuna-eel' | 'cinder-advocate' | null;
-  environment: 'stable' | 'crosswind' | 'rain' | 'heat';
+  environment: 'stable' | 'crosswind' | 'rain' | 'heat' | 'mirror';
 }
 
 export const STAGES: Record<StageId, StageDefinition> = {
@@ -29,6 +30,10 @@ export const STAGES: Record<StageId, StageDefinition> = {
   'stage-04': {
     id: 'stage-04', durationTicks: STAGE_04_DURATION_TICKS, spawns: STAGE_04_SPAWNS,
     entityLimits: STAGE_04_ENTITY_LIMITS, boss: 'cinder-advocate', environment: 'heat'
+  },
+  'stage-05': {
+    id: 'stage-05', durationTicks: STAGE_05_DURATION_TICKS, spawns: STAGE_05_SPAWNS,
+    entityLimits: STAGE_05_ENTITY_LIMITS, boss: null, environment: 'mirror'
   }
 };
 

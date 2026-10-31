@@ -58,9 +58,9 @@
         "verdict": 3
       }
     },
-    "hash": "bd5ab8bc0acf1195"
+    "hash": "66b27bb89f2cc22e"
   },
-  "replayHash": "bd5ab8bc0acf1195",
+  "replayHash": "66b27bb89f2cc22e",
   "gates": {
     "ordinaryFallbackDefeatsBoss": true,
     "stitchDefeatsBoss": true,

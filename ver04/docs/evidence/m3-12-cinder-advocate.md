@@ -7,7 +7,7 @@
 - Wall blocks / active ticks: 185 / 3423
 - Ember / gavel / verdict attacks: 20 / 11 / 10
 - Max enemy bullets: 51
-- Stitch / replay hashes: bd5ab8bc0acf1195, bd5ab8bc0acf1195
+- Stitch / replay hashes: 66b27bb89f2cc22e, 66b27bb89f2cc22e
 
 | Gate | Result |
 | --- | --- |

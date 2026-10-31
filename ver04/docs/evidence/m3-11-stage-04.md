@@ -6,7 +6,7 @@
 - Longest no-combat gap: 1 ticks
 - Burned / cooled trail points: 480 / 3359
 - Cooling COLLATE / courier conversions: 5 / 5
-- Determinism hashes: e55a2b98a6c12567, e55a2b98a6c12567, e55a2b98a6c12567, e55a2b98a6c12567
+- Determinism hashes: 9f53155f60e1a4ff, 9f53155f60e1a4ff, 9f53155f60e1a4ff, 9f53155f60e1a4ff
 
 | Enemy | Spawned | Attacks | Defeated | Exited |
 | --- | ---: | ---: | ---: | ---: |

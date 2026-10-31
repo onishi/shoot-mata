@@ -219,3 +219,14 @@
 - 全41素材は44.1kHz stereo PCM16で、Stage 4 BGM RMS -20.01〜-19.00 dBFS、SE RMS -18.00 dBFS、SE peak -7.61 dBFS以下に合格した。Stage 4最悪mixはリミッタ前peak -10.41 dBFS、NaN/clip 0で、`docs/evidence/m3-15-audio-audit.json`へ保存した。
 - `npm run verify`で単体46件、自動計測8件、素材監査36 final・仮素材0、音量監査、型検査、production build、Chrome E2E 10件に合格した。ChromeではStage 3→4ステム切替、Stage 4ポーズ停止・tick同期復帰、6専用cueを確認した。
 - 次回はStage 5「鏡写し議場」の鏡面帯・偽像航跡規則、Mirror Mote / Quotation Ram / False Witness / Silver Obelisk、210秒通常区間を実装し、自動計測で固有攻略を検証する。
+
+## 2026-11-01 — M3-16 Stage 5通常区間と4敵種
+
+- `stage-05.ts`へ210秒・69出現の鏡写し議場を追加し、Mirror Mote、Quotation Ram、False Witness、Silver Obeliskを単独提示から2回の固定鏡混成山場へ接続した。
+- 2本の鏡面帯へ実航跡が入ると上下反射した偽像航跡を作る規則を実装した。偽像は射撃を1.34倍速・12 damageへ強化する一方、`findLoopCandidate`には実航跡だけを渡し、偽像を閉路へ使えない構造にした。
+- Mirror Moteは自機上下移動の遅延反射、Quotation Ramは偽像航跡への突進、False Witnessは実弾1発へ無害な偽弾4発を混ぜる攻撃、Silver Obeliskは固定鏡から実弾と偽弾を放つ役割とした。偽弾は捕捉不能・接触無害で、マゼンタ点線菱形と低い暫定cueにより実弾と区別する。
+- Stitch操縦では最大同時敵10、敵弾88、最長無戦闘0tick、偽像航跡最大127点、偽像添え書き93発、偽像閉路除外21,164tick、偽弾924発、生成拒否0。破壊不能なObelisk 6体を含む全69出現を処理し、4回hashが`0fe8cdcc4f6546a2`で一致した。
+- 初回画像では空の濡れ・冷却航跡パスが偽像へシアン線を重ね、実像との区別を弱めていた。Stage 5では空パスを描かないよう修正し、偽像をマゼンタ光と短い点線、実像をシアン実線へ分離した。
+- `m3-16-stage-05-combat.png`と`setpiece.png`を1280×720で目視し、2本の鏡面帯、実像と偽像、4敵輪郭、実弾と偽弾、自機、HUDを識別でき、文字切れがないことを確認した。Canvas previewは素材台帳で`prototype`として追跡する。
+- `npm run verify`で単体50件、自動計測9件、素材監査36 final・1 prototype、音量監査41素材、型検査、production build、Chrome E2E 11件に合格した。
+- 次回はAPOCRYPHA TWINSの同一実航跡輪による同期切断、片側弱点化、鏡像位置交換を含む3形態戦を実装する。

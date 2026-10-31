@@ -227,6 +227,14 @@
       "stage": "Stage 4: The Burnt Footnote", "usage": "heat wave, cooling-field COLLATE, Courier conversion, ember cooling, heat-wall impact and Advocate phase cues", "version": 1, "status": "final", "createdBy": "procedural",
       "sourcePrompt": "scripts/generate-audio.mjs deterministic synthesis; sweeping heat, cyan cooling rise, type-metal conversion, quenched ember, blocked wall impact and Advocate hearing pressure", "generatedAt": "2026-11-01",
       "editHistory": ["Synthesized as six 44.1 kHz stereo PCM16 files; connected to simulation events and inspected in the worst-case Stage 4 mix."], "dimensions": "6 files, 0.25s to 0.90s, stereo 44.1kHz PCM16", "license": "project-original"
+    },
+    {
+      "id": "stage-05-canvas-preview-v1", "kind": "procedural-visual", "path": "src/render/render.ts",
+      "stage": "Stage 5: The Mirror Chamber", "usage": "development preview for mirror bands, false wake, Mirror Mote, Quotation Ram, False Witness and Silver Obelisk",
+      "version": 1, "status": "prototype", "createdBy": "procedural",
+      "sourcePrompt": "none; authored Canvas geometry from docs/status.md M3-16 and docs/02-art-and-audio-direction.md Stage 5 direction",
+      "generatedAt": "2026-11-01", "editHistory": ["Introduced simulation-synchronized purple-silver bands, magenta dashed false wakes, hollow illusory rounds and four role-specific silhouettes."],
+      "dimensions": "1280x720 logical canvas", "license": "project-original"
     }
   ]
 }

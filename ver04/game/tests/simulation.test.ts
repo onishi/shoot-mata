@@ -5,6 +5,7 @@ import { STAGE_01_BOSS_START_TICK, STAGE_01_SPAWNS } from '../src/content/stage-
 import { STAGE_02_BOSS_START_TICK, STAGE_02_SPAWNS } from '../src/content/stage-02';
 import { STAGE_03_BOSS_START_TICK, STAGE_03_SPAWNS } from '../src/content/stage-03';
 import { STAGE_04_BOSS_START_TICK, STAGE_04_SPAWNS, stageFourCoolingCenter } from '../src/content/stage-04';
+import { STAGE_05_SPAWNS, stageFiveFalseTrail } from '../src/content/stage-05';
 import { findLoopCandidate } from '../src/simulation/trail';
 import type { GameState, InputFrame, TrailPoint } from '../src/core/types';
 
@@ -395,5 +396,48 @@ describe('M1 deterministic playground', () => {
     expect(hit.state.boss!.maxHealth - hit.state.boss!.health).toBe(181);
     expect(hit.state.metrics.advocate.cooledHits).toBe(1);
     expect(hit.events).toContainEqual({ type: 'advocate-ember-hit' });
+  });
+
+  it('uses the Stage 5 false trail for annotation but never for a COLLATE candidate', () => {
+    let state = createInitialState(51, 'stage-05');
+    state.encounterIndex = STAGE_05_SPAWNS.length; state.enemies = [];
+    state.tick = 200;
+    state.trail = [
+      trailPoint(410, 270, 190), trailPoint(470, 270, 191),
+      trailPoint(530, 300, 192), trailPoint(560, 340, 193)
+    ];
+    expect(stageFiveFalseTrail(state.trail)).toHaveLength(4);
+    expect(state.candidate).toBeNull();
+    state.bullets = [{ id: 900, x: px(440), y: px(420), vx: 0, vy: px(60), radius: 4, kind: 'player', annotated: false, capturable: false }];
+    const result = step(state, {});
+    expect(result.state.bullets[0].falseAnnotated).toBe(true);
+    expect(result.state.metrics.mirror!.falseAnnotations).toBe(1);
+    expect(result.state.candidate).toBeNull();
+    expect(result.events).toContainEqual({ type: 'false-trail-annotated' });
+  });
+
+  it('makes False Witness quotation rounds visually distinct and harmless', () => {
+    let state = createInitialState(52, 'stage-05');
+    state.encounterIndex = STAGE_05_SPAWNS.length;
+    state.enemies[0].kind = 'false-witness'; state.enemies[0].x = px(900); state.enemies[0].spawnX = px(900);
+    state.enemies[0].y = state.player.y; state.enemies[0].baseY = state.player.y; state.enemies[0].amplitude = 0; state.enemies[0].fireCooldown = 0;
+    state = step(state, {}).state;
+    const falseRound = state.bullets.find((bullet) => bullet.illusory)!;
+    expect(falseRound.capturable).toBe(false);
+    const health = state.player.health;
+    state.bullets = [{ ...falseRound, x: state.player.x, y: state.player.y, vx: 0, vy: 0 }];
+    state = step(state, {}).state;
+    expect(state.player.health).toBe(health);
+    expect(state.metrics.mirror!.witnessMixes).toBe(1);
+  });
+
+  it('keeps the Silver Obelisk fixed mirror indestructible', () => {
+    let state = createInitialState(53, 'stage-05');
+    state.encounterIndex = STAGE_05_SPAWNS.length;
+    state.enemies[0].kind = 'silver-obelisk'; state.enemies[0].health = 720; state.enemies[0].maxHealth = 720;
+    state.bullets = [{ id: 930, x: state.enemies[0].x, y: state.enemies[0].y, vx: 0, vy: 0, radius: 5, kind: 'return', annotated: true, capturable: false }];
+    state = step(state, {}).state;
+    expect(state.enemies[0].health).toBe(720);
+    expect(state.metrics.enemyStats['silver-obelisk'].defeated).toBe(0);
   });
 });

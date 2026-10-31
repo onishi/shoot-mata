@@ -14,17 +14,20 @@ export interface Bullet extends Point {
   annotated: boolean;
   wetAnnotated?: boolean;
   cooledEmber?: boolean;
+  falseAnnotated?: boolean;
+  illusory?: boolean;
   capturable: boolean;
   sourceAttack?: 'enemy-volley' | 'boss-fan' | 'boss-sweep' | 'compiler-gust' | 'compiler-lance' | 'compiler-storm'
     | 'eel-drizzle' | 'eel-wake' | 'eel-deluge'
     | 'advocate-ember' | 'advocate-gavel' | 'advocate-verdict';
 }
-export type StageId = 'stage-01' | 'stage-02' | 'stage-03' | 'stage-04';
+export type StageId = 'stage-01' | 'stage-02' | 'stage-03' | 'stage-04' | 'stage-05';
 export type EnemyKind =
   | 'eraser-mite' | 'bracket-gull' | 'margin-skiff' | 'folio-hauler'
   | 'index-kite' | 'vane-scribe' | 'cross-reference-pair' | 'tab-binder'
   | 'drip-scribe' | 'gutter-frog' | 'basin-bell' | 'reed-needle'
-  | 'ash-comma' | 'kiln-censor' | 'ember-courier' | 'char-press';
+  | 'ash-comma' | 'kiln-censor' | 'ember-courier' | 'char-press'
+  | 'mirror-mote' | 'quotation-ram' | 'false-witness' | 'silver-obelisk';
 export interface Enemy extends Point {
   id: number;
   kind: EnemyKind;
@@ -110,6 +113,8 @@ export type GameEvent =
   | { type: 'advocate-ember-cooled' }
   | { type: 'advocate-ember-hit' }
   | { type: 'advocate-wall-blocked' }
+  | { type: 'false-trail-annotated' }
+  | { type: 'false-volley' }
   | { type: 'boss-defeated' };
 export interface Metrics {
   candidates: number;
@@ -154,6 +159,16 @@ export interface Metrics {
     censorBrands: number;
     courierConversions: number;
     pressClosures: number;
+  };
+  mirror?: {
+    falseTrailPeak: number;
+    falseAnnotations: number;
+    falseLoopRejections: number;
+    illusoryShots: number;
+    moteEchoes: number;
+    ramCharges: number;
+    witnessMixes: number;
+    obeliskReflections: number;
   };
   boss: {
     spawned: boolean;

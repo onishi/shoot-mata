@@ -58,9 +58,9 @@
         "deluge": 16
       }
     },
-    "hash": "afa59cd7a85ed4c4"
+    "hash": "c2cfcbf82564c6e1"
   },
-  "replayHash": "afa59cd7a85ed4c4",
+  "replayHash": "c2cfcbf82564c6e1",
   "gates": {
     "baselineDefeatsBoss": true,
     "stitchDefeatsBoss": true,

@@ -72,6 +72,8 @@ export const cueForEvent = (event: GameEvent, stageId: StageId = 'stage-01'): { 
   if (event.type === 'courier-converted') return { cue: 'courier-convert', rate: 1 };
   if (event.type === 'advocate-ember-cooled') return { cue: 'ember-cooled', rate: 1 };
   if (event.type === 'advocate-wall-blocked') return { cue: 'wall-hit', rate: 1 };
+  if (event.type === 'false-trail-annotated') return { cue: 'annotation', rate: 1.42 };
+  if (event.type === 'false-volley') return { cue: 'collate-miss', rate: 0.72 };
   if (event.type === 'shot-fired') return { cue: 'shot', rate: 1 };
   if (event.type === 'shot-annotated') return { cue: 'annotation', rate: 1 };
   if (event.type === 'loop-ready') return { cue: 'candidate', rate: 1 };

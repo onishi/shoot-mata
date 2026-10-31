@@ -48,4 +48,9 @@ describe('Stage 1 audio event map', () => {
     expect(cueForEvent({ type: 'advocate-wall-blocked' }, 'stage-04')?.cue).toBe('wall-hit');
     expect(cueForEvent({ type: 'boss-phase', phase: 3 }, 'stage-04')?.cue).toBe('advocate-phase');
   });
+
+  it('gives Stage 5 false writing and false volleys different audible signatures', () => {
+    expect(cueForEvent({ type: 'false-trail-annotated' }, 'stage-05')).toEqual({ cue: 'annotation', rate: 1.42 });
+    expect(cueForEvent({ type: 'false-volley' }, 'stage-05')).toEqual({ cue: 'collate-miss', rate: 0.72 });
+  });
 });

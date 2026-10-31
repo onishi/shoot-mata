@@ -7,7 +7,7 @@
     "dev": "vite --host 127.0.0.1",
     "typecheck": "tsc --noEmit",
     "test": "vitest run tests",
-    "autoplay": "vitest run scripts/stage-01.report.test.ts scripts/stage-01-boss.report.test.ts scripts/stage-02.report.test.ts scripts/stage-02-boss.report.test.ts scripts/stage-03.report.test.ts scripts/stage-03-boss.report.test.ts scripts/stage-04.report.test.ts scripts/stage-04-boss.report.test.ts",
+    "autoplay": "vitest run scripts/stage-01.report.test.ts scripts/stage-01-boss.report.test.ts scripts/stage-02.report.test.ts scripts/stage-02-boss.report.test.ts scripts/stage-03.report.test.ts scripts/stage-03-boss.report.test.ts scripts/stage-04.report.test.ts scripts/stage-04-boss.report.test.ts scripts/stage-05.report.test.ts",
     "audit:assets": "node scripts/audit-assets.mjs",
     "generate:audio": "node scripts/generate-audio.mjs",
     "audit:audio": "node scripts/audit-audio.mjs",

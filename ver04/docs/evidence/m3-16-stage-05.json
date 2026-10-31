@@ -1,0 +1,69 @@
+{
+  "generatedAt": "2026-11-01",
+  "durationTicks": 25200,
+  "scheduledSpawns": 69,
+  "seed": 3501,
+  "finalHash": "0fe8cdcc4f6546a2",
+  "replayHashes": [
+    "0fe8cdcc4f6546a2",
+    "0fe8cdcc4f6546a2",
+    "0fe8cdcc4f6546a2"
+  ],
+  "maxEnemies": 10,
+  "maxEnemyBullets": 88,
+  "maxCombatGapTicks": 0,
+  "stats": {
+    "mirror-mote": {
+      "spawned": 28,
+      "attacks": 198,
+      "defeated": 11,
+      "exited": 17
+    },
+    "quotation-ram": {
+      "spawned": 18,
+      "attacks": 153,
+      "defeated": 7,
+      "exited": 11
+    },
+    "false-witness": {
+      "spawned": 17,
+      "attacks": 152,
+      "defeated": 6,
+      "exited": 11
+    },
+    "silver-obelisk": {
+      "spawned": 6,
+      "attacks": 79,
+      "defeated": 0,
+      "exited": 6
+    }
+  },
+  "mirror": {
+    "falseTrailPeak": 127,
+    "falseAnnotations": 93,
+    "falseLoopRejections": 21164,
+    "illusoryShots": 924,
+    "moteEchoes": 198,
+    "ramCharges": 153,
+    "witnessMixes": 152,
+    "obeliskReflections": 79
+  },
+  "rejectedEnemies": 0,
+  "rejectedEnemyBullets": 0,
+  "gates": {
+    "allKindsSpawned": true,
+    "allKindsAttacked": true,
+    "combatantsDefeated": true,
+    "allSpawnsAccounted": true,
+    "falseTrailVisible": true,
+    "falseTrailStrengthensFire": true,
+    "falseTrailExcludedFromLoops": true,
+    "enemyRolesActivated": true,
+    "falseRoundsMixed": true,
+    "noUnintendedFourSecondGap": true,
+    "enemyLimit": true,
+    "bulletLimit": true,
+    "deterministicReplay": true,
+    "stageDrained": true
+  }
+}
