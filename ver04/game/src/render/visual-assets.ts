@@ -1,10 +1,13 @@
 export type SpriteId = 'player' | 'eraser-mite' | 'bracket-gull' | 'margin-skiff' | 'folio-hauler' | 'boss' | 'return'
   | 'index-kite' | 'vane-scribe' | 'cross-reference-pair' | 'tab-binder' | 'compiler' | 'compiler-seam'
-  | 'drip-scribe' | 'gutter-frog' | 'basin-bell' | 'reed-needle' | 'eel-head' | 'eel-segment' | 'eel-segment-marked';
+  | 'drip-scribe' | 'gutter-frog' | 'basin-bell' | 'reed-needle' | 'eel-head' | 'eel-segment' | 'eel-segment-marked'
+  | 'ash-comma' | 'kiln-censor' | 'ember-courier' | 'char-press' | 'cinder-advocate' | 'heat-wall' | 'ember' | 'cooled-ember';
 
 export interface SpriteFrame { x: number; y: number; width: number; height: number }
 
-const image = (stage: 'stage-01' | 'stage-02' | 'stage-03', path: string): HTMLImageElement => {
+type VisualStage = 'stage-01' | 'stage-02' | 'stage-03' | 'stage-04';
+
+const image = (stage: VisualStage, path: string): HTMLImageElement => {
   const result = new Image();
   result.decoding = 'async';
   result.src = `${import.meta.env.BASE_URL}assets/${stage}/${path}`;
@@ -29,10 +32,16 @@ export const visuals = {
     mid: image('stage-03', 'rain-margin-mid-v1.png'),
     fore: image('stage-03', 'rain-margin-fore-v1.png'),
     sprites: image('stage-03', 'stage-03-sprites-v1.png')
+  },
+  'stage-04': {
+    far: image('stage-04', 'burnt-footnote-far-v1.png'),
+    mid: image('stage-04', 'burnt-footnote-mid-v1.png'),
+    fore: image('stage-04', 'burnt-footnote-fore-v1.png'),
+    sprites: image('stage-04', 'stage-04-sprites-v2.png')
   }
 };
 
-export const spriteFrames: Record<SpriteId, SpriteFrame & { stage: 'stage-01' | 'stage-02' | 'stage-03' }> = {
+export const spriteFrames: Record<SpriteId, SpriteFrame & { stage: VisualStage }> = {
   player: { stage: 'stage-01', x: 0, y: 0, width: 480, height: 360 },
   'eraser-mite': { stage: 'stage-01', x: 460, y: 65, width: 310, height: 300 },
   'bracket-gull': { stage: 'stage-01', x: 755, y: 0, width: 455, height: 360 },
@@ -52,7 +61,15 @@ export const spriteFrames: Record<SpriteId, SpriteFrame & { stage: 'stage-01' | 
   'reed-needle': { stage: 'stage-03', x: 1150, y: 20, width: 624, height: 450 },
   'eel-head': { stage: 'stage-03', x: 0, y: 460, width: 690, height: 427 },
   'eel-segment': { stage: 'stage-03', x: 620, y: 470, width: 610, height: 417 },
-  'eel-segment-marked': { stage: 'stage-03', x: 1160, y: 460, width: 614, height: 427 }
+  'eel-segment-marked': { stage: 'stage-03', x: 1160, y: 460, width: 614, height: 427 },
+  'ash-comma': { stage: 'stage-04', x: 20, y: 70, width: 230, height: 315 },
+  'kiln-censor': { stage: 'stage-04', x: 230, y: 0, width: 410, height: 400 },
+  'ember-courier': { stage: 'stage-04', x: 610, y: 65, width: 420, height: 335 },
+  'char-press': { stage: 'stage-04', x: 1010, y: 45, width: 526, height: 360 },
+  'cinder-advocate': { stage: 'stage-04', x: 0, y: 390, width: 655, height: 634 },
+  'heat-wall': { stage: 'stage-04', x: 645, y: 410, width: 190, height: 614 },
+  ember: { stage: 'stage-04', x: 820, y: 570, width: 390, height: 330 },
+  'cooled-ember': { stage: 'stage-04', x: 1180, y: 565, width: 356, height: 330 }
 };
 
 export const assetsReady = Promise.all(Object.values(visuals).flatMap((stage) => Object.values(stage)).map((asset) => asset.decode().catch(() => undefined)));

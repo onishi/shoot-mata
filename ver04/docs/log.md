@@ -201,3 +201,12 @@
 - 単体45件、型検査、production build、Chrome E2E 10件に合格した。ChromeではStage 3→4通し、両復帰、ポーズ・コンティニュー中のtick停止、CINDER ADVOCATE撃破、Stage 4結果からタイトル帰還を確認した。
 - `m3-13-stage-04-intro.png`と`m3-13-stage-04-result.png`を1280×720で目視し、章題、教材、結果、操作案内に文字切れ・重なりがなく、Stage 3との状態差を識別できることを確認した。
 - 次回はStage 4の背景3層、4通常敵、CINDER ADVOCATE、熱壁・火種・冷却反撃を完成素材へ置き換え、通常戦、山場、ボス3形態を画像確認する。
+
+## 2026-11-01 — M3-14 Stage 4完成ビジュアル
+
+- built-in image generationで焼けた脚注の遠景・中景・前景と、Ash Comma、Kiln Censor、Ember Courier、Char Press、CINDER ADVOCATE、熱壁、火種、冷却反撃を含む透明アトラスをv4専用に制作した。過去版素材や外部IP名は使用していない。
+- 生成アトラスは褐色の敷き背景が残って見えたため、同じbuilt-in image generationの背景抽出でスプライトの形と配置を保ったまま透明度を補正した。Chrome画素検査で背景3層とアトラスにalpha 0の画素があることを確認した。
+- Stage 4へ背景3層とアトラスを接続し、開発用グラデーション、4敵のCanvas図形、ボス・熱壁・火種・冷却反撃のCanvas図形を完成素材へ置換した。熱歪み、移動冷却域、冷却航跡はsimulation同期の手続き表現として維持した。
+- `m3-14-stage-04-combat.png`、`stage-04-setpiece.png`、`cinder-advocate-phase-1/2/3.png`を1280×720で目視し、敵4役、冷却域、橙の斜線熱壁、火種、シアン二重菱形の冷却反撃、3形態攻撃、HUDを識別できた。文字切れ、前景遮蔽、アトラス混入、当たり判定との著しい見かけのずれはない。
+- 素材台帳をStage 4の5件の`final`へ更新し、Stage 4仮素材を0件にした。単体45件、素材監査32件・仮素材0、型検査、production build、Chrome E2E 10件に合格した。
+- 次回はStage 4専用の炉低周波・金属活字・危機ステムと環境・ボス効果音を制作し、音量監査とChromeのStage遷移・bus・ポーズ同期を確認する。

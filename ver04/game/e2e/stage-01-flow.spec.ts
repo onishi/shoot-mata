@@ -387,7 +387,7 @@ test('LACUNA EEL final visuals show its three sequential marked phases', async (
   await page.locator('#game').screenshot({ path: '../docs/evidence/m3-09-lacuna-eel-phase-3.png' });
 });
 
-test('Stage 4 preview exposes heat erosion, cooling shadow and all four enemy roles', async ({ page }) => {
+test('Stage 4 final visuals expose heat erosion, cooling shadow and all four enemy roles', async ({ page }) => {
   await page.goto('/'); await page.keyboard.press('Enter'); await page.keyboard.press('Enter');
   await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_QA_SCENARIO__('stage-04-combat'));
   let state = await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_STATE__()) as unknown as {
@@ -397,16 +397,16 @@ test('Stage 4 preview exposes heat erosion, cooling shadow and all four enemy ro
   expect(state.metrics.heat.trailPointsBurned).toBeGreaterThan(0);
   expect(state.metrics.heat.trailPointsCooled).toBeGreaterThan(0);
   expect(state.metrics.heat.coolingCollates).toBeGreaterThan(0);
-  await page.locator('#game').screenshot({ path: '../docs/evidence/m3-11-stage-04-combat.png' });
+  await page.locator('#game').screenshot({ path: '../docs/evidence/m3-14-stage-04-combat.png' });
 
   await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_QA_SCENARIO__('stage-04-setpiece'));
   state = await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_STATE__()) as unknown as typeof state;
   expect(state.metrics.heat.trailPointsBurned).toBeGreaterThan(0);
   expect(state.metrics.heat.trailPointsCooled).toBeGreaterThan(0);
-  await page.locator('#game').screenshot({ path: '../docs/evidence/m3-11-stage-04-setpiece.png' });
+  await page.locator('#game').screenshot({ path: '../docs/evidence/m3-14-stage-04-setpiece.png' });
 });
 
-test('CINDER ADVOCATE preview shows its permanent heat wall, cooled counterfire and final verdict', async ({ page }) => {
+test('CINDER ADVOCATE final visuals show its permanent heat wall, cooled counterfire and all phases', async ({ page }) => {
   await page.goto('/'); await page.keyboard.press('Enter'); await page.keyboard.press('Enter');
   await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_QA_SCENARIO__('stage-04-boss'));
   let state = await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_STATE__()) as unknown as {
@@ -419,7 +419,30 @@ test('CINDER ADVOCATE preview shows its permanent heat wall, cooled counterfire 
   expect(state.metrics.advocate.cooledHits).toBeGreaterThan(0);
   expect(state.metrics.advocate.wallActiveTicks).toBeGreaterThan(0);
   expect(state.bullets.some((bullet) => bullet.cooledEmber)).toBe(true);
-  await page.locator('#game').screenshot({ path: '../docs/evidence/m3-12-cinder-advocate-phase-1.png' });
+  await page.evaluate(() => {
+    const state = (window as unknown as QaWindow).__PALIMPSEST_STATE__() as unknown as {
+      tick: number; boss: { phase: number; health: number; phaseStartedAt: number; cycleStartedAt: number };
+      bullets: Array<{ x: number; y: number; cooledEmber?: boolean }>;
+      metrics: { advocate: { phaseReached: boolean[] } };
+    };
+    state.boss.phase = 1; state.boss.health = 1700; state.boss.phaseStartedAt = state.tick; state.boss.cycleStartedAt = state.tick;
+    state.metrics.advocate.phaseReached = [true, false, false];
+    const cooled = state.bullets.find((bullet) => bullet.cooledEmber);
+    if (cooled) { cooled.x = 730 * 256; cooled.y = 175 * 256; }
+  });
+  await page.waitForTimeout(20);
+  await page.locator('#game').screenshot({ path: '../docs/evidence/m3-14-cinder-advocate-phase-1.png' });
+
+  await page.evaluate(() => {
+    const state = (window as unknown as QaWindow).__PALIMPSEST_STATE__() as unknown as {
+      tick: number; boss: { phase: number; health: number; phaseStartedAt: number; cycleStartedAt: number };
+      metrics: { advocate: { phaseReached: boolean[] } };
+    };
+    state.boss.phase = 2; state.boss.health = 1100; state.boss.phaseStartedAt = state.tick; state.boss.cycleStartedAt = state.tick;
+    state.metrics.advocate.phaseReached = [true, true, false];
+  });
+  await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_ADVANCE__(90));
+  await page.locator('#game').screenshot({ path: '../docs/evidence/m3-14-cinder-advocate-phase-2.png' });
 
   await page.evaluate(() => {
     const state = (window as unknown as QaWindow).__PALIMPSEST_STATE__() as unknown as {
@@ -434,5 +457,5 @@ test('CINDER ADVOCATE preview shows its permanent heat wall, cooled counterfire 
   state = await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_STATE__()) as unknown as typeof state;
   expect(state.boss?.phase).toBe(3);
   expect(state.bullets.some((bullet) => bullet.sourceAttack === 'advocate-verdict')).toBe(true);
-  await page.locator('#game').screenshot({ path: '../docs/evidence/m3-12-cinder-advocate-phase-3.png' });
+  await page.locator('#game').screenshot({ path: '../docs/evidence/m3-14-cinder-advocate-phase-3.png' });
 });

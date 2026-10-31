@@ -21,8 +21,8 @@ const diamond = (ctx: CanvasRenderingContext2D, x: number, y: number, radius: nu
 };
 
 export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: boolean): void => {
-  const stageVisuals = state.stageId === 'stage-04' ? null : visuals[state.stageId];
-  ctx.fillStyle = state.stageId === 'stage-04' ? '#1a0d0a' : '#071121';
+  const stageVisuals = visuals[state.stageId];
+  ctx.fillStyle = '#071121';
   ctx.fillRect(0, 0, WIDTH, HEIGHT);
   if (stageVisuals?.far.complete && stageVisuals.far.naturalWidth > 0) {
     const farDrift = (state.tick / 80) % 42;
@@ -164,13 +164,13 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
         drawSprite(ctx, kind, x, y, dimensions[0], dimensions[1]); ctx.restore();
       } else drawSprite(ctx, kind, x, y, dimensions[0], dimensions[1]);
     } else {
+      const kind = enemy.kind as 'ash-comma' | 'kiln-censor' | 'ember-courier' | 'char-press';
+      const dimensions = {
+        'ash-comma': [62, 70], 'kiln-censor': [92, 82], 'ember-courier': [104, 72], 'char-press': [170, 104]
+      }[kind];
       ctx.save();
-      ctx.translate(x, y);
-      ctx.strokeStyle = enemy.markedUntil >= state.tick ? '#ffe58b' : '#ff9b58'; ctx.fillStyle = 'rgba(54,20,14,.9)'; ctx.lineWidth = 3;
-      if (enemy.kind === 'ash-comma') { ctx.beginPath(); ctx.arc(0, 0, 21, -1.1, 1.7); ctx.stroke(); }
-      else if (enemy.kind === 'kiln-censor') { ctx.fillRect(-28, -28, 56, 56); ctx.strokeRect(-28, -28, 56, 56); ctx.beginPath(); ctx.moveTo(-18, 0); ctx.lineTo(18, 0); ctx.stroke(); }
-      else if (enemy.kind === 'ember-courier') { diamond(ctx, 0, 0, 29); ctx.fill(); ctx.stroke(); ctx.fillStyle = '#7ef3ef'; ctx.fillRect(-5, -5, 10, 10); }
-      else { ctx.fillRect(-55, -34, 110, 68); ctx.strokeRect(-55, -34, 110, 68); ctx.beginPath(); ctx.moveTo(-45, -12); ctx.lineTo(45, -12); ctx.moveTo(-45, 12); ctx.lineTo(45, 12); ctx.stroke(); }
+      if (enemy.markedUntil >= state.tick) { ctx.shadowColor = '#ffe58b'; ctx.shadowBlur = 22; }
+      drawSprite(ctx, kind, x, y, dimensions[0], dimensions[1]);
       ctx.restore();
     }
     ctx.fillStyle = '#131725';
@@ -241,17 +241,11 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
     } else {
       ctx.save();
       const pulse = 0.72 + Math.abs(Math.sin(state.tick / 9)) * 0.28;
-      ctx.strokeStyle = `rgba(255,116,54,${pulse})`; ctx.shadowColor = '#ff5b28'; ctx.shadowBlur = 26; ctx.lineWidth = 8;
-      ctx.setLineDash([22, 10, 5, 10]);
-      ctx.beginPath(); ctx.moveTo(ADVOCATE_WALL_X_PX, 76); ctx.lineTo(ADVOCATE_WALL_X_PX, 650); ctx.stroke();
-      ctx.setLineDash([]); ctx.shadowBlur = 12; ctx.lineWidth = 3;
-      for (let yWall = 105; yWall < 650; yWall += 48) {
-        ctx.beginPath(); ctx.moveTo(ADVOCATE_WALL_X_PX - 14, yWall); ctx.lineTo(ADVOCATE_WALL_X_PX + 14, yWall - 18); ctx.stroke();
-      }
-      ctx.translate(x, y); ctx.fillStyle = 'rgba(57,18,12,.94)'; ctx.strokeStyle = '#ffb25f'; ctx.lineWidth = 5;
-      ctx.beginPath(); ctx.moveTo(-72, -92); ctx.lineTo(65, -68); ctx.lineTo(88, 45); ctx.lineTo(18, 98); ctx.lineTo(-80, 56); ctx.closePath(); ctx.fill(); ctx.stroke();
-      ctx.fillStyle = '#ffd07a'; ctx.beginPath(); ctx.arc(-12, -8, 26 + Math.sin(state.tick / 8) * 3, 0, Math.PI * 2); ctx.fill();
-      ctx.strokeStyle = '#34140e'; ctx.lineWidth = 6; ctx.beginPath(); ctx.moveTo(-45, 36); ctx.lineTo(45, 36); ctx.stroke();
+      ctx.globalAlpha = pulse;
+      ctx.shadowColor = '#ff5b28'; ctx.shadowBlur = 28;
+      drawSprite(ctx, 'heat-wall', ADVOCATE_WALL_X_PX, 363, 92, 574);
+      ctx.globalAlpha = 1; ctx.shadowBlur = 18;
+      drawSprite(ctx, 'cinder-advocate', x, y, 300, 292);
       ctx.restore();
     }
     if (boss.kind === 'blank-bailiff' && boss.armorLayers === 0) {
@@ -265,15 +259,17 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
     const y = bullet.y / SCALE;
     if (bullet.kind === 'enemy') {
       const ember = bullet.sourceAttack === 'advocate-ember';
-      ctx.strokeStyle = ember ? '#ffe18a' : '#ff826f'; ctx.fillStyle = ember ? 'rgba(133,40,12,.92)' : 'rgba(26, 8, 20, .82)'; ctx.lineWidth = ember ? 5 : 3;
-      ctx.save(); ctx.shadowColor = ember ? '#ff5b28' : 'transparent'; ctx.shadowBlur = ember ? 24 : 0;
-      ctx.beginPath(); ctx.arc(x, y, bullet.radius + 3, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); ctx.restore();
-      ctx.strokeStyle = '#ffd1b3'; ctx.lineWidth = 1;
-      ctx.beginPath(); ctx.arc(x, y, Math.max(2, bullet.radius - 3), 0, Math.PI * 2); ctx.stroke();
+      if (ember) drawSprite(ctx, 'ember', x, y, bullet.radius * 3.8, bullet.radius * 3.1);
+      else {
+        ctx.strokeStyle = '#ff826f'; ctx.fillStyle = 'rgba(26, 8, 20, .82)'; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.arc(x, y, bullet.radius + 3, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+        ctx.strokeStyle = '#ffd1b3'; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.arc(x, y, Math.max(2, bullet.radius - 3), 0, Math.PI * 2); ctx.stroke();
+      }
     } else if (bullet.kind === 'return') {
       if (bullet.cooledEmber) {
-        ctx.save(); ctx.strokeStyle = '#bfffff'; ctx.fillStyle = '#30ced1'; ctx.shadowColor = '#75ffff'; ctx.shadowBlur = 24; ctx.lineWidth = 4;
-        diamond(ctx, x, y, 16); ctx.fill(); ctx.stroke(); ctx.restore();
+        ctx.save(); ctx.shadowColor = '#75ffff'; ctx.shadowBlur = 24;
+        drawSprite(ctx, 'cooled-ember', x, y, 64, 42); ctx.restore();
       } else drawSprite(ctx, 'return', x, y, 38, 20);
     } else {
       ctx.strokeStyle = bullet.annotated ? '#fcd170' : '#a8f7ff';

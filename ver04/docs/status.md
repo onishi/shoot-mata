@@ -17,7 +17,7 @@
 | M0 新作設計 | 完了 | 3案比較、採用案、6面、成長、24敵、6ボス、画音・技術・品質計画を文書化。要件追跡表で全必須要件を割当済み |
 | M1 コア試作 | 完了 | 3分遭遇、4操縦×10seed、5回hash一致、全仮説ゲート、Chrome操作・画像確認に合格 |
 | M2 垂直スライス | 完了 | 3分通常区間、4敵種、BLANK BAILIFF、タイトル〜結果、完成画面、3音楽ステム・11効果音、bus・音量監査を実装。Stage 1の仮素材0 |
-| M3 キャンペーン | 進行中 | Stage 1〜3完成。Stage 4は195秒通常区間、熱波・冷却域、4通常敵、CINDER ADVOCATE、キャンペーン接続・復帰まで実装。Stage 4完成素材・音響、Stage 5〜6は未実装 |
+| M3 キャンペーン | 進行中 | Stage 1〜3完成。Stage 4は通常区間、熱波・冷却域、4通常敵、CINDER ADVOCATE、キャンペーン接続・復帰、完成ビジュアルまで実装。Stage 4音響、Stage 5〜6は未実装 |
 | M4 製品仕上げ | 未着手 | 完成ゲート未達 |
 
 ## M0検査
@@ -62,17 +62,17 @@
 - Stage 2結果からStage 3章導入、通常区間、LACUNA EEL、Stage 3結果、タイトル帰還までをAppStateで接続した。`rain-gallery-entry`と`eel-gate`の両方で耐久3・ゲージ50・残留敵弾なしへ復帰し、ポーズ中・コンティニュー中のtick停止とStage 1〜2旧遷移に合格した。
 - `m3-08-stage-03-intro.png`と`m3-08-stage-03-result.png`を1280×720で目視し、章題、雨と濡れ添え書きの教材、結果文、操作案内に文字切れ・重なりがなく、Stage 2との画面状態差を識別できることを確認した。
 - Stage 4は195秒・65出現の通常区間、24tick周期で古い非冷却航跡から焼く熱波、移動する半径145pxの冷却域、Ash Comma / Kiln Censor / Ember Courier / Char Pressを実装した。Stitch計測で最大同時敵9、敵弾105、無戦闘0tick、焼失480点・冷却3,359点、冷却域COLLATE 5回・Courier変換5回、生成拒否0、4回hash一致を確認した。
-- Stage 4の背景と敵は開発用Canvas表現を`prototype`として台帳登録した。`m3-11-stage-04-combat.png`と`setpiece.png`を1280×720で目視し、橙の熱波、シアンの移動冷却域、冷却航跡、4敵の形、暖色中空弾、HUDを識別でき、文字切れがないことを確認した。Stage 4完成ビジュアル工程で専用背景3層とアトラスへ置換する。
+- Stage 4の背景3層、Ash Comma / Kiln Censor / Ember Courier / Char Press、CINDER ADVOCATE、熱壁、火種、冷却反撃は`final`として台帳登録・画像確認済み。Stage 4の仮素材は0件。
 - CINDER ADVOCATEは常時残る熱壁で通常射撃と通常反撃片を遮り、遮断1発につき1 heat stressの低効率経路を残しつつ、投げた火種を輪で冷却すると180 damageの反撃へ変える3形態戦として実装した。通常射撃19,902tickに対しStitch攻略3,422tickで82.8%短縮し、冷却12回・命中10回、全形態・火種/熱槌/評決攻撃、最大敵弾51、生成拒否0、再実行hash`bd5ab8bc0acf1195`一致を確認した。
-- `m3-12-cinder-advocate-phase-1.png`と`phase-3.png`を1280×720で目視し、消えない橙の熱壁、火種、シアン菱形の冷却反撃、3形態耐久線、最終形態の評決扇、自機、HUDを識別でき、文字切れ・重なりがないことを確認した。ボスと背景はStage 4完成素材までCanvas `prototype`として扱う。
+- `m3-14-stage-04-combat.png`、`setpiece.png`、`cinder-advocate-phase-1/2/3.png`を1280×720で目視し、4敵の固有形、冷却域、縦断熱壁、火種、シアン二重菱形の冷却反撃、評決扇、自機、HUDを識別できた。前景は中央と上下欄外を遮らず、文字切れ・アトラス混入・当たり判定との著しい見かけのずれがない。
 - Stage 3結果からStage 4章導入、通常区間、CINDER ADVOCATE、Stage 4結果、タイトル帰還までをAppStateで接続した。`burnt-footnote-entry`と`advocate-gate`の両方で耐久3・ゲージ50・残留敵弾なしへ復帰し、ポーズ中・コンティニュー中のtick停止とStage 1〜3旧遷移に合格した。
 - `m3-13-stage-04-intro.png`と`m3-13-stage-04-result.png`を1280×720で目視し、章題、移動冷却域と熱波の教材、結果文、操作案内に文字切れ・重なりがなく、Stage 3との画面状態差を識別できることを確認した。
 
 ## 次の最優先作業
 
-**M3-14: Stage 4の完成ビジュアルを制作・接続する。**
+**M3-15: Stage 4の完成音響を制作・接続する。**
 
-完了範囲は、Stage 4専用の背景3層、Ash Comma / Kiln Censor / Ember Courier / Char Press、CINDER ADVOCATE、熱壁・火種・冷却反撃をv4専用完成素材へ置き換えること。通常戦、冷却域山場、ボス3形態をChrome画像で目視し、当たり判定との一致、色以外の形状差、文字・前景の非遮蔽を確認してStage 4の仮素材を0件にする。
+完了範囲は、炉の低周波・金属活字・危機ステムと、熱波、冷却域、Courier変換、火種冷却、熱壁命中、CINDER ADVOCATE形態移行の専用効果音をv4専用に制作すること。4 bus、発音上限、Stage 3→4切替、ポーズ停止・tick同期復帰をChromeで確認し、音量監査と最悪同時発音監査に合格させる。
 
 ## v4.0完成ゲート
 

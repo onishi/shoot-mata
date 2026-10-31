@@ -165,11 +165,43 @@
       "editHistory": ["Synthesized as six 44.1 kHz stereo PCM16 files; connected to simulation events and inspected in the worst-case Stage 3 mix."], "dimensions": "6 files, 0.22s to 0.90s, stereo 44.1kHz PCM16", "license": "project-original"
     },
     {
-      "id": "stage-04-prototype-canvas-v1", "kind": "procedural-visual", "path": "src/render/render.ts",
-      "stage": "Stage 4: The Burnt Footnote", "usage": "development preview for heat distortion, moving cooling shadow, four enemy silhouettes and cooled wake",
-      "version": 1, "status": "prototype", "createdBy": "procedural",
-      "sourcePrompt": "none; authored Canvas preview from docs/02-art-and-audio-direction.md sections 1, 3 and 4",
-      "generatedAt": "2026-11-01", "editHistory": ["Temporary Stage 4 Canvas preview; must be replaced by dedicated three-layer backgrounds and sprite atlas before Stage 4 visual completion."],
+      "id": "stage-04-burnt-footnote-far-v1", "kind": "background-raster", "path": "public/assets/stage-04/burnt-footnote-far-v1.png",
+      "stage": "Stage 4: The Burnt Footnote", "usage": "opaque far parallax layer with charred manuscript cliffs, type furnaces and a dark central play band",
+      "version": 1, "status": "final", "createdBy": "image-generation",
+      "sourcePrompt": "Wide 16:9 far background for The Burnt Footnote: airborne type foundry of charred manuscript cross-sections, suspended metal furnaces and blackened paper cliffs, sparse dark central gameplay band, charcoal, ember orange and restrained cyan; no characters, UI, text or watermark.",
+      "generatedAt": "2026-11-01", "editHistory": ["Built-in image generation output copied without pixel edits; runtime crops to 1280x720 cover."],
+      "dimensions": "1672x941 RGB", "license": "project-original"
+    },
+    {
+      "id": "stage-04-burnt-footnote-mid-v1", "kind": "background-raster", "path": "public/assets/stage-04/burnt-footnote-mid-v1.png",
+      "stage": "Stage 4: The Burnt Footnote", "usage": "transparent middle parallax furnaces, hanging footnote slabs, type blocks and ash conveyors",
+      "version": 1, "status": "final", "createdBy": "image-generation",
+      "sourcePrompt": "Transparent wide middle layer of open-frame type furnaces, hanging charred footnote slabs, giant movable type blocks, ash conveyors and broken rails arranged around an open center; charcoal, orange and cyan; no characters, UI, text or watermark.",
+      "generatedAt": "2026-11-01", "editHistory": ["Built-in image generation output copied without pixel edits; alpha preserved."],
+      "dimensions": "1672x941 RGBA", "license": "project-original"
+    },
+    {
+      "id": "stage-04-burnt-footnote-fore-v1", "kind": "background-raster", "path": "public/assets/stage-04/burnt-footnote-fore-v1.png",
+      "stage": "Stage 4: The Burnt Footnote", "usage": "transparent foreground type rails, curled burnt paper, ash and cooling pipes",
+      "version": 1, "status": "final", "createdBy": "image-generation",
+      "sourcePrompt": "Transparent sparse foreground of cracked type-metal rails, curled charred paper edges, falling ash, cooling pipes and press jaws confined to the outer edges; center and HUD bands clear; no characters, UI, text or watermark.",
+      "generatedAt": "2026-11-01", "editHistory": ["Built-in image generation output copied without pixel edits; alpha preserved."],
+      "dimensions": "1672x941 RGBA", "license": "project-original"
+    },
+    {
+      "id": "stage-04-sprites-v2", "kind": "sprite-atlas-raster", "path": "public/assets/stage-04/stage-04-sprites-v2.png",
+      "stage": "Stage 4: The Burnt Footnote", "usage": "Ash Comma, Kiln Censor, Ember Courier, Char Press, CINDER ADVOCATE, heat wall, ember and cooled countershot",
+      "version": 2, "status": "final", "createdBy": "image-generation",
+      "sourcePrompt": "Transparent two-row production atlas of eight original burnt-foundry sprites: curled Ash Comma, rooted Kiln Censor, cyan-core Ember Courier, two-platen Char Press, asymmetric CINDER ADVOCATE, diagonal-slashed heat wall, hollow ember and cyan double-outlined cooled shard; no labels, scenery, grid, text or watermark.",
+      "generatedAt": "2026-11-01", "editHistory": ["Built-in image generation output used as the source.", "A built-in background-extraction pass removed the brown backdrop while preserving sprite placement and alpha glow.", "Runtime source rectangles documented in src/render/visual-assets.ts."],
+      "dimensions": "1536x1024 RGBA", "license": "project-original"
+    },
+    {
+      "id": "stage-04-canvas-effects-v1", "kind": "procedural-visual", "path": "src/render/render.ts",
+      "stage": "Stage 4: The Burnt Footnote", "usage": "heat distortion, falling-depth parallax, moving cooling shadow, cooled wake and atlas-backed heat interactions",
+      "version": 1, "status": "final", "createdBy": "procedural",
+      "sourcePrompt": "none; authored Canvas compositing from docs/02-art-and-audio-direction.md sections 1, 3, 4 and 5",
+      "generatedAt": "2026-11-01", "editHistory": ["Replaced the Stage 4 preview gradient and primitive enemy and boss geometry with three-layer backgrounds and atlas sprites.", "Heat wall, ember and cooled countershot use distinct atlas silhouettes while heat waves and cooling shadow remain simulation-synchronized procedural effects."],
       "dimensions": "1280x720 logical canvas", "license": "project-original"
     }
   ]
