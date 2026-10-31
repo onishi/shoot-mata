@@ -23,7 +23,7 @@ test('keyboard actions and pause are visible in Chrome', async ({ page }) => {
   expect(trailLength).toBeGreaterThan(10);
   const loopReady = await page.evaluate(() => Boolean((window as unknown as { __PALIMPSEST_STATE__: () => { candidate: unknown } }).__PALIMPSEST_STATE__().candidate));
   expect(loopReady).toBe(true);
-  await canvas.screenshot({ path: '../docs/evidence/m1-01-playing.png' });
+  await canvas.screenshot({ path: '../docs/evidence/m1-02-playing.png' });
   await page.keyboard.press('KeyC');
   await page.waitForTimeout(100);
   const retraces = await page.evaluate(() => (window as unknown as { __PALIMPSEST_STATE__: () => { metrics: { retraces: number } } }).__PALIMPSEST_STATE__().metrics.retraces);

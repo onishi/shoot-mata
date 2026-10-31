@@ -20,6 +20,11 @@ describe('M1 deterministic playground', () => {
     expect(state.candidate).not.toBeNull();
   });
 
+  it('never presents a loop with an off-screen vertex', () => {
+    const offscreen = [trailPoint(100, 100, 0), trailPoint(500, 100, 1), trailPoint(1300, 500, 2), trailPoint(100, 500, 3), trailPoint(100, 50, 4), trailPoint(300, 100, 5)];
+    expect(findLoopCandidate(offscreen)).toBeNull();
+  });
+
   it('returns identical state for the same seed and input stream', () => {
     const frames = Array.from({ length: 500 }, (_, tick) => ({ up: tick % 120 < 30, down: tick % 120 >= 60 && tick % 120 < 90, fire: tick % 5 === 0 }));
     expect(run(createInitialState(77), frames)).toEqual(run(createInitialState(77), frames));
@@ -68,5 +73,22 @@ describe('M1 deterministic playground', () => {
   it('rejects retrace when gauge is insufficient', () => {
     const state = createInitialState(); state.gauge = 24;
     expect(step(state, { retrace: true }).events).toContainEqual({ type: 'retrace-denied' });
+  });
+
+  it('removes a defeated hauler and records its first defeat tick instead of resetting it', () => {
+    let state = createInitialState(99);
+    state.enemies[0].health = 1;
+    state.enemies[0].amplitude = 0;
+    state.bullets = [{ id: 20, x: state.enemies[0].x, y: state.enemies[0].y, vx: 0, vy: 0, radius: 5, kind: 'player', annotated: false, capturable: false }];
+    state = step(state, {}).state;
+    expect(state.enemies).toHaveLength(0);
+    expect(state.metrics.haulersDefeated).toBe(1);
+    expect(state.metrics.firstHaulerDefeatTick).toBe(1);
+  });
+
+  it('counts failed COLLATE input separately from completed loops', () => {
+    const result = step(createInitialState(), { collate: true });
+    expect(result.state.metrics.missedCollates).toBe(1);
+    expect(result.state.metrics.loops).toBe(0);
   });
 });

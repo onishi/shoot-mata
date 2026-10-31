@@ -59,19 +59,20 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
   for (const enemy of state.enemies) {
     const x = enemy.x / SCALE;
     const y = enemy.y / SCALE;
+    const size = enemy.kind === 'hauler' ? 42 : 27;
     ctx.save();
     ctx.translate(x, y);
     ctx.rotate(Math.PI / 4);
     ctx.strokeStyle = enemy.markedUntil >= state.tick ? '#fcd170' : '#ff8b72';
     ctx.fillStyle = '#241526';
     ctx.lineWidth = enemy.markedUntil >= state.tick ? 6 : 3;
-    ctx.fillRect(-28, -28, 56, 56);
-    ctx.strokeRect(-28, -28, 56, 56);
+    ctx.fillRect(-size, -size, size * 2, size * 2);
+    ctx.strokeRect(-size, -size, size * 2, size * 2);
     ctx.restore();
     ctx.fillStyle = '#131725';
-    ctx.fillRect(x - 42, y + 45, 84, 7);
+    ctx.fillRect(x - size, y + size + 14, size * 2, 7);
     ctx.fillStyle = '#ff8b72';
-    ctx.fillRect(x - 42, y + 45, 84 * enemy.health / enemy.maxHealth, 7);
+    ctx.fillRect(x - size, y + size + 14, size * 2 * enemy.health / enemy.maxHealth, 7);
   }
 
   for (const bullet of state.bullets) {
@@ -113,6 +114,9 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
   ctx.fillText('PALIMPSEST WAKE  /  M1 PLAYGROUND', 24, 33);
   ctx.fillStyle = '#f4c36a';
   ctx.fillText(`SCORE ${String(state.score).padStart(7, '0')}`, 1035, 33);
+  ctx.fillStyle = '#8ea6bd';
+  ctx.font = '600 14px system-ui, sans-serif';
+  ctx.fillText(`${Math.min(180, Math.floor(state.tick / TICK_RATE)).toString().padStart(3, '0')} / 180s`, 910, 32);
   for (let i = 0; i < 3; i += 1) {
     ctx.fillStyle = i < state.player.health ? '#a8f7ff' : '#283449';
     diamond(ctx, 650 + i * 26, 27, 8); ctx.fill();

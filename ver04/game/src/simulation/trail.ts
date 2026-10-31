@@ -1,5 +1,5 @@
 import { distanceSq, polygonArea, px, segmentIntersection } from '../core/math';
-import { type LoopCandidate, type Point, type TrailPoint } from '../core/types';
+import { HEIGHT, SCALE, WIDTH, type LoopCandidate, type Point, type TrailPoint } from '../core/types';
 
 export const findLoopCandidate = (trail: TrailPoint[]): LoopCandidate | null => {
   if (trail.length < 6) return null;
@@ -9,6 +9,7 @@ export const findLoopCandidate = (trail: TrailPoint[]): LoopCandidate | null => 
     const intersection = segmentIntersection(a, b, trail[i], trail[i + 1]);
     if (!intersection) continue;
     const polygon: Point[] = [intersection, ...trail.slice(i + 1)];
+    if (polygon.some((point) => point.x < 0 || point.x > WIDTH * SCALE || point.y < 0 || point.y > HEIGHT * SCALE)) continue;
     const area = polygonArea(polygon);
     if (area >= 8000) return { polygon, intersection, startIndex: i + 1, area };
   }

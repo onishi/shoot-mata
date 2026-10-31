@@ -16,11 +16,17 @@ export interface Bullet extends Point {
 }
 export interface Enemy extends Point {
   id: number;
+  kind: 'skiff' | 'hauler';
   health: number;
   maxHealth: number;
   markedUntil: number;
   fireCooldown: number;
   radius: number;
+  baseY: number;
+  amplitude: number;
+  phase: number;
+  spawnedAt: number;
+  expiresAt: number;
 }
 export interface LoopCandidate {
   polygon: Point[];
@@ -48,11 +54,18 @@ export type GameEvent =
   | { type: 'damage' }
   | { type: 'enemy-defeated' };
 export interface Metrics {
+  candidates: number;
   loops: number;
+  emptyLoops: number;
+  missedCollates: number;
   captured: number;
   annotatedShots: number;
   retraces: number;
   damage: number;
+  enemiesDefeated: number;
+  haulersDefeated: number;
+  firstHaulerDefeatTick: number | null;
+  enemyShots: number;
 }
 export interface GameState {
   tick: number;
@@ -65,6 +78,7 @@ export interface GameState {
   candidate: LoopCandidate | null;
   bullets: Bullet[];
   enemies: Enemy[];
+  encounterIndex: number;
   retrace: { points: Point[]; index: number } | null;
   metrics: Metrics;
 }
