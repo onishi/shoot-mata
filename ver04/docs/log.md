@@ -109,3 +109,12 @@
 - Chrome高速通しでStage 1結果からStage 2結果まで到達し、Stage 2開始地点とCompiler直前の両方から復帰、ポーズ中・コンティニュー中のtick停止、Stage 1の旧遷移を確認した。
 - `npm run verify`で単体34件、自動計測4件、素材・音量監査、型検査、production build、Chrome E2E 5件に合格した。Stage 1/2のsimulation規則と既存自動計測値は変更していない。
 - 次回はStage 2専用の背景3層、4通常敵、CROSSWIND COMPILER、風向・弱点表現を完成素材へ置き換え、通常戦・山場・ボス3形態を画像確認する。
+
+## 2026-10-31 — M3-04 Stage 2完成ビジュアル
+
+- built-in image generationで逆風索引の遠景・中景・前景と、Index Kite、Vane Scribe、Cross-Reference Pair、Tab Binder、CROSSWIND COMPILER、露出綴じ目を含む透明アトラスをv4専用に制作した。過去版素材や外部IP名は使用していない。
+- Stageごとに背景3層とアトラスを選択する描画境界へ拡張し、Stage 2の開発用Canvas敵図形をすべて完成スプライトへ置換した。風向に流れる白い繊維、風固定時の金色化、反対側の二重輪綴じ目、形態反転をsimulation状態へ同期した。
+- 初回Chrome確認で明るい前景上の下部操作欄が読みにくく、Compiler矩形へ上段スプライト端が混入していたため、52pxの下部欄外暗幕とsource rectangle補正を追加して再撮影した。
+- `m3-04-stage-02-combat.png`、`stage-02-setpiece.png`、`compiler-phase-1/2/3.png`を1280×720で目視し、4敵の役割、Tab Binderの大型シルエット、風向、金色の風固定、露出綴じ目、暖色中空弾、航跡、HUDを識別でき、文字切れ・前景遮蔽がないことを確認した。
+- 素材台帳をStage 2の5件の`final`へ更新し、Stage 2仮素材を0件にした。`npm run verify`で単体34件、自動計測4件、素材監査14件・仮素材0、音量監査、型検査、production build、Chrome E2E 6件に合格した。simulation規則と既存自動計測値は変更していない。
+- 次回はStage 2専用の風音・羽根ポリリズム・危機ステムと環境・ボス効果音を制作し、音量監査とChromeのStage遷移・bus・ポーズ同期を確認する。

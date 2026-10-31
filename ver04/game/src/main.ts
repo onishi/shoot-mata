@@ -131,7 +131,7 @@ Object.assign(window, {
     renderApp(ctx, app);
     return app.game.tick;
   },
-  __PALIMPSEST_QA_SCENARIO__: (scenario: 'damage' | 'setpiece' | 'boss-gate' | 'boss-defeat' | 'stage-02-boss') => {
+  __PALIMPSEST_QA_SCENARIO__: (scenario: 'damage' | 'setpiece' | 'stage-02-combat' | 'stage-02-setpiece' | 'boss-gate' | 'boss-defeat' | 'stage-02-boss') => {
     if (app.screen !== 'playing') return app.screen;
     if (scenario === 'stage-02-boss') {
       app.game = createInitialState(3202, 'stage-02');
@@ -142,6 +142,20 @@ Object.assign(window, {
       runStep({});
       const pilot = createPilot('stitch');
       for (let index = 0; index < 1500 && app.game.metrics.compiler.windLocks === 0; index += 1) runStep(pilot(app.game));
+    } else if (scenario === 'stage-02-combat') {
+      app.game = createInitialState(3202, 'stage-02');
+      app.game.player.invulnerableUntil = 5000;
+      const pilot = createPilot('stitch');
+      for (let index = 0; index < 4800; index += 1) runStep(pilot(app.game));
+      app.game.player.invulnerableUntil = 0;
+    } else if (scenario === 'stage-02-setpiece') {
+      app.game = createInitialState(3202, 'stage-02');
+      const setpieceIndex = STAGE_02_SPAWNS.findIndex((spawn) => spawn.tick === 6840);
+      app.game.tick = 6839;
+      app.game.encounterIndex = setpieceIndex;
+      runStep({});
+      const pilot = createPilot('stitch');
+      for (let index = 0; index < 240; index += 1) runStep(pilot(app.game));
     } else if (scenario === 'damage') {
       app.game.player.health = 1;
       app.game.player.invulnerableUntil = 0;
@@ -169,7 +183,7 @@ Object.assign(window, {
       app.game.boss.health = 1;
       app.game.bullets.push({ id: app.game.nextId++, x: app.game.boss.x, y: app.game.boss.y, vx: 0, vy: 0, radius: 5, kind: 'return', annotated: true, capturable: false });
     }
-    if (scenario !== 'boss-gate' && scenario !== 'setpiece' && scenario !== 'stage-02-boss') runStep({});
+    if (scenario !== 'boss-gate' && scenario !== 'setpiece' && scenario !== 'stage-02-combat' && scenario !== 'stage-02-setpiece' && scenario !== 'stage-02-boss') runStep({});
     renderApp(ctx, app);
     return app.screen;
   }

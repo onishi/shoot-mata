@@ -19,16 +19,37 @@ const diamond = (ctx: CanvasRenderingContext2D, x: number, y: number, radius: nu
 };
 
 export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: boolean): void => {
+  const stageVisuals = visuals[state.stageId];
   ctx.fillStyle = '#071121';
   ctx.fillRect(0, 0, WIDTH, HEIGHT);
-  if (visuals.far.complete && visuals.far.naturalWidth > 0) {
+  if (stageVisuals.far.complete && stageVisuals.far.naturalWidth > 0) {
     const farDrift = (state.tick / 80) % 42;
-    ctx.drawImage(visuals.far, -farDrift, 0, WIDTH + 84, HEIGHT);
+    ctx.drawImage(stageVisuals.far, -farDrift, 0, WIDTH + 84, HEIGHT);
   }
-  if (visuals.mid.complete && visuals.mid.naturalWidth > 0) {
+  if (stageVisuals.mid.complete && stageVisuals.mid.naturalWidth > 0) {
     const midDrift = (state.tick / 34) % 110;
     ctx.save(); ctx.globalAlpha = 0.68;
-    ctx.drawImage(visuals.mid, -midDrift, 0, WIDTH + 220, HEIGHT);
+    ctx.drawImage(stageVisuals.mid, -midDrift, 0, WIDTH + 220, HEIGHT);
+    ctx.restore();
+  }
+
+  if (state.stageId === 'stage-02') {
+    const compiler = state.boss?.kind === 'crosswind-compiler' ? state.boss : null;
+    const wind = compiler && compiler.windLockedUntil >= state.tick
+      ? compiler.lockedWindDirection
+      : (Math.floor(state.tick / (6 * TICK_RATE)) % 2 === 0 ? 1 : -1);
+    ctx.save();
+    ctx.strokeStyle = compiler && compiler.windLockedUntil >= state.tick ? 'rgba(252,209,112,.64)' : 'rgba(213,251,255,.4)';
+    ctx.lineWidth = 2;
+    for (let index = 0; index < 18; index += 1) {
+      const span = WIDTH + 240;
+      const x = ((index * 173 + state.tick * wind * (1.5 + index % 3)) % span + span) % span - 120;
+      const y = 82 + (index * 107) % 550;
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.quadraticCurveTo(x - wind * 24, y + Math.sin((state.tick + index * 31) / 24) * 7, x - wind * (54 + index % 4 * 12), y);
+      ctx.stroke();
+    }
     ctx.restore();
   }
 
@@ -88,18 +109,14 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
         drawSprite(ctx, kind, x, y, dimensions[0], dimensions[1]); ctx.restore();
       } else drawSprite(ctx, kind, x, y, dimensions[0], dimensions[1]);
     } else {
-      // Stage 2 production art is a later M3 slice; keep simulation previews
-      // deliberately procedural and role-readable until that asset pass.
-      ctx.save();
-      ctx.translate(x, y);
-      ctx.strokeStyle = enemy.markedUntil >= state.tick ? '#ffd477' : '#d7f6ff';
-      ctx.fillStyle = '#245b78';
-      ctx.lineWidth = 3;
-      if (enemy.kind === 'index-kite') diamond(ctx, 0, 0, 22);
-      else if (enemy.kind === 'vane-scribe') { ctx.beginPath(); ctx.arc(0, 0, 27, 0, Math.PI * 2); }
-      else if (enemy.kind === 'cross-reference-pair') { ctx.beginPath(); ctx.rect(-28, -12, 56, 24); }
-      else { ctx.beginPath(); ctx.rect(-50, -38, 100, 76); }
-      ctx.fill(); ctx.stroke(); ctx.restore();
+      const kind = enemy.kind as 'index-kite' | 'vane-scribe' | 'cross-reference-pair' | 'tab-binder';
+      const dimensions = {
+        'index-kite': [82, 52], 'vane-scribe': [76, 70], 'cross-reference-pair': [94, 62], 'tab-binder': [160, 96]
+      }[kind];
+      if (enemy.markedUntil >= state.tick) {
+        ctx.save(); ctx.shadowColor = '#ffd477'; ctx.shadowBlur = 20;
+        drawSprite(ctx, kind, x, y, dimensions[0], dimensions[1]); ctx.restore();
+      } else drawSprite(ctx, kind, x, y, dimensions[0], dimensions[1]);
     }
     ctx.fillStyle = '#131725';
     ctx.fillRect(x - size, y + size + 14, size * 2, 7);
@@ -131,16 +148,12 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
     else {
       const vaneY = y + boss.vaneSide * 108;
       const seamY = y - boss.vaneSide * 108;
-      ctx.save(); ctx.translate(x, y);
-      ctx.fillStyle = '#173f5a'; ctx.strokeStyle = '#b7f5ff'; ctx.lineWidth = 4;
-      ctx.beginPath(); ctx.moveTo(-84, -64); ctx.lineTo(70, -42); ctx.lineTo(94, 0); ctx.lineTo(70, 42); ctx.lineTo(-84, 64); ctx.closePath(); ctx.fill(); ctx.stroke();
-      ctx.strokeStyle = '#65dcff'; ctx.lineWidth = 7;
-      ctx.beginPath(); ctx.moveTo(-12, 0); ctx.lineTo(-100, boss.vaneSide * 108); ctx.stroke();
-      ctx.translate(-100, boss.vaneSide * 108); ctx.rotate(state.tick / 18 * boss.vaneSide);
-      for (let arm = 0; arm < 4; arm += 1) { ctx.rotate(Math.PI / 2); ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(42, 0); ctx.stroke(); }
+      drawSprite(ctx, 'compiler', x, y, 320, 232, 1, boss.vaneSide < 0);
+      ctx.save();
+      ctx.shadowColor = '#ffe16b';
+      ctx.shadowBlur = boss.seamExposedUntil >= state.tick ? 30 : 2;
+      drawSprite(ctx, 'compiler-seam', x - 108, seamY, 62 + Math.sin(state.tick / 7) * 4, 62 + Math.sin(state.tick / 7) * 4, boss.seamExposedUntil >= state.tick ? 1 : 0.35);
       ctx.restore();
-      ctx.save(); ctx.strokeStyle = boss.seamExposedUntil >= state.tick ? '#fff2a8' : '#6a7785'; ctx.shadowColor = '#ffe16b'; ctx.shadowBlur = boss.seamExposedUntil >= state.tick ? 24 : 0; ctx.lineWidth = 6;
-      ctx.beginPath(); ctx.arc(x - 100, seamY, 25 + Math.sin(state.tick / 7) * 3, 0, Math.PI * 2); ctx.stroke(); ctx.restore();
       if (boss.windLockedUntil >= state.tick) {
         ctx.fillStyle = 'rgba(252, 209, 112, .88)'; ctx.font = '700 13px system-ui, sans-serif'; ctx.textAlign = 'center';
         ctx.fillText(`WIND INDEX LOCKED  ${Math.ceil((boss.windLockedUntil - state.tick) / TICK_RATE)}s`, x - 25, Math.min(vaneY, seamY) - 36); ctx.textAlign = 'start';
@@ -180,15 +193,16 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
   ctx.lineWidth = 3;
   ctx.stroke();
 
-  if (visuals.fore.complete && visuals.fore.naturalWidth > 0) {
+  if (stageVisuals.fore.complete && stageVisuals.fore.naturalWidth > 0) {
     const foreDrift = (state.tick / 18) % 160;
     ctx.save(); ctx.globalAlpha = 0.64;
-    ctx.drawImage(visuals.fore, -foreDrift, 0, WIDTH + 320, HEIGHT);
+    ctx.drawImage(stageVisuals.fore, -foreDrift, 0, WIDTH + 320, HEIGHT);
     ctx.restore();
   }
 
   ctx.fillStyle = 'rgba(4, 10, 22, .72)';
   ctx.fillRect(0, 0, WIDTH, 52);
+  ctx.fillRect(0, HEIGHT - 52, WIDTH, 52);
   ctx.fillStyle = '#dceaf0';
   ctx.font = '600 18px system-ui, sans-serif';
   ctx.fillText(state.stageId === 'stage-01' ? 'PALIMPSEST WAKE  /  STAGE 1: THE ERASED HARBOR' : 'PALIMPSEST WAKE  /  STAGE 2: THE CROSSWIND INDEX', 24, 33);

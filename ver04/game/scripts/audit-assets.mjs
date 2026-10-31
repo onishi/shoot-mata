@@ -15,10 +15,16 @@ for (const asset of manifest.assets) {
   await access(resolve(root, asset.path));
 }
 
-const expected = ['stage-01-erased-harbor-far-v1', 'stage-01-erased-harbor-mid-v1', 'stage-01-erased-harbor-fore-v1', 'stage-01-sprites-v1', 'stage-01-canvas-effects-v1', 'stage-01-ambient-v1', 'stage-01-pulse-v1', 'stage-01-crisis-v1', 'stage-01-effects-v1'];
+const expected = [
+  'stage-01-erased-harbor-far-v1', 'stage-01-erased-harbor-mid-v1', 'stage-01-erased-harbor-fore-v1',
+  'stage-01-sprites-v1', 'stage-01-canvas-effects-v1', 'stage-01-ambient-v1', 'stage-01-pulse-v1',
+  'stage-01-crisis-v1', 'stage-01-effects-v1', 'stage-02-crosswind-index-far-v1',
+  'stage-02-crosswind-index-mid-v1', 'stage-02-crosswind-index-fore-v1', 'stage-02-sprites-v1',
+  'stage-02-canvas-effects-v1'
+];
 for (const id of expected) {
-  if (!ids.has(id)) throw new Error(`required Stage 1 asset is unregistered: ${id}`);
-  if (manifest.assets.find((asset) => asset.id === id).status !== 'final') throw new Error(`required Stage 1 asset is not final: ${id}`);
+  if (!ids.has(id)) throw new Error(`required visual-slice asset is unregistered: ${id}`);
+  if (manifest.assets.find((asset) => asset.id === id).status !== 'final') throw new Error(`required visual-slice asset is not final: ${id}`);
 }
 const provisional = manifest.assets.filter((asset) => asset.status !== 'final');
-console.log(`asset audit passed: ${expected.length} Stage 1 final entries; ${provisional.length} tracked provisional entries`);
+console.log(`asset audit passed: ${expected.length} required final entries; ${provisional.length} tracked provisional entries`);

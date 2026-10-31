@@ -6,7 +6,7 @@ type QaWindow = Window & {
   __PALIMPSEST_AUTOPLAY__: (ticks: number) => number;
   __PALIMPSEST_APP_STATE__: () => { screen: Screen; continuesRemaining: number; checkpointName: string; game: { tick: number; player: { health: number }; gauge: number } };
   __PALIMPSEST_STATE__: () => { bullets: unknown[]; trail: unknown[]; candidate: unknown; metrics: { loops: number; retraces: number } };
-  __PALIMPSEST_QA_SCENARIO__: (scenario: 'damage' | 'setpiece' | 'boss-gate' | 'boss-defeat' | 'stage-02-boss') => Screen;
+  __PALIMPSEST_QA_SCENARIO__: (scenario: 'damage' | 'setpiece' | 'stage-02-combat' | 'stage-02-setpiece' | 'boss-gate' | 'boss-defeat' | 'stage-02-boss') => Screen;
   __PALIMPSEST_AUDIO_READY__: () => Promise<void>;
   __PALIMPSEST_AUDIO_STATE__: () => { state: string; loaded: number; stems: number; active: number; busLevels: Record<string, number> };
   __PALIMPSEST_AUDIO_BUS__: (bus: 'music' | 'se' | 'ui' | 'environment', level: number) => void;
@@ -196,4 +196,38 @@ test('Stage 2 Compiler preview shows the locked vane and exposed opposite seam',
   expect(state.boss.windLockedUntil).toBeGreaterThanOrEqual(state.tick);
   expect(state.boss.seamExposedUntil).toBeGreaterThanOrEqual(state.tick);
   await page.locator('#game').screenshot({ path: '../docs/evidence/m3-02-crosswind-compiler.png' });
+});
+
+test('Stage 2 final visuals remain readable in combat, Tab Binder set piece and all Compiler phases', async ({ page }) => {
+  const canvas = page.locator('#game');
+  const begin = async (): Promise<void> => {
+    await page.goto('/');
+    await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_ASSETS_READY__);
+    await page.keyboard.press('Enter');
+    await page.keyboard.press('Enter');
+  };
+
+  await begin();
+  await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_QA_SCENARIO__('stage-02-combat'));
+  await canvas.screenshot({ path: '../docs/evidence/m3-04-stage-02-combat.png' });
+
+  await begin();
+  await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_QA_SCENARIO__('stage-02-setpiece'));
+  await canvas.screenshot({ path: '../docs/evidence/m3-04-stage-02-setpiece.png' });
+
+  await begin();
+  await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_QA_SCENARIO__('stage-02-boss'));
+  await canvas.screenshot({ path: '../docs/evidence/m3-04-compiler-phase-1.png' });
+  await page.evaluate(() => {
+    const state = (window as unknown as QaWindow).__PALIMPSEST_STATE__() as unknown as { boss: { phase: number; vaneSide: number } };
+    state.boss.phase = 2; state.boss.vaneSide = 1;
+  });
+  await page.waitForTimeout(50);
+  await canvas.screenshot({ path: '../docs/evidence/m3-04-compiler-phase-2.png' });
+  await page.evaluate(() => {
+    const state = (window as unknown as QaWindow).__PALIMPSEST_STATE__() as unknown as { boss: { phase: number; vaneSide: number } };
+    state.boss.phase = 3; state.boss.vaneSide = -1;
+  });
+  await page.waitForTimeout(50);
+  await canvas.screenshot({ path: '../docs/evidence/m3-04-compiler-phase-3.png' });
 });
