@@ -203,6 +203,30 @@
       "sourcePrompt": "none; authored Canvas compositing from docs/02-art-and-audio-direction.md sections 1, 3, 4 and 5",
       "generatedAt": "2026-11-01", "editHistory": ["Replaced the Stage 4 preview gradient and primitive enemy and boss geometry with three-layer backgrounds and atlas sprites.", "Heat wall, ember and cooled countershot use distinct atlas silhouettes while heat waves and cooling shadow remain simulation-synchronized procedural effects."],
       "dimensions": "1280x720 logical canvas", "license": "project-original"
+    },
+    {
+      "id": "stage-04-ambient-v1", "kind": "audio-stem", "path": "public/assets/audio/stage-04/furnace-ambient-v1.wav",
+      "stage": "Stage 4: The Burnt Footnote", "usage": "looping environment stem: furnace low-frequency bed, hot draft and drifting ash", "version": 1, "status": "final", "createdBy": "procedural",
+      "sourcePrompt": "scripts/generate-audio.mjs deterministic synthesis; low furnace fundamentals, spatial hot-air grain and sparse ash ticks", "generatedAt": "2026-11-01",
+      "editHistory": ["Synthesized at 44.1 kHz stereo PCM16; environment bus remains independent from music and SE."], "dimensions": "16.0s stereo 44.1kHz PCM16", "license": "project-original"
+    },
+    {
+      "id": "stage-04-pulse-v1", "kind": "audio-stem", "path": "public/assets/audio/stage-04/furnace-pulse-v1.wav",
+      "stage": "Stage 4: The Burnt Footnote", "usage": "looping density stem: metal type impacts, press weight and foundry rail resonance", "version": 1, "status": "final", "createdBy": "procedural",
+      "sourcePrompt": "scripts/generate-audio.mjs deterministic synthesis; dry movable-type strikes, four-beat press impact and resonant metal rail", "generatedAt": "2026-11-01",
+      "editHistory": ["Synthesized at 44.1 kHz stereo PCM16; runtime gain follows enemy and projectile density."], "dimensions": "16.0s stereo 44.1kHz PCM16", "license": "project-original"
+    },
+    {
+      "id": "stage-04-crisis-v1", "kind": "audio-stem", "path": "public/assets/audio/stage-04/furnace-crisis-v1.wav",
+      "stage": "Stage 4: The Burnt Footnote", "usage": "looping danger stem: CINDER ADVOCATE hearing pressure and metal scrape", "version": 1, "status": "final", "createdBy": "procedural",
+      "sourcePrompt": "scripts/generate-audio.mjs deterministic synthesis; low judicial harmonics, furnace pressure swell and restrained metal scrape", "generatedAt": "2026-11-01",
+      "editHistory": ["Synthesized at 44.1 kHz stereo PCM16; runtime gain follows CINDER ADVOCATE phase."], "dimensions": "16.0s stereo 44.1kHz PCM16", "license": "project-original"
+    },
+    {
+      "id": "stage-04-effects-v1", "kind": "audio-effect-set", "path": "public/assets/audio/stage-04/heat-wave-v1.wav",
+      "stage": "Stage 4: The Burnt Footnote", "usage": "heat wave, cooling-field COLLATE, Courier conversion, ember cooling, heat-wall impact and Advocate phase cues", "version": 1, "status": "final", "createdBy": "procedural",
+      "sourcePrompt": "scripts/generate-audio.mjs deterministic synthesis; sweeping heat, cyan cooling rise, type-metal conversion, quenched ember, blocked wall impact and Advocate hearing pressure", "generatedAt": "2026-11-01",
+      "editHistory": ["Synthesized as six 44.1 kHz stereo PCM16 files; connected to simulation events and inspected in the worst-case Stage 4 mix."], "dimensions": "6 files, 0.25s to 0.90s, stereo 44.1kHz PCM16", "license": "project-original"
     }
   ]
 }

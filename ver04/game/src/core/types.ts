@@ -104,6 +104,9 @@ export type GameEvent =
   | { type: 'wet-annotation' }
   | { type: 'eel-segment-marked'; segment: 0 | 1 | 2 }
   | { type: 'eel-segment-hit'; segment: 0 | 1 | 2 }
+  | { type: 'heat-wave' }
+  | { type: 'cooling-field-collated' }
+  | { type: 'courier-converted' }
   | { type: 'advocate-ember-cooled' }
   | { type: 'advocate-ember-hit' }
   | { type: 'advocate-wall-blocked' }

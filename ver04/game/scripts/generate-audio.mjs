@@ -6,9 +6,11 @@ const root = resolve(import.meta.dirname, '..');
 const output = resolve(root, 'public/assets/audio/stage-01');
 const outputStageTwo = resolve(root, 'public/assets/audio/stage-02');
 const outputStageThree = resolve(root, 'public/assets/audio/stage-03');
+const outputStageFour = resolve(root, 'public/assets/audio/stage-04');
 await mkdir(output, { recursive: true });
 await mkdir(outputStageTwo, { recursive: true });
 await mkdir(outputStageThree, { recursive: true });
+await mkdir(outputStageFour, { recursive: true });
 
 let noiseState = 0x50414c49;
 const noise = () => {
@@ -127,13 +129,35 @@ const stageThreeStems = {
     return [l, r];
   }, -19)
 };
+const stageFourStems = {
+  'furnace-ambient-v1.wav': render(16, (t) => {
+    const furnace = tone(41, t) * 0.22 + tone(61.5, t, 0.4) * 0.12 + tone(82, t, 1.1) * 0.07;
+    const draft = noise() * (0.13 + 0.07 * tone(0.125, t)) + noise() * tone(360 + 35 * tone(0.18, t), t) * 0.04;
+    const ash = t % 0.73 < 0.025 ? noise() * Math.exp(-(t % 0.73) * 95) * 0.16 : 0;
+    const [l, r] = pan(draft + ash, Math.sin(t * 0.83) * 0.62);
+    return [l + furnace, r + furnace * 0.94];
+  }, -20),
+  'furnace-pulse-v1.wav': render(16, (t) => {
+    const typeBeat = t % 0.4; const pressBeat = t % 1.6;
+    const type = typeBeat < 0.035 ? (tone(1180 - typeBeat * 9000, typeBeat) * 0.3 + noise() * 0.18) * Math.exp(-typeBeat * 75) : 0;
+    const press = pressBeat < 0.13 ? (tone(74 - pressBeat * 120, pressBeat) * 0.55 + tone(148, pressBeat) * 0.18) * Math.exp(-pressBeat * 16) : 0;
+    const rail = tone(123, t) * 0.26 + tone(184.5, t, 0.5) * 0.11;
+    return pan(type + press + rail, Math.sin(Math.floor(t * 2.5) * 1.91) * 0.5);
+  }, -19.5, -1),
+  'furnace-crisis-v1.wav': render(16, (t) => {
+    const hearing = 0.32 + 0.68 * Math.sin(Math.PI * ((t % 2) / 2)) ** 2;
+    const metal = tone(52 + 2.5 * tone(0.1, t), t) * 0.38 + tone(104, t, 0.6) * 0.25 + tone(156, t, 1.3) * 0.13;
+    const scrape = noise() * tone(520 + 110 * tone(0.16, t), t) * 0.055;
+    return pan((metal + scrape) * hearing, Math.sin(t * Math.PI / 2) * 0.46);
+  }, -19)
+};
 // Stage 1 is a frozen completed slice. Keep its noise-based effects bit-for-bit
 // stable even though later-stage stems are rendered by the same deterministic tool.
 noiseState = stageOneEffectNoiseState;
 
 // A short zero crossing at the 16-second seam prevents broadband wind and bow
 // grain from clicking when Web Audio loops the stems.
-for (const channels of [...Object.values(stems), ...Object.values(stageTwoStems), ...Object.values(stageThreeStems)]) for (const channel of channels) {
+for (const channels of [...Object.values(stems), ...Object.values(stageTwoStems), ...Object.values(stageThreeStems), ...Object.values(stageFourStems)]) for (const channel of channels) {
   const fade = Math.round(RATE * 0.04);
   for (let index = 0; index < fade; index += 1) {
     const gain = Math.sin(index / fade * Math.PI / 2) ** 2;
@@ -172,6 +196,14 @@ const stageThreeSfx = {
   'eel-hit-v1.wav': [0.24, (t, d) => pan(env(t, d, 0.002, 0.12) * (tone(940 - 270 * t / d, t) * 0.7 + tone(470, t) * 0.26 + noise() * Math.exp(-t * 26) * 0.18), -0.1)],
   'eel-phase-v1.wav': [0.9, (t, d) => pan(env(t, d, 0.008, 0.38) * (tone(58, t) * 0.58 + tone(116 + 88 * t / d, t) * 0.4 + tone(174 + 132 * t / d, t) * 0.22 + noise() * Math.exp(-t * 8) * 0.14), 0)]
 };
+const stageFourSfx = {
+  'heat-wave-v1.wav': [0.46, (t, d) => pan(env(t, d, 0.006, 0.22) * (noise() * 0.38 + tone(94 - 24 * t / d, t) * 0.42), -0.7 + 1.4 * t / d)],
+  'cooling-field-v1.wav': [0.68, (t, d) => pan(env(t, d, 0.008, 0.3) * (tone(330 + 420 * t / d, t) * 0.48 + tone(660 + 840 * t / d, t) * 0.22 + noise() * Math.exp(-t * 12) * 0.1), 0)],
+  'courier-convert-v1.wav': [0.62, (t, d) => pan(env(t, d, 0.004, 0.28) * (tone(210 + 650 * t / d, t) * 0.55 + tone(420 + 1300 * t / d, t) * 0.24 + noise() * Math.exp(-t * 18) * 0.12), 0.18)],
+  'ember-cooled-v1.wav': [0.54, (t, d) => pan(env(t, d, 0.004, 0.26) * (tone(520 + 780 * t / d, t) * 0.5 + tone(260 + 390 * t / d, t) * 0.28 + noise() * Math.exp(-t * 20) * 0.1), -0.12)],
+  'wall-hit-v1.wav': [0.25, (t, d) => pan(env(t, d, 0.002, 0.13) * (tone(118 - 34 * t / d, t) * 0.62 + tone(236, t) * 0.2 + noise() * Math.exp(-t * 28) * 0.3), 0.22)],
+  'advocate-phase-v1.wav': [0.9, (t, d) => pan(env(t, d, 0.007, 0.38) * (tone(52, t) * 0.56 + tone(104 + 96 * t / d, t) * 0.38 + tone(156 + 144 * t / d, t) * 0.22 + noise() * Math.exp(-t * 9) * 0.14), 0)]
+};
 
 for (const [name, channels] of Object.entries(stems)) await writeFile(resolve(output, name), wav(channels));
 for (const [name, [duration, synth]] of Object.entries(sfx)) await writeFile(resolve(output, name), wav(render(duration, synth, -18, -6.4)));
@@ -179,4 +211,6 @@ for (const [name, channels] of Object.entries(stageTwoStems)) await writeFile(re
 for (const [name, [duration, synth]] of Object.entries(stageTwoSfx)) await writeFile(resolve(outputStageTwo, name), wav(render(duration, synth, -18, -6.4)));
 for (const [name, channels] of Object.entries(stageThreeStems)) await writeFile(resolve(outputStageThree, name), wav(channels));
 for (const [name, [duration, synth]] of Object.entries(stageThreeSfx)) await writeFile(resolve(outputStageThree, name), wav(render(duration, synth, -18, -6.4)));
-console.log(`generated ${Object.keys(stems).length + Object.keys(stageTwoStems).length + Object.keys(stageThreeStems).length} stems and ${Object.keys(sfx).length + Object.keys(stageTwoSfx).length + Object.keys(stageThreeSfx).length} effects at 44.1 kHz stereo`);
+for (const [name, channels] of Object.entries(stageFourStems)) await writeFile(resolve(outputStageFour, name), wav(channels));
+for (const [name, [duration, synth]] of Object.entries(stageFourSfx)) await writeFile(resolve(outputStageFour, name), wav(render(duration, synth, -18, -6.4)));
+console.log(`generated ${Object.keys(stems).length + Object.keys(stageTwoStems).length + Object.keys(stageThreeStems).length + Object.keys(stageFourStems).length} stems and ${Object.keys(sfx).length + Object.keys(stageTwoSfx).length + Object.keys(stageThreeSfx).length + Object.keys(stageFourSfx).length} effects at 44.1 kHz stereo`);

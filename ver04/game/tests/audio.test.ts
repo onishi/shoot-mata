@@ -39,4 +39,13 @@ describe('Stage 1 audio event map', () => {
     expect(cueForEvent({ type: 'eel-segment-hit', segment: 1 }, 'stage-03')?.cue).toBe('eel-hit');
     expect(cueForEvent({ type: 'boss-phase', phase: 3 }, 'stage-03')?.cue).toBe('eel-phase');
   });
+
+  it('maps Stage 4 heat-route and CINDER ADVOCATE feedback to dedicated cues', () => {
+    expect(cueForEvent({ type: 'heat-wave' }, 'stage-04')?.cue).toBe('heat-wave');
+    expect(cueForEvent({ type: 'cooling-field-collated' }, 'stage-04')?.cue).toBe('cooling-field');
+    expect(cueForEvent({ type: 'courier-converted' }, 'stage-04')?.cue).toBe('courier-convert');
+    expect(cueForEvent({ type: 'advocate-ember-cooled' }, 'stage-04')?.cue).toBe('ember-cooled');
+    expect(cueForEvent({ type: 'advocate-wall-blocked' }, 'stage-04')?.cue).toBe('wall-hit');
+    expect(cueForEvent({ type: 'boss-phase', phase: 3 }, 'stage-04')?.cue).toBe('advocate-phase');
+  });
 });

@@ -465,13 +465,14 @@ const burnOldestTrail = (state: GameState, count: number): number => {
   return burnable.length;
 };
 
-const applyHeat = (state: GameState): void => {
+const applyHeat = (state: GameState, events: GameEvent[]): void => {
   if (state.stageId !== 'stage-04') return;
   const center = stageFourCoolingCenter(state.tick);
   coolTrailNear(state, { x: center.x * SCALE, y: center.y * SCALE }, STAGE_04_COOLING_RADIUS_PX);
   if (state.tick % STAGE_04_HEAT_PERIOD_TICKS === 0) {
     state.metrics.heat.waves += 1;
     burnOldestTrail(state, 1);
+    events.push({ type: 'heat-wave' });
   }
   const cooled = state.trail.filter((point) => (point.cooledUntil ?? 0) >= state.tick).length;
   state.metrics.heat.cooledTrailPeak = Math.max(state.metrics.heat.cooledTrailPeak, cooled);
@@ -739,6 +740,7 @@ const collate = (state: GameState, events: GameEvent[]): void => {
     const cooling = stageFourCoolingCenter(state.tick);
     if (pointInPolygon({ x: cooling.x * SCALE, y: cooling.y * SCALE }, candidate.polygon)) {
       state.metrics.heat.coolingCollates += 1;
+      events.push({ type: 'cooling-field-collated' });
     }
     const center = candidate.polygon.reduce((sum, point) => ({ x: sum.x + point.x / candidate.polygon.length, y: sum.y + point.y / candidate.polygon.length }), { x: 0, y: 0 });
     for (const enemy of state.enemies) {
@@ -748,6 +750,7 @@ const collate = (state: GameState, events: GameEvent[]): void => {
       enemy.health = Math.max(1, enemy.health - 60);
       coolTrailNear(state, enemy, 230);
       state.metrics.heat.courierConversions += 1;
+      events.push({ type: 'courier-converted' });
     }
   }
   if (selected.length === 0 && !state.enemies.some((enemy) => pointInPolygon(enemy, candidate.polygon))) state.metrics.emptyLoops += 1;
@@ -777,7 +780,7 @@ export const step = (previous: GameState, input: InputFrame): { state: GameState
   spawnDueEncounters(state);
   updateBoss(state, events);
 
-  applyHeat(state);
+  applyHeat(state, events);
   state.trail = state.trail.filter((point) => state.tick - point.bornTick <= TRAIL_LIFETIME || (point.cooledUntil ?? 0) >= state.tick);
   applyRain(state, events);
   if (state.candidate?.expiresTick && state.candidate.expiresTick < state.tick) state.candidate = null;

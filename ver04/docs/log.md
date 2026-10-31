@@ -210,3 +210,12 @@
 - `m3-14-stage-04-combat.png`、`stage-04-setpiece.png`、`cinder-advocate-phase-1/2/3.png`を1280×720で目視し、敵4役、冷却域、橙の斜線熱壁、火種、シアン二重菱形の冷却反撃、3形態攻撃、HUDを識別できた。文字切れ、前景遮蔽、アトラス混入、当たり判定との著しい見かけのずれはない。
 - 素材台帳をStage 4の5件の`final`へ更新し、Stage 4仮素材を0件にした。単体45件、素材監査32件・仮素材0、型検査、production build、Chrome E2E 10件に合格した。
 - 次回はStage 4専用の炉低周波・金属活字・危機ステムと環境・ボス効果音を制作し、音量監査とChromeのStage遷移・bus・ポーズ同期を確認する。
+
+## 2026-11-01 — M3-15 Stage 4完成音響
+
+- 決定的音声制作へStage 4を追加し、炉の低周波と熱い通風、金属活字とプレスの拍、CINDER ADVOCATEの審理圧を担う16秒の環境・脈動・危機3ステムを44.1kHz stereo PCM16で制作した。Stage 1〜3の生成済み音声は変更していない。
+- 熱波、冷却域COLLATE、Ember Courier変換、火種冷却、熱壁命中、CINDER ADVOCATE形態移行の6効果音を制作した。熱波・冷却域はenvironment bus、残る攻略cueはSE busへ接続し、SE 24・UI 4・環境8・音楽6 voice上限を維持した。
+- 熱波、冷却域、Courier変換にはsimulation由来の専用eventを追加した。Chrome QAでCourier変換が短い山場中に成立しなかった初回失敗は、出現直後のCourierを実攻略と同じ輪へ収める決定的入力へ直し、音だけを直接発火しない回帰テストにした。
+- 全41素材は44.1kHz stereo PCM16で、Stage 4 BGM RMS -20.01〜-19.00 dBFS、SE RMS -18.00 dBFS、SE peak -7.61 dBFS以下に合格した。Stage 4最悪mixはリミッタ前peak -10.41 dBFS、NaN/clip 0で、`docs/evidence/m3-15-audio-audit.json`へ保存した。
+- `npm run verify`で単体46件、自動計測8件、素材監査36 final・仮素材0、音量監査、型検査、production build、Chrome E2E 10件に合格した。ChromeではStage 3→4ステム切替、Stage 4ポーズ停止・tick同期復帰、6専用cueを確認した。
+- 次回はStage 5「鏡写し議場」の鏡面帯・偽像航跡規則、Mirror Mote / Quotation Ram / False Witness / Silver Obelisk、210秒通常区間を実装し、自動計測で固有攻略を検証する。

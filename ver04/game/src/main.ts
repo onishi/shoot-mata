@@ -158,7 +158,19 @@ Object.assign(window, {
       }
       const pilot = createPilot('stitch');
       const ticks = scenario === 'stage-04-combat' ? 5600 : 520;
-      for (let index = 0; index < ticks; index += 1) runStep(pilot(app.game));
+      for (let index = 0; index < ticks; index += 1) {
+        runStep(pilot(app.game));
+        if (scenario === 'stage-04-setpiece' && app.game.metrics.heat.courierConversions === 0) {
+          const courier = app.game.enemies.find((enemy) => enemy.kind === 'ember-courier');
+          if (!courier) continue;
+          const radius = 70 * 256;
+          app.game.candidate = { polygon: [
+            { x: courier.x - radius, y: courier.y - radius }, { x: courier.x + radius, y: courier.y - radius },
+            { x: courier.x + radius, y: courier.y + radius }, { x: courier.x - radius, y: courier.y + radius }
+          ], intersection: { x: courier.x, y: courier.y }, startIndex: 0, area: 19600, expiresTick: app.game.tick + 60 };
+          runStep({ collate: true });
+        }
+      }
     } else if (scenario === 'stage-03-boss') {
       app.game = createInitialState(3307, 'stage-03');
       app.game.player.invulnerableUntil = 80000;
