@@ -4,7 +4,7 @@ import { stageDefinition } from '../content/campaign';
 import { STAGE_01_BOSS_START_TICK, STAGE_01_DURATION_TICKS, type StageEnemySpawn } from '../content/stage-01';
 import { STAGE_02_BOSS_START_TICK, STAGE_02_WIND_HALF_CYCLE_TICKS } from '../content/stage-02';
 import { STAGE_03_BOSS_START_TICK, STAGE_03_RAIN_PERIOD_TICKS, STAGE_03_WET_TICKS } from '../content/stage-03';
-import { STAGE_04_COOLING_EXTENSION_TICKS, STAGE_04_COOLING_RADIUS_PX, STAGE_04_HEAT_PERIOD_TICKS, stageFourCoolingCenter } from '../content/stage-04';
+import { STAGE_04_BOSS_START_TICK, STAGE_04_COOLING_EXTENSION_TICKS, STAGE_04_COOLING_RADIUS_PX, STAGE_04_HEAT_PERIOD_TICKS, stageFourCoolingCenter } from '../content/stage-04';
 import { findLoopCandidate, shotCrossedTrail, shotCrossedWetTrail, shouldAddTrailPoint } from './trail';
 
 const PLAYER_SPEED = Math.round(320 * SCALE / TICK_RATE);
@@ -91,7 +91,8 @@ export const createInitialState = (seed = 1, stageId: StageId = 'stage-01'): Gam
     heat: { waves: 0, trailPointsBurned: 0, trailPointsCooled: 0, cooledTrailPeak: 0, coolingCollates: 0, ashCoolingBursts: 0, censorBrands: 0, courierConversions: 0, pressClosures: 0 },
     boss: { spawned: false, defeated: false, defeatTick: null, phaseReached: [false, false, false], fanWarnings: 0, fanErases: 0, trailPointsErased: 0, returnedHits: 0, ordinaryHits: 0, armorLayersStripped: 0, damageByAttack: { fan: 0, sweep: 0, volley: 0 } },
     compiler: { windLocks: 0, windLockedTicks: 0, weakpointHits: 0, ordinaryHits: 0, phaseReached: [false, false, false], attacks: { gust: 0, lance: 0, storm: 0 }, damageByAttack: { gust: 0, lance: 0, storm: 0 } },
-    eel: { segmentMarks: 0, markedTicks: 0, weakpointHits: 0, wetWeakpointHits: 0, ordinaryHits: 0, phaseReached: [false, false, false], attacks: { drizzle: 0, wake: 0, deluge: 0 }, damageByAttack: { drizzle: 0, wake: 0, deluge: 0 } } }
+    eel: { segmentMarks: 0, markedTicks: 0, weakpointHits: 0, wetWeakpointHits: 0, ordinaryHits: 0, phaseReached: [false, false, false], attacks: { drizzle: 0, wake: 0, deluge: 0 }, damageByAttack: { drizzle: 0, wake: 0, deluge: 0 } },
+    advocate: { embersThrown: 0, embersCooled: 0, cooledHits: 0, wallBlocks: 0, wallActiveTicks: 0, phaseReached: [false, false, false], attacks: { ember: 0, gavel: 0, verdict: 0 }, damageByAttack: { ember: 0, gavel: 0, verdict: 0 } } }
   };
   if (stage.spawns[0]?.tick === 0) {
     state.enemies.push(createEnemy(state, stage.spawns[0]));
@@ -110,7 +111,7 @@ export const copyState = (state: GameState): GameState => ({
   enemies: state.enemies.map((enemy) => ({ ...enemy })),
   boss: state.boss ? { ...state.boss } : null,
   retrace: state.retrace ? { index: state.retrace.index, points: state.retrace.points.map((point) => ({ ...point })) } : null,
-  metrics: { ...state.metrics, wind: { ...state.metrics.wind }, rain: { ...state.metrics.rain }, heat: { ...state.metrics.heat }, enemyStats: Object.fromEntries(Object.entries(state.metrics.enemyStats).map(([kind, stats]) => [kind, { ...stats }])) as GameState['metrics']['enemyStats'], boss: { ...state.metrics.boss, phaseReached: [...state.metrics.boss.phaseReached], damageByAttack: { ...state.metrics.boss.damageByAttack } }, compiler: { ...state.metrics.compiler, phaseReached: [...state.metrics.compiler.phaseReached], attacks: { ...state.metrics.compiler.attacks }, damageByAttack: { ...state.metrics.compiler.damageByAttack } }, eel: { ...state.metrics.eel, phaseReached: [...state.metrics.eel.phaseReached], attacks: { ...state.metrics.eel.attacks }, damageByAttack: { ...state.metrics.eel.damageByAttack } } }
+  metrics: { ...state.metrics, wind: { ...state.metrics.wind }, rain: { ...state.metrics.rain }, heat: { ...state.metrics.heat }, enemyStats: Object.fromEntries(Object.entries(state.metrics.enemyStats).map(([kind, stats]) => [kind, { ...stats }])) as GameState['metrics']['enemyStats'], boss: { ...state.metrics.boss, phaseReached: [...state.metrics.boss.phaseReached], damageByAttack: { ...state.metrics.boss.damageByAttack } }, compiler: { ...state.metrics.compiler, phaseReached: [...state.metrics.compiler.phaseReached], attacks: { ...state.metrics.compiler.attacks }, damageByAttack: { ...state.metrics.compiler.damageByAttack } }, eel: { ...state.metrics.eel, phaseReached: [...state.metrics.eel.phaseReached], attacks: { ...state.metrics.eel.attacks }, damageByAttack: { ...state.metrics.eel.damageByAttack } }, advocate: { ...state.metrics.advocate, phaseReached: [...state.metrics.advocate.phaseReached], attacks: { ...state.metrics.advocate.attacks }, damageByAttack: { ...state.metrics.advocate.damageByAttack } } }
 });
 
 const spawnEnemyBullet = (state: GameState, enemy: Point, angleOffset = 0, speedPx = 145, sourceAttack: Bullet['sourceAttack'] = 'enemy-volley'): boolean => {
@@ -159,6 +160,32 @@ const createEel = (state: GameState): BossState => ({
   activeSegment: 0, segmentMarkedUntil: 0
 });
 
+export const ADVOCATE_WALL_X_PX = 890;
+
+const createAdvocate = (state: GameState): BossState => ({
+  kind: 'cinder-advocate',
+  x: 1080 * SCALE, y: 360 * SCALE, health: 1980, maxHealth: 1980,
+  armor: 0, maxArmor: 0, armorLayers: 0, phase: 1,
+  phaseStartedAt: state.tick, cycleStartedAt: state.tick,
+  fanAngle: Math.PI, fanWarningUntil: 0, fanFiresAt: 0, defeatedAt: null,
+  vaneSide: -1, windLockedUntil: 0, lockedWindDirection: 1, seamExposedUntil: 0,
+  activeSegment: 0, segmentMarkedUntil: 0
+});
+
+const spawnAdvocateEmber = (state: GameState, yOffset: number): void => {
+  if (state.bullets.filter((bullet) => bullet.kind === 'enemy').length >= stageDefinition(state.stageId).entityLimits.enemyBullets) {
+    state.metrics.rejectedEnemyBullets += 1;
+    return;
+  }
+  const boss = state.boss!;
+  const target = { x: 470 * SCALE, y: clamp(state.player.y + yOffset * SCALE, 90 * SCALE, 630 * SCALE) };
+  const angle = Math.atan2(target.y - boss.y, target.x - boss.x);
+  const speed = 42 * SCALE / TICK_RATE;
+  state.bullets.push({ id: state.nextId++, x: boss.x - 70 * SCALE, y: boss.y, vx: Math.round(Math.cos(angle) * speed), vy: Math.round(Math.sin(angle) * speed), radius: 15, kind: 'enemy', annotated: false, capturable: true, sourceAttack: 'advocate-ember' });
+  state.metrics.enemyShots += 1;
+  state.metrics.advocate.embersThrown += 1;
+};
+
 export const eelSegmentPoint = (boss: BossState, tick: number, segment: 0 | 1 | 2): Point => ({
   x: boss.x - (105 + segment * 118) * SCALE,
   y: boss.y + Math.round(Math.sin((tick - boss.phaseStartedAt) / 180 + segment * 1.35) * (72 + segment * 14) * SCALE)
@@ -166,7 +193,57 @@ export const eelSegmentPoint = (boss: BossState, tick: number, segment: 0 | 1 | 
 
 const angleDifference = (a: number, b: number): number => Math.abs(Math.atan2(Math.sin(a - b), Math.cos(a - b)));
 
+const damageAdvocate = (state: GameState, boss: BossState, damage: number, cooledEmber: boolean, events: GameEvent[]): void => {
+  boss.health -= damage;
+  if (cooledEmber) {
+    state.metrics.advocate.cooledHits += 1;
+    events.push({ type: 'advocate-ember-hit' });
+  }
+  const nextPhase = boss.health <= boss.maxHealth / 3 ? 3 : boss.health <= boss.maxHealth * 2 / 3 ? 2 : 1;
+  if (nextPhase > boss.phase) {
+    boss.phase = nextPhase; boss.phaseStartedAt = state.tick; boss.cycleStartedAt = state.tick;
+    state.metrics.boss.phaseReached[nextPhase - 1] = true;
+    state.metrics.advocate.phaseReached[nextPhase - 1] = true;
+    events.push({ type: 'boss-phase', phase: nextPhase });
+  }
+  if (boss.health <= 0) {
+    boss.health = 0; boss.defeatedAt = state.tick;
+    state.metrics.boss.defeated = true; state.metrics.boss.defeatTick = state.tick;
+    state.score += 40000; events.push({ type: 'boss-defeated' }); state.boss = null;
+  }
+};
+
 const updateBoss = (state: GameState, events: GameEvent[]): void => {
+  if (state.stageId === 'stage-04') {
+    if (!state.boss && state.tick >= STAGE_04_BOSS_START_TICK && !state.metrics.boss.defeated) {
+      state.bullets = state.bullets.filter((bullet) => bullet.kind !== 'enemy');
+      state.boss = createAdvocate(state);
+      state.metrics.boss.spawned = true;
+      state.metrics.boss.phaseReached[0] = true;
+      state.metrics.advocate.phaseReached[0] = true;
+      events.push({ type: 'boss-spawned' });
+    }
+    const advocate = state.boss;
+    if (!advocate) return;
+    advocate.y = 360 * SCALE + Math.round(Math.sin((state.tick - STAGE_04_BOSS_START_TICK) / 190) * 54 * SCALE);
+    state.metrics.advocate.wallActiveTicks += 1;
+    const age = state.tick - advocate.cycleStartedAt;
+    const emberPeriod = advocate.phase === 1 ? 180 : advocate.phase === 2 ? 156 : 132;
+    if (age > 0 && age % emberPeriod === 0) {
+      spawnAdvocateEmber(state, advocate.phase === 1 ? 0 : ((Math.floor(age / emberPeriod) % 2) * 2 - 1) * 110);
+      state.metrics.advocate.attacks.ember += 1;
+    }
+    if (advocate.phase === 2 && age > 0 && age % 120 === 0) {
+      const origin = { x: ADVOCATE_WALL_X_PX * SCALE, y: (Math.floor(age / 120) % 2 === 0 ? 170 : 550) * SCALE };
+      for (const offset of [-0.32, -0.16, 0, 0.16, 0.32]) spawnEnemyBullet(state, origin, offset, 142, 'advocate-gavel');
+      state.metrics.advocate.attacks.gavel += 1;
+    } else if (advocate.phase === 3 && age > 0 && age % 84 === 0) {
+      for (const offset of [-0.54, -0.36, -0.18, 0, 0.18, 0.36, 0.54]) spawnEnemyBullet(state, advocate, offset, 166, 'advocate-verdict');
+      state.metrics.advocate.attacks.verdict += 1;
+    }
+    if (age >= 720) advocate.cycleStartedAt = state.tick;
+    return;
+  }
   if (state.stageId === 'stage-03') {
     if (!state.boss && state.tick >= STAGE_03_BOSS_START_TICK && !state.metrics.boss.defeated) {
       state.bullets = state.bullets.filter((bullet) => bullet.kind !== 'enemy');
@@ -619,7 +696,12 @@ const collate = (state: GameState, events: GameEvent[]): void => {
     const dy = target.y - captured.y;
     const length = Math.max(1, Math.hypot(dx, dy));
     const speed = 500 * SCALE / TICK_RATE;
-    state.bullets.push({ id: state.nextId++, x: captured.x, y: captured.y, vx: Math.round(dx / length * speed), vy: Math.round(dy / length * speed), radius: 5, kind: 'return', annotated: true, capturable: false });
+    const cooledEmber = captured.sourceAttack === 'advocate-ember';
+    state.bullets.push({ id: state.nextId++, x: captured.x, y: captured.y, vx: Math.round(dx / length * speed), vy: Math.round(dy / length * speed), radius: cooledEmber ? 10 : 5, kind: 'return', annotated: true, cooledEmber, capturable: false });
+    if (cooledEmber) {
+      state.metrics.advocate.embersCooled += 1;
+      events.push({ type: 'advocate-ember-cooled' });
+    }
   }
   for (const enemy of state.enemies) if (pointInPolygon(enemy, candidate.polygon)) enemy.markedUntil = state.tick + 6 * TICK_RATE;
   state.gauge = clamp(state.gauge + selected.length * 4, 0, 100);
@@ -738,7 +820,21 @@ export const step = (previous: GameState, input: InputFrame): { state: GameState
     let consumed = false;
     if (bullet.kind !== 'enemy') {
       const boss = state.boss;
-      if (boss?.kind === 'lacuna-eel') {
+      if (boss?.kind === 'cinder-advocate') {
+        const crossedWall = !bullet.cooledEmber && bullet.vx > 0
+          && bullet.x >= ADVOCATE_WALL_X_PX * SCALE && bullet.x - bullet.vx < ADVOCATE_WALL_X_PX * SCALE;
+        if (crossedWall) {
+          state.metrics.advocate.wallBlocks += 1;
+          events.push({ type: 'advocate-wall-blocked' });
+          // The wall cannot be erased, but sustained ordinary fire adds one
+          // point of heat stress so a damaged run is slow rather than unwinnable.
+          damageAdvocate(state, boss, 1, false, events);
+          consumed = true;
+        } else if (bullet.cooledEmber && distanceSq(bullet, boss) <= ((bullet.radius + 96) * SCALE) ** 2) {
+          damageAdvocate(state, boss, 180, true, events);
+          consumed = true;
+        }
+      } else if (boss?.kind === 'lacuna-eel') {
         const segment = boss.activeSegment;
         const weakpoint = eelSegmentPoint(boss, state.tick, segment);
         const segmentHit = boss.segmentMarkedUntil >= state.tick
@@ -885,7 +981,9 @@ export const step = (previous: GameState, input: InputFrame): { state: GameState
       // every graze. Erasure remains a property of the Bailiff and Mites.
       const compilerPressure = bullet.sourceAttack === 'compiler-gust'
         || bullet.sourceAttack === 'compiler-lance' || bullet.sourceAttack === 'compiler-storm';
-      if (!compilerPressure) {
+      const advocatePressure = bullet.sourceAttack === 'advocate-ember'
+        || bullet.sourceAttack === 'advocate-gavel' || bullet.sourceAttack === 'advocate-verdict';
+      if (!compilerPressure && !advocatePressure) {
         state.trail = [];
         state.candidate = null;
       }
@@ -898,6 +996,9 @@ export const step = (previous: GameState, input: InputFrame): { state: GameState
       else if (bullet.sourceAttack === 'eel-drizzle') state.metrics.eel.damageByAttack.drizzle += 1;
       else if (bullet.sourceAttack === 'eel-wake') state.metrics.eel.damageByAttack.wake += 1;
       else if (bullet.sourceAttack === 'eel-deluge') state.metrics.eel.damageByAttack.deluge += 1;
+      else if (bullet.sourceAttack === 'advocate-ember') state.metrics.advocate.damageByAttack.ember += 1;
+      else if (bullet.sourceAttack === 'advocate-gavel') state.metrics.advocate.damageByAttack.gavel += 1;
+      else if (bullet.sourceAttack === 'advocate-verdict') state.metrics.advocate.damageByAttack.verdict += 1;
       else if (state.boss) state.metrics.boss.damageByAttack.volley += 1;
       consumed = true;
       events.push({ type: 'damage' });

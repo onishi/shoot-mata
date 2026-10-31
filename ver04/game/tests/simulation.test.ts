@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { px } from '../src/core/math';
-import { createInitialState, eelSegmentPoint, step } from '../src/simulation/game';
+import { ADVOCATE_WALL_X_PX, createInitialState, eelSegmentPoint, step } from '../src/simulation/game';
 import { STAGE_01_BOSS_START_TICK, STAGE_01_SPAWNS } from '../src/content/stage-01';
 import { STAGE_02_BOSS_START_TICK, STAGE_02_SPAWNS } from '../src/content/stage-02';
 import { STAGE_03_BOSS_START_TICK, STAGE_03_SPAWNS } from '../src/content/stage-03';
-import { STAGE_04_SPAWNS, stageFourCoolingCenter } from '../src/content/stage-04';
+import { STAGE_04_BOSS_START_TICK, STAGE_04_SPAWNS, stageFourCoolingCenter } from '../src/content/stage-04';
 import { findLoopCandidate } from '../src/simulation/trail';
 import type { GameState, InputFrame, TrailPoint } from '../src/core/types';
 
@@ -367,5 +367,33 @@ describe('M1 deterministic playground', () => {
     expect(converted.metrics.heat.courierConversions).toBe(1);
     expect(converted.enemies[0].health).toBe(courier.enemies[0].health - 60);
     expect(converted.enemies[0].markedUntil).toBeGreaterThan(converted.tick);
+  });
+
+  it('reduces ordinary fire to heat stress at the Advocate wall and converts a looped ember into the efficient counterattack', () => {
+    let state = createInitialState(44, 'stage-04');
+    state.tick = STAGE_04_BOSS_START_TICK - 1; state.encounterIndex = STAGE_04_SPAWNS.length; state.enemies = [];
+    state = step(state, {}).state;
+    expect(state.boss?.kind).toBe('cinder-advocate');
+
+    state.bullets = [{ id: 800, x: px(ADVOCATE_WALL_X_PX - 2), y: px(360), vx: px(5), vy: 0, radius: 4, kind: 'player', annotated: true, capturable: false }];
+    const blocked = step(state, {}); state = blocked.state;
+    expect(state.metrics.advocate.wallBlocks).toBe(1);
+    expect(state.boss!.health).toBe(state.boss!.maxHealth - 1);
+    expect(blocked.events).toContainEqual({ type: 'advocate-wall-blocked' });
+
+    state.bullets = [{ id: 801, x: px(720), y: px(360), vx: 0, vy: 0, radius: 15, kind: 'enemy', annotated: false, capturable: true, sourceAttack: 'advocate-ember' }];
+    state.candidate = { polygon: [
+      { x: px(650), y: px(290) }, { x: px(790), y: px(290) },
+      { x: px(790), y: px(430) }, { x: px(650), y: px(430) }
+    ], intersection: { x: px(650), y: px(290) }, startIndex: 0, area: 19600, expiresTick: state.tick + 60 };
+    const cooled = step(state, { collate: true }); state = cooled.state;
+    expect(state.metrics.advocate.embersCooled).toBe(1);
+    expect(cooled.events).toContainEqual({ type: 'advocate-ember-cooled' });
+    const counter = state.bullets.find((bullet) => bullet.cooledEmber)!;
+    state.bullets = [{ ...counter, x: state.boss!.x - px(90), y: state.boss!.y, vx: px(5), vy: 0 }];
+    const hit = step(state, {});
+    expect(hit.state.boss!.maxHealth - hit.state.boss!.health).toBe(181);
+    expect(hit.state.metrics.advocate.cooledHits).toBe(1);
+    expect(hit.events).toContainEqual({ type: 'advocate-ember-hit' });
   });
 });

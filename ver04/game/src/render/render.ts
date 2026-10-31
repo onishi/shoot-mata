@@ -1,6 +1,6 @@
 import { HEIGHT, SCALE, TICK_RATE, WIDTH, type GameState, type Point } from '../core/types';
 import type { AppScreen, AppState } from '../app/app';
-import { eelSegmentPoint } from '../simulation/game';
+import { ADVOCATE_WALL_X_PX, eelSegmentPoint } from '../simulation/game';
 import { STAGE_04_COOLING_RADIUS_PX, stageFourCoolingCenter } from '../content/stage-04';
 import { drawSprite, visuals } from './visual-assets';
 
@@ -76,9 +76,12 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
       }
       ctx.stroke();
     }
-    ctx.fillStyle = 'rgba(85,230,232,.1)'; ctx.strokeStyle = 'rgba(151,255,255,.72)'; ctx.lineWidth = 3; ctx.setLineDash([14, 9]);
-    ctx.beginPath(); ctx.arc(cooling.x, cooling.y, STAGE_04_COOLING_RADIUS_PX, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); ctx.setLineDash([]);
-    ctx.fillStyle = '#b9ffff'; ctx.font = '700 13px system-ui, sans-serif'; ctx.textAlign = 'center'; ctx.fillText('COOLING SHADOW', cooling.x, cooling.y - STAGE_04_COOLING_RADIUS_PX - 10); ctx.textAlign = 'start'; ctx.restore();
+    if (state.boss?.kind !== 'cinder-advocate') {
+      ctx.fillStyle = 'rgba(85,230,232,.1)'; ctx.strokeStyle = 'rgba(151,255,255,.72)'; ctx.lineWidth = 3; ctx.setLineDash([14, 9]);
+      ctx.beginPath(); ctx.arc(cooling.x, cooling.y, STAGE_04_COOLING_RADIUS_PX, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle = '#b9ffff'; ctx.font = '700 13px system-ui, sans-serif'; ctx.textAlign = 'center'; ctx.fillText('COOLING SHADOW', cooling.x, cooling.y - STAGE_04_COOLING_RADIUS_PX - 10); ctx.textAlign = 'start';
+    }
+    ctx.restore();
   }
 
   if (state.candidate) {
@@ -210,7 +213,7 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
         ctx.fillStyle = 'rgba(252, 209, 112, .88)'; ctx.font = '700 13px system-ui, sans-serif'; ctx.textAlign = 'center';
         ctx.fillText(`WIND INDEX LOCKED  ${Math.ceil((boss.windLockedUntil - state.tick) / TICK_RATE)}s`, x - 25, Math.min(vaneY, seamY) - 36); ctx.textAlign = 'start';
       }
-    } else {
+    } else if (boss.kind === 'lacuna-eel') {
       const segments = ([0, 1, 2] as const).map((segment) => eelSegmentPoint(boss, state.tick, segment));
       ctx.save(); ctx.lineCap = 'round'; ctx.lineJoin = 'round';
       ctx.beginPath(); ctx.moveTo(x + 35, y);
@@ -235,6 +238,21 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
         ctx.fillText(`WET SEAL  ${Math.ceil((boss.segmentMarkedUntil - state.tick) / TICK_RATE)}s`, active.x / SCALE, active.y / SCALE - 60);
       }
       ctx.textAlign = 'start'; ctx.restore();
+    } else {
+      ctx.save();
+      const pulse = 0.72 + Math.abs(Math.sin(state.tick / 9)) * 0.28;
+      ctx.strokeStyle = `rgba(255,116,54,${pulse})`; ctx.shadowColor = '#ff5b28'; ctx.shadowBlur = 26; ctx.lineWidth = 8;
+      ctx.setLineDash([22, 10, 5, 10]);
+      ctx.beginPath(); ctx.moveTo(ADVOCATE_WALL_X_PX, 76); ctx.lineTo(ADVOCATE_WALL_X_PX, 650); ctx.stroke();
+      ctx.setLineDash([]); ctx.shadowBlur = 12; ctx.lineWidth = 3;
+      for (let yWall = 105; yWall < 650; yWall += 48) {
+        ctx.beginPath(); ctx.moveTo(ADVOCATE_WALL_X_PX - 14, yWall); ctx.lineTo(ADVOCATE_WALL_X_PX + 14, yWall - 18); ctx.stroke();
+      }
+      ctx.translate(x, y); ctx.fillStyle = 'rgba(57,18,12,.94)'; ctx.strokeStyle = '#ffb25f'; ctx.lineWidth = 5;
+      ctx.beginPath(); ctx.moveTo(-72, -92); ctx.lineTo(65, -68); ctx.lineTo(88, 45); ctx.lineTo(18, 98); ctx.lineTo(-80, 56); ctx.closePath(); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = '#ffd07a'; ctx.beginPath(); ctx.arc(-12, -8, 26 + Math.sin(state.tick / 8) * 3, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = '#34140e'; ctx.lineWidth = 6; ctx.beginPath(); ctx.moveTo(-45, 36); ctx.lineTo(45, 36); ctx.stroke();
+      ctx.restore();
     }
     if (boss.kind === 'blank-bailiff' && boss.armorLayers === 0) {
       ctx.save(); ctx.strokeStyle = '#a8f7ff'; ctx.shadowColor = '#42e7ff'; ctx.shadowBlur = 24; ctx.lineWidth = 5;
@@ -246,12 +264,17 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
     const x = bullet.x / SCALE;
     const y = bullet.y / SCALE;
     if (bullet.kind === 'enemy') {
-      ctx.strokeStyle = '#ff826f'; ctx.fillStyle = 'rgba(26, 8, 20, .82)'; ctx.lineWidth = 3;
-      ctx.beginPath(); ctx.arc(x, y, bullet.radius + 3, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+      const ember = bullet.sourceAttack === 'advocate-ember';
+      ctx.strokeStyle = ember ? '#ffe18a' : '#ff826f'; ctx.fillStyle = ember ? 'rgba(133,40,12,.92)' : 'rgba(26, 8, 20, .82)'; ctx.lineWidth = ember ? 5 : 3;
+      ctx.save(); ctx.shadowColor = ember ? '#ff5b28' : 'transparent'; ctx.shadowBlur = ember ? 24 : 0;
+      ctx.beginPath(); ctx.arc(x, y, bullet.radius + 3, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); ctx.restore();
       ctx.strokeStyle = '#ffd1b3'; ctx.lineWidth = 1;
       ctx.beginPath(); ctx.arc(x, y, Math.max(2, bullet.radius - 3), 0, Math.PI * 2); ctx.stroke();
     } else if (bullet.kind === 'return') {
-      drawSprite(ctx, 'return', x, y, 38, 20);
+      if (bullet.cooledEmber) {
+        ctx.save(); ctx.strokeStyle = '#bfffff'; ctx.fillStyle = '#30ced1'; ctx.shadowColor = '#75ffff'; ctx.shadowBlur = 24; ctx.lineWidth = 4;
+        diamond(ctx, x, y, 16); ctx.fill(); ctx.stroke(); ctx.restore();
+      } else drawSprite(ctx, 'return', x, y, 38, 20);
     } else {
       ctx.strokeStyle = bullet.annotated ? '#fcd170' : '#a8f7ff';
       ctx.lineWidth = bullet.annotated ? 5 : 3;
@@ -306,7 +329,7 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
     ctx.textAlign = 'center';
     ctx.fillStyle = '#f5e6c8';
     ctx.font = '700 16px system-ui, sans-serif';
-    const bossName = boss.kind === 'blank-bailiff' ? 'BLANK BAILIFF' : boss.kind === 'crosswind-compiler' ? 'CROSSWIND COMPILER' : 'LACUNA EEL';
+    const bossName = boss.kind === 'blank-bailiff' ? 'BLANK BAILIFF' : boss.kind === 'crosswind-compiler' ? 'CROSSWIND COMPILER' : boss.kind === 'lacuna-eel' ? 'LACUNA EEL' : 'CINDER ADVOCATE';
     ctx.fillText(`${bossName}  ·  PHASE ${boss.phase}`, WIDTH / 2, 76);
     ctx.fillStyle = '#251927'; ctx.fillRect(430, 87, 420, 10);
     ctx.fillStyle = boss.kind === 'blank-bailiff' && boss.armorLayers > 0 ? '#f3d69b' : '#67e8f9';

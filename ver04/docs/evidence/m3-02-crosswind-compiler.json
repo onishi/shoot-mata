@@ -25,7 +25,7 @@
         "storm": 3
       }
     },
-    "hash": "9caec9d52163f3f2"
+    "hash": "61c91f9ea6ca44e1"
   },
   "stitch": {
     "durationTicks": 3252,
@@ -51,9 +51,9 @@
         "storm": 1
       }
     },
-    "hash": "28d14ffdef167a45"
+    "hash": "7179fe0a3ba2bc44"
   },
-  "replayHash": "28d14ffdef167a45",
+  "replayHash": "7179fe0a3ba2bc44",
   "gates": {
     "baselineDefeatsBoss": true,
     "stitchDefeatsBoss": true,

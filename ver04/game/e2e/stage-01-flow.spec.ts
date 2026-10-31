@@ -7,7 +7,7 @@ type QaWindow = Window & {
   __PALIMPSEST_ADVANCE__: (ticks: number) => number;
   __PALIMPSEST_APP_STATE__: () => { screen: Screen; continuesRemaining: number; checkpointName: string; game: { stageId: string; tick: number; player: { health: number }; gauge: number } };
   __PALIMPSEST_STATE__: () => { bullets: unknown[]; trail: unknown[]; candidate: unknown; metrics: { loops: number; retraces: number } };
-  __PALIMPSEST_QA_SCENARIO__: (scenario: 'damage' | 'setpiece' | 'stage-02-combat' | 'stage-02-setpiece' | 'stage-03-combat' | 'stage-03-setpiece' | 'stage-03-boss' | 'stage-04-combat' | 'stage-04-setpiece' | 'boss-gate' | 'boss-defeat' | 'stage-02-boss') => Screen;
+  __PALIMPSEST_QA_SCENARIO__: (scenario: 'damage' | 'setpiece' | 'stage-02-combat' | 'stage-02-setpiece' | 'stage-03-combat' | 'stage-03-setpiece' | 'stage-03-boss' | 'stage-04-combat' | 'stage-04-setpiece' | 'stage-04-boss' | 'boss-gate' | 'boss-defeat' | 'stage-02-boss') => Screen;
   __PALIMPSEST_AUDIO_READY__: () => Promise<void>;
   __PALIMPSEST_AUDIO_STATE__: () => { state: string; loaded: number; stems: number; stemStage: string | null; active: number; busLevels: Record<string, number>; cueCounts: Record<string, number> };
   __PALIMPSEST_AUDIO_BUS__: (bus: 'music' | 'se' | 'ui' | 'environment', level: number) => void;
@@ -365,4 +365,35 @@ test('Stage 4 preview exposes heat erosion, cooling shadow and all four enemy ro
   expect(state.metrics.heat.trailPointsBurned).toBeGreaterThan(0);
   expect(state.metrics.heat.trailPointsCooled).toBeGreaterThan(0);
   await page.locator('#game').screenshot({ path: '../docs/evidence/m3-11-stage-04-setpiece.png' });
+});
+
+test('CINDER ADVOCATE preview shows its permanent heat wall, cooled counterfire and final verdict', async ({ page }) => {
+  await page.goto('/'); await page.keyboard.press('Enter'); await page.keyboard.press('Enter');
+  await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_QA_SCENARIO__('stage-04-boss'));
+  let state = await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_STATE__()) as unknown as {
+    tick: number; boss: { kind: string; phase: number; health: number; cycleStartedAt: number } | null;
+    bullets: Array<{ sourceAttack?: string; cooledEmber?: boolean }>;
+    metrics: { advocate: { embersCooled: number; cooledHits: number; wallActiveTicks: number; phaseReached: boolean[] } };
+  };
+  expect(state.boss?.kind).toBe('cinder-advocate');
+  expect(state.metrics.advocate.embersCooled).toBeGreaterThan(0);
+  expect(state.metrics.advocate.cooledHits).toBeGreaterThan(0);
+  expect(state.metrics.advocate.wallActiveTicks).toBeGreaterThan(0);
+  expect(state.bullets.some((bullet) => bullet.cooledEmber)).toBe(true);
+  await page.locator('#game').screenshot({ path: '../docs/evidence/m3-12-cinder-advocate-phase-1.png' });
+
+  await page.evaluate(() => {
+    const state = (window as unknown as QaWindow).__PALIMPSEST_STATE__() as unknown as {
+      tick: number; boss: { phase: number; health: number; phaseStartedAt: number; cycleStartedAt: number };
+      metrics: { advocate: { phaseReached: boolean[] } };
+    };
+    state.boss.phase = 3; state.boss.health = 500; state.boss.phaseStartedAt = state.tick; state.boss.cycleStartedAt = state.tick;
+    state.metrics.advocate.phaseReached = [true, true, true];
+  });
+  await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_ADVANCE__(170));
+  await page.waitForTimeout(50);
+  state = await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_STATE__()) as unknown as typeof state;
+  expect(state.boss?.phase).toBe(3);
+  expect(state.bullets.some((bullet) => bullet.sourceAttack === 'advocate-verdict')).toBe(true);
+  await page.locator('#game').screenshot({ path: '../docs/evidence/m3-12-cinder-advocate-phase-3.png' });
 });

@@ -3,10 +3,10 @@
 - Duration: 23400 ticks (195 seconds)
 - Scheduled spawns: 65
 - Max enemies / enemy bullets: 9 / 105
-- Longest no-combat gap: 0 ticks
+- Longest no-combat gap: 1 ticks
 - Burned / cooled trail points: 480 / 3359
 - Cooling COLLATE / courier conversions: 5 / 5
-- Determinism hashes: 64da2fe2d0c83ef8, 64da2fe2d0c83ef8, 64da2fe2d0c83ef8, 64da2fe2d0c83ef8
+- Determinism hashes: e55a2b98a6c12567, e55a2b98a6c12567, e55a2b98a6c12567, e55a2b98a6c12567
 
 | Enemy | Spawned | Attacks | Defeated | Exited |
 | --- | ---: | ---: | ---: | ---: |

@@ -13,9 +13,11 @@ export interface Bullet extends Point {
   kind: 'player' | 'enemy' | 'return';
   annotated: boolean;
   wetAnnotated?: boolean;
+  cooledEmber?: boolean;
   capturable: boolean;
   sourceAttack?: 'enemy-volley' | 'boss-fan' | 'boss-sweep' | 'compiler-gust' | 'compiler-lance' | 'compiler-storm'
-    | 'eel-drizzle' | 'eel-wake' | 'eel-deluge';
+    | 'eel-drizzle' | 'eel-wake' | 'eel-deluge'
+    | 'advocate-ember' | 'advocate-gavel' | 'advocate-verdict';
 }
 export type StageId = 'stage-01' | 'stage-02' | 'stage-03' | 'stage-04';
 export type EnemyKind =
@@ -43,7 +45,7 @@ export interface Enemy extends Point {
   stateTick: number;
 }
 export interface BossState extends Point {
-  kind: 'blank-bailiff' | 'crosswind-compiler' | 'lacuna-eel';
+  kind: 'blank-bailiff' | 'crosswind-compiler' | 'lacuna-eel' | 'cinder-advocate';
   health: number;
   maxHealth: number;
   armor: number;
@@ -102,6 +104,9 @@ export type GameEvent =
   | { type: 'wet-annotation' }
   | { type: 'eel-segment-marked'; segment: 0 | 1 | 2 }
   | { type: 'eel-segment-hit'; segment: 0 | 1 | 2 }
+  | { type: 'advocate-ember-cooled' }
+  | { type: 'advocate-ember-hit' }
+  | { type: 'advocate-wall-blocked' }
   | { type: 'boss-defeated' };
 export interface Metrics {
   candidates: number;
@@ -178,6 +183,16 @@ export interface Metrics {
     phaseReached: [boolean, boolean, boolean];
     attacks: { drizzle: number; wake: number; deluge: number };
     damageByAttack: { drizzle: number; wake: number; deluge: number };
+  };
+  advocate: {
+    embersThrown: number;
+    embersCooled: number;
+    cooledHits: number;
+    wallBlocks: number;
+    wallActiveTicks: number;
+    phaseReached: [boolean, boolean, boolean];
+    attacks: { ember: number; gavel: number; verdict: number };
+    damageByAttack: { ember: number; gavel: number; verdict: number };
   };
 }
 export interface GameState {

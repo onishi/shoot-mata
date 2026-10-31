@@ -55,6 +55,7 @@ export const createPilot = (name: PilotName): ((state: GameState) => InputFrame)
   let loopSequence = 0;
   let compilerPhase = 0;
   let eelPhase = 0;
+  let advocatePhase = 0;
   const reactionTicks = name === 'safe' ? 8 : name === 'stitch' ? 10 : name === 'sweep' ? 14 : 12;
 
   return (state: GameState): InputFrame => {
@@ -72,6 +73,13 @@ export const createPilot = (name: PilotName): ((state: GameState) => InputFrame)
       candidateSeenAt = 0;
       nextDecision = state.tick;
     }
+    if (name === 'stitch' && state.boss?.kind === 'cinder-advocate' && state.boss.phase !== advocatePhase) {
+      advocatePhase = state.boss.phase;
+      attackUntil = 0;
+      waypoints = [];
+      candidateSeenAt = 0;
+      nextDecision = state.tick;
+    }
     if (state.tick < nextDecision) return { ...held, collate: false, retrace: false };
     nextDecision = state.tick + reactionTicks;
 
@@ -80,7 +88,10 @@ export const createPilot = (name: PilotName): ((state: GameState) => InputFrame)
       ? compilerPoint(state, 'seam') : null;
     const eelWeakpoint = state.boss?.kind === 'lacuna-eel'
       ? eelSegmentPoint(state.boss, state.tick, state.boss.activeSegment) : null;
-    const target = exposedSeam ?? eelWeakpoint ?? visible;
+    const advocateEmber = state.boss?.kind === 'cinder-advocate'
+      ? state.bullets.filter((bullet) => bullet.sourceAttack === 'advocate-ember')
+        .sort((a, b) => b.x - a.x || a.id - b.id)[0] ?? null : null;
+    const target = exposedSeam ?? eelWeakpoint ?? advocateEmber ?? visible;
     if (name === 'baseline') {
       const aimY = target?.y ?? px(360);
       held = moveToward(state.player, { x: px(300), y: aimY });
@@ -94,10 +105,12 @@ export const createPilot = (name: PilotName): ((state: GameState) => InputFrame)
         || (name === 'safe' && targets > 0)
         || (name === 'sweep' && (targets >= 2 || state.tick - candidateSeenAt >= 42));
       if (shouldCollate) {
+        const coolsAdvocateEmber = state.boss?.kind === 'cinder-advocate'
+          && state.bullets.some((bullet) => bullet.sourceAttack === 'advocate-ember' && pointInPolygon(bullet, state.candidate!.polygon));
         candidateSeenAt = 0;
         waypoints = [];
         loopSequence += 1;
-        attackUntil = state.tick + (name === 'safe' ? 240 : name === 'stitch' ? 420 : 300);
+        attackUntil = state.tick + (coolsAdvocateEmber ? 48 : name === 'safe' ? 240 : name === 'stitch' ? 420 : 300);
         held = { fire: true, collate: true };
         return held;
       }
@@ -141,22 +154,28 @@ export const createPilot = (name: PilotName): ((state: GameState) => InputFrame)
       }
     }
 
+    if (name === 'stitch' && state.boss?.kind === 'cinder-advocate' && !advocateEmber) {
+      held = moveToward(state.player, { x: px(610), y: state.boss.y });
+      return held;
+    }
+
     if (waypoints.length === 0) {
       const compilerVane = name === 'stitch' ? compilerPoint(state, 'vane') : null;
-      const cooling = state.stageId === 'stage-04' ? stageFourCoolingCenter(state.tick) : null;
+      const cooling = state.stageId === 'stage-04' && state.boss?.kind !== 'cinder-advocate' ? stageFourCoolingCenter(state.tick) : null;
       const coolingTarget = cooling ? { x: px(cooling.x), y: px(cooling.y) } : null;
       const courierTarget = state.stageId === 'stage-04' && loopSequence % 4 === 0
         ? state.enemies.find((enemy) => enemy.kind === 'ember-courier') ?? null : null;
-      const loopTarget = name === 'stitch' ? (compilerVane ?? eelWeakpoint ?? courierTarget ?? coolingTarget) : null;
-      const centerX = loopTarget?.x ?? (name === 'safe' ? px(300) : Math.min(px(910), Math.max(px(650), target?.x ?? px(900))));
+      const loopTarget = name === 'stitch' ? (compilerVane ?? eelWeakpoint ?? advocateEmber ?? courierTarget ?? coolingTarget) : null;
+      const advocateCenterOffset = advocateEmber ? px(45) : 0;
+      const centerX = loopTarget ? loopTarget.x - advocateCenterOffset : (name === 'safe' ? px(300) : Math.min(px(910), Math.max(px(650), target?.x ?? px(900))));
       const rawCenterY = name === 'safe'
         ? Math.min(px(600), Math.max(px(120), state.player.y))
         : Math.min(px(570), Math.max(px(150), loopTarget?.y ?? target?.y ?? px(360)));
       const centerY = Math.min(px(590), Math.max(px(130), rawCenterY + px((loopSequence % 3 - 1) * 14)));
       // Leave headroom inside the 3.2 second trail lifetime for reaction delay
       // and quantized corner arrival.
-      const halfWidth = px(loopTarget ? 75 : name === 'safe' ? 75 : name === 'stitch' ? 100 : 115);
-      const halfHeight = px(loopTarget ? 55 : name === 'safe' ? 55 : name === 'stitch' ? 75 : 90);
+      const halfWidth = px(advocateEmber ? 95 : loopTarget ? 75 : name === 'safe' ? 75 : name === 'stitch' ? 100 : 115);
+      const halfHeight = px(advocateEmber ? 58 : loopTarget ? 55 : name === 'safe' ? 55 : name === 'stitch' ? 75 : 90);
       waypoints = [
         { x: centerX - halfWidth, y: centerY - halfHeight },
         { x: centerX + halfWidth, y: centerY - halfHeight },

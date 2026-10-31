@@ -7,7 +7,7 @@
 - Gust / lance / storm attacks: 5 / 15 / 2
 - Gust / lance / storm damage: 3 / 4 / 1
 - Max enemy bullets: 31
-- Stitch / replay hashes: 28d14ffdef167a45, 28d14ffdef167a45
+- Stitch / replay hashes: 7179fe0a3ba2bc44, 7179fe0a3ba2bc44
 
 | Gate | Result |
 | --- | --- |
