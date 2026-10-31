@@ -87,12 +87,67 @@ test('Stage 1 title-to-result keyboard flow, continue and focus pause work in Ch
 
   await scenario('boss-gate');
   const bossGate = await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_APP_STATE__());
-  expect(bossGate.checkpointName).toBe('boss-gate');
+  expect(bossGate.checkpointName).toBe('bailiff-gate');
   await scenario('boss-defeat');
   expect(await screen()).toBe('result');
   await canvas.screenshot({ path: '../docs/evidence/m2-03-result.png' });
   await page.keyboard.press('Enter');
+  expect(await screen()).toBe('stage-intro');
+  expect((await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_APP_STATE__())).game).toMatchObject({ tick: 0 });
+});
+
+test('campaign advances through Stage 2, restores both checkpoints and reaches its result', async ({ page }) => {
+  await page.goto('/');
+  const canvas = page.locator('#game');
+  const screen = () => page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_APP_STATE__().screen);
+  const scenario = (name: 'damage' | 'boss-gate' | 'boss-defeat') => page.evaluate((value) => (window as unknown as QaWindow).__PALIMPSEST_QA_SCENARIO__(value), name);
+  await page.keyboard.press('Enter');
+  await page.keyboard.press('Enter');
+  await scenario('boss-gate');
+  await scenario('boss-defeat');
+  await page.keyboard.press('Enter');
+  let state = await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_APP_STATE__()) as unknown as { screen: Screen; checkpointName: string; continuesRemaining: number; game: { stageId: string; tick: number; player: { health: number }; gauge: number } };
+  expect(state).toMatchObject({ screen: 'stage-intro', checkpointName: 'crosswind-entry', continuesRemaining: 1, game: { stageId: 'stage-02', tick: 0 } });
+  await canvas.screenshot({ path: '../docs/evidence/m3-03-stage-02-intro.png' });
+  await page.keyboard.press('Enter');
+
+  await scenario('damage');
+  expect(await screen()).toBe('continue');
+  await page.keyboard.press('Enter');
+  state = await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_APP_STATE__()) as typeof state;
+  expect(state).toMatchObject({ screen: 'stage-intro', checkpointName: 'crosswind-entry', continuesRemaining: 0, game: { stageId: 'stage-02', tick: 0, player: { health: 3 }, gauge: 50 } });
+  await page.keyboard.press('Enter');
+
+  await scenario('boss-gate');
+  state = await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_APP_STATE__()) as typeof state;
+  expect(state.checkpointName).toBe('compiler-gate');
+  await page.keyboard.press('Escape');
+  const pausedTick = (await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_APP_STATE__())).game.tick;
+  await page.waitForTimeout(80);
+  expect((await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_APP_STATE__())).game.tick).toBe(pausedTick);
+  await page.keyboard.press('Escape');
+  await scenario('boss-defeat');
+  expect(await screen()).toBe('result');
+  await canvas.screenshot({ path: '../docs/evidence/m3-03-stage-02-result.png' });
+  await page.keyboard.press('Enter');
   expect(await screen()).toBe('title');
+
+  // A fresh voyage verifies the independent per-stage revision at the second
+  // checkpoint as well; the first half spent it at the Stage 2 entry.
+  await page.keyboard.press('Enter');
+  await page.keyboard.press('Enter');
+  await scenario('boss-gate');
+  await scenario('boss-defeat');
+  await page.keyboard.press('Enter');
+  await page.keyboard.press('Enter');
+  await scenario('boss-gate');
+  state = await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_APP_STATE__()) as typeof state;
+  expect(state).toMatchObject({ screen: 'playing', checkpointName: 'compiler-gate', continuesRemaining: 1, game: { stageId: 'stage-02' } });
+  await scenario('damage');
+  expect(await screen()).toBe('continue');
+  await page.keyboard.press('Enter');
+  state = await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_APP_STATE__()) as typeof state;
+  expect(state).toMatchObject({ screen: 'stage-intro', checkpointName: 'compiler-gate', continuesRemaining: 0, game: { stageId: 'stage-02', tick: 21600, player: { health: 3 }, gauge: 50 } });
 });
 
 test('Stage 1 final visual assets remain readable in combat, set piece and boss phases', async ({ page }) => {

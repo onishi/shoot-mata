@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { advance, autoPause, createAppState, transition, type AppState } from '../src/app/app';
 import { STAGE_01_BOSS_START_TICK, STAGE_01_SPAWNS } from '../src/content/stage-01';
+import { STAGE_02_BOSS_START_TICK, STAGE_02_SPAWNS } from '../src/content/stage-02';
 import { px } from '../src/core/math';
 
 const start = (): AppState => transition(transition(createAppState(404), 'start'), 'confirm');
@@ -54,7 +55,7 @@ describe('M2 application flow', () => {
     app.game.encounterIndex = STAGE_01_SPAWNS.length;
     app.game.enemies = [];
     app = advance(app).state;
-    expect(app.checkpointName).toBe('boss-gate');
+    expect(app.checkpointName).toBe('bailiff-gate');
     expect(app.checkpoint.tick).toBe(STAGE_01_BOSS_START_TICK);
     app.game.player.x = px(500);
     app = fatalHit(app);
@@ -63,6 +64,55 @@ describe('M2 application flow', () => {
     expect(app.game.player.x).not.toBe(px(500));
     expect(app.game.bullets.filter((bullet) => bullet.kind === 'enemy')).toHaveLength(0);
     expect(app.game.boss).not.toBeNull();
+  });
+
+  it('continues from the Stage 1 result into a fresh Stage 2 voyage', () => {
+    let app = start();
+    app.game.tick = STAGE_01_BOSS_START_TICK - 1;
+    app.game.encounterIndex = STAGE_01_SPAWNS.length;
+    app.game.enemies = [];
+    app = advance(app).state;
+    app.game.boss!.armorLayers = 0;
+    app.game.boss!.health = 1;
+    app.game.bullets = [{ id: app.game.nextId++, x: app.game.boss!.x, y: app.game.boss!.y, vx: 0, vy: 0, radius: 5, kind: 'return', annotated: true, capturable: false }];
+    app = advance(app).state;
+    app = transition(app, 'confirm');
+    expect(app.screen).toBe('stage-intro');
+    expect(app.game.stageId).toBe('stage-02');
+    expect(app.game.tick).toBe(0);
+    expect(app.checkpointName).toBe('crosswind-entry');
+    expect(app.continuesRemaining).toBe(1);
+  });
+
+  it('restores both Stage 2 checkpoints and stops on every overlay', () => {
+    let app = start();
+    app.game.metrics.boss.defeated = true;
+    app.screen = 'result';
+    app = transition(transition(app, 'confirm'), 'confirm');
+    expect(app.game.stageId).toBe('stage-02');
+    app = fatalHit(app);
+    expect(app.screen).toBe('continue');
+    const entryTick = app.game.tick;
+    expect(advance(app).state.game.tick).toBe(entryTick);
+    app = transition(transition(app, 'confirm'), 'confirm');
+    expect(app.game.tick).toBe(0);
+    expect(app.game.player.health).toBe(3);
+
+    app.game.tick = STAGE_02_BOSS_START_TICK - 1;
+    app.game.encounterIndex = STAGE_02_SPAWNS.length;
+    app.game.enemies = [];
+    app = advance(app).state;
+    expect(app.checkpointName).toBe('compiler-gate');
+    expect(app.checkpoint.tick).toBe(STAGE_02_BOSS_START_TICK);
+    app.game.player.x = px(500);
+    app.continuesRemaining = 1;
+    app = fatalHit(app);
+    app = transition(app, 'confirm');
+    expect(app.screen).toBe('stage-intro');
+    expect(app.game.tick).toBe(STAGE_02_BOSS_START_TICK);
+    expect(app.game.player.x).not.toBe(px(500));
+    expect(app.game.bullets.filter((bullet) => bullet.kind === 'enemy')).toHaveLength(0);
+    expect(app.game.boss?.kind).toBe('crosswind-compiler');
   });
 
   it('enters result when the boss is defeated and auto-pauses only active play', () => {

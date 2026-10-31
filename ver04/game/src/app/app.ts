@@ -1,26 +1,35 @@
-import type { GameEvent, GameState, InputFrame } from '../core/types';
+import type { GameEvent, GameState, InputFrame, StageId } from '../core/types';
 import { copyState, createInitialState, step } from '../simulation/game';
 
 export type AppScreen = 'title' | 'guide' | 'stage-intro' | 'playing' | 'paused' | 'continue' | 'result';
 export type AppAction = 'start' | 'guide' | 'confirm' | 'back' | 'pause';
+export type CheckpointName = 'harbor-entry' | 'bailiff-gate' | 'crosswind-entry' | 'compiler-gate';
 
 export interface AppState {
   screen: AppScreen;
   game: GameState;
   checkpoint: GameState;
-  checkpointName: 'harbor-entry' | 'boss-gate';
+  checkpointName: CheckpointName;
   continuesRemaining: number;
 }
+
+const entryCheckpoint = (stageId: StageId): CheckpointName => stageId === 'stage-01' ? 'harbor-entry' : 'crosswind-entry';
+const bossCheckpoint = (stageId: StageId): CheckpointName => stageId === 'stage-01' ? 'bailiff-gate' : 'compiler-gate';
+
+const beginStage = (stageId: StageId, seed: number): AppState => {
+  const game = createInitialState(seed || 404, stageId);
+  return {
+    screen: 'stage-intro', game, checkpoint: copyState(game),
+    checkpointName: entryCheckpoint(stageId), continuesRemaining: 1
+  };
+};
 
 export const createAppState = (seed = 404): AppState => {
   const game = createInitialState(seed);
   return { screen: 'title', game, checkpoint: copyState(game), checkpointName: 'harbor-entry', continuesRemaining: 1 };
 };
 
-const freshVoyage = (state: AppState): AppState => {
-  const game = createInitialState(state.game.seed || 404);
-  return { screen: 'stage-intro', game, checkpoint: copyState(game), checkpointName: 'harbor-entry', continuesRemaining: 1 };
-};
+const freshVoyage = (state: AppState): AppState => beginStage('stage-01', state.game.seed);
 
 export const transition = (state: AppState, action: AppAction): AppState => {
   if (state.screen === 'title') {
@@ -58,7 +67,11 @@ export const transition = (state: AppState, action: AppAction): AppState => {
     }
     return state;
   }
-  if (state.screen === 'result' && (action === 'confirm' || action === 'back')) return { ...state, screen: 'title' };
+  if (state.screen === 'result') {
+    if (action === 'back') return { ...state, screen: 'title' };
+    if (action === 'confirm' && state.game.stageId === 'stage-01') return beginStage('stage-02', state.game.seed);
+    if (action === 'confirm') return { ...state, screen: 'title' };
+  }
   return state;
 };
 
@@ -66,7 +79,9 @@ export const advance = (state: AppState, input: InputFrame = {}): { state: AppSt
   if (state.screen !== 'playing') return { state, events: [] };
   const result = step(state.game, input);
   let next: AppState = { ...state, game: result.state };
-  if (result.events.some((event) => event.type === 'boss-spawned')) next = { ...next, checkpoint: copyState(result.state), checkpointName: 'boss-gate' };
+  if (result.events.some((event) => event.type === 'boss-spawned')) {
+    next = { ...next, checkpoint: copyState(result.state), checkpointName: bossCheckpoint(result.state.stageId) };
+  }
   if (result.state.player.health <= 0) next = { ...next, screen: 'continue' };
   else if (result.events.some((event) => event.type === 'boss-defeated')) next = { ...next, screen: 'result' };
   return { state: next, events: result.events };

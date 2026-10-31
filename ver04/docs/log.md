@@ -100,3 +100,12 @@
 - 単体32件、Stage 1/2通常・ボス自動計測4件、素材・音量監査、型検査、production build、Chrome E2E 4件が`npm run verify`で合格した。
 - Chrome画像を目視し、風見翼、反対側の露出綴じ目、風固定残り時間、3形態HUD、敵弾、航跡が判別でき、1280×720で文字切れがないことを確認した。Stage 2専用背景・完成アトラス・音は未制作のため、画像は開発用プレビューとして扱う。
 - 次回はStage 1結果からStage 2導入・通常区間・ボス・結果までをAppStateで接続し、Stage 2開始地点とボス直前のコンティニューを実装する。
+
+## 2026-10-31 — M3-03 Stage 1→2キャンペーン遷移と復帰
+
+- Stageごとの開始処理をAppStateへ追加し、Stage 1結果の決定入力からStage 2章導入、通常区間、CROSSWIND COMPILER、Stage 2結果、タイトル帰還までを接続した。Stage 1結果ではEscapeによる終了も維持した。
+- チェックポイントを`harbor-entry`、`bailiff-gate`、`crosswind-entry`、`compiler-gate`へ一般化した。各面で1回だけ、開始地点またはボス直前へ耐久3・ゲージ50・未確定航跡なし・敵弾なしで復帰する。
+- Stage 2専用の章題、横風教材、Compiler攻略文、結果文を追加した。`m3-03-stage-02-intro.png`と`m3-03-stage-02-result.png`を1280×720で目視し、文字切れ・重なりがなく、Stage 1との画面状態差を識別できることを確認した。
+- Chrome高速通しでStage 1結果からStage 2結果まで到達し、Stage 2開始地点とCompiler直前の両方から復帰、ポーズ中・コンティニュー中のtick停止、Stage 1の旧遷移を確認した。
+- `npm run verify`で単体34件、自動計測4件、素材・音量監査、型検査、production build、Chrome E2E 5件に合格した。Stage 1/2のsimulation規則と既存自動計測値は変更していない。
+- 次回はStage 2専用の背景3層、4通常敵、CROSSWIND COMPILER、風向・弱点表現を完成素材へ置き換え、通常戦・山場・ボス3形態を画像確認する。

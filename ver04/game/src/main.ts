@@ -85,7 +85,9 @@ const runStep = (frameInput: InputFrame): void => {
   audio.setScreen(app.screen, app.game.tick);
   if (result.events.some((event) => event.type === 'loop-collated')) status.textContent = 'COLLATE succeeded. Captured fire has been returned.';
   if (app.screen === 'continue') status.textContent = 'The wake broke. Continue from the checkpoint or return to title.';
-  if (app.screen === 'result') status.textContent = 'Stage 1 complete. The harbor remembers.';
+  if (app.screen === 'result') status.textContent = app.game.stageId === 'stage-01'
+    ? 'Stage 1 complete. Continue into the Crosswind Index.'
+    : 'Stage 2 complete. The index holds its course.';
 };
 
 const frame = (now: number): void => {
@@ -156,8 +158,9 @@ Object.assign(window, {
       const pilot = createPilot('stitch');
       for (let index = 0; index < 180 && app.screen === 'playing'; index += 1) runStep(pilot(app.game));
     } else if (scenario === 'boss-gate') {
-      app.game.tick = STAGE_01_BOSS_START_TICK - 1;
-      app.game.encounterIndex = STAGE_01_SPAWNS.length;
+      const stageTwo = app.game.stageId === 'stage-02';
+      app.game.tick = (stageTwo ? STAGE_02_BOSS_START_TICK : STAGE_01_BOSS_START_TICK) - 1;
+      app.game.encounterIndex = stageTwo ? STAGE_02_SPAWNS.length : STAGE_01_SPAWNS.length;
       app.game.enemies = [];
       app.game.bullets = [];
       runStep({});
