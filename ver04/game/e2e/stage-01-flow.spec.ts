@@ -465,7 +465,7 @@ test('Stage 4 final visuals expose heat erosion, cooling shadow and all four ene
   await page.locator('#game').screenshot({ path: '../docs/evidence/m3-14-stage-04-setpiece.png' });
 });
 
-test('Stage 5 preview separates real and false wakes across all four enemy roles', async ({ page }) => {
+test('Stage 5 final visuals separate real and false wakes across all four enemy roles', async ({ page }) => {
   await page.goto('/'); await page.keyboard.press('Enter'); await page.keyboard.press('Enter');
   await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_QA_SCENARIO__('stage-05-combat'));
   let state = await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_STATE__()) as unknown as {
@@ -475,13 +475,13 @@ test('Stage 5 preview separates real and false wakes across all four enemy roles
   expect(state.metrics.mirror.falseTrailPeak).toBeGreaterThan(0);
   expect(state.metrics.mirror.falseAnnotations).toBeGreaterThan(0);
   expect(state.metrics.mirror.illusoryShots).toBeGreaterThan(0);
-  await page.locator('#game').screenshot({ path: '../docs/evidence/m3-16-stage-05-combat.png' });
+  await page.locator('#game').screenshot({ path: '../docs/evidence/m3-19-stage-05-combat.png' });
 
   await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_QA_SCENARIO__('stage-05-setpiece'));
   state = await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_STATE__()) as unknown as typeof state;
   expect(state.metrics.mirror.falseTrailPeak).toBeGreaterThan(0);
   expect(state.metrics.mirror.illusoryShots).toBeGreaterThan(0);
-  await page.locator('#game').screenshot({ path: '../docs/evidence/m3-16-stage-05-setpiece.png' });
+  await page.locator('#game').screenshot({ path: '../docs/evidence/m3-19-stage-05-setpiece.png' });
 });
 
 test('CINDER ADVOCATE final visuals show its permanent heat wall, cooled counterfire and all phases', async ({ page }) => {
@@ -538,7 +538,7 @@ test('CINDER ADVOCATE final visuals show its permanent heat wall, cooled counter
   await page.locator('#game').screenshot({ path: '../docs/evidence/m3-14-cinder-advocate-phase-3.png' });
 });
 
-test('APOCRYPHA TWINS preview shows shared sync, one exposed twin and all three attack forms', async ({ page }) => {
+test('APOCRYPHA TWINS final visuals show shared sync, one exposed twin and all three attack forms', async ({ page }) => {
   await page.goto('/'); await page.keyboard.press('Enter'); await page.keyboard.press('Enter');
   await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_QA_SCENARIO__('stage-05-boss'));
   let state = await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_STATE__()) as unknown as {
@@ -549,7 +549,7 @@ test('APOCRYPHA TWINS preview shows shared sync, one exposed twin and all three 
   expect(state.boss?.kind).toBe('apocrypha-twins');
   expect(state.metrics.apocrypha.syncBreaks).toBe(1);
   expect(state.boss!.syncBrokenUntil).toBeGreaterThan(state.tick);
-  await page.locator('#game').screenshot({ path: '../docs/evidence/m3-17-apocrypha-twins-phase-1.png' });
+  await page.locator('#game').screenshot({ path: '../docs/evidence/m3-19-apocrypha-twins-phase-1.png' });
 
   await page.evaluate(() => {
     const state = (window as unknown as QaWindow).__PALIMPSEST_STATE__() as unknown as {
@@ -561,7 +561,7 @@ test('APOCRYPHA TWINS preview shows shared sync, one exposed twin and all three 
     state.metrics.apocrypha.phaseReached = [true, true, false];
   });
   await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_ADVANCE__(110));
-  await page.locator('#game').screenshot({ path: '../docs/evidence/m3-17-apocrypha-twins-phase-2.png' });
+  await page.locator('#game').screenshot({ path: '../docs/evidence/m3-19-apocrypha-twins-phase-2.png' });
 
   await page.evaluate(() => {
     const state = (window as unknown as QaWindow).__PALIMPSEST_STATE__() as unknown as {
@@ -577,5 +577,5 @@ test('APOCRYPHA TWINS preview shows shared sync, one exposed twin and all three 
   expect(state.boss?.phase).toBe(3);
   expect(state.bullets.some((bullet) => bullet.sourceAttack === 'twins-verdict')).toBe(true);
   expect(state.bullets.some((bullet) => bullet.illusory)).toBe(true);
-  await page.locator('#game').screenshot({ path: '../docs/evidence/m3-17-apocrypha-twins-phase-3.png' });
+  await page.locator('#game').screenshot({ path: '../docs/evidence/m3-19-apocrypha-twins-phase-3.png' });
 });

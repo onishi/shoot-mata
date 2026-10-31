@@ -22,7 +22,7 @@ const diamond = (ctx: CanvasRenderingContext2D, x: number, y: number, radius: nu
 };
 
 export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: boolean): void => {
-  const stageVisuals = state.stageId === 'stage-05' ? undefined : visuals[state.stageId];
+  const stageVisuals = visuals[state.stageId];
   ctx.fillStyle = '#071121';
   ctx.fillRect(0, 0, WIDTH, HEIGHT);
   if (stageVisuals?.far.complete && stageVisuals.far.naturalWidth > 0) {
@@ -85,16 +85,17 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
     ctx.restore();
   }
   if (state.stageId === 'stage-05') {
-    const mirror = ctx.createLinearGradient(0, 0, WIDTH, HEIGHT);
-    mirror.addColorStop(0, '#090b24'); mirror.addColorStop(0.5, '#25143d'); mirror.addColorStop(1, '#070b1c');
-    ctx.fillStyle = mirror; ctx.fillRect(0, 0, WIDTH, HEIGHT);
     for (const band of STAGE_05_MIRROR_BANDS) {
       ctx.save();
-      ctx.fillStyle = 'rgba(190,154,255,.10)'; ctx.strokeStyle = 'rgba(232,218,255,.62)'; ctx.lineWidth = 2;
+      const sheen = ctx.createLinearGradient(band.x - band.width / 2, 0, band.x + band.width / 2, 0);
+      sheen.addColorStop(0, 'rgba(15,9,31,.12)'); sheen.addColorStop(0.45, 'rgba(235,224,255,.18)'); sheen.addColorStop(0.55, 'rgba(255,255,255,.28)'); sheen.addColorStop(1, 'rgba(18,8,31,.13)');
+      ctx.fillStyle = sheen; ctx.strokeStyle = 'rgba(239,231,255,.72)'; ctx.lineWidth = 3;
       ctx.fillRect(band.x - band.width / 2, 48, band.width, HEIGHT - 96);
-      ctx.setLineDash([16, 9]); ctx.strokeRect(band.x - band.width / 2, 48, band.width, HEIGHT - 96); ctx.setLineDash([]);
-      ctx.fillStyle = '#eadcff'; ctx.font = '700 12px system-ui, sans-serif'; ctx.textAlign = 'center';
-      ctx.fillText('MIRROR BAND', band.x, 68); ctx.restore();
+      ctx.strokeRect(band.x - band.width / 2, 48, band.width, HEIGHT - 96);
+      ctx.strokeStyle = 'rgba(232,112,255,.42)'; ctx.lineWidth = 1.5; ctx.setLineDash([5, 12]);
+      ctx.beginPath(); ctx.moveTo(band.x - 8, 58); ctx.lineTo(band.x + 11, HEIGHT - 60); ctx.stroke(); ctx.setLineDash([]);
+      for (const y of [96, 624]) { diamond(ctx, band.x, y, 8); ctx.fillStyle = '#efe8ff'; ctx.fill(); }
+      ctx.restore();
     }
     ctx.save(); ctx.strokeStyle = 'rgba(213,83,255,.40)'; ctx.lineWidth = 2;
     for (let index = 0; index < 14; index += 1) {
@@ -205,22 +206,13 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
       drawSprite(ctx, kind, x, y, dimensions[0], dimensions[1]);
       ctx.restore();
     } else {
+      const kind = enemy.kind as 'mirror-mote' | 'quotation-ram' | 'false-witness' | 'silver-obelisk';
+      const dimensions = {
+        'mirror-mote': [68, 62], 'quotation-ram': [118, 74], 'false-witness': [96, 88], 'silver-obelisk': [76, 142]
+      }[kind];
       ctx.save();
       if (enemy.markedUntil >= state.tick) { ctx.shadowColor = '#ffe58b'; ctx.shadowBlur = 22; }
-      ctx.translate(x, y); ctx.strokeStyle = '#e8d8ff'; ctx.fillStyle = 'rgba(49,20,73,.88)'; ctx.lineWidth = 3;
-      if (enemy.kind === 'mirror-mote') {
-        diamond(ctx, 0, 0, 22); ctx.fill(); ctx.stroke();
-        ctx.beginPath(); ctx.arc(0, 0, 9, 0, Math.PI * 2); ctx.stroke();
-      } else if (enemy.kind === 'quotation-ram') {
-        ctx.beginPath(); ctx.moveTo(-34, -24); ctx.lineTo(34, 0); ctx.lineTo(-34, 24); ctx.closePath(); ctx.fill(); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(-12, -13); ctx.lineTo(-30, 0); ctx.lineTo(-12, 13); ctx.stroke();
-      } else if (enemy.kind === 'false-witness') {
-        ctx.beginPath(); ctx.arc(0, 0, 30, 0.25, Math.PI * 2 - 0.25); ctx.stroke();
-        ctx.beginPath(); ctx.arc(-8, -4, 5, 0, Math.PI * 2); ctx.arc(10, -4, 5, 0, Math.PI * 2); ctx.fill();
-      } else {
-        ctx.fillRect(-22, -55, 44, 110); ctx.strokeRect(-22, -55, 44, 110);
-        ctx.strokeStyle = '#f8f3ff'; ctx.beginPath(); ctx.moveTo(-13, -42); ctx.lineTo(13, 42); ctx.moveTo(13, -42); ctx.lineTo(-13, 42); ctx.stroke();
-      }
+      drawSprite(ctx, kind, x, y, dimensions[0], dimensions[1]);
       ctx.restore();
     }
     ctx.fillStyle = '#131725';
@@ -309,11 +301,11 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
         const tx = twin.point.x / SCALE; const ty = twin.point.y / SCALE;
         const vulnerable = broken && twin.side === boss.vulnerableTwin;
         ctx.shadowColor = vulnerable ? '#ffe88f' : '#e98cff'; ctx.shadowBlur = vulnerable ? 30 : 14;
-        ctx.fillStyle = vulnerable ? 'rgba(111,55,105,.94)' : 'rgba(35,20,61,.94)';
-        ctx.strokeStyle = vulnerable ? '#ffe88f' : '#eadbff'; ctx.lineWidth = vulnerable ? 5 : 3;
-        diamond(ctx, tx, ty, vulnerable ? 48 : 43); ctx.fill(); ctx.stroke();
-        ctx.beginPath(); ctx.arc(tx, ty, 20, 0, Math.PI * 2); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(tx - 18, ty - 6); ctx.lineTo(tx + 18, ty + 6); ctx.moveTo(tx - 18, ty + 6); ctx.lineTo(tx + 18, ty - 6); ctx.stroke();
+        drawSprite(ctx, vulnerable ? 'apocrypha-twin-exposed' : 'apocrypha-twin', tx, ty, vulnerable ? 150 : 142, 112, 1, twin.side === -1);
+        if (vulnerable) {
+          ctx.strokeStyle = '#fff0a8'; ctx.lineWidth = 3; ctx.setLineDash([3, 7]);
+          ctx.beginPath(); ctx.ellipse(tx, ty, 76, 57, 0, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]);
+        }
       }
       if (broken) {
         ctx.fillStyle = '#ffeaa0'; ctx.font = '700 13px system-ui, sans-serif'; ctx.textAlign = 'center';

@@ -249,3 +249,12 @@
 - `m3-18-stage-05-intro.png`と`m3-18-stage-05-result.png`を1280×720で目視し、章題、教材、結果、操作案内に文字切れ・重なりがなく、Stage 4との状態差を識別できることを確認した。
 - `npm run verify`で単体52件、自動計測10件、素材監査36 final・1 prototype、音量監査41素材、型検査、production build、Chrome E2E 12件に合格した。
 - 次回はStage 5の背景3層、4通常敵、APOCRYPHA TWINS、鏡面帯・偽像航跡・同期切断・片側弱点を完成素材へ置き換え、通常戦、固定鏡山場、ボス3形態を画像確認する。
+
+## 2026-11-01 — M3-19 Stage 5完成ビジュアル
+
+- built-in image generationで鏡写し議場の遠景・中景・前景と、Mirror Mote、Quotation Ram、False Witness、Silver Obelisk、APOCRYPHA TWIN通常側・弱点側を含む透明アトラスをv4専用に制作した。過去版素材や外部IP名は使用していない。
+- Stage 5へ背景3層とアトラスを接続し、開発用グラデーション、4敵のCanvas図形、双子のCanvas図形を完成素材へ置換した。鏡面帯は銀の面勾配・反射綴じ目・菱形留め具へ仕上げ、偽像航跡、偽弾、切断同期はsimulation同期の手続き表現として維持した。
+- 弱点側の双子は開いた金色コア、三角切欠き、点線外周を持ち、閉じた交差芯の通常側と色以外の形でも区別した。実航跡はシアン実線、偽像はマゼンタ点線、実弾は橙二重円、偽弾はマゼンタ点線菱形の規格を維持した。
+- `m3-19-stage-05-combat.png`、`stage-05-setpiece.png`、`apocrypha-twins-phase-1/2/3.png`を1280×720で目視し、4敵、固定鏡、実像・偽像、実弾・偽弾、通常側・弱点側、3形態攻撃、HUDを識別できた。文字切れ、前景遮蔽、アトラス混入、当たり判定との著しい見かけのずれはない。
+- 素材台帳をStage 5の背景3層・アトラス・Canvas効果の5件の`final`へ更新し、仮素材を0件にした。`npm run verify`で単体52件、自動計測10件、素材監査36 required final・仮素材0、音量監査41素材、型検査、production build、Chrome E2E 12件に合格した。
+- 次回はStage 5専用の鏡共鳴・偽証律動・APOCRYPHA TWINS危機ステムと環境・ボス効果音を制作し、音量監査とChromeのStage遷移・bus・ポーズ同期を確認する。

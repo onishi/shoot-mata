@@ -1,11 +1,12 @@
 export type SpriteId = 'player' | 'eraser-mite' | 'bracket-gull' | 'margin-skiff' | 'folio-hauler' | 'boss' | 'return'
   | 'index-kite' | 'vane-scribe' | 'cross-reference-pair' | 'tab-binder' | 'compiler' | 'compiler-seam'
   | 'drip-scribe' | 'gutter-frog' | 'basin-bell' | 'reed-needle' | 'eel-head' | 'eel-segment' | 'eel-segment-marked'
-  | 'ash-comma' | 'kiln-censor' | 'ember-courier' | 'char-press' | 'cinder-advocate' | 'heat-wall' | 'ember' | 'cooled-ember';
+  | 'ash-comma' | 'kiln-censor' | 'ember-courier' | 'char-press' | 'cinder-advocate' | 'heat-wall' | 'ember' | 'cooled-ember'
+  | 'mirror-mote' | 'quotation-ram' | 'false-witness' | 'silver-obelisk' | 'apocrypha-twin' | 'apocrypha-twin-exposed';
 
 export interface SpriteFrame { x: number; y: number; width: number; height: number }
 
-type VisualStage = 'stage-01' | 'stage-02' | 'stage-03' | 'stage-04';
+type VisualStage = 'stage-01' | 'stage-02' | 'stage-03' | 'stage-04' | 'stage-05';
 
 const image = (stage: VisualStage, path: string): HTMLImageElement => {
   const result = new Image();
@@ -38,6 +39,12 @@ export const visuals = {
     mid: image('stage-04', 'burnt-footnote-mid-v1.png'),
     fore: image('stage-04', 'burnt-footnote-fore-v1.png'),
     sprites: image('stage-04', 'stage-04-sprites-v2.png')
+  },
+  'stage-05': {
+    far: image('stage-05', 'mirror-chamber-far-v1.png'),
+    mid: image('stage-05', 'mirror-chamber-mid-v1.png'),
+    fore: image('stage-05', 'mirror-chamber-fore-v1.png'),
+    sprites: image('stage-05', 'stage-05-sprites-v1.png')
   }
 };
 
@@ -69,7 +76,13 @@ export const spriteFrames: Record<SpriteId, SpriteFrame & { stage: VisualStage }
   'cinder-advocate': { stage: 'stage-04', x: 0, y: 390, width: 655, height: 634 },
   'heat-wall': { stage: 'stage-04', x: 645, y: 410, width: 190, height: 614 },
   ember: { stage: 'stage-04', x: 820, y: 570, width: 390, height: 330 },
-  'cooled-ember': { stage: 'stage-04', x: 1180, y: 565, width: 356, height: 330 }
+  'cooled-ember': { stage: 'stage-04', x: 1180, y: 565, width: 356, height: 330 },
+  'mirror-mote': { stage: 'stage-05', x: 0, y: 0, width: 350, height: 500 },
+  'quotation-ram': { stage: 'stage-05', x: 330, y: 0, width: 520, height: 510 },
+  'false-witness': { stage: 'stage-05', x: 800, y: 0, width: 420, height: 520 },
+  'silver-obelisk': { stage: 'stage-05', x: 1190, y: 0, width: 346, height: 530 },
+  'apocrypha-twin': { stage: 'stage-05', x: 0, y: 500, width: 770, height: 524 },
+  'apocrypha-twin-exposed': { stage: 'stage-05', x: 730, y: 500, width: 806, height: 524 }
 };
 
 export const assetsReady = Promise.all(Object.values(visuals).flatMap((stage) => Object.values(stage)).map((asset) => asset.decode().catch(() => undefined)));

@@ -229,11 +229,43 @@
       "editHistory": ["Synthesized as six 44.1 kHz stereo PCM16 files; connected to simulation events and inspected in the worst-case Stage 4 mix."], "dimensions": "6 files, 0.25s to 0.90s, stereo 44.1kHz PCM16", "license": "project-original"
     },
     {
-      "id": "stage-05-canvas-preview-v1", "kind": "procedural-visual", "path": "src/render/render.ts",
-      "stage": "Stage 5: The Mirror Chamber", "usage": "development preview for mirror bands, false wake, Mirror Mote, Quotation Ram, False Witness and Silver Obelisk",
-      "version": 1, "status": "prototype", "createdBy": "procedural",
-      "sourcePrompt": "none; authored Canvas geometry from docs/status.md M3-16 and docs/02-art-and-audio-direction.md Stage 5 direction",
-      "generatedAt": "2026-11-01", "editHistory": ["Introduced simulation-synchronized purple-silver bands, magenta dashed false wakes, hollow illusory rounds and four role-specific silhouettes."],
+      "id": "stage-05-mirror-chamber-far-v1", "kind": "background-raster", "path": "public/assets/stage-05/mirror-chamber-far-v1.png",
+      "stage": "Stage 5: The Mirror Chamber", "usage": "opaque far parallax layer with suspended mirror tribunal architecture and reflected corridors",
+      "version": 1, "status": "final", "createdBy": "image-generation",
+      "sourcePrompt": "Wide Stage 5 Mirror Chamber far background: floating silver-black mirror slabs, fractured manuscript vaults, doubled archways, witness galleries and reflected corridors; hand-painted paper, graphite, silver leaf and dark glass; calm dark central play band; violet, pearl and sparse magenta; no characters, UI, text or watermark.",
+      "generatedAt": "2026-11-01", "editHistory": ["Built-in image generation output copied without pixel edits; runtime crops to 1280x720 cover."],
+      "dimensions": "1672x941 RGB", "license": "project-original"
+    },
+    {
+      "id": "stage-05-mirror-chamber-mid-v1", "kind": "background-raster", "path": "public/assets/stage-05/mirror-chamber-mid-v1.png",
+      "stage": "Stage 5: The Mirror Chamber", "usage": "transparent middle parallax mirror gates, testimony tablets, witness balconies and glass chains",
+      "version": 1, "status": "final", "createdBy": "image-generation",
+      "sourcePrompt": "Transparent wide middle layer of open-frame silver mirror gates, fractured blank testimony tablets, paired witness balconies, hanging dark-glass chains and reflected corridor fragments; top and bottom framing with an open gameplay center; no characters, UI, text or watermark.",
+      "generatedAt": "2026-11-01", "editHistory": ["Built-in image generation output copied without pixel edits; alpha preserved."],
+      "dimensions": "1672x941 RGBA", "license": "project-original"
+    },
+    {
+      "id": "stage-05-mirror-chamber-fore-v1", "kind": "background-raster", "path": "public/assets/stage-05/mirror-chamber-fore-v1.png",
+      "stage": "Stage 5: The Mirror Chamber", "usage": "transparent foreground glass shards, manuscript edges, mirror chains and frame corners",
+      "version": 1, "status": "final", "createdBy": "image-generation",
+      "sourcePrompt": "Transparent sparse foreground of cropped silvered dark-glass shards, torn graphite manuscript edges, thin mirror chains, cracked frame corners and pearl dust at extreme edges around an open center; no characters, UI, text or watermark.",
+      "generatedAt": "2026-11-01", "editHistory": ["Built-in image generation output copied without pixel edits; alpha preserved."],
+      "dimensions": "1672x941 RGBA", "license": "project-original"
+    },
+    {
+      "id": "stage-05-sprites-v1", "kind": "sprite-atlas-raster", "path": "public/assets/stage-05/stage-05-sprites-v1.png",
+      "stage": "Stage 5: The Mirror Chamber", "usage": "Mirror Mote, Quotation Ram, False Witness, Silver Obelisk and normal/exposed APOCRYPHA TWIN",
+      "version": 1, "status": "final", "createdBy": "image-generation",
+      "sourcePrompt": "Transparent two-row production atlas containing six isolated original mirror-manuscript machines: faceted Mirror Mote, quotation-hook Quotation Ram, hollow-mask False Witness, braced Silver Obelisk, normal APOCRYPHA TWIN and open-core gold-notched exposed twin; graphite, violet glass, silver, pearl and sparse magenta; no scenery, labels, grid, text or watermark.",
+      "generatedAt": "2026-11-01", "editHistory": ["Built-in image generation output copied without pixel edits.", "Runtime source rectangles documented in src/render/visual-assets.ts; alpha preserved."],
+      "dimensions": "1536x1024 RGBA", "license": "project-original"
+    },
+    {
+      "id": "stage-05-canvas-effects-v1", "kind": "procedural-visual", "path": "src/render/render.ts",
+      "stage": "Stage 5: The Mirror Chamber", "usage": "simulation-synchronized mirror bands, real and false wakes, real and illusory rounds, shared sync and exposed-twin seal",
+      "version": 1, "status": "final", "createdBy": "procedural",
+      "sourcePrompt": "none; authored Canvas compositing from docs/02-art-and-audio-direction.md Stage 5 direction and M3-16 through M3-19 measured mechanics",
+      "generatedAt": "2026-11-01", "editHistory": ["Replaced labeled preview bands with silver gradient panes, notched anchors and reflected seams.", "Connected final raster enemies and twins while retaining simulation-synchronized magenta dashed false wakes, hollow illusory rounds, broken shared sync and gold open-core weakpoint cues."],
       "dimensions": "1280x720 logical canvas", "license": "project-original"
     }
   ]
