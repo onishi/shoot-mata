@@ -230,3 +230,12 @@
 - `m3-16-stage-05-combat.png`と`setpiece.png`を1280×720で目視し、2本の鏡面帯、実像と偽像、4敵輪郭、実弾と偽弾、自機、HUDを識別でき、文字切れがないことを確認した。Canvas previewは素材台帳で`prototype`として追跡する。
 - `npm run verify`で単体50件、自動計測9件、素材監査36 final・1 prototype、音量監査41素材、型検査、production build、Chrome E2E 11件に合格した。
 - 次回はAPOCRYPHA TWINSの同一実航跡輪による同期切断、片側弱点化、鏡像位置交換を含む3形態戦を実装する。
+
+## 2026-11-01 — M3-17 APOCRYPHA TWINS
+
+- Stage 5通常区間直後へAPOCRYPHA TWINSを接続し、上下の双体を同じ実航跡輪へ収めると6秒間だけ同期線が切れ、形態ごとに片側が金色の弱点になる状態機械を実装した。偽像航跡は従来どおり閉路へ使えない。
+- 通常射撃は本体中央へ1 damageの低効率な完遂経路として残した。弱点側は通常射撃52、添え書き68、偽像添え書き80、反撃片90 damageとし、形態1を実弾と偽弾のtestimony、形態2を両側交差cross-exam、形態3を高速verdict混成に分けた。周期と形態移行で鏡像位置を交換する。
+- 通常射撃は17,994tick、Stitch攻略は2,456tickで86.4%短縮した。Stitchは同期切断3回・切断363tick・弱点20hit、全形態・全攻撃到達、最大敵弾112、生成拒否0、再実行hash`75117edc1eef61a6`一致を`docs/evidence/m3-17-apocrypha-twins.*`へ保存した。
+- `m3-17-apocrypha-twins-phase-1/2/3.png`を1280×720で目視し、点線の切断同期、金色の弱点側、通常側、位置交換、実弾・偽弾、耐久線、自機、HUDを識別でき、文字切れ・重なりがないことを確認した。ボスCanvas表現はStage 5完成素材まで`prototype`として扱う。
+- `npm run verify`で単体51件、自動計測10件、素材監査36 final・1 prototype、音量監査41素材、型検査、production build、Chrome E2E 12件に合格した。
+- 次回はStage 4結果からStage 5章導入・通常区間・APOCRYPHA TWINS・結果までをAppStateで接続し、Stage 5開始地点とボス直前のコンティニューを実装する。

@@ -3,10 +3,10 @@
 - Duration: 25200 ticks (210 seconds)
 - Scheduled spawns: 69
 - Max enemies / enemy bullets: 10 / 88
-- Longest no-combat gap: 0 ticks
+- Longest no-combat gap: 1 ticks
 - False trail peak / false annotations / loop exclusions: 127 / 93 / 21164
 - Illusory shots: 924
-- Determinism hashes: 0fe8cdcc4f6546a2, 0fe8cdcc4f6546a2, 0fe8cdcc4f6546a2, 0fe8cdcc4f6546a2
+- Determinism hashes: 42d93c39b781c172, 42d93c39b781c172, 42d93c39b781c172, 42d93c39b781c172
 
 | Enemy | Spawned | Attacks | Defeated | Exited |
 | --- | ---: | ---: | ---: | ---: |

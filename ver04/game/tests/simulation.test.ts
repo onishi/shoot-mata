@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { px } from '../src/core/math';
-import { ADVOCATE_WALL_X_PX, createInitialState, eelSegmentPoint, step } from '../src/simulation/game';
+import { ADVOCATE_WALL_X_PX, apocryphaTwinPoint, createInitialState, eelSegmentPoint, step } from '../src/simulation/game';
 import { STAGE_01_BOSS_START_TICK, STAGE_01_SPAWNS } from '../src/content/stage-01';
 import { STAGE_02_BOSS_START_TICK, STAGE_02_SPAWNS } from '../src/content/stage-02';
 import { STAGE_03_BOSS_START_TICK, STAGE_03_SPAWNS } from '../src/content/stage-03';
 import { STAGE_04_BOSS_START_TICK, STAGE_04_SPAWNS, stageFourCoolingCenter } from '../src/content/stage-04';
-import { STAGE_05_SPAWNS, stageFiveFalseTrail } from '../src/content/stage-05';
+import { STAGE_05_BOSS_START_TICK, STAGE_05_SPAWNS, stageFiveFalseTrail } from '../src/content/stage-05';
 import { findLoopCandidate } from '../src/simulation/trail';
 import type { GameState, InputFrame, TrailPoint } from '../src/core/types';
 
@@ -439,5 +439,27 @@ describe('M1 deterministic playground', () => {
     state = step(state, {}).state;
     expect(state.enemies[0].health).toBe(720);
     expect(state.metrics.enemyStats['silver-obelisk'].defeated).toBe(0);
+  });
+
+  it('breaks the Twins sync only when one real loop encloses both bodies and exposes one weakpoint', () => {
+    let state = createInitialState(54, 'stage-05');
+    state.tick = STAGE_05_BOSS_START_TICK - 1; state.encounterIndex = STAGE_05_SPAWNS.length; state.enemies = [];
+    state = step(state, {}).state;
+    expect(state.boss?.kind).toBe('apocrypha-twins');
+    state.candidate = { polygon: [
+      { x: px(850), y: px(190) }, { x: px(1210), y: px(190) },
+      { x: px(1210), y: px(530) }, { x: px(850), y: px(530) }
+    ], intersection: { x: px(850), y: px(190) }, startIndex: 0, area: 122400, expiresTick: state.tick + 60 };
+    const broken = step(state, { collate: true }); state = broken.state;
+    expect(state.metrics.apocrypha.syncBreaks).toBe(1);
+    expect(state.boss!.syncBrokenUntil).toBeGreaterThan(state.tick);
+    expect(broken.events).toContainEqual({ type: 'twins-sync-broken', vulnerable: -1 });
+
+    const weakpoint = apocryphaTwinPoint(state.boss!, state.tick + 1, state.boss!.vulnerableTwin);
+    state.bullets = [{ id: 940, ...weakpoint, vx: 0, vy: 0, radius: 4, kind: 'player', annotated: true, falseAnnotated: true, capturable: false }];
+    const hit = step(state, {});
+    expect(hit.state.boss!.maxHealth - hit.state.boss!.health).toBe(80);
+    expect(hit.state.metrics.apocrypha.weakpointHits).toBe(1);
+    expect(hit.events).toContainEqual({ type: 'twins-weakpoint-hit', vulnerable: -1 });
   });
 });

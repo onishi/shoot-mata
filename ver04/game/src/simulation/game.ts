@@ -5,7 +5,7 @@ import { STAGE_01_BOSS_START_TICK, STAGE_01_DURATION_TICKS, type StageEnemySpawn
 import { STAGE_02_BOSS_START_TICK, STAGE_02_WIND_HALF_CYCLE_TICKS } from '../content/stage-02';
 import { STAGE_03_BOSS_START_TICK, STAGE_03_RAIN_PERIOD_TICKS, STAGE_03_WET_TICKS } from '../content/stage-03';
 import { STAGE_04_BOSS_START_TICK, STAGE_04_COOLING_EXTENSION_TICKS, STAGE_04_COOLING_RADIUS_PX, STAGE_04_HEAT_PERIOD_TICKS, stageFourCoolingCenter } from '../content/stage-04';
-import { stageFiveFalseTrail } from '../content/stage-05';
+import { STAGE_05_BOSS_START_TICK, stageFiveFalseTrail } from '../content/stage-05';
 import { findLoopCandidate, shotCrossedTrail, shotCrossedWetTrail, shouldAddTrailPoint } from './trail';
 
 const PLAYER_SPEED = Math.round(320 * SCALE / TICK_RATE);
@@ -99,7 +99,8 @@ export const createInitialState = (seed = 1, stageId: StageId = 'stage-01'): Gam
     boss: { spawned: false, defeated: false, defeatTick: null, phaseReached: [false, false, false], fanWarnings: 0, fanErases: 0, trailPointsErased: 0, returnedHits: 0, ordinaryHits: 0, armorLayersStripped: 0, damageByAttack: { fan: 0, sweep: 0, volley: 0 } },
     compiler: { windLocks: 0, windLockedTicks: 0, weakpointHits: 0, ordinaryHits: 0, phaseReached: [false, false, false], attacks: { gust: 0, lance: 0, storm: 0 }, damageByAttack: { gust: 0, lance: 0, storm: 0 } },
     eel: { segmentMarks: 0, markedTicks: 0, weakpointHits: 0, wetWeakpointHits: 0, ordinaryHits: 0, phaseReached: [false, false, false], attacks: { drizzle: 0, wake: 0, deluge: 0 }, damageByAttack: { drizzle: 0, wake: 0, deluge: 0 } },
-    advocate: { embersThrown: 0, embersCooled: 0, cooledHits: 0, wallBlocks: 0, wallActiveTicks: 0, phaseReached: [false, false, false], attacks: { ember: 0, gavel: 0, verdict: 0 }, damageByAttack: { ember: 0, gavel: 0, verdict: 0 } } }
+    advocate: { embersThrown: 0, embersCooled: 0, cooledHits: 0, wallBlocks: 0, wallActiveTicks: 0, phaseReached: [false, false, false], attacks: { ember: 0, gavel: 0, verdict: 0 }, damageByAttack: { ember: 0, gavel: 0, verdict: 0 } },
+    apocrypha: { syncBreaks: 0, syncBrokenTicks: 0, weakpointHits: 0, ordinaryHits: 0, swaps: 0, phaseReached: [false, false, false], attacks: { testimony: 0, crossExam: 0, verdict: 0 }, damageByAttack: { testimony: 0, crossExam: 0, verdict: 0 } } }
   };
   if (stageId === 'stage-05') state.metrics.mirror = { falseTrailPeak: 0, falseAnnotations: 0, falseLoopRejections: 0, illusoryShots: 0, moteEchoes: 0, ramCharges: 0, witnessMixes: 0, obeliskReflections: 0 };
   else for (const kind of ['mirror-mote', 'quotation-ram', 'false-witness', 'silver-obelisk'] as const) delete state.metrics.enemyStats[kind];
@@ -120,7 +121,7 @@ export const copyState = (state: GameState): GameState => ({
   enemies: state.enemies.map((enemy) => ({ ...enemy })),
   boss: state.boss ? { ...state.boss } : null,
   retrace: state.retrace ? { index: state.retrace.index, points: state.retrace.points.map((point) => ({ ...point })) } : null,
-  metrics: { ...state.metrics, wind: { ...state.metrics.wind }, rain: { ...state.metrics.rain }, heat: { ...state.metrics.heat }, ...(state.metrics.mirror ? { mirror: { ...state.metrics.mirror } } : {}), enemyStats: Object.fromEntries(Object.entries(state.metrics.enemyStats).map(([kind, stats]) => [kind, { ...stats }])) as GameState['metrics']['enemyStats'], boss: { ...state.metrics.boss, phaseReached: [...state.metrics.boss.phaseReached], damageByAttack: { ...state.metrics.boss.damageByAttack } }, compiler: { ...state.metrics.compiler, phaseReached: [...state.metrics.compiler.phaseReached], attacks: { ...state.metrics.compiler.attacks }, damageByAttack: { ...state.metrics.compiler.damageByAttack } }, eel: { ...state.metrics.eel, phaseReached: [...state.metrics.eel.phaseReached], attacks: { ...state.metrics.eel.attacks }, damageByAttack: { ...state.metrics.eel.damageByAttack } }, advocate: { ...state.metrics.advocate, phaseReached: [...state.metrics.advocate.phaseReached], attacks: { ...state.metrics.advocate.attacks }, damageByAttack: { ...state.metrics.advocate.damageByAttack } } }
+  metrics: { ...state.metrics, wind: { ...state.metrics.wind }, rain: { ...state.metrics.rain }, heat: { ...state.metrics.heat }, ...(state.metrics.mirror ? { mirror: { ...state.metrics.mirror } } : {}), enemyStats: Object.fromEntries(Object.entries(state.metrics.enemyStats).map(([kind, stats]) => [kind, { ...stats }])) as GameState['metrics']['enemyStats'], boss: { ...state.metrics.boss, phaseReached: [...state.metrics.boss.phaseReached], damageByAttack: { ...state.metrics.boss.damageByAttack } }, compiler: { ...state.metrics.compiler, phaseReached: [...state.metrics.compiler.phaseReached], attacks: { ...state.metrics.compiler.attacks }, damageByAttack: { ...state.metrics.compiler.damageByAttack } }, eel: { ...state.metrics.eel, phaseReached: [...state.metrics.eel.phaseReached], attacks: { ...state.metrics.eel.attacks }, damageByAttack: { ...state.metrics.eel.damageByAttack } }, advocate: { ...state.metrics.advocate, phaseReached: [...state.metrics.advocate.phaseReached], attacks: { ...state.metrics.advocate.attacks }, damageByAttack: { ...state.metrics.advocate.damageByAttack } }, apocrypha: { ...state.metrics.apocrypha, phaseReached: [...state.metrics.apocrypha.phaseReached], attacks: { ...state.metrics.apocrypha.attacks }, damageByAttack: { ...state.metrics.apocrypha.damageByAttack } } }
 });
 
 const spawnEnemyBullet = (state: GameState, enemy: Point, angleOffset = 0, speedPx = 145, sourceAttack: Bullet['sourceAttack'] = 'enemy-volley'): boolean => {
@@ -158,7 +159,7 @@ const createBoss = (state: GameState): BossState => ({
   phaseStartedAt: state.tick, cycleStartedAt: state.tick,
   fanAngle: Math.PI, fanWarningUntil: state.tick + 90, fanFiresAt: state.tick + 90,
   defeatedAt: null, vaneSide: -1, windLockedUntil: 0, lockedWindDirection: 1, seamExposedUntil: 0,
-  activeSegment: 0, segmentMarkedUntil: 0
+  activeSegment: 0, segmentMarkedUntil: 0, syncBrokenUntil: 0, vulnerableTwin: -1, twinSwap: 1
 });
 
 const createCompiler = (state: GameState): BossState => ({
@@ -169,7 +170,7 @@ const createCompiler = (state: GameState): BossState => ({
   fanAngle: Math.PI, fanWarningUntil: 0, fanFiresAt: 0, defeatedAt: null,
   vaneSide: stageTwoWindDirection(state.tick), windLockedUntil: 0,
   lockedWindDirection: stageTwoWindDirection(state.tick), seamExposedUntil: 0,
-  activeSegment: 0, segmentMarkedUntil: 0
+  activeSegment: 0, segmentMarkedUntil: 0, syncBrokenUntil: 0, vulnerableTwin: -1, twinSwap: 1
 });
 
 const createEel = (state: GameState): BossState => ({
@@ -179,7 +180,7 @@ const createEel = (state: GameState): BossState => ({
   phaseStartedAt: state.tick, cycleStartedAt: state.tick,
   fanAngle: Math.PI, fanWarningUntil: 0, fanFiresAt: 0, defeatedAt: null,
   vaneSide: -1, windLockedUntil: 0, lockedWindDirection: 1, seamExposedUntil: 0,
-  activeSegment: 0, segmentMarkedUntil: 0
+  activeSegment: 0, segmentMarkedUntil: 0, syncBrokenUntil: 0, vulnerableTwin: -1, twinSwap: 1
 });
 
 export const ADVOCATE_WALL_X_PX = 890;
@@ -191,8 +192,27 @@ const createAdvocate = (state: GameState): BossState => ({
   phaseStartedAt: state.tick, cycleStartedAt: state.tick,
   fanAngle: Math.PI, fanWarningUntil: 0, fanFiresAt: 0, defeatedAt: null,
   vaneSide: -1, windLockedUntil: 0, lockedWindDirection: 1, seamExposedUntil: 0,
-  activeSegment: 0, segmentMarkedUntil: 0
+  activeSegment: 0, segmentMarkedUntil: 0, syncBrokenUntil: 0, vulnerableTwin: -1, twinSwap: 1
 });
+
+const createApocryphaTwins = (state: GameState): BossState => ({
+  kind: 'apocrypha-twins',
+  x: 1030 * SCALE, y: 360 * SCALE, health: 1800, maxHealth: 1800,
+  armor: 0, maxArmor: 0, armorLayers: 0, phase: 1,
+  phaseStartedAt: state.tick, cycleStartedAt: state.tick,
+  fanAngle: Math.PI, fanWarningUntil: 0, fanFiresAt: 0, defeatedAt: null,
+  vaneSide: -1, windLockedUntil: 0, lockedWindDirection: 1, seamExposedUntil: 0,
+  activeSegment: 0, segmentMarkedUntil: 0, syncBrokenUntil: 0, vulnerableTwin: -1, twinSwap: 1
+});
+
+export const apocryphaTwinPoint = (boss: BossState, tick: number, side: -1 | 1): Point => {
+  const exchange = boss.twinSwap * side;
+  const orbit = Math.sin((tick - boss.phaseStartedAt) / (boss.phase === 3 ? 54 : 82)) * 18;
+  return {
+    x: boss.x + Math.round((exchange * 58 + orbit * side) * SCALE),
+    y: boss.y + Math.round((exchange * 72 - orbit) * SCALE)
+  };
+};
 
 const spawnAdvocateEmber = (state: GameState, yOffset: number): void => {
   if (state.bullets.filter((bullet) => bullet.kind === 'enemy').length >= stageDefinition(state.stageId).entityLimits.enemyBullets) {
@@ -236,6 +256,47 @@ const damageAdvocate = (state: GameState, boss: BossState, damage: number, coole
 };
 
 const updateBoss = (state: GameState, events: GameEvent[]): void => {
+  if (state.stageId === 'stage-05') {
+    if (!state.boss && state.tick >= STAGE_05_BOSS_START_TICK && !state.metrics.boss.defeated) {
+      state.bullets = state.bullets.filter((bullet) => bullet.kind !== 'enemy');
+      state.boss = createApocryphaTwins(state);
+      state.metrics.boss.spawned = true;
+      state.metrics.boss.phaseReached[0] = true;
+      state.metrics.apocrypha.phaseReached[0] = true;
+      events.push({ type: 'boss-spawned' });
+    }
+    const twins = state.boss;
+    if (!twins) return;
+    twins.y = 360 * SCALE + Math.round(Math.sin((state.tick - STAGE_05_BOSS_START_TICK) / 210) * 38 * SCALE);
+    if (twins.syncBrokenUntil >= state.tick) state.metrics.apocrypha.syncBrokenTicks += 1;
+    const age = state.tick - twins.cycleStartedAt;
+    const upper = apocryphaTwinPoint(twins, state.tick, -1);
+    const lower = apocryphaTwinPoint(twins, state.tick, 1);
+    if (twins.phase === 1 && age > 0 && age % 120 === 0) {
+      for (const point of [upper, lower]) {
+        for (const offset of [-0.2, 0, 0.2]) spawnEnemyBullet(state, point, offset, 138, 'twins-testimony');
+        for (const offset of [-0.34, 0.34]) spawnIllusoryBullet(state, point, offset, 132);
+      }
+      state.metrics.apocrypha.attacks.testimony += 1;
+    } else if (twins.phase === 2 && age > 0 && age % 108 === 0) {
+      for (const point of [upper, lower]) for (const offset of [-0.36, -0.12, 0.12, 0.36]) spawnEnemyBullet(state, point, offset, 154, 'twins-cross-exam');
+      state.metrics.apocrypha.attacks.crossExam += 1;
+    } else if (twins.phase === 3 && age > 0 && age % 84 === 0) {
+      for (const point of [upper, lower]) {
+        for (const offset of [-0.52, -0.26, 0, 0.26, 0.52]) spawnEnemyBullet(state, point, offset, 166, 'twins-verdict');
+        for (const offset of [-0.39, 0.39]) spawnIllusoryBullet(state, point, offset, 160);
+      }
+      state.metrics.apocrypha.attacks.verdict += 1;
+    }
+    const swapPeriod = twins.phase === 1 ? 360 : twins.phase === 2 ? 240 : 168;
+    if (age > 0 && age % swapPeriod === 0) {
+      twins.twinSwap = twins.twinSwap === 1 ? -1 : 1;
+      state.metrics.apocrypha.swaps += 1;
+      events.push({ type: 'twins-swapped' });
+    }
+    if (age >= 720) twins.cycleStartedAt = state.tick;
+    return;
+  }
   if (state.stageId === 'stage-04') {
     if (!state.boss && state.tick >= STAGE_04_BOSS_START_TICK && !state.metrics.boss.defeated) {
       state.bullets = state.bullets.filter((bullet) => bullet.kind !== 'enemy');
@@ -831,6 +892,16 @@ const collate = (state: GameState, events: GameEvent[]): void => {
       events.push({ type: 'courier-converted' });
     }
   }
+  if (state.stageId === 'stage-05' && state.boss?.kind === 'apocrypha-twins') {
+    const first = apocryphaTwinPoint(state.boss, state.tick, -1);
+    const second = apocryphaTwinPoint(state.boss, state.tick, 1);
+    if (pointInPolygon(first, candidate.polygon) && pointInPolygon(second, candidate.polygon)) {
+      state.boss.syncBrokenUntil = state.tick + 6 * TICK_RATE;
+      state.boss.vulnerableTwin = state.boss.phase % 2 === 0 ? 1 : -1;
+      state.metrics.apocrypha.syncBreaks += 1;
+      events.push({ type: 'twins-sync-broken', vulnerable: state.boss.vulnerableTwin });
+    }
+  }
   if (selected.length === 0 && !state.enemies.some((enemy) => pointInPolygon(enemy, candidate.polygon))) state.metrics.emptyLoops += 1;
   state.metrics.captured += selected.length;
   state.trail = state.trail.slice(0, candidate.startIndex);
@@ -915,7 +986,37 @@ export const step = (previous: GameState, input: InputFrame): { state: GameState
     let consumed = false;
     if (bullet.kind !== 'enemy') {
       const boss = state.boss;
-      if (boss?.kind === 'cinder-advocate') {
+      if (boss?.kind === 'apocrypha-twins') {
+        const vulnerable = apocryphaTwinPoint(boss, state.tick, boss.vulnerableTwin);
+        const weakpointHit = boss.syncBrokenUntil >= state.tick
+          && distanceSq(bullet, vulnerable) <= ((bullet.radius + 38) * SCALE) ** 2;
+        const bodyHit = distanceSq(bullet, boss) <= ((bullet.radius + 72) * SCALE) ** 2;
+        if (weakpointHit || bodyHit) {
+          const damage = weakpointHit
+            ? (bullet.kind === 'return' ? 90 : bullet.falseAnnotated ? 80 : bullet.annotated ? 68 : 52)
+            : (bullet.kind === 'return' ? 5 : bullet.annotated ? 2 : 1);
+          boss.health -= damage;
+          if (weakpointHit) {
+            state.metrics.apocrypha.weakpointHits += 1;
+            events.push({ type: 'twins-weakpoint-hit', vulnerable: boss.vulnerableTwin });
+          } else state.metrics.apocrypha.ordinaryHits += 1;
+          const nextPhase = boss.health <= boss.maxHealth / 3 ? 3 : boss.health <= boss.maxHealth * 2 / 3 ? 2 : 1;
+          if (nextPhase > boss.phase) {
+            boss.phase = nextPhase; boss.phaseStartedAt = state.tick; boss.cycleStartedAt = state.tick;
+            boss.syncBrokenUntil = 0; boss.twinSwap = boss.twinSwap === 1 ? -1 : 1;
+            state.metrics.boss.phaseReached[nextPhase - 1] = true;
+            state.metrics.apocrypha.phaseReached[nextPhase - 1] = true;
+            state.metrics.apocrypha.swaps += 1;
+            events.push({ type: 'boss-phase', phase: nextPhase }, { type: 'twins-swapped' });
+          }
+          if (boss.health <= 0) {
+            boss.health = 0; boss.defeatedAt = state.tick;
+            state.metrics.boss.defeated = true; state.metrics.boss.defeatTick = state.tick;
+            state.score += 45000; events.push({ type: 'boss-defeated' }); state.boss = null;
+          }
+          consumed = true;
+        }
+      } else if (boss?.kind === 'cinder-advocate') {
         const crossedWall = !bullet.cooledEmber && bullet.vx > 0
           && bullet.x >= ADVOCATE_WALL_X_PX * SCALE && bullet.x - bullet.vx < ADVOCATE_WALL_X_PX * SCALE;
         if (crossedWall) {
@@ -1086,7 +1187,9 @@ export const step = (previous: GameState, input: InputFrame): { state: GameState
         || bullet.sourceAttack === 'compiler-lance' || bullet.sourceAttack === 'compiler-storm';
       const advocatePressure = bullet.sourceAttack === 'advocate-ember'
         || bullet.sourceAttack === 'advocate-gavel' || bullet.sourceAttack === 'advocate-verdict';
-      if (!compilerPressure && !advocatePressure) {
+      const twinsPressure = bullet.sourceAttack === 'twins-testimony'
+        || bullet.sourceAttack === 'twins-cross-exam' || bullet.sourceAttack === 'twins-verdict';
+      if (!compilerPressure && !advocatePressure && !twinsPressure) {
         state.trail = [];
         state.candidate = null;
       }
@@ -1102,6 +1205,9 @@ export const step = (previous: GameState, input: InputFrame): { state: GameState
       else if (bullet.sourceAttack === 'advocate-ember') state.metrics.advocate.damageByAttack.ember += 1;
       else if (bullet.sourceAttack === 'advocate-gavel') state.metrics.advocate.damageByAttack.gavel += 1;
       else if (bullet.sourceAttack === 'advocate-verdict') state.metrics.advocate.damageByAttack.verdict += 1;
+      else if (bullet.sourceAttack === 'twins-testimony') state.metrics.apocrypha.damageByAttack.testimony += 1;
+      else if (bullet.sourceAttack === 'twins-cross-exam') state.metrics.apocrypha.damageByAttack.crossExam += 1;
+      else if (bullet.sourceAttack === 'twins-verdict') state.metrics.apocrypha.damageByAttack.verdict += 1;
       else if (state.boss) state.metrics.boss.damageByAttack.volley += 1;
       consumed = true;
       events.push({ type: 'damage' });

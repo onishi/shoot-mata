@@ -3,15 +3,15 @@
   "durationTicks": 25200,
   "scheduledSpawns": 69,
   "seed": 3501,
-  "finalHash": "0fe8cdcc4f6546a2",
+  "finalHash": "42d93c39b781c172",
   "replayHashes": [
-    "0fe8cdcc4f6546a2",
-    "0fe8cdcc4f6546a2",
-    "0fe8cdcc4f6546a2"
+    "42d93c39b781c172",
+    "42d93c39b781c172",
+    "42d93c39b781c172"
   ],
   "maxEnemies": 10,
   "maxEnemyBullets": 88,
-  "maxCombatGapTicks": 0,
+  "maxCombatGapTicks": 1,
   "stats": {
     "mirror-mote": {
       "spawned": 28,

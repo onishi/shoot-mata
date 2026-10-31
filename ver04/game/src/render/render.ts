@@ -1,6 +1,6 @@
 import { HEIGHT, SCALE, TICK_RATE, WIDTH, type GameState, type Point } from '../core/types';
 import type { AppScreen, AppState } from '../app/app';
-import { ADVOCATE_WALL_X_PX, eelSegmentPoint } from '../simulation/game';
+import { ADVOCATE_WALL_X_PX, apocryphaTwinPoint, eelSegmentPoint } from '../simulation/game';
 import { STAGE_04_COOLING_RADIUS_PX, stageFourCoolingCenter } from '../content/stage-04';
 import { STAGE_05_MIRROR_BANDS, stageFiveFalseTrail } from '../content/stage-05';
 import { drawSprite, visuals } from './visual-assets';
@@ -288,7 +288,7 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
         ctx.fillText(`WET SEAL  ${Math.ceil((boss.segmentMarkedUntil - state.tick) / TICK_RATE)}s`, active.x / SCALE, active.y / SCALE - 60);
       }
       ctx.textAlign = 'start'; ctx.restore();
-    } else {
+    } else if (boss.kind === 'cinder-advocate') {
       ctx.save();
       const pulse = 0.72 + Math.abs(Math.sin(state.tick / 9)) * 0.28;
       ctx.globalAlpha = pulse;
@@ -297,6 +297,29 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
       ctx.globalAlpha = 1; ctx.shadowBlur = 18;
       drawSprite(ctx, 'cinder-advocate', x, y, 300, 292);
       ctx.restore();
+    } else {
+      const twins = ([-1, 1] as const).map((side) => ({ side, point: apocryphaTwinPoint(boss, state.tick, side) }));
+      const broken = boss.syncBrokenUntil >= state.tick;
+      ctx.save();
+      ctx.lineWidth = broken ? 2 : 7; ctx.setLineDash(broken ? [7, 10] : []);
+      ctx.strokeStyle = broken ? 'rgba(245,140,255,.35)' : 'rgba(240,140,255,.9)';
+      ctx.beginPath(); ctx.moveTo(twins[0].point.x / SCALE, twins[0].point.y / SCALE);
+      ctx.lineTo(twins[1].point.x / SCALE, twins[1].point.y / SCALE); ctx.stroke(); ctx.setLineDash([]);
+      for (const twin of twins) {
+        const tx = twin.point.x / SCALE; const ty = twin.point.y / SCALE;
+        const vulnerable = broken && twin.side === boss.vulnerableTwin;
+        ctx.shadowColor = vulnerable ? '#ffe88f' : '#e98cff'; ctx.shadowBlur = vulnerable ? 30 : 14;
+        ctx.fillStyle = vulnerable ? 'rgba(111,55,105,.94)' : 'rgba(35,20,61,.94)';
+        ctx.strokeStyle = vulnerable ? '#ffe88f' : '#eadbff'; ctx.lineWidth = vulnerable ? 5 : 3;
+        diamond(ctx, tx, ty, vulnerable ? 48 : 43); ctx.fill(); ctx.stroke();
+        ctx.beginPath(); ctx.arc(tx, ty, 20, 0, Math.PI * 2); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(tx - 18, ty - 6); ctx.lineTo(tx + 18, ty + 6); ctx.moveTo(tx - 18, ty + 6); ctx.lineTo(tx + 18, ty - 6); ctx.stroke();
+      }
+      if (broken) {
+        ctx.fillStyle = '#ffeaa0'; ctx.font = '700 13px system-ui, sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText(`TESTIMONY BROKEN  ${Math.ceil((boss.syncBrokenUntil - state.tick) / TICK_RATE)}s`, x, y - 125);
+      }
+      ctx.textAlign = 'start'; ctx.restore();
     }
     if (boss.kind === 'blank-bailiff' && boss.armorLayers === 0) {
       ctx.save(); ctx.strokeStyle = '#a8f7ff'; ctx.shadowColor = '#42e7ff'; ctx.shadowBlur = 24; ctx.lineWidth = 5;
@@ -380,7 +403,7 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
     ctx.textAlign = 'center';
     ctx.fillStyle = '#f5e6c8';
     ctx.font = '700 16px system-ui, sans-serif';
-    const bossName = boss.kind === 'blank-bailiff' ? 'BLANK BAILIFF' : boss.kind === 'crosswind-compiler' ? 'CROSSWIND COMPILER' : boss.kind === 'lacuna-eel' ? 'LACUNA EEL' : 'CINDER ADVOCATE';
+    const bossName = boss.kind === 'blank-bailiff' ? 'BLANK BAILIFF' : boss.kind === 'crosswind-compiler' ? 'CROSSWIND COMPILER' : boss.kind === 'lacuna-eel' ? 'LACUNA EEL' : boss.kind === 'cinder-advocate' ? 'CINDER ADVOCATE' : 'APOCRYPHA TWINS';
     ctx.fillText(`${bossName}  ·  PHASE ${boss.phase}`, WIDTH / 2, 76);
     ctx.fillStyle = '#251927'; ctx.fillRect(430, 87, 420, 10);
     ctx.fillStyle = boss.kind === 'blank-bailiff' && boss.armorLayers > 0 ? '#f3d69b' : '#67e8f9';

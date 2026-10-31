@@ -19,7 +19,8 @@ export interface Bullet extends Point {
   capturable: boolean;
   sourceAttack?: 'enemy-volley' | 'boss-fan' | 'boss-sweep' | 'compiler-gust' | 'compiler-lance' | 'compiler-storm'
     | 'eel-drizzle' | 'eel-wake' | 'eel-deluge'
-    | 'advocate-ember' | 'advocate-gavel' | 'advocate-verdict';
+    | 'advocate-ember' | 'advocate-gavel' | 'advocate-verdict'
+    | 'twins-testimony' | 'twins-cross-exam' | 'twins-verdict';
 }
 export type StageId = 'stage-01' | 'stage-02' | 'stage-03' | 'stage-04' | 'stage-05';
 export type EnemyKind =
@@ -48,7 +49,7 @@ export interface Enemy extends Point {
   stateTick: number;
 }
 export interface BossState extends Point {
-  kind: 'blank-bailiff' | 'crosswind-compiler' | 'lacuna-eel' | 'cinder-advocate';
+  kind: 'blank-bailiff' | 'crosswind-compiler' | 'lacuna-eel' | 'cinder-advocate' | 'apocrypha-twins';
   health: number;
   maxHealth: number;
   armor: number;
@@ -67,6 +68,9 @@ export interface BossState extends Point {
   seamExposedUntil: number;
   activeSegment: 0 | 1 | 2;
   segmentMarkedUntil: number;
+  syncBrokenUntil: number;
+  vulnerableTwin: -1 | 1;
+  twinSwap: -1 | 1;
 }
 export interface LoopCandidate {
   polygon: Point[];
@@ -115,6 +119,9 @@ export type GameEvent =
   | { type: 'advocate-wall-blocked' }
   | { type: 'false-trail-annotated' }
   | { type: 'false-volley' }
+  | { type: 'twins-sync-broken'; vulnerable: -1 | 1 }
+  | { type: 'twins-weakpoint-hit'; vulnerable: -1 | 1 }
+  | { type: 'twins-swapped' }
   | { type: 'boss-defeated' };
 export interface Metrics {
   candidates: number;
@@ -211,6 +218,16 @@ export interface Metrics {
     phaseReached: [boolean, boolean, boolean];
     attacks: { ember: number; gavel: number; verdict: number };
     damageByAttack: { ember: number; gavel: number; verdict: number };
+  };
+  apocrypha: {
+    syncBreaks: number;
+    syncBrokenTicks: number;
+    weakpointHits: number;
+    ordinaryHits: number;
+    swaps: number;
+    phaseReached: [boolean, boolean, boolean];
+    attacks: { testimony: number; crossExam: number; verdict: number };
+    damageByAttack: { testimony: number; crossExam: number; verdict: number };
   };
 }
 export interface GameState {

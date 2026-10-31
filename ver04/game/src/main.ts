@@ -9,7 +9,7 @@ import { STAGE_01_BOSS_START_TICK, STAGE_01_SPAWNS } from './content/stage-01';
 import { STAGE_02_BOSS_START_TICK, STAGE_02_SPAWNS } from './content/stage-02';
 import { STAGE_03_BOSS_START_TICK, STAGE_03_SPAWNS } from './content/stage-03';
 import { STAGE_04_BOSS_START_TICK, STAGE_04_SPAWNS } from './content/stage-04';
-import { STAGE_05_DURATION_TICKS, STAGE_05_SPAWNS } from './content/stage-05';
+import { STAGE_05_BOSS_START_TICK, STAGE_05_DURATION_TICKS, STAGE_05_SPAWNS } from './content/stage-05';
 import { StageOneAudio } from './audio/stage-01-audio';
 
 const canvas = document.querySelector<HTMLCanvasElement>('#game');
@@ -138,9 +138,22 @@ Object.assign(window, {
     renderApp(ctx, app);
     return app.game.tick;
   },
-  __PALIMPSEST_QA_SCENARIO__: (scenario: 'damage' | 'setpiece' | 'stage-02-combat' | 'stage-02-setpiece' | 'stage-03-combat' | 'stage-03-setpiece' | 'stage-03-boss' | 'stage-04-combat' | 'stage-04-setpiece' | 'stage-04-boss' | 'stage-05-combat' | 'stage-05-setpiece' | 'boss-gate' | 'boss-defeat' | 'stage-02-boss') => {
+  __PALIMPSEST_QA_SCENARIO__: (scenario: 'damage' | 'setpiece' | 'stage-02-combat' | 'stage-02-setpiece' | 'stage-03-combat' | 'stage-03-setpiece' | 'stage-03-boss' | 'stage-04-combat' | 'stage-04-setpiece' | 'stage-04-boss' | 'stage-05-combat' | 'stage-05-setpiece' | 'stage-05-boss' | 'boss-gate' | 'boss-defeat' | 'stage-02-boss') => {
     if (app.screen !== 'playing') return app.screen;
-    if (scenario === 'stage-05-combat' || scenario === 'stage-05-setpiece') {
+    if (scenario === 'stage-05-boss') {
+      app.game = createInitialState(3517, 'stage-05');
+      app.game.player.invulnerableUntil = 80000;
+      app.game.tick = STAGE_05_BOSS_START_TICK - 1;
+      app.game.encounterIndex = STAGE_05_SPAWNS.length;
+      app.game.enemies = []; app.game.player.x = 620 * 256;
+      runStep({});
+      app.game.candidate = { polygon: [
+        { x: 850 * 256, y: 190 * 256 }, { x: 1210 * 256, y: 190 * 256 },
+        { x: 1210 * 256, y: 530 * 256 }, { x: 850 * 256, y: 530 * 256 }
+      ], intersection: { x: 850 * 256, y: 190 * 256 }, startIndex: 0, area: 122400, expiresTick: app.game.tick + 60 };
+      runStep({ collate: true });
+      for (let index = 0; index < 140; index += 1) runStep({});
+    } else if (scenario === 'stage-05-combat' || scenario === 'stage-05-setpiece') {
       app.game = createInitialState(3501, 'stage-05');
       app.game.player.invulnerableUntil = 40000;
       if (scenario === 'stage-05-setpiece') {

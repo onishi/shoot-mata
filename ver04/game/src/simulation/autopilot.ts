@@ -1,6 +1,6 @@
 import { distanceSq, pointInPolygon, px } from '../core/math';
 import { type GameState, type InputFrame, type Point } from '../core/types';
-import { eelSegmentPoint } from './game';
+import { apocryphaTwinPoint, eelSegmentPoint } from './game';
 import { stageFourCoolingCenter } from '../content/stage-04';
 
 export type PilotName = 'baseline' | 'safe' | 'stitch' | 'sweep';
@@ -56,6 +56,7 @@ export const createPilot = (name: PilotName): ((state: GameState) => InputFrame)
   let compilerPhase = 0;
   let eelPhase = 0;
   let advocatePhase = 0;
+  let apocryphaPhase = 0;
   const reactionTicks = name === 'safe' ? 8 : name === 'stitch' ? 10 : name === 'sweep' ? 14 : 12;
 
   return (state: GameState): InputFrame => {
@@ -80,6 +81,13 @@ export const createPilot = (name: PilotName): ((state: GameState) => InputFrame)
       candidateSeenAt = 0;
       nextDecision = state.tick;
     }
+    if (name === 'stitch' && state.boss?.kind === 'apocrypha-twins' && state.boss.phase !== apocryphaPhase) {
+      apocryphaPhase = state.boss.phase;
+      attackUntil = 0;
+      waypoints = [];
+      candidateSeenAt = 0;
+      nextDecision = state.tick;
+    }
     if (state.tick < nextDecision) return { ...held, collate: false, retrace: false };
     nextDecision = state.tick + reactionTicks;
 
@@ -91,7 +99,9 @@ export const createPilot = (name: PilotName): ((state: GameState) => InputFrame)
     const advocateEmber = state.boss?.kind === 'cinder-advocate'
       ? state.bullets.filter((bullet) => bullet.sourceAttack === 'advocate-ember')
         .sort((a, b) => b.x - a.x || a.id - b.id)[0] ?? null : null;
-    const target = exposedSeam ?? eelWeakpoint ?? advocateEmber ?? visible;
+    const apocryphaWeakpoint = state.boss?.kind === 'apocrypha-twins' && state.boss.syncBrokenUntil >= state.tick
+      ? apocryphaTwinPoint(state.boss, state.tick, state.boss.vulnerableTwin) : null;
+    const target = exposedSeam ?? eelWeakpoint ?? advocateEmber ?? apocryphaWeakpoint ?? visible;
     if (name === 'baseline') {
       const aimY = target?.y ?? px(360);
       held = moveToward(state.player, { x: px(300), y: aimY });
@@ -165,7 +175,8 @@ export const createPilot = (name: PilotName): ((state: GameState) => InputFrame)
       const coolingTarget = cooling ? { x: px(cooling.x), y: px(cooling.y) } : null;
       const courierTarget = state.stageId === 'stage-04' && loopSequence % 4 === 0
         ? state.enemies.find((enemy) => enemy.kind === 'ember-courier') ?? null : null;
-      const loopTarget = name === 'stitch' ? (compilerVane ?? eelWeakpoint ?? advocateEmber ?? courierTarget ?? coolingTarget) : null;
+      const twinsTarget = state.boss?.kind === 'apocrypha-twins' && state.boss.syncBrokenUntil < state.tick ? state.boss : null;
+      const loopTarget = name === 'stitch' ? (compilerVane ?? eelWeakpoint ?? advocateEmber ?? twinsTarget ?? courierTarget ?? coolingTarget) : null;
       const advocateCenterOffset = advocateEmber ? px(45) : 0;
       const centerX = loopTarget ? loopTarget.x - advocateCenterOffset : (name === 'safe' ? px(300) : Math.min(px(910), Math.max(px(650), target?.x ?? px(900))));
       const rawCenterY = name === 'safe'
@@ -174,8 +185,9 @@ export const createPilot = (name: PilotName): ((state: GameState) => InputFrame)
       const centerY = Math.min(px(590), Math.max(px(130), rawCenterY + px((loopSequence % 3 - 1) * 14)));
       // Leave headroom inside the 3.2 second trail lifetime for reaction delay
       // and quantized corner arrival.
-      const halfWidth = px(advocateEmber ? 95 : loopTarget ? 75 : name === 'safe' ? 75 : name === 'stitch' ? 100 : 115);
-      const halfHeight = px(advocateEmber ? 58 : loopTarget ? 55 : name === 'safe' ? 55 : name === 'stitch' ? 75 : 90);
+      const enclosesTwins = Boolean(twinsTarget);
+      const halfWidth = px(enclosesTwins ? 112 : advocateEmber ? 95 : loopTarget ? 75 : name === 'safe' ? 75 : name === 'stitch' ? 100 : 115);
+      const halfHeight = px(enclosesTwins ? 126 : advocateEmber ? 58 : loopTarget ? 55 : name === 'safe' ? 55 : name === 'stitch' ? 75 : 90);
       waypoints = [
         { x: centerX - halfWidth, y: centerY - halfHeight },
         { x: centerX + halfWidth, y: centerY - halfHeight },
