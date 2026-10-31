@@ -4,6 +4,7 @@ import { STAGE_02_DURATION_TICKS, STAGE_02_ENTITY_LIMITS, STAGE_02_SPAWNS } from
 import { STAGE_03_DURATION_TICKS, STAGE_03_ENTITY_LIMITS, STAGE_03_SPAWNS } from './stage-03';
 import { STAGE_04_DURATION_TICKS, STAGE_04_ENTITY_LIMITS, STAGE_04_SPAWNS } from './stage-04';
 import { STAGE_05_DURATION_TICKS, STAGE_05_ENTITY_LIMITS, STAGE_05_SPAWNS } from './stage-05';
+import { STAGE_06_DURATION_TICKS, STAGE_06_ENTITY_LIMITS, STAGE_06_SPAWNS } from './stage-06';
 
 export interface StageDefinition {
   id: StageId;
@@ -11,7 +12,7 @@ export interface StageDefinition {
   spawns: StageEnemySpawn[];
   entityLimits: { enemies: number; enemyBullets: number };
   boss: 'blank-bailiff' | 'crosswind-compiler' | 'lacuna-eel' | 'cinder-advocate' | 'apocrypha-twins' | null;
-  environment: 'stable' | 'crosswind' | 'rain' | 'heat' | 'mirror';
+  environment: 'stable' | 'crosswind' | 'rain' | 'heat' | 'mirror' | 'palimpsest';
 }
 
 export const STAGES: Record<StageId, StageDefinition> = {
@@ -34,6 +35,10 @@ export const STAGES: Record<StageId, StageDefinition> = {
   'stage-05': {
     id: 'stage-05', durationTicks: STAGE_05_DURATION_TICKS, spawns: STAGE_05_SPAWNS,
     entityLimits: STAGE_05_ENTITY_LIMITS, boss: 'apocrypha-twins', environment: 'mirror'
+  },
+  'stage-06': {
+    id: 'stage-06', durationTicks: STAGE_06_DURATION_TICKS, spawns: STAGE_06_SPAWNS,
+    entityLimits: STAGE_06_ENTITY_LIMITS, boss: null, environment: 'palimpsest'
   }
 };
 

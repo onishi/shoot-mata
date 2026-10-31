@@ -6,6 +6,7 @@ import { STAGE_02_BOSS_START_TICK, STAGE_02_WIND_HALF_CYCLE_TICKS } from '../con
 import { STAGE_03_BOSS_START_TICK, STAGE_03_RAIN_PERIOD_TICKS, STAGE_03_WET_TICKS } from '../content/stage-03';
 import { STAGE_04_BOSS_START_TICK, STAGE_04_COOLING_EXTENSION_TICKS, STAGE_04_COOLING_RADIUS_PX, STAGE_04_HEAT_PERIOD_TICKS, stageFourCoolingCenter } from '../content/stage-04';
 import { STAGE_05_BOSS_START_TICK, isInStageFiveMirrorBand, stageFiveFalseTrail } from '../content/stage-05';
+import { stageSixActiveRule, stageSixFolio } from '../content/stage-06';
 import { findLoopCandidate, shotCrossedTrail, shotCrossedWetTrail, shouldAddTrailPoint } from './trail';
 
 const PLAYER_SPEED = Math.round(320 * SCALE / TICK_RATE);
@@ -36,14 +37,16 @@ const createEnemy = (state: GameState, encounter: StageEnemySpawn): Enemy => {
       'index-kite': 108, 'vane-scribe': 132, 'cross-reference-pair': 144, 'tab-binder': 96,
       'drip-scribe': 90, 'gutter-frog': 132, 'basin-bell': 180, 'reed-needle': 120,
       'ash-comma': 96, 'kiln-censor': 150, 'ember-courier': 126, 'char-press': 180,
-      'mirror-mote': 102, 'quotation-ram': 132, 'false-witness': 144, 'silver-obelisk': 180
+      'mirror-mote': 102, 'quotation-ram': 132, 'false-witness': 144, 'silver-obelisk': 180,
+      'binding-wasp': 114, 'revision-hound': 138, 'null-choir': 168, 'archive-palanquin': 192
     }[encounter.kind]) + cooldownJitter,
     radius: ({
       'eraser-mite': 17, 'bracket-gull': 25, 'margin-skiff': 30, 'folio-hauler': 58,
       'index-kite': 21, 'vane-scribe': 31, 'cross-reference-pair': 27, 'tab-binder': 56,
       'drip-scribe': 24, 'gutter-frog': 30, 'basin-bell': 58, 'reed-needle': 25,
       'ash-comma': 22, 'kiln-censor': 34, 'ember-courier': 29, 'char-press': 60,
-      'mirror-mote': 23, 'quotation-ram': 38, 'false-witness': 33, 'silver-obelisk': 62
+      'mirror-mote': 23, 'quotation-ram': 38, 'false-witness': 33, 'silver-obelisk': 62,
+      'binding-wasp': 25, 'revision-hound': 40, 'null-choir': 34, 'archive-palanquin': 66
     }[encounter.kind]),
     baseY: encounter.y * SCALE, amplitude: encounter.amplitude,
     phase: phaseJitter, spawnedAt: state.tick, expiresAt: Math.min(state.tick + encounter.lifetime, stage.durationTicks - 1),
@@ -73,6 +76,10 @@ const emptyEnemyStats = (): GameState['metrics']['enemyStats'] => ({
   , 'quotation-ram': { spawned: 0, attacks: 0, defeated: 0, exited: 0 }
   , 'false-witness': { spawned: 0, attacks: 0, defeated: 0, exited: 0 }
   , 'silver-obelisk': { spawned: 0, attacks: 0, defeated: 0, exited: 0 }
+  , 'binding-wasp': { spawned: 0, attacks: 0, defeated: 0, exited: 0 }
+  , 'revision-hound': { spawned: 0, attacks: 0, defeated: 0, exited: 0 }
+  , 'null-choir': { spawned: 0, attacks: 0, defeated: 0, exited: 0 }
+  , 'archive-palanquin': { spawned: 0, attacks: 0, defeated: 0, exited: 0 }
 });
 
 export const createInitialState = (seed = 1, stageId: StageId = 'stage-01'): GameState => {
@@ -102,8 +109,14 @@ export const createInitialState = (seed = 1, stageId: StageId = 'stage-01'): Gam
     advocate: { embersThrown: 0, embersCooled: 0, cooledHits: 0, wallBlocks: 0, wallActiveTicks: 0, phaseReached: [false, false, false], attacks: { ember: 0, gavel: 0, verdict: 0 }, damageByAttack: { ember: 0, gavel: 0, verdict: 0 } },
     apocrypha: { syncBreaks: 0, syncBrokenTicks: 0, weakpointHits: 0, ordinaryHits: 0, swaps: 0, phaseReached: [false, false, false], attacks: { testimony: 0, crossExam: 0, verdict: 0 }, damageByAttack: { testimony: 0, crossExam: 0, verdict: 0 } } }
   };
-  if (stageId === 'stage-05') state.metrics.mirror = { falseTrailPeak: 0, falseAnnotations: 0, falseLoopRejections: 0, illusoryShots: 0, moteEchoes: 0, ramCharges: 0, witnessMixes: 0, obeliskReflections: 0 };
+  if (stageId === 'stage-05' || stageId === 'stage-06') state.metrics.mirror = { falseTrailPeak: 0, falseAnnotations: 0, falseLoopRejections: 0, illusoryShots: 0, moteEchoes: 0, ramCharges: 0, witnessMixes: 0, obeliskReflections: 0 };
   else for (const kind of ['mirror-mote', 'quotation-ram', 'false-witness', 'silver-obelisk'] as const) delete state.metrics.enemyStats[kind];
+  if (stageId === 'stage-06') state.metrics.original = {
+    folioTicks: { wind: 0, rain: 0, heat: 0, mirror: 0, synthesis: 0 },
+    bindingLinks: 0, houndRevisions: 0, choirVerses: 0, choirHoles: 0,
+    palanquinSalvos: 0, inheritedCollates: 0, synthesisCollates: 0
+  };
+  else for (const kind of ['binding-wasp', 'revision-hound', 'null-choir', 'archive-palanquin'] as const) delete state.metrics.enemyStats[kind];
   if (stage.spawns[0]?.tick === 0) {
     state.enemies.push(createEnemy(state, stage.spawns[0]));
     state.metrics.enemyStats[stage.spawns[0].kind].spawned += 1;
@@ -121,7 +134,7 @@ export const copyState = (state: GameState): GameState => ({
   enemies: state.enemies.map((enemy) => ({ ...enemy })),
   boss: state.boss ? { ...state.boss } : null,
   retrace: state.retrace ? { index: state.retrace.index, points: state.retrace.points.map((point) => ({ ...point })) } : null,
-  metrics: { ...state.metrics, wind: { ...state.metrics.wind }, rain: { ...state.metrics.rain }, heat: { ...state.metrics.heat }, ...(state.metrics.mirror ? { mirror: { ...state.metrics.mirror } } : {}), enemyStats: Object.fromEntries(Object.entries(state.metrics.enemyStats).map(([kind, stats]) => [kind, { ...stats }])) as GameState['metrics']['enemyStats'], boss: { ...state.metrics.boss, phaseReached: [...state.metrics.boss.phaseReached], damageByAttack: { ...state.metrics.boss.damageByAttack } }, compiler: { ...state.metrics.compiler, phaseReached: [...state.metrics.compiler.phaseReached], attacks: { ...state.metrics.compiler.attacks }, damageByAttack: { ...state.metrics.compiler.damageByAttack } }, eel: { ...state.metrics.eel, phaseReached: [...state.metrics.eel.phaseReached], attacks: { ...state.metrics.eel.attacks }, damageByAttack: { ...state.metrics.eel.damageByAttack } }, advocate: { ...state.metrics.advocate, phaseReached: [...state.metrics.advocate.phaseReached], attacks: { ...state.metrics.advocate.attacks }, damageByAttack: { ...state.metrics.advocate.damageByAttack } }, apocrypha: { ...state.metrics.apocrypha, phaseReached: [...state.metrics.apocrypha.phaseReached], attacks: { ...state.metrics.apocrypha.attacks }, damageByAttack: { ...state.metrics.apocrypha.damageByAttack } } }
+  metrics: { ...state.metrics, wind: { ...state.metrics.wind }, rain: { ...state.metrics.rain }, heat: { ...state.metrics.heat }, ...(state.metrics.mirror ? { mirror: { ...state.metrics.mirror } } : {}), ...(state.metrics.original ? { original: { ...state.metrics.original, folioTicks: { ...state.metrics.original.folioTicks } } } : {}), enemyStats: Object.fromEntries(Object.entries(state.metrics.enemyStats).map(([kind, stats]) => [kind, { ...stats }])) as GameState['metrics']['enemyStats'], boss: { ...state.metrics.boss, phaseReached: [...state.metrics.boss.phaseReached], damageByAttack: { ...state.metrics.boss.damageByAttack } }, compiler: { ...state.metrics.compiler, phaseReached: [...state.metrics.compiler.phaseReached], attacks: { ...state.metrics.compiler.attacks }, damageByAttack: { ...state.metrics.compiler.damageByAttack } }, eel: { ...state.metrics.eel, phaseReached: [...state.metrics.eel.phaseReached], attacks: { ...state.metrics.eel.attacks }, damageByAttack: { ...state.metrics.eel.damageByAttack } }, advocate: { ...state.metrics.advocate, phaseReached: [...state.metrics.advocate.phaseReached], attacks: { ...state.metrics.advocate.attacks }, damageByAttack: { ...state.metrics.advocate.damageByAttack } }, apocrypha: { ...state.metrics.apocrypha, phaseReached: [...state.metrics.apocrypha.phaseReached], attacks: { ...state.metrics.apocrypha.attacks }, damageByAttack: { ...state.metrics.apocrypha.damageByAttack } } }
 });
 
 const spawnEnemyBullet = (state: GameState, enemy: Point, angleOffset = 0, speedPx = 145, sourceAttack: Bullet['sourceAttack'] = 'enemy-volley'): boolean => {
@@ -469,10 +482,11 @@ export const effectiveStageTwoWindDirection = (state: GameState): -1 | 1 =>
     ? state.boss.lockedWindDirection : stageTwoWindDirection(state.tick);
 
 const applyCrosswind = (state: GameState, events?: GameEvent[]): void => {
-  if (state.stageId !== 'stage-02') return;
+  if (state.stageId !== 'stage-02' && !(state.stageId === 'stage-06' && stageSixActiveRule(state.tick) === 'wind')) return;
   const direction = effectiveStageTwoWindDirection(state);
-  const playerDrift = direction * Math.round(0.18 * SCALE);
-  const trailDrift = direction * Math.round(0.35 * SCALE);
+  const stageSix = state.stageId === 'stage-06';
+  const playerDrift = direction * Math.round((stageSix ? 0.11 : 0.18) * SCALE);
+  const trailDrift = direction * Math.round((stageSix ? 0.22 : 0.35) * SCALE);
   if (state.tick > 0 && state.tick < stageDefinition(state.stageId).durationTicks
     && state.tick % STAGE_02_WIND_HALF_CYCLE_TICKS === 0) {
     state.metrics.wind.reversals += 1;
@@ -491,7 +505,7 @@ const applyCrosswind = (state: GameState, events?: GameEvent[]): void => {
 };
 
 const applyRain = (state: GameState, events: GameEvent[]): void => {
-  if (state.stageId !== 'stage-03') return;
+  if (state.stageId !== 'stage-03' && !(state.stageId === 'stage-06' && stageSixActiveRule(state.tick) === 'rain')) return;
   const dropIndex = Math.floor(state.tick / STAGE_03_RAIN_PERIOD_TICKS);
   if (state.tick % STAGE_03_RAIN_PERIOD_TICKS === 0) state.metrics.rain.drops += 1;
   let newlyWetted = false;
@@ -549,10 +563,11 @@ const burnOldestTrail = (state: GameState, count: number): number => {
 };
 
 const applyHeat = (state: GameState, events: GameEvent[]): void => {
-  if (state.stageId !== 'stage-04') return;
+  if (state.stageId !== 'stage-04' && !(state.stageId === 'stage-06' && stageSixActiveRule(state.tick) === 'heat')) return;
   const center = stageFourCoolingCenter(state.tick);
   coolTrailNear(state, { x: center.x * SCALE, y: center.y * SCALE }, STAGE_04_COOLING_RADIUS_PX);
-  if (state.tick % STAGE_04_HEAT_PERIOD_TICKS === 0) {
+  const period = state.stageId === 'stage-06' ? STAGE_04_HEAT_PERIOD_TICKS * 2 : STAGE_04_HEAT_PERIOD_TICKS;
+  if (state.tick % period === 0) {
     state.metrics.heat.waves += 1;
     burnOldestTrail(state, 1);
     events.push({ type: 'heat-wave' });
@@ -782,6 +797,78 @@ const updateEnemy = (state: GameState, enemy: Enemy, events: GameEvent[]): void 
     return;
   }
 
+  if (enemy.kind === 'binding-wasp') {
+    enemy.x = Math.max(955 * SCALE, enemy.spawnX - Math.min(age, 150) * 2.55 * SCALE);
+    enemy.y = enemy.baseY + Math.round(Math.sin((age + enemy.phase) / 82) * enemy.amplitude * SCALE);
+    if (enemy.state === 'exiting') enemy.x += (state.tick - (enemy.expiresAt - 120)) * 3 * SCALE;
+    if (enemy.fireCooldown <= 0) {
+      const first = state.trail[Math.floor(state.trail.length * 0.2)];
+      const second = state.trail[Math.floor(state.trail.length * 0.8)];
+      if (!state.candidate && first && second) {
+        const centerX = (first.x + second.x) / 2;
+        const centerY = (first.y + second.y) / 2;
+        const halfWidth = Math.max(70 * SCALE, Math.abs(first.x - second.x) / 2);
+        const halfHeight = Math.max(52 * SCALE, Math.abs(first.y - second.y) / 2);
+        state.candidate = {
+          polygon: [
+            { x: centerX - halfWidth, y: centerY - halfHeight }, { x: centerX + halfWidth, y: centerY - halfHeight },
+            { x: centerX + halfWidth, y: centerY + halfHeight }, { x: centerX - halfWidth, y: centerY + halfHeight }
+          ],
+          intersection: { x: second.x, y: second.y }, startIndex: Math.floor(state.trail.length * 0.2),
+          area: Math.round(4 * halfWidth * halfHeight / SCALE ** 2), expiresTick: state.tick + 120
+        };
+        state.metrics.original!.bindingLinks += 1;
+      }
+      spawnEnemyBullet(state, enemy, 0, 132);
+      enemy.fireCooldown = 252; state.metrics.enemyStats[enemy.kind].attacks += 1;
+    }
+    return;
+  }
+
+  if (enemy.kind === 'revision-hound') {
+    const target = state.candidate?.polygon[Math.floor(state.candidate.polygon.length / 2)]
+      ?? state.trail[Math.max(0, state.trail.length - 10)];
+    if (target) moveTowardPoint(enemy, target, 248);
+    else {
+      enemy.x = Math.max(915 * SCALE, enemy.spawnX - Math.min(age, 170) * 2.8 * SCALE);
+      enemy.y = enemy.baseY + Math.round(Math.sin((age + enemy.phase) / 88) * enemy.amplitude * SCALE);
+    }
+    if (enemy.fireCooldown <= 0) {
+      for (const offset of [-0.18, 0.18]) spawnEnemyBullet(state, enemy, offset, 178);
+      enemy.fireCooldown = 246; state.metrics.enemyStats[enemy.kind].attacks += 1;
+      state.metrics.original!.houndRevisions += 1;
+    }
+    return;
+  }
+
+  if (enemy.kind === 'null-choir') {
+    enemy.x = Math.max(980 * SCALE, enemy.spawnX - Math.min(age, 145) * 2.2 * SCALE);
+    enemy.y = enemy.baseY + Math.round(Math.sin((age + enemy.phase) / 148) * enemy.amplitude * SCALE * enemy.lane);
+    if (enemy.state === 'exiting') enemy.x += (state.tick - (enemy.expiresAt - 120)) * 3 * SCALE;
+    if (enemy.fireCooldown <= 0) {
+      if (enemy.markedUntil >= state.tick) state.metrics.original!.choirHoles += 1;
+      else {
+        for (const offset of [-0.34, -0.17, 0, 0.17, 0.34]) spawnEnemyBullet(state, enemy, offset, 146);
+        state.metrics.original!.choirVerses += 1;
+      }
+      enemy.fireCooldown = 288; state.metrics.enemyStats[enemy.kind].attacks += 1;
+    }
+    return;
+  }
+
+  if (enemy.kind === 'archive-palanquin') {
+    enemy.x = Math.max(935 * SCALE, enemy.spawnX - Math.min(age, 165) * 2.15 * SCALE);
+    enemy.y = enemy.baseY + Math.round(Math.sin((age + enemy.phase) / 165) * enemy.amplitude * SCALE);
+    if (enemy.state === 'exiting') enemy.x += (state.tick - (enemy.expiresAt - 120)) * 2.8 * SCALE;
+    if (enemy.fireCooldown <= 0) {
+      const spread = enemy.markedUntil >= state.tick ? [-0.42, 0, 0.42] : [-0.54, -0.36, -0.18, 0, 0.18, 0.36, 0.54];
+      for (const offset of spread) spawnEnemyBullet(state, enemy, offset + enemy.lane * 0.06, 112);
+      enemy.fireCooldown = 300; state.metrics.enemyStats[enemy.kind].attacks += 1;
+      state.metrics.original!.palanquinSalvos += 1;
+    }
+    return;
+  }
+
   enemy.x = Math.max(enemy.kind === 'folio-hauler' ? 1010 * SCALE : 1015 * SCALE, enemy.spawnX - Math.min(age, 120) * 2.5 * SCALE);
   enemy.y = enemy.baseY + Math.round(Math.sin((age + enemy.phase) / (enemy.kind === 'margin-skiff' ? 105 : 180)) * enemy.amplitude * SCALE);
   if (enemy.state === 'exiting') enemy.x += (state.tick - (enemy.expiresAt - 120)) * 3 * SCALE;
@@ -902,6 +989,17 @@ const collate = (state: GameState, events: GameEvent[]): void => {
       events.push({ type: 'twins-sync-broken', vulnerable: state.boss.vulnerableTwin });
     }
   }
+  if (state.stageId === 'stage-06') {
+    const choirInside = state.enemies.filter((enemy) => enemy.kind === 'null-choir' && pointInPolygon(enemy, candidate.polygon));
+    if (choirInside.length === 0) {
+      const center = candidate.polygon.reduce((sum, point) => ({ x: sum.x + point.x / candidate.polygon.length, y: sum.y + point.y / candidate.polygon.length }), { x: 0, y: 0 });
+      const nearestChoir = state.enemies.filter((enemy) => enemy.kind === 'null-choir')
+        .sort((a, b) => distanceSq(a, center) - distanceSq(b, center) || a.id - b.id)[0];
+      if (nearestChoir && distanceSq(nearestChoir, center) <= (300 * SCALE) ** 2) nearestChoir.markedUntil = state.tick + 6 * TICK_RATE;
+    }
+    state.metrics.original!.inheritedCollates += 1;
+    if (stageSixFolio(state.tick) === 'synthesis') state.metrics.original!.synthesisCollates += 1;
+  }
   if (selected.length === 0 && !state.enemies.some((enemy) => pointInPolygon(enemy, candidate.polygon))) state.metrics.emptyLoops += 1;
   state.metrics.captured += selected.length;
   state.trail = state.trail.slice(0, candidate.startIndex);
@@ -913,6 +1011,7 @@ export const step = (previous: GameState, input: InputFrame): { state: GameState
   const state = copyState(previous);
   const events: GameEvent[] = [];
   state.tick += 1;
+  if (state.stageId === 'stage-06') state.metrics.original!.folioTicks[stageSixFolio(state.tick)] += 1;
 
   if (input.retrace && !state.retrace) {
     if (state.gauge >= 25 && state.trail.length >= 4) {
@@ -936,14 +1035,16 @@ export const step = (previous: GameState, input: InputFrame): { state: GameState
   if (!state.retrace && shouldAddTrailPoint(state.trail, state.player, state.tick)) {
     const previousTrailPoint = state.trail.at(-1);
     state.trail.push({ x: state.player.x, y: state.player.y, bornTick: state.tick, segmentId: state.tick });
-    if (state.stageId === 'stage-05' && isInStageFiveMirrorBand(state.player)
+    const mirrorActive = state.stageId === 'stage-05'
+      || (state.stageId === 'stage-06' && stageSixActiveRule(state.tick) === 'mirror');
+    if (mirrorActive && isInStageFiveMirrorBand(state.player)
       && (!previousTrailPoint || !isInStageFiveMirrorBand(previousTrailPoint))) events.push({ type: 'mirror-band-reflected' });
     const wasReady = Boolean(state.candidate);
     const detected = findLoopCandidate(state.trail);
     if (detected) state.candidate = { ...detected, expiresTick: state.tick + 60 };
     if (!wasReady && detected) { state.metrics.candidates += 1; events.push({ type: 'loop-ready' }); }
   }
-  if (state.stageId === 'stage-05') {
+  if (state.stageId === 'stage-05' || (state.stageId === 'stage-06' && stageSixActiveRule(state.tick) === 'mirror')) {
     const falseTrail = stageFiveFalseTrail(state.trail);
     state.metrics.mirror!.falseTrailPeak = Math.max(state.metrics.mirror!.falseTrailPeak, falseTrail.length);
     // This counter is evidence that a loop visible only in the reflected copy
@@ -966,7 +1067,9 @@ export const step = (previous: GameState, input: InputFrame): { state: GameState
     bullet.y += bullet.vy;
     if (bullet.kind === 'player' && !bullet.annotated) {
       const crossedReal = shotCrossedTrail(from, bullet, state.trail);
-      const crossedFalse = state.stageId === 'stage-05' && shotCrossedTrail(from, bullet, stageFiveFalseTrail(state.trail));
+      const crossedFalse = (state.stageId === 'stage-05'
+        || (state.stageId === 'stage-06' && stageSixActiveRule(state.tick) === 'mirror'))
+        && shotCrossedTrail(from, bullet, stageFiveFalseTrail(state.trail));
       if (!crossedReal && !crossedFalse) continue;
       bullet.annotated = true;
       bullet.falseAnnotated = crossedFalse && !crossedReal;

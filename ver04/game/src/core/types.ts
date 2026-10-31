@@ -22,13 +22,14 @@ export interface Bullet extends Point {
     | 'advocate-ember' | 'advocate-gavel' | 'advocate-verdict'
     | 'twins-testimony' | 'twins-cross-exam' | 'twins-verdict';
 }
-export type StageId = 'stage-01' | 'stage-02' | 'stage-03' | 'stage-04' | 'stage-05';
+export type StageId = 'stage-01' | 'stage-02' | 'stage-03' | 'stage-04' | 'stage-05' | 'stage-06';
 export type EnemyKind =
   | 'eraser-mite' | 'bracket-gull' | 'margin-skiff' | 'folio-hauler'
   | 'index-kite' | 'vane-scribe' | 'cross-reference-pair' | 'tab-binder'
   | 'drip-scribe' | 'gutter-frog' | 'basin-bell' | 'reed-needle'
   | 'ash-comma' | 'kiln-censor' | 'ember-courier' | 'char-press'
-  | 'mirror-mote' | 'quotation-ram' | 'false-witness' | 'silver-obelisk';
+  | 'mirror-mote' | 'quotation-ram' | 'false-witness' | 'silver-obelisk'
+  | 'binding-wasp' | 'revision-hound' | 'null-choir' | 'archive-palanquin';
 export interface Enemy extends Point {
   id: number;
   kind: EnemyKind;
@@ -177,6 +178,16 @@ export interface Metrics {
     ramCharges: number;
     witnessMixes: number;
     obeliskReflections: number;
+  };
+  original?: {
+    folioTicks: Record<'wind' | 'rain' | 'heat' | 'mirror' | 'synthesis', number>;
+    bindingLinks: number;
+    houndRevisions: number;
+    choirVerses: number;
+    choirHoles: number;
+    palanquinSalvos: number;
+    inheritedCollates: number;
+    synthesisCollates: number;
   };
   boss: {
     spawned: boolean;

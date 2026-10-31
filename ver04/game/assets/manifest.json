@@ -291,6 +291,14 @@
       "stage": "Stage 5: The Mirror Chamber", "usage": "mirror-band reflection, false annotation and volley, Twins sync break, weakpoint hit and phase cues", "version": 1, "status": "final", "createdBy": "procedural",
       "sourcePrompt": "scripts/generate-audio.mjs deterministic synthesis; glass traversal, doubled writing, hollow false rounds, split sync resonance, gold weakpoint strike and exchanged twin pressure", "generatedAt": "2026-11-01",
       "editHistory": ["Synthesized as six 44.1 kHz stereo PCM16 files; connected to simulation events and inspected in the worst-case Stage 5 mix."], "dimensions": "6 files, 0.22s to 0.92s, stereo 44.1kHz PCM16", "license": "project-original"
+    },
+    {
+      "id": "stage-06-canvas-preview-v1", "kind": "procedural-visual", "path": "src/render/render.ts",
+      "stage": "Stage 6: Dawn of the Original", "usage": "development preview for five folios, Binding Wasp, Revision Hound, Null Choir and Archive Palanquin",
+      "version": 1, "status": "prototype", "createdBy": "procedural",
+      "sourcePrompt": "none; authored Canvas preview from docs/01-game-design.md Stage 6 and enemy roster",
+      "generatedAt": "2026-11-01", "editHistory": ["Introduced rule-colored folio wash, synthesis label, four distinct geometric silhouettes and simulation-synchronized mirror bands."],
+      "dimensions": "1280x720 logical canvas", "license": "project-original"
     }
   ]
 }

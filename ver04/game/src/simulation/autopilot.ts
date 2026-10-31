@@ -23,8 +23,8 @@ const nearestThreat = (state: GameState) => state.bullets
 
 const visibleTarget = (state: GameState) => state.enemies
   .slice()
-  .sort((a, b) => Number(b.kind === 'folio-hauler' || b.kind === 'tab-binder')
-    - Number(a.kind === 'folio-hauler' || a.kind === 'tab-binder') || a.id - b.id)[0] ?? state.boss;
+  .sort((a, b) => Number(b.kind === 'folio-hauler' || b.kind === 'tab-binder' || b.kind === 'null-choir' || b.kind === 'archive-palanquin')
+    - Number(a.kind === 'folio-hauler' || a.kind === 'tab-binder' || a.kind === 'null-choir' || a.kind === 'archive-palanquin') || a.id - b.id)[0] ?? state.boss;
 
 const compilerPoint = (state: GameState, side: 'vane' | 'seam'): Point | null => {
   const boss = state.boss;

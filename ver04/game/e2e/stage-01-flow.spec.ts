@@ -7,7 +7,7 @@ type QaWindow = Window & {
   __PALIMPSEST_ADVANCE__: (ticks: number) => number;
   __PALIMPSEST_APP_STATE__: () => { screen: Screen; continuesRemaining: number; checkpointName: string; game: { stageId: string; tick: number; player: { health: number }; gauge: number } };
   __PALIMPSEST_STATE__: () => { bullets: unknown[]; trail: unknown[]; candidate: unknown; metrics: { loops: number; retraces: number } };
-  __PALIMPSEST_QA_SCENARIO__: (scenario: 'damage' | 'setpiece' | 'stage-02-combat' | 'stage-02-setpiece' | 'stage-03-combat' | 'stage-03-setpiece' | 'stage-03-boss' | 'stage-04-combat' | 'stage-04-setpiece' | 'stage-04-boss' | 'stage-05-combat' | 'stage-05-setpiece' | 'stage-05-boss' | 'boss-gate' | 'boss-defeat' | 'stage-02-boss') => Screen;
+  __PALIMPSEST_QA_SCENARIO__: (scenario: 'damage' | 'setpiece' | 'stage-02-combat' | 'stage-02-setpiece' | 'stage-03-combat' | 'stage-03-setpiece' | 'stage-03-boss' | 'stage-04-combat' | 'stage-04-setpiece' | 'stage-04-boss' | 'stage-05-combat' | 'stage-05-setpiece' | 'stage-05-boss' | 'stage-06-combat' | 'stage-06-setpiece' | 'boss-gate' | 'boss-defeat' | 'stage-02-boss') => Screen;
   __PALIMPSEST_AUDIO_READY__: () => Promise<void>;
   __PALIMPSEST_AUDIO_STATE__: () => { state: string; loaded: number; stems: number; stemStage: string | null; active: number; busLevels: Record<string, number>; cueCounts: Record<string, number> };
   __PALIMPSEST_AUDIO_BUS__: (bus: 'music' | 'se' | 'ui' | 'environment', level: number) => void;
@@ -598,4 +598,23 @@ test('APOCRYPHA TWINS final visuals show shared sync, one exposed twin and all t
   expect(state.bullets.some((bullet) => bullet.sourceAttack === 'twins-verdict')).toBe(true);
   expect(state.bullets.some((bullet) => bullet.illusory)).toBe(true);
   await page.locator('#game').screenshot({ path: '../docs/evidence/m3-19-apocrypha-twins-phase-3.png' });
+});
+
+test('Stage 6 preview keeps four enemy roles and the synthesis folio readable', async ({ page }) => {
+  await page.goto('/'); await page.keyboard.press('Enter'); await page.keyboard.press('Enter');
+  await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_QA_SCENARIO__('stage-06-combat'));
+  let state = await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_STATE__()) as unknown as {
+    stageId: string; enemies: Array<{ kind: string }>; metrics: { original: { bindingLinks: number; houndRevisions: number } };
+  };
+  expect(state.stageId).toBe('stage-06');
+  expect(state.metrics.original.bindingLinks).toBeGreaterThan(0);
+  expect(state.metrics.original.houndRevisions).toBeGreaterThan(0);
+  expect(state.enemies.length).toBeGreaterThan(0);
+  await page.locator('#game').screenshot({ path: '../docs/evidence/m3-21-stage-06-combat.png' });
+
+  await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_QA_SCENARIO__('stage-06-setpiece'));
+  state = await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_STATE__()) as unknown as typeof state;
+  const kinds = new Set(state.enemies.map((enemy) => enemy.kind));
+  expect(kinds.size).toBeGreaterThanOrEqual(3);
+  await page.locator('#game').screenshot({ path: '../docs/evidence/m3-21-stage-06-setpiece.png' });
 });

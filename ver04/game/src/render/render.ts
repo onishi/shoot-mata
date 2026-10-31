@@ -3,6 +3,7 @@ import type { AppScreen, AppState } from '../app/app';
 import { ADVOCATE_WALL_X_PX, apocryphaTwinPoint, eelSegmentPoint } from '../simulation/game';
 import { STAGE_04_COOLING_RADIUS_PX, stageFourCoolingCenter } from '../content/stage-04';
 import { STAGE_05_MIRROR_BANDS, stageFiveFalseTrail } from '../content/stage-05';
+import { stageSixActiveRule, stageSixFolio } from '../content/stage-06';
 import { drawSprite, visuals } from './visual-assets';
 
 const path = (ctx: CanvasRenderingContext2D, points: Point[]): void => {
@@ -22,7 +23,7 @@ const diamond = (ctx: CanvasRenderingContext2D, x: number, y: number, radius: nu
 };
 
 export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: boolean): void => {
-  const stageVisuals = visuals[state.stageId];
+  const stageVisuals = state.stageId === 'stage-06' ? undefined : visuals[state.stageId];
   ctx.fillStyle = '#071121';
   ctx.fillRect(0, 0, WIDTH, HEIGHT);
   if (stageVisuals?.far.complete && stageVisuals.far.naturalWidth > 0) {
@@ -104,6 +105,30 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
     }
     ctx.restore();
   }
+  if (state.stageId === 'stage-06') {
+    const rule = stageSixActiveRule(state.tick);
+    const palette = rule === 'wind' ? ['#10253b', '#83dcf2'] : rule === 'rain' ? ['#0b2630', '#65d9c3']
+      : rule === 'heat' ? ['#321811', '#ff8c4b'] : ['#24122f', '#e784ff'];
+    const wash = ctx.createLinearGradient(0, 0, WIDTH, HEIGHT);
+    wash.addColorStop(0, palette[0]); wash.addColorStop(1, 'rgba(8,12,25,.18)');
+    ctx.fillStyle = wash; ctx.fillRect(0, 0, WIDTH, HEIGHT);
+    ctx.save(); ctx.strokeStyle = `${palette[1]}66`; ctx.lineWidth = 2;
+    for (let index = 0; index < 16; index += 1) {
+      const x = 45 + index * 84; const y = 96 + (index * 137) % 520;
+      ctx.beginPath(); ctx.moveTo(x, y);
+      ctx.quadraticCurveTo(x + 34, y + Math.sin((state.tick + index * 27) / 40) * 22, x + 68, y); ctx.stroke();
+    }
+    ctx.fillStyle = palette[1]; ctx.font = '700 13px system-ui, sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(`${stageSixFolio(state.tick).toUpperCase()} FOLIO  /  ${rule.toUpperCase()} RULE`, WIDTH / 2, 72);
+    ctx.textAlign = 'start'; ctx.restore();
+    if (rule === 'mirror') {
+      for (const band of STAGE_05_MIRROR_BANDS) {
+        ctx.fillStyle = 'rgba(229,126,255,.1)'; ctx.strokeStyle = 'rgba(242,219,255,.62)'; ctx.lineWidth = 2;
+        ctx.fillRect(band.x - band.width / 2, 52, band.width, HEIGHT - 104);
+        ctx.strokeRect(band.x - band.width / 2, 52, band.width, HEIGHT - 104);
+      }
+    }
+  }
 
   if (state.candidate) {
     path(ctx, state.candidate.polygon);
@@ -143,7 +168,7 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
   ctx.shadowBlur = 0;
   if (state.stageId === 'stage-05') { ctx.lineWidth = 1.5; ctx.stroke(); }
 
-  if (state.stageId === 'stage-05') {
+  if (state.stageId === 'stage-05' || (state.stageId === 'stage-06' && stageSixActiveRule(state.tick) === 'mirror')) {
     const falseTrail = stageFiveFalseTrail(state.trail);
     path(ctx, falseTrail);
     ctx.strokeStyle = 'rgba(225,75,255,.26)'; ctx.shadowColor = '#da4cff'; ctx.shadowBlur = 20; ctx.lineWidth = 14; ctx.stroke();
@@ -205,7 +230,7 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
       if (enemy.markedUntil >= state.tick) { ctx.shadowColor = '#ffe58b'; ctx.shadowBlur = 22; }
       drawSprite(ctx, kind, x, y, dimensions[0], dimensions[1]);
       ctx.restore();
-    } else {
+    } else if (state.stageId === 'stage-05') {
       const kind = enemy.kind as 'mirror-mote' | 'quotation-ram' | 'false-witness' | 'silver-obelisk';
       const dimensions = {
         'mirror-mote': [68, 62], 'quotation-ram': [118, 74], 'false-witness': [96, 88], 'silver-obelisk': [76, 142]
@@ -213,6 +238,25 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
       ctx.save();
       if (enemy.markedUntil >= state.tick) { ctx.shadowColor = '#ffe58b'; ctx.shadowBlur = 22; }
       drawSprite(ctx, kind, x, y, dimensions[0], dimensions[1]);
+      ctx.restore();
+    } else {
+      ctx.save(); ctx.translate(x, y);
+      if (enemy.markedUntil >= state.tick) { ctx.shadowColor = '#ffe58b'; ctx.shadowBlur = 22; }
+      ctx.strokeStyle = '#e9fbff'; ctx.fillStyle = '#122738'; ctx.lineWidth = 3;
+      if (enemy.kind === 'binding-wasp') {
+        diamond(ctx, 0, 0, 25); ctx.fill(); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(-34, -20); ctx.lineTo(-12, 0); ctx.lineTo(-34, 20); ctx.moveTo(34, -20); ctx.lineTo(12, 0); ctx.lineTo(34, 20); ctx.stroke();
+      } else if (enemy.kind === 'revision-hound') {
+        ctx.beginPath(); ctx.moveTo(-40, -22); ctx.lineTo(24, -28); ctx.lineTo(42, 0); ctx.lineTo(18, 28); ctx.lineTo(-38, 20); ctx.closePath(); ctx.fill(); ctx.stroke();
+        ctx.strokeStyle = '#ffcb70'; ctx.beginPath(); ctx.moveTo(-16, -12); ctx.lineTo(22, 0); ctx.lineTo(-16, 12); ctx.stroke();
+      } else if (enemy.kind === 'null-choir') {
+        ctx.beginPath(); ctx.arc(0, 0, 31, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+        ctx.strokeStyle = '#8ff5e5'; for (const offset of [-12, 0, 12]) { ctx.beginPath(); ctx.moveTo(offset, -21); ctx.lineTo(offset, 21); ctx.stroke(); }
+      } else {
+        ctx.beginPath(); ctx.moveTo(-62, -34); ctx.lineTo(42, -42); ctx.lineTo(64, 0); ctx.lineTo(42, 42); ctx.lineTo(-62, 34); ctx.closePath(); ctx.fill(); ctx.stroke();
+        ctx.strokeStyle = '#f1b9ff'; ctx.strokeRect(-34, -21, 58, 42);
+        ctx.strokeStyle = '#ffcb70'; ctx.beginPath(); ctx.moveTo(32, -28); ctx.lineTo(52, 0); ctx.lineTo(32, 28); ctx.stroke();
+      }
       ctx.restore();
     }
     ctx.fillStyle = '#131725';
@@ -378,13 +422,14 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
   const stageTitle = state.stageId === 'stage-01' ? 'STAGE 1: THE ERASED HARBOR'
     : state.stageId === 'stage-02' ? 'STAGE 2: THE CROSSWIND INDEX'
       : state.stageId === 'stage-03' ? 'STAGE 3: THE RAIN MARGIN'
-        : state.stageId === 'stage-04' ? 'STAGE 4: THE BURNT FOOTNOTE' : 'STAGE 5: THE MIRROR CHAMBER';
+        : state.stageId === 'stage-04' ? 'STAGE 4: THE BURNT FOOTNOTE'
+          : state.stageId === 'stage-05' ? 'STAGE 5: THE MIRROR CHAMBER' : 'STAGE 6: DAWN OF THE ORIGINAL';
   ctx.fillText(`PALIMPSEST WAKE  /  ${stageTitle}`, 24, 33);
   ctx.fillStyle = '#f4c36a';
   ctx.fillText(`SCORE ${String(state.score).padStart(7, '0')}`, 1035, 33);
   ctx.fillStyle = '#8ea6bd';
   ctx.font = '600 14px system-ui, sans-serif';
-  const duration = state.stageId === 'stage-05' ? 210 : state.stageId === 'stage-03' || state.stageId === 'stage-04' ? 195 : 180;
+  const duration = state.stageId === 'stage-06' ? 270 : state.stageId === 'stage-05' ? 210 : state.stageId === 'stage-03' || state.stageId === 'stage-04' ? 195 : 180;
   ctx.fillText(state.boss || state.metrics.boss.defeated ? 'BOSS' : `${Math.min(duration, Math.floor(state.tick / TICK_RATE)).toString().padStart(3, '0')} / ${duration}s`, 910, 32);
   for (let i = 0; i < 3; i += 1) {
     ctx.fillStyle = i < state.player.health ? '#a8f7ff' : '#283449';
@@ -472,9 +517,11 @@ const renderScreen = (ctx: CanvasRenderingContext2D, app: AppState, screen: Excl
       'stage-04': { number: 4, entry: 'THE BURNT FOOTNOTE', gate: 'THE CINDER HEARING', boss: 'CINDER ADVOCATE',
         lesson: 'Keep old writing in the moving cooling shadow.', strategy: 'Cool the thrown embers. Return them through the heat wall.' },
       'stage-05': { number: 5, entry: 'THE MIRROR CHAMBER', gate: 'THE APOCRYPHAL PAIR', boss: 'APOCRYPHA TWINS',
-        lesson: 'False magenta wakes sharpen fire, but cannot close a loop.', strategy: 'Enclose both reflections. Break their shared testimony.' }
+        lesson: 'False magenta wakes sharpen fire, but cannot close a loop.', strategy: 'Enclose both reflections. Break their shared testimony.' },
+      'stage-06': { number: 6, entry: 'DAWN OF THE ORIGINAL', gate: 'THE FINAL REVISION', boss: 'THE LAST EDITOR',
+        lesson: 'Carry one intention through wind, rain, heat, and mirrors.', strategy: 'Rewrite every rule. Complete the signature wake.' }
     }[app.game.stageId];
-    const bossGate = app.checkpointName === 'bailiff-gate' || app.checkpointName === 'compiler-gate' || app.checkpointName === 'eel-gate' || app.checkpointName === 'advocate-gate' || app.checkpointName === 'apocrypha-gate';
+    const bossGate = app.checkpointName === 'bailiff-gate' || app.checkpointName === 'compiler-gate' || app.checkpointName === 'eel-gate' || app.checkpointName === 'advocate-gate' || app.checkpointName === 'apocrypha-gate' || app.checkpointName === 'last-editor-gate';
     line(ctx, bossGate ? `CHECKPOINT · ${stageCopy.gate}` : `STAGE ${stageCopy.number}`, 205, '#f4c36a', 18);
     title(ctx, bossGate ? stageCopy.boss : stageCopy.entry, 300, 48);
     line(ctx, bossGate ? stageCopy.strategy : stageCopy.lesson, 365);
@@ -491,7 +538,8 @@ const renderScreen = (ctx: CanvasRenderingContext2D, app: AppState, screen: Excl
       'crosswind-entry': 'CROSSWIND ENTRY', 'compiler-gate': 'THE LOCKED INDEX',
       'rain-gallery-entry': 'RAIN GALLERY ENTRY', 'eel-gate': 'THE DROWNED MARGIN',
       'burnt-footnote-entry': 'BURNT FOOTNOTE ENTRY', 'advocate-gate': 'THE CINDER HEARING',
-      'mirror-chamber-entry': 'MIRROR CHAMBER ENTRY', 'apocrypha-gate': 'THE APOCRYPHAL PAIR'
+      'mirror-chamber-entry': 'MIRROR CHAMBER ENTRY', 'apocrypha-gate': 'THE APOCRYPHAL PAIR',
+      'original-dawn-entry': 'ORIGINAL DAWN ENTRY', 'last-editor-gate': 'THE FINAL REVISION'
     };
     line(ctx, app.continuesRemaining > 0 ? `Checkpoint: ${checkpointLabels[app.checkpointName]}` : 'No revision remains.', 340);
     line(ctx, app.continuesRemaining > 0 ? 'ENTER  REVISE FROM CHECKPOINT' : 'ENTER  RETURN TO TITLE', 430, '#a8f7ff', 21);
@@ -504,6 +552,7 @@ const renderScreen = (ctx: CanvasRenderingContext2D, app: AppState, screen: Excl
       'stage-03': { number: 3, title: 'THE GALLERY RELEASES ITS RAIN', action: 'ENTER  CONTINUE TO STAGE 4' },
       'stage-04': { number: 4, title: 'THE FOOTNOTE COOLS', action: 'ENTER  CONTINUE TO STAGE 5' }
       , 'stage-05': { number: 5, title: 'THE MIRROR TESTIMONY BREAKS', action: 'ENTER  RETURN TO TITLE' }
+      , 'stage-06': { number: 6, title: 'THE ORIGINAL WAKES', action: 'ENTER  RETURN TO TITLE' }
     }[app.game.stageId];
     line(ctx, `STAGE ${resultCopy.number} COMPLETE`, 190, '#f4c36a', 18);
     title(ctx, resultCopy.title, 280, 48);

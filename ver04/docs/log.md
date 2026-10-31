@@ -267,3 +267,13 @@
 - 全50素材は44.1kHz stereo PCM16で、Stage 5 BGM RMS -20.01〜-19.00 dBFS、SE RMS -18.00 dBFS、SE peak -7.64 dBFS以下に合格した。Stage 5最悪mixはリミッタ前peak -11.90 dBFS、NaN/clip 0で、`docs/evidence/m3-20-audio-audit.json`へ保存した。
 - 単体52件、素材監査45 final・仮素材0、音量監査、型検査、production build、Chrome E2E 12件に合格した。ChromeではStage 4→5ステム切替、Stage 5ポーズ停止・tick同期復帰、6専用cueを実際のsimulation eventから確認した。
 - 次回はStage 6「原本の夜明け」の風・雨・熱・鏡を再構成する通常区間と、Binding Wasp / Revision Hound / Null Choir / Archive Palanquinを実装し、自動計測で固有攻略を検証する。
+
+## 2026-11-01 — M3-21 Stage 6通常区間と4敵種
+
+- `stage-06.ts`へ270秒・90出現の原本の夜明けを追加した。風・雨・熱・鏡を各54秒で再構成し、最後の54秒は4規則を13.5秒ずつ切り替える統合区間として、過去規則を同時常設せず一本の操縦意図を引き継ぐ構成にした。
+- Binding Waspは航跡2点を一時接続して意図しない候補を作り、Revision Houndは現在候補または直近航跡へ突進する。Null Choirは上下の順唱を担い、輪で印付けされた個体は次の発射を休んで射線に穴を作る。Archive Palanquinは印付け前後で7方向と3方向を切り替える最終大型とした。
+- 最初の自動計測ではNull Choirの印付け穴が0回だった。輪内だけでなく輪中心から300px以内の最寄り個体まで印付けを許容し、見た目上の囲みと決定的判定の差を吸収した。再計測では穴2回、Binding接続221回、Hound校訂50回、Choir詠唱127回、Palanquin斉射48回、COLLATE 213回（統合区間41回）となった。
+- Stitch操縦では最大同時敵7、敵弾73、最長無戦闘0tick。全90出現を撃破または退場まで処理し、敵・弾生成拒否0、4回hash`fde17fd5526c13db`一致を`docs/evidence/m3-21-stage-06.*`へ保存した。
+- Stage 6の規則色、区間名、4敵の別形状をCanvas previewとして実装し、素材台帳へ`prototype`登録した。最初の統合山場画像は敵種が2種しか残らず検査に失敗したため撮影時点を移し、`m3-21-stage-06-combat.png`と`setpiece.png`を1280×720で目視した。風区間と統合雨区間、3種以上の敵、危険弾、航跡、HUDを識別でき、文字切れはない。
+- 単体52件、自動計測11件、素材監査45 final・1 prototype、音量監査50素材、型検査、production buildに合格した。Chrome E2Eは既存12件と修正後のStage 6対象1件に合格した。
+- 次回はTHE LAST EDITORの過去5ボス規則を編集する3形態と、敵弾で巨大な署名輪を完成させる最終攻略を実装する。

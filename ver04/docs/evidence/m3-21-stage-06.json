@@ -1,0 +1,114 @@
+{
+  "generatedAt": "2026-11-01",
+  "durationTicks": 32400,
+  "scheduledSpawns": 90,
+  "seed": 3601,
+  "finalHash": "fde17fd5526c13db",
+  "replayHashes": [
+    "fde17fd5526c13db",
+    "fde17fd5526c13db",
+    "fde17fd5526c13db"
+  ],
+  "maxEnemies": 7,
+  "maxEnemyBullets": 73,
+  "maxCombatGapTicks": 0,
+  "stats": {
+    "binding-wasp": {
+      "spawned": 30,
+      "attacks": 221,
+      "defeated": 13,
+      "exited": 17
+    },
+    "revision-hound": {
+      "spawned": 20,
+      "attacks": 50,
+      "defeated": 20,
+      "exited": 0
+    },
+    "null-choir": {
+      "spawned": 30,
+      "attacks": 129,
+      "defeated": 29,
+      "exited": 1
+    },
+    "archive-palanquin": {
+      "spawned": 10,
+      "attacks": 48,
+      "defeated": 9,
+      "exited": 1
+    }
+  },
+  "original": {
+    "folioTicks": {
+      "wind": 6479,
+      "rain": 6480,
+      "heat": 6480,
+      "mirror": 6480,
+      "synthesis": 6481
+    },
+    "bindingLinks": 221,
+    "houndRevisions": 50,
+    "choirVerses": 127,
+    "choirHoles": 2,
+    "palanquinSalvos": 48,
+    "inheritedCollates": 213,
+    "synthesisCollates": 41
+  },
+  "environment": {
+    "wind": {
+      "reversals": 11,
+      "playerDrift": 226800,
+      "trailDrift": 11060840,
+      "collatesLeft": 0,
+      "collatesRight": 0,
+      "collatesNearReversal": 0
+    },
+    "rain": {
+      "drops": 450,
+      "trailPointsWetted": 400,
+      "wetTrailPeak": 53,
+      "wetAnnotatedShots": 7,
+      "wetDamage": 18,
+      "basinSurges": 0,
+      "needleDashes": 0
+    },
+    "heat": {
+      "waves": 169,
+      "trailPointsBurned": 58,
+      "trailPointsCooled": 442,
+      "cooledTrailPeak": 75,
+      "coolingCollates": 0,
+      "ashCoolingBursts": 0,
+      "censorBrands": 0,
+      "courierConversions": 0,
+      "pressClosures": 0
+    },
+    "mirror": {
+      "falseTrailPeak": 81,
+      "falseAnnotations": 0,
+      "falseLoopRejections": 602,
+      "illusoryShots": 0,
+      "moteEchoes": 0,
+      "ramCharges": 0,
+      "witnessMixes": 0,
+      "obeliskReflections": 0
+    }
+  },
+  "rejectedEnemies": 0,
+  "rejectedEnemyBullets": 0,
+  "gates": {
+    "allKindsSpawned": true,
+    "allKindsAttacked": true,
+    "allKindsResolved": true,
+    "everyFolioVisited": true,
+    "inheritedRulesUsed": true,
+    "rolesActivated": true,
+    "choirCanBeOpened": true,
+    "writingInherited": true,
+    "noUnintendedFourSecondGap": true,
+    "enemyLimit": true,
+    "bulletLimit": true,
+    "deterministicReplay": true,
+    "stageDrained": true
+  }
+}
