@@ -267,6 +267,30 @@
       "sourcePrompt": "none; authored Canvas compositing from docs/02-art-and-audio-direction.md Stage 5 direction and M3-16 through M3-19 measured mechanics",
       "generatedAt": "2026-11-01", "editHistory": ["Replaced labeled preview bands with silver gradient panes, notched anchors and reflected seams.", "Connected final raster enemies and twins while retaining simulation-synchronized magenta dashed false wakes, hollow illusory rounds, broken shared sync and gold open-core weakpoint cues."],
       "dimensions": "1280x720 logical canvas", "license": "project-original"
+    },
+    {
+      "id": "stage-05-ambient-v1", "kind": "audio-stem", "path": "public/assets/audio/stage-05/mirror-ambient-v1.wav",
+      "stage": "Stage 5: The Mirror Chamber", "usage": "looping environment stem: dark glass resonance, silver sheen and moving reflected tone", "version": 1, "status": "final", "createdBy": "procedural",
+      "sourcePrompt": "scripts/generate-audio.mjs deterministic synthesis; paired glass fundamentals, spatial silver grain and slow reflected motion", "generatedAt": "2026-11-01",
+      "editHistory": ["Synthesized at 44.1 kHz stereo PCM16; environment bus remains independent from music and SE."], "dimensions": "16.0s stereo 44.1kHz PCM16", "license": "project-original"
+    },
+    {
+      "id": "stage-05-pulse-v1", "kind": "audio-stem", "path": "public/assets/audio/stage-05/mirror-pulse-v1.wav",
+      "stage": "Stage 5: The Mirror Chamber", "usage": "looping density stem: paired statement-and-answer strikes with chamber resonance", "version": 1, "status": "final", "createdBy": "procedural",
+      "sourcePrompt": "scripts/generate-audio.mjs deterministic synthesis; offset witness statements, reflected answer pulse and restrained glass chamber body", "generatedAt": "2026-11-01",
+      "editHistory": ["Synthesized at 44.1 kHz stereo PCM16; runtime gain follows enemy and projectile density."], "dimensions": "16.0s stereo 44.1kHz PCM16", "license": "project-original"
+    },
+    {
+      "id": "stage-05-crisis-v1", "kind": "audio-stem", "path": "public/assets/audio/stage-05/mirror-crisis-v1.wav",
+      "stage": "Stage 5: The Mirror Chamber", "usage": "looping danger stem: APOCRYPHA TWINS exchanging low harmonics and fractured glass pressure", "version": 1, "status": "final", "createdBy": "procedural",
+      "sourcePrompt": "scripts/generate-audio.mjs deterministic synthesis; opposed twin fundamentals, lateral exchange and restrained fracture grain", "generatedAt": "2026-11-01",
+      "editHistory": ["Synthesized at 44.1 kHz stereo PCM16; runtime gain follows APOCRYPHA TWINS phase."], "dimensions": "16.0s stereo 44.1kHz PCM16", "license": "project-original"
+    },
+    {
+      "id": "stage-05-effects-v1", "kind": "audio-effect-set", "path": "public/assets/audio/stage-05/mirror-reflect-v1.wav",
+      "stage": "Stage 5: The Mirror Chamber", "usage": "mirror-band reflection, false annotation and volley, Twins sync break, weakpoint hit and phase cues", "version": 1, "status": "final", "createdBy": "procedural",
+      "sourcePrompt": "scripts/generate-audio.mjs deterministic synthesis; glass traversal, doubled writing, hollow false rounds, split sync resonance, gold weakpoint strike and exchanged twin pressure", "generatedAt": "2026-11-01",
+      "editHistory": ["Synthesized as six 44.1 kHz stereo PCM16 files; connected to simulation events and inspected in the worst-case Stage 5 mix."], "dimensions": "6 files, 0.22s to 0.92s, stereo 44.1kHz PCM16", "license": "project-original"
     }
   ]
 }

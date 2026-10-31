@@ -7,10 +7,12 @@ const output = resolve(root, 'public/assets/audio/stage-01');
 const outputStageTwo = resolve(root, 'public/assets/audio/stage-02');
 const outputStageThree = resolve(root, 'public/assets/audio/stage-03');
 const outputStageFour = resolve(root, 'public/assets/audio/stage-04');
+const outputStageFive = resolve(root, 'public/assets/audio/stage-05');
 await mkdir(output, { recursive: true });
 await mkdir(outputStageTwo, { recursive: true });
 await mkdir(outputStageThree, { recursive: true });
 await mkdir(outputStageFour, { recursive: true });
+await mkdir(outputStageFive, { recursive: true });
 
 let noiseState = 0x50414c49;
 const noise = () => {
@@ -151,13 +153,35 @@ const stageFourStems = {
     return pan((metal + scrape) * hearing, Math.sin(t * Math.PI / 2) * 0.46);
   }, -19)
 };
+const stageFiveStems = {
+  'mirror-ambient-v1.wav': render(16, (t) => {
+    const glass = tone(73, t) * 0.13 + tone(109.5, t, 0.5) * 0.08 + tone(219, t, 1.1) * 0.035;
+    const sheen = noise() * tone(1480 + 170 * tone(0.09, t), t) * 0.042;
+    const reflection = tone(420 + 36 * tone(0.125, t), t) * (0.035 + 0.025 * tone(0.25, t));
+    const [l, r] = pan(sheen + reflection, Math.sin(t * Math.PI / 4) * 0.74);
+    return [l + glass, r + glass * 0.93];
+  }, -20),
+  'mirror-pulse-v1.wav': render(16, (t) => {
+    const statement = t % 0.8; const answer = (t + 0.4) % 0.8;
+    const strike = statement < 0.045 ? (tone(620, statement) * 0.34 + tone(930, statement) * 0.18) * Math.exp(-statement * 58) : 0;
+    const echo = answer < 0.045 ? (tone(587, answer) * 0.26 + tone(880.5, answer) * 0.14) * Math.exp(-answer * 61) : 0;
+    const chamber = tone(146, t) * 0.24 + tone(219, t, 0.4) * 0.1;
+    return pan(strike + echo + chamber, Math.sin(Math.floor(t / 0.4) * 1.73) * 0.58);
+  }, -19.5, -1),
+  'mirror-crisis-v1.wav': render(16, (t) => {
+    const exchange = Math.sin(Math.PI * 2 * t / 3.2);
+    const twins = tone(55 + exchange * 2.5, t) * 0.34 + tone(82.5 - exchange * 3.5, t, 0.7) * 0.27 + tone(165, t, 1.4) * 0.13;
+    const fracture = noise() * tone(710 + 95 * tone(0.15, t), t) * 0.05;
+    return pan((twins + fracture) * (0.42 + 0.58 * Math.sin(Math.PI * (t % 2) / 2) ** 2), exchange * 0.52);
+  }, -19)
+};
 // Stage 1 is a frozen completed slice. Keep its noise-based effects bit-for-bit
 // stable even though later-stage stems are rendered by the same deterministic tool.
 noiseState = stageOneEffectNoiseState;
 
 // A short zero crossing at the 16-second seam prevents broadband wind and bow
 // grain from clicking when Web Audio loops the stems.
-for (const channels of [...Object.values(stems), ...Object.values(stageTwoStems), ...Object.values(stageThreeStems), ...Object.values(stageFourStems)]) for (const channel of channels) {
+for (const channels of [...Object.values(stems), ...Object.values(stageTwoStems), ...Object.values(stageThreeStems), ...Object.values(stageFourStems), ...Object.values(stageFiveStems)]) for (const channel of channels) {
   const fade = Math.round(RATE * 0.04);
   for (let index = 0; index < fade; index += 1) {
     const gain = Math.sin(index / fade * Math.PI / 2) ** 2;
@@ -204,6 +228,14 @@ const stageFourSfx = {
   'wall-hit-v1.wav': [0.25, (t, d) => pan(env(t, d, 0.002, 0.13) * (tone(118 - 34 * t / d, t) * 0.62 + tone(236, t) * 0.2 + noise() * Math.exp(-t * 28) * 0.3), 0.22)],
   'advocate-phase-v1.wav': [0.9, (t, d) => pan(env(t, d, 0.007, 0.38) * (tone(52, t) * 0.56 + tone(104 + 96 * t / d, t) * 0.38 + tone(156 + 144 * t / d, t) * 0.22 + noise() * Math.exp(-t * 9) * 0.14), 0)]
 };
+const stageFiveSfx = {
+  'mirror-reflect-v1.wav': [0.58, (t, d) => pan(env(t, d, 0.004, 0.26) * (tone(410 + 520 * t / d, t) * 0.44 + tone(820 + 1040 * t / d, t) * 0.22 + noise() * Math.exp(-t * 18) * 0.12), -0.65 + 1.3 * t / d)],
+  'false-annotation-v1.wav': [0.24, (t, d) => pan(env(t, d, 0.003, 0.13) * (tone(1120 + 560 * t / d, t) * 0.56 + tone(560 + 280 * t / d, t) * 0.3 + noise() * Math.exp(-t * 24) * 0.1), 0.16)],
+  'false-volley-v1.wav': [0.42, (t, d) => pan(env(t, d, 0.004, 0.2) * (tone(260 - 75 * t / d, t) * 0.34 + tone(520 - 150 * t / d, t) * 0.19 + noise() * Math.exp(-t * 15) * 0.18), 0.55 - 1.1 * t / d)],
+  'twins-sync-v1.wav': [0.82, (t, d) => pan(env(t, d, 0.006, 0.34) * (tone(180 + 390 * t / d, t) * 0.46 + tone(270 + 585 * t / d, t) * 0.3 + tone(90, t) * 0.18 + noise() * Math.exp(-t * 13) * 0.12), 0)],
+  'twins-hit-v1.wav': [0.22, (t, d) => pan(env(t, d, 0.002, 0.11) * (tone(1260 - 350 * t / d, t) * 0.68 + tone(630, t) * 0.27 + noise() * Math.exp(-t * 27) * 0.16), -0.12)],
+  'twins-phase-v1.wav': [0.92, (t, d) => pan(env(t, d, 0.007, 0.39) * (tone(55, t) * 0.5 + tone(82.5 + 90 * t / d, t) * 0.4 + tone(165 + 180 * t / d, t) * 0.23 + noise() * Math.exp(-t * 9) * 0.14), 0)]
+};
 
 for (const [name, channels] of Object.entries(stems)) await writeFile(resolve(output, name), wav(channels));
 for (const [name, [duration, synth]] of Object.entries(sfx)) await writeFile(resolve(output, name), wav(render(duration, synth, -18, -6.4)));
@@ -213,4 +245,6 @@ for (const [name, channels] of Object.entries(stageThreeStems)) await writeFile(
 for (const [name, [duration, synth]] of Object.entries(stageThreeSfx)) await writeFile(resolve(outputStageThree, name), wav(render(duration, synth, -18, -6.4)));
 for (const [name, channels] of Object.entries(stageFourStems)) await writeFile(resolve(outputStageFour, name), wav(channels));
 for (const [name, [duration, synth]] of Object.entries(stageFourSfx)) await writeFile(resolve(outputStageFour, name), wav(render(duration, synth, -18, -6.4)));
-console.log(`generated ${Object.keys(stems).length + Object.keys(stageTwoStems).length + Object.keys(stageThreeStems).length + Object.keys(stageFourStems).length} stems and ${Object.keys(sfx).length + Object.keys(stageTwoSfx).length + Object.keys(stageThreeSfx).length + Object.keys(stageFourSfx).length} effects at 44.1 kHz stereo`);
+for (const [name, channels] of Object.entries(stageFiveStems)) await writeFile(resolve(outputStageFive, name), wav(channels));
+for (const [name, [duration, synth]] of Object.entries(stageFiveSfx)) await writeFile(resolve(outputStageFive, name), wav(render(duration, synth, -18, -6.4)));
+console.log(`generated ${Object.keys(stems).length + Object.keys(stageTwoStems).length + Object.keys(stageThreeStems).length + Object.keys(stageFourStems).length + Object.keys(stageFiveStems).length} stems and ${Object.keys(sfx).length + Object.keys(stageTwoSfx).length + Object.keys(stageThreeSfx).length + Object.keys(stageFourSfx).length + Object.keys(stageFiveSfx).length} effects at 44.1 kHz stereo`);

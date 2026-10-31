@@ -5,10 +5,11 @@ type Bus = 'music' | 'se' | 'ui' | 'environment';
 type Cue = 'shot' | 'annotation' | 'candidate' | 'collate' | 'collate-miss' | 'retrace-start' | 'retrace-end' | 'damage' | 'warning' | 'ui-confirm' | 'ui-back'
   | 'wind-left' | 'wind-right' | 'wind-lock' | 'seam-exposed' | 'seam-hit' | 'compiler-phase'
   | 'rain-wet' | 'basin-surge' | 'wet-annotation' | 'eel-marked' | 'eel-hit' | 'eel-phase'
-  | 'heat-wave' | 'cooling-field' | 'courier-convert' | 'ember-cooled' | 'wall-hit' | 'advocate-phase';
+  | 'heat-wave' | 'cooling-field' | 'courier-convert' | 'ember-cooled' | 'wall-hit' | 'advocate-phase'
+  | 'mirror-reflect' | 'false-annotation' | 'false-volley' | 'twins-sync' | 'twins-hit' | 'twins-phase';
 type StemName = 'ambient' | 'pulse' | 'crisis';
 
-const commonFiles: Record<Exclude<Cue, 'wind-left' | 'wind-right' | 'wind-lock' | 'seam-exposed' | 'seam-hit' | 'compiler-phase' | 'rain-wet' | 'basin-surge' | 'wet-annotation' | 'eel-marked' | 'eel-hit' | 'eel-phase' | 'heat-wave' | 'cooling-field' | 'courier-convert' | 'ember-cooled' | 'wall-hit' | 'advocate-phase'>, string> = {
+const commonFiles: Record<Exclude<Cue, 'wind-left' | 'wind-right' | 'wind-lock' | 'seam-exposed' | 'seam-hit' | 'compiler-phase' | 'rain-wet' | 'basin-surge' | 'wet-annotation' | 'eel-marked' | 'eel-hit' | 'eel-phase' | 'heat-wave' | 'cooling-field' | 'courier-convert' | 'ember-cooled' | 'wall-hit' | 'advocate-phase' | 'mirror-reflect' | 'false-annotation' | 'false-volley' | 'twins-sync' | 'twins-hit' | 'twins-phase'>, string> = {
   shot: 'stage-01/shot-v1.wav', annotation: 'stage-01/annotation-v1.wav', candidate: 'stage-01/candidate-v1.wav', collate: 'stage-01/collate-v1.wav',
   'collate-miss': 'stage-01/collate-miss-v1.wav', 'retrace-start': 'stage-01/retrace-start-v1.wav', 'retrace-end': 'stage-01/retrace-end-v1.wav',
   damage: 'stage-01/damage-v1.wav', warning: 'stage-01/warning-v1.wav', 'ui-confirm': 'stage-01/ui-confirm-v1.wav', 'ui-back': 'stage-01/ui-back-v1.wav'
@@ -25,13 +26,18 @@ const stageFourFiles = {
   'heat-wave': 'stage-04/heat-wave-v1.wav', 'cooling-field': 'stage-04/cooling-field-v1.wav', 'courier-convert': 'stage-04/courier-convert-v1.wav',
   'ember-cooled': 'stage-04/ember-cooled-v1.wav', 'wall-hit': 'stage-04/wall-hit-v1.wav', 'advocate-phase': 'stage-04/advocate-phase-v1.wav'
 } as const;
+const stageFiveFiles = {
+  'mirror-reflect': 'stage-05/mirror-reflect-v1.wav', 'false-annotation': 'stage-05/false-annotation-v1.wav', 'false-volley': 'stage-05/false-volley-v1.wav',
+  'twins-sync': 'stage-05/twins-sync-v1.wav', 'twins-hit': 'stage-05/twins-hit-v1.wav', 'twins-phase': 'stage-05/twins-phase-v1.wav'
+} as const;
 const stemFiles: Partial<Record<StageId, Record<StemName, string>>> = {
   'stage-01': { ambient: 'stage-01/harbor-ambient-v1.wav', pulse: 'stage-01/harbor-pulse-v1.wav', crisis: 'stage-01/harbor-crisis-v1.wav' },
   'stage-02': { ambient: 'stage-02/crosswind-ambient-v1.wav', pulse: 'stage-02/crosswind-pulse-v1.wav', crisis: 'stage-02/crosswind-crisis-v1.wav' },
   'stage-03': { ambient: 'stage-03/rain-ambient-v1.wav', pulse: 'stage-03/rain-pulse-v1.wav', crisis: 'stage-03/rain-crisis-v1.wav' },
-  'stage-04': { ambient: 'stage-04/furnace-ambient-v1.wav', pulse: 'stage-04/furnace-pulse-v1.wav', crisis: 'stage-04/furnace-crisis-v1.wav' }
+  'stage-04': { ambient: 'stage-04/furnace-ambient-v1.wav', pulse: 'stage-04/furnace-pulse-v1.wav', crisis: 'stage-04/furnace-crisis-v1.wav' },
+  'stage-05': { ambient: 'stage-05/mirror-ambient-v1.wav', pulse: 'stage-05/mirror-pulse-v1.wav', crisis: 'stage-05/mirror-crisis-v1.wav' }
 };
-const files = { ...commonFiles, ...stageTwoFiles, ...stageThreeFiles, ...stageFourFiles, ...Object.fromEntries(Object.entries(stemFiles).flatMap(([stage, stems]) => Object.entries(stems).map(([name, file]) => [`${stage}-${name}`, file]))) };
+const files = { ...commonFiles, ...stageTwoFiles, ...stageThreeFiles, ...stageFourFiles, ...stageFiveFiles, ...Object.fromEntries(Object.entries(stemFiles).flatMap(([stage, stems]) => Object.entries(stems).map(([name, file]) => [`${stage}-${name}`, file]))) };
 
 const cueRules: Record<Cue, { bus: Bus; gain: number; cooldown: number; max: number }> = {
   shot: { bus: 'se', gain: 0.45, cooldown: 0.055, max: 3 }, annotation: { bus: 'se', gain: 0.45, cooldown: 0.045, max: 3 },
@@ -54,7 +60,13 @@ const cueRules: Record<Cue, { bus: Bus; gain: number; cooldown: number; max: num
   'courier-convert': { bus: 'se', gain: 0.66, cooldown: 0.12, max: 2 },
   'ember-cooled': { bus: 'se', gain: 0.72, cooldown: 0.1, max: 2 },
   'wall-hit': { bus: 'se', gain: 0.54, cooldown: 0.08, max: 3 },
-  'advocate-phase': { bus: 'se', gain: 0.78, cooldown: 0.3, max: 1 }
+  'advocate-phase': { bus: 'se', gain: 0.78, cooldown: 0.3, max: 1 },
+  'mirror-reflect': { bus: 'environment', gain: 0.56, cooldown: 0.18, max: 2 },
+  'false-annotation': { bus: 'se', gain: 0.54, cooldown: 0.045, max: 3 },
+  'false-volley': { bus: 'environment', gain: 0.44, cooldown: 0.12, max: 2 },
+  'twins-sync': { bus: 'se', gain: 0.72, cooldown: 0.2, max: 1 },
+  'twins-hit': { bus: 'se', gain: 0.68, cooldown: 0.06, max: 3 },
+  'twins-phase': { bus: 'se', gain: 0.78, cooldown: 0.3, max: 1 }
 };
 
 export const cueForEvent = (event: GameEvent, stageId: StageId = 'stage-01'): { cue: Cue; rate: number } | null => {
@@ -72,8 +84,11 @@ export const cueForEvent = (event: GameEvent, stageId: StageId = 'stage-01'): { 
   if (event.type === 'courier-converted') return { cue: 'courier-convert', rate: 1 };
   if (event.type === 'advocate-ember-cooled') return { cue: 'ember-cooled', rate: 1 };
   if (event.type === 'advocate-wall-blocked') return { cue: 'wall-hit', rate: 1 };
-  if (event.type === 'false-trail-annotated') return { cue: 'annotation', rate: 1.42 };
-  if (event.type === 'false-volley') return { cue: 'collate-miss', rate: 0.72 };
+  if (event.type === 'mirror-band-reflected') return { cue: 'mirror-reflect', rate: 1 };
+  if (event.type === 'false-trail-annotated') return { cue: 'false-annotation', rate: 1 };
+  if (event.type === 'false-volley') return { cue: 'false-volley', rate: 1 };
+  if (event.type === 'twins-sync-broken') return { cue: 'twins-sync', rate: event.vulnerable < 0 ? 0.96 : 1.04 };
+  if (event.type === 'twins-weakpoint-hit') return { cue: 'twins-hit', rate: event.vulnerable < 0 ? 0.97 : 1.03 };
   if (event.type === 'shot-fired') return { cue: 'shot', rate: 1 };
   if (event.type === 'shot-annotated') return { cue: 'annotation', rate: 1 };
   if (event.type === 'loop-ready') return { cue: 'candidate', rate: 1 };
@@ -85,6 +100,7 @@ export const cueForEvent = (event: GameEvent, stageId: StageId = 'stage-01'): { 
   if (stageId === 'stage-02' && (event.type === 'boss-spawned' || event.type === 'boss-phase')) return { cue: 'compiler-phase', rate: event.type === 'boss-phase' ? 0.9 + event.phase * 0.1 : 0.86 };
   if (stageId === 'stage-03' && (event.type === 'boss-spawned' || event.type === 'boss-phase')) return { cue: 'eel-phase', rate: event.type === 'boss-phase' ? 0.9 + event.phase * 0.1 : 0.84 };
   if (stageId === 'stage-04' && (event.type === 'boss-spawned' || event.type === 'boss-phase')) return { cue: 'advocate-phase', rate: event.type === 'boss-phase' ? 0.9 + event.phase * 0.1 : 0.82 };
+  if (stageId === 'stage-05' && (event.type === 'boss-spawned' || event.type === 'boss-phase' || event.type === 'twins-swapped')) return { cue: 'twins-phase', rate: event.type === 'boss-phase' ? 0.9 + event.phase * 0.1 : event.type === 'twins-swapped' ? 1.08 : 0.82 };
   if (event.type === 'boss-spawned' || event.type === 'boss-warning') return { cue: 'warning', rate: 1 };
   if (event.type === 'boss-phase') return { cue: 'warning', rate: 1 + event.phase * 0.06 };
   if (event.type === 'boss-defeated' || event.type === 'enemy-defeated') return { cue: 'collate', rate: event.type === 'boss-defeated' ? 0.74 : 1.34 };

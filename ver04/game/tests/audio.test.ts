@@ -49,8 +49,12 @@ describe('Stage 1 audio event map', () => {
     expect(cueForEvent({ type: 'boss-phase', phase: 3 }, 'stage-04')?.cue).toBe('advocate-phase');
   });
 
-  it('gives Stage 5 false writing and false volleys different audible signatures', () => {
-    expect(cueForEvent({ type: 'false-trail-annotated' }, 'stage-05')).toEqual({ cue: 'annotation', rate: 1.42 });
-    expect(cueForEvent({ type: 'false-volley' }, 'stage-05')).toEqual({ cue: 'collate-miss', rate: 0.72 });
+  it('maps Stage 5 reflection and APOCRYPHA TWINS feedback to dedicated cues', () => {
+    expect(cueForEvent({ type: 'mirror-band-reflected' }, 'stage-05')?.cue).toBe('mirror-reflect');
+    expect(cueForEvent({ type: 'false-trail-annotated' }, 'stage-05')?.cue).toBe('false-annotation');
+    expect(cueForEvent({ type: 'false-volley' }, 'stage-05')?.cue).toBe('false-volley');
+    expect(cueForEvent({ type: 'twins-sync-broken', vulnerable: -1 }, 'stage-05')?.cue).toBe('twins-sync');
+    expect(cueForEvent({ type: 'twins-weakpoint-hit', vulnerable: 1 }, 'stage-05')?.cue).toBe('twins-hit');
+    expect(cueForEvent({ type: 'boss-phase', phase: 3 }, 'stage-05')?.cue).toBe('twins-phase');
   });
 });

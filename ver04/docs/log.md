@@ -258,3 +258,12 @@
 - `m3-19-stage-05-combat.png`、`stage-05-setpiece.png`、`apocrypha-twins-phase-1/2/3.png`を1280×720で目視し、4敵、固定鏡、実像・偽像、実弾・偽弾、通常側・弱点側、3形態攻撃、HUDを識別できた。文字切れ、前景遮蔽、アトラス混入、当たり判定との著しい見かけのずれはない。
 - 素材台帳をStage 5の背景3層・アトラス・Canvas効果の5件の`final`へ更新し、仮素材を0件にした。`npm run verify`で単体52件、自動計測10件、素材監査36 required final・仮素材0、音量監査41素材、型検査、production build、Chrome E2E 12件に合格した。
 - 次回はStage 5専用の鏡共鳴・偽証律動・APOCRYPHA TWINS危機ステムと環境・ボス効果音を制作し、音量監査とChromeのStage遷移・bus・ポーズ同期を確認する。
+
+## 2026-11-01 — M3-20 Stage 5完成音響
+
+- 決定的音声制作へStage 5を追加し、暗い鏡共鳴と銀の反射、半拍ずれた証言と応答、APOCRYPHA TWINSの交換圧を担う16秒の環境・脈動・危機3ステムを44.1kHz stereo PCM16で制作した。Stage 1〜4の生成済み音声は変更していない。
+- 鏡面帯へ航跡が入る反射、偽像航跡による添え書き、無害な偽弾、双体同期切断、露出弱点命中、形態移行の6効果音を制作した。鏡面帯へ外から入ったときだけ発火するsimulation eventを追加し、暫定の共通cue＋pitch変化を専用音へ置換した。
+- Stage 5の3ステムと6効果音を既存4 busへ接続し、SE 24・UI 4・環境8・音楽6 voice上限を維持した。Chromeの全50 bufferは従来どおり決定的な順序でdecodeする。
+- 全50素材は44.1kHz stereo PCM16で、Stage 5 BGM RMS -20.01〜-19.00 dBFS、SE RMS -18.00 dBFS、SE peak -7.64 dBFS以下に合格した。Stage 5最悪mixはリミッタ前peak -11.90 dBFS、NaN/clip 0で、`docs/evidence/m3-20-audio-audit.json`へ保存した。
+- 単体52件、素材監査45 final・仮素材0、音量監査、型検査、production build、Chrome E2E 12件に合格した。ChromeではStage 4→5ステム切替、Stage 5ポーズ停止・tick同期復帰、6専用cueを実際のsimulation eventから確認した。
+- 次回はStage 6「原本の夜明け」の風・雨・熱・鏡を再構成する通常区間と、Binding Wasp / Revision Hound / Null Choir / Archive Palanquinを実装し、自動計測で固有攻略を検証する。

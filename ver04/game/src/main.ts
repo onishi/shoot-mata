@@ -4,7 +4,7 @@ import { TICK_RATE, type InputFrame } from './core/types';
 import { renderApp } from './render/render';
 import { assetsReady } from './render/visual-assets';
 import { createPilot } from './simulation/autopilot';
-import { createInitialState, eelSegmentPoint } from './simulation/game';
+import { apocryphaTwinPoint, createInitialState, eelSegmentPoint } from './simulation/game';
 import { STAGE_01_BOSS_START_TICK, STAGE_01_SPAWNS } from './content/stage-01';
 import { STAGE_02_BOSS_START_TICK, STAGE_02_SPAWNS } from './content/stage-02';
 import { STAGE_03_BOSS_START_TICK, STAGE_03_SPAWNS } from './content/stage-03';
@@ -154,6 +154,9 @@ Object.assign(window, {
         { x: 1210 * 256, y: 530 * 256 }, { x: 850 * 256, y: 530 * 256 }
       ], intersection: { x: 850 * 256, y: 190 * 256 }, startIndex: 0, area: 122400, expiresTick: app.game.tick + 60 };
       runStep({ collate: true });
+      const vulnerable = apocryphaTwinPoint(app.game.boss!, app.game.tick + 1, app.game.boss!.vulnerableTwin);
+      app.game.bullets.push({ id: app.game.nextId++, ...vulnerable, vx: 0, vy: 0, radius: 5, kind: 'player', annotated: true, falseAnnotated: true, capturable: false });
+      runStep({});
       for (let index = 0; index < 140; index += 1) runStep({});
     } else if (scenario === 'stage-05-combat' || scenario === 'stage-05-setpiece') {
       app.game = createInitialState(3501, 'stage-05');

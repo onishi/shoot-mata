@@ -5,7 +5,7 @@ import { STAGE_01_BOSS_START_TICK, STAGE_01_DURATION_TICKS, type StageEnemySpawn
 import { STAGE_02_BOSS_START_TICK, STAGE_02_WIND_HALF_CYCLE_TICKS } from '../content/stage-02';
 import { STAGE_03_BOSS_START_TICK, STAGE_03_RAIN_PERIOD_TICKS, STAGE_03_WET_TICKS } from '../content/stage-03';
 import { STAGE_04_BOSS_START_TICK, STAGE_04_COOLING_EXTENSION_TICKS, STAGE_04_COOLING_RADIUS_PX, STAGE_04_HEAT_PERIOD_TICKS, stageFourCoolingCenter } from '../content/stage-04';
-import { STAGE_05_BOSS_START_TICK, stageFiveFalseTrail } from '../content/stage-05';
+import { STAGE_05_BOSS_START_TICK, isInStageFiveMirrorBand, stageFiveFalseTrail } from '../content/stage-05';
 import { findLoopCandidate, shotCrossedTrail, shotCrossedWetTrail, shouldAddTrailPoint } from './trail';
 
 const PLAYER_SPEED = Math.round(320 * SCALE / TICK_RATE);
@@ -934,7 +934,10 @@ export const step = (previous: GameState, input: InputFrame): { state: GameState
   applyRain(state, events);
   if (state.candidate?.expiresTick && state.candidate.expiresTick < state.tick) state.candidate = null;
   if (!state.retrace && shouldAddTrailPoint(state.trail, state.player, state.tick)) {
+    const previousTrailPoint = state.trail.at(-1);
     state.trail.push({ x: state.player.x, y: state.player.y, bornTick: state.tick, segmentId: state.tick });
+    if (state.stageId === 'stage-05' && isInStageFiveMirrorBand(state.player)
+      && (!previousTrailPoint || !isInStageFiveMirrorBand(previousTrailPoint))) events.push({ type: 'mirror-band-reflected' });
     const wasReady = Boolean(state.candidate);
     const detected = findLoopCandidate(state.trail);
     if (detected) state.candidate = { ...detected, expiresTick: state.tick + 60 };

@@ -117,6 +117,7 @@ export type GameEvent =
   | { type: 'advocate-ember-cooled' }
   | { type: 'advocate-ember-hit' }
   | { type: 'advocate-wall-blocked' }
+  | { type: 'mirror-band-reflected' }
   | { type: 'false-trail-annotated' }
   | { type: 'false-volley' }
   | { type: 'twins-sync-broken'; vulnerable: -1 | 1 }
