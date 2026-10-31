@@ -17,7 +17,7 @@
 | M0 新作設計 | 完了 | 3案比較、採用案、6面、成長、24敵、6ボス、画音・技術・品質計画を文書化。要件追跡表で全必須要件を割当済み |
 | M1 コア試作 | 完了 | 3分遭遇、4操縦×10seed、5回hash一致、全仮説ゲート、Chrome操作・画像確認に合格 |
 | M2 垂直スライス | 完了 | 3分通常区間、4敵種、BLANK BAILIFF、タイトル〜結果、完成画面、3音楽ステム・11効果音、bus・音量監査を実装。Stage 1の仮素材0 |
-| M3 キャンペーン | 進行中 | Stage 1〜2完成。Stage 3通常区間、雨滴/濡れ航跡規則、4通常敵、LACUNA EELまで実装。Stage 3 AppState接続以降は未実装 |
+| M3 キャンペーン | 進行中 | Stage 1〜2完成。Stage 3通常区間、4通常敵、LACUNA EEL、AppState接続、2地点復帰まで実装。Stage 3完成素材以降は未実装 |
 | M4 製品仕上げ | 未着手 | 完成ゲート未達 |
 
 ## M0検査
@@ -55,15 +55,17 @@
 - CROSSWIND COMPILERはsimulationと完成ビジュアルが揃った。通常射撃11,367tickに対し風見翼攻略3,252tick、3形態で各1回以上の風固定、弱点24hit、最大敵弾31、生成拒否0、再実行hash一致を確認した。
 - Stage 1結果からStage 2章導入、通常区間、CROSSWIND COMPILER、Stage 2結果までをAppStateで接続した。Stage 2開始地点とCompiler直前の両方でChrome復帰し、ポーズ中・コンティニュー中のsimulation停止と旧Stage 1回帰に合格した。
 - Stage 3は195秒・65出現の通常区間、決定的な雨滴、5秒間の濡れ、濡れ航跡の垂れ、濡れ添え書き18 damage、Drip Scribe / Gutter Frog / Basin Bell / Reed Needleを実装した。Stitch計測で最大同時敵8、敵弾82、無戦闘0tick、濡れ添え書き105発・954 damage、生成拒否0、4回hash一致を確認した。
-- Stage 3のCanvas背景・敵シルエットは`prototype`であり、完成素材・音・AppState遷移は未制作。通常戦と水門山場の開発画像では、雨線、青緑の濡れ航跡、敵弾、敵シルエット、HUDの判別と文字切れなしを目視確認した。
+- Stage 3のCanvas背景・敵シルエットは`prototype`であり、完成素材・音は未制作。通常戦と水門山場の開発画像では、雨線、青緑の濡れ航跡、敵弾、敵シルエット、HUDの判別と文字切れなしを目視確認した。
 - LACUNA EELは3つの発光節を小輪で順に6秒間印付けし、濡れ添え書きで弱点を撃つ3形態戦として実装した。通常射撃19,835tickに対して節攻略8,154tick、印付け3回、弱点67hit（濡れ2hit）、全形態・全攻撃到達、最大敵弾45、生成拒否0、再実行hash一致を確認した。
 - 開発用ボス画面で節番号、現在節、濡れ印と残り時間、3形態耐久線、drizzle/deluge弾、自機、HUDを識別でき、文字切れがないことを目視確認した。LACUNA EELのCanvas表現はStage 3完成素材制作まで`prototype`として扱う。
+- Stage 2結果からStage 3章導入、通常区間、LACUNA EEL、Stage 3結果、タイトル帰還までをAppStateで接続した。`rain-gallery-entry`と`eel-gate`の両方で耐久3・ゲージ50・残留敵弾なしへ復帰し、ポーズ中・コンティニュー中のtick停止とStage 1〜2旧遷移に合格した。
+- `m3-08-stage-03-intro.png`と`m3-08-stage-03-result.png`を1280×720で目視し、章題、雨と濡れ添え書きの教材、結果文、操作案内に文字切れ・重なりがなく、Stage 2との画面状態差を識別できることを確認した。
 
 ## 次の最優先作業
 
-**M3-08: Stage 2→3キャンペーン遷移とStage 3復帰を実装する。**
+**M3-09: Stage 3完成ビジュアルを制作・接続する。**
 
-完了範囲は、Stage 2結果の決定入力からStage 3章導入、通常区間、LACUNA EEL、Stage 3結果までをAppStateで接続し、Stage 3開始地点とボス直前のコンティニューを実装すること。章題、雨と濡れ添え書きの教材、LACUNA EEL攻略文、結果文を追加し、Chrome高速通し、両チェックポイント復帰、ポーズ中・コンティニュー中のtick停止、Stage 1〜2旧遷移を確認する。
+完了範囲は、雨注回廊の背景3層、Drip Scribe / Gutter Frog / Basin Bell / Reed Needle、LACUNA EELと3つの発光節をv4専用完成素材として制作・接続し、雨線、濡れ航跡、濡れ印、濡れ添え書き弱点を色だけに頼らず判別できるようにすること。通常戦、水門山場、ボス3形態をChromeで撮影・目視し、素材台帳のStage 3仮素材を0件にする。
 
 ## v4.0完成ゲート
 

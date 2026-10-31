@@ -146,3 +146,12 @@
 - 発光節の小輪印付けと濡れ添え書き96 damageを固定する回帰テストを追加した。`npm run verify`で単体38件、自動計測6件、素材・音量監査、型検査、production build、Chrome E2E 8件に合格した。
 - `m3-07-lacuna-eel-marked.png`と`phase-3.png`を1280×720で目視し、節番号、現在節、濡れ印、残り時間、耐久線、drizzle/deluge弾、自機、HUDを識別でき、文字切れがないことを確認した。ボスCanvas表現はStage 3完成素材まで`prototype`として扱う。
 - 次回はStage 2結果からStage 3章導入・通常区間・LACUNA EEL・結果までをAppStateで接続し、Stage 3開始地点とボス直前のコンティニューを実装する。
+
+## 2026-10-31 — M3-08 Stage 2→3キャンペーン遷移と復帰
+
+- Stageごとの入口・ボス直前チェックポイントと次Stageを明示マップへ整理し、Stage 2結果からStage 3章導入、通常区間、LACUNA EEL、Stage 3結果、タイトル帰還までをAppStateで接続した。
+- Stage 3へ`rain-gallery-entry`と`eel-gate`を追加した。各面1回のコンティニューで、開始地点または23,400tickのボス直前へ耐久3・ゲージ50・未確定航跡なし・敵弾なしで復帰する。
+- 雨注回廊の章題、雨で濡れた航跡を横切る添え書き教材、LACUNA EELの節攻略文、Stage 3結果文を追加した。結果の決定入力はタイトルへ戻る。
+- 単体39件に合格し、Stage 3の両チェックポイント、オーバーレイ中のtick停止、Stage 1→2→3旧遷移を固定した。production build後のChrome E2E 8件ではキャンペーン高速通し、両復帰、ポーズ停止、Stage 3結果まで合格した。
+- `m3-08-stage-03-intro.png`と`m3-08-stage-03-result.png`を1280×720で目視し、章題、教材、結果、操作案内に文字切れ・重なりがなく、雨表現を背景にStage 2との状態差を識別できることを確認した。
+- 次回はStage 3の背景3層、4通常敵、LACUNA EEL、雨・濡れ印・弱点表現を完成素材へ置き換え、通常戦、水門山場、ボス3形態を画像確認する。

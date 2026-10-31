@@ -88,7 +88,9 @@ const runStep = (frameInput: InputFrame): void => {
   if (app.screen === 'continue') status.textContent = 'The wake broke. Continue from the checkpoint or return to title.';
   if (app.screen === 'result') status.textContent = app.game.stageId === 'stage-01'
     ? 'Stage 1 complete. Continue into the Crosswind Index.'
-    : 'Stage 2 complete. The index holds its course.';
+    : app.game.stageId === 'stage-02'
+      ? 'Stage 2 complete. Continue into the Rain-Annotated Gallery.'
+      : 'Stage 3 complete. The gallery releases its rain.';
 };
 
 const frame = (now: number): void => {
@@ -198,9 +200,10 @@ Object.assign(window, {
       const pilot = createPilot('stitch');
       for (let index = 0; index < 180 && app.screen === 'playing'; index += 1) runStep(pilot(app.game));
     } else if (scenario === 'boss-gate') {
-      const stageTwo = app.game.stageId === 'stage-02';
-      app.game.tick = (stageTwo ? STAGE_02_BOSS_START_TICK : STAGE_01_BOSS_START_TICK) - 1;
-      app.game.encounterIndex = stageTwo ? STAGE_02_SPAWNS.length : STAGE_01_SPAWNS.length;
+      const bossStarts = { 'stage-01': STAGE_01_BOSS_START_TICK, 'stage-02': STAGE_02_BOSS_START_TICK, 'stage-03': STAGE_03_BOSS_START_TICK };
+      const spawnCounts = { 'stage-01': STAGE_01_SPAWNS.length, 'stage-02': STAGE_02_SPAWNS.length, 'stage-03': STAGE_03_SPAWNS.length };
+      app.game.tick = bossStarts[app.game.stageId] - 1;
+      app.game.encounterIndex = spawnCounts[app.game.stageId];
       app.game.enemies = [];
       app.game.bullets = [];
       runStep({});

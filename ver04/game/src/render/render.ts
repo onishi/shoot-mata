@@ -335,13 +335,18 @@ const renderScreen = (ctx: CanvasRenderingContext2D, app: AppState, screen: Excl
     line(ctx, 'RETRACE', 490, '#f4c36a', 18); line(ctx, 'C / L · spend 25 gauge to escape backward along the wake', 523);
     line(ctx, 'ENTER / ESC  RETURN', 625, '#a8f7ff', 18);
   } else if (screen === 'stage-intro') {
-    const bossGate = app.checkpointName === 'bailiff-gate' || app.checkpointName === 'compiler-gate';
-    const stageTwo = app.game.stageId === 'stage-02';
-    line(ctx, bossGate ? `CHECKPOINT · ${stageTwo ? 'THE LOCKED INDEX' : 'THE SEALED LEDGER'}` : `STAGE ${stageTwo ? '2' : '1'}`, 205, '#f4c36a', 18);
-    title(ctx, bossGate ? (stageTwo ? 'CROSSWIND COMPILER' : 'BLANK BAILIFF') : (stageTwo ? 'THE CROSSWIND INDEX' : 'THE ERASED HARBOR'), 300, 48);
-    line(ctx, bossGate
-      ? (stageTwo ? 'Close the vane in a loop. Strike the opposite seam.' : 'Return its erased fire. Strip the three written seals.')
-      : (stageTwo ? 'Write against the wind. Close each route before it turns.' : 'Rewrite a route through the records they tried to erase.'), 365);
+    const stageCopy = {
+      'stage-01': { number: 1, entry: 'THE ERASED HARBOR', gate: 'THE SEALED LEDGER', boss: 'BLANK BAILIFF',
+        lesson: 'Rewrite a route through the records they tried to erase.', strategy: 'Return its erased fire. Strip the three written seals.' },
+      'stage-02': { number: 2, entry: 'THE CROSSWIND INDEX', gate: 'THE LOCKED INDEX', boss: 'CROSSWIND COMPILER',
+        lesson: 'Write against the wind. Close each route before it turns.', strategy: 'Close the vane in a loop. Strike the opposite seam.' },
+      'stage-03': { number: 3, entry: 'THE RAIN-ANNOTATED GALLERY', gate: 'THE DROWNED MARGIN', boss: 'LACUNA EEL',
+        lesson: 'Let rain wet the wake. Cross it to sharpen annotated fire.', strategy: 'Loop each glowing segment in order. Strike its wet mark.' }
+    }[app.game.stageId];
+    const bossGate = app.checkpointName === 'bailiff-gate' || app.checkpointName === 'compiler-gate' || app.checkpointName === 'eel-gate';
+    line(ctx, bossGate ? `CHECKPOINT · ${stageCopy.gate}` : `STAGE ${stageCopy.number}`, 205, '#f4c36a', 18);
+    title(ctx, bossGate ? stageCopy.boss : stageCopy.entry, 300, 48);
+    line(ctx, bossGate ? stageCopy.strategy : stageCopy.lesson, 365);
     line(ctx, 'ENTER  DEPART', 500, '#a8f7ff', 22);
     line(ctx, 'ESC  ABANDON VOYAGE', 548, '#7895a7', 15);
   } else if (screen === 'paused') {
@@ -352,21 +357,26 @@ const renderScreen = (ctx: CanvasRenderingContext2D, app: AppState, screen: Excl
     title(ctx, app.continuesRemaining > 0 ? 'THE WAKE BREAKS' : 'VOYAGE ERASED', 270, 52, '#ffad91');
     const checkpointLabels: Record<AppState['checkpointName'], string> = {
       'harbor-entry': 'HARBOR ENTRY', 'bailiff-gate': 'THE SEALED LEDGER',
-      'crosswind-entry': 'CROSSWIND ENTRY', 'compiler-gate': 'THE LOCKED INDEX'
+      'crosswind-entry': 'CROSSWIND ENTRY', 'compiler-gate': 'THE LOCKED INDEX',
+      'rain-gallery-entry': 'RAIN GALLERY ENTRY', 'eel-gate': 'THE DROWNED MARGIN'
     };
     line(ctx, app.continuesRemaining > 0 ? `Checkpoint: ${checkpointLabels[app.checkpointName]}` : 'No revision remains.', 340);
     line(ctx, app.continuesRemaining > 0 ? 'ENTER  REVISE FROM CHECKPOINT' : 'ENTER  RETURN TO TITLE', 430, '#a8f7ff', 21);
     if (app.continuesRemaining > 0) line(ctx, 'One revision per stage · health 3 · gauge 50', 475, '#7895a7', 15);
     line(ctx, 'ESC  RETURN TO TITLE', 535, '#7895a7', 15);
   } else if (screen === 'result') {
-    const stageTwo = app.game.stageId === 'stage-02';
-    line(ctx, `STAGE ${stageTwo ? '2' : '1'} COMPLETE`, 190, '#f4c36a', 18);
-    title(ctx, stageTwo ? 'THE INDEX HOLDS ITS COURSE' : 'THE HARBOR REMEMBERS', 280, 48);
+    const resultCopy = {
+      'stage-01': { number: 1, title: 'THE HARBOR REMEMBERS', action: 'ENTER  CONTINUE TO STAGE 2' },
+      'stage-02': { number: 2, title: 'THE INDEX HOLDS ITS COURSE', action: 'ENTER  CONTINUE TO STAGE 3' },
+      'stage-03': { number: 3, title: 'THE GALLERY RELEASES ITS RAIN', action: 'ENTER  RETURN TO TITLE' }
+    }[app.game.stageId];
+    line(ctx, `STAGE ${resultCopy.number} COMPLETE`, 190, '#f4c36a', 18);
+    title(ctx, resultCopy.title, 280, 48);
     line(ctx, `SCORE  ${String(app.game.score).padStart(7, '0')}`, 370, '#a8f7ff', 25);
     line(ctx, `COLLATES ${app.game.metrics.loops}   ·   RETURNED FIRE ${app.game.metrics.captured}`, 414);
     line(ctx, `DAMAGE ${app.game.metrics.damage}   ·   REVISIONS USED ${1 - app.continuesRemaining}`, 450);
-    line(ctx, stageTwo ? 'ENTER  RETURN TO TITLE' : 'ENTER  CONTINUE TO STAGE 2', 550, '#a8f7ff', 20);
-    if (!stageTwo) line(ctx, 'ESC  END VOYAGE', 590, '#7895a7', 15);
+    line(ctx, resultCopy.action, 550, '#a8f7ff', 20);
+    if (app.game.stageId !== 'stage-03') line(ctx, 'ESC  END VOYAGE', 590, '#7895a7', 15);
   }
   ctx.textAlign = 'start';
 };

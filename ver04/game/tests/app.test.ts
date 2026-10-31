@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { advance, autoPause, createAppState, transition, type AppState } from '../src/app/app';
 import { STAGE_01_BOSS_START_TICK, STAGE_01_SPAWNS } from '../src/content/stage-01';
 import { STAGE_02_BOSS_START_TICK, STAGE_02_SPAWNS } from '../src/content/stage-02';
+import { STAGE_03_BOSS_START_TICK, STAGE_03_SPAWNS } from '../src/content/stage-03';
 import { px } from '../src/core/math';
 
 const start = (): AppState => transition(transition(createAppState(404), 'start'), 'confirm');
@@ -113,6 +114,44 @@ describe('M2 application flow', () => {
     expect(app.game.player.x).not.toBe(px(500));
     expect(app.game.bullets.filter((bullet) => bullet.kind === 'enemy')).toHaveLength(0);
     expect(app.game.boss?.kind).toBe('crosswind-compiler');
+  });
+
+  it('continues from Stage 2 through Stage 3 and restores both rain-gallery checkpoints', () => {
+    let app = start();
+    app.game.metrics.boss.defeated = true;
+    app.screen = 'result';
+    app = transition(app, 'confirm');
+    app.game.metrics.boss.defeated = true;
+    app.screen = 'result';
+    app = transition(app, 'confirm');
+    expect(app).toMatchObject({ screen: 'stage-intro', checkpointName: 'rain-gallery-entry', continuesRemaining: 1 });
+    expect(app.game).toMatchObject({ stageId: 'stage-03', tick: 0 });
+
+    app = transition(app, 'confirm');
+    app = fatalHit(app);
+    expect(app.screen).toBe('continue');
+    const stoppedTick = app.game.tick;
+    expect(advance(app).state.game.tick).toBe(stoppedTick);
+    app = transition(app, 'confirm');
+    expect(app).toMatchObject({ screen: 'stage-intro', checkpointName: 'rain-gallery-entry', continuesRemaining: 0 });
+    expect(app.game).toMatchObject({ stageId: 'stage-03', tick: 0, gauge: 50, player: { health: 3 } });
+
+    app = transition(app, 'confirm');
+    app.game.tick = STAGE_03_BOSS_START_TICK - 1;
+    app.game.encounterIndex = STAGE_03_SPAWNS.length;
+    app.game.enemies = [];
+    app = advance(app).state;
+    expect(app.checkpointName).toBe('eel-gate');
+    expect(app.checkpoint.tick).toBe(STAGE_03_BOSS_START_TICK);
+    app.game.player.x = px(500);
+    app.continuesRemaining = 1;
+    app = fatalHit(app);
+    app = transition(app, 'confirm');
+    expect(app.screen).toBe('stage-intro');
+    expect(app.game.tick).toBe(STAGE_03_BOSS_START_TICK);
+    expect(app.game.player.x).not.toBe(px(500));
+    expect(app.game.bullets.filter((bullet) => bullet.kind === 'enemy')).toHaveLength(0);
+    expect(app.game.boss?.kind).toBe('lacuna-eel');
   });
 
   it('enters result when the boss is defeated and auto-pauses only active play', () => {
