@@ -432,7 +432,7 @@ const renderScreen = (ctx: CanvasRenderingContext2D, app: AppState, screen: Excl
     const resultCopy = {
       'stage-01': { number: 1, title: 'THE HARBOR REMEMBERS', action: 'ENTER  CONTINUE TO STAGE 2' },
       'stage-02': { number: 2, title: 'THE INDEX HOLDS ITS COURSE', action: 'ENTER  CONTINUE TO STAGE 3' },
-      'stage-03': { number: 3, title: 'THE GALLERY RELEASES ITS RAIN', action: 'ENTER  RETURN TO TITLE' },
+      'stage-03': { number: 3, title: 'THE GALLERY RELEASES ITS RAIN', action: 'ENTER  CONTINUE TO STAGE 4' },
       'stage-04': { number: 4, title: 'THE FOOTNOTE COOLS', action: 'ENTER  RETURN TO TITLE' }
     }[app.game.stageId];
     line(ctx, `STAGE ${resultCopy.number} COMPLETE`, 190, '#f4c36a', 18);
@@ -441,7 +441,7 @@ const renderScreen = (ctx: CanvasRenderingContext2D, app: AppState, screen: Excl
     line(ctx, `COLLATES ${app.game.metrics.loops}   ·   RETURNED FIRE ${app.game.metrics.captured}`, 414);
     line(ctx, `DAMAGE ${app.game.metrics.damage}   ·   REVISIONS USED ${1 - app.continuesRemaining}`, 450);
     line(ctx, resultCopy.action, 550, '#a8f7ff', 20);
-    if (app.game.stageId === 'stage-01' || app.game.stageId === 'stage-02') line(ctx, 'ESC  END VOYAGE', 590, '#7895a7', 15);
+    if (app.game.stageId !== 'stage-04') line(ctx, 'ESC  END VOYAGE', 590, '#7895a7', 15);
   }
   ctx.textAlign = 'start';
 };

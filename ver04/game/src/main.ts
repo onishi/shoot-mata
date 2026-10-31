@@ -91,7 +91,9 @@ const runStep = (frameInput: InputFrame): void => {
     ? 'Stage 1 complete. Continue into the Crosswind Index.'
     : app.game.stageId === 'stage-02'
       ? 'Stage 2 complete. Continue into the Rain-Annotated Gallery.'
-      : 'Stage 3 complete. The gallery releases its rain.';
+      : app.game.stageId === 'stage-03'
+        ? 'Stage 3 complete. Continue into the Burnt Footnote.'
+        : 'Stage 4 complete. The footnote cools.';
 };
 
 const frame = (now: number): void => {
@@ -231,6 +233,9 @@ Object.assign(window, {
       app.game.enemies = [];
       app.game.bullets = [];
       runStep({});
+    } else if (app.game.boss?.kind === 'cinder-advocate') {
+      app.game.boss.health = 1;
+      app.game.bullets.push({ id: app.game.nextId++, x: app.game.boss.x, y: app.game.boss.y, vx: 0, vy: 0, radius: 10, kind: 'return', annotated: true, cooledEmber: true, capturable: false });
     } else if (app.game.boss) {
       app.game.boss.armorLayers = 0;
       app.game.boss.health = 1;

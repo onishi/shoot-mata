@@ -192,3 +192,12 @@
 - 初回画像では通常区間用の移動冷却域がボス名と重なったため、ボス戦中は冷却域を退場させて熱壁へ焦点を絞った。`m3-12-cinder-advocate-phase-1.png`と`phase-3.png`を1280×720で目視し、熱壁、火種、冷却反撃、評決扇、耐久線、自機、HUDを識別でき、文字切れ・重なりがないことを確認した。
 - 単体44件、自動計測8件、素材監査27 final・1 prototype、音量監査32素材、型検査、production build、Chrome E2E 10件に合格した。Stage 1〜4通常区間と既存3ボスの回帰も維持した。
 - 次回はStage 3結果からStage 4章導入・通常区間・CINDER ADVOCATE・結果までをAppStateで接続し、Stage 4開始地点とボス直前のコンティニューを実装する。
+
+## 2026-11-01 — M3-13 Stage 3→4キャンペーン遷移と復帰
+
+- Stage 3結果の決定入力からStage 4章導入、195秒通常区間、CINDER ADVOCATE、Stage 4結果、タイトル帰還までをAppStateで接続した。Stage 1〜3の既存結果遷移とEscapeによる終了も維持した。
+- Stage 4へ`burnt-footnote-entry`と`advocate-gate`を接続した。各面1回のコンティニューで、開始地点または23,400tickのボス直前へ耐久3・ゲージ50・未確定航跡なし・敵弾なしで復帰する。
+- 焼けた脚注の章題、移動冷却域で古い航跡を守る教材、CINDER ADVOCATEの火種冷却反撃文、Stage 4結果文を通しで確認した。熱壁を越えられない汎用QA弾は、実際の攻略規則と同じ冷却火種へ修正した。
+- 単体45件、型検査、production build、Chrome E2E 10件に合格した。ChromeではStage 3→4通し、両復帰、ポーズ・コンティニュー中のtick停止、CINDER ADVOCATE撃破、Stage 4結果からタイトル帰還を確認した。
+- `m3-13-stage-04-intro.png`と`m3-13-stage-04-result.png`を1280×720で目視し、章題、教材、結果、操作案内に文字切れ・重なりがなく、Stage 3との状態差を識別できることを確認した。
+- 次回はStage 4の背景3層、4通常敵、CINDER ADVOCATE、熱壁・火種・冷却反撃を完成素材へ置き換え、通常戦、山場、ボス3形態を画像確認する。
