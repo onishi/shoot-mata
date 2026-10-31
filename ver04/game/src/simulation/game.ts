@@ -2,7 +2,7 @@ import { clamp, distanceSq, pointInPolygon } from '../core/math';
 import { HEIGHT, SCALE, TICK_RATE, WIDTH, type BossState, type Bullet, type Enemy, type EnemyKind, type GameEvent, type GameState, type InputFrame, type Point, type StageId } from '../core/types';
 import { stageDefinition } from '../content/campaign';
 import { STAGE_01_BOSS_START_TICK, STAGE_01_DURATION_TICKS, type StageEnemySpawn } from '../content/stage-01';
-import { STAGE_02_WIND_HALF_CYCLE_TICKS } from '../content/stage-02';
+import { STAGE_02_BOSS_START_TICK, STAGE_02_WIND_HALF_CYCLE_TICKS } from '../content/stage-02';
 import { findLoopCandidate, shotCrossedTrail, shouldAddTrailPoint } from './trail';
 
 const PLAYER_SPEED = Math.round(320 * SCALE / TICK_RATE);
@@ -73,7 +73,8 @@ export const createInitialState = (seed = 1, stageId: StageId = 'stage-01'): Gam
   retrace: null,
   metrics: { candidates: 0, loops: 0, emptyLoops: 0, missedCollates: 0, captured: 0, annotatedShots: 0, retraces: 0, damage: 0, enemiesDefeated: 0, haulersDefeated: 0, firstHaulerDefeatTick: null, enemyShots: 0, enemyStats: emptyEnemyStats(), rejectedEnemies: 0, rejectedEnemyBullets: 0,
     wind: { reversals: 0, playerDrift: 0, trailDrift: 0, collatesLeft: 0, collatesRight: 0, collatesNearReversal: 0 },
-    boss: { spawned: false, defeated: false, defeatTick: null, phaseReached: [false, false, false], fanWarnings: 0, fanErases: 0, trailPointsErased: 0, returnedHits: 0, ordinaryHits: 0, armorLayersStripped: 0, damageByAttack: { fan: 0, sweep: 0, volley: 0 } } }
+    boss: { spawned: false, defeated: false, defeatTick: null, phaseReached: [false, false, false], fanWarnings: 0, fanErases: 0, trailPointsErased: 0, returnedHits: 0, ordinaryHits: 0, armorLayersStripped: 0, damageByAttack: { fan: 0, sweep: 0, volley: 0 } },
+    compiler: { windLocks: 0, windLockedTicks: 0, weakpointHits: 0, ordinaryHits: 0, phaseReached: [false, false, false], attacks: { gust: 0, lance: 0, storm: 0 }, damageByAttack: { gust: 0, lance: 0, storm: 0 } } }
   };
   if (stage.spawns[0]?.tick === 0) {
     state.enemies.push(createEnemy(state, stage.spawns[0]));
@@ -92,7 +93,7 @@ export const copyState = (state: GameState): GameState => ({
   enemies: state.enemies.map((enemy) => ({ ...enemy })),
   boss: state.boss ? { ...state.boss } : null,
   retrace: state.retrace ? { index: state.retrace.index, points: state.retrace.points.map((point) => ({ ...point })) } : null,
-  metrics: { ...state.metrics, wind: { ...state.metrics.wind }, enemyStats: Object.fromEntries(Object.entries(state.metrics.enemyStats).map(([kind, stats]) => [kind, { ...stats }])) as GameState['metrics']['enemyStats'], boss: { ...state.metrics.boss, phaseReached: [...state.metrics.boss.phaseReached], damageByAttack: { ...state.metrics.boss.damageByAttack } } }
+  metrics: { ...state.metrics, wind: { ...state.metrics.wind }, enemyStats: Object.fromEntries(Object.entries(state.metrics.enemyStats).map(([kind, stats]) => [kind, { ...stats }])) as GameState['metrics']['enemyStats'], boss: { ...state.metrics.boss, phaseReached: [...state.metrics.boss.phaseReached], damageByAttack: { ...state.metrics.boss.damageByAttack } }, compiler: { ...state.metrics.compiler, phaseReached: [...state.metrics.compiler.phaseReached], attacks: { ...state.metrics.compiler.attacks }, damageByAttack: { ...state.metrics.compiler.damageByAttack } } }
 });
 
 const spawnEnemyBullet = (state: GameState, enemy: Point, angleOffset = 0, speedPx = 145, sourceAttack: Bullet['sourceAttack'] = 'enemy-volley'): boolean => {
@@ -111,16 +112,57 @@ const spawnEnemyBullet = (state: GameState, enemy: Point, angleOffset = 0, speed
 };
 
 const createBoss = (state: GameState): BossState => ({
+  kind: 'blank-bailiff',
   x: 1050 * SCALE, y: 360 * SCALE, health: 1200, maxHealth: 1200,
   armor: 300, maxArmor: 300, armorLayers: 3, phase: 1,
   phaseStartedAt: state.tick, cycleStartedAt: state.tick,
   fanAngle: Math.PI, fanWarningUntil: state.tick + 90, fanFiresAt: state.tick + 90,
-  defeatedAt: null
+  defeatedAt: null, vaneSide: -1, windLockedUntil: 0, lockedWindDirection: 1, seamExposedUntil: 0
+});
+
+const createCompiler = (state: GameState): BossState => ({
+  kind: 'crosswind-compiler',
+  x: 1050 * SCALE, y: 360 * SCALE, health: 1500, maxHealth: 1500,
+  armor: 0, maxArmor: 0, armorLayers: 0, phase: 1,
+  phaseStartedAt: state.tick, cycleStartedAt: state.tick,
+  fanAngle: Math.PI, fanWarningUntil: 0, fanFiresAt: 0, defeatedAt: null,
+  vaneSide: stageTwoWindDirection(state.tick), windLockedUntil: 0,
+  lockedWindDirection: stageTwoWindDirection(state.tick), seamExposedUntil: 0
 });
 
 const angleDifference = (a: number, b: number): number => Math.abs(Math.atan2(Math.sin(a - b), Math.cos(a - b)));
 
 const updateBoss = (state: GameState, events: GameEvent[]): void => {
+  if (state.stageId === 'stage-02') {
+    if (!state.boss && state.tick >= STAGE_02_BOSS_START_TICK && !state.metrics.boss.defeated) {
+      state.bullets = state.bullets.filter((bullet) => bullet.kind !== 'enemy');
+      state.boss = createCompiler(state);
+      state.metrics.boss.spawned = true;
+      state.metrics.boss.phaseReached[0] = true;
+      state.metrics.compiler.phaseReached[0] = true;
+      events.push({ type: 'boss-spawned' });
+    }
+    const compiler = state.boss;
+    if (!compiler) return;
+    compiler.y = 360 * SCALE + Math.round(Math.sin((state.tick - STAGE_02_BOSS_START_TICK) / 170) * 58 * SCALE);
+    if (compiler.windLockedUntil >= state.tick) state.metrics.compiler.windLockedTicks += 1;
+    else compiler.vaneSide = stageTwoWindDirection(state.tick);
+    const age = state.tick - compiler.cycleStartedAt;
+    const cycleLength = compiler.phase === 1 ? 300 : compiler.phase === 2 ? 264 : 228;
+    if (compiler.phase === 1 && age > 0 && age % 120 === 0) {
+      for (const offset of [-0.42, -0.28, -0.14, 0, 0.14, 0.28, 0.42]) spawnEnemyBullet(state, compiler, offset + compiler.vaneSide * 0.18, 128, 'compiler-gust');
+      state.metrics.compiler.attacks.gust += 1;
+    } else if (compiler.phase === 2 && age > 0 && age % 96 === 0) {
+      const origin = { x: compiler.x, y: compiler.y + compiler.vaneSide * 92 * SCALE };
+      for (const offset of [-0.2, 0, 0.2]) spawnEnemyBullet(state, origin, offset, 178, 'compiler-lance');
+      state.metrics.compiler.attacks.lance += 1;
+    } else if (compiler.phase === 3 && age > 0 && age % 120 === 0) {
+      for (const offset of [-0.58, -0.39, -0.2, 0, 0.2, 0.39, 0.58]) spawnEnemyBullet(state, compiler, offset, 154, 'compiler-storm');
+      state.metrics.compiler.attacks.storm += 1;
+    }
+    if (age >= cycleLength) compiler.cycleStartedAt = state.tick;
+    return;
+  }
   if (state.stageId !== 'stage-01') return;
   if (!state.boss && state.tick >= STAGE_01_BOSS_START_TICK && !state.metrics.boss.defeated) {
     // The harbor route closes before the duel: stale formation fire must not
@@ -198,12 +240,17 @@ const moveTowardPoint = (enemy: Enemy, target: Point, speedPx: number): void => 
 export const stageTwoWindDirection = (tick: number): -1 | 1 =>
   Math.floor(tick / STAGE_02_WIND_HALF_CYCLE_TICKS) % 2 === 0 ? 1 : -1;
 
+export const effectiveStageTwoWindDirection = (state: GameState): -1 | 1 =>
+  state.boss?.kind === 'crosswind-compiler' && state.boss.windLockedUntil >= state.tick
+    ? state.boss.lockedWindDirection : stageTwoWindDirection(state.tick);
+
 const applyCrosswind = (state: GameState): void => {
-  if (state.stageId !== 'stage-02' || state.tick >= stageDefinition(state.stageId).durationTicks) return;
-  const direction = stageTwoWindDirection(state.tick);
+  if (state.stageId !== 'stage-02') return;
+  const direction = effectiveStageTwoWindDirection(state);
   const playerDrift = direction * Math.round(0.18 * SCALE);
   const trailDrift = direction * Math.round(0.35 * SCALE);
-  if (state.tick > 0 && state.tick % STAGE_02_WIND_HALF_CYCLE_TICKS === 0) state.metrics.wind.reversals += 1;
+  if (state.tick > 0 && state.tick < stageDefinition(state.stageId).durationTicks
+    && state.tick % STAGE_02_WIND_HALF_CYCLE_TICKS === 0) state.metrics.wind.reversals += 1;
   state.player.x = clamp(state.player.x + playerDrift, PLAYER_RADIUS * SCALE, (WIDTH - PLAYER_RADIUS) * SCALE);
   for (const point of state.trail) point.x += trailDrift;
   if (state.candidate) {
@@ -349,6 +396,15 @@ const collate = (state: GameState, events: GameEvent[]): void => {
     else state.metrics.wind.collatesRight += 1;
     const phase = state.tick % STAGE_02_WIND_HALF_CYCLE_TICKS;
     if (phase <= 180 || phase >= STAGE_02_WIND_HALF_CYCLE_TICKS - 180) state.metrics.wind.collatesNearReversal += 1;
+    if (state.boss?.kind === 'crosswind-compiler') {
+      const vane = { x: state.boss.x - 100 * SCALE, y: state.boss.y + state.boss.vaneSide * 108 * SCALE };
+      if (pointInPolygon(vane, candidate.polygon)) {
+        state.boss.lockedWindDirection = stageTwoWindDirection(state.tick);
+        state.boss.windLockedUntil = state.tick + 6 * TICK_RATE;
+        state.boss.seamExposedUntil = state.tick + 6 * TICK_RATE;
+        state.metrics.compiler.windLocks += 1;
+      }
+    }
   }
   if (selected.length === 0 && !state.enemies.some((enemy) => pointInPolygon(enemy, candidate.polygon))) state.metrics.emptyLoops += 1;
   state.metrics.captured += selected.length;
@@ -416,7 +472,35 @@ export const step = (previous: GameState, input: InputFrame): { state: GameState
     let consumed = false;
     if (bullet.kind !== 'enemy') {
       const boss = state.boss;
-      if (boss && distanceSq(bullet, boss) <= ((bullet.radius + 92) * SCALE) ** 2) {
+      if (boss?.kind === 'crosswind-compiler') {
+        const seam = { x: boss.x - 100 * SCALE, y: boss.y - boss.vaneSide * 108 * SCALE };
+        const seamHit = boss.seamExposedUntil >= state.tick && distanceSq(bullet, seam) <= ((bullet.radius + 28) * SCALE) ** 2;
+        const bodyHit = distanceSq(bullet, boss) <= ((bullet.radius + 88) * SCALE) ** 2;
+        if (seamHit || bodyHit) {
+          const damage = seamHit ? (bullet.kind === 'return' ? 88 : bullet.annotated ? 58 : 44) : (bullet.kind === 'return' ? 6 : bullet.annotated ? 2 : 1);
+          boss.health -= damage;
+          if (seamHit) state.metrics.compiler.weakpointHits += 1;
+          else state.metrics.compiler.ordinaryHits += 1;
+          const nextPhase = boss.health <= boss.maxHealth / 3 ? 3 : boss.health <= boss.maxHealth * 2 / 3 ? 2 : 1;
+          if (nextPhase > boss.phase) {
+            boss.phase = nextPhase;
+            boss.phaseStartedAt = state.tick;
+            boss.cycleStartedAt = state.tick;
+            boss.vaneSide = boss.vaneSide === 1 ? -1 : 1;
+            boss.windLockedUntil = 0;
+            boss.seamExposedUntil = 0;
+            state.metrics.boss.phaseReached[nextPhase - 1] = true;
+            state.metrics.compiler.phaseReached[nextPhase - 1] = true;
+            events.push({ type: 'boss-phase', phase: nextPhase });
+          }
+          if (boss.health <= 0) {
+            boss.health = 0; boss.defeatedAt = state.tick;
+            state.metrics.boss.defeated = true; state.metrics.boss.defeatTick = state.tick;
+            state.score += 30000; events.push({ type: 'boss-defeated' }); state.boss = null;
+          }
+          consumed = true;
+        }
+      } else if (boss && distanceSq(bullet, boss) <= ((bullet.radius + 92) * SCALE) ** 2) {
         const returned = bullet.kind === 'return';
         if (boss.armorLayers > 0) {
           const damage = returned ? 90 : bullet.annotated ? 3 : 1;
@@ -488,11 +572,21 @@ export const step = (previous: GameState, input: InputFrame): { state: GameState
       && distanceSq(bullet, state.player) <= ((bullet.radius + PLAYER_RADIUS) * SCALE) ** 2) {
       state.player.health = Math.max(0, state.player.health - 1);
       state.player.invulnerableUntil = state.tick + 132;
-      state.trail = [];
-      state.candidate = null;
+      // Compiler pressure displaces the pilot but does not erase writing; its
+      // boss lesson is completing a wind-bent loop, not restarting one after
+      // every graze. Erasure remains a property of the Bailiff and Mites.
+      const compilerPressure = bullet.sourceAttack === 'compiler-gust'
+        || bullet.sourceAttack === 'compiler-lance' || bullet.sourceAttack === 'compiler-storm';
+      if (!compilerPressure) {
+        state.trail = [];
+        state.candidate = null;
+      }
       state.metrics.damage += 1;
       if (bullet.sourceAttack === 'boss-fan') state.metrics.boss.damageByAttack.fan += 1;
       else if (bullet.sourceAttack === 'boss-sweep') state.metrics.boss.damageByAttack.sweep += 1;
+      else if (bullet.sourceAttack === 'compiler-gust') state.metrics.compiler.damageByAttack.gust += 1;
+      else if (bullet.sourceAttack === 'compiler-lance') state.metrics.compiler.damageByAttack.lance += 1;
+      else if (bullet.sourceAttack === 'compiler-storm') state.metrics.compiler.damageByAttack.storm += 1;
       else if (state.boss) state.metrics.boss.damageByAttack.volley += 1;
       consumed = true;
       events.push({ type: 'damage' });

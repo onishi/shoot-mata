@@ -6,7 +6,7 @@ type QaWindow = Window & {
   __PALIMPSEST_AUTOPLAY__: (ticks: number) => number;
   __PALIMPSEST_APP_STATE__: () => { screen: Screen; continuesRemaining: number; checkpointName: string; game: { tick: number; player: { health: number }; gauge: number } };
   __PALIMPSEST_STATE__: () => { bullets: unknown[]; trail: unknown[]; candidate: unknown; metrics: { loops: number; retraces: number } };
-  __PALIMPSEST_QA_SCENARIO__: (scenario: 'damage' | 'setpiece' | 'boss-gate' | 'boss-defeat') => Screen;
+  __PALIMPSEST_QA_SCENARIO__: (scenario: 'damage' | 'setpiece' | 'boss-gate' | 'boss-defeat' | 'stage-02-boss') => Screen;
   __PALIMPSEST_AUDIO_READY__: () => Promise<void>;
   __PALIMPSEST_AUDIO_STATE__: () => { state: string; loaded: number; stems: number; active: number; busLevels: Record<string, number> };
   __PALIMPSEST_AUDIO_BUS__: (bus: 'music' | 'se' | 'ui' | 'environment', level: number) => void;
@@ -123,4 +123,22 @@ test('Stage 1 final visual assets remain readable in combat, set piece and boss 
   });
   await page.waitForTimeout(50);
   await canvas.screenshot({ path: '../docs/evidence/m2-04-boss-phase-3.png' });
+});
+
+test('Stage 2 Compiler preview shows the locked vane and exposed opposite seam', async ({ page }) => {
+  await page.goto('/');
+  await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_ASSETS_READY__);
+  await page.keyboard.press('Enter');
+  await page.keyboard.press('Enter');
+  await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_QA_SCENARIO__('stage-02-boss'));
+  const state = await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_STATE__()) as unknown as {
+    stageId: string; boss: { kind: string; windLockedUntil: number; seamExposedUntil: number }; tick: number;
+    metrics: { compiler: { windLocks: number } };
+  };
+  expect(state.stageId).toBe('stage-02');
+  expect(state.boss.kind).toBe('crosswind-compiler');
+  expect(state.metrics.compiler.windLocks).toBeGreaterThan(0);
+  expect(state.boss.windLockedUntil).toBeGreaterThanOrEqual(state.tick);
+  expect(state.boss.seamExposedUntil).toBeGreaterThanOrEqual(state.tick);
+  await page.locator('#game').screenshot({ path: '../docs/evidence/m3-02-crosswind-compiler.png' });
 });

@@ -1,0 +1,70 @@
+{
+  "generatedAt": "2026-10-31",
+  "seed": 3202,
+  "baseline": {
+    "durationTicks": 11367,
+    "maxEnemyBullets": 49,
+    "compiler": {
+      "windLocks": 0,
+      "windLockedTicks": 0,
+      "weakpointHits": 0,
+      "ordinaryHits": 1125,
+      "phaseReached": [
+        true,
+        true,
+        true
+      ],
+      "attacks": {
+        "gust": 25,
+        "lance": 30,
+        "storm": 16
+      },
+      "damageByAttack": {
+        "gust": 13,
+        "lance": 4,
+        "storm": 3
+      }
+    },
+    "hash": "cd106418c5bab67f"
+  },
+  "stitch": {
+    "durationTicks": 3252,
+    "maxEnemyBullets": 31,
+    "compiler": {
+      "windLocks": 3,
+      "windLockedTicks": 659,
+      "weakpointHits": 24,
+      "ordinaryHits": 166,
+      "phaseReached": [
+        true,
+        true,
+        true
+      ],
+      "attacks": {
+        "gust": 5,
+        "lance": 15,
+        "storm": 2
+      },
+      "damageByAttack": {
+        "gust": 3,
+        "lance": 4,
+        "storm": 1
+      }
+    },
+    "hash": "7de6454816039ea1"
+  },
+  "replayHash": "7de6454816039ea1",
+  "gates": {
+    "baselineDefeatsBoss": true,
+    "stitchDefeatsBoss": true,
+    "stitchAtLeastTwentyPercentFaster": true,
+    "allPhasesReached": true,
+    "vaneLockedInEveryPhase": true,
+    "exposedSeamHit": true,
+    "fallbackBodyRouteMeasured": true,
+    "allAttacksEmitted": true,
+    "attackDamageMeasured": true,
+    "bulletLimit": true,
+    "deterministicReplay": true
+  }
+}

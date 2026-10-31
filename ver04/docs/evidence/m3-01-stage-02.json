@@ -3,15 +3,15 @@
   "durationTicks": 21600,
   "scheduledSpawns": 74,
   "seed": 3201,
-  "finalHash": "c38efa846de026c1",
+  "finalHash": "d769432f52be9f79",
   "replayHashes": [
-    "c38efa846de026c1",
-    "c38efa846de026c1",
-    "c38efa846de026c1"
+    "d769432f52be9f79",
+    "d769432f52be9f79",
+    "d769432f52be9f79"
   ],
   "maxEnemies": 10,
   "maxEnemyBullets": 101,
-  "maxCombatGapTicks": 0,
+  "maxCombatGapTicks": 1,
   "stats": {
     "index-kite": {
       "spawned": 27,
@@ -40,8 +40,8 @@
   },
   "wind": {
     "reversals": 29,
-    "playerDrift": 993554,
-    "trailDrift": 74667240,
+    "playerDrift": 993600,
+    "trailDrift": 74669580,
     "collatesLeft": 3,
     "collatesRight": 4,
     "collatesNearReversal": 3

@@ -111,7 +111,7 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
     const boss = state.boss;
     const x = boss.x / SCALE;
     const y = boss.y / SCALE;
-    if (state.tick <= boss.fanWarningUntil) {
+    if (boss.kind === 'blank-bailiff' && state.tick <= boss.fanWarningUntil) {
       ctx.save();
       ctx.translate(x, y);
       ctx.rotate(boss.fanAngle);
@@ -127,8 +127,26 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
       ctx.stroke();
       ctx.restore();
     }
-    drawSprite(ctx, 'boss', x, y, 284, 238, boss.armorLayers > 0 ? 1 : 0.82);
-    if (boss.armorLayers === 0) {
+    if (boss.kind === 'blank-bailiff') drawSprite(ctx, 'boss', x, y, 284, 238, boss.armorLayers > 0 ? 1 : 0.82);
+    else {
+      const vaneY = y + boss.vaneSide * 108;
+      const seamY = y - boss.vaneSide * 108;
+      ctx.save(); ctx.translate(x, y);
+      ctx.fillStyle = '#173f5a'; ctx.strokeStyle = '#b7f5ff'; ctx.lineWidth = 4;
+      ctx.beginPath(); ctx.moveTo(-84, -64); ctx.lineTo(70, -42); ctx.lineTo(94, 0); ctx.lineTo(70, 42); ctx.lineTo(-84, 64); ctx.closePath(); ctx.fill(); ctx.stroke();
+      ctx.strokeStyle = '#65dcff'; ctx.lineWidth = 7;
+      ctx.beginPath(); ctx.moveTo(-12, 0); ctx.lineTo(-100, boss.vaneSide * 108); ctx.stroke();
+      ctx.translate(-100, boss.vaneSide * 108); ctx.rotate(state.tick / 18 * boss.vaneSide);
+      for (let arm = 0; arm < 4; arm += 1) { ctx.rotate(Math.PI / 2); ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(42, 0); ctx.stroke(); }
+      ctx.restore();
+      ctx.save(); ctx.strokeStyle = boss.seamExposedUntil >= state.tick ? '#fff2a8' : '#6a7785'; ctx.shadowColor = '#ffe16b'; ctx.shadowBlur = boss.seamExposedUntil >= state.tick ? 24 : 0; ctx.lineWidth = 6;
+      ctx.beginPath(); ctx.arc(x - 100, seamY, 25 + Math.sin(state.tick / 7) * 3, 0, Math.PI * 2); ctx.stroke(); ctx.restore();
+      if (boss.windLockedUntil >= state.tick) {
+        ctx.fillStyle = 'rgba(252, 209, 112, .88)'; ctx.font = '700 13px system-ui, sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText(`WIND INDEX LOCKED  ${Math.ceil((boss.windLockedUntil - state.tick) / TICK_RATE)}s`, x - 25, Math.min(vaneY, seamY) - 36); ctx.textAlign = 'start';
+      }
+    }
+    if (boss.kind === 'blank-bailiff' && boss.armorLayers === 0) {
       ctx.save(); ctx.strokeStyle = '#a8f7ff'; ctx.shadowColor = '#42e7ff'; ctx.shadowBlur = 24; ctx.lineWidth = 5;
       ctx.beginPath(); ctx.arc(x - 50, y + 18, 28 + Math.sin(state.tick / 8) * 3, 0, Math.PI * 2); ctx.stroke(); ctx.restore();
     }
@@ -173,7 +191,7 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
   ctx.fillRect(0, 0, WIDTH, 52);
   ctx.fillStyle = '#dceaf0';
   ctx.font = '600 18px system-ui, sans-serif';
-  ctx.fillText('PALIMPSEST WAKE  /  STAGE 1: THE ERASED HARBOR', 24, 33);
+  ctx.fillText(state.stageId === 'stage-01' ? 'PALIMPSEST WAKE  /  STAGE 1: THE ERASED HARBOR' : 'PALIMPSEST WAKE  /  STAGE 2: THE CROSSWIND INDEX', 24, 33);
   ctx.fillStyle = '#f4c36a';
   ctx.fillText(`SCORE ${String(state.score).padStart(7, '0')}`, 1035, 33);
   ctx.fillStyle = '#8ea6bd';
@@ -188,10 +206,10 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
     ctx.textAlign = 'center';
     ctx.fillStyle = '#f5e6c8';
     ctx.font = '700 16px system-ui, sans-serif';
-    ctx.fillText(`BLANK BAILIFF  ·  PHASE ${boss.phase}`, WIDTH / 2, 76);
+    ctx.fillText(`${boss.kind === 'blank-bailiff' ? 'BLANK BAILIFF' : 'CROSSWIND COMPILER'}  ·  PHASE ${boss.phase}`, WIDTH / 2, 76);
     ctx.fillStyle = '#251927'; ctx.fillRect(430, 87, 420, 10);
-    ctx.fillStyle = boss.armorLayers > 0 ? '#f3d69b' : '#67e8f9';
-    const ratio = boss.armorLayers > 0 ? ((boss.armorLayers - 1) + Math.max(0, boss.armor) / boss.maxArmor) / 3 : boss.health / boss.maxHealth;
+    ctx.fillStyle = boss.kind === 'blank-bailiff' && boss.armorLayers > 0 ? '#f3d69b' : '#67e8f9';
+    const ratio = boss.kind === 'blank-bailiff' && boss.armorLayers > 0 ? ((boss.armorLayers - 1) + Math.max(0, boss.armor) / boss.maxArmor) / 3 : boss.health / boss.maxHealth;
     ctx.fillRect(430, 87, 420 * ratio, 10);
     ctx.textAlign = 'start';
   }

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { px } from '../src/core/math';
 import { createInitialState, step } from '../src/simulation/game';
 import { STAGE_01_BOSS_START_TICK, STAGE_01_SPAWNS } from '../src/content/stage-01';
-import { STAGE_02_SPAWNS } from '../src/content/stage-02';
+import { STAGE_02_BOSS_START_TICK, STAGE_02_SPAWNS } from '../src/content/stage-02';
 import { findLoopCandidate } from '../src/simulation/trail';
 import type { GameState, InputFrame, TrailPoint } from '../src/core/types';
 
@@ -215,5 +215,47 @@ describe('M1 deterministic playground', () => {
       expect(state.metrics.enemyStats[kind].attacks).toBe(1);
       expect(state.bullets.some((bullet) => bullet.kind === 'enemy')).toBe(true);
     }
+  });
+
+  it('locks the Stage 2 wind and exposes the opposite seam when a loop contains the vane', () => {
+    let state = createInitialState(24, 'stage-02');
+    state.tick = STAGE_02_BOSS_START_TICK - 1;
+    state.encounterIndex = STAGE_02_SPAWNS.length;
+    state.enemies = [];
+    state = step(state, {}).state;
+    const boss = state.boss!;
+    const vane = { x: boss.x - px(100), y: boss.y + boss.vaneSide * px(108) };
+    state.candidate = {
+      polygon: [
+        { x: vane.x - px(60), y: vane.y - px(60) }, { x: vane.x + px(60), y: vane.y - px(60) },
+        { x: vane.x + px(60), y: vane.y + px(60) }, { x: vane.x - px(60), y: vane.y + px(60) }
+      ],
+      intersection: vane, startIndex: 0, area: 14400, expiresTick: state.tick + 60
+    };
+    state = step(state, { collate: true }).state;
+    expect(state.boss?.kind).toBe('crosswind-compiler');
+    expect(state.boss!.windLockedUntil).toBeGreaterThan(state.tick);
+    expect(state.boss!.seamExposedUntil).toBe(state.boss!.windLockedUntil);
+    expect(state.metrics.compiler.windLocks).toBe(1);
+  });
+
+  it('rewards firing into the exposed Compiler seam over ordinary body fire', () => {
+    const hit = (seam: boolean) => {
+      let state = createInitialState(25, 'stage-02');
+      state.tick = STAGE_02_BOSS_START_TICK - 1;
+      state.encounterIndex = STAGE_02_SPAWNS.length;
+      state.enemies = [];
+      state = step(state, {}).state;
+      const boss = state.boss!;
+      if (seam) boss.seamExposedUntil = state.tick + 60;
+      const point = seam ? { x: boss.x - px(100), y: boss.y - boss.vaneSide * px(108) } : boss;
+      state.bullets = [{ id: 950, x: point.x, y: point.y, vx: 0, vy: 0, radius: 5, kind: 'player', annotated: false, capturable: false }];
+      return step(state, {}).state;
+    };
+    const ordinary = hit(false);
+    const weakpoint = hit(true);
+    expect(ordinary.boss!.maxHealth - ordinary.boss!.health).toBe(1);
+    expect(weakpoint.boss!.maxHealth - weakpoint.boss!.health).toBe(44);
+    expect(weakpoint.metrics.compiler.weakpointHits).toBe(1);
   });
 });

@@ -24,6 +24,13 @@ const visibleTarget = (state: GameState) => state.enemies
   .sort((a, b) => Number(b.kind === 'folio-hauler' || b.kind === 'tab-binder')
     - Number(a.kind === 'folio-hauler' || a.kind === 'tab-binder') || a.id - b.id)[0] ?? state.boss;
 
+const compilerPoint = (state: GameState, side: 'vane' | 'seam'): Point | null => {
+  const boss = state.boss;
+  if (boss?.kind !== 'crosswind-compiler') return null;
+  const direction = side === 'vane' ? boss.vaneSide : -boss.vaneSide;
+  return { x: boss.x - px(100), y: boss.y + direction * px(108) };
+};
+
 export const countCandidateTargets = (state: GameState): number => {
   if (!state.candidate) return 0;
   return state.bullets.filter((bullet) => bullet.kind === 'enemy' && pointInPolygon(bullet, state.candidate!.polygon)).length
@@ -44,13 +51,24 @@ export const createPilot = (name: PilotName): ((state: GameState) => InputFrame)
   let retraceCooldownUntil = 0;
   let attackUntil = 0;
   let loopSequence = 0;
+  let compilerPhase = 0;
   const reactionTicks = name === 'safe' ? 8 : name === 'stitch' ? 10 : name === 'sweep' ? 14 : 12;
 
   return (state: GameState): InputFrame => {
+    if (name === 'stitch' && state.boss?.kind === 'crosswind-compiler' && state.boss.phase !== compilerPhase) {
+      compilerPhase = state.boss.phase;
+      attackUntil = 0;
+      waypoints = [];
+      candidateSeenAt = 0;
+      nextDecision = state.tick;
+    }
     if (state.tick < nextDecision) return { ...held, collate: false, retrace: false };
     nextDecision = state.tick + reactionTicks;
 
-    const target = visibleTarget(state);
+    const visible = visibleTarget(state);
+    const exposedSeam = state.boss?.kind === 'crosswind-compiler' && state.boss.seamExposedUntil >= state.tick
+      ? compilerPoint(state, 'seam') : null;
+    const target = exposedSeam ?? visible;
     if (name === 'baseline') {
       const aimY = target?.y ?? px(360);
       held = moveToward(state.player, { x: px(300), y: aimY });
@@ -112,15 +130,16 @@ export const createPilot = (name: PilotName): ((state: GameState) => InputFrame)
     }
 
     if (waypoints.length === 0) {
-      const centerX = name === 'safe' ? px(300) : Math.min(px(910), Math.max(px(650), target?.x ?? px(900)));
+      const compilerVane = name === 'stitch' ? compilerPoint(state, 'vane') : null;
+      const centerX = compilerVane?.x ?? (name === 'safe' ? px(300) : Math.min(px(910), Math.max(px(650), target?.x ?? px(900))));
       const rawCenterY = name === 'safe'
         ? Math.min(px(600), Math.max(px(120), state.player.y))
-        : Math.min(px(570), Math.max(px(150), target?.y ?? px(360)));
+        : Math.min(px(570), Math.max(px(150), compilerVane?.y ?? target?.y ?? px(360)));
       const centerY = Math.min(px(590), Math.max(px(130), rawCenterY + px((loopSequence % 3 - 1) * 14)));
       // Leave headroom inside the 3.2 second trail lifetime for reaction delay
       // and quantized corner arrival.
-      const halfWidth = px(name === 'safe' ? 75 : name === 'stitch' ? 100 : 115);
-      const halfHeight = px(name === 'safe' ? 55 : name === 'stitch' ? 75 : 90);
+      const halfWidth = px(compilerVane ? 75 : name === 'safe' ? 75 : name === 'stitch' ? 100 : 115);
+      const halfHeight = px(compilerVane ? 55 : name === 'safe' ? 55 : name === 'stitch' ? 75 : 90);
       waypoints = [
         { x: centerX - halfWidth, y: centerY - halfHeight },
         { x: centerX + halfWidth, y: centerY - halfHeight },

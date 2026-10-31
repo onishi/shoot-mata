@@ -4,7 +4,9 @@ import { TICK_RATE, type InputFrame } from './core/types';
 import { renderApp } from './render/render';
 import { assetsReady } from './render/visual-assets';
 import { createPilot } from './simulation/autopilot';
+import { createInitialState } from './simulation/game';
 import { STAGE_01_BOSS_START_TICK, STAGE_01_SPAWNS } from './content/stage-01';
+import { STAGE_02_BOSS_START_TICK, STAGE_02_SPAWNS } from './content/stage-02';
 import { StageOneAudio } from './audio/stage-01-audio';
 
 const canvas = document.querySelector<HTMLCanvasElement>('#game');
@@ -127,9 +129,18 @@ Object.assign(window, {
     renderApp(ctx, app);
     return app.game.tick;
   },
-  __PALIMPSEST_QA_SCENARIO__: (scenario: 'damage' | 'setpiece' | 'boss-gate' | 'boss-defeat') => {
+  __PALIMPSEST_QA_SCENARIO__: (scenario: 'damage' | 'setpiece' | 'boss-gate' | 'boss-defeat' | 'stage-02-boss') => {
     if (app.screen !== 'playing') return app.screen;
-    if (scenario === 'damage') {
+    if (scenario === 'stage-02-boss') {
+      app.game = createInitialState(3202, 'stage-02');
+      app.game.tick = STAGE_02_BOSS_START_TICK - 1;
+      app.game.encounterIndex = STAGE_02_SPAWNS.length;
+      app.game.enemies = [];
+      app.game.player.x = 700 * 256;
+      runStep({});
+      const pilot = createPilot('stitch');
+      for (let index = 0; index < 1500 && app.game.metrics.compiler.windLocks === 0; index += 1) runStep(pilot(app.game));
+    } else if (scenario === 'damage') {
       app.game.player.health = 1;
       app.game.player.invulnerableUntil = 0;
       app.game.bullets.push({ id: app.game.nextId++, x: app.game.player.x, y: app.game.player.y, vx: 0, vy: 0, radius: 8, kind: 'enemy', annotated: false, capturable: true });
@@ -155,7 +166,7 @@ Object.assign(window, {
       app.game.boss.health = 1;
       app.game.bullets.push({ id: app.game.nextId++, x: app.game.boss.x, y: app.game.boss.y, vx: 0, vy: 0, radius: 5, kind: 'return', annotated: true, capturable: false });
     }
-    if (scenario !== 'boss-gate' && scenario !== 'setpiece') runStep({});
+    if (scenario !== 'boss-gate' && scenario !== 'setpiece' && scenario !== 'stage-02-boss') runStep({});
     renderApp(ctx, app);
     return app.screen;
   }

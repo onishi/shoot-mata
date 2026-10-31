@@ -3,10 +3,10 @@
 - Duration: 21600 ticks (180 seconds)
 - Scheduled spawns: 74
 - Max enemies / enemy bullets: 10 / 101
-- Longest no-combat gap: 0 ticks
+- Longest no-combat gap: 1 ticks
 - Wind reversals: 29
 - COLLATE left / right / near reversal: 3 / 4 / 3
-- Determinism hashes: c38efa846de026c1, c38efa846de026c1, c38efa846de026c1, c38efa846de026c1
+- Determinism hashes: d769432f52be9f79, d769432f52be9f79, d769432f52be9f79, d769432f52be9f79
 
 | Enemy | Spawned | Attacks | Defeated | Exited |
 | --- | ---: | ---: | ---: | ---: |

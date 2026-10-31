@@ -7,7 +7,7 @@ export interface StageDefinition {
   durationTicks: number;
   spawns: StageEnemySpawn[];
   entityLimits: { enemies: number; enemyBullets: number };
-  boss: 'blank-bailiff' | null;
+  boss: 'blank-bailiff' | 'crosswind-compiler' | null;
   environment: 'stable' | 'crosswind';
 }
 
@@ -18,7 +18,7 @@ export const STAGES: Record<StageId, StageDefinition> = {
   },
   'stage-02': {
     id: 'stage-02', durationTicks: STAGE_02_DURATION_TICKS, spawns: STAGE_02_SPAWNS,
-    entityLimits: STAGE_02_ENTITY_LIMITS, boss: null, environment: 'crosswind'
+    entityLimits: STAGE_02_ENTITY_LIMITS, boss: 'crosswind-compiler', environment: 'crosswind'
   }
 };
 

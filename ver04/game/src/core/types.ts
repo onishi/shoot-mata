@@ -13,7 +13,7 @@ export interface Bullet extends Point {
   kind: 'player' | 'enemy' | 'return';
   annotated: boolean;
   capturable: boolean;
-  sourceAttack?: 'enemy-volley' | 'boss-fan' | 'boss-sweep';
+  sourceAttack?: 'enemy-volley' | 'boss-fan' | 'boss-sweep' | 'compiler-gust' | 'compiler-lance' | 'compiler-storm';
 }
 export type StageId = 'stage-01' | 'stage-02';
 export type EnemyKind =
@@ -39,6 +39,7 @@ export interface Enemy extends Point {
   stateTick: number;
 }
 export interface BossState extends Point {
+  kind: 'blank-bailiff' | 'crosswind-compiler';
   health: number;
   maxHealth: number;
   armor: number;
@@ -51,6 +52,10 @@ export interface BossState extends Point {
   fanWarningUntil: number;
   fanFiresAt: number;
   defeatedAt: number | null;
+  vaneSide: -1 | 1;
+  windLockedUntil: number;
+  lockedWindDirection: -1 | 1;
+  seamExposedUntil: number;
 }
 export interface LoopCandidate {
   polygon: Point[];
@@ -119,6 +124,15 @@ export interface Metrics {
     ordinaryHits: number;
     armorLayersStripped: number;
     damageByAttack: { fan: number; sweep: number; volley: number };
+  };
+  compiler: {
+    windLocks: number;
+    windLockedTicks: number;
+    weakpointHits: number;
+    ordinaryHits: number;
+    phaseReached: [boolean, boolean, boolean];
+    attacks: { gust: number; lance: number; storm: number };
+    damageByAttack: { gust: number; lance: number; storm: number };
   };
 }
 export interface GameState {
