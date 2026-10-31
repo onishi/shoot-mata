@@ -276,7 +276,7 @@ test('Stage 2 final visuals remain readable in combat, Tab Binder set piece and 
   await canvas.screenshot({ path: '../docs/evidence/m3-04-compiler-phase-3.png' });
 });
 
-test('Stage 3 development preview exposes rain, wet trail and water-gate roles', async ({ page }) => {
+test('Stage 3 final visuals expose rain, wet trail and water-gate roles', async ({ page }) => {
   await page.goto('/'); await page.keyboard.press('Enter'); await page.keyboard.press('Enter');
   await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_QA_SCENARIO__('stage-03-combat'));
   let state = await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_STATE__()) as unknown as {
@@ -284,14 +284,14 @@ test('Stage 3 development preview exposes rain, wet trail and water-gate roles',
   };
   expect(state.stageId).toBe('stage-03'); expect(state.metrics.rain.trailPointsWetted).toBeGreaterThan(0);
   expect(state.metrics.rain.wetTrailPeak).toBeGreaterThan(0);
-  await page.locator('#game').screenshot({ path: '../docs/evidence/m3-06-stage-03-combat.png' });
+  await page.locator('#game').screenshot({ path: '../docs/evidence/m3-09-stage-03-combat.png' });
   await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_QA_SCENARIO__('stage-03-setpiece'));
   state = await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_STATE__()) as unknown as typeof state;
   expect(state.metrics.rain.wetTrailPeak).toBeGreaterThan(0);
-  await page.locator('#game').screenshot({ path: '../docs/evidence/m3-06-stage-03-setpiece.png' });
+  await page.locator('#game').screenshot({ path: '../docs/evidence/m3-09-stage-03-setpiece.png' });
 });
 
-test('LACUNA EEL preview shows the sequential marked segments in early and late phases', async ({ page }) => {
+test('LACUNA EEL final visuals show its three sequential marked phases', async ({ page }) => {
   await page.goto('/'); await page.keyboard.press('Enter'); await page.keyboard.press('Enter');
   await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_QA_SCENARIO__('stage-03-boss'));
   let state = await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_STATE__()) as unknown as {
@@ -300,7 +300,18 @@ test('LACUNA EEL preview shows the sequential marked segments in early and late 
   };
   expect(state.boss?.kind).toBe('lacuna-eel'); expect(state.metrics.eel.segmentMarks).toBeGreaterThan(0);
   expect(state.boss!.segmentMarkedUntil).toBeGreaterThanOrEqual(state.tick);
-  await page.locator('#game').screenshot({ path: '../docs/evidence/m3-07-lacuna-eel-marked.png' });
+  await page.locator('#game').screenshot({ path: '../docs/evidence/m3-09-lacuna-eel-phase-1.png' });
+  await page.evaluate(() => {
+    const state = (window as unknown as QaWindow).__PALIMPSEST_STATE__() as unknown as {
+      tick: number; boss: { phase: number; activeSegment: number; health: number; segmentMarkedUntil: number };
+      metrics: { eel: { phaseReached: boolean[] } };
+    };
+    state.boss.phase = 2; state.boss.activeSegment = 1; state.boss.health = 1100; state.boss.segmentMarkedUntil = state.tick + 720;
+    state.metrics.eel.phaseReached = [true, true, false];
+  });
+  await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_ADVANCE__(30));
+  await page.waitForTimeout(50);
+  await page.locator('#game').screenshot({ path: '../docs/evidence/m3-09-lacuna-eel-phase-2.png' });
   await page.evaluate(() => {
     const state = (window as unknown as QaWindow).__PALIMPSEST_STATE__() as unknown as {
       tick: number; boss: { phase: number; activeSegment: number; health: number; segmentMarkedUntil: number };
@@ -314,5 +325,5 @@ test('LACUNA EEL preview shows the sequential marked segments in early and late 
   state = await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_STATE__()) as unknown as typeof state;
   expect(state.metrics.eel.phaseReached).toEqual([true, true, true]);
   expect(state.boss?.phase).toBe(3);
-  await page.locator('#game').screenshot({ path: '../docs/evidence/m3-07-lacuna-eel-phase-3.png' });
+  await page.locator('#game').screenshot({ path: '../docs/evidence/m3-09-lacuna-eel-phase-3.png' });
 });

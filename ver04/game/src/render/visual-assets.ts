@@ -1,18 +1,13 @@
 export type SpriteId = 'player' | 'eraser-mite' | 'bracket-gull' | 'margin-skiff' | 'folio-hauler' | 'boss' | 'return'
-  | 'index-kite' | 'vane-scribe' | 'cross-reference-pair' | 'tab-binder' | 'compiler' | 'compiler-seam';
+  | 'index-kite' | 'vane-scribe' | 'cross-reference-pair' | 'tab-binder' | 'compiler' | 'compiler-seam'
+  | 'drip-scribe' | 'gutter-frog' | 'basin-bell' | 'reed-needle' | 'eel-head' | 'eel-segment' | 'eel-segment-marked';
 
 export interface SpriteFrame { x: number; y: number; width: number; height: number }
 
-const image = (stage: 'stage-01' | 'stage-02', path: string): HTMLImageElement => {
+const image = (stage: 'stage-01' | 'stage-02' | 'stage-03', path: string): HTMLImageElement => {
   const result = new Image();
   result.decoding = 'async';
   result.src = `${import.meta.env.BASE_URL}assets/${stage}/${path}`;
-  return result;
-};
-
-const blankImage = (): HTMLImageElement => {
-  const result = new Image();
-  result.src = 'data:image/gif;base64,R0lGODlhAQABAAAAACw=';
   return result;
 };
 
@@ -29,12 +24,15 @@ export const visuals = {
     fore: image('stage-02', 'crosswind-index-fore-v1.png'),
     sprites: image('stage-02', 'stage-02-sprites-v1.png')
   },
-  // Stage 3 remains a development preview until M3-09. Its authored rain and
-  // enemy silhouettes are Canvas-only and are not registered as final assets.
-  'stage-03': { far: blankImage(), mid: blankImage(), fore: blankImage(), sprites: blankImage() }
+  'stage-03': {
+    far: image('stage-03', 'rain-margin-far-v1.png'),
+    mid: image('stage-03', 'rain-margin-mid-v1.png'),
+    fore: image('stage-03', 'rain-margin-fore-v1.png'),
+    sprites: image('stage-03', 'stage-03-sprites-v1.png')
+  }
 };
 
-export const spriteFrames: Record<SpriteId, SpriteFrame & { stage: 'stage-01' | 'stage-02' }> = {
+export const spriteFrames: Record<SpriteId, SpriteFrame & { stage: 'stage-01' | 'stage-02' | 'stage-03' }> = {
   player: { stage: 'stage-01', x: 0, y: 0, width: 480, height: 360 },
   'eraser-mite': { stage: 'stage-01', x: 460, y: 65, width: 310, height: 300 },
   'bracket-gull': { stage: 'stage-01', x: 755, y: 0, width: 455, height: 360 },
@@ -47,7 +45,14 @@ export const spriteFrames: Record<SpriteId, SpriteFrame & { stage: 'stage-01' | 
   'cross-reference-pair': { stage: 'stage-02', x: 1210, y: 0, width: 564, height: 405 },
   'tab-binder': { stage: 'stage-02', x: 0, y: 390, width: 790, height: 497 },
   compiler: { stage: 'stage-02', x: 770, y: 400, width: 820, height: 487 },
-  'compiler-seam': { stage: 'stage-02', x: 1550, y: 410, width: 224, height: 350 }
+  'compiler-seam': { stage: 'stage-02', x: 1550, y: 410, width: 224, height: 350 },
+  'drip-scribe': { stage: 'stage-03', x: 0, y: 0, width: 330, height: 450 },
+  'gutter-frog': { stage: 'stage-03', x: 220, y: 60, width: 540, height: 400 },
+  'basin-bell': { stage: 'stage-03', x: 680, y: 0, width: 620, height: 490 },
+  'reed-needle': { stage: 'stage-03', x: 1150, y: 20, width: 624, height: 450 },
+  'eel-head': { stage: 'stage-03', x: 0, y: 460, width: 690, height: 427 },
+  'eel-segment': { stage: 'stage-03', x: 620, y: 470, width: 610, height: 417 },
+  'eel-segment-marked': { stage: 'stage-03', x: 1160, y: 460, width: 614, height: 427 }
 };
 
 export const assetsReady = Promise.all(Object.values(visuals).flatMap((stage) => Object.values(stage)).map((asset) => asset.decode().catch(() => undefined)));

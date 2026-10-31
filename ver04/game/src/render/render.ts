@@ -54,10 +54,7 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
     ctx.restore();
   }
   if (state.stageId === 'stage-03') {
-    const gradient = ctx.createLinearGradient(0, 0, 0, HEIGHT);
-    gradient.addColorStop(0, '#10283a'); gradient.addColorStop(1, '#071b22');
-    ctx.fillStyle = gradient; ctx.fillRect(0, 0, WIDTH, HEIGHT);
-    ctx.strokeStyle = 'rgba(145,226,255,.36)'; ctx.lineWidth = 2;
+    ctx.strokeStyle = 'rgba(190,230,244,.44)'; ctx.lineWidth = 2;
     for (let index = 0; index < 48; index += 1) {
       const x = (90 + ((Math.floor(state.tick / 18) - index) * 353) % 1100 + 1100) % 1100;
       const y = ((state.tick - index * 18) * 5) % (HEIGHT + 80) - 40;
@@ -133,13 +130,14 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
         drawSprite(ctx, kind, x, y, dimensions[0], dimensions[1]); ctx.restore();
       } else drawSprite(ctx, kind, x, y, dimensions[0], dimensions[1]);
     } else {
-      const colors = { 'drip-scribe': '#7de7ff', 'gutter-frog': '#b9f36b', 'basin-bell': '#70b9d6', 'reed-needle': '#f5d67a' } as const;
-      ctx.save(); ctx.translate(x, y); ctx.strokeStyle = colors[enemy.kind as keyof typeof colors]; ctx.fillStyle = 'rgba(5,24,31,.9)'; ctx.lineWidth = 4;
-      if (enemy.kind === 'basin-bell') { ctx.beginPath(); ctx.arc(0, 0, 52, Math.PI, 0); ctx.lineTo(38, 36); ctx.lineTo(-38, 36); ctx.closePath(); }
-      else if (enemy.kind === 'gutter-frog') { ctx.beginPath(); ctx.ellipse(0, 0, 34, 22, 0, 0, Math.PI * 2); }
-      else if (enemy.kind === 'reed-needle') { ctx.beginPath(); ctx.moveTo(-42, -10); ctx.lineTo(46, 0); ctx.lineTo(-42, 10); ctx.closePath(); }
-      else { diamond(ctx, 0, 0, 27); }
-      ctx.fill(); ctx.stroke(); ctx.restore();
+      const kind = enemy.kind as 'drip-scribe' | 'gutter-frog' | 'basin-bell' | 'reed-needle';
+      const dimensions = {
+        'drip-scribe': [62, 76], 'gutter-frog': [96, 66], 'basin-bell': [156, 110], 'reed-needle': [126, 58]
+      }[kind];
+      if (enemy.markedUntil >= state.tick) {
+        ctx.save(); ctx.shadowColor = '#ffe38a'; ctx.shadowBlur = 22;
+        drawSprite(ctx, kind, x, y, dimensions[0], dimensions[1]); ctx.restore();
+      } else drawSprite(ctx, kind, x, y, dimensions[0], dimensions[1]);
     }
     ctx.fillStyle = '#131725';
     ctx.fillRect(x - size, y + size + 14, size * 2, 7);
@@ -184,23 +182,26 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
     } else {
       const segments = ([0, 1, 2] as const).map((segment) => eelSegmentPoint(boss, state.tick, segment));
       ctx.save(); ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-      ctx.beginPath(); ctx.moveTo(x + 72, y);
+      ctx.beginPath(); ctx.moveTo(x + 35, y);
       for (const point of segments) ctx.lineTo(point.x / SCALE, point.y / SCALE);
-      ctx.strokeStyle = 'rgba(8,31,42,.94)'; ctx.lineWidth = 72; ctx.stroke();
-      ctx.strokeStyle = '#63c9be'; ctx.lineWidth = 6; ctx.stroke();
+      ctx.strokeStyle = 'rgba(5,19,27,.9)'; ctx.lineWidth = 58; ctx.stroke();
+      ctx.strokeStyle = 'rgba(135,214,204,.5)'; ctx.lineWidth = 3; ctx.stroke();
+      drawSprite(ctx, 'eel-head', x + 48, y, 210, 150);
       for (const [index, point] of segments.entries()) {
         const active = index === boss.activeSegment;
         const marked = active && boss.segmentMarkedUntil >= state.tick;
-        ctx.shadowColor = marked ? '#ffe27a' : '#6fffe0'; ctx.shadowBlur = active ? (marked ? 34 : 18) : 2;
-        ctx.fillStyle = marked ? '#ffe27a' : active ? '#8effdf' : '#183d47';
-        ctx.strokeStyle = active ? '#effff8' : '#4b8b91'; ctx.lineWidth = active ? 5 : 3;
-        ctx.beginPath(); ctx.arc(point.x / SCALE, point.y / SCALE, active ? 28 : 22, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-        ctx.fillStyle = '#06212b'; ctx.font = '700 14px system-ui, sans-serif'; ctx.textAlign = 'center';
-        ctx.fillText(String(index + 1), point.x / SCALE, point.y / SCALE + 5);
+        ctx.shadowColor = marked ? '#ffe27a' : '#6fffe0'; ctx.shadowBlur = active ? (marked ? 30 : 16) : 2;
+        drawSprite(ctx, marked ? 'eel-segment-marked' : 'eel-segment', point.x / SCALE, point.y / SCALE, active ? 162 : 145, active ? 104 : 92, active ? 1 : 0.72);
+        if (active) {
+          ctx.strokeStyle = marked ? '#ffe69b' : '#d9fff7'; ctx.lineWidth = marked ? 4 : 2;
+          ctx.setLineDash(marked ? [3, 7] : [14, 7]);
+          ctx.beginPath(); ctx.ellipse(point.x / SCALE, point.y / SCALE, 70, 47, 0, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]);
+        }
       }
       if (boss.segmentMarkedUntil >= state.tick) {
         const active = segments[boss.activeSegment]; ctx.fillStyle = '#ffeaa0'; ctx.font = '700 13px system-ui, sans-serif';
-        ctx.fillText(`WET MARK  ${Math.ceil((boss.segmentMarkedUntil - state.tick) / TICK_RATE)}s`, active.x / SCALE, active.y / SCALE - 42);
+        ctx.textAlign = 'center';
+        ctx.fillText(`WET SEAL  ${Math.ceil((boss.segmentMarkedUntil - state.tick) / TICK_RATE)}s`, active.x / SCALE, active.y / SCALE - 60);
       }
       ctx.textAlign = 'start'; ctx.restore();
     }
@@ -224,6 +225,11 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
       ctx.strokeStyle = bullet.annotated ? '#fcd170' : '#a8f7ff';
       ctx.lineWidth = bullet.annotated ? 5 : 3;
       ctx.beginPath(); ctx.moveTo(x - (bullet.annotated ? 16 : 8), y); ctx.lineTo(x + 8, y); ctx.stroke();
+      if (bullet.wetAnnotated) {
+        ctx.strokeStyle = '#d9fff7'; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(x - 15, y - 6); ctx.lineTo(x + 6, y - 6); ctx.stroke();
+        diamond(ctx, x - 18, y, 4); ctx.fillStyle = '#8fffe0'; ctx.fill();
+      }
     }
   }
 

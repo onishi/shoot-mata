@@ -110,11 +110,34 @@
       "editHistory": ["Synthesized as six 44.1 kHz stereo PCM16 files; connected to simulation events and inspected in the worst-case Stage 2 mix."], "dimensions": "6 files, 0.20s to 0.86s, stereo 44.1kHz PCM16", "license": "project-original"
     },
     {
-      "id": "stage-03-canvas-preview-v1", "kind": "procedural-visual", "path": "src/render/render.ts",
-      "stage": "Stage 3: The Rain Margin", "usage": "development-only rain, wet-trail overlay and four normal-enemy silhouettes",
-      "version": 1, "status": "prototype", "createdBy": "procedural",
-      "sourcePrompt": "none; authored Canvas preview for the Stage 3 simulation rules",
-      "generatedAt": "2026-10-31", "editHistory": ["Added deterministic rainfall, mint wet-wake overlay and role-specific geometric enemy silhouettes; replace during the Stage 3 visual-production task."],
+      "id": "stage-03-rain-margin-far-v1", "kind": "background-raster", "path": "public/assets/stage-03/rain-margin-far-v1.png",
+      "stage": "Stage 3: The Rain Margin", "usage": "opaque far parallax layer with rain gutters, vertical gardens and reflected water terraces", "version": 1, "status": "final", "createdBy": "image-generation",
+      "sourcePrompt": "Stage 3 The Rain Margin: original airborne rain-annotated gallery of colossal gutters, reed-brush columns, hanging vertical gardens, basins and manuscript architecture in an indigo storm; polished hand-painted 2D background with a calm dark central play band; moss green, silver and cyan reflection; no characters, text or watermark.",
+      "generatedAt": "2026-10-31", "editHistory": ["Built-in image generation output copied without pixel edits; runtime crops to 1280x720 cover."], "dimensions": "1672x941 RGB", "license": "project-original"
+    },
+    {
+      "id": "stage-03-rain-margin-mid-v1", "kind": "background-raster", "path": "public/assets/stage-03/rain-margin-mid-v1.png",
+      "stage": "Stage 3: The Rain Margin", "usage": "transparent middle parallax gutters, reed trellises, vertical gardens, basins and waterfall ribbons", "version": 1, "status": "final", "createdBy": "image-generation",
+      "sourcePrompt": "Transparent wide middle layer for The Rain Margin: open rain gutters, reed-brush trellises, hanging gardens, suspended basins and narrow waterfalls arranged at the top and bottom around an open gameplay center; hand-painted wet graphite, indigo and moss-green science-fantasy forms; no characters, text or watermark.",
+      "generatedAt": "2026-10-31", "editHistory": ["Built-in image generation output copied without pixel edits; alpha preserved."], "dimensions": "1672x941 RGBA", "license": "project-original"
+    },
+    {
+      "id": "stage-03-rain-margin-fore-v1", "kind": "background-raster", "path": "public/assets/stage-03/rain-margin-fore-v1.png",
+      "stage": "Stage 3: The Rain Margin", "usage": "transparent foreground gutter mouths, wet reed cables, leaves, rain chains and droplets", "version": 1, "status": "final", "createdBy": "image-generation",
+      "sourcePrompt": "Transparent sparse foreground for The Rain Margin: cropped black-indigo gutter mouths, braided wet reed cables, glossy leaves, silver rain chains and hanging droplets at extreme corners and edges with an unobstructed center; no characters, UI, text or watermark.",
+      "generatedAt": "2026-10-31", "editHistory": ["Built-in image generation output copied without pixel edits; alpha preserved."], "dimensions": "1672x941 RGBA", "license": "project-original"
+    },
+    {
+      "id": "stage-03-sprites-v1", "kind": "sprite-atlas-raster", "path": "public/assets/stage-03/stage-03-sprites-v1.png",
+      "stage": "Stage 3: The Rain Margin", "usage": "Drip Scribe, Gutter Frog, Basin Bell, Reed Needle, LACUNA EEL head, ordinary segment and double-outlined wet-mark segment", "version": 1, "status": "final", "createdBy": "image-generation",
+      "sourcePrompt": "Transparent two-row production atlas with seven original rain-gallery creatures: diamond Drip Scribe with three nozzles, spring-legged Gutter Frog, bowl-and-bell Basin Bell, spear-shaped Reed Needle, serpentine LACUNA EEL head, armored body segment and a separate double-outlined droplet-notched wet-seal segment; wet graphite, moss green, indigo, silver, cyan and pale gold; no labels, scenery, grid, text or watermark.",
+      "generatedAt": "2026-10-31", "editHistory": ["Built-in image generation output copied without pixel edits.", "Runtime source rectangles documented in src/render/visual-assets.ts; alpha preserved."], "dimensions": "1774x887 RGBA", "license": "project-original"
+    },
+    {
+      "id": "stage-03-canvas-effects-v1", "kind": "procedural-visual", "path": "src/render/render.ts",
+      "stage": "Stage 3: The Rain Margin", "usage": "silver rain, mint wet-wake overlay, double-line wet annotation, sequential wet seal, atlas-backed enemies and three-layer parallax", "version": 1, "status": "final", "createdBy": "procedural",
+      "sourcePrompt": "none; authored Canvas compositing from docs/02-art-and-audio-direction.md sections 1, 3, 4 and 5",
+      "generatedAt": "2026-10-31", "editHistory": ["Removed all Stage 3 preview enemy primitives and gradient backdrop, then connected final backgrounds and sprites.", "Wet annotated fire uses a second rail and diamond droplet; the active eel segment uses a dashed contour and the wet seal swaps to a double-outlined droplet-notched atlas frame."],
       "dimensions": "1280x720 logical canvas", "license": "project-original"
     }
   ]
