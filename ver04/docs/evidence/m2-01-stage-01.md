@@ -2,15 +2,15 @@
 
 - Duration: 21600 ticks (180 seconds)
 - Scheduled spawns: 76
-- Max enemies / enemy bullets: 10 / 113
-- Longest no-combat gap: 0 ticks
-- Determinism hashes: 042adf795061c696, 042adf795061c696, 042adf795061c696, 042adf795061c696
+- Max enemies / enemy bullets: 10 / 101
+- Longest no-combat gap: 291 ticks
+- Determinism hashes: 32496414011e3ca8, 32496414011e3ca8, 32496414011e3ca8, 32496414011e3ca8
 
 | Enemy | Spawned | Attacks | Defeated | Exited |
 | --- | ---: | ---: | ---: | ---: |
-| eraser-mite | 25 | 231 | 12 | 13 |
-| bracket-gull | 32 | 257 | 3 | 29 |
-| margin-skiff | 17 | 245 | 1 | 16 |
+| eraser-mite | 25 | 192 | 14 | 11 |
+| bracket-gull | 32 | 248 | 6 | 26 |
+| margin-skiff | 17 | 243 | 2 | 15 |
 | folio-hauler | 2 | 56 | 0 | 2 |
 
 | Gate | Result |

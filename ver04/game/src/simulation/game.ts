@@ -1,6 +1,6 @@
 import { clamp, distanceSq, pointInPolygon } from '../core/math';
-import { HEIGHT, SCALE, TICK_RATE, WIDTH, type Bullet, type Enemy, type EnemyKind, type GameEvent, type GameState, type InputFrame, type Point } from '../core/types';
-import { STAGE_01_DURATION_TICKS, STAGE_01_ENTITY_LIMITS, STAGE_01_SPAWNS, type StageEnemySpawn } from '../content/stage-01';
+import { HEIGHT, SCALE, TICK_RATE, WIDTH, type BossState, type Bullet, type Enemy, type EnemyKind, type GameEvent, type GameState, type InputFrame, type Point } from '../core/types';
+import { STAGE_01_BOSS_START_TICK, STAGE_01_DURATION_TICKS, STAGE_01_ENTITY_LIMITS, STAGE_01_SPAWNS, type StageEnemySpawn } from '../content/stage-01';
 import { findLoopCandidate, shotCrossedTrail, shouldAddTrailPoint } from './trail';
 
 const PLAYER_SPEED = Math.round(320 * SCALE / TICK_RATE);
@@ -53,9 +53,11 @@ export const createInitialState = (seed = 1): GameState => {
   candidate: null,
   bullets: [],
   enemies: [],
+  boss: null,
   encounterIndex: 0,
   retrace: null,
-  metrics: { candidates: 0, loops: 0, emptyLoops: 0, missedCollates: 0, captured: 0, annotatedShots: 0, retraces: 0, damage: 0, enemiesDefeated: 0, haulersDefeated: 0, firstHaulerDefeatTick: null, enemyShots: 0, enemyStats: emptyEnemyStats(), rejectedEnemies: 0, rejectedEnemyBullets: 0 }
+  metrics: { candidates: 0, loops: 0, emptyLoops: 0, missedCollates: 0, captured: 0, annotatedShots: 0, retraces: 0, damage: 0, enemiesDefeated: 0, haulersDefeated: 0, firstHaulerDefeatTick: null, enemyShots: 0, enemyStats: emptyEnemyStats(), rejectedEnemies: 0, rejectedEnemyBullets: 0,
+    boss: { spawned: false, defeated: false, defeatTick: null, phaseReached: [false, false, false], fanWarnings: 0, fanErases: 0, trailPointsErased: 0, returnedHits: 0, ordinaryHits: 0, armorLayersStripped: 0, damageByAttack: { fan: 0, sweep: 0, volley: 0 } } }
   };
   state.enemies.push(createEnemy(state, STAGE_01_SPAWNS[0]));
   state.metrics.enemyStats[STAGE_01_SPAWNS[0].kind].spawned += 1;
@@ -70,11 +72,12 @@ const copyState = (state: GameState): GameState => ({
   candidate: state.candidate ? { ...state.candidate, intersection: { ...state.candidate.intersection }, polygon: state.candidate.polygon.map((point) => ({ ...point })) } : null,
   bullets: state.bullets.map((bullet) => ({ ...bullet })),
   enemies: state.enemies.map((enemy) => ({ ...enemy })),
+  boss: state.boss ? { ...state.boss } : null,
   retrace: state.retrace ? { index: state.retrace.index, points: state.retrace.points.map((point) => ({ ...point })) } : null,
-  metrics: { ...state.metrics, enemyStats: Object.fromEntries(Object.entries(state.metrics.enemyStats).map(([kind, stats]) => [kind, { ...stats }])) as GameState['metrics']['enemyStats'] }
+  metrics: { ...state.metrics, enemyStats: Object.fromEntries(Object.entries(state.metrics.enemyStats).map(([kind, stats]) => [kind, { ...stats }])) as GameState['metrics']['enemyStats'], boss: { ...state.metrics.boss, phaseReached: [...state.metrics.boss.phaseReached], damageByAttack: { ...state.metrics.boss.damageByAttack } } }
 });
 
-const spawnEnemyBullet = (state: GameState, enemy: Point, angleOffset = 0, speedPx = 145): boolean => {
+const spawnEnemyBullet = (state: GameState, enemy: Point, angleOffset = 0, speedPx = 145, sourceAttack: Bullet['sourceAttack'] = 'enemy-volley'): boolean => {
   if (state.bullets.filter((bullet) => bullet.kind === 'enemy').length >= STAGE_01_ENTITY_LIMITS.enemyBullets) {
     state.metrics.rejectedEnemyBullets += 1;
     return false;
@@ -84,9 +87,61 @@ const spawnEnemyBullet = (state: GameState, enemy: Point, angleOffset = 0, speed
   const dy = Math.sin(aim);
   const length = Math.max(1, Math.hypot(dx, dy));
   const speed = speedPx * SCALE / TICK_RATE;
-  state.bullets.push({ id: state.nextId++, x: enemy.x, y: enemy.y, vx: Math.round(dx / length * speed), vy: Math.round(dy / length * speed), radius: 8, kind: 'enemy', annotated: false, capturable: true });
+  state.bullets.push({ id: state.nextId++, x: enemy.x, y: enemy.y, vx: Math.round(dx / length * speed), vy: Math.round(dy / length * speed), radius: 8, kind: 'enemy', annotated: false, capturable: true, sourceAttack });
   state.metrics.enemyShots += 1;
   return true;
+};
+
+const createBoss = (state: GameState): BossState => ({
+  x: 1050 * SCALE, y: 360 * SCALE, health: 1200, maxHealth: 1200,
+  armor: 300, maxArmor: 300, armorLayers: 3, phase: 1,
+  phaseStartedAt: state.tick, cycleStartedAt: state.tick,
+  fanAngle: Math.PI, fanWarningUntil: state.tick + 90, fanFiresAt: state.tick + 90,
+  defeatedAt: null
+});
+
+const angleDifference = (a: number, b: number): number => Math.abs(Math.atan2(Math.sin(a - b), Math.cos(a - b)));
+
+const updateBoss = (state: GameState, events: GameEvent[]): void => {
+  if (!state.boss && state.tick >= STAGE_01_BOSS_START_TICK && !state.metrics.boss.defeated) {
+    // The harbor route closes before the duel: stale formation fire must not
+    // obscure the Bailiff's first authored warning.
+    state.bullets = state.bullets.filter((bullet) => bullet.kind !== 'enemy');
+    state.boss = createBoss(state);
+    state.metrics.boss.spawned = true;
+    state.metrics.boss.phaseReached[0] = true;
+    state.metrics.boss.fanWarnings += 1;
+    events.push({ type: 'boss-spawned' });
+  }
+  const boss = state.boss;
+  if (!boss) return;
+  boss.y = 360 * SCALE + Math.round(Math.sin((state.tick - STAGE_01_BOSS_START_TICK) / 180) * 72 * SCALE);
+
+  if (state.tick === boss.fanFiresAt) {
+    const before = state.trail.length;
+    state.trail = state.trail.filter((point) => {
+      const angle = Math.atan2(point.y - boss.y, point.x - boss.x);
+      return distanceSq(point, boss) > (850 * SCALE) ** 2 || angleDifference(angle, boss.fanAngle) > 0.48;
+    });
+    state.metrics.boss.trailPointsErased += before - state.trail.length;
+    state.metrics.boss.fanErases += 1;
+    state.candidate = null;
+    for (const offset of [-0.42, -0.28, -0.14, 0, 0.14, 0.28, 0.42]) spawnEnemyBullet(state, boss, offset, 118 + boss.phase * 8, 'boss-fan');
+  }
+
+  const cycleLength = boss.phase === 1 ? 360 : boss.phase === 2 ? 300 : 240;
+  const age = state.tick - boss.cycleStartedAt;
+  if (age > 0 && age % 120 === 0) {
+    const spread = boss.phase === 1 ? [-0.18, 0, 0.18] : boss.phase === 2 ? [-0.3, -0.15, 0, 0.15, 0.3] : [-0.42, -0.28, -0.14, 0, 0.14, 0.28, 0.42];
+    for (const offset of spread) spawnEnemyBullet(state, boss, offset, 150, boss.phase === 3 ? 'boss-sweep' : 'enemy-volley');
+  }
+  if (age >= cycleLength) {
+    boss.cycleStartedAt = state.tick;
+    boss.fanAngle = Math.atan2(state.player.y - boss.y, state.player.x - boss.x);
+    boss.fanWarningUntil = state.tick + 90;
+    boss.fanFiresAt = state.tick + 90;
+    state.metrics.boss.fanWarnings += 1;
+  }
 };
 
 const spawnDueEncounters = (state: GameState): void => {
@@ -182,10 +237,11 @@ const collate = (state: GameState, events: GameEvent[]): void => {
   const ids = new Set(selected.map((bullet) => bullet.id));
   state.bullets = state.bullets.filter((bullet) => !ids.has(bullet.id));
   for (const captured of selected) {
-    const enemy = state.enemies.slice().sort((a, b) => distanceSq(a, captured) - distanceSq(b, captured) || a.id - b.id)[0];
-    if (!enemy) continue;
-    const dx = enemy.x - captured.x;
-    const dy = enemy.y - captured.y;
+    const targets: Point[] = [...state.enemies, ...(state.boss ? [state.boss] : [])];
+    const target = targets.sort((a, b) => distanceSq(a, captured) - distanceSq(b, captured))[0];
+    if (!target) continue;
+    const dx = target.x - captured.x;
+    const dy = target.y - captured.y;
     const length = Math.max(1, Math.hypot(dx, dy));
     const speed = 500 * SCALE / TICK_RATE;
     state.bullets.push({ id: state.nextId++, x: captured.x, y: captured.y, vx: Math.round(dx / length * speed), vy: Math.round(dy / length * speed), radius: 5, kind: 'return', annotated: true, capturable: false });
@@ -220,6 +276,7 @@ export const step = (previous: GameState, input: InputFrame): { state: GameState
   updatePlayer(state, input);
 
   spawnDueEncounters(state);
+  updateBoss(state, events);
 
   state.trail = state.trail.filter((point) => state.tick - point.bornTick <= TRAIL_LIFETIME);
   if (state.candidate?.expiresTick && state.candidate.expiresTick < state.tick) state.candidate = null;
@@ -258,7 +315,46 @@ export const step = (previous: GameState, input: InputFrame): { state: GameState
   for (const bullet of state.bullets) {
     let consumed = false;
     if (bullet.kind !== 'enemy') {
+      const boss = state.boss;
+      if (boss && distanceSq(bullet, boss) <= ((bullet.radius + 92) * SCALE) ** 2) {
+        const returned = bullet.kind === 'return';
+        if (boss.armorLayers > 0) {
+          const damage = returned ? 90 : bullet.annotated ? 3 : 1;
+          boss.armor -= damage;
+          if (returned) state.metrics.boss.returnedHits += 1;
+          else state.metrics.boss.ordinaryHits += 1;
+          if (boss.armor <= 0) {
+            boss.armorLayers -= 1;
+            state.metrics.boss.armorLayersStripped += 1;
+            if (boss.armorLayers > 0) boss.armor = boss.maxArmor;
+            const nextPhase = Math.min(3, 4 - boss.armorLayers) as 1 | 2 | 3;
+            if (nextPhase > boss.phase) {
+              boss.phase = nextPhase;
+              boss.phaseStartedAt = state.tick;
+              boss.cycleStartedAt = state.tick;
+              state.metrics.boss.phaseReached[nextPhase - 1] = true;
+              events.push({ type: 'boss-phase', phase: nextPhase });
+            }
+          }
+        } else {
+          const damage = returned ? 72 : bullet.annotated ? 28 : 4;
+          boss.health -= damage;
+          if (returned) state.metrics.boss.returnedHits += 1;
+          else state.metrics.boss.ordinaryHits += 1;
+          if (boss.health <= 0) {
+            boss.health = 0;
+            boss.defeatedAt = state.tick;
+            state.metrics.boss.defeated = true;
+            state.metrics.boss.defeatTick = state.tick;
+            state.score += 25000;
+            events.push({ type: 'boss-defeated' });
+            state.boss = null;
+          }
+        }
+        consumed = true;
+      }
       for (const enemy of state.enemies) {
+        if (consumed) break;
         if (defeated.has(enemy.id)) continue;
         if (distanceSq(bullet, enemy) <= ((bullet.radius + enemy.radius) * SCALE) ** 2) {
           // A successful loop must repay the travel and firing opportunity cost.
@@ -293,6 +389,9 @@ export const step = (previous: GameState, input: InputFrame): { state: GameState
       state.trail = [];
       state.candidate = null;
       state.metrics.damage += 1;
+      if (bullet.sourceAttack === 'boss-fan') state.metrics.boss.damageByAttack.fan += 1;
+      else if (bullet.sourceAttack === 'boss-sweep') state.metrics.boss.damageByAttack.sweep += 1;
+      else if (state.boss) state.metrics.boss.damageByAttack.volley += 1;
       consumed = true;
       events.push({ type: 'damage' });
     }

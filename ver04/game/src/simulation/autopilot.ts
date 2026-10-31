@@ -21,7 +21,7 @@ const nearestThreat = (state: GameState) => state.bullets
 
 const visibleTarget = (state: GameState) => state.enemies
   .slice()
-  .sort((a, b) => Number(b.kind === 'folio-hauler') - Number(a.kind === 'folio-hauler') || a.id - b.id)[0];
+  .sort((a, b) => Number(b.kind === 'folio-hauler') - Number(a.kind === 'folio-hauler') || a.id - b.id)[0] ?? state.boss;
 
 export const countCandidateTargets = (state: GameState): number => {
   if (!state.candidate) return 0;
@@ -111,7 +111,7 @@ export const createPilot = (name: PilotName): ((state: GameState) => InputFrame)
     }
 
     if (waypoints.length === 0) {
-      const centerX = name === 'safe' ? px(300) : Math.min(px(1030), Math.max(px(650), target?.x ?? px(900)));
+      const centerX = name === 'safe' ? px(300) : Math.min(px(910), Math.max(px(650), target?.x ?? px(900)));
       const rawCenterY = name === 'safe'
         ? Math.min(px(600), Math.max(px(120), state.player.y))
         : Math.min(px(570), Math.max(px(150), target?.y ?? px(360)));

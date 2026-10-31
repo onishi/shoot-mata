@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { px } from '../src/core/math';
 import { createInitialState, step } from '../src/simulation/game';
+import { STAGE_01_BOSS_START_TICK, STAGE_01_SPAWNS } from '../src/content/stage-01';
 import { findLoopCandidate } from '../src/simulation/trail';
 import type { GameState, InputFrame, TrailPoint } from '../src/core/types';
 
@@ -137,5 +138,50 @@ describe('M1 deterministic playground', () => {
     state = step(state, {}).state;
     expect(state.metrics.enemiesDefeated).toBe(1);
     expect(state.metrics.enemyStats['eraser-mite'].defeated).toBe(1);
+  });
+
+  it('spawns BLANK BAILIFF after the normal route and telegraphs before erasing the aimed trail fan', () => {
+    let state = createInitialState();
+    state.tick = STAGE_01_BOSS_START_TICK - 1;
+    state.encounterIndex = STAGE_01_SPAWNS.length;
+    state.enemies = [];
+    state.trail = Array.from({ length: 16 }, (_, index) => trailPoint(780 + index * 8, 360, state.tick - index));
+    let result = step(state, {});
+    expect(result.events).toContainEqual({ type: 'boss-spawned' });
+    expect(result.state.boss?.fanWarningUntil).toBeGreaterThan(result.state.tick);
+    const before = result.state.trail.length;
+    for (let tick = 0; tick < 90; tick += 1) result = step(result.state, {});
+    expect(result.state.metrics.boss.fanErases).toBe(1);
+    expect(result.state.metrics.boss.trailPointsErased).toBeGreaterThan(0);
+    expect(result.state.trail.length).toBeLessThan(before);
+  });
+
+  it('makes returned fire strip a Bailiff armor text much faster than ordinary fire', () => {
+    const hit = (kind: 'player' | 'return') => {
+      let state = createInitialState();
+      state.tick = STAGE_01_BOSS_START_TICK - 1;
+      state.encounterIndex = STAGE_01_SPAWNS.length;
+      state.enemies = [];
+      state = step(state, {}).state;
+      const boss = state.boss!;
+      state.bullets = [{ id: 900, x: boss.x, y: boss.y, vx: 0, vy: 0, radius: 5, kind, annotated: kind === 'return', capturable: false }];
+      return step(state, {}).state.boss!.armor;
+    };
+    expect(hit('return')).toBe(210);
+    expect(hit('player')).toBe(299);
+  });
+
+  it('advances the Bailiff phase when an armor text is stripped', () => {
+    let state = createInitialState();
+    state.tick = STAGE_01_BOSS_START_TICK - 1;
+    state.encounterIndex = STAGE_01_SPAWNS.length;
+    state.enemies = [];
+    state = step(state, {}).state;
+    state.boss!.armor = 1;
+    state.bullets = [{ id: 901, x: state.boss!.x, y: state.boss!.y, vx: 0, vy: 0, radius: 5, kind: 'return', annotated: true, capturable: false }];
+    const result = step(state, {});
+    expect(result.state.boss?.phase).toBe(2);
+    expect(result.state.boss?.armorLayers).toBe(2);
+    expect(result.events).toContainEqual({ type: 'boss-phase', phase: 2 });
   });
 });

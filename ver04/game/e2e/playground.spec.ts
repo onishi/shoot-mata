@@ -36,6 +36,22 @@ test('Stage 1 keyboard actions and pause are visible in Chrome', async ({ page }
   await page.evaluate(() => (window as unknown as { __PALIMPSEST_ADVANCE__: (ticks: number) => number }).__PALIMPSEST_ADVANCE__(7000));
   await page.waitForTimeout(100);
   await canvas.screenshot({ path: '../docs/evidence/m2-01-setpiece.png' });
+  await page.evaluate(() => {
+    const qa = window as unknown as { __PALIMPSEST_STATE__: () => { tick: number }; __PALIMPSEST_ADVANCE__: (ticks: number) => number };
+    return qa.__PALIMPSEST_ADVANCE__(Math.max(0, 21600 - qa.__PALIMPSEST_STATE__().tick));
+  });
+  await page.waitForTimeout(100);
+  const bossPhaseOne = await page.evaluate(() => (window as unknown as { __PALIMPSEST_STATE__: () => { boss: { phase: number; fanWarningUntil: number } | null; tick: number } }).__PALIMPSEST_STATE__());
+  expect(bossPhaseOne.boss?.phase).toBe(1);
+  expect(bossPhaseOne.boss!.fanWarningUntil).toBeGreaterThanOrEqual(bossPhaseOne.tick);
+  await canvas.screenshot({ path: '../docs/evidence/m2-02-boss-warning.png' });
+  await page.evaluate(() => (window as unknown as { __PALIMPSEST_AUTOPLAY__: (ticks: number) => number }).__PALIMPSEST_AUTOPLAY__(4500));
+  await page.waitForTimeout(100);
+  const laterPhase = await page.evaluate(() => (window as unknown as { __PALIMPSEST_STATE__: () => { boss: { phase: number; armorLayers: number } | null; metrics: { boss: { phaseReached: boolean[] } } } }).__PALIMPSEST_STATE__());
+  expect(laterPhase.metrics.boss.phaseReached.filter(Boolean).length).toBeGreaterThanOrEqual(2);
+  expect(laterPhase.boss).not.toBeNull();
+  expect(laterPhase.boss!.armorLayers).toBeLessThan(3);
+  await canvas.screenshot({ path: '../docs/evidence/m2-02-boss-phase.png' });
   await page.keyboard.press('Escape');
   await page.waitForTimeout(100);
   await canvas.screenshot({ path: 'test-results/m1-paused.png' });

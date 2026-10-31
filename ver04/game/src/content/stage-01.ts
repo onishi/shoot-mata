@@ -49,4 +49,6 @@ export const STAGE_01_SPAWNS: StageEnemySpawn[] = [
 ].sort((a, b) => a.tick - b.tick || (a.lane ?? 0) - (b.lane ?? 0));
 
 export const STAGE_01_DURATION_TICKS = 180 * 120;
+export const STAGE_01_BOSS_START_TICK = STAGE_01_DURATION_TICKS;
+export const STAGE_01_MAX_TICKS = 300 * 120;
 export const STAGE_01_ENTITY_LIMITS = { enemies: 64, enemyBullets: 512 } as const;

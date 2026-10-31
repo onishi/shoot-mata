@@ -90,6 +90,47 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
     ctx.fillRect(x - size, y + size + 14, size * 2 * enemy.health / enemy.maxHealth, 7);
   }
 
+  if (state.boss) {
+    const boss = state.boss;
+    const x = boss.x / SCALE;
+    const y = boss.y / SCALE;
+    if (state.tick <= boss.fanWarningUntil) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(boss.fanAngle);
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.arc(0, 0, 850, -0.48, 0.48);
+      ctx.closePath();
+      ctx.fillStyle = `rgba(255, 107, 92, ${0.08 + Math.abs(Math.sin(state.tick / 7)) * 0.09})`;
+      ctx.fill();
+      ctx.strokeStyle = '#ff8b72';
+      ctx.lineWidth = 3;
+      ctx.setLineDash([18, 14]);
+      ctx.stroke();
+      ctx.restore();
+    }
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.fillStyle = '#1d1525';
+    ctx.strokeStyle = boss.armorLayers > 0 ? '#f3d69b' : '#67e8f9';
+    ctx.lineWidth = 5;
+    ctx.beginPath();
+    ctx.moveTo(82, -112); ctx.lineTo(-68, -78); ctx.lineTo(-102, 0);
+    ctx.lineTo(-68, 78); ctx.lineTo(82, 112); ctx.lineTo(44, 0); ctx.closePath();
+    ctx.fill(); ctx.stroke();
+    for (let layer = 0; layer < 3; layer += 1) {
+      ctx.strokeStyle = layer < boss.armorLayers ? '#f3d69b' : '#503b4d';
+      ctx.lineWidth = 8;
+      ctx.beginPath();
+      ctx.arc(-12, 0, 44 + layer * 18, -1.15, 1.15);
+      ctx.stroke();
+    }
+    ctx.fillStyle = boss.armorLayers === 0 ? '#67e8f9' : '#ff8b72';
+    ctx.beginPath(); ctx.arc(-14, 0, 16, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+  }
+
   for (const bullet of state.bullets) {
     const x = bullet.x / SCALE;
     const y = bullet.y / SCALE;
@@ -131,10 +172,22 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
   ctx.fillText(`SCORE ${String(state.score).padStart(7, '0')}`, 1035, 33);
   ctx.fillStyle = '#8ea6bd';
   ctx.font = '600 14px system-ui, sans-serif';
-  ctx.fillText(`${Math.min(180, Math.floor(state.tick / TICK_RATE)).toString().padStart(3, '0')} / 180s`, 910, 32);
+  ctx.fillText(state.boss || state.metrics.boss.defeated ? 'BOSS' : `${Math.min(180, Math.floor(state.tick / TICK_RATE)).toString().padStart(3, '0')} / 180s`, 910, 32);
   for (let i = 0; i < 3; i += 1) {
     ctx.fillStyle = i < state.player.health ? '#a8f7ff' : '#283449';
     diamond(ctx, 650 + i * 26, 27, 8); ctx.fill();
+  }
+  if (state.boss) {
+    const boss = state.boss;
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#f5e6c8';
+    ctx.font = '700 16px system-ui, sans-serif';
+    ctx.fillText(`BLANK BAILIFF  ·  PHASE ${boss.phase}`, WIDTH / 2, 76);
+    ctx.fillStyle = '#251927'; ctx.fillRect(430, 87, 420, 10);
+    ctx.fillStyle = boss.armorLayers > 0 ? '#f3d69b' : '#67e8f9';
+    const ratio = boss.armorLayers > 0 ? ((boss.armorLayers - 1) + Math.max(0, boss.armor) / boss.maxArmor) / 3 : boss.health / boss.maxHealth;
+    ctx.fillRect(430, 87, 420 * ratio, 10);
+    ctx.textAlign = 'start';
   }
   ctx.fillStyle = '#adc2cf';
   ctx.font = '15px system-ui, sans-serif';

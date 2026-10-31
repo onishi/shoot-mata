@@ -3,33 +3,33 @@
   "durationTicks": 21600,
   "scheduledSpawns": 76,
   "seed": 2401,
-  "finalHash": "042adf795061c696",
+  "finalHash": "32496414011e3ca8",
   "replayHashes": [
-    "042adf795061c696",
-    "042adf795061c696",
-    "042adf795061c696"
+    "32496414011e3ca8",
+    "32496414011e3ca8",
+    "32496414011e3ca8"
   ],
   "maxEnemies": 10,
-  "maxEnemyBullets": 113,
-  "maxCombatGapTicks": 0,
+  "maxEnemyBullets": 101,
+  "maxCombatGapTicks": 291,
   "stats": {
     "eraser-mite": {
       "spawned": 25,
-      "attacks": 231,
-      "defeated": 12,
-      "exited": 13
+      "attacks": 192,
+      "defeated": 14,
+      "exited": 11
     },
     "bracket-gull": {
       "spawned": 32,
-      "attacks": 257,
-      "defeated": 3,
-      "exited": 29
+      "attacks": 248,
+      "defeated": 6,
+      "exited": 26
     },
     "margin-skiff": {
       "spawned": 17,
-      "attacks": 245,
-      "defeated": 1,
-      "exited": 16
+      "attacks": 243,
+      "defeated": 2,
+      "exited": 15
     },
     "folio-hauler": {
       "spawned": 2,

@@ -13,6 +13,7 @@ export interface Bullet extends Point {
   kind: 'player' | 'enemy' | 'return';
   annotated: boolean;
   capturable: boolean;
+  sourceAttack?: 'enemy-volley' | 'boss-fan' | 'boss-sweep';
 }
 export type EnemyKind = 'eraser-mite' | 'bracket-gull' | 'margin-skiff' | 'folio-hauler';
 export interface Enemy extends Point {
@@ -33,6 +34,20 @@ export interface Enemy extends Point {
   groupId: number;
   state: 'entering' | 'active' | 'exiting';
   stateTick: number;
+}
+export interface BossState extends Point {
+  health: number;
+  maxHealth: number;
+  armor: number;
+  maxArmor: number;
+  armorLayers: number;
+  phase: 1 | 2 | 3;
+  phaseStartedAt: number;
+  cycleStartedAt: number;
+  fanAngle: number;
+  fanWarningUntil: number;
+  fanFiresAt: number;
+  defeatedAt: number | null;
 }
 export interface LoopCandidate {
   polygon: Point[];
@@ -58,7 +73,10 @@ export type GameEvent =
   | { type: 'retrace-started' }
   | { type: 'retrace-denied' }
   | { type: 'damage' }
-  | { type: 'enemy-defeated' };
+  | { type: 'enemy-defeated' }
+  | { type: 'boss-spawned' }
+  | { type: 'boss-phase'; phase: 1 | 2 | 3 }
+  | { type: 'boss-defeated' };
 export interface Metrics {
   candidates: number;
   loops: number;
@@ -75,6 +93,19 @@ export interface Metrics {
   enemyStats: Record<EnemyKind, { spawned: number; attacks: number; defeated: number; exited: number }>;
   rejectedEnemies: number;
   rejectedEnemyBullets: number;
+  boss: {
+    spawned: boolean;
+    defeated: boolean;
+    defeatTick: number | null;
+    phaseReached: [boolean, boolean, boolean];
+    fanWarnings: number;
+    fanErases: number;
+    trailPointsErased: number;
+    returnedHits: number;
+    ordinaryHits: number;
+    armorLayersStripped: number;
+    damageByAttack: { fan: number; sweep: number; volley: number };
+  };
 }
 export interface GameState {
   tick: number;
@@ -87,6 +118,7 @@ export interface GameState {
   candidate: LoopCandidate | null;
   bullets: Bullet[];
   enemies: Enemy[];
+  boss: BossState | null;
   encounterIndex: number;
   retrace: { points: Point[]; index: number } | null;
   metrics: Metrics;

@@ -2,6 +2,7 @@ import './style.css';
 import { createInitialState, step } from './simulation/game';
 import { render } from './render/render';
 import { TICK_RATE, type InputFrame } from './core/types';
+import { createPilot } from './simulation/autopilot';
 
 const canvas = document.querySelector<HTMLCanvasElement>('#game');
 const status = document.querySelector<HTMLElement>('#status');
@@ -65,8 +66,16 @@ Object.assign(window, {
   // Deterministic QA hook used to inspect later Stage 1 compositions without
   // waiting in wall-clock time. It accepts no hidden input or state mutation.
   __PALIMPSEST_ADVANCE__: (ticks: number) => {
-    const count = Math.max(0, Math.min(21600, Math.floor(ticks)));
+    const count = Math.max(0, Math.min(36000, Math.floor(ticks)));
     for (let index = 0; index < count; index += 1) state = step(state, {}).state;
+    render(ctx, state, paused);
+    return state.tick;
+  },
+  // Human-limited deterministic controller used only for later-state visual QA.
+  __PALIMPSEST_AUTOPLAY__: (ticks: number) => {
+    const count = Math.max(0, Math.min(36000, Math.floor(ticks)));
+    const pilot = createPilot('stitch');
+    for (let index = 0; index < count; index += 1) state = step(state, pilot(state)).state;
     render(ctx, state, paused);
     return state.tick;
   }
