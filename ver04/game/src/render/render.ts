@@ -1,6 +1,7 @@
 import { HEIGHT, SCALE, TICK_RATE, WIDTH, type GameState, type Point } from '../core/types';
 import type { AppScreen, AppState } from '../app/app';
 import { eelSegmentPoint } from '../simulation/game';
+import { STAGE_04_COOLING_RADIUS_PX, stageFourCoolingCenter } from '../content/stage-04';
 import { drawSprite, visuals } from './visual-assets';
 
 const path = (ctx: CanvasRenderingContext2D, points: Point[]): void => {
@@ -20,14 +21,14 @@ const diamond = (ctx: CanvasRenderingContext2D, x: number, y: number, radius: nu
 };
 
 export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: boolean): void => {
-  const stageVisuals = visuals[state.stageId];
-  ctx.fillStyle = '#071121';
+  const stageVisuals = state.stageId === 'stage-04' ? null : visuals[state.stageId];
+  ctx.fillStyle = state.stageId === 'stage-04' ? '#1a0d0a' : '#071121';
   ctx.fillRect(0, 0, WIDTH, HEIGHT);
-  if (stageVisuals.far.complete && stageVisuals.far.naturalWidth > 0) {
+  if (stageVisuals?.far.complete && stageVisuals.far.naturalWidth > 0) {
     const farDrift = (state.tick / 80) % 42;
     ctx.drawImage(stageVisuals.far, -farDrift, 0, WIDTH + 84, HEIGHT);
   }
-  if (stageVisuals.mid.complete && stageVisuals.mid.naturalWidth > 0) {
+  if (stageVisuals?.mid.complete && stageVisuals.mid.naturalWidth > 0) {
     const midDrift = (state.tick / 34) % 110;
     ctx.save(); ctx.globalAlpha = 0.68;
     ctx.drawImage(stageVisuals.mid, -midDrift, 0, WIDTH + 220, HEIGHT);
@@ -60,6 +61,24 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
       const y = ((state.tick - index * 18) * 5) % (HEIGHT + 80) - 40;
       ctx.beginPath(); ctx.moveTo(x, y - 14); ctx.lineTo(x - 3, y + 8); ctx.stroke();
     }
+  }
+  if (state.stageId === 'stage-04') {
+    const cooling = stageFourCoolingCenter(state.tick);
+    const heat = ctx.createLinearGradient(0, 0, WIDTH, HEIGHT);
+    heat.addColorStop(0, 'rgba(87,31,16,.42)'); heat.addColorStop(0.55, 'rgba(34,15,13,.12)'); heat.addColorStop(1, 'rgba(184,61,20,.34)');
+    ctx.fillStyle = heat; ctx.fillRect(0, 0, WIDTH, HEIGHT);
+    ctx.save(); ctx.strokeStyle = 'rgba(255,133,62,.25)'; ctx.lineWidth = 2;
+    for (let y = 95; y < HEIGHT; y += 58) {
+      ctx.beginPath();
+      for (let x = 0; x <= WIDTH; x += 32) {
+        const waveY = y + Math.sin((x + state.tick * 2) / 75) * 7;
+        if (x === 0) ctx.moveTo(x, waveY); else ctx.lineTo(x, waveY);
+      }
+      ctx.stroke();
+    }
+    ctx.fillStyle = 'rgba(85,230,232,.1)'; ctx.strokeStyle = 'rgba(151,255,255,.72)'; ctx.lineWidth = 3; ctx.setLineDash([14, 9]);
+    ctx.beginPath(); ctx.arc(cooling.x, cooling.y, STAGE_04_COOLING_RADIUS_PX, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = '#b9ffff'; ctx.font = '700 13px system-ui, sans-serif'; ctx.textAlign = 'center'; ctx.fillText('COOLING SHADOW', cooling.x, cooling.y - STAGE_04_COOLING_RADIUS_PX - 10); ctx.textAlign = 'start'; ctx.restore();
   }
 
   if (state.candidate) {
@@ -101,6 +120,9 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
   const wetTrail = state.trail.filter((point) => (point.wetUntil ?? 0) >= state.tick);
   path(ctx, wetTrail);
   ctx.strokeStyle = 'rgba(126,255,213,.9)'; ctx.shadowColor = '#55f0cf'; ctx.shadowBlur = 15; ctx.lineWidth = 7; ctx.stroke(); ctx.shadowBlur = 0;
+  const cooledTrail = state.trail.filter((point) => (point.cooledUntil ?? 0) >= state.tick);
+  path(ctx, cooledTrail);
+  ctx.strokeStyle = 'rgba(176,255,255,.92)'; ctx.shadowColor = '#71f4ff'; ctx.shadowBlur = 18; ctx.lineWidth = 8; ctx.setLineDash([10, 6]); ctx.stroke(); ctx.setLineDash([]); ctx.shadowBlur = 0;
   ctx.lineWidth = 1.5;
   ctx.stroke();
   ctx.shadowBlur = 0;
@@ -129,7 +151,7 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
         ctx.save(); ctx.shadowColor = '#ffd477'; ctx.shadowBlur = 20;
         drawSprite(ctx, kind, x, y, dimensions[0], dimensions[1]); ctx.restore();
       } else drawSprite(ctx, kind, x, y, dimensions[0], dimensions[1]);
-    } else {
+    } else if (state.stageId === 'stage-03') {
       const kind = enemy.kind as 'drip-scribe' | 'gutter-frog' | 'basin-bell' | 'reed-needle';
       const dimensions = {
         'drip-scribe': [62, 76], 'gutter-frog': [96, 66], 'basin-bell': [156, 110], 'reed-needle': [126, 58]
@@ -138,6 +160,15 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
         ctx.save(); ctx.shadowColor = '#ffe38a'; ctx.shadowBlur = 22;
         drawSprite(ctx, kind, x, y, dimensions[0], dimensions[1]); ctx.restore();
       } else drawSprite(ctx, kind, x, y, dimensions[0], dimensions[1]);
+    } else {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.strokeStyle = enemy.markedUntil >= state.tick ? '#ffe58b' : '#ff9b58'; ctx.fillStyle = 'rgba(54,20,14,.9)'; ctx.lineWidth = 3;
+      if (enemy.kind === 'ash-comma') { ctx.beginPath(); ctx.arc(0, 0, 21, -1.1, 1.7); ctx.stroke(); }
+      else if (enemy.kind === 'kiln-censor') { ctx.fillRect(-28, -28, 56, 56); ctx.strokeRect(-28, -28, 56, 56); ctx.beginPath(); ctx.moveTo(-18, 0); ctx.lineTo(18, 0); ctx.stroke(); }
+      else if (enemy.kind === 'ember-courier') { diamond(ctx, 0, 0, 29); ctx.fill(); ctx.stroke(); ctx.fillStyle = '#7ef3ef'; ctx.fillRect(-5, -5, 10, 10); }
+      else { ctx.fillRect(-55, -34, 110, 68); ctx.strokeRect(-55, -34, 110, 68); ctx.beginPath(); ctx.moveTo(-45, -12); ctx.lineTo(45, -12); ctx.moveTo(-45, 12); ctx.lineTo(45, 12); ctx.stroke(); }
+      ctx.restore();
     }
     ctx.fillStyle = '#131725';
     ctx.fillRect(x - size, y + size + 14, size * 2, 7);
@@ -244,7 +275,7 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
   ctx.lineWidth = 3;
   ctx.stroke();
 
-  if (stageVisuals.fore.complete && stageVisuals.fore.naturalWidth > 0) {
+  if (stageVisuals?.fore.complete && stageVisuals.fore.naturalWidth > 0) {
     const foreDrift = (state.tick / 18) % 160;
     ctx.save(); ctx.globalAlpha = 0.64;
     ctx.drawImage(stageVisuals.fore, -foreDrift, 0, WIDTH + 320, HEIGHT);
@@ -257,13 +288,14 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
   ctx.fillStyle = '#dceaf0';
   ctx.font = '600 18px system-ui, sans-serif';
   const stageTitle = state.stageId === 'stage-01' ? 'STAGE 1: THE ERASED HARBOR'
-    : state.stageId === 'stage-02' ? 'STAGE 2: THE CROSSWIND INDEX' : 'STAGE 3: THE RAIN MARGIN';
+    : state.stageId === 'stage-02' ? 'STAGE 2: THE CROSSWIND INDEX'
+      : state.stageId === 'stage-03' ? 'STAGE 3: THE RAIN MARGIN' : 'STAGE 4: THE BURNT FOOTNOTE';
   ctx.fillText(`PALIMPSEST WAKE  /  ${stageTitle}`, 24, 33);
   ctx.fillStyle = '#f4c36a';
   ctx.fillText(`SCORE ${String(state.score).padStart(7, '0')}`, 1035, 33);
   ctx.fillStyle = '#8ea6bd';
   ctx.font = '600 14px system-ui, sans-serif';
-  const duration = state.stageId === 'stage-03' ? 195 : 180;
+  const duration = state.stageId === 'stage-03' || state.stageId === 'stage-04' ? 195 : 180;
   ctx.fillText(state.boss || state.metrics.boss.defeated ? 'BOSS' : `${Math.min(duration, Math.floor(state.tick / TICK_RATE)).toString().padStart(3, '0')} / ${duration}s`, 910, 32);
   for (let i = 0; i < 3; i += 1) {
     ctx.fillStyle = i < state.player.health ? '#a8f7ff' : '#283449';
@@ -347,9 +379,11 @@ const renderScreen = (ctx: CanvasRenderingContext2D, app: AppState, screen: Excl
       'stage-02': { number: 2, entry: 'THE CROSSWIND INDEX', gate: 'THE LOCKED INDEX', boss: 'CROSSWIND COMPILER',
         lesson: 'Write against the wind. Close each route before it turns.', strategy: 'Close the vane in a loop. Strike the opposite seam.' },
       'stage-03': { number: 3, entry: 'THE RAIN-ANNOTATED GALLERY', gate: 'THE DROWNED MARGIN', boss: 'LACUNA EEL',
-        lesson: 'Let rain wet the wake. Cross it to sharpen annotated fire.', strategy: 'Loop each glowing segment in order. Strike its wet mark.' }
+        lesson: 'Let rain wet the wake. Cross it to sharpen annotated fire.', strategy: 'Loop each glowing segment in order. Strike its wet mark.' },
+      'stage-04': { number: 4, entry: 'THE BURNT FOOTNOTE', gate: 'THE CINDER HEARING', boss: 'CINDER ADVOCATE',
+        lesson: 'Keep old writing in the moving cooling shadow.', strategy: 'Cool the thrown embers. Return them through the heat wall.' }
     }[app.game.stageId];
-    const bossGate = app.checkpointName === 'bailiff-gate' || app.checkpointName === 'compiler-gate' || app.checkpointName === 'eel-gate';
+    const bossGate = app.checkpointName === 'bailiff-gate' || app.checkpointName === 'compiler-gate' || app.checkpointName === 'eel-gate' || app.checkpointName === 'advocate-gate';
     line(ctx, bossGate ? `CHECKPOINT · ${stageCopy.gate}` : `STAGE ${stageCopy.number}`, 205, '#f4c36a', 18);
     title(ctx, bossGate ? stageCopy.boss : stageCopy.entry, 300, 48);
     line(ctx, bossGate ? stageCopy.strategy : stageCopy.lesson, 365);
@@ -364,7 +398,8 @@ const renderScreen = (ctx: CanvasRenderingContext2D, app: AppState, screen: Excl
     const checkpointLabels: Record<AppState['checkpointName'], string> = {
       'harbor-entry': 'HARBOR ENTRY', 'bailiff-gate': 'THE SEALED LEDGER',
       'crosswind-entry': 'CROSSWIND ENTRY', 'compiler-gate': 'THE LOCKED INDEX',
-      'rain-gallery-entry': 'RAIN GALLERY ENTRY', 'eel-gate': 'THE DROWNED MARGIN'
+      'rain-gallery-entry': 'RAIN GALLERY ENTRY', 'eel-gate': 'THE DROWNED MARGIN',
+      'burnt-footnote-entry': 'BURNT FOOTNOTE ENTRY', 'advocate-gate': 'THE CINDER HEARING'
     };
     line(ctx, app.continuesRemaining > 0 ? `Checkpoint: ${checkpointLabels[app.checkpointName]}` : 'No revision remains.', 340);
     line(ctx, app.continuesRemaining > 0 ? 'ENTER  REVISE FROM CHECKPOINT' : 'ENTER  RETURN TO TITLE', 430, '#a8f7ff', 21);
@@ -374,7 +409,8 @@ const renderScreen = (ctx: CanvasRenderingContext2D, app: AppState, screen: Excl
     const resultCopy = {
       'stage-01': { number: 1, title: 'THE HARBOR REMEMBERS', action: 'ENTER  CONTINUE TO STAGE 2' },
       'stage-02': { number: 2, title: 'THE INDEX HOLDS ITS COURSE', action: 'ENTER  CONTINUE TO STAGE 3' },
-      'stage-03': { number: 3, title: 'THE GALLERY RELEASES ITS RAIN', action: 'ENTER  RETURN TO TITLE' }
+      'stage-03': { number: 3, title: 'THE GALLERY RELEASES ITS RAIN', action: 'ENTER  RETURN TO TITLE' },
+      'stage-04': { number: 4, title: 'THE FOOTNOTE COOLS', action: 'ENTER  RETURN TO TITLE' }
     }[app.game.stageId];
     line(ctx, `STAGE ${resultCopy.number} COMPLETE`, 190, '#f4c36a', 18);
     title(ctx, resultCopy.title, 280, 48);
@@ -382,7 +418,7 @@ const renderScreen = (ctx: CanvasRenderingContext2D, app: AppState, screen: Excl
     line(ctx, `COLLATES ${app.game.metrics.loops}   ·   RETURNED FIRE ${app.game.metrics.captured}`, 414);
     line(ctx, `DAMAGE ${app.game.metrics.damage}   ·   REVISIONS USED ${1 - app.continuesRemaining}`, 450);
     line(ctx, resultCopy.action, 550, '#a8f7ff', 20);
-    if (app.game.stageId !== 'stage-03') line(ctx, 'ESC  END VOYAGE', 590, '#7895a7', 15);
+    if (app.game.stageId === 'stage-01' || app.game.stageId === 'stage-02') line(ctx, 'ESC  END VOYAGE', 590, '#7895a7', 15);
   }
   ctx.textAlign = 'start';
 };

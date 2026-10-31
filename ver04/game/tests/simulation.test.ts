@@ -4,6 +4,7 @@ import { createInitialState, eelSegmentPoint, step } from '../src/simulation/gam
 import { STAGE_01_BOSS_START_TICK, STAGE_01_SPAWNS } from '../src/content/stage-01';
 import { STAGE_02_BOSS_START_TICK, STAGE_02_SPAWNS } from '../src/content/stage-02';
 import { STAGE_03_BOSS_START_TICK, STAGE_03_SPAWNS } from '../src/content/stage-03';
+import { STAGE_04_SPAWNS, stageFourCoolingCenter } from '../src/content/stage-04';
 import { findLoopCandidate } from '../src/simulation/trail';
 import type { GameState, InputFrame, TrailPoint } from '../src/core/types';
 
@@ -324,5 +325,47 @@ describe('M1 deterministic playground', () => {
     expect(hit.state.boss!.maxHealth - hit.state.boss!.health).toBe(96);
     expect(hit.state.metrics.eel.wetWeakpointHits).toBe(1);
     expect(hit.events).toContainEqual({ type: 'eel-segment-hit', segment: 0 });
+  });
+
+  it('burns old Stage 4 writing while the moving cooling shadow preserves its points', () => {
+    let state = createInitialState(41, 'stage-04');
+    state.tick = 239; state.encounterIndex = STAGE_04_SPAWNS.length; state.enemies = [];
+    const cooling = stageFourCoolingCenter(240);
+    state.trail = [
+      trailPoint(80, 80, 0),
+      trailPoint(cooling.x, cooling.y, 1),
+      trailPoint(cooling.x + 10, cooling.y, 2)
+    ];
+    state = step(state, {}).state;
+    expect(state.metrics.heat.trailPointsBurned).toBe(1);
+    expect(state.metrics.heat.trailPointsCooled).toBe(2);
+    expect(state.trail.some((point) => point.segmentId === 0)).toBe(false);
+    expect(state.trail.filter((point) => (point.cooledUntil ?? 0) > state.tick)).toHaveLength(2);
+  });
+
+  it('gives all four Stage 4 enemies distinct heat roles and converts a looped courier', () => {
+    const kinds = ['ash-comma', 'kiln-censor', 'ember-courier', 'char-press'] as const;
+    for (const kind of kinds) {
+      let state = createInitialState(42, 'stage-04');
+      state.encounterIndex = STAGE_04_SPAWNS.length; state.enemies[0].kind = kind;
+      state.enemies[0].x = px(900); state.enemies[0].y = px(360); state.enemies[0].spawnX = px(900);
+      state.enemies[0].baseY = px(360); state.enemies[0].fireCooldown = 0;
+      state.trail = [trailPoint(400, 300, 0), trailPoint(500, 300, 1)];
+      state = step(state, {}).state;
+      expect(state.metrics.enemyStats[kind].attacks).toBe(1);
+    }
+
+    let courier = createInitialState(43, 'stage-04');
+    courier.encounterIndex = STAGE_04_SPAWNS.length; courier.enemies = [courier.enemies[0]];
+    courier.enemies[0].kind = 'ember-courier'; courier.enemies[0].x = px(925); courier.enemies[0].y = px(360);
+    courier.enemies[0].spawnX = px(925); courier.enemies[0].baseY = px(360); courier.enemies[0].amplitude = 0; courier.enemies[0].phase = 0;
+    courier.candidate = { polygon: [
+      { x: px(845), y: px(280) }, { x: px(1005), y: px(280) },
+      { x: px(1005), y: px(440) }, { x: px(845), y: px(440) }
+    ], intersection: { x: px(845), y: px(280) }, startIndex: 0, area: 25600, expiresTick: 60 };
+    const converted = step(courier, { collate: true }).state;
+    expect(converted.metrics.heat.courierConversions).toBe(1);
+    expect(converted.enemies[0].health).toBe(courier.enemies[0].health - 60);
+    expect(converted.enemies[0].markedUntil).toBeGreaterThan(converted.tick);
   });
 });

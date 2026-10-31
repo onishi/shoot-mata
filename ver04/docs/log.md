@@ -173,3 +173,13 @@
 - 全32素材は44.1kHz stereo PCM16で、Stage 3 BGM RMS -20.01〜-19.01 dBFS、SE RMS -18.00 dBFS、SE peak -7.93 dBFS以下に合格した。Stage 3最悪mixはリミッタ前peak -10.08 dBFS、NaN/clip 0で、`docs/evidence/m3-10-audio-audit.json`へ保存した。
 - 単体41件、自動計測6件、素材監査27 final・仮素材0、音量監査、型検査、production build、Chrome E2E 8件に合格した。ChromeではStage 2→3ステム切替、Stage 3ポーズ停止・tick同期復帰、雨・水位・濡れ弾・EEL専用cueを確認した。
 - 次回はStage 4「焼けた脚注」の熱波・冷却域規則、Ash Comma / Kiln Censor / Ember Courier / Char Press、通常区間を実装し、自動計測で固有攻略を検証する。
+
+## 2026-11-01 — M3-11 Stage 4通常区間と4敵種
+
+- `stage-04.ts`へ195秒・65出現の焼けた脚注を追加し、Ash Comma、Kiln Censor、Ember Courier、Char Pressを単独提示、混成、2回の冷却影山場へ接続した。
+- 24tick周期の熱波が150tick以上経過した最古の非冷却航跡から焼き、正弦移動する半径145pxの冷却域が航跡寿命を6秒へ延長する決定的規則を実装した。冷却中の航跡はシアン点線で表示する。
+- Ash Commaは撃破時に局所冷却、Kiln Censorは最古航跡への焼印、Ember Courierは輪で冷却変換して60 damageと8秒の印、Char Pressは上下交互の7方向圧迫弾を担う。初回自動計測ではCourier変換が0回だったため、移動標的へ輪を置く操縦と輪中心の許容距離を調整した。
+- Stitch操縦では最大同時敵9、敵弾105、最長無戦闘0tick、焼失航跡480点、冷却3,359点、冷却域COLLATE 5回、Courier変換5回。全65出現を撃破または退場まで処理し、4回のhashが`64da2fe2d0c83ef8`で一致した。
+- Stage 4の熱歪み、移動冷却域、冷却航跡、4敵シルエットを開発用Canvas previewとして実装し、素材台帳へ`prototype`登録した。`m3-11-stage-04-combat.png`と`setpiece.png`を1280×720で目視し、熱・冷却・敵・弾・航跡・HUDの判別と文字切れなしを確認した。
+- `npm run verify`で単体43件、自動計測7件、素材監査27 final・1 prototype、音量監査、型検査、production build、Chrome E2E 9件に合格した。既存Stage 1〜3の計測・画面・遷移回帰も維持した。
+- 次回はCINDER ADVOCATEの消去不能熱壁、輪で冷却反撃へ変える火種、3形態攻撃を実装する。

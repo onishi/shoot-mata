@@ -6,7 +6,8 @@ export type AppAction = 'start' | 'guide' | 'confirm' | 'back' | 'pause';
 export type CheckpointName =
   | 'harbor-entry' | 'bailiff-gate'
   | 'crosswind-entry' | 'compiler-gate'
-  | 'rain-gallery-entry' | 'eel-gate';
+  | 'rain-gallery-entry' | 'eel-gate'
+  | 'burnt-footnote-entry' | 'advocate-gate';
 
 export interface AppState {
   screen: AppScreen;
@@ -17,10 +18,10 @@ export interface AppState {
 }
 
 const entryCheckpoints: Record<StageId, CheckpointName> = {
-  'stage-01': 'harbor-entry', 'stage-02': 'crosswind-entry', 'stage-03': 'rain-gallery-entry'
+  'stage-01': 'harbor-entry', 'stage-02': 'crosswind-entry', 'stage-03': 'rain-gallery-entry', 'stage-04': 'burnt-footnote-entry'
 };
 const bossCheckpoints: Record<StageId, CheckpointName> = {
-  'stage-01': 'bailiff-gate', 'stage-02': 'compiler-gate', 'stage-03': 'eel-gate'
+  'stage-01': 'bailiff-gate', 'stage-02': 'compiler-gate', 'stage-03': 'eel-gate', 'stage-04': 'advocate-gate'
 };
 const nextStages: Partial<Record<StageId, StageId>> = {
   'stage-01': 'stage-02', 'stage-02': 'stage-03'

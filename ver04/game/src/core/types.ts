@@ -4,7 +4,7 @@ export const HEIGHT = 720;
 export const TICK_RATE = 120;
 
 export interface Point { x: number; y: number }
-export interface TrailPoint extends Point { bornTick: number; segmentId: number; wetUntil?: number }
+export interface TrailPoint extends Point { bornTick: number; segmentId: number; wetUntil?: number; cooledUntil?: number }
 export interface Bullet extends Point {
   id: number;
   vx: number;
@@ -17,11 +17,12 @@ export interface Bullet extends Point {
   sourceAttack?: 'enemy-volley' | 'boss-fan' | 'boss-sweep' | 'compiler-gust' | 'compiler-lance' | 'compiler-storm'
     | 'eel-drizzle' | 'eel-wake' | 'eel-deluge';
 }
-export type StageId = 'stage-01' | 'stage-02' | 'stage-03';
+export type StageId = 'stage-01' | 'stage-02' | 'stage-03' | 'stage-04';
 export type EnemyKind =
   | 'eraser-mite' | 'bracket-gull' | 'margin-skiff' | 'folio-hauler'
   | 'index-kite' | 'vane-scribe' | 'cross-reference-pair' | 'tab-binder'
-  | 'drip-scribe' | 'gutter-frog' | 'basin-bell' | 'reed-needle';
+  | 'drip-scribe' | 'gutter-frog' | 'basin-bell' | 'reed-needle'
+  | 'ash-comma' | 'kiln-censor' | 'ember-courier' | 'char-press';
 export interface Enemy extends Point {
   id: number;
   kind: EnemyKind;
@@ -134,6 +135,17 @@ export interface Metrics {
     wetDamage: number;
     basinSurges: number;
     needleDashes: number;
+  };
+  heat: {
+    waves: number;
+    trailPointsBurned: number;
+    trailPointsCooled: number;
+    cooledTrailPeak: number;
+    coolingCollates: number;
+    ashCoolingBursts: number;
+    censorBrands: number;
+    courierConversions: number;
+    pressClosures: number;
   };
   boss: {
     spawned: boolean;

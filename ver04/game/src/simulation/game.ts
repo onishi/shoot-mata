@@ -4,6 +4,7 @@ import { stageDefinition } from '../content/campaign';
 import { STAGE_01_BOSS_START_TICK, STAGE_01_DURATION_TICKS, type StageEnemySpawn } from '../content/stage-01';
 import { STAGE_02_BOSS_START_TICK, STAGE_02_WIND_HALF_CYCLE_TICKS } from '../content/stage-02';
 import { STAGE_03_BOSS_START_TICK, STAGE_03_RAIN_PERIOD_TICKS, STAGE_03_WET_TICKS } from '../content/stage-03';
+import { STAGE_04_COOLING_EXTENSION_TICKS, STAGE_04_COOLING_RADIUS_PX, STAGE_04_HEAT_PERIOD_TICKS, stageFourCoolingCenter } from '../content/stage-04';
 import { findLoopCandidate, shotCrossedTrail, shotCrossedWetTrail, shouldAddTrailPoint } from './trail';
 
 const PLAYER_SPEED = Math.round(320 * SCALE / TICK_RATE);
@@ -32,12 +33,14 @@ const createEnemy = (state: GameState, encounter: StageEnemySpawn): Enemy => {
     fireCooldown: ({
       'eraser-mite': 72, 'bracket-gull': 150, 'margin-skiff': 120, 'folio-hauler': 100,
       'index-kite': 108, 'vane-scribe': 132, 'cross-reference-pair': 144, 'tab-binder': 96,
-      'drip-scribe': 90, 'gutter-frog': 132, 'basin-bell': 180, 'reed-needle': 120
+      'drip-scribe': 90, 'gutter-frog': 132, 'basin-bell': 180, 'reed-needle': 120,
+      'ash-comma': 96, 'kiln-censor': 150, 'ember-courier': 126, 'char-press': 180
     }[encounter.kind]) + cooldownJitter,
     radius: ({
       'eraser-mite': 17, 'bracket-gull': 25, 'margin-skiff': 30, 'folio-hauler': 58,
       'index-kite': 21, 'vane-scribe': 31, 'cross-reference-pair': 27, 'tab-binder': 56,
-      'drip-scribe': 24, 'gutter-frog': 30, 'basin-bell': 58, 'reed-needle': 25
+      'drip-scribe': 24, 'gutter-frog': 30, 'basin-bell': 58, 'reed-needle': 25,
+      'ash-comma': 22, 'kiln-censor': 34, 'ember-courier': 29, 'char-press': 60
     }[encounter.kind]),
     baseY: encounter.y * SCALE, amplitude: encounter.amplitude,
     phase: phaseJitter, spawnedAt: state.tick, expiresAt: Math.min(state.tick + encounter.lifetime, stage.durationTicks - 1),
@@ -58,7 +61,11 @@ const emptyEnemyStats = (): GameState['metrics']['enemyStats'] => ({
   'drip-scribe': { spawned: 0, attacks: 0, defeated: 0, exited: 0 },
   'gutter-frog': { spawned: 0, attacks: 0, defeated: 0, exited: 0 },
   'basin-bell': { spawned: 0, attacks: 0, defeated: 0, exited: 0 },
-  'reed-needle': { spawned: 0, attacks: 0, defeated: 0, exited: 0 }
+  'reed-needle': { spawned: 0, attacks: 0, defeated: 0, exited: 0 },
+  'ash-comma': { spawned: 0, attacks: 0, defeated: 0, exited: 0 },
+  'kiln-censor': { spawned: 0, attacks: 0, defeated: 0, exited: 0 },
+  'ember-courier': { spawned: 0, attacks: 0, defeated: 0, exited: 0 },
+  'char-press': { spawned: 0, attacks: 0, defeated: 0, exited: 0 }
 });
 
 export const createInitialState = (seed = 1, stageId: StageId = 'stage-01'): GameState => {
@@ -81,6 +88,7 @@ export const createInitialState = (seed = 1, stageId: StageId = 'stage-01'): Gam
   metrics: { candidates: 0, loops: 0, emptyLoops: 0, missedCollates: 0, captured: 0, annotatedShots: 0, retraces: 0, damage: 0, enemiesDefeated: 0, haulersDefeated: 0, firstHaulerDefeatTick: null, enemyShots: 0, enemyStats: emptyEnemyStats(), rejectedEnemies: 0, rejectedEnemyBullets: 0,
     wind: { reversals: 0, playerDrift: 0, trailDrift: 0, collatesLeft: 0, collatesRight: 0, collatesNearReversal: 0 },
     rain: { drops: 0, trailPointsWetted: 0, wetTrailPeak: 0, wetAnnotatedShots: 0, wetDamage: 0, basinSurges: 0, needleDashes: 0 },
+    heat: { waves: 0, trailPointsBurned: 0, trailPointsCooled: 0, cooledTrailPeak: 0, coolingCollates: 0, ashCoolingBursts: 0, censorBrands: 0, courierConversions: 0, pressClosures: 0 },
     boss: { spawned: false, defeated: false, defeatTick: null, phaseReached: [false, false, false], fanWarnings: 0, fanErases: 0, trailPointsErased: 0, returnedHits: 0, ordinaryHits: 0, armorLayersStripped: 0, damageByAttack: { fan: 0, sweep: 0, volley: 0 } },
     compiler: { windLocks: 0, windLockedTicks: 0, weakpointHits: 0, ordinaryHits: 0, phaseReached: [false, false, false], attacks: { gust: 0, lance: 0, storm: 0 }, damageByAttack: { gust: 0, lance: 0, storm: 0 } },
     eel: { segmentMarks: 0, markedTicks: 0, weakpointHits: 0, wetWeakpointHits: 0, ordinaryHits: 0, phaseReached: [false, false, false], attacks: { drizzle: 0, wake: 0, deluge: 0 }, damageByAttack: { drizzle: 0, wake: 0, deluge: 0 } } }
@@ -102,7 +110,7 @@ export const copyState = (state: GameState): GameState => ({
   enemies: state.enemies.map((enemy) => ({ ...enemy })),
   boss: state.boss ? { ...state.boss } : null,
   retrace: state.retrace ? { index: state.retrace.index, points: state.retrace.points.map((point) => ({ ...point })) } : null,
-  metrics: { ...state.metrics, wind: { ...state.metrics.wind }, rain: { ...state.metrics.rain }, enemyStats: Object.fromEntries(Object.entries(state.metrics.enemyStats).map(([kind, stats]) => [kind, { ...stats }])) as GameState['metrics']['enemyStats'], boss: { ...state.metrics.boss, phaseReached: [...state.metrics.boss.phaseReached], damageByAttack: { ...state.metrics.boss.damageByAttack } }, compiler: { ...state.metrics.compiler, phaseReached: [...state.metrics.compiler.phaseReached], attacks: { ...state.metrics.compiler.attacks }, damageByAttack: { ...state.metrics.compiler.damageByAttack } }, eel: { ...state.metrics.eel, phaseReached: [...state.metrics.eel.phaseReached], attacks: { ...state.metrics.eel.attacks }, damageByAttack: { ...state.metrics.eel.damageByAttack } } }
+  metrics: { ...state.metrics, wind: { ...state.metrics.wind }, rain: { ...state.metrics.rain }, heat: { ...state.metrics.heat }, enemyStats: Object.fromEntries(Object.entries(state.metrics.enemyStats).map(([kind, stats]) => [kind, { ...stats }])) as GameState['metrics']['enemyStats'], boss: { ...state.metrics.boss, phaseReached: [...state.metrics.boss.phaseReached], damageByAttack: { ...state.metrics.boss.damageByAttack } }, compiler: { ...state.metrics.compiler, phaseReached: [...state.metrics.compiler.phaseReached], attacks: { ...state.metrics.compiler.attacks }, damageByAttack: { ...state.metrics.compiler.damageByAttack } }, eel: { ...state.metrics.eel, phaseReached: [...state.metrics.eel.phaseReached], attacks: { ...state.metrics.eel.attacks }, damageByAttack: { ...state.metrics.eel.damageByAttack } } }
 });
 
 const spawnEnemyBullet = (state: GameState, enemy: Point, angleOffset = 0, speedPx = 145, sourceAttack: Bullet['sourceAttack'] = 'enemy-volley'): boolean => {
@@ -356,6 +364,42 @@ const applyRain = (state: GameState, events: GameEvent[]): void => {
   if (state.candidate && state.candidate.polygon.some((point) => point.y >= HEIGHT * SCALE)) state.candidate = null;
 };
 
+const coolTrailNear = (state: GameState, center: Point, radiusPx: number): number => {
+  let cooled = 0;
+  for (const point of state.trail) {
+    if (distanceSq(point, center) > (radiusPx * SCALE) ** 2) continue;
+    if ((point.cooledUntil ?? 0) < state.tick) cooled += 1;
+    point.cooledUntil = Math.max(point.cooledUntil ?? 0, state.tick + STAGE_04_COOLING_EXTENSION_TICKS);
+  }
+  state.metrics.heat.trailPointsCooled += cooled;
+  return cooled;
+};
+
+const burnOldestTrail = (state: GameState, count: number): number => {
+  const burnable = state.trail
+    .filter((point) => (point.cooledUntil ?? 0) < state.tick && state.tick - point.bornTick >= 150)
+    .sort((a, b) => a.bornTick - b.bornTick || a.segmentId - b.segmentId)
+    .slice(0, count);
+  if (burnable.length === 0) return 0;
+  const ids = new Set(burnable.map((point) => point.segmentId));
+  state.trail = state.trail.filter((point) => !ids.has(point.segmentId));
+  state.candidate = null;
+  state.metrics.heat.trailPointsBurned += burnable.length;
+  return burnable.length;
+};
+
+const applyHeat = (state: GameState): void => {
+  if (state.stageId !== 'stage-04') return;
+  const center = stageFourCoolingCenter(state.tick);
+  coolTrailNear(state, { x: center.x * SCALE, y: center.y * SCALE }, STAGE_04_COOLING_RADIUS_PX);
+  if (state.tick % STAGE_04_HEAT_PERIOD_TICKS === 0) {
+    state.metrics.heat.waves += 1;
+    burnOldestTrail(state, 1);
+  }
+  const cooled = state.trail.filter((point) => (point.cooledUntil ?? 0) >= state.tick).length;
+  state.metrics.heat.cooledTrailPeak = Math.max(state.metrics.heat.cooledTrailPeak, cooled);
+};
+
 const updateEnemy = (state: GameState, enemy: Enemy, events: GameEvent[]): void => {
   const age = state.tick - enemy.spawnedAt;
   if (age > 90) enemy.state = 'active';
@@ -475,6 +519,52 @@ const updateEnemy = (state: GameState, enemy: Enemy, events: GameEvent[]): void 
     return;
   }
 
+  if (enemy.kind === 'ash-comma') {
+    enemy.x = Math.max(980 * SCALE, enemy.spawnX - Math.min(age, 145) * 2.5 * SCALE);
+    enemy.y = enemy.baseY + Math.round(Math.sin((age + enemy.phase) / 78) * enemy.amplitude * SCALE);
+    if (enemy.state === 'exiting') enemy.x += (state.tick - (enemy.expiresAt - 120)) * 3 * SCALE;
+    if (enemy.fireCooldown <= 0) {
+      for (const offset of [-0.22, 0.22]) spawnEnemyBullet(state, enemy, offset, 124);
+      enemy.fireCooldown = 216; state.metrics.enemyStats[enemy.kind].attacks += 1;
+    }
+    return;
+  }
+
+  if (enemy.kind === 'kiln-censor') {
+    enemy.x = Math.max(970 * SCALE, enemy.spawnX - Math.min(age, 140) * 2.2 * SCALE);
+    enemy.y = enemy.baseY + Math.round(Math.sin((age + enemy.phase) / 155) * enemy.amplitude * SCALE);
+    if (enemy.state === 'exiting') enemy.x += (state.tick - (enemy.expiresAt - 120)) * 3 * SCALE;
+    if (enemy.fireCooldown <= 0) {
+      burnOldestTrail(state, 5);
+      for (const offset of [-0.26, 0, 0.26]) spawnEnemyBullet(state, enemy, offset, 108);
+      enemy.fireCooldown = 276; state.metrics.enemyStats[enemy.kind].attacks += 1; state.metrics.heat.censorBrands += 1;
+    }
+    return;
+  }
+
+  if (enemy.kind === 'ember-courier') {
+    enemy.x = Math.max(925 * SCALE, enemy.spawnX - Math.min(age, 165) * 2.8 * SCALE);
+    enemy.y = enemy.baseY + Math.round(Math.sin((age + enemy.phase) / 92) * enemy.amplitude * SCALE);
+    if (enemy.state === 'exiting') enemy.x += (state.tick - (enemy.expiresAt - 120)) * 3 * SCALE;
+    if (enemy.fireCooldown <= 0) {
+      for (const offset of [-0.34, 0, 0.34]) spawnEnemyBullet(state, enemy, offset, 142);
+      enemy.fireCooldown = 240; state.metrics.enemyStats[enemy.kind].attacks += 1;
+    }
+    return;
+  }
+
+  if (enemy.kind === 'char-press') {
+    enemy.x = Math.max(955 * SCALE, enemy.spawnX - Math.min(age, 150) * 2.1 * SCALE);
+    const closure = (1 - Math.abs(Math.sin((age + enemy.phase) / 145))) * 92;
+    enemy.y = enemy.baseY - enemy.lane * Math.round(closure * SCALE);
+    if (enemy.state === 'exiting') enemy.x += (state.tick - (enemy.expiresAt - 120)) * 3 * SCALE;
+    if (enemy.fireCooldown <= 0) {
+      for (const offset of [-0.54, -0.36, -0.18, 0, 0.18, 0.36, 0.54]) spawnEnemyBullet(state, enemy, offset, 106);
+      enemy.fireCooldown = 300; state.metrics.enemyStats[enemy.kind].attacks += 1; state.metrics.heat.pressClosures += 1;
+    }
+    return;
+  }
+
   enemy.x = Math.max(enemy.kind === 'folio-hauler' ? 1010 * SCALE : 1015 * SCALE, enemy.spawnX - Math.min(age, 120) * 2.5 * SCALE);
   enemy.y = enemy.baseY + Math.round(Math.sin((age + enemy.phase) / (enemy.kind === 'margin-skiff' ? 105 : 180)) * enemy.amplitude * SCALE);
   if (enemy.state === 'exiting') enemy.x += (state.tick - (enemy.expiresAt - 120)) * 3 * SCALE;
@@ -563,6 +653,21 @@ const collate = (state: GameState, events: GameEvent[]): void => {
       events.push({ type: 'eel-segment-marked', segment });
     }
   }
+  if (state.stageId === 'stage-04') {
+    const cooling = stageFourCoolingCenter(state.tick);
+    if (pointInPolygon({ x: cooling.x * SCALE, y: cooling.y * SCALE }, candidate.polygon)) {
+      state.metrics.heat.coolingCollates += 1;
+    }
+    const center = candidate.polygon.reduce((sum, point) => ({ x: sum.x + point.x / candidate.polygon.length, y: sum.y + point.y / candidate.polygon.length }), { x: 0, y: 0 });
+    for (const enemy of state.enemies) {
+      if (enemy.kind !== 'ember-courier'
+        || (!pointInPolygon(enemy, candidate.polygon) && distanceSq(enemy, center) > (160 * SCALE) ** 2)) continue;
+      enemy.markedUntil = state.tick + 8 * TICK_RATE;
+      enemy.health = Math.max(1, enemy.health - 60);
+      coolTrailNear(state, enemy, 230);
+      state.metrics.heat.courierConversions += 1;
+    }
+  }
   if (selected.length === 0 && !state.enemies.some((enemy) => pointInPolygon(enemy, candidate.polygon))) state.metrics.emptyLoops += 1;
   state.metrics.captured += selected.length;
   state.trail = state.trail.slice(0, candidate.startIndex);
@@ -590,7 +695,8 @@ export const step = (previous: GameState, input: InputFrame): { state: GameState
   spawnDueEncounters(state);
   updateBoss(state, events);
 
-  state.trail = state.trail.filter((point) => state.tick - point.bornTick <= TRAIL_LIFETIME);
+  applyHeat(state);
+  state.trail = state.trail.filter((point) => state.tick - point.bornTick <= TRAIL_LIFETIME || (point.cooledUntil ?? 0) >= state.tick);
   applyRain(state, events);
   if (state.candidate?.expiresTick && state.candidate.expiresTick < state.tick) state.candidate = null;
   if (!state.retrace && shouldAddTrailPoint(state.trail, state.player, state.tick)) {
@@ -751,13 +857,17 @@ export const step = (previous: GameState, input: InputFrame): { state: GameState
           enemy.health -= damage;
           consumed = true;
           if (enemy.health <= 0) {
-            state.score += enemy.kind === 'folio-hauler' || enemy.kind === 'tab-binder' || enemy.kind === 'basin-bell' ? 5000
+            state.score += enemy.kind === 'folio-hauler' || enemy.kind === 'tab-binder' || enemy.kind === 'basin-bell' || enemy.kind === 'char-press' ? 5000
               : enemy.kind === 'margin-skiff' || enemy.kind === 'vane-scribe' ? 1600
                 : enemy.kind === 'bracket-gull' || enemy.kind === 'cross-reference-pair' ? 1000 : 700;
             events.push({ type: 'enemy-defeated' });
             defeated.add(enemy.id);
             state.metrics.enemiesDefeated += 1;
             state.metrics.enemyStats[enemy.kind].defeated += 1;
+            if (enemy.kind === 'ash-comma') {
+              coolTrailNear(state, enemy, 190);
+              state.metrics.heat.ashCoolingBursts += 1;
+            }
             if (enemy.kind === 'folio-hauler') {
               state.metrics.haulersDefeated += 1;
               state.metrics.firstHaulerDefeatTick ??= state.tick;

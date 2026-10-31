@@ -1,6 +1,7 @@
 import { distanceSq, pointInPolygon, px } from '../core/math';
 import { type GameState, type InputFrame, type Point } from '../core/types';
 import { eelSegmentPoint } from './game';
+import { stageFourCoolingCenter } from '../content/stage-04';
 
 export type PilotName = 'baseline' | 'safe' | 'stitch' | 'sweep';
 
@@ -142,7 +143,11 @@ export const createPilot = (name: PilotName): ((state: GameState) => InputFrame)
 
     if (waypoints.length === 0) {
       const compilerVane = name === 'stitch' ? compilerPoint(state, 'vane') : null;
-      const loopTarget = name === 'stitch' ? (compilerVane ?? eelWeakpoint) : null;
+      const cooling = state.stageId === 'stage-04' ? stageFourCoolingCenter(state.tick) : null;
+      const coolingTarget = cooling ? { x: px(cooling.x), y: px(cooling.y) } : null;
+      const courierTarget = state.stageId === 'stage-04' && loopSequence % 4 === 0
+        ? state.enemies.find((enemy) => enemy.kind === 'ember-courier') ?? null : null;
+      const loopTarget = name === 'stitch' ? (compilerVane ?? eelWeakpoint ?? courierTarget ?? coolingTarget) : null;
       const centerX = loopTarget?.x ?? (name === 'safe' ? px(300) : Math.min(px(910), Math.max(px(650), target?.x ?? px(900))));
       const rawCenterY = name === 'safe'
         ? Math.min(px(600), Math.max(px(120), state.player.y))
