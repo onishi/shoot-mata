@@ -15,7 +15,7 @@ const stageTwoFiles = {
   'wind-left': 'stage-02/crosswind-left-v1.wav', 'wind-right': 'stage-02/crosswind-right-v1.wav', 'wind-lock': 'stage-02/wind-lock-v1.wav',
   'seam-exposed': 'stage-02/seam-exposed-v1.wav', 'seam-hit': 'stage-02/seam-hit-v1.wav', 'compiler-phase': 'stage-02/compiler-phase-v1.wav'
 } as const;
-const stemFiles: Record<StageId, Record<StemName, string>> = {
+const stemFiles: Partial<Record<StageId, Record<StemName, string>>> = {
   'stage-01': { ambient: 'stage-01/harbor-ambient-v1.wav', pulse: 'stage-01/harbor-pulse-v1.wav', crisis: 'stage-01/harbor-crisis-v1.wav' },
   'stage-02': { ambient: 'stage-02/crosswind-ambient-v1.wav', pulse: 'stage-02/crosswind-pulse-v1.wav', crisis: 'stage-02/crosswind-crisis-v1.wav' }
 };

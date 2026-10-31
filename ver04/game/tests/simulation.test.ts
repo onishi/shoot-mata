@@ -3,6 +3,7 @@ import { px } from '../src/core/math';
 import { createInitialState, step } from '../src/simulation/game';
 import { STAGE_01_BOSS_START_TICK, STAGE_01_SPAWNS } from '../src/content/stage-01';
 import { STAGE_02_BOSS_START_TICK, STAGE_02_SPAWNS } from '../src/content/stage-02';
+import { STAGE_03_SPAWNS } from '../src/content/stage-03';
 import { findLoopCandidate } from '../src/simulation/trail';
 import type { GameState, InputFrame, TrailPoint } from '../src/core/types';
 
@@ -263,5 +264,33 @@ describe('M1 deterministic playground', () => {
     expect(weakpoint.state.boss!.maxHealth - weakpoint.state.boss!.health).toBe(44);
     expect(weakpoint.state.metrics.compiler.weakpointHits).toBe(1);
     expect(weakpoint.events).toContainEqual({ type: 'compiler-seam-hit' });
+  });
+
+  it('makes all four Stage 3 enemies attack with distinct rain roles', () => {
+    const kinds = ['drip-scribe', 'gutter-frog', 'basin-bell', 'reed-needle'] as const;
+    for (const kind of kinds) {
+      let state = createInitialState(31, 'stage-03');
+      state.encounterIndex = STAGE_03_SPAWNS.length; state.enemies[0].kind = kind;
+      state.enemies[0].x = px(1000); state.enemies[0].spawnX = px(1000); state.enemies[0].fireCooldown = 0;
+      state.trail = [trailPoint(600, 300, 0), { ...trailPoint(700, 300, 1), wetUntil: 700 }];
+      state = step(state, {}).state;
+      expect(state.metrics.enemyStats[kind].attacks).toBe(1);
+    }
+  });
+
+  it('sags rain-wetted trail and triples wet annotation damage over ordinary fire', () => {
+    let state = createInitialState(32, 'stage-03');
+    state.encounterIndex = STAGE_03_SPAWNS.length; state.enemies = [state.enemies[0]];
+    state.enemies[0].health = 100; state.enemies[0].maxHealth = 100; state.enemies[0].x = px(1000); state.enemies[0].y = px(300);
+    state.enemies[0].spawnX = state.enemies[0].x; state.enemies[0].amplitude = 0;
+    state.enemies[0].baseY = px(300);
+    state.trail = [{ ...trailPoint(995, 250, 0), wetUntil: 600 }, { ...trailPoint(995, 350, 1), wetUntil: 600 }];
+    const beforeY = state.trail[0].y;
+    state.bullets = [{ id: 90, x: px(990), y: px(300), vx: px(10), vy: 0, radius: 4, kind: 'player', annotated: false, capturable: false }];
+    state = step(state, {}).state;
+    expect(state.trail[0].y).toBeGreaterThan(beforeY);
+    expect(state.metrics.rain.wetAnnotatedShots).toBe(1);
+    expect(state.enemies[0].health).toBe(82);
+    expect(state.metrics.rain.wetDamage).toBe(18);
   });
 });

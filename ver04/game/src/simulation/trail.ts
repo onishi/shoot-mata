@@ -28,3 +28,11 @@ export const shotCrossedTrail = (from: Point, to: Point, trail: TrailPoint[]): b
   }
   return false;
 };
+
+export const shotCrossedWetTrail = (from: Point, to: Point, trail: TrailPoint[], tick: number): boolean => {
+  for (let i = 0; i < trail.length - 1; i += 1) {
+    if ((trail[i].wetUntil ?? 0) < tick && (trail[i + 1].wetUntil ?? 0) < tick) continue;
+    if (segmentIntersection(from, to, trail[i], trail[i + 1])) return true;
+  }
+  return false;
+};

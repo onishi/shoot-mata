@@ -52,6 +52,17 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
     }
     ctx.restore();
   }
+  if (state.stageId === 'stage-03') {
+    const gradient = ctx.createLinearGradient(0, 0, 0, HEIGHT);
+    gradient.addColorStop(0, '#10283a'); gradient.addColorStop(1, '#071b22');
+    ctx.fillStyle = gradient; ctx.fillRect(0, 0, WIDTH, HEIGHT);
+    ctx.strokeStyle = 'rgba(145,226,255,.36)'; ctx.lineWidth = 2;
+    for (let index = 0; index < 48; index += 1) {
+      const x = (90 + ((Math.floor(state.tick / 18) - index) * 353) % 1100 + 1100) % 1100;
+      const y = ((state.tick - index * 18) * 5) % (HEIGHT + 80) - 40;
+      ctx.beginPath(); ctx.moveTo(x, y - 14); ctx.lineTo(x - 3, y + 8); ctx.stroke();
+    }
+  }
 
   if (state.candidate) {
     path(ctx, state.candidate.polygon);
@@ -89,6 +100,9 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
   path(ctx, state.trail);
   ctx.strokeStyle = '#e9fdff';
   ctx.shadowBlur = 0;
+  const wetTrail = state.trail.filter((point) => (point.wetUntil ?? 0) >= state.tick);
+  path(ctx, wetTrail);
+  ctx.strokeStyle = 'rgba(126,255,213,.9)'; ctx.shadowColor = '#55f0cf'; ctx.shadowBlur = 15; ctx.lineWidth = 7; ctx.stroke(); ctx.shadowBlur = 0;
   ctx.lineWidth = 1.5;
   ctx.stroke();
   ctx.shadowBlur = 0;
@@ -108,7 +122,7 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
         ctx.save(); ctx.shadowColor = '#ffd477'; ctx.shadowBlur = 20;
         drawSprite(ctx, kind, x, y, dimensions[0], dimensions[1]); ctx.restore();
       } else drawSprite(ctx, kind, x, y, dimensions[0], dimensions[1]);
-    } else {
+    } else if (state.stageId === 'stage-02') {
       const kind = enemy.kind as 'index-kite' | 'vane-scribe' | 'cross-reference-pair' | 'tab-binder';
       const dimensions = {
         'index-kite': [82, 52], 'vane-scribe': [76, 70], 'cross-reference-pair': [94, 62], 'tab-binder': [160, 96]
@@ -117,6 +131,14 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
         ctx.save(); ctx.shadowColor = '#ffd477'; ctx.shadowBlur = 20;
         drawSprite(ctx, kind, x, y, dimensions[0], dimensions[1]); ctx.restore();
       } else drawSprite(ctx, kind, x, y, dimensions[0], dimensions[1]);
+    } else {
+      const colors = { 'drip-scribe': '#7de7ff', 'gutter-frog': '#b9f36b', 'basin-bell': '#70b9d6', 'reed-needle': '#f5d67a' } as const;
+      ctx.save(); ctx.translate(x, y); ctx.strokeStyle = colors[enemy.kind as keyof typeof colors]; ctx.fillStyle = 'rgba(5,24,31,.9)'; ctx.lineWidth = 4;
+      if (enemy.kind === 'basin-bell') { ctx.beginPath(); ctx.arc(0, 0, 52, Math.PI, 0); ctx.lineTo(38, 36); ctx.lineTo(-38, 36); ctx.closePath(); }
+      else if (enemy.kind === 'gutter-frog') { ctx.beginPath(); ctx.ellipse(0, 0, 34, 22, 0, 0, Math.PI * 2); }
+      else if (enemy.kind === 'reed-needle') { ctx.beginPath(); ctx.moveTo(-42, -10); ctx.lineTo(46, 0); ctx.lineTo(-42, 10); ctx.closePath(); }
+      else { diamond(ctx, 0, 0, 27); }
+      ctx.fill(); ctx.stroke(); ctx.restore();
     }
     ctx.fillStyle = '#131725';
     ctx.fillRect(x - size, y + size + 14, size * 2, 7);
@@ -205,12 +227,15 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
   ctx.fillRect(0, HEIGHT - 52, WIDTH, 52);
   ctx.fillStyle = '#dceaf0';
   ctx.font = '600 18px system-ui, sans-serif';
-  ctx.fillText(state.stageId === 'stage-01' ? 'PALIMPSEST WAKE  /  STAGE 1: THE ERASED HARBOR' : 'PALIMPSEST WAKE  /  STAGE 2: THE CROSSWIND INDEX', 24, 33);
+  const stageTitle = state.stageId === 'stage-01' ? 'STAGE 1: THE ERASED HARBOR'
+    : state.stageId === 'stage-02' ? 'STAGE 2: THE CROSSWIND INDEX' : 'STAGE 3: THE RAIN MARGIN';
+  ctx.fillText(`PALIMPSEST WAKE  /  ${stageTitle}`, 24, 33);
   ctx.fillStyle = '#f4c36a';
   ctx.fillText(`SCORE ${String(state.score).padStart(7, '0')}`, 1035, 33);
   ctx.fillStyle = '#8ea6bd';
   ctx.font = '600 14px system-ui, sans-serif';
-  ctx.fillText(state.boss || state.metrics.boss.defeated ? 'BOSS' : `${Math.min(180, Math.floor(state.tick / TICK_RATE)).toString().padStart(3, '0')} / 180s`, 910, 32);
+  const duration = state.stageId === 'stage-03' ? 195 : 180;
+  ctx.fillText(state.boss || state.metrics.boss.defeated ? 'BOSS' : `${Math.min(duration, Math.floor(state.tick / TICK_RATE)).toString().padStart(3, '0')} / ${duration}s`, 910, 32);
   for (let i = 0; i < 3; i += 1) {
     ctx.fillStyle = i < state.player.health ? '#a8f7ff' : '#283449';
     diamond(ctx, 650 + i * 26, 27, 8); ctx.fill();

@@ -3,7 +3,8 @@ import { HEIGHT, SCALE, TICK_RATE, WIDTH, type BossState, type Bullet, type Enem
 import { stageDefinition } from '../content/campaign';
 import { STAGE_01_BOSS_START_TICK, STAGE_01_DURATION_TICKS, type StageEnemySpawn } from '../content/stage-01';
 import { STAGE_02_BOSS_START_TICK, STAGE_02_WIND_HALF_CYCLE_TICKS } from '../content/stage-02';
-import { findLoopCandidate, shotCrossedTrail, shouldAddTrailPoint } from './trail';
+import { STAGE_03_RAIN_PERIOD_TICKS, STAGE_03_WET_TICKS } from '../content/stage-03';
+import { findLoopCandidate, shotCrossedTrail, shotCrossedWetTrail, shouldAddTrailPoint } from './trail';
 
 const PLAYER_SPEED = Math.round(320 * SCALE / TICK_RATE);
 const TRAIL_LIFETIME = Math.round(3.2 * TICK_RATE);
@@ -30,11 +31,13 @@ const createEnemy = (state: GameState, encounter: StageEnemySpawn): Enemy => {
     markedUntil: 0,
     fireCooldown: ({
       'eraser-mite': 72, 'bracket-gull': 150, 'margin-skiff': 120, 'folio-hauler': 100,
-      'index-kite': 108, 'vane-scribe': 132, 'cross-reference-pair': 144, 'tab-binder': 96
+      'index-kite': 108, 'vane-scribe': 132, 'cross-reference-pair': 144, 'tab-binder': 96,
+      'drip-scribe': 90, 'gutter-frog': 132, 'basin-bell': 180, 'reed-needle': 120
     }[encounter.kind]) + cooldownJitter,
     radius: ({
       'eraser-mite': 17, 'bracket-gull': 25, 'margin-skiff': 30, 'folio-hauler': 58,
-      'index-kite': 21, 'vane-scribe': 31, 'cross-reference-pair': 27, 'tab-binder': 56
+      'index-kite': 21, 'vane-scribe': 31, 'cross-reference-pair': 27, 'tab-binder': 56,
+      'drip-scribe': 24, 'gutter-frog': 30, 'basin-bell': 58, 'reed-needle': 25
     }[encounter.kind]),
     baseY: encounter.y * SCALE, amplitude: encounter.amplitude,
     phase: phaseJitter, spawnedAt: state.tick, expiresAt: Math.min(state.tick + encounter.lifetime, stage.durationTicks - 1),
@@ -51,7 +54,11 @@ const emptyEnemyStats = (): GameState['metrics']['enemyStats'] => ({
   'index-kite': { spawned: 0, attacks: 0, defeated: 0, exited: 0 },
   'vane-scribe': { spawned: 0, attacks: 0, defeated: 0, exited: 0 },
   'cross-reference-pair': { spawned: 0, attacks: 0, defeated: 0, exited: 0 },
-  'tab-binder': { spawned: 0, attacks: 0, defeated: 0, exited: 0 }
+  'tab-binder': { spawned: 0, attacks: 0, defeated: 0, exited: 0 },
+  'drip-scribe': { spawned: 0, attacks: 0, defeated: 0, exited: 0 },
+  'gutter-frog': { spawned: 0, attacks: 0, defeated: 0, exited: 0 },
+  'basin-bell': { spawned: 0, attacks: 0, defeated: 0, exited: 0 },
+  'reed-needle': { spawned: 0, attacks: 0, defeated: 0, exited: 0 }
 });
 
 export const createInitialState = (seed = 1, stageId: StageId = 'stage-01'): GameState => {
@@ -73,6 +80,7 @@ export const createInitialState = (seed = 1, stageId: StageId = 'stage-01'): Gam
   retrace: null,
   metrics: { candidates: 0, loops: 0, emptyLoops: 0, missedCollates: 0, captured: 0, annotatedShots: 0, retraces: 0, damage: 0, enemiesDefeated: 0, haulersDefeated: 0, firstHaulerDefeatTick: null, enemyShots: 0, enemyStats: emptyEnemyStats(), rejectedEnemies: 0, rejectedEnemyBullets: 0,
     wind: { reversals: 0, playerDrift: 0, trailDrift: 0, collatesLeft: 0, collatesRight: 0, collatesNearReversal: 0 },
+    rain: { drops: 0, trailPointsWetted: 0, wetTrailPeak: 0, wetAnnotatedShots: 0, wetDamage: 0, basinSurges: 0, needleDashes: 0 },
     boss: { spawned: false, defeated: false, defeatTick: null, phaseReached: [false, false, false], fanWarnings: 0, fanErases: 0, trailPointsErased: 0, returnedHits: 0, ordinaryHits: 0, armorLayersStripped: 0, damageByAttack: { fan: 0, sweep: 0, volley: 0 } },
     compiler: { windLocks: 0, windLockedTicks: 0, weakpointHits: 0, ordinaryHits: 0, phaseReached: [false, false, false], attacks: { gust: 0, lance: 0, storm: 0 }, damageByAttack: { gust: 0, lance: 0, storm: 0 } } }
   };
@@ -93,7 +101,7 @@ export const copyState = (state: GameState): GameState => ({
   enemies: state.enemies.map((enemy) => ({ ...enemy })),
   boss: state.boss ? { ...state.boss } : null,
   retrace: state.retrace ? { index: state.retrace.index, points: state.retrace.points.map((point) => ({ ...point })) } : null,
-  metrics: { ...state.metrics, wind: { ...state.metrics.wind }, enemyStats: Object.fromEntries(Object.entries(state.metrics.enemyStats).map(([kind, stats]) => [kind, { ...stats }])) as GameState['metrics']['enemyStats'], boss: { ...state.metrics.boss, phaseReached: [...state.metrics.boss.phaseReached], damageByAttack: { ...state.metrics.boss.damageByAttack } }, compiler: { ...state.metrics.compiler, phaseReached: [...state.metrics.compiler.phaseReached], attacks: { ...state.metrics.compiler.attacks }, damageByAttack: { ...state.metrics.compiler.damageByAttack } } }
+  metrics: { ...state.metrics, wind: { ...state.metrics.wind }, rain: { ...state.metrics.rain }, enemyStats: Object.fromEntries(Object.entries(state.metrics.enemyStats).map(([kind, stats]) => [kind, { ...stats }])) as GameState['metrics']['enemyStats'], boss: { ...state.metrics.boss, phaseReached: [...state.metrics.boss.phaseReached], damageByAttack: { ...state.metrics.boss.damageByAttack } }, compiler: { ...state.metrics.compiler, phaseReached: [...state.metrics.compiler.phaseReached], attacks: { ...state.metrics.compiler.attacks }, damageByAttack: { ...state.metrics.compiler.damageByAttack } } }
 });
 
 const spawnEnemyBullet = (state: GameState, enemy: Point, angleOffset = 0, speedPx = 145, sourceAttack: Bullet['sourceAttack'] = 'enemy-volley'): boolean => {
@@ -266,6 +274,35 @@ const applyCrosswind = (state: GameState, events?: GameEvent[]): void => {
   state.metrics.wind.trailDrift += Math.abs(trailDrift) * state.trail.length;
 };
 
+const applyRain = (state: GameState): void => {
+  if (state.stageId !== 'stage-03') return;
+  const dropIndex = Math.floor(state.tick / STAGE_03_RAIN_PERIOD_TICKS);
+  if (state.tick % STAGE_03_RAIN_PERIOD_TICKS === 0) state.metrics.rain.drops += 1;
+  // Eight deterministic drops are in flight. A point is wetted only when the
+  // visible drop crosses it, so identical input always creates identical sag.
+  for (let offset = 0; offset < 8; offset += 1) {
+    const index = dropIndex - offset;
+    if (index < 0) continue;
+    const age = state.tick - index * STAGE_03_RAIN_PERIOD_TICKS;
+    const x = (90 + (index * 353) % 1100) * SCALE;
+    const y = age * 5 * SCALE;
+    for (const point of state.trail) {
+      if (Math.abs(point.x - x) <= 14 * SCALE && Math.abs(point.y - y) <= 16 * SCALE) {
+        if ((point.wetUntil ?? 0) < state.tick) state.metrics.rain.trailPointsWetted += 1;
+        point.wetUntil = state.tick + STAGE_03_WET_TICKS;
+      }
+    }
+  }
+  let wet = 0;
+  for (const point of state.trail) {
+    if ((point.wetUntil ?? 0) < state.tick) continue;
+    point.y = Math.min((HEIGHT - 8) * SCALE, point.y + Math.round(0.22 * SCALE));
+    wet += 1;
+  }
+  state.metrics.rain.wetTrailPeak = Math.max(state.metrics.rain.wetTrailPeak, wet);
+  if (state.candidate && state.candidate.polygon.some((point) => point.y >= HEIGHT * SCALE)) state.candidate = null;
+};
+
 const updateEnemy = (state: GameState, enemy: Enemy): void => {
   const age = state.tick - enemy.spawnedAt;
   if (age > 90) enemy.state = 'active';
@@ -330,6 +367,56 @@ const updateEnemy = (state: GameState, enemy: Enemy): void => {
       for (const offset of [-0.42, -0.28, -0.14, 0, 0.14, 0.28, 0.42]) spawnEnemyBullet(state, enemy, offset, 104);
       enemy.fireCooldown = 204;
       state.metrics.enemyStats[enemy.kind].attacks += 1;
+    }
+    return;
+  }
+
+  if (enemy.kind === 'drip-scribe') {
+    enemy.x = Math.max(990 * SCALE, enemy.spawnX - Math.min(age, 130) * 2.4 * SCALE);
+    enemy.y = enemy.baseY + Math.round(Math.sin((age + enemy.phase) / 96) * enemy.amplitude * SCALE);
+    if (enemy.state === 'exiting') enemy.x += (state.tick - (enemy.expiresAt - 120)) * 3 * SCALE;
+    if (enemy.fireCooldown <= 0) {
+      for (const offset of [-0.2, 0, 0.2]) spawnEnemyBullet(state, enemy, offset, 118);
+      enemy.fireCooldown = 210; state.metrics.enemyStats[enemy.kind].attacks += 1;
+    }
+    return;
+  }
+
+  if (enemy.kind === 'gutter-frog') {
+    enemy.x = Math.max(940 * SCALE, enemy.spawnX - Math.min(age, 150) * 2.6 * SCALE);
+    const leap = Math.abs(Math.sin((age + enemy.phase) / 115));
+    enemy.y = enemy.baseY - enemy.lane * Math.round(leap * enemy.amplitude * SCALE);
+    if (enemy.state === 'exiting') enemy.x += (state.tick - (enemy.expiresAt - 120)) * 3 * SCALE;
+    if (enemy.fireCooldown <= 0) {
+      for (const offset of [-0.55, -0.28, 0, 0.28, 0.55]) spawnEnemyBullet(state, enemy, offset, 108);
+      enemy.fireCooldown = 264; state.metrics.enemyStats[enemy.kind].attacks += 1;
+    }
+    return;
+  }
+
+  if (enemy.kind === 'basin-bell') {
+    enemy.x = Math.max(965 * SCALE, enemy.spawnX - Math.min(age, 150) * 2.1 * SCALE);
+    enemy.y = enemy.baseY + Math.round(Math.sin((age + enemy.phase) / 145) * enemy.amplitude * SCALE);
+    if (enemy.state === 'exiting') enemy.x += (state.tick - (enemy.expiresAt - 120)) * 3 * SCALE;
+    if (enemy.fireCooldown <= 0) {
+      for (const point of state.trail) point.wetUntil = Math.max(point.wetUntil ?? 0, state.tick + STAGE_03_WET_TICKS);
+      for (const offset of [-0.36, -0.18, 0, 0.18, 0.36]) spawnEnemyBullet(state, enemy, offset, 102);
+      enemy.fireCooldown = 300; state.metrics.enemyStats[enemy.kind].attacks += 1; state.metrics.rain.basinSurges += 1;
+    }
+    return;
+  }
+
+  if (enemy.kind === 'reed-needle') {
+    const wetTarget = state.trail.filter((point) => (point.wetUntil ?? 0) >= state.tick)
+      .sort((a, b) => distanceSq(enemy, a) - distanceSq(enemy, b) || a.segmentId - b.segmentId)[0];
+    if (wetTarget) moveTowardPoint(enemy, wetTarget, 245);
+    else {
+      enemy.x = Math.max(930 * SCALE, enemy.spawnX - Math.min(age, 150) * 2.8 * SCALE);
+      enemy.y = enemy.baseY + Math.round(Math.sin((age + enemy.phase) / 90) * enemy.amplitude * SCALE);
+    }
+    if (enemy.fireCooldown <= 0) {
+      spawnEnemyBullet(state, enemy, 0, 190); enemy.fireCooldown = 228;
+      state.metrics.enemyStats[enemy.kind].attacks += 1; state.metrics.rain.needleDashes += 1;
     }
     return;
   }
@@ -441,6 +528,7 @@ export const step = (previous: GameState, input: InputFrame): { state: GameState
   updateBoss(state, events);
 
   state.trail = state.trail.filter((point) => state.tick - point.bornTick <= TRAIL_LIFETIME);
+  applyRain(state);
   if (state.candidate?.expiresTick && state.candidate.expiresTick < state.tick) state.candidate = null;
   if (!state.retrace && shouldAddTrailPoint(state.trail, state.player, state.tick)) {
     state.trail.push({ x: state.player.x, y: state.player.y, bornTick: state.tick, segmentId: state.tick });
@@ -465,8 +553,10 @@ export const step = (previous: GameState, input: InputFrame): { state: GameState
     bullet.y += bullet.vy;
     if (bullet.kind === 'player' && !bullet.annotated && shotCrossedTrail(from, bullet, state.trail)) {
       bullet.annotated = true;
-      bullet.vx = Math.round(bullet.vx * 1.15);
+      bullet.wetAnnotated = shotCrossedWetTrail(from, bullet, state.trail, state.tick);
+      bullet.vx = Math.round(bullet.vx * (bullet.wetAnnotated ? 1.28 : 1.15));
       state.metrics.annotatedShots += 1;
+      if (bullet.wetAnnotated) state.metrics.rain.wetAnnotatedShots += 1;
       events.push({ type: 'shot-annotated' });
     }
   }
@@ -553,7 +643,8 @@ export const step = (previous: GameState, input: InputFrame): { state: GameState
         if (distanceSq(bullet, enemy) <= ((bullet.radius + enemy.radius) * SCALE) ** 2) {
           // A successful loop must repay the travel and firing opportunity cost.
           // M1 measurement showed 9 damage left ordinary tracking fire dominant.
-          let damage = bullet.kind === 'return' ? 16 : bullet.annotated && enemy.markedUntil >= state.tick ? 28 : bullet.annotated ? 6 : 4;
+          let damage = bullet.kind === 'return' ? 16 : bullet.wetAnnotated ? 18 : bullet.annotated && enemy.markedUntil >= state.tick ? 28 : bullet.annotated ? 6 : 4;
+          if (bullet.wetAnnotated) state.metrics.rain.wetDamage += damage;
           if (enemy.kind === 'folio-hauler') {
             // Ordinary fire hits the broad front plate. Returned fire and shots
             // carried around its rear edge by a loop reach the exposed binding.
@@ -563,7 +654,7 @@ export const step = (previous: GameState, input: InputFrame): { state: GameState
           enemy.health -= damage;
           consumed = true;
           if (enemy.health <= 0) {
-            state.score += enemy.kind === 'folio-hauler' || enemy.kind === 'tab-binder' ? 5000
+            state.score += enemy.kind === 'folio-hauler' || enemy.kind === 'tab-binder' || enemy.kind === 'basin-bell' ? 5000
               : enemy.kind === 'margin-skiff' || enemy.kind === 'vane-scribe' ? 1600
                 : enemy.kind === 'bracket-gull' || enemy.kind === 'cross-reference-pair' ? 1000 : 700;
             events.push({ type: 'enemy-defeated' });

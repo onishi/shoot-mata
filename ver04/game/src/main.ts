@@ -7,6 +7,7 @@ import { createPilot } from './simulation/autopilot';
 import { createInitialState } from './simulation/game';
 import { STAGE_01_BOSS_START_TICK, STAGE_01_SPAWNS } from './content/stage-01';
 import { STAGE_02_BOSS_START_TICK, STAGE_02_SPAWNS } from './content/stage-02';
+import { STAGE_03_SPAWNS } from './content/stage-03';
 import { StageOneAudio } from './audio/stage-01-audio';
 
 const canvas = document.querySelector<HTMLCanvasElement>('#game');
@@ -131,10 +132,21 @@ Object.assign(window, {
     renderApp(ctx, app);
     return app.game.tick;
   },
-  __PALIMPSEST_QA_SCENARIO__: (scenario: 'damage' | 'setpiece' | 'stage-02-combat' | 'stage-02-setpiece' | 'boss-gate' | 'boss-defeat' | 'stage-02-boss') => {
+  __PALIMPSEST_QA_SCENARIO__: (scenario: 'damage' | 'setpiece' | 'stage-02-combat' | 'stage-02-setpiece' | 'stage-03-combat' | 'stage-03-setpiece' | 'boss-gate' | 'boss-defeat' | 'stage-02-boss') => {
     if (app.screen !== 'playing') return app.screen;
-    if (scenario === 'stage-02-boss') {
+    if (scenario === 'stage-03-combat' || scenario === 'stage-03-setpiece') {
+      app.game = createInitialState(3301, 'stage-03');
+      app.game.player.invulnerableUntil = 30000;
+      if (scenario === 'stage-03-setpiece') {
+        const setpieceIndex = STAGE_03_SPAWNS.findIndex((spawn) => spawn.tick === 10620);
+        app.game.tick = 10619; app.game.encounterIndex = setpieceIndex;
+      }
+      const pilot = createPilot('stitch');
+      const ticks = scenario === 'stage-03-combat' ? 5200 : 420;
+      for (let index = 0; index < ticks; index += 1) runStep(pilot(app.game));
+    } else if (scenario === 'stage-02-boss') {
       app.game = createInitialState(3202, 'stage-02');
+      app.game.player.invulnerableUntil = 50000;
       app.game.tick = STAGE_02_BOSS_START_TICK - 1;
       app.game.encounterIndex = STAGE_02_SPAWNS.length;
       app.game.enemies = [];
@@ -183,7 +195,7 @@ Object.assign(window, {
       app.game.boss.health = 1;
       app.game.bullets.push({ id: app.game.nextId++, x: app.game.boss.x, y: app.game.boss.y, vx: 0, vy: 0, radius: 5, kind: 'return', annotated: true, capturable: false });
     }
-    if (scenario !== 'boss-gate' && scenario !== 'setpiece' && scenario !== 'stage-02-combat' && scenario !== 'stage-02-setpiece' && scenario !== 'stage-02-boss') runStep({});
+    if (scenario !== 'boss-gate' && scenario !== 'setpiece' && scenario !== 'stage-02-combat' && scenario !== 'stage-02-setpiece' && scenario !== 'stage-03-combat' && scenario !== 'stage-03-setpiece' && scenario !== 'stage-02-boss') runStep({});
     renderApp(ctx, app);
     return app.screen;
   }

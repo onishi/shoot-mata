@@ -4,7 +4,7 @@ export const HEIGHT = 720;
 export const TICK_RATE = 120;
 
 export interface Point { x: number; y: number }
-export interface TrailPoint extends Point { bornTick: number; segmentId: number }
+export interface TrailPoint extends Point { bornTick: number; segmentId: number; wetUntil?: number }
 export interface Bullet extends Point {
   id: number;
   vx: number;
@@ -12,13 +12,15 @@ export interface Bullet extends Point {
   radius: number;
   kind: 'player' | 'enemy' | 'return';
   annotated: boolean;
+  wetAnnotated?: boolean;
   capturable: boolean;
   sourceAttack?: 'enemy-volley' | 'boss-fan' | 'boss-sweep' | 'compiler-gust' | 'compiler-lance' | 'compiler-storm';
 }
-export type StageId = 'stage-01' | 'stage-02';
+export type StageId = 'stage-01' | 'stage-02' | 'stage-03';
 export type EnemyKind =
   | 'eraser-mite' | 'bracket-gull' | 'margin-skiff' | 'folio-hauler'
-  | 'index-kite' | 'vane-scribe' | 'cross-reference-pair' | 'tab-binder';
+  | 'index-kite' | 'vane-scribe' | 'cross-reference-pair' | 'tab-binder'
+  | 'drip-scribe' | 'gutter-frog' | 'basin-bell' | 'reed-needle';
 export interface Enemy extends Point {
   id: number;
   kind: EnemyKind;
@@ -115,6 +117,15 @@ export interface Metrics {
     collatesLeft: number;
     collatesRight: number;
     collatesNearReversal: number;
+  };
+  rain: {
+    drops: number;
+    trailPointsWetted: number;
+    wetTrailPeak: number;
+    wetAnnotatedShots: number;
+    wetDamage: number;
+    basinSurges: number;
+    needleDashes: number;
   };
   boss: {
     spawned: boolean;

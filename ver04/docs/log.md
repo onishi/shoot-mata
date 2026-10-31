@@ -127,3 +127,13 @@
 - 23単体素材はすべて44.1kHz stereo PCM16で、BGM RMS -22〜-16 dBFS、SE RMS -24〜-12 dBFS、SE peak -6 dBFS以下に合格した。Stage 2最悪mixはリミッタ前peak -9.77 dBFS、NaN/clip 0だった。結果を`docs/evidence/m3-05-audio-audit.json`へ保存した。
 - 単体35件、自動計測4件、素材・音量監査、型検査、production buildに合格した。Chrome E2E 6件で初回操作開始、Stage 1→2ステム切替、BGM/SE分離、ポーズ停止・tick同期復帰、Compiler専用cueを確認した。
 - 次回はStage 3「雨注回廊」の雨滴・濡れ航跡規則、4通常敵、通常区間を実装し、自動計測で固有攻略を検証する。
+
+## 2026-10-31 — M3-06 Stage 3通常区間と4敵種
+
+- `stage-03.ts`へ195秒・65出現の雨注回廊を追加し、Drip Scribe、Gutter Frog、Basin Bell、Reed Needleを単独提示、混成、2回の水門山場へ接続した。
+- 18tick間隔の決定的な雨滴が航跡へ触れると5秒間濡れ、濡れた点が毎tick下へ垂れる規則を実装した。濡れ航跡を横切る添え書き弾は速度1.28倍・18 damageとなり、通常添え書きとの差を回帰テストで固定した。
+- Drip Scribeは3滴弾、Gutter Frogは跳躍と波紋5方向弾、Basin Bellは全航跡を濡らす水位上昇、Reed Needleは最寄りの濡れ航跡へ突進する固有行動とした。
+- Stitch操縦では最大同時敵8、敵弾82、最長無戦闘0tick、濡れた航跡点1,179、同時濡れ121、濡れ添え書き105発・954 damage、水位上昇54回、Reed突進102回、生成拒否0。全65出現を撃破または退場まで処理し、4回のhashが`026e557b658ef752`で一致した。
+- 単体37件、自動計測5件、素材監査18 final・1 prototype、音量監査、型検査、production build、Chrome E2E 7件に合格した。既存Stage 1/2の計測ゲートも維持した。
+- `m3-06-stage-03-combat.png`と`setpiece.png`を1280×720で目視し、雨線、青緑の濡れ航跡、4役割のシルエット、暖色中空弾、HUDを識別でき、文字切れがないことを確認した。Stage 3のCanvas表現は素材台帳で`prototype`として追跡する。
+- 次回はLACUNA EELの複数小輪による発光節の順次印付け、濡れ添え書き弱点、3形態攻撃を実装する。

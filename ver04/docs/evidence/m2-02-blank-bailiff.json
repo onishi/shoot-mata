@@ -25,7 +25,7 @@
         "volley": 23
       }
     },
-    "hash": "7a624aa3ee6a58fb"
+    "hash": "3d9dc412572e93d6"
   },
   "stitch": {
     "durationTicks": 8093,
@@ -51,9 +51,9 @@
         "volley": 7
       }
     },
-    "hash": "e47361e56f8cf5d5"
+    "hash": "f581fc3d3f8d5222"
   },
-  "replayHash": "e47361e56f8cf5d5",
+  "replayHash": "f581fc3d3f8d5222",
   "gates": {
     "baselineDefeatsBoss": true,
     "stitchDefeatsBoss": true,

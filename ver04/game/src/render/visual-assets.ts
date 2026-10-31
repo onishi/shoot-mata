@@ -10,6 +10,12 @@ const image = (stage: 'stage-01' | 'stage-02', path: string): HTMLImageElement =
   return result;
 };
 
+const blankImage = (): HTMLImageElement => {
+  const result = new Image();
+  result.src = 'data:image/gif;base64,R0lGODlhAQABAAAAACw=';
+  return result;
+};
+
 export const visuals = {
   'stage-01': {
     far: image('stage-01', 'erased-harbor-far-v1.png'),
@@ -22,7 +28,10 @@ export const visuals = {
     mid: image('stage-02', 'crosswind-index-mid-v1.png'),
     fore: image('stage-02', 'crosswind-index-fore-v1.png'),
     sprites: image('stage-02', 'stage-02-sprites-v1.png')
-  }
+  },
+  // Stage 3 remains a development preview until M3-09. Its authored rain and
+  // enemy silhouettes are Canvas-only and are not registered as final assets.
+  'stage-03': { far: blankImage(), mid: blankImage(), fore: blankImage(), sprites: blankImage() }
 };
 
 export const spriteFrames: Record<SpriteId, SpriteFrame & { stage: 'stage-01' | 'stage-02' }> = {

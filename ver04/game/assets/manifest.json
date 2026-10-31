@@ -108,6 +108,14 @@
       "stage": "Stage 2: The Crosswind Index", "usage": "left/right reversal, wind lock, seam exposure, seam hit and Compiler phase cues", "version": 1, "status": "final", "createdBy": "procedural",
       "sourcePrompt": "scripts/generate-audio.mjs deterministic synthesis; directional air, locking vane, exposed binding resonance and Compiler machinery", "generatedAt": "2026-10-31",
       "editHistory": ["Synthesized as six 44.1 kHz stereo PCM16 files; connected to simulation events and inspected in the worst-case Stage 2 mix."], "dimensions": "6 files, 0.20s to 0.86s, stereo 44.1kHz PCM16", "license": "project-original"
+    },
+    {
+      "id": "stage-03-canvas-preview-v1", "kind": "procedural-visual", "path": "src/render/render.ts",
+      "stage": "Stage 3: The Rain Margin", "usage": "development-only rain, wet-trail overlay and four normal-enemy silhouettes",
+      "version": 1, "status": "prototype", "createdBy": "procedural",
+      "sourcePrompt": "none; authored Canvas preview for the Stage 3 simulation rules",
+      "generatedAt": "2026-10-31", "editHistory": ["Added deterministic rainfall, mint wet-wake overlay and role-specific geometric enemy silhouettes; replace during the Stage 3 visual-production task."],
+      "dimensions": "1280x720 logical canvas", "license": "project-original"
     }
   ]
 }

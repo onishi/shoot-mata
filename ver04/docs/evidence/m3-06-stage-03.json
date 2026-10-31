@@ -1,0 +1,66 @@
+{
+  "generatedAt": "2026-10-31",
+  "durationTicks": 23400,
+  "scheduledSpawns": 65,
+  "seed": 3301,
+  "finalHash": "026e557b658ef752",
+  "replayHashes": [
+    "026e557b658ef752",
+    "026e557b658ef752",
+    "026e557b658ef752"
+  ],
+  "maxEnemies": 8,
+  "maxEnemyBullets": 82,
+  "maxCombatGapTicks": 0,
+  "stats": {
+    "drip-scribe": {
+      "spawned": 26,
+      "attacks": 199,
+      "defeated": 15,
+      "exited": 11
+    },
+    "gutter-frog": {
+      "spawned": 17,
+      "attacks": 103,
+      "defeated": 12,
+      "exited": 5
+    },
+    "basin-bell": {
+      "spawned": 7,
+      "attacks": 54,
+      "defeated": 4,
+      "exited": 3
+    },
+    "reed-needle": {
+      "spawned": 15,
+      "attacks": 102,
+      "defeated": 5,
+      "exited": 10
+    }
+  },
+  "rain": {
+    "drops": 1300,
+    "trailPointsWetted": 1179,
+    "wetTrailPeak": 121,
+    "wetAnnotatedShots": 105,
+    "wetDamage": 954,
+    "basinSurges": 54,
+    "needleDashes": 102
+  },
+  "rejectedEnemies": 0,
+  "rejectedEnemyBullets": 0,
+  "gates": {
+    "allKindsSpawned": true,
+    "allKindsAttacked": true,
+    "allKindsDefeated": true,
+    "allSpawnsAccounted": true,
+    "rainWetsTrail": true,
+    "wetAnnotationUsed": true,
+    "waterGateActivated": true,
+    "noUnintendedFourSecondGap": true,
+    "enemyLimit": true,
+    "bulletLimit": true,
+    "deterministicReplay": true,
+    "stageDrained": true
+  }
+}

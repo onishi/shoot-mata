@@ -6,7 +6,7 @@ type QaWindow = Window & {
   __PALIMPSEST_AUTOPLAY__: (ticks: number) => number;
   __PALIMPSEST_APP_STATE__: () => { screen: Screen; continuesRemaining: number; checkpointName: string; game: { stageId: string; tick: number; player: { health: number }; gauge: number } };
   __PALIMPSEST_STATE__: () => { bullets: unknown[]; trail: unknown[]; candidate: unknown; metrics: { loops: number; retraces: number } };
-  __PALIMPSEST_QA_SCENARIO__: (scenario: 'damage' | 'setpiece' | 'stage-02-combat' | 'stage-02-setpiece' | 'boss-gate' | 'boss-defeat' | 'stage-02-boss') => Screen;
+  __PALIMPSEST_QA_SCENARIO__: (scenario: 'damage' | 'setpiece' | 'stage-02-combat' | 'stage-02-setpiece' | 'stage-03-combat' | 'stage-03-setpiece' | 'boss-gate' | 'boss-defeat' | 'stage-02-boss') => Screen;
   __PALIMPSEST_AUDIO_READY__: () => Promise<void>;
   __PALIMPSEST_AUDIO_STATE__: () => { state: string; loaded: number; stems: number; stemStage: string | null; active: number; busLevels: Record<string, number>; cueCounts: Record<string, number> };
   __PALIMPSEST_AUDIO_BUS__: (bus: 'music' | 'se' | 'ui' | 'environment', level: number) => void;
@@ -242,4 +242,19 @@ test('Stage 2 final visuals remain readable in combat, Tab Binder set piece and 
   });
   await page.waitForTimeout(50);
   await canvas.screenshot({ path: '../docs/evidence/m3-04-compiler-phase-3.png' });
+});
+
+test('Stage 3 development preview exposes rain, wet trail and water-gate roles', async ({ page }) => {
+  await page.goto('/'); await page.keyboard.press('Enter'); await page.keyboard.press('Enter');
+  await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_QA_SCENARIO__('stage-03-combat'));
+  let state = await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_STATE__()) as unknown as {
+    stageId: string; metrics: { rain: { trailPointsWetted: number; wetTrailPeak: number } };
+  };
+  expect(state.stageId).toBe('stage-03'); expect(state.metrics.rain.trailPointsWetted).toBeGreaterThan(0);
+  expect(state.metrics.rain.wetTrailPeak).toBeGreaterThan(0);
+  await page.locator('#game').screenshot({ path: '../docs/evidence/m3-06-stage-03-combat.png' });
+  await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_QA_SCENARIO__('stage-03-setpiece'));
+  state = await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_STATE__()) as unknown as typeof state;
+  expect(state.metrics.rain.wetTrailPeak).toBeGreaterThan(0);
+  await page.locator('#game').screenshot({ path: '../docs/evidence/m3-06-stage-03-setpiece.png' });
 });
