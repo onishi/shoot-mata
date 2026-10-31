@@ -20,4 +20,14 @@ describe('Stage 1 audio event map', () => {
     expect(low!.rate).toBeLessThan(middle!.rate);
     expect(middle!.rate).toBeLessThan(high!.rate);
   });
+
+  it('maps Stage 2 wind and Compiler feedback to dedicated cues', () => {
+    expect(cueForEvent({ type: 'wind-reversed', direction: -1 }, 'stage-02')?.cue).toBe('wind-left');
+    expect(cueForEvent({ type: 'wind-reversed', direction: 1 }, 'stage-02')?.cue).toBe('wind-right');
+    expect(cueForEvent({ type: 'compiler-wind-locked', direction: 1 }, 'stage-02')?.cue).toBe('wind-lock');
+    expect(cueForEvent({ type: 'compiler-seam-exposed', side: -1 }, 'stage-02')?.cue).toBe('seam-exposed');
+    expect(cueForEvent({ type: 'compiler-seam-hit' }, 'stage-02')?.cue).toBe('seam-hit');
+    expect(cueForEvent({ type: 'boss-phase', phase: 2 }, 'stage-02')?.cue).toBe('compiler-phase');
+    expect(cueForEvent({ type: 'boss-phase', phase: 2 }, 'stage-01')?.cue).toBe('warning');
+  });
 });

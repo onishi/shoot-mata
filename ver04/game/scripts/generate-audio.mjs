@@ -4,7 +4,9 @@ import { resolve } from 'node:path';
 const RATE = 44100;
 const root = resolve(import.meta.dirname, '..');
 const output = resolve(root, 'public/assets/audio/stage-01');
+const outputStageTwo = resolve(root, 'public/assets/audio/stage-02');
 await mkdir(output, { recursive: true });
+await mkdir(outputStageTwo, { recursive: true });
 
 let noiseState = 0x50414c49;
 const noise = () => {
@@ -74,10 +76,39 @@ const stems = {
     return [swell * (bow + grit), swell * (bow * 0.91 - grit)];
   }, -19)
 };
+const stageOneEffectNoiseState = noiseState;
+
+const stageTwoStems = {
+  'crosswind-ambient-v1.wav': render(16, (t) => {
+    const direction = Math.floor(t / 2) % 2 === 0 ? -1 : 1;
+    const gust = noise() * (0.2 + 0.1 * Math.sin(Math.PI * (t % 2) / 2) ** 2);
+    const fiber = noise() * tone(1260 + 90 * tone(0.125, t), t) * 0.045;
+    const lowAir = tone(62, t) * 0.1 + tone(93, t, 0.7) * 0.055;
+    const [l, r] = pan(gust + fiber, direction * 0.72 * Math.sin(Math.PI * (t % 2) / 2));
+    return [l + lowAir, r + lowAir * 0.92];
+  }, -20),
+  'crosswind-pulse-v1.wav': render(16, (t) => {
+    const beatThree = t % (1.6 / 3); const beatFour = t % 0.4;
+    const vane = beatThree < 0.065 ? (tone(510, beatThree) * 0.4 + noise() * 0.08) * Math.exp(-beatThree * 42) : 0;
+    const teeth = beatFour < 0.04 ? (tone(765, beatFour) * 0.3 + tone(255, beatFour) * 0.12) * Math.exp(-beatFour * 58) : 0;
+    const drone = tone(127.5, t) * 0.32 + tone(191.25, t, 0.4) * 0.14;
+    return pan(vane + teeth + drone, Math.sin(t * Math.PI / 2) * 0.58);
+  }, -19.5, -1),
+  'crosswind-crisis-v1.wav': render(16, (t) => {
+    const rotation = Math.sin(Math.PI * 2 * t / 3.2);
+    const blades = tone(85 + rotation * 4, t) * 0.3 + tone(170 - rotation * 6, t, 0.5) * 0.22 + tone(255, t, 1.2) * 0.12;
+    const ratchet = (t % 0.32) < 0.045 ? noise() * Math.exp(-(t % 0.32) * 54) * 0.18 : 0;
+    const [l, r] = pan(blades + ratchet, rotation * 0.62);
+    return [l, r];
+  }, -19)
+};
+// Stage 1 is a frozen completed slice. Keep its noise-based effects bit-for-bit
+// stable even though Stage 2 stems are rendered by the same deterministic tool.
+noiseState = stageOneEffectNoiseState;
 
 // A short zero crossing at the 16-second seam prevents broadband wind and bow
 // grain from clicking when Web Audio loops the stems.
-for (const channels of Object.values(stems)) for (const channel of channels) {
+for (const channels of [...Object.values(stems), ...Object.values(stageTwoStems)]) for (const channel of channels) {
   const fade = Math.round(RATE * 0.04);
   for (let index = 0; index < fade; index += 1) {
     const gain = Math.sin(index / fade * Math.PI / 2) ** 2;
@@ -100,6 +131,17 @@ const sfx = {
   'ui-back-v1.wav': [0.18, (t, d) => pan(env(t, d, 0.002, 0.1) * (tone(510 - 190 * t / d, t) + tone(255, t) * 0.32), 0)]
 };
 
+const stageTwoSfx = {
+  'crosswind-left-v1.wav': [0.52, (t, d) => pan(env(t, d, 0.008, 0.16) * (noise() * 0.5 + tone(290 - 95 * t / d, t) * 0.25), -0.88 + 0.24 * t / d)],
+  'crosswind-right-v1.wav': [0.52, (t, d) => pan(env(t, d, 0.008, 0.16) * (noise() * 0.5 + tone(290 - 95 * t / d, t) * 0.25), 0.88 - 0.24 * t / d)],
+  'wind-lock-v1.wav': [0.68, (t, d) => pan(env(t, d, 0.004, 0.28) * (tone(172 + 520 * t / d, t) * 0.62 + tone(344, t) * 0.3 + noise() * Math.exp(-t * 16) * 0.15), 0)],
+  'seam-exposed-v1.wav': [0.74, (t, d) => pan(env(t, d, 0.006, 0.34) * (tone(430 + 180 * t / d, t) * 0.55 + tone(645 + 270 * t / d, t) * 0.34), 0.18)],
+  'seam-hit-v1.wav': [0.2, (t, d) => pan(env(t, d, 0.002, 0.1) * (tone(1080 - 290 * t / d, t) * 0.74 + noise() * Math.exp(-t * 22) * 0.22), -0.12)],
+  'compiler-phase-v1.wav': [0.86, (t, d) => pan(env(t, d, 0.006, 0.34) * (tone(92, t) * 0.5 + tone(184 + 130 * t / d, t) * 0.4 + tone(276 + 195 * t / d, t) * 0.24 + noise() * Math.exp(-t * 8) * 0.16), 0)]
+};
+
 for (const [name, channels] of Object.entries(stems)) await writeFile(resolve(output, name), wav(channels));
 for (const [name, [duration, synth]] of Object.entries(sfx)) await writeFile(resolve(output, name), wav(render(duration, synth, -18, -6.4)));
-console.log(`generated ${Object.keys(stems).length} stems and ${Object.keys(sfx).length} effects at 44.1 kHz stereo`);
+for (const [name, channels] of Object.entries(stageTwoStems)) await writeFile(resolve(outputStageTwo, name), wav(channels));
+for (const [name, [duration, synth]] of Object.entries(stageTwoSfx)) await writeFile(resolve(outputStageTwo, name), wav(render(duration, synth, -18, -6.4)));
+console.log(`generated ${Object.keys(stems).length + Object.keys(stageTwoStems).length} stems and ${Object.keys(sfx).length + Object.keys(stageTwoSfx).length} effects at 44.1 kHz stereo`);

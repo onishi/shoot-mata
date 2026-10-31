@@ -87,6 +87,10 @@ export type GameEvent =
   | { type: 'boss-spawned' }
   | { type: 'boss-warning' }
   | { type: 'boss-phase'; phase: 1 | 2 | 3 }
+  | { type: 'wind-reversed'; direction: -1 | 1 }
+  | { type: 'compiler-wind-locked'; direction: -1 | 1 }
+  | { type: 'compiler-seam-exposed'; side: -1 | 1 }
+  | { type: 'compiler-seam-hit' }
   | { type: 'boss-defeated' };
 export interface Metrics {
   candidates: number;

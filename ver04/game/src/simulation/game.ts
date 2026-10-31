@@ -244,13 +244,18 @@ export const effectiveStageTwoWindDirection = (state: GameState): -1 | 1 =>
   state.boss?.kind === 'crosswind-compiler' && state.boss.windLockedUntil >= state.tick
     ? state.boss.lockedWindDirection : stageTwoWindDirection(state.tick);
 
-const applyCrosswind = (state: GameState): void => {
+const applyCrosswind = (state: GameState, events?: GameEvent[]): void => {
   if (state.stageId !== 'stage-02') return;
   const direction = effectiveStageTwoWindDirection(state);
   const playerDrift = direction * Math.round(0.18 * SCALE);
   const trailDrift = direction * Math.round(0.35 * SCALE);
   if (state.tick > 0 && state.tick < stageDefinition(state.stageId).durationTicks
-    && state.tick % STAGE_02_WIND_HALF_CYCLE_TICKS === 0) state.metrics.wind.reversals += 1;
+    && state.tick % STAGE_02_WIND_HALF_CYCLE_TICKS === 0) {
+    state.metrics.wind.reversals += 1;
+    if (!(state.boss?.kind === 'crosswind-compiler' && state.boss.windLockedUntil >= state.tick)) {
+      events?.push({ type: 'wind-reversed', direction });
+    }
+  }
   state.player.x = clamp(state.player.x + playerDrift, PLAYER_RADIUS * SCALE, (WIDTH - PLAYER_RADIUS) * SCALE);
   for (const point of state.trail) point.x += trailDrift;
   if (state.candidate) {
@@ -403,6 +408,8 @@ const collate = (state: GameState, events: GameEvent[]): void => {
         state.boss.windLockedUntil = state.tick + 6 * TICK_RATE;
         state.boss.seamExposedUntil = state.tick + 6 * TICK_RATE;
         state.metrics.compiler.windLocks += 1;
+        events.push({ type: 'compiler-wind-locked', direction: state.boss.lockedWindDirection });
+        events.push({ type: 'compiler-seam-exposed', side: state.boss.vaneSide === 1 ? -1 : 1 });
       }
     }
   }
@@ -427,7 +434,7 @@ export const step = (previous: GameState, input: InputFrame): { state: GameState
       events.push({ type: 'retrace-started' });
     } else events.push({ type: 'retrace-denied' });
   }
-  applyCrosswind(state);
+  applyCrosswind(state, events);
   updatePlayer(state, input, events);
 
   spawnDueEncounters(state);
@@ -479,7 +486,10 @@ export const step = (previous: GameState, input: InputFrame): { state: GameState
         if (seamHit || bodyHit) {
           const damage = seamHit ? (bullet.kind === 'return' ? 88 : bullet.annotated ? 58 : 44) : (bullet.kind === 'return' ? 6 : bullet.annotated ? 2 : 1);
           boss.health -= damage;
-          if (seamHit) state.metrics.compiler.weakpointHits += 1;
+          if (seamHit) {
+            state.metrics.compiler.weakpointHits += 1;
+            events.push({ type: 'compiler-seam-hit' });
+          }
           else state.metrics.compiler.ordinaryHits += 1;
           const nextPhase = boss.health <= boss.maxHealth / 3 ? 3 : boss.health <= boss.maxHealth * 2 / 3 ? 2 : 1;
           if (nextPhase > boss.phase) {

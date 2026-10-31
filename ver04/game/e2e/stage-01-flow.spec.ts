@@ -4,11 +4,11 @@ type Screen = 'title' | 'guide' | 'stage-intro' | 'playing' | 'paused' | 'contin
 type QaWindow = Window & {
   __PALIMPSEST_ASSETS_READY__: Promise<unknown>;
   __PALIMPSEST_AUTOPLAY__: (ticks: number) => number;
-  __PALIMPSEST_APP_STATE__: () => { screen: Screen; continuesRemaining: number; checkpointName: string; game: { tick: number; player: { health: number }; gauge: number } };
+  __PALIMPSEST_APP_STATE__: () => { screen: Screen; continuesRemaining: number; checkpointName: string; game: { stageId: string; tick: number; player: { health: number }; gauge: number } };
   __PALIMPSEST_STATE__: () => { bullets: unknown[]; trail: unknown[]; candidate: unknown; metrics: { loops: number; retraces: number } };
   __PALIMPSEST_QA_SCENARIO__: (scenario: 'damage' | 'setpiece' | 'stage-02-combat' | 'stage-02-setpiece' | 'boss-gate' | 'boss-defeat' | 'stage-02-boss') => Screen;
   __PALIMPSEST_AUDIO_READY__: () => Promise<void>;
-  __PALIMPSEST_AUDIO_STATE__: () => { state: string; loaded: number; stems: number; active: number; busLevels: Record<string, number> };
+  __PALIMPSEST_AUDIO_STATE__: () => { state: string; loaded: number; stems: number; stemStage: string | null; active: number; busLevels: Record<string, number>; cueCounts: Record<string, number> };
   __PALIMPSEST_AUDIO_BUS__: (bus: 'music' | 'se' | 'ui' | 'environment', level: number) => void;
 };
 
@@ -17,7 +17,7 @@ test('Stage 1 audio starts from a gesture, separates buses and follows pause', a
   expect(await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_AUDIO_STATE__().state)).toBe('uninitialized');
   await page.keyboard.press('Enter');
   await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_AUDIO_READY__());
-  expect(await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_AUDIO_STATE__())).toMatchObject({ state: 'running', loaded: 14, stems: 0 });
+  expect(await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_AUDIO_STATE__())).toMatchObject({ state: 'running', loaded: 23, stems: 0 });
   await page.keyboard.press('Enter');
   await expect.poll(() => page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_AUDIO_STATE__().stems)).toBe(3);
   await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_AUDIO_BUS__('music', 0));
@@ -28,6 +28,18 @@ test('Stage 1 audio starts from a gesture, separates buses and follows pause', a
   expect(await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_AUDIO_STATE__().stems)).toBe(0);
   await page.keyboard.press('Escape');
   await expect.poll(() => page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_AUDIO_STATE__().stems)).toBe(3);
+
+  await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_QA_SCENARIO__('boss-gate'));
+  await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_QA_SCENARIO__('boss-defeat'));
+  await page.keyboard.press('Enter');
+  await page.keyboard.press('Enter');
+  await expect.poll(() => page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_AUDIO_STATE__().stemStage)).toBe('stage-02');
+  await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_QA_SCENARIO__('stage-02-boss'));
+  const stageTwoAudio = await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_AUDIO_STATE__());
+  expect(stageTwoAudio.stems).toBe(3);
+  expect(stageTwoAudio.cueCounts['compiler-phase']).toBeGreaterThan(0);
+  expect(stageTwoAudio.cueCounts['wind-lock']).toBeGreaterThan(0);
+  expect(stageTwoAudio.cueCounts['seam-exposed']).toBeGreaterThan(0);
 });
 
 test('Stage 1 title-to-result keyboard flow, continue and focus pause work in Chrome', async ({ page }) => {

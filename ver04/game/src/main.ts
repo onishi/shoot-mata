@@ -28,7 +28,7 @@ const applyAction = (action: AppAction): void => {
   app = transition(app, action);
   if (before !== app.screen) {
     audio.playUi(action === 'back');
-    audio.setScreen(app.screen, app.game.tick);
+    audio.setScreen(app.screen, app.game.tick, app.game.stageId);
     held.clear();
     pulses.collate = false;
     pulses.retrace = false;
@@ -60,7 +60,7 @@ window.addEventListener('keydown', (event) => {
 window.addEventListener('keyup', (event) => held.delete(event.code));
 const pauseForFocusLoss = (): void => {
   app = autoPause(app);
-  audio.setScreen(app.screen, app.game.tick);
+  audio.setScreen(app.screen, app.game.tick, app.game.stageId);
   held.clear();
   pulses.collate = false;
   pulses.retrace = false;
@@ -81,8 +81,8 @@ const input = (): InputFrame => ({
 const runStep = (frameInput: InputFrame): void => {
   const result = advance(app, frameInput);
   app = result.state;
-  for (const event of result.events) audio.playEvent(event);
-  audio.setScreen(app.screen, app.game.tick);
+  for (const event of result.events) audio.playEvent(event, app.game.stageId);
+  audio.setScreen(app.screen, app.game.tick, app.game.stageId);
   if (result.events.some((event) => event.type === 'loop-collated')) status.textContent = 'COLLATE succeeded. Captured fire has been returned.';
   if (app.screen === 'continue') status.textContent = 'The wake broke. Continue from the checkpoint or return to title.';
   if (app.screen === 'result') status.textContent = app.game.stageId === 'stage-01'

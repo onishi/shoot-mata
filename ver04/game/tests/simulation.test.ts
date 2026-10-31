@@ -195,11 +195,13 @@ describe('M1 deterministic playground', () => {
     state.trail = [trailPoint(400, 300, 700)];
     const playerX = state.player.x;
     const trailX = state.trail[0].x;
-    state = step(state, {}).state;
+    const reversal = step(state, {});
+    state = reversal.state;
     expect(state.player.x).toBeLessThan(playerX);
     expect(state.trail[0].x).toBeLessThan(trailX);
     expect(trailX - state.trail[0].x).toBeGreaterThan(playerX - state.player.x);
     expect(state.metrics.wind.reversals).toBe(1);
+    expect(reversal.events).toContainEqual({ type: 'wind-reversed', direction: -1 });
   });
 
   it('gives all four Stage 2 enemies a distinct scheduled attack', () => {
@@ -232,11 +234,14 @@ describe('M1 deterministic playground', () => {
       ],
       intersection: vane, startIndex: 0, area: 14400, expiresTick: state.tick + 60
     };
-    state = step(state, { collate: true }).state;
+    const locked = step(state, { collate: true });
+    state = locked.state;
     expect(state.boss?.kind).toBe('crosswind-compiler');
     expect(state.boss!.windLockedUntil).toBeGreaterThan(state.tick);
     expect(state.boss!.seamExposedUntil).toBe(state.boss!.windLockedUntil);
     expect(state.metrics.compiler.windLocks).toBe(1);
+    expect(locked.events).toContainEqual({ type: 'compiler-wind-locked', direction: 1 });
+    expect(locked.events).toContainEqual({ type: 'compiler-seam-exposed', side: -1 });
   });
 
   it('rewards firing into the exposed Compiler seam over ordinary body fire', () => {
@@ -250,12 +255,13 @@ describe('M1 deterministic playground', () => {
       if (seam) boss.seamExposedUntil = state.tick + 60;
       const point = seam ? { x: boss.x - px(100), y: boss.y - boss.vaneSide * px(108) } : boss;
       state.bullets = [{ id: 950, x: point.x, y: point.y, vx: 0, vy: 0, radius: 5, kind: 'player', annotated: false, capturable: false }];
-      return step(state, {}).state;
+      return step(state, {});
     };
     const ordinary = hit(false);
     const weakpoint = hit(true);
-    expect(ordinary.boss!.maxHealth - ordinary.boss!.health).toBe(1);
-    expect(weakpoint.boss!.maxHealth - weakpoint.boss!.health).toBe(44);
-    expect(weakpoint.metrics.compiler.weakpointHits).toBe(1);
+    expect(ordinary.state.boss!.maxHealth - ordinary.state.boss!.health).toBe(1);
+    expect(weakpoint.state.boss!.maxHealth - weakpoint.state.boss!.health).toBe(44);
+    expect(weakpoint.state.metrics.compiler.weakpointHits).toBe(1);
+    expect(weakpoint.events).toContainEqual({ type: 'compiler-seam-hit' });
   });
 });

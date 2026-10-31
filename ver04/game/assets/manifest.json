@@ -84,6 +84,30 @@
       "stage": "Stage 2: The Crosswind Index", "usage": "directional wind fibers, gold wind-lock state, exposed seam glow, atlas-backed enemies and three-layer parallax", "version": 1, "status": "final", "createdBy": "procedural",
       "sourcePrompt": "none; authored Canvas compositing from docs/02-art-and-audio-direction.md sections 1, 3 and 4",
       "generatedAt": "2026-10-31", "editHistory": ["Removed all Stage 2 preview primitives and connected final backgrounds and sprites.", "Wind fibers reverse every six seconds and turn gold while Compiler wind lock is active; exposed seam uses a separate double-ring atlas frame."], "dimensions": "1280x720 logical canvas", "license": "project-original"
+    },
+    {
+      "id": "stage-02-ambient-v1", "kind": "audio-stem", "path": "public/assets/audio/stage-02/crosswind-ambient-v1.wav",
+      "stage": "Stage 2: The Crosswind Index", "usage": "looping environment stem: alternating lateral wind and paper-fiber air", "version": 1, "status": "final", "createdBy": "procedural",
+      "sourcePrompt": "scripts/generate-audio.mjs deterministic synthesis; stereo crosswind sweeps, paper-fiber hiss and low suspended-tower air", "generatedAt": "2026-10-31",
+      "editHistory": ["Synthesized at 44.1 kHz stereo PCM16; environment bus remains independent from music and SE."], "dimensions": "16.0s stereo 44.1kHz PCM16", "license": "project-original"
+    },
+    {
+      "id": "stage-02-pulse-v1", "kind": "audio-stem", "path": "public/assets/audio/stage-02/crosswind-pulse-v1.wav",
+      "stage": "Stage 2: The Crosswind Index", "usage": "looping density stem: vane rotation in a three-against-four polyrhythm", "version": 1, "status": "final", "createdBy": "procedural",
+      "sourcePrompt": "scripts/generate-audio.mjs deterministic synthesis; dry vane clicks, indexing teeth and rotating stereo placement", "generatedAt": "2026-10-31",
+      "editHistory": ["Synthesized at 44.1 kHz stereo PCM16; runtime gain follows enemy and projectile density."], "dimensions": "16.0s stereo 44.1kHz PCM16", "license": "project-original"
+    },
+    {
+      "id": "stage-02-crisis-v1", "kind": "audio-stem", "path": "public/assets/audio/stage-02/crosswind-crisis-v1.wav",
+      "stage": "Stage 2: The Crosswind Index", "usage": "looping danger stem: rotating Compiler harmonics and ratchet grain", "version": 1, "status": "final", "createdBy": "procedural",
+      "sourcePrompt": "scripts/generate-audio.mjs deterministic synthesis; rotating low harmonics, vane ratchet and phase pressure", "generatedAt": "2026-10-31",
+      "editHistory": ["Synthesized at 44.1 kHz stereo PCM16; runtime gain follows CROSSWIND COMPILER phase."], "dimensions": "16.0s stereo 44.1kHz PCM16", "license": "project-original"
+    },
+    {
+      "id": "stage-02-effects-v1", "kind": "audio-effect-set", "path": "public/assets/audio/stage-02/crosswind-left-v1.wav",
+      "stage": "Stage 2: The Crosswind Index", "usage": "left/right reversal, wind lock, seam exposure, seam hit and Compiler phase cues", "version": 1, "status": "final", "createdBy": "procedural",
+      "sourcePrompt": "scripts/generate-audio.mjs deterministic synthesis; directional air, locking vane, exposed binding resonance and Compiler machinery", "generatedAt": "2026-10-31",
+      "editHistory": ["Synthesized as six 44.1 kHz stereo PCM16 files; connected to simulation events and inspected in the worst-case Stage 2 mix."], "dimensions": "6 files, 0.20s to 0.86s, stereo 44.1kHz PCM16", "license": "project-original"
     }
   ]
 }

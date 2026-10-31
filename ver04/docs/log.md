@@ -118,3 +118,12 @@
 - `m3-04-stage-02-combat.png`、`stage-02-setpiece.png`、`compiler-phase-1/2/3.png`を1280×720で目視し、4敵の役割、Tab Binderの大型シルエット、風向、金色の風固定、露出綴じ目、暖色中空弾、航跡、HUDを識別でき、文字切れ・前景遮蔽がないことを確認した。
 - 素材台帳をStage 2の5件の`final`へ更新し、Stage 2仮素材を0件にした。`npm run verify`で単体34件、自動計測4件、素材監査14件・仮素材0、音量監査、型検査、production build、Chrome E2E 6件に合格した。simulation規則と既存自動計測値は変更していない。
 - 次回はStage 2専用の風音・羽根ポリリズム・危機ステムと環境・ボス効果音を制作し、音量監査とChromeのStage遷移・bus・ポーズ同期を確認する。
+
+## 2026-10-31 — M3-05 Stage 2完成音響
+
+- v4専用の決定的音声制作へStage 2を追加し、左右へ往復する紙繊維風、羽根の3:4ポリリズム、回転倍音とラチェットからなる16秒の環境・脈動・危機3ステムを44.1kHz stereo PCM16で制作した。Stage 1の生成結果はbit単位で維持した。
+- 横風の左右反転、風固定、反対側の綴じ目露出、綴じ目命中、Compiler形態移行の6効果音を制作した。simulationから専用イベントを返し、音側は状態を変更せず即時cueとして消費する。
+- 再生中Stageに応じて3ステムを切り替え、ポーズで停止、復帰時にtick位置へ同期するようミキサを拡張した。BGM、SE、UI、環境の4 busとSE 24・UI 4・環境8・音楽6 voice上限は維持した。
+- 23単体素材はすべて44.1kHz stereo PCM16で、BGM RMS -22〜-16 dBFS、SE RMS -24〜-12 dBFS、SE peak -6 dBFS以下に合格した。Stage 2最悪mixはリミッタ前peak -9.77 dBFS、NaN/clip 0だった。結果を`docs/evidence/m3-05-audio-audit.json`へ保存した。
+- 単体35件、自動計測4件、素材・音量監査、型検査、production buildに合格した。Chrome E2E 6件で初回操作開始、Stage 1→2ステム切替、BGM/SE分離、ポーズ停止・tick同期復帰、Compiler専用cueを確認した。
+- 次回はStage 3「雨注回廊」の雨滴・濡れ航跡規則、4通常敵、通常区間を実装し、自動計測で固有攻略を検証する。
