@@ -149,6 +149,9 @@ Object.assign(window, {
         { x: segment.x + 55 * 256, y: segment.y + 55 * 256 }, { x: segment.x - 55 * 256, y: segment.y + 55 * 256 }
       ], intersection: segment, startIndex: 0, area: 12100, expiresTick: app.game.tick + 60 };
       runStep({ collate: true });
+      const marked = eelSegmentPoint(app.game.boss!, app.game.tick + 1, app.game.boss!.activeSegment);
+      app.game.bullets.push({ id: app.game.nextId++, ...marked, vx: 0, vy: 0, radius: 5, kind: 'player', annotated: true, wetAnnotated: true, capturable: false });
+      runStep({});
       for (let index = 0; index < 140; index += 1) runStep({});
     } else if (scenario === 'stage-03-combat' || scenario === 'stage-03-setpiece') {
       app.game = createInitialState(3301, 'stage-03');

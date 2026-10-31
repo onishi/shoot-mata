@@ -3,10 +3,11 @@ import type { GameEvent, GameState, StageId } from '../core/types';
 
 type Bus = 'music' | 'se' | 'ui' | 'environment';
 type Cue = 'shot' | 'annotation' | 'candidate' | 'collate' | 'collate-miss' | 'retrace-start' | 'retrace-end' | 'damage' | 'warning' | 'ui-confirm' | 'ui-back'
-  | 'wind-left' | 'wind-right' | 'wind-lock' | 'seam-exposed' | 'seam-hit' | 'compiler-phase';
+  | 'wind-left' | 'wind-right' | 'wind-lock' | 'seam-exposed' | 'seam-hit' | 'compiler-phase'
+  | 'rain-wet' | 'basin-surge' | 'wet-annotation' | 'eel-marked' | 'eel-hit' | 'eel-phase';
 type StemName = 'ambient' | 'pulse' | 'crisis';
 
-const commonFiles: Record<Exclude<Cue, 'wind-left' | 'wind-right' | 'wind-lock' | 'seam-exposed' | 'seam-hit' | 'compiler-phase'>, string> = {
+const commonFiles: Record<Exclude<Cue, 'wind-left' | 'wind-right' | 'wind-lock' | 'seam-exposed' | 'seam-hit' | 'compiler-phase' | 'rain-wet' | 'basin-surge' | 'wet-annotation' | 'eel-marked' | 'eel-hit' | 'eel-phase'>, string> = {
   shot: 'stage-01/shot-v1.wav', annotation: 'stage-01/annotation-v1.wav', candidate: 'stage-01/candidate-v1.wav', collate: 'stage-01/collate-v1.wav',
   'collate-miss': 'stage-01/collate-miss-v1.wav', 'retrace-start': 'stage-01/retrace-start-v1.wav', 'retrace-end': 'stage-01/retrace-end-v1.wav',
   damage: 'stage-01/damage-v1.wav', warning: 'stage-01/warning-v1.wav', 'ui-confirm': 'stage-01/ui-confirm-v1.wav', 'ui-back': 'stage-01/ui-back-v1.wav'
@@ -15,11 +16,16 @@ const stageTwoFiles = {
   'wind-left': 'stage-02/crosswind-left-v1.wav', 'wind-right': 'stage-02/crosswind-right-v1.wav', 'wind-lock': 'stage-02/wind-lock-v1.wav',
   'seam-exposed': 'stage-02/seam-exposed-v1.wav', 'seam-hit': 'stage-02/seam-hit-v1.wav', 'compiler-phase': 'stage-02/compiler-phase-v1.wav'
 } as const;
+const stageThreeFiles = {
+  'rain-wet': 'stage-03/rain-wet-v1.wav', 'basin-surge': 'stage-03/basin-surge-v1.wav', 'wet-annotation': 'stage-03/wet-annotation-v1.wav',
+  'eel-marked': 'stage-03/eel-marked-v1.wav', 'eel-hit': 'stage-03/eel-hit-v1.wav', 'eel-phase': 'stage-03/eel-phase-v1.wav'
+} as const;
 const stemFiles: Partial<Record<StageId, Record<StemName, string>>> = {
   'stage-01': { ambient: 'stage-01/harbor-ambient-v1.wav', pulse: 'stage-01/harbor-pulse-v1.wav', crisis: 'stage-01/harbor-crisis-v1.wav' },
-  'stage-02': { ambient: 'stage-02/crosswind-ambient-v1.wav', pulse: 'stage-02/crosswind-pulse-v1.wav', crisis: 'stage-02/crosswind-crisis-v1.wav' }
+  'stage-02': { ambient: 'stage-02/crosswind-ambient-v1.wav', pulse: 'stage-02/crosswind-pulse-v1.wav', crisis: 'stage-02/crosswind-crisis-v1.wav' },
+  'stage-03': { ambient: 'stage-03/rain-ambient-v1.wav', pulse: 'stage-03/rain-pulse-v1.wav', crisis: 'stage-03/rain-crisis-v1.wav' }
 };
-const files = { ...commonFiles, ...stageTwoFiles, ...Object.fromEntries(Object.entries(stemFiles).flatMap(([stage, stems]) => Object.entries(stems).map(([name, file]) => [`${stage}-${name}`, file]))) };
+const files = { ...commonFiles, ...stageTwoFiles, ...stageThreeFiles, ...Object.fromEntries(Object.entries(stemFiles).flatMap(([stage, stems]) => Object.entries(stems).map(([name, file]) => [`${stage}-${name}`, file]))) };
 
 const cueRules: Record<Cue, { bus: Bus; gain: number; cooldown: number; max: number }> = {
   shot: { bus: 'se', gain: 0.45, cooldown: 0.055, max: 3 }, annotation: { bus: 'se', gain: 0.45, cooldown: 0.045, max: 3 },
@@ -30,7 +36,13 @@ const cueRules: Record<Cue, { bus: Bus; gain: number; cooldown: number; max: num
   'ui-back': { bus: 'ui', gain: 0.57, cooldown: 0.06, max: 2 }, 'wind-left': { bus: 'environment', gain: 0.58, cooldown: 0.3, max: 1 },
   'wind-right': { bus: 'environment', gain: 0.58, cooldown: 0.3, max: 1 }, 'wind-lock': { bus: 'se', gain: 0.7, cooldown: 0.25, max: 1 },
   'seam-exposed': { bus: 'se', gain: 0.62, cooldown: 0.25, max: 1 }, 'seam-hit': { bus: 'se', gain: 0.68, cooldown: 0.07, max: 3 },
-  'compiler-phase': { bus: 'se', gain: 0.76, cooldown: 0.3, max: 1 }
+  'compiler-phase': { bus: 'se', gain: 0.76, cooldown: 0.3, max: 1 },
+  'rain-wet': { bus: 'environment', gain: 0.45, cooldown: 0.08, max: 3 },
+  'basin-surge': { bus: 'environment', gain: 0.62, cooldown: 0.35, max: 2 },
+  'wet-annotation': { bus: 'se', gain: 0.54, cooldown: 0.045, max: 3 },
+  'eel-marked': { bus: 'se', gain: 0.7, cooldown: 0.2, max: 1 },
+  'eel-hit': { bus: 'se', gain: 0.68, cooldown: 0.065, max: 3 },
+  'eel-phase': { bus: 'se', gain: 0.78, cooldown: 0.3, max: 1 }
 };
 
 export const cueForEvent = (event: GameEvent, stageId: StageId = 'stage-01'): { cue: Cue; rate: number } | null => {
@@ -38,6 +50,11 @@ export const cueForEvent = (event: GameEvent, stageId: StageId = 'stage-01'): { 
   if (event.type === 'compiler-wind-locked') return { cue: 'wind-lock', rate: event.direction < 0 ? 0.94 : 1.06 };
   if (event.type === 'compiler-seam-exposed') return { cue: 'seam-exposed', rate: event.side < 0 ? 0.96 : 1.04 };
   if (event.type === 'compiler-seam-hit') return { cue: 'seam-hit', rate: 1 };
+  if (event.type === 'trail-wetted') return { cue: 'rain-wet', rate: 1 };
+  if (event.type === 'basin-surge') return { cue: 'basin-surge', rate: 1 };
+  if (event.type === 'wet-annotation') return { cue: 'wet-annotation', rate: 1 };
+  if (event.type === 'eel-segment-marked') return { cue: 'eel-marked', rate: 0.94 + event.segment * 0.06 };
+  if (event.type === 'eel-segment-hit') return { cue: 'eel-hit', rate: 0.96 + event.segment * 0.04 };
   if (event.type === 'shot-fired') return { cue: 'shot', rate: 1 };
   if (event.type === 'shot-annotated') return { cue: 'annotation', rate: 1 };
   if (event.type === 'loop-ready') return { cue: 'candidate', rate: 1 };
@@ -47,6 +64,7 @@ export const cueForEvent = (event: GameEvent, stageId: StageId = 'stage-01'): { 
   if (event.type === 'retrace-ended') return { cue: 'retrace-end', rate: 1 };
   if (event.type === 'damage') return { cue: 'damage', rate: 1 };
   if (stageId === 'stage-02' && (event.type === 'boss-spawned' || event.type === 'boss-phase')) return { cue: 'compiler-phase', rate: event.type === 'boss-phase' ? 0.9 + event.phase * 0.1 : 0.86 };
+  if (stageId === 'stage-03' && (event.type === 'boss-spawned' || event.type === 'boss-phase')) return { cue: 'eel-phase', rate: event.type === 'boss-phase' ? 0.9 + event.phase * 0.1 : 0.84 };
   if (event.type === 'boss-spawned' || event.type === 'boss-warning') return { cue: 'warning', rate: 1 };
   if (event.type === 'boss-phase') return { cue: 'warning', rate: 1 + event.phase * 0.06 };
   if (event.type === 'boss-defeated' || event.type === 'enemy-defeated') return { cue: 'collate', rate: event.type === 'boss-defeated' ? 0.74 : 1.34 };
@@ -91,11 +109,14 @@ export class StageOneAudio {
 
   private async loadBuffers(): Promise<void> {
     if (!this.context) return;
-    await Promise.all(Object.entries(files).map(async ([id, file]) => {
+    // Chrome's media decoder can reject valid PCM when every long stem is
+    // submitted at once. Decode in deterministic order; startup remains under
+    // the first gesture and avoids a platform-dependent concurrency race.
+    for (const [id, file] of Object.entries(files)) {
       const response = await fetch(`${import.meta.env.BASE_URL}assets/audio/${file}`);
       if (!response.ok) throw new Error(`Unable to load audio ${file}`);
       this.buffers.set(id, await this.context!.decodeAudioData(await response.arrayBuffer()));
-    }));
+    }
   }
 
   private startStems(tick: number, stageId: StageId): void {

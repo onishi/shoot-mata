@@ -5,8 +5,10 @@ const RATE = 44100;
 const root = resolve(import.meta.dirname, '..');
 const output = resolve(root, 'public/assets/audio/stage-01');
 const outputStageTwo = resolve(root, 'public/assets/audio/stage-02');
+const outputStageThree = resolve(root, 'public/assets/audio/stage-03');
 await mkdir(output, { recursive: true });
 await mkdir(outputStageTwo, { recursive: true });
+await mkdir(outputStageThree, { recursive: true });
 
 let noiseState = 0x50414c49;
 const noise = () => {
@@ -102,13 +104,36 @@ const stageTwoStems = {
     return [l, r];
   }, -19)
 };
+const stageThreeStems = {
+  'rain-ambient-v1.wav': render(16, (t) => {
+    const shower = noise() * (0.16 + 0.1 * tone(0.19, t)) + noise() * tone(1800 + 240 * tone(0.11, t), t) * 0.045;
+    const dropPhase = t % 0.18; const drops = dropPhase < 0.018 ? tone(1480 - dropPhase * 22000, dropPhase) * Math.exp(-dropPhase * 120) * 0.28 : 0;
+    const water = tone(48, t) * 0.13 + tone(72, t, 0.6) * 0.075;
+    const [l, r] = pan(shower + drops, Math.sin(t * 1.71) * 0.7);
+    return [l + water, r + water * 0.94];
+  }, -20),
+  'rain-pulse-v1.wav': render(16, (t) => {
+    const fine = t % 0.25; const heavy = t % 1;
+    const bead = fine < 0.032 ? (tone(920, fine) * 0.34 + noise() * 0.1) * Math.exp(-fine * 70) : 0;
+    const gutter = heavy < 0.12 ? (tone(96 - heavy * 180, heavy) * 0.5 + tone(192, heavy) * 0.17) * Math.exp(-heavy * 18) : 0;
+    const resonance = tone(64, t) * 0.27 + tone(128, t, 0.35) * 0.11;
+    return pan(bead + gutter + resonance, Math.sin(Math.floor(t * 4) * 1.37) * 0.52);
+  }, -19.5, -1),
+  'rain-crisis-v1.wav': render(16, (t) => {
+    const swell = 0.35 + Math.sin(Math.PI * ((t % 2.4) / 2.4)) ** 2 * 0.65;
+    const eel = tone(46 + 3 * tone(0.13, t), t) * 0.38 + tone(92, t, 0.7) * 0.25 + tone(138, t, 1.4) * 0.14;
+    const rush = noise() * tone(420 + 80 * tone(0.21, t), t) * 0.06;
+    const [l, r] = pan((eel + rush) * swell, Math.sin(t * Math.PI / 2.4) * 0.48);
+    return [l, r];
+  }, -19)
+};
 // Stage 1 is a frozen completed slice. Keep its noise-based effects bit-for-bit
-// stable even though Stage 2 stems are rendered by the same deterministic tool.
+// stable even though later-stage stems are rendered by the same deterministic tool.
 noiseState = stageOneEffectNoiseState;
 
 // A short zero crossing at the 16-second seam prevents broadband wind and bow
 // grain from clicking when Web Audio loops the stems.
-for (const channels of [...Object.values(stems), ...Object.values(stageTwoStems)]) for (const channel of channels) {
+for (const channels of [...Object.values(stems), ...Object.values(stageTwoStems), ...Object.values(stageThreeStems)]) for (const channel of channels) {
   const fade = Math.round(RATE * 0.04);
   for (let index = 0; index < fade; index += 1) {
     const gain = Math.sin(index / fade * Math.PI / 2) ** 2;
@@ -139,9 +164,19 @@ const stageTwoSfx = {
   'seam-hit-v1.wav': [0.2, (t, d) => pan(env(t, d, 0.002, 0.1) * (tone(1080 - 290 * t / d, t) * 0.74 + noise() * Math.exp(-t * 22) * 0.22), -0.12)],
   'compiler-phase-v1.wav': [0.86, (t, d) => pan(env(t, d, 0.006, 0.34) * (tone(92, t) * 0.5 + tone(184 + 130 * t / d, t) * 0.4 + tone(276 + 195 * t / d, t) * 0.24 + noise() * Math.exp(-t * 8) * 0.16), 0)]
 };
+const stageThreeSfx = {
+  'rain-wet-v1.wav': [0.24, (t, d) => pan(env(t, d, 0.002, 0.15) * (tone(1320 - 620 * t / d, t) * 0.32 + noise() * Math.exp(-t * 24) * 0.26), -0.18 + 0.36 * t / d)],
+  'basin-surge-v1.wav': [0.72, (t, d) => pan(env(t, d, 0.006, 0.3) * (tone(76 - 18 * t / d, t) * 0.55 + tone(152, t) * 0.2 + noise() * Math.exp(-t * 7) * 0.34), -0.25 + 0.5 * t / d)],
+  'wet-annotation-v1.wav': [0.22, (t, d) => pan(env(t, d, 0.003, 0.12) * (tone(760 + 430 * t / d, t) * 0.62 + tone(1140 + 645 * t / d, t) * 0.24 + noise() * Math.exp(-t * 24) * 0.1), 0.14)],
+  'eel-marked-v1.wav': [0.78, (t, d) => pan(env(t, d, 0.008, 0.34) * (tone(168 + 310 * t / d, t) * 0.5 + tone(336 + 620 * t / d, t) * 0.3 + tone(84, t) * 0.18), 0)],
+  'eel-hit-v1.wav': [0.24, (t, d) => pan(env(t, d, 0.002, 0.12) * (tone(940 - 270 * t / d, t) * 0.7 + tone(470, t) * 0.26 + noise() * Math.exp(-t * 26) * 0.18), -0.1)],
+  'eel-phase-v1.wav': [0.9, (t, d) => pan(env(t, d, 0.008, 0.38) * (tone(58, t) * 0.58 + tone(116 + 88 * t / d, t) * 0.4 + tone(174 + 132 * t / d, t) * 0.22 + noise() * Math.exp(-t * 8) * 0.14), 0)]
+};
 
 for (const [name, channels] of Object.entries(stems)) await writeFile(resolve(output, name), wav(channels));
 for (const [name, [duration, synth]] of Object.entries(sfx)) await writeFile(resolve(output, name), wav(render(duration, synth, -18, -6.4)));
 for (const [name, channels] of Object.entries(stageTwoStems)) await writeFile(resolve(outputStageTwo, name), wav(channels));
 for (const [name, [duration, synth]] of Object.entries(stageTwoSfx)) await writeFile(resolve(outputStageTwo, name), wav(render(duration, synth, -18, -6.4)));
-console.log(`generated ${Object.keys(stems).length + Object.keys(stageTwoStems).length} stems and ${Object.keys(sfx).length + Object.keys(stageTwoSfx).length} effects at 44.1 kHz stereo`);
+for (const [name, channels] of Object.entries(stageThreeStems)) await writeFile(resolve(outputStageThree, name), wav(channels));
+for (const [name, [duration, synth]] of Object.entries(stageThreeSfx)) await writeFile(resolve(outputStageThree, name), wav(render(duration, synth, -18, -6.4)));
+console.log(`generated ${Object.keys(stems).length + Object.keys(stageTwoStems).length + Object.keys(stageThreeStems).length} stems and ${Object.keys(sfx).length + Object.keys(stageTwoSfx).length + Object.keys(stageThreeSfx).length} effects at 44.1 kHz stereo`);

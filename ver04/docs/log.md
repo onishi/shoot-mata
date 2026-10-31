@@ -164,3 +164,12 @@
 - `m3-09-stage-03-combat.png`、`stage-03-setpiece.png`、`lacuna-eel-phase-1/2/3.png`を1280×720で目視し、4敵の役割、水門山場、3つの順次弱点、雨、濡れ航跡、暖色中空弾、HUDを識別でき、文字切れ・前景遮蔽がないことを確認した。
 - 素材台帳をStage 3の5件の`final`へ更新し、Stage 3仮素材を0件にした。`npm run verify`で単体39件、自動計測6件、素材監査23件・仮素材0、音量監査、型検査、production build、Chrome E2E 8件に合格した。
 - 次回はStage 3専用の雨粒密度・低い水共鳴・危機ステムと環境・ボス効果音を制作し、音量監査とChromeのStage遷移・bus・ポーズ同期を確認する。
+
+## 2026-11-01 — M3-10 Stage 3完成音響
+
+- 決定的音声制作へStage 3を追加し、空間的な雨粒密度、低い水共鳴、LACUNA EELの水中圧を担う16秒の環境・脈動・危機3ステムを44.1kHz stereo PCM16で制作した。Stage 1/2の生成済み音声は変更していない。
+- 通常雨滴が航跡を初めて濡らす接触音、Basin Bellの水位上昇、濡れ添え書き、EEL節の印付け・弱点命中・形態移行の6効果音を制作した。雨滴接触は同tick内で1イベントへ集約し、environment busのcooldownと3 voice上限で密度を制御する。
+- Stage 3の3ステムと6効果音を既存4 busへ接続し、SE 24・UI 4・環境8・音楽6 voice上限を維持した。Chromeの同時decode不安定化を避けるため、全32 bufferを決定的な順序でdecodeする。
+- 全32素材は44.1kHz stereo PCM16で、Stage 3 BGM RMS -20.01〜-19.01 dBFS、SE RMS -18.00 dBFS、SE peak -7.93 dBFS以下に合格した。Stage 3最悪mixはリミッタ前peak -10.08 dBFS、NaN/clip 0で、`docs/evidence/m3-10-audio-audit.json`へ保存した。
+- 単体41件、自動計測6件、素材監査27 final・仮素材0、音量監査、型検査、production build、Chrome E2E 8件に合格した。ChromeではStage 2→3ステム切替、Stage 3ポーズ停止・tick同期復帰、雨・水位・濡れ弾・EEL専用cueを確認した。
+- 次回はStage 4「焼けた脚注」の熱波・冷却域規則、Ash Comma / Kiln Censor / Ember Courier / Char Press、通常区間を実装し、自動計測で固有攻略を検証する。

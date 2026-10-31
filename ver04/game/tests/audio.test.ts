@@ -30,4 +30,13 @@ describe('Stage 1 audio event map', () => {
     expect(cueForEvent({ type: 'boss-phase', phase: 2 }, 'stage-02')?.cue).toBe('compiler-phase');
     expect(cueForEvent({ type: 'boss-phase', phase: 2 }, 'stage-01')?.cue).toBe('warning');
   });
+
+  it('maps Stage 3 wet-route and LACUNA EEL feedback to dedicated cues', () => {
+    expect(cueForEvent({ type: 'trail-wetted' }, 'stage-03')?.cue).toBe('rain-wet');
+    expect(cueForEvent({ type: 'basin-surge' }, 'stage-03')?.cue).toBe('basin-surge');
+    expect(cueForEvent({ type: 'wet-annotation' }, 'stage-03')?.cue).toBe('wet-annotation');
+    expect(cueForEvent({ type: 'eel-segment-marked', segment: 1 }, 'stage-03')?.cue).toBe('eel-marked');
+    expect(cueForEvent({ type: 'eel-segment-hit', segment: 1 }, 'stage-03')?.cue).toBe('eel-hit');
+    expect(cueForEvent({ type: 'boss-phase', phase: 3 }, 'stage-03')?.cue).toBe('eel-phase');
+  });
 });

@@ -322,10 +322,11 @@ const applyCrosswind = (state: GameState, events?: GameEvent[]): void => {
   state.metrics.wind.trailDrift += Math.abs(trailDrift) * state.trail.length;
 };
 
-const applyRain = (state: GameState): void => {
+const applyRain = (state: GameState, events: GameEvent[]): void => {
   if (state.stageId !== 'stage-03') return;
   const dropIndex = Math.floor(state.tick / STAGE_03_RAIN_PERIOD_TICKS);
   if (state.tick % STAGE_03_RAIN_PERIOD_TICKS === 0) state.metrics.rain.drops += 1;
+  let newlyWetted = false;
   // Eight deterministic drops are in flight. A point is wetted only when the
   // visible drop crosses it, so identical input always creates identical sag.
   for (let offset = 0; offset < 8; offset += 1) {
@@ -336,11 +337,15 @@ const applyRain = (state: GameState): void => {
     const y = age * 5 * SCALE;
     for (const point of state.trail) {
       if (Math.abs(point.x - x) <= 14 * SCALE && Math.abs(point.y - y) <= 16 * SCALE) {
-        if ((point.wetUntil ?? 0) < state.tick) state.metrics.rain.trailPointsWetted += 1;
+        if ((point.wetUntil ?? 0) < state.tick) {
+          state.metrics.rain.trailPointsWetted += 1;
+          newlyWetted = true;
+        }
         point.wetUntil = state.tick + STAGE_03_WET_TICKS;
       }
     }
   }
+  if (newlyWetted) events.push({ type: 'trail-wetted' });
   let wet = 0;
   for (const point of state.trail) {
     if ((point.wetUntil ?? 0) < state.tick) continue;
@@ -351,7 +356,7 @@ const applyRain = (state: GameState): void => {
   if (state.candidate && state.candidate.polygon.some((point) => point.y >= HEIGHT * SCALE)) state.candidate = null;
 };
 
-const updateEnemy = (state: GameState, enemy: Enemy): void => {
+const updateEnemy = (state: GameState, enemy: Enemy, events: GameEvent[]): void => {
   const age = state.tick - enemy.spawnedAt;
   if (age > 90) enemy.state = 'active';
   if (enemy.expiresAt - state.tick < 120) enemy.state = 'exiting';
@@ -450,6 +455,7 @@ const updateEnemy = (state: GameState, enemy: Enemy): void => {
       for (const point of state.trail) point.wetUntil = Math.max(point.wetUntil ?? 0, state.tick + STAGE_03_WET_TICKS);
       for (const offset of [-0.36, -0.18, 0, 0.18, 0.36]) spawnEnemyBullet(state, enemy, offset, 102);
       enemy.fireCooldown = 300; state.metrics.enemyStats[enemy.kind].attacks += 1; state.metrics.rain.basinSurges += 1;
+      events.push({ type: 'basin-surge' });
     }
     return;
   }
@@ -585,7 +591,7 @@ export const step = (previous: GameState, input: InputFrame): { state: GameState
   updateBoss(state, events);
 
   state.trail = state.trail.filter((point) => state.tick - point.bornTick <= TRAIL_LIFETIME);
-  applyRain(state);
+  applyRain(state, events);
   if (state.candidate?.expiresTick && state.candidate.expiresTick < state.tick) state.candidate = null;
   if (!state.retrace && shouldAddTrailPoint(state.trail, state.player, state.tick)) {
     state.trail.push({ x: state.player.x, y: state.player.y, bornTick: state.tick, segmentId: state.tick });
@@ -602,7 +608,7 @@ export const step = (previous: GameState, input: InputFrame): { state: GameState
     events.push({ type: 'shot-fired' });
   }
 
-  for (const enemy of state.enemies) updateEnemy(state, enemy);
+  for (const enemy of state.enemies) updateEnemy(state, enemy, events);
 
   for (const bullet of state.bullets) {
     const from = { x: bullet.x, y: bullet.y };
@@ -614,7 +620,7 @@ export const step = (previous: GameState, input: InputFrame): { state: GameState
       bullet.vx = Math.round(bullet.vx * (bullet.wetAnnotated ? 1.28 : 1.15));
       state.metrics.annotatedShots += 1;
       if (bullet.wetAnnotated) state.metrics.rain.wetAnnotatedShots += 1;
-      events.push({ type: 'shot-annotated' });
+      events.push(bullet.wetAnnotated ? { type: 'wet-annotation' } : { type: 'shot-annotated' });
     }
   }
 

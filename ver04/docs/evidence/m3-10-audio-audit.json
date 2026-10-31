@@ -1,0 +1,299 @@
+{
+  "generatedAt": "2026-11-01",
+  "assets": {
+    "stage-01/harbor-ambient-v1.wav": {
+      "durationSeconds": 16,
+      "sampleRate": 44100,
+      "channels": 2,
+      "rmsDbfs": -20.01,
+      "peakDbfs": -9.32,
+      "silentPercent": 0.02
+    },
+    "stage-01/harbor-pulse-v1.wav": {
+      "durationSeconds": 16,
+      "sampleRate": 44100,
+      "channels": 2,
+      "rmsDbfs": -20.03,
+      "peakDbfs": -1.28,
+      "silentPercent": 0.02
+    },
+    "stage-01/harbor-crisis-v1.wav": {
+      "durationSeconds": 16,
+      "sampleRate": 44100,
+      "channels": 2,
+      "rmsDbfs": -19,
+      "peakDbfs": -8.8,
+      "silentPercent": 0.02
+    },
+    "stage-01/shot-v1.wav": {
+      "durationSeconds": 0.12,
+      "sampleRate": 44100,
+      "channels": 2,
+      "rmsDbfs": -18,
+      "peakDbfs": -10.11,
+      "silentPercent": 0.04
+    },
+    "stage-01/annotation-v1.wav": {
+      "durationSeconds": 0.18,
+      "sampleRate": 44100,
+      "channels": 2,
+      "rmsDbfs": -18,
+      "peakDbfs": -9.75,
+      "silentPercent": 0.05
+    },
+    "stage-01/candidate-v1.wav": {
+      "durationSeconds": 0.34,
+      "sampleRate": 44100,
+      "channels": 2,
+      "rmsDbfs": -18,
+      "peakDbfs": -10.93,
+      "silentPercent": 0.12
+    },
+    "stage-01/collate-v1.wav": {
+      "durationSeconds": 0.72,
+      "sampleRate": 44100,
+      "channels": 2,
+      "rmsDbfs": -18,
+      "peakDbfs": -11.41,
+      "silentPercent": 0.26
+    },
+    "stage-01/collate-miss-v1.wav": {
+      "durationSeconds": 0.22,
+      "sampleRate": 44100,
+      "channels": 2,
+      "rmsDbfs": -18,
+      "peakDbfs": -12.15,
+      "silentPercent": 0.01
+    },
+    "stage-01/retrace-start-v1.wav": {
+      "durationSeconds": 0.42,
+      "sampleRate": 44100,
+      "channels": 2,
+      "rmsDbfs": -18,
+      "peakDbfs": -10.88,
+      "silentPercent": 0.02
+    },
+    "stage-01/retrace-end-v1.wav": {
+      "durationSeconds": 0.3,
+      "sampleRate": 44100,
+      "channels": 2,
+      "rmsDbfs": -18,
+      "peakDbfs": -10.66,
+      "silentPercent": 0.07
+    },
+    "stage-01/damage-v1.wav": {
+      "durationSeconds": 0.55,
+      "sampleRate": 44100,
+      "channels": 2,
+      "rmsDbfs": -18,
+      "peakDbfs": -8.7,
+      "silentPercent": 0.04
+    },
+    "stage-01/warning-v1.wav": {
+      "durationSeconds": 0.66,
+      "sampleRate": 44100,
+      "channels": 2,
+      "rmsDbfs": -18,
+      "peakDbfs": -8.07,
+      "silentPercent": 0.07
+    },
+    "stage-01/ui-confirm-v1.wav": {
+      "durationSeconds": 0.16,
+      "sampleRate": 44100,
+      "channels": 2,
+      "rmsDbfs": -18,
+      "peakDbfs": -11.18,
+      "silentPercent": 0.07
+    },
+    "stage-01/ui-back-v1.wav": {
+      "durationSeconds": 0.18,
+      "sampleRate": 44100,
+      "channels": 2,
+      "rmsDbfs": -18,
+      "peakDbfs": -10.91,
+      "silentPercent": 0.01
+    },
+    "stage-02/crosswind-ambient-v1.wav": {
+      "durationSeconds": 16,
+      "sampleRate": 44100,
+      "channels": 2,
+      "rmsDbfs": -20.01,
+      "peakDbfs": -8.96,
+      "silentPercent": 0.02
+    },
+    "stage-02/crosswind-pulse-v1.wav": {
+      "durationSeconds": 16,
+      "sampleRate": 44100,
+      "channels": 2,
+      "rmsDbfs": -19.52,
+      "peakDbfs": -5.61,
+      "silentPercent": 0.01
+    },
+    "stage-02/crosswind-crisis-v1.wav": {
+      "durationSeconds": 16,
+      "sampleRate": 44100,
+      "channels": 2,
+      "rmsDbfs": -19.01,
+      "peakDbfs": -8.31,
+      "silentPercent": 0.02
+    },
+    "stage-02/crosswind-left-v1.wav": {
+      "durationSeconds": 0.52,
+      "sampleRate": 44100,
+      "channels": 2,
+      "rmsDbfs": -18,
+      "peakDbfs": -7.3,
+      "silentPercent": 0.03
+    },
+    "stage-02/crosswind-right-v1.wav": {
+      "durationSeconds": 0.52,
+      "sampleRate": 44100,
+      "channels": 2,
+      "rmsDbfs": -18,
+      "peakDbfs": -7.38,
+      "silentPercent": 0.05
+    },
+    "stage-02/wind-lock-v1.wav": {
+      "durationSeconds": 0.68,
+      "sampleRate": 44100,
+      "channels": 2,
+      "rmsDbfs": -18,
+      "peakDbfs": -9.87,
+      "silentPercent": 0.05
+    },
+    "stage-02/seam-exposed-v1.wav": {
+      "durationSeconds": 0.74,
+      "sampleRate": 44100,
+      "channels": 2,
+      "rmsDbfs": -18,
+      "peakDbfs": -10.31,
+      "silentPercent": 0.11
+    },
+    "stage-02/seam-hit-v1.wav": {
+      "durationSeconds": 0.2,
+      "sampleRate": 44100,
+      "channels": 2,
+      "rmsDbfs": -18,
+      "peakDbfs": -10.78,
+      "silentPercent": 0.05
+    },
+    "stage-02/compiler-phase-v1.wav": {
+      "durationSeconds": 0.86,
+      "sampleRate": 44100,
+      "channels": 2,
+      "rmsDbfs": -18,
+      "peakDbfs": -8.79,
+      "silentPercent": 0.04
+    },
+    "stage-03/rain-ambient-v1.wav": {
+      "durationSeconds": 16,
+      "sampleRate": 44100,
+      "channels": 2,
+      "rmsDbfs": -20.01,
+      "peakDbfs": -6.65,
+      "silentPercent": 0.02
+    },
+    "stage-03/rain-pulse-v1.wav": {
+      "durationSeconds": 16,
+      "sampleRate": 44100,
+      "channels": 2,
+      "rmsDbfs": -19.53,
+      "peakDbfs": -3.11,
+      "silentPercent": 0.01
+    },
+    "stage-03/rain-crisis-v1.wav": {
+      "durationSeconds": 16,
+      "sampleRate": 44100,
+      "channels": 2,
+      "rmsDbfs": -19.01,
+      "peakDbfs": -6.83,
+      "silentPercent": 0.02
+    },
+    "stage-03/rain-wet-v1.wav": {
+      "durationSeconds": 0.24,
+      "sampleRate": 44100,
+      "channels": 2,
+      "rmsDbfs": -18,
+      "peakDbfs": -7.93,
+      "silentPercent": 0.07
+    },
+    "stage-03/basin-surge-v1.wav": {
+      "durationSeconds": 0.72,
+      "sampleRate": 44100,
+      "channels": 2,
+      "rmsDbfs": -18,
+      "peakDbfs": -8.56,
+      "silentPercent": 0.01
+    },
+    "stage-03/wet-annotation-v1.wav": {
+      "durationSeconds": 0.22,
+      "sampleRate": 44100,
+      "channels": 2,
+      "rmsDbfs": -18,
+      "peakDbfs": -9.94,
+      "silentPercent": 0.01
+    },
+    "stage-03/eel-marked-v1.wav": {
+      "durationSeconds": 0.78,
+      "sampleRate": 44100,
+      "channels": 2,
+      "rmsDbfs": -18,
+      "peakDbfs": -10.34,
+      "silentPercent": 0.06
+    },
+    "stage-03/eel-hit-v1.wav": {
+      "durationSeconds": 0.24,
+      "sampleRate": 44100,
+      "channels": 2,
+      "rmsDbfs": -18,
+      "peakDbfs": -9.91,
+      "silentPercent": 0.02
+    },
+    "stage-03/eel-phase-v1.wav": {
+      "durationSeconds": 0.9,
+      "sampleRate": 44100,
+      "channels": 2,
+      "rmsDbfs": -18,
+      "peakDbfs": -9,
+      "silentPercent": 0.03
+    }
+  },
+  "worstCaseMix": {
+    "stage01": {
+      "scenario": "3 Stage 1 stems + 10 shots + 18-capture chord + boss warning + damage + 5 UI cues",
+      "preLimiterRmsDbfs": -25.15,
+      "preLimiterPeakDbfs": -11.73,
+      "outputPeakDbfs": -11.73,
+      "nanSamples": 0,
+      "clippedSamples": 0,
+      "seVoicesPeak": 4,
+      "uiVoicesPeak": 2,
+      "musicVoicesPeak": 2,
+      "environmentVoicesPeak": 1
+    },
+    "stage02": {
+      "scenario": "3 Stage 2 stems + 10 shots + COLLATE + wind reversal/lock + seam exposed/hit + Compiler phase + 5 UI cues",
+      "preLimiterRmsDbfs": -23.83,
+      "preLimiterPeakDbfs": -9.77,
+      "outputPeakDbfs": -9.77,
+      "nanSamples": 0,
+      "clippedSamples": 0,
+      "seVoicesPeak": 5,
+      "uiVoicesPeak": 2,
+      "musicVoicesPeak": 2,
+      "environmentVoicesPeak": 2
+    },
+    "stage03": {
+      "scenario": "3 Stage 3 stems + 10 shots + COLLATE + rain wet/basin surge/wet annotation + Eel mark/hit/phase + 5 UI cues",
+      "preLimiterRmsDbfs": -23.81,
+      "preLimiterPeakDbfs": -10.08,
+      "outputPeakDbfs": -10.08,
+      "nanSamples": 0,
+      "clippedSamples": 0,
+      "seVoicesPeak": 5,
+      "uiVoicesPeak": 2,
+      "musicVoicesPeak": 2,
+      "environmentVoicesPeak": 3
+    }
+  }
+}

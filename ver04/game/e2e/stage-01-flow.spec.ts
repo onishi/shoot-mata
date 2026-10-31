@@ -13,12 +13,12 @@ type QaWindow = Window & {
   __PALIMPSEST_AUDIO_BUS__: (bus: 'music' | 'se' | 'ui' | 'environment', level: number) => void;
 };
 
-test('Stage 1 audio starts from a gesture, separates buses and follows pause', async ({ page }) => {
+test('campaign audio starts from a gesture, separates buses and follows every stage transition', async ({ page }) => {
   await page.goto('/');
   expect(await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_AUDIO_STATE__().state)).toBe('uninitialized');
   await page.keyboard.press('Enter');
   await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_AUDIO_READY__());
-  expect(await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_AUDIO_STATE__())).toMatchObject({ state: 'running', loaded: 23, stems: 0 });
+  expect(await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_AUDIO_STATE__())).toMatchObject({ state: 'running', loaded: 32, stems: 0 });
   await page.keyboard.press('Enter');
   await expect.poll(() => page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_AUDIO_STATE__().stems)).toBe(3);
   await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_AUDIO_BUS__('music', 0));
@@ -41,6 +41,26 @@ test('Stage 1 audio starts from a gesture, separates buses and follows pause', a
   expect(stageTwoAudio.cueCounts['compiler-phase']).toBeGreaterThan(0);
   expect(stageTwoAudio.cueCounts['wind-lock']).toBeGreaterThan(0);
   expect(stageTwoAudio.cueCounts['seam-exposed']).toBeGreaterThan(0);
+
+  await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_QA_SCENARIO__('boss-defeat'));
+  await page.keyboard.press('Enter');
+  await page.keyboard.press('Enter');
+  await expect.poll(() => page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_AUDIO_STATE__().stemStage)).toBe('stage-03');
+  await page.keyboard.press('Escape');
+  expect(await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_AUDIO_STATE__().stems)).toBe(0);
+  await page.keyboard.press('Escape');
+  await expect.poll(() => page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_AUDIO_STATE__().stemStage)).toBe('stage-03');
+  await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_QA_SCENARIO__('stage-03-combat'));
+  await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_QA_SCENARIO__('stage-03-setpiece'));
+  await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_QA_SCENARIO__('stage-03-boss'));
+  const stageThreeAudio = await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_AUDIO_STATE__());
+  expect(stageThreeAudio.stems).toBe(3);
+  expect(stageThreeAudio.cueCounts['rain-wet']).toBeGreaterThan(0);
+  expect(stageThreeAudio.cueCounts['basin-surge']).toBeGreaterThan(0);
+  expect(stageThreeAudio.cueCounts['wet-annotation']).toBeGreaterThan(0);
+  expect(stageThreeAudio.cueCounts['eel-phase']).toBeGreaterThan(0);
+  expect(stageThreeAudio.cueCounts['eel-marked']).toBeGreaterThan(0);
+  expect(stageThreeAudio.cueCounts['eel-hit']).toBeGreaterThan(0);
 });
 
 test('Stage 1 title-to-result keyboard flow, continue and focus pause work in Chrome', async ({ page }) => {

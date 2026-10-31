@@ -139,6 +139,30 @@
       "sourcePrompt": "none; authored Canvas compositing from docs/02-art-and-audio-direction.md sections 1, 3, 4 and 5",
       "generatedAt": "2026-10-31", "editHistory": ["Removed all Stage 3 preview enemy primitives and gradient backdrop, then connected final backgrounds and sprites.", "Wet annotated fire uses a second rail and diamond droplet; the active eel segment uses a dashed contour and the wet seal swaps to a double-outlined droplet-notched atlas frame."],
       "dimensions": "1280x720 logical canvas", "license": "project-original"
+    },
+    {
+      "id": "stage-03-ambient-v1", "kind": "audio-stem", "path": "public/assets/audio/stage-03/rain-ambient-v1.wav",
+      "stage": "Stage 3: The Rain Margin", "usage": "looping environment stem: dense rain beads, silver hiss and low basin water", "version": 1, "status": "final", "createdBy": "procedural",
+      "sourcePrompt": "scripts/generate-audio.mjs deterministic synthesis; spatial rain density, discrete gutter droplets and low water resonance", "generatedAt": "2026-11-01",
+      "editHistory": ["Synthesized at 44.1 kHz stereo PCM16; environment bus remains independent from music and SE."], "dimensions": "16.0s stereo 44.1kHz PCM16", "license": "project-original"
+    },
+    {
+      "id": "stage-03-pulse-v1", "kind": "audio-stem", "path": "public/assets/audio/stage-03/rain-pulse-v1.wav",
+      "stage": "Stage 3: The Rain Margin", "usage": "looping density stem: rain beads, gutter drops and submerged pulse", "version": 1, "status": "final", "createdBy": "procedural",
+      "sourcePrompt": "scripts/generate-audio.mjs deterministic synthesis; four-bead rain rhythm, periodic gutter resonance and wet stereo motion", "generatedAt": "2026-11-01",
+      "editHistory": ["Synthesized at 44.1 kHz stereo PCM16; runtime gain follows enemy and projectile density."], "dimensions": "16.0s stereo 44.1kHz PCM16", "license": "project-original"
+    },
+    {
+      "id": "stage-03-crisis-v1", "kind": "audio-stem", "path": "public/assets/audio/stage-03/rain-crisis-v1.wav",
+      "stage": "Stage 3: The Rain Margin", "usage": "looping danger stem: LACUNA EEL sub-water harmonics and rushing grain", "version": 1, "status": "final", "createdBy": "procedural",
+      "sourcePrompt": "scripts/generate-audio.mjs deterministic synthesis; low eel-like harmonic motion, submerged pressure and restrained water rush", "generatedAt": "2026-11-01",
+      "editHistory": ["Synthesized at 44.1 kHz stereo PCM16; runtime gain follows LACUNA EEL phase."], "dimensions": "16.0s stereo 44.1kHz PCM16", "license": "project-original"
+    },
+    {
+      "id": "stage-03-effects-v1", "kind": "audio-effect-set", "path": "public/assets/audio/stage-03/rain-wet-v1.wav",
+      "stage": "Stage 3: The Rain Margin", "usage": "rain wetting, Basin Bell surge, wet annotation, Eel segment mark/hit and phase cues", "version": 1, "status": "final", "createdBy": "procedural",
+      "sourcePrompt": "scripts/generate-audio.mjs deterministic synthesis; rain bead contact, gutter surge, wet ink rail, sealing resonance and low Eel phase pressure", "generatedAt": "2026-11-01",
+      "editHistory": ["Synthesized as six 44.1 kHz stereo PCM16 files; connected to simulation events and inspected in the worst-case Stage 3 mix."], "dimensions": "6 files, 0.22s to 0.90s, stereo 44.1kHz PCM16", "license": "project-original"
     }
   ]
 }

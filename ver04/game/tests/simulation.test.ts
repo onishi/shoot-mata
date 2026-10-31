@@ -273,8 +273,9 @@ describe('M1 deterministic playground', () => {
       state.encounterIndex = STAGE_03_SPAWNS.length; state.enemies[0].kind = kind;
       state.enemies[0].x = px(1000); state.enemies[0].spawnX = px(1000); state.enemies[0].fireCooldown = 0;
       state.trail = [trailPoint(600, 300, 0), { ...trailPoint(700, 300, 1), wetUntil: 700 }];
-      state = step(state, {}).state;
+      const attacked = step(state, {}); state = attacked.state;
       expect(state.metrics.enemyStats[kind].attacks).toBe(1);
+      if (kind === 'basin-bell') expect(attacked.events).toContainEqual({ type: 'basin-surge' });
     }
   });
 
@@ -287,11 +288,22 @@ describe('M1 deterministic playground', () => {
     state.trail = [{ ...trailPoint(995, 250, 0), wetUntil: 600 }, { ...trailPoint(995, 350, 1), wetUntil: 600 }];
     const beforeY = state.trail[0].y;
     state.bullets = [{ id: 90, x: px(990), y: px(300), vx: px(10), vy: 0, radius: 4, kind: 'player', annotated: false, capturable: false }];
-    state = step(state, {}).state;
+    const annotated = step(state, {}); state = annotated.state;
     expect(state.trail[0].y).toBeGreaterThan(beforeY);
     expect(state.metrics.rain.wetAnnotatedShots).toBe(1);
     expect(state.enemies[0].health).toBe(82);
     expect(state.metrics.rain.wetDamage).toBe(18);
+    expect(annotated.events).toContainEqual({ type: 'wet-annotation' });
+  });
+
+  it('emits one rain contact cue when a drop first wets the trail', () => {
+    const state = createInitialState(34, 'stage-03');
+    state.tick = 17; state.encounterIndex = STAGE_03_SPAWNS.length; state.enemies = [];
+    state.trail = [trailPoint(443, 0, 0)];
+    const wetted = step(state, {});
+    expect(wetted.events).toContainEqual({ type: 'trail-wetted' });
+    expect(wetted.state.metrics.rain.trailPointsWetted).toBe(1);
+    expect(step(wetted.state, {}).events).not.toContainEqual({ type: 'trail-wetted' });
   });
 
   it('marks the active LACUNA EEL segment with a small loop and rewards wet annotation', () => {

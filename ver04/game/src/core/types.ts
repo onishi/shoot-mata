@@ -96,6 +96,9 @@ export type GameEvent =
   | { type: 'compiler-wind-locked'; direction: -1 | 1 }
   | { type: 'compiler-seam-exposed'; side: -1 | 1 }
   | { type: 'compiler-seam-hit' }
+  | { type: 'trail-wetted' }
+  | { type: 'basin-surge' }
+  | { type: 'wet-annotation' }
   | { type: 'eel-segment-marked'; segment: 0 | 1 | 2 }
   | { type: 'eel-segment-hit'; segment: 0 | 1 | 2 }
   | { type: 'boss-defeated' };
