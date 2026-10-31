@@ -69,3 +69,14 @@
 - 単体26件、Stage 1/Boss自動計測2件、素材監査、型検査、production build、Chrome E2E 2件に合格した。シミュレーション規則と自動計測値は変更していない。
 - `m2-04-combat.png`、`setpiece`、`boss-phase-1`、`boss-phase-3`を目視し、自機、4敵の役割、Hauler背面弱点、暖色中空弾、ボス装甲と露出核、HUDを識別でき、文字切れ・前景遮蔽がないことを確認した。
 - 次回はStage 1専用の音楽3ステムと主要効果音、音声bus、音量監査を実装し、M2完成音響規格を固定する。
+
+## 2026-10-31 — M2-05 Stage 1完成音響
+
+- v4専用の決定的音声制作スクリプトを新規実装し、空洞の風と船殻共鳴、木質クリック、単音の倍音弦からなる16秒の環境・脈動・危機3ステムを44.1kHz stereo PCM16で制作した。
+- 射撃、添え書き、候補、COLLATE成功/不発、RETRACE開始/終了、被弾、ボス予告、UI決定/戻るの11効果音を制作した。18弾捕捉は18 voiceを重ねず、捕捉数3段階の再生音程で伝える。
+- Web AudioミキサへBGM、SE、UI、環境の4 bus、master limiter、SE 24・UI 4・環境8・音楽6 voice上限、同一音cooldownを実装した。ユーザー操作後にAudioContextを開始し、ポーズ時にステムを停止、再開時にsimulation tick位置へ同期する。
+- simulationへ添え書き成立、RETRACE終了、ボス予告イベントを追加し、規則状態を音側から変更せず各効果音へ接続した。敵密度で脈動、BLANK BAILIFF形態で危機ステムを連続mixする。
+- 単体素材14件はBGM RMS -20.03〜-19.00 dBFS、SE RMS -18.00 dBFS。3ステム、射撃10回、18弾COLLATE、予告、被弾、UI 5回の最悪mixはlimiter前peak -11.73 dBFS、NaN/clip 0だった。結果を`docs/evidence/m2-05-audio-audit.json`へ保存した。
+- `npm run verify`で単体28件、Stage 1/Boss自動計測2件、素材・音量監査、型検査、production build、Chrome E2E 3件に合格した。Chromeでは初回操作開始、14 buffer decode、3 stem開始、BGM/SE独立mute、ポーズ停止、tick同期再開を確認した。
+- 再採取された通常戦画像を目視し、自機、敵、弾、航跡、HUDの判別と文字切れなしを再確認した。Stage 1の完成画面・音・画面遷移が揃ったためM2を完了し、M3へ移行した。
+- 次回はStage 2「逆風索引」の横風規則、4通常敵、3分通常区間をデータ駆動で実装する。

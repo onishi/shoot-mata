@@ -7,7 +7,28 @@ type QaWindow = Window & {
   __PALIMPSEST_APP_STATE__: () => { screen: Screen; continuesRemaining: number; checkpointName: string; game: { tick: number; player: { health: number }; gauge: number } };
   __PALIMPSEST_STATE__: () => { bullets: unknown[]; trail: unknown[]; candidate: unknown; metrics: { loops: number; retraces: number } };
   __PALIMPSEST_QA_SCENARIO__: (scenario: 'damage' | 'setpiece' | 'boss-gate' | 'boss-defeat') => Screen;
+  __PALIMPSEST_AUDIO_READY__: () => Promise<void>;
+  __PALIMPSEST_AUDIO_STATE__: () => { state: string; loaded: number; stems: number; active: number; busLevels: Record<string, number> };
+  __PALIMPSEST_AUDIO_BUS__: (bus: 'music' | 'se' | 'ui' | 'environment', level: number) => void;
 };
+
+test('Stage 1 audio starts from a gesture, separates buses and follows pause', async ({ page }) => {
+  await page.goto('/');
+  expect(await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_AUDIO_STATE__().state)).toBe('uninitialized');
+  await page.keyboard.press('Enter');
+  await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_AUDIO_READY__());
+  expect(await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_AUDIO_STATE__())).toMatchObject({ state: 'running', loaded: 14, stems: 0 });
+  await page.keyboard.press('Enter');
+  await expect.poll(() => page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_AUDIO_STATE__().stems)).toBe(3);
+  await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_AUDIO_BUS__('music', 0));
+  const isolated = await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_AUDIO_STATE__().busLevels);
+  expect(isolated.music).toBe(0);
+  expect(isolated.se).toBeGreaterThan(0);
+  await page.keyboard.press('Escape');
+  expect(await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_AUDIO_STATE__().stems)).toBe(0);
+  await page.keyboard.press('Escape');
+  await expect.poll(() => page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_AUDIO_STATE__().stems)).toBe(3);
+});
 
 test('Stage 1 title-to-result keyboard flow, continue and focus pause work in Chrome', async ({ page }) => {
   await page.goto('/');

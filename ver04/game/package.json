@@ -9,9 +9,11 @@
     "test": "vitest run tests",
     "autoplay": "vitest run scripts/stage-01.report.test.ts scripts/stage-01-boss.report.test.ts",
     "audit:assets": "node scripts/audit-assets.mjs",
+    "generate:audio": "node scripts/generate-audio.mjs",
+    "audit:audio": "node scripts/audit-audio.mjs",
     "build": "npm run typecheck && vite build",
     "test:e2e": "playwright test",
-    "verify": "npm run test && npm run autoplay && npm run audit:assets && npm run build && npm run test:e2e"
+    "verify": "npm run test && npm run autoplay && npm run audit:assets && npm run audit:audio && npm run build && npm run test:e2e"
   },
   "devDependencies": {
     "@playwright/test": "^1.56.1",

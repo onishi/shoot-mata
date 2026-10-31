@@ -67,14 +67,17 @@ export interface InputFrame {
 }
 export type GameEvent =
   | { type: 'shot-fired' }
+  | { type: 'shot-annotated' }
   | { type: 'loop-ready' }
   | { type: 'loop-collated'; captured: number; area: number }
   | { type: 'collate-missed' }
   | { type: 'retrace-started' }
+  | { type: 'retrace-ended' }
   | { type: 'retrace-denied' }
   | { type: 'damage' }
   | { type: 'enemy-defeated' }
   | { type: 'boss-spawned' }
+  | { type: 'boss-warning' }
   | { type: 'boss-phase'; phase: 1 | 2 | 3 }
   | { type: 'boss-defeated' };
 export interface Metrics {

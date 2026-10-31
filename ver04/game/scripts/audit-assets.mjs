@@ -15,6 +15,6 @@ for (const asset of manifest.assets) {
   await access(resolve(root, asset.path));
 }
 
-const expected = ['stage-01-erased-harbor-far-v1', 'stage-01-erased-harbor-mid-v1', 'stage-01-erased-harbor-fore-v1', 'stage-01-sprites-v1', 'stage-01-canvas-effects-v1'];
+const expected = ['stage-01-erased-harbor-far-v1', 'stage-01-erased-harbor-mid-v1', 'stage-01-erased-harbor-fore-v1', 'stage-01-sprites-v1', 'stage-01-canvas-effects-v1', 'stage-01-ambient-v1', 'stage-01-pulse-v1', 'stage-01-crisis-v1', 'stage-01-effects-v1'];
 for (const id of expected) if (!ids.has(id)) throw new Error(`required Stage 1 asset is unregistered: ${id}`);
 console.log(`asset audit passed: ${manifest.assets.length} final project-original entries`);

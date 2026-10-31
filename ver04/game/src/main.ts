@@ -5,6 +5,7 @@ import { renderApp } from './render/render';
 import { assetsReady } from './render/visual-assets';
 import { createPilot } from './simulation/autopilot';
 import { STAGE_01_BOSS_START_TICK, STAGE_01_SPAWNS } from './content/stage-01';
+import { StageOneAudio } from './audio/stage-01-audio';
 
 const canvas = document.querySelector<HTMLCanvasElement>('#game');
 const status = document.querySelector<HTMLElement>('#status');
@@ -13,6 +14,7 @@ const ctx = canvas.getContext('2d');
 if (!ctx) throw new Error('Canvas 2D is unavailable');
 
 let app = createAppState(404);
+const audio = new StageOneAudio();
 let accumulator = 0;
 let previousTime = performance.now();
 const held = new Set<string>();
@@ -23,6 +25,8 @@ const applyAction = (action: AppAction): void => {
   const before = app.screen;
   app = transition(app, action);
   if (before !== app.screen) {
+    audio.playUi(action === 'back');
+    audio.setScreen(app.screen, app.game.tick);
     held.clear();
     pulses.collate = false;
     pulses.retrace = false;
@@ -31,6 +35,7 @@ const applyAction = (action: AppAction): void => {
 };
 
 window.addEventListener('keydown', (event) => {
+  void audio.ensureStarted();
   const { code } = event;
   if (!event.repeat) {
     if (app.screen === 'title' && code === 'KeyG') applyAction('guide');
@@ -53,6 +58,7 @@ window.addEventListener('keydown', (event) => {
 window.addEventListener('keyup', (event) => held.delete(event.code));
 const pauseForFocusLoss = (): void => {
   app = autoPause(app);
+  audio.setScreen(app.screen, app.game.tick);
   held.clear();
   pulses.collate = false;
   pulses.retrace = false;
@@ -73,6 +79,8 @@ const input = (): InputFrame => ({
 const runStep = (frameInput: InputFrame): void => {
   const result = advance(app, frameInput);
   app = result.state;
+  for (const event of result.events) audio.playEvent(event);
+  audio.setScreen(app.screen, app.game.tick);
   if (result.events.some((event) => event.type === 'loop-collated')) status.textContent = 'COLLATE succeeded. Captured fire has been returned.';
   if (app.screen === 'continue') status.textContent = 'The wake broke. Continue from the checkpoint or return to title.';
   if (app.screen === 'result') status.textContent = 'Stage 1 complete. The harbor remembers.';
@@ -94,12 +102,16 @@ const frame = (now: number): void => {
     if (steps === 8) accumulator = 0;
   } else accumulator = 0;
   renderApp(ctx, app);
+  if (app.screen === 'playing') audio.updateMix(app.game);
   requestAnimationFrame(frame);
 };
 requestAnimationFrame(frame);
 
 Object.assign(window, {
   __PALIMPSEST_ASSETS_READY__: assetsReady,
+  __PALIMPSEST_AUDIO_READY__: () => audio.ensureStarted(),
+  __PALIMPSEST_AUDIO_STATE__: () => audio.snapshot(),
+  __PALIMPSEST_AUDIO_BUS__: (bus: 'music' | 'se' | 'ui' | 'environment', level: number) => audio.setBusLevel(bus, level),
   __PALIMPSEST_STATE__: () => app.game,
   __PALIMPSEST_APP_STATE__: () => app,
   __PALIMPSEST_ADVANCE__: (ticks: number) => {

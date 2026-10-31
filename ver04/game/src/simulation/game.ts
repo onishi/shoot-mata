@@ -111,7 +111,7 @@ const updateBoss = (state: GameState, events: GameEvent[]): void => {
     state.metrics.boss.spawned = true;
     state.metrics.boss.phaseReached[0] = true;
     state.metrics.boss.fanWarnings += 1;
-    events.push({ type: 'boss-spawned' });
+    events.push({ type: 'boss-spawned' }, { type: 'boss-warning' });
   }
   const boss = state.boss;
   if (!boss) return;
@@ -141,6 +141,7 @@ const updateBoss = (state: GameState, events: GameEvent[]): void => {
     boss.fanWarningUntil = state.tick + 90;
     boss.fanFiresAt = state.tick + 90;
     state.metrics.boss.fanWarnings += 1;
+    events.push({ type: 'boss-warning' });
   }
 };
 
@@ -211,13 +212,13 @@ const updateEnemy = (state: GameState, enemy: Enemy): void => {
   state.metrics.enemyStats[enemy.kind].attacks += 1;
 };
 
-const updatePlayer = (state: GameState, input: InputFrame): void => {
+const updatePlayer = (state: GameState, input: InputFrame, events: GameEvent[]): void => {
   if (state.retrace) {
     state.retrace.index += 1;
     const point = state.retrace.points[Math.min(state.retrace.index, state.retrace.points.length - 1)];
     state.player.x = point.x;
     state.player.y = point.y;
-    if (state.retrace.index >= state.retrace.points.length - 1) state.retrace = null;
+    if (state.retrace.index >= state.retrace.points.length - 1) { state.retrace = null; events.push({ type: 'retrace-ended' }); }
     return;
   }
   let dx = Number(Boolean(input.right)) - Number(Boolean(input.left));
@@ -273,7 +274,7 @@ export const step = (previous: GameState, input: InputFrame): { state: GameState
       events.push({ type: 'retrace-started' });
     } else events.push({ type: 'retrace-denied' });
   }
-  updatePlayer(state, input);
+  updatePlayer(state, input, events);
 
   spawnDueEncounters(state);
   updateBoss(state, events);
@@ -305,6 +306,7 @@ export const step = (previous: GameState, input: InputFrame): { state: GameState
       bullet.annotated = true;
       bullet.vx = Math.round(bullet.vx * 1.15);
       state.metrics.annotatedShots += 1;
+      events.push({ type: 'shot-annotated' });
     }
   }
 

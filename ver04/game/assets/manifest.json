@@ -30,6 +30,30 @@
       "stage": "Stage 1: The Erased Harbor", "usage": "three-layer wake, scanned COLLATE candidate, hollow enemy fire, return fire, boss telegraph and marginal HUD", "version": 1, "status": "final", "createdBy": "procedural",
       "sourcePrompt": "none; authored Canvas compositing from docs/02-art-and-audio-direction.md sections 1, 2 and 5", "generatedAt": "2026-10-31",
       "editHistory": ["Replaced M1 primitive combat rendering with layered glow, inner line, scan fill, double-ring hazards and atlas-backed return shards."], "dimensions": "1280x720 logical canvas", "license": "project-original"
+    },
+    {
+      "id": "stage-01-ambient-v1", "kind": "audio-stem", "path": "public/assets/audio/stage-01/harbor-ambient-v1.wav",
+      "stage": "Stage 1: The Erased Harbor", "usage": "looping environment stem: hollow wind and resonant harbor hull", "version": 1, "status": "final", "createdBy": "procedural",
+      "sourcePrompt": "scripts/generate-audio.mjs deterministic synthesis; hollow air, paper-grain breath and low single-note hull resonance", "generatedAt": "2026-10-31",
+      "editHistory": ["Synthesized at 44.1 kHz stereo PCM16 and normalized for the Stage 1 environment bus."], "dimensions": "16.0s stereo 44.1kHz PCM16", "license": "project-original"
+    },
+    {
+      "id": "stage-01-pulse-v1", "kind": "audio-stem", "path": "public/assets/audio/stage-01/harbor-pulse-v1.wav",
+      "stage": "Stage 1: The Erased Harbor", "usage": "looping density stem: irregular wooden proofing-machine clicks", "version": 1, "status": "final", "createdBy": "procedural",
+      "sourcePrompt": "scripts/generate-audio.mjs deterministic synthesis; wooden clicks with nonrepeating stereo placement and sparse paper-machine pulse", "generatedAt": "2026-10-31",
+      "editHistory": ["Synthesized at 44.1 kHz stereo PCM16; runtime gain follows enemy and projectile density."], "dimensions": "16.0s stereo 44.1kHz PCM16", "license": "project-original"
+    },
+    {
+      "id": "stage-01-crisis-v1", "kind": "audio-stem", "path": "public/assets/audio/stage-01/harbor-crisis-v1.wav",
+      "stage": "Stage 1: The Erased Harbor", "usage": "looping danger stem: single-note bowed harmonic string", "version": 1, "status": "final", "createdBy": "procedural",
+      "sourcePrompt": "scripts/generate-audio.mjs deterministic synthesis; long single-note string harmonics and restrained graphite bow grain", "generatedAt": "2026-10-31",
+      "editHistory": ["Synthesized at 44.1 kHz stereo PCM16; runtime gain follows BLANK BAILIFF phase."], "dimensions": "16.0s stereo 44.1kHz PCM16", "license": "project-original"
+    },
+    {
+      "id": "stage-01-effects-v1", "kind": "audio-effect-set", "path": "public/assets/audio/stage-01/shot-v1.wav",
+      "stage": "Stage 1: The Erased Harbor", "usage": "shot, annotation, candidate, COLLATE success/failure, RETRACE start/end, damage, warning and UI cues", "version": 1, "status": "final", "createdBy": "procedural",
+      "sourcePrompt": "scripts/generate-audio.mjs deterministic synthesis; eleven distinct immediate proofing, paper-light and wooden UI gestures", "generatedAt": "2026-10-31",
+      "editHistory": ["Synthesized as eleven 44.1 kHz stereo PCM16 files; all files and worst-case mix inspected by scripts/audit-audio.mjs."], "dimensions": "11 files, 0.12s to 0.72s, stereo 44.1kHz PCM16", "license": "project-original"
     }
   ]
 }
