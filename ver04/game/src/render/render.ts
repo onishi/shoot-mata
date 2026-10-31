@@ -1,4 +1,5 @@
 import { HEIGHT, SCALE, TICK_RATE, WIDTH, type GameState, type Point } from '../core/types';
+import type { AppScreen, AppState } from '../app/app';
 
 const path = (ctx: CanvasRenderingContext2D, points: Point[]): void => {
   if (points.length === 0) return;
@@ -211,4 +212,70 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
     ctx.fillText('ESC / P  to return to the wake', WIDTH / 2, HEIGHT / 2 + 35);
     ctx.textAlign = 'start';
   }
+};
+
+const overlay = (ctx: CanvasRenderingContext2D, alpha = 0.88): void => {
+  ctx.fillStyle = `rgba(3, 7, 17, ${alpha})`;
+  ctx.fillRect(0, 0, WIDTH, HEIGHT);
+  ctx.textAlign = 'center';
+};
+
+const title = (ctx: CanvasRenderingContext2D, text: string, y: number, size = 56, color = '#f5e6c8'): void => {
+  ctx.fillStyle = color;
+  ctx.font = `700 ${size}px system-ui, sans-serif`;
+  ctx.fillText(text, WIDTH / 2, y);
+};
+
+const line = (ctx: CanvasRenderingContext2D, text: string, y: number, color = '#a8c5d4', size = 20): void => {
+  ctx.fillStyle = color;
+  ctx.font = `${size}px system-ui, sans-serif`;
+  ctx.fillText(text, WIDTH / 2, y);
+};
+
+const renderScreen = (ctx: CanvasRenderingContext2D, app: AppState, screen: Exclude<AppScreen, 'playing'>): void => {
+  overlay(ctx, screen === 'paused' ? 0.76 : 0.9);
+  if (screen === 'title') {
+    line(ctx, 'A flight written against erasure', 188, '#f4c36a', 18);
+    title(ctx, 'PALIMPSEST WAKE', 290, 70);
+    line(ctx, 'NEW VOYAGE', 395, '#a8f7ff', 26);
+    line(ctx, 'ENTER / N', 428, '#7895a7', 15);
+    line(ctx, 'G  GUIDE', 492, '#adc2cf', 19);
+    line(ctx, 'v4.0 · VERTICAL SLICE', 650, '#667f91', 14);
+  } else if (screen === 'guide') {
+    title(ctx, 'HOW TO WRITE THE WAKE', 120, 38);
+    line(ctx, 'MOVE', 205, '#f4c36a', 18); line(ctx, 'WASD / ARROWS · your path leaves a short luminous trace', 238);
+    line(ctx, 'FIRE', 300, '#f4c36a', 18); line(ctx, 'Z / J · cross your own wake to annotate a shot', 333);
+    line(ctx, 'COLLATE', 395, '#f4c36a', 18); line(ctx, 'X / K · close a loop and return the fire caught inside', 428);
+    line(ctx, 'RETRACE', 490, '#f4c36a', 18); line(ctx, 'C / L · spend 25 gauge to escape backward along the wake', 523);
+    line(ctx, 'ENTER / ESC  RETURN', 625, '#a8f7ff', 18);
+  } else if (screen === 'stage-intro') {
+    line(ctx, app.checkpointName === 'boss-gate' ? 'CHECKPOINT · THE SEALED LEDGER' : 'STAGE 1', 205, '#f4c36a', 18);
+    title(ctx, app.checkpointName === 'boss-gate' ? 'BLANK BAILIFF' : 'THE ERASED HARBOR', 300, 48);
+    line(ctx, app.checkpointName === 'boss-gate' ? 'Return its erased fire. Strip the three written seals.' : 'Rewrite a route through the records they tried to erase.', 365);
+    line(ctx, 'ENTER  DEPART', 500, '#a8f7ff', 22);
+    line(ctx, 'ESC  ABANDON VOYAGE', 548, '#7895a7', 15);
+  } else if (screen === 'paused') {
+    title(ctx, 'PAUSED', 338, 54);
+    line(ctx, 'ESC / P / ENTER  return to the wake', 390);
+    line(ctx, 'BACKSPACE  abandon voyage', 430, '#7895a7', 15);
+  } else if (screen === 'continue') {
+    title(ctx, app.continuesRemaining > 0 ? 'THE WAKE BREAKS' : 'VOYAGE ERASED', 270, 52, '#ffad91');
+    line(ctx, app.continuesRemaining > 0 ? `Checkpoint: ${app.checkpointName === 'boss-gate' ? 'THE SEALED LEDGER' : 'HARBOR ENTRY'}` : 'No revision remains.', 340);
+    line(ctx, app.continuesRemaining > 0 ? 'ENTER  REVISE FROM CHECKPOINT' : 'ENTER  RETURN TO TITLE', 430, '#a8f7ff', 21);
+    if (app.continuesRemaining > 0) line(ctx, 'One revision per stage · health 3 · gauge 50', 475, '#7895a7', 15);
+    line(ctx, 'ESC  RETURN TO TITLE', 535, '#7895a7', 15);
+  } else if (screen === 'result') {
+    line(ctx, 'STAGE 1 COMPLETE', 190, '#f4c36a', 18);
+    title(ctx, 'THE HARBOR REMEMBERS', 280, 48);
+    line(ctx, `SCORE  ${String(app.game.score).padStart(7, '0')}`, 370, '#a8f7ff', 25);
+    line(ctx, `COLLATES ${app.game.metrics.loops}   ·   RETURNED FIRE ${app.game.metrics.captured}`, 414);
+    line(ctx, `DAMAGE ${app.game.metrics.damage}   ·   REVISIONS USED ${1 - app.continuesRemaining}`, 450);
+    line(ctx, 'ENTER  RETURN TO TITLE', 550, '#a8f7ff', 20);
+  }
+  ctx.textAlign = 'start';
+};
+
+export const renderApp = (ctx: CanvasRenderingContext2D, app: AppState): void => {
+  render(ctx, app.game, false);
+  if (app.screen !== 'playing') renderScreen(ctx, app, app.screen);
 };

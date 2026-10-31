@@ -65,7 +65,7 @@ export const createInitialState = (seed = 1): GameState => {
   return state;
 };
 
-const copyState = (state: GameState): GameState => ({
+export const copyState = (state: GameState): GameState => ({
   ...state,
   player: { ...state.player },
   trail: state.trail.map((point) => ({ ...point })),
@@ -384,7 +384,7 @@ export const step = (previous: GameState, input: InputFrame): { state: GameState
       }
     } else if (!state.retrace && state.player.invulnerableUntil < state.tick
       && distanceSq(bullet, state.player) <= ((bullet.radius + PLAYER_RADIUS) * SCALE) ** 2) {
-      state.player.health -= 1;
+      state.player.health = Math.max(0, state.player.health - 1);
       state.player.invulnerableUntil = state.tick + 132;
       state.trail = [];
       state.candidate = null;
