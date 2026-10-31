@@ -1,0 +1,93 @@
+{
+  "generatedAt": "2026-11-01",
+  "seed": 3622,
+  "baseline": {
+    "durationTicks": 20425,
+    "maxEnemyBullets": 219,
+    "editor": {
+      "rulesRewritten": 0,
+      "revisionExposedTicks": 0,
+      "revisionHits": 0,
+      "ordinaryHits": 2031,
+      "signatureInkSpawned": 176,
+      "signatureClosures": 0,
+      "signatureExposedTicks": 0,
+      "phaseReached": [
+        true,
+        true,
+        true
+      ],
+      "attacks": {
+        "erasure": 29,
+        "wind": 23,
+        "rain": 32,
+        "heat": 29,
+        "mirror": 29,
+        "signature": 22
+      },
+      "damageByAttack": {
+        "erasure": 9,
+        "wind": 1,
+        "rain": 2,
+        "heat": 0,
+        "mirror": 2,
+        "signature": 6
+      }
+    },
+    "hash": "172aadcb6d338b4c"
+  },
+  "stitch": {
+    "durationTicks": 9967,
+    "phaseTicks": [
+      0,
+      758,
+      8741
+    ],
+    "maxEnemyBullets": 62,
+    "editor": {
+      "rulesRewritten": 5,
+      "revisionExposedTicks": 6159,
+      "revisionHits": 629,
+      "ordinaryHits": 212,
+      "signatureInkSpawned": 32,
+      "signatureClosures": 1,
+      "signatureExposedTicks": 25,
+      "phaseReached": [
+        true,
+        true,
+        true
+      ],
+      "attacks": {
+        "erasure": 12,
+        "wind": 11,
+        "rain": 19,
+        "heat": 13,
+        "mirror": 13,
+        "signature": 4
+      },
+      "damageByAttack": {
+        "erasure": 9,
+        "wind": 1,
+        "rain": 7,
+        "heat": 2,
+        "mirror": 4,
+        "signature": 6
+      }
+    },
+    "hash": "08a30e6af64fb80b"
+  },
+  "replayHash": "08a30e6af64fb80b",
+  "gates": {
+    "ordinaryFallbackDefeatsBoss": true,
+    "stitchDefeatsBoss": true,
+    "authoredRouteAtLeastFortyPercentFaster": true,
+    "allPhasesReached": true,
+    "inheritedRulesRewritten": true,
+    "exposedRouteUsed": true,
+    "allFiveRulesAttack": true,
+    "signatureInkEmitted": true,
+    "signatureClosed": true,
+    "bulletLimit": true,
+    "deterministicReplay": true
+  }
+}

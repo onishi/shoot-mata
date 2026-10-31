@@ -294,10 +294,10 @@
     },
     {
       "id": "stage-06-canvas-preview-v1", "kind": "procedural-visual", "path": "src/render/render.ts",
-      "stage": "Stage 6: Dawn of the Original", "usage": "development preview for five folios, Binding Wasp, Revision Hound, Null Choir and Archive Palanquin",
+      "stage": "Stage 6: Dawn of the Original", "usage": "development preview for five folios, four normal enemies, THE LAST EDITOR, inherited-rule revisions and enemy-ink signature",
       "version": 1, "status": "prototype", "createdBy": "procedural",
       "sourcePrompt": "none; authored Canvas preview from docs/01-game-design.md Stage 6 and enemy roster",
-      "generatedAt": "2026-11-01", "editHistory": ["Introduced rule-colored folio wash, synthesis label, four distinct geometric silhouettes and simulation-synchronized mirror bands."],
+      "generatedAt": "2026-11-01", "editHistory": ["Introduced rule-colored folio wash, synthesis label, four distinct geometric silhouettes and simulation-synchronized mirror bands.", "Added a geometric LAST EDITOR preview, five rule colors, revision-open cue and dashed gold signature-ink rounds for M3-22."],
       "dimensions": "1280x720 logical canvas", "license": "project-original"
     }
   ]

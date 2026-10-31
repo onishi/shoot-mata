@@ -3,11 +3,11 @@
   "durationTicks": 21600,
   "scheduledSpawns": 76,
   "seed": 2401,
-  "finalHash": "2ec7479afe2ce3ff",
+  "finalHash": "01d3906d5f79a58e",
   "replayHashes": [
-    "2ec7479afe2ce3ff",
-    "2ec7479afe2ce3ff",
-    "2ec7479afe2ce3ff"
+    "01d3906d5f79a58e",
+    "01d3906d5f79a58e",
+    "01d3906d5f79a58e"
   ],
   "maxEnemies": 10,
   "maxEnemyBullets": 101,

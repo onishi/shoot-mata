@@ -57,6 +57,7 @@ export const createPilot = (name: PilotName): ((state: GameState) => InputFrame)
   let eelPhase = 0;
   let advocatePhase = 0;
   let apocryphaPhase = 0;
+  let editorPhase = 0;
   const reactionTicks = name === 'safe' ? 8 : name === 'stitch' ? 10 : name === 'sweep' ? 14 : 12;
 
   return (state: GameState): InputFrame => {
@@ -88,6 +89,13 @@ export const createPilot = (name: PilotName): ((state: GameState) => InputFrame)
       candidateSeenAt = 0;
       nextDecision = state.tick;
     }
+    if (name === 'stitch' && state.boss?.kind === 'last-editor' && state.boss.phase !== editorPhase) {
+      editorPhase = state.boss.phase;
+      attackUntil = 0;
+      waypoints = [];
+      candidateSeenAt = 0;
+      nextDecision = state.tick;
+    }
     if (state.tick < nextDecision) return { ...held, collate: false, retrace: false };
     nextDecision = state.tick + reactionTicks;
 
@@ -101,7 +109,10 @@ export const createPilot = (name: PilotName): ((state: GameState) => InputFrame)
         .sort((a, b) => b.x - a.x || a.id - b.id)[0] ?? null : null;
     const apocryphaWeakpoint = state.boss?.kind === 'apocrypha-twins' && state.boss.syncBrokenUntil >= state.tick
       ? apocryphaTwinPoint(state.boss, state.tick, state.boss.vulnerableTwin) : null;
-    const target = exposedSeam ?? eelWeakpoint ?? advocateEmber ?? apocryphaWeakpoint ?? visible;
+    const editorExposed = state.boss?.kind === 'last-editor'
+      && (state.boss.phase < 3 ? state.boss.revisionExposedUntil >= state.tick : state.boss.signatureExposedUntil >= state.tick)
+      ? state.boss : null;
+    const target = exposedSeam ?? eelWeakpoint ?? advocateEmber ?? apocryphaWeakpoint ?? editorExposed ?? visible;
     if (name === 'baseline') {
       const aimY = target?.y ?? px(360);
       held = moveToward(state.player, { x: px(300), y: aimY });
@@ -176,7 +187,11 @@ export const createPilot = (name: PilotName): ((state: GameState) => InputFrame)
       const courierTarget = state.stageId === 'stage-04' && loopSequence % 4 === 0
         ? state.enemies.find((enemy) => enemy.kind === 'ember-courier') ?? null : null;
       const twinsTarget = state.boss?.kind === 'apocrypha-twins' && state.boss.syncBrokenUntil < state.tick ? state.boss : null;
-      const loopTarget = name === 'stitch' ? (compilerVane ?? eelWeakpoint ?? advocateEmber ?? twinsTarget ?? courierTarget ?? coolingTarget) : null;
+      const signatureTarget = state.boss?.kind === 'last-editor' && state.boss.phase === 3
+        && state.boss.signatureExposedUntil < state.tick
+        && state.bullets.some((bullet) => bullet.signatureInk) ? { x: px(780), y: px(360) } : null;
+      const editorTarget = state.boss?.kind === 'last-editor' && !editorExposed ? state.boss : null;
+      const loopTarget = name === 'stitch' ? (compilerVane ?? eelWeakpoint ?? advocateEmber ?? twinsTarget ?? signatureTarget ?? editorTarget ?? courierTarget ?? coolingTarget) : null;
       const advocateCenterOffset = advocateEmber ? px(45) : 0;
       const centerX = loopTarget ? loopTarget.x - advocateCenterOffset : (name === 'safe' ? px(300) : Math.min(px(910), Math.max(px(650), target?.x ?? px(900))));
       const rawCenterY = name === 'safe'
@@ -186,8 +201,8 @@ export const createPilot = (name: PilotName): ((state: GameState) => InputFrame)
       // Leave headroom inside the 3.2 second trail lifetime for reaction delay
       // and quantized corner arrival.
       const enclosesTwins = Boolean(twinsTarget);
-      const halfWidth = px(enclosesTwins ? 112 : advocateEmber ? 95 : loopTarget ? 75 : name === 'safe' ? 75 : name === 'stitch' ? 100 : 115);
-      const halfHeight = px(enclosesTwins ? 126 : advocateEmber ? 58 : loopTarget ? 55 : name === 'safe' ? 55 : name === 'stitch' ? 75 : 90);
+      const halfWidth = px(signatureTarget ? 148 : enclosesTwins ? 112 : advocateEmber ? 95 : editorTarget ? 118 : loopTarget ? 75 : name === 'safe' ? 75 : name === 'stitch' ? 100 : 115);
+      const halfHeight = px(signatureTarget ? 100 : enclosesTwins ? 126 : advocateEmber ? 58 : editorTarget ? 86 : loopTarget ? 55 : name === 'safe' ? 55 : name === 'stitch' ? 75 : 90);
       waypoints = [
         { x: centerX - halfWidth, y: centerY - halfHeight },
         { x: centerX + halfWidth, y: centerY - halfHeight },

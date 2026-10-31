@@ -7,7 +7,7 @@ type QaWindow = Window & {
   __PALIMPSEST_ADVANCE__: (ticks: number) => number;
   __PALIMPSEST_APP_STATE__: () => { screen: Screen; continuesRemaining: number; checkpointName: string; game: { stageId: string; tick: number; player: { health: number }; gauge: number } };
   __PALIMPSEST_STATE__: () => { bullets: unknown[]; trail: unknown[]; candidate: unknown; metrics: { loops: number; retraces: number } };
-  __PALIMPSEST_QA_SCENARIO__: (scenario: 'damage' | 'setpiece' | 'stage-02-combat' | 'stage-02-setpiece' | 'stage-03-combat' | 'stage-03-setpiece' | 'stage-03-boss' | 'stage-04-combat' | 'stage-04-setpiece' | 'stage-04-boss' | 'stage-05-combat' | 'stage-05-setpiece' | 'stage-05-boss' | 'stage-06-combat' | 'stage-06-setpiece' | 'boss-gate' | 'boss-defeat' | 'stage-02-boss') => Screen;
+  __PALIMPSEST_QA_SCENARIO__: (scenario: 'damage' | 'setpiece' | 'stage-02-combat' | 'stage-02-setpiece' | 'stage-03-combat' | 'stage-03-setpiece' | 'stage-03-boss' | 'stage-04-combat' | 'stage-04-setpiece' | 'stage-04-boss' | 'stage-05-combat' | 'stage-05-setpiece' | 'stage-05-boss' | 'stage-06-combat' | 'stage-06-setpiece' | 'stage-06-boss' | 'boss-gate' | 'boss-defeat' | 'stage-02-boss') => Screen;
   __PALIMPSEST_AUDIO_READY__: () => Promise<void>;
   __PALIMPSEST_AUDIO_STATE__: () => { state: string; loaded: number; stems: number; stemStage: string | null; active: number; busLevels: Record<string, number>; cueCounts: Record<string, number> };
   __PALIMPSEST_AUDIO_BUS__: (bus: 'music' | 'se' | 'ui' | 'environment', level: number) => void;
@@ -617,4 +617,45 @@ test('Stage 6 preview keeps four enemy roles and the synthesis folio readable', 
   const kinds = new Set(state.enemies.map((enemy) => enemy.kind));
   expect(kinds.size).toBeGreaterThanOrEqual(3);
   await page.locator('#game').screenshot({ path: '../docs/evidence/m3-21-stage-06-setpiece.png' });
+});
+
+test('THE LAST EDITOR shows inherited revisions and the enemy-ink signature across three phases', async ({ page }) => {
+  await page.goto('/'); await page.keyboard.press('Enter'); await page.keyboard.press('Enter');
+  await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_QA_SCENARIO__('stage-06-boss'));
+  let state = await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_STATE__()) as unknown as {
+    tick: number; boss: { kind: string; phase: number; health: number; maxHealth: number; phaseStartedAt: number; cycleStartedAt: number;
+      revisionExposedUntil: number; signatureExposedUntil: number; editorRule: number; editorRulesMask: number } | null;
+    bullets: Array<{ sourceAttack?: string; signatureInk?: boolean }>;
+    metrics: { editor: { rulesRewritten: number; phaseReached: boolean[] } };
+  };
+  expect(state.boss?.kind).toBe('last-editor');
+  expect(state.metrics.editor.rulesRewritten).toBeGreaterThan(0);
+  await page.locator('#game').screenshot({ path: '../docs/evidence/m3-22-last-editor-phase-1.png' });
+
+  await page.evaluate(() => {
+    const state = (window as unknown as QaWindow).__PALIMPSEST_STATE__() as unknown as {
+      tick: number; boss: { phase: number; health: number; phaseStartedAt: number; cycleStartedAt: number; revisionExposedUntil: number; editorRule: number };
+      bullets: unknown[]; metrics: { editor: { phaseReached: boolean[] } };
+    };
+    state.boss.phase = 2; state.boss.health = 1200; state.boss.phaseStartedAt = state.tick; state.boss.cycleStartedAt = state.tick - 131;
+    state.boss.revisionExposedUntil = state.tick + 600; state.boss.editorRule = 3; state.bullets = [];
+    state.metrics.editor.phaseReached = [true, true, false];
+  });
+  await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_ADVANCE__(2));
+  await page.locator('#game').screenshot({ path: '../docs/evidence/m3-22-last-editor-phase-2.png' });
+
+  await page.evaluate(() => {
+    const state = (window as unknown as QaWindow).__PALIMPSEST_STATE__() as unknown as {
+      tick: number; boss: { phase: number; health: number; phaseStartedAt: number; cycleStartedAt: number; signatureExposedUntil: number; editorRulesMask: number };
+      bullets: unknown[]; metrics: { editor: { phaseReached: boolean[] } };
+    };
+    state.boss.phase = 3; state.boss.health = 700; state.boss.phaseStartedAt = state.tick; state.boss.cycleStartedAt = state.tick;
+    state.boss.signatureExposedUntil = state.tick + 720; state.boss.editorRulesMask = 31; state.bullets = [];
+    state.metrics.editor.phaseReached = [true, true, true];
+  });
+  await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_ADVANCE__(1));
+  state = await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_STATE__()) as unknown as typeof state;
+  expect(state.boss?.phase).toBe(3);
+  expect(state.bullets.filter((bullet) => bullet.signatureInk).length).toBe(8);
+  await page.locator('#game').screenshot({ path: '../docs/evidence/m3-22-last-editor-phase-3.png' });
 });

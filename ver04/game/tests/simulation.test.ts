@@ -6,6 +6,7 @@ import { STAGE_02_BOSS_START_TICK, STAGE_02_SPAWNS } from '../src/content/stage-
 import { STAGE_03_BOSS_START_TICK, STAGE_03_SPAWNS } from '../src/content/stage-03';
 import { STAGE_04_BOSS_START_TICK, STAGE_04_SPAWNS, stageFourCoolingCenter } from '../src/content/stage-04';
 import { STAGE_05_BOSS_START_TICK, STAGE_05_SPAWNS, stageFiveFalseTrail } from '../src/content/stage-05';
+import { STAGE_06_BOSS_START_TICK, STAGE_06_SPAWNS } from '../src/content/stage-06';
 import { findLoopCandidate } from '../src/simulation/trail';
 import type { GameState, InputFrame, TrailPoint } from '../src/core/types';
 
@@ -461,5 +462,33 @@ describe('M1 deterministic playground', () => {
     expect(hit.state.boss!.maxHealth - hit.state.boss!.health).toBe(80);
     expect(hit.state.metrics.apocrypha.weakpointHits).toBe(1);
     expect(hit.events).toContainEqual({ type: 'twins-weakpoint-hit', vulnerable: -1 });
+  });
+
+  it('rewrites a matching Editor rule and requires a large enemy-ink signature in phase three', () => {
+    let state = createInitialState(61, 'stage-06');
+    state.tick = STAGE_06_BOSS_START_TICK - 1; state.encounterIndex = STAGE_06_SPAWNS.length; state.enemies = [];
+    state = step(state, {}).state;
+    expect(state.boss?.kind).toBe('last-editor');
+    state.bullets = [{ id: 960, x: px(780), y: px(360), vx: 0, vy: 0, radius: 8, kind: 'enemy', annotated: false, capturable: true, sourceAttack: 'editor-erasure' }];
+    state.candidate = { polygon: [
+      { x: px(650), y: px(260) }, { x: px(910), y: px(260) },
+      { x: px(910), y: px(460) }, { x: px(650), y: px(460) }
+    ], intersection: { x: px(650), y: px(260) }, startIndex: 0, area: 52000, expiresTick: state.tick + 60 };
+    const rewritten = step(state, { collate: true }); state = rewritten.state;
+    expect(state.metrics.editor.rulesRewritten).toBe(1);
+    expect(state.boss!.revisionExposedUntil).toBeGreaterThan(state.tick);
+    expect(rewritten.events).toContainEqual({ type: 'editor-rule-rewritten', rule: 0 });
+
+    state.boss!.phase = 3; state.boss!.signatureExposedUntil = 0;
+    state.bullets = Array.from({ length: 5 }, (_, index) => ({ id: 970 + index, x: px(690 + index * 40), y: px(360), vx: 0, vy: 0, radius: 11,
+      kind: 'enemy' as const, annotated: false, capturable: true, signatureInk: true, sourceAttack: 'editor-signature' as const }));
+    state.candidate = { polygon: [
+      { x: px(620), y: px(250) }, { x: px(940), y: px(250) },
+      { x: px(940), y: px(470) }, { x: px(620), y: px(470) }
+    ], intersection: { x: px(620), y: px(250) }, startIndex: 0, area: 70400, expiresTick: state.tick + 60 };
+    const signed = step(state, { collate: true });
+    expect(signed.state.metrics.editor.signatureClosures).toBe(1);
+    expect(signed.state.boss!.signatureExposedUntil).toBeGreaterThan(signed.state.tick);
+    expect(signed.events).toContainEqual({ type: 'editor-signature-closed' });
   });
 });

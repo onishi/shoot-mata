@@ -141,9 +141,18 @@ Object.assign(window, {
     renderApp(ctx, app);
     return app.game.tick;
   },
-  __PALIMPSEST_QA_SCENARIO__: (scenario: 'damage' | 'setpiece' | 'stage-02-combat' | 'stage-02-setpiece' | 'stage-03-combat' | 'stage-03-setpiece' | 'stage-03-boss' | 'stage-04-combat' | 'stage-04-setpiece' | 'stage-04-boss' | 'stage-05-combat' | 'stage-05-setpiece' | 'stage-05-boss' | 'stage-06-combat' | 'stage-06-setpiece' | 'boss-gate' | 'boss-defeat' | 'stage-02-boss') => {
+  __PALIMPSEST_QA_SCENARIO__: (scenario: 'damage' | 'setpiece' | 'stage-02-combat' | 'stage-02-setpiece' | 'stage-03-combat' | 'stage-03-setpiece' | 'stage-03-boss' | 'stage-04-combat' | 'stage-04-setpiece' | 'stage-04-boss' | 'stage-05-combat' | 'stage-05-setpiece' | 'stage-05-boss' | 'stage-06-combat' | 'stage-06-setpiece' | 'stage-06-boss' | 'boss-gate' | 'boss-defeat' | 'stage-02-boss') => {
     if (app.screen !== 'playing') return app.screen;
-    if (scenario === 'stage-06-combat' || scenario === 'stage-06-setpiece') {
+    if (scenario === 'stage-06-boss') {
+      app.game = createInitialState(3622, 'stage-06');
+      app.game.player.invulnerableUntil = 100000;
+      app.game.tick = STAGE_06_BOSS_START_TICK - 1;
+      app.game.encounterIndex = STAGE_06_SPAWNS.length;
+      app.game.enemies = []; app.game.player.x = 560 * 256;
+      runStep({});
+      const pilot = createPilot('stitch');
+      for (let index = 0; index < 720; index += 1) runStep(pilot(app.game));
+    } else if (scenario === 'stage-06-combat' || scenario === 'stage-06-setpiece') {
       app.game = createInitialState(3601, 'stage-06');
       app.game.player.invulnerableUntil = 50000;
       if (scenario === 'stage-06-setpiece') {
@@ -293,7 +302,7 @@ Object.assign(window, {
       app.game.boss.health = 1;
       app.game.bullets.push({ id: app.game.nextId++, x: app.game.boss.x, y: app.game.boss.y, vx: 0, vy: 0, radius: 5, kind: 'return', annotated: true, capturable: false });
     }
-    if (scenario !== 'boss-gate' && scenario !== 'setpiece' && scenario !== 'stage-02-combat' && scenario !== 'stage-02-setpiece' && scenario !== 'stage-03-combat' && scenario !== 'stage-03-setpiece' && scenario !== 'stage-03-boss' && scenario !== 'stage-04-combat' && scenario !== 'stage-04-setpiece' && scenario !== 'stage-04-boss' && scenario !== 'stage-05-combat' && scenario !== 'stage-05-setpiece' && scenario !== 'stage-06-combat' && scenario !== 'stage-06-setpiece' && scenario !== 'stage-02-boss') runStep({});
+    if (scenario !== 'boss-gate' && scenario !== 'setpiece' && scenario !== 'stage-02-combat' && scenario !== 'stage-02-setpiece' && scenario !== 'stage-03-combat' && scenario !== 'stage-03-setpiece' && scenario !== 'stage-03-boss' && scenario !== 'stage-04-combat' && scenario !== 'stage-04-setpiece' && scenario !== 'stage-04-boss' && scenario !== 'stage-05-combat' && scenario !== 'stage-05-setpiece' && scenario !== 'stage-06-combat' && scenario !== 'stage-06-setpiece' && scenario !== 'stage-06-boss' && scenario !== 'stage-02-boss') runStep({});
     renderApp(ctx, app);
     return app.screen;
   }

@@ -3,15 +3,15 @@
   "durationTicks": 32400,
   "scheduledSpawns": 90,
   "seed": 3601,
-  "finalHash": "fde17fd5526c13db",
+  "finalHash": "3a3f71dd4365787d",
   "replayHashes": [
-    "fde17fd5526c13db",
-    "fde17fd5526c13db",
-    "fde17fd5526c13db"
+    "3a3f71dd4365787d",
+    "3a3f71dd4365787d",
+    "3a3f71dd4365787d"
   ],
   "maxEnemies": 7,
   "maxEnemyBullets": 73,
-  "maxCombatGapTicks": 0,
+  "maxCombatGapTicks": 1,
   "stats": {
     "binding-wasp": {
       "spawned": 30,

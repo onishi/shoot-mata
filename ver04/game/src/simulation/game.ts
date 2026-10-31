@@ -6,7 +6,7 @@ import { STAGE_02_BOSS_START_TICK, STAGE_02_WIND_HALF_CYCLE_TICKS } from '../con
 import { STAGE_03_BOSS_START_TICK, STAGE_03_RAIN_PERIOD_TICKS, STAGE_03_WET_TICKS } from '../content/stage-03';
 import { STAGE_04_BOSS_START_TICK, STAGE_04_COOLING_EXTENSION_TICKS, STAGE_04_COOLING_RADIUS_PX, STAGE_04_HEAT_PERIOD_TICKS, stageFourCoolingCenter } from '../content/stage-04';
 import { STAGE_05_BOSS_START_TICK, isInStageFiveMirrorBand, stageFiveFalseTrail } from '../content/stage-05';
-import { stageSixActiveRule, stageSixFolio } from '../content/stage-06';
+import { STAGE_06_BOSS_START_TICK, stageSixActiveRule, stageSixFolio } from '../content/stage-06';
 import { findLoopCandidate, shotCrossedTrail, shotCrossedWetTrail, shouldAddTrailPoint } from './trail';
 
 const PLAYER_SPEED = Math.round(320 * SCALE / TICK_RATE);
@@ -107,7 +107,8 @@ export const createInitialState = (seed = 1, stageId: StageId = 'stage-01'): Gam
     compiler: { windLocks: 0, windLockedTicks: 0, weakpointHits: 0, ordinaryHits: 0, phaseReached: [false, false, false], attacks: { gust: 0, lance: 0, storm: 0 }, damageByAttack: { gust: 0, lance: 0, storm: 0 } },
     eel: { segmentMarks: 0, markedTicks: 0, weakpointHits: 0, wetWeakpointHits: 0, ordinaryHits: 0, phaseReached: [false, false, false], attacks: { drizzle: 0, wake: 0, deluge: 0 }, damageByAttack: { drizzle: 0, wake: 0, deluge: 0 } },
     advocate: { embersThrown: 0, embersCooled: 0, cooledHits: 0, wallBlocks: 0, wallActiveTicks: 0, phaseReached: [false, false, false], attacks: { ember: 0, gavel: 0, verdict: 0 }, damageByAttack: { ember: 0, gavel: 0, verdict: 0 } },
-    apocrypha: { syncBreaks: 0, syncBrokenTicks: 0, weakpointHits: 0, ordinaryHits: 0, swaps: 0, phaseReached: [false, false, false], attacks: { testimony: 0, crossExam: 0, verdict: 0 }, damageByAttack: { testimony: 0, crossExam: 0, verdict: 0 } } }
+    apocrypha: { syncBreaks: 0, syncBrokenTicks: 0, weakpointHits: 0, ordinaryHits: 0, swaps: 0, phaseReached: [false, false, false], attacks: { testimony: 0, crossExam: 0, verdict: 0 }, damageByAttack: { testimony: 0, crossExam: 0, verdict: 0 } },
+    editor: { rulesRewritten: 0, revisionExposedTicks: 0, revisionHits: 0, ordinaryHits: 0, signatureInkSpawned: 0, signatureClosures: 0, signatureExposedTicks: 0, phaseReached: [false, false, false], attacks: { erasure: 0, wind: 0, rain: 0, heat: 0, mirror: 0, signature: 0 }, damageByAttack: { erasure: 0, wind: 0, rain: 0, heat: 0, mirror: 0, signature: 0 } } }
   };
   if (stageId === 'stage-05' || stageId === 'stage-06') state.metrics.mirror = { falseTrailPeak: 0, falseAnnotations: 0, falseLoopRejections: 0, illusoryShots: 0, moteEchoes: 0, ramCharges: 0, witnessMixes: 0, obeliskReflections: 0 };
   else for (const kind of ['mirror-mote', 'quotation-ram', 'false-witness', 'silver-obelisk'] as const) delete state.metrics.enemyStats[kind];
@@ -134,7 +135,7 @@ export const copyState = (state: GameState): GameState => ({
   enemies: state.enemies.map((enemy) => ({ ...enemy })),
   boss: state.boss ? { ...state.boss } : null,
   retrace: state.retrace ? { index: state.retrace.index, points: state.retrace.points.map((point) => ({ ...point })) } : null,
-  metrics: { ...state.metrics, wind: { ...state.metrics.wind }, rain: { ...state.metrics.rain }, heat: { ...state.metrics.heat }, ...(state.metrics.mirror ? { mirror: { ...state.metrics.mirror } } : {}), ...(state.metrics.original ? { original: { ...state.metrics.original, folioTicks: { ...state.metrics.original.folioTicks } } } : {}), enemyStats: Object.fromEntries(Object.entries(state.metrics.enemyStats).map(([kind, stats]) => [kind, { ...stats }])) as GameState['metrics']['enemyStats'], boss: { ...state.metrics.boss, phaseReached: [...state.metrics.boss.phaseReached], damageByAttack: { ...state.metrics.boss.damageByAttack } }, compiler: { ...state.metrics.compiler, phaseReached: [...state.metrics.compiler.phaseReached], attacks: { ...state.metrics.compiler.attacks }, damageByAttack: { ...state.metrics.compiler.damageByAttack } }, eel: { ...state.metrics.eel, phaseReached: [...state.metrics.eel.phaseReached], attacks: { ...state.metrics.eel.attacks }, damageByAttack: { ...state.metrics.eel.damageByAttack } }, advocate: { ...state.metrics.advocate, phaseReached: [...state.metrics.advocate.phaseReached], attacks: { ...state.metrics.advocate.attacks }, damageByAttack: { ...state.metrics.advocate.damageByAttack } }, apocrypha: { ...state.metrics.apocrypha, phaseReached: [...state.metrics.apocrypha.phaseReached], attacks: { ...state.metrics.apocrypha.attacks }, damageByAttack: { ...state.metrics.apocrypha.damageByAttack } } }
+  metrics: { ...state.metrics, wind: { ...state.metrics.wind }, rain: { ...state.metrics.rain }, heat: { ...state.metrics.heat }, ...(state.metrics.mirror ? { mirror: { ...state.metrics.mirror } } : {}), ...(state.metrics.original ? { original: { ...state.metrics.original, folioTicks: { ...state.metrics.original.folioTicks } } } : {}), enemyStats: Object.fromEntries(Object.entries(state.metrics.enemyStats).map(([kind, stats]) => [kind, { ...stats }])) as GameState['metrics']['enemyStats'], boss: { ...state.metrics.boss, phaseReached: [...state.metrics.boss.phaseReached], damageByAttack: { ...state.metrics.boss.damageByAttack } }, compiler: { ...state.metrics.compiler, phaseReached: [...state.metrics.compiler.phaseReached], attacks: { ...state.metrics.compiler.attacks }, damageByAttack: { ...state.metrics.compiler.damageByAttack } }, eel: { ...state.metrics.eel, phaseReached: [...state.metrics.eel.phaseReached], attacks: { ...state.metrics.eel.attacks }, damageByAttack: { ...state.metrics.eel.damageByAttack } }, advocate: { ...state.metrics.advocate, phaseReached: [...state.metrics.advocate.phaseReached], attacks: { ...state.metrics.advocate.attacks }, damageByAttack: { ...state.metrics.advocate.damageByAttack } }, apocrypha: { ...state.metrics.apocrypha, phaseReached: [...state.metrics.apocrypha.phaseReached], attacks: { ...state.metrics.apocrypha.attacks }, damageByAttack: { ...state.metrics.apocrypha.damageByAttack } }, editor: { ...state.metrics.editor, phaseReached: [...state.metrics.editor.phaseReached], attacks: { ...state.metrics.editor.attacks }, damageByAttack: { ...state.metrics.editor.damageByAttack } } }
 });
 
 const spawnEnemyBullet = (state: GameState, enemy: Point, angleOffset = 0, speedPx = 145, sourceAttack: Bullet['sourceAttack'] = 'enemy-volley'): boolean => {
@@ -172,7 +173,8 @@ const createBoss = (state: GameState): BossState => ({
   phaseStartedAt: state.tick, cycleStartedAt: state.tick,
   fanAngle: Math.PI, fanWarningUntil: state.tick + 90, fanFiresAt: state.tick + 90,
   defeatedAt: null, vaneSide: -1, windLockedUntil: 0, lockedWindDirection: 1, seamExposedUntil: 0,
-  activeSegment: 0, segmentMarkedUntil: 0, syncBrokenUntil: 0, vulnerableTwin: -1, twinSwap: 1
+  activeSegment: 0, segmentMarkedUntil: 0, syncBrokenUntil: 0, vulnerableTwin: -1, twinSwap: 1,
+  editorRule: 0, revisionExposedUntil: 0, signatureExposedUntil: 0, editorRulesMask: 0
 });
 
 const createCompiler = (state: GameState): BossState => ({
@@ -183,7 +185,8 @@ const createCompiler = (state: GameState): BossState => ({
   fanAngle: Math.PI, fanWarningUntil: 0, fanFiresAt: 0, defeatedAt: null,
   vaneSide: stageTwoWindDirection(state.tick), windLockedUntil: 0,
   lockedWindDirection: stageTwoWindDirection(state.tick), seamExposedUntil: 0,
-  activeSegment: 0, segmentMarkedUntil: 0, syncBrokenUntil: 0, vulnerableTwin: -1, twinSwap: 1
+  activeSegment: 0, segmentMarkedUntil: 0, syncBrokenUntil: 0, vulnerableTwin: -1, twinSwap: 1,
+  editorRule: 0, revisionExposedUntil: 0, signatureExposedUntil: 0, editorRulesMask: 0
 });
 
 const createEel = (state: GameState): BossState => ({
@@ -193,7 +196,8 @@ const createEel = (state: GameState): BossState => ({
   phaseStartedAt: state.tick, cycleStartedAt: state.tick,
   fanAngle: Math.PI, fanWarningUntil: 0, fanFiresAt: 0, defeatedAt: null,
   vaneSide: -1, windLockedUntil: 0, lockedWindDirection: 1, seamExposedUntil: 0,
-  activeSegment: 0, segmentMarkedUntil: 0, syncBrokenUntil: 0, vulnerableTwin: -1, twinSwap: 1
+  activeSegment: 0, segmentMarkedUntil: 0, syncBrokenUntil: 0, vulnerableTwin: -1, twinSwap: 1,
+  editorRule: 0, revisionExposedUntil: 0, signatureExposedUntil: 0, editorRulesMask: 0
 });
 
 export const ADVOCATE_WALL_X_PX = 890;
@@ -205,7 +209,8 @@ const createAdvocate = (state: GameState): BossState => ({
   phaseStartedAt: state.tick, cycleStartedAt: state.tick,
   fanAngle: Math.PI, fanWarningUntil: 0, fanFiresAt: 0, defeatedAt: null,
   vaneSide: -1, windLockedUntil: 0, lockedWindDirection: 1, seamExposedUntil: 0,
-  activeSegment: 0, segmentMarkedUntil: 0, syncBrokenUntil: 0, vulnerableTwin: -1, twinSwap: 1
+  activeSegment: 0, segmentMarkedUntil: 0, syncBrokenUntil: 0, vulnerableTwin: -1, twinSwap: 1,
+  editorRule: 0, revisionExposedUntil: 0, signatureExposedUntil: 0, editorRulesMask: 0
 });
 
 const createApocryphaTwins = (state: GameState): BossState => ({
@@ -215,7 +220,19 @@ const createApocryphaTwins = (state: GameState): BossState => ({
   phaseStartedAt: state.tick, cycleStartedAt: state.tick,
   fanAngle: Math.PI, fanWarningUntil: 0, fanFiresAt: 0, defeatedAt: null,
   vaneSide: -1, windLockedUntil: 0, lockedWindDirection: 1, seamExposedUntil: 0,
-  activeSegment: 0, segmentMarkedUntil: 0, syncBrokenUntil: 0, vulnerableTwin: -1, twinSwap: 1
+  activeSegment: 0, segmentMarkedUntil: 0, syncBrokenUntil: 0, vulnerableTwin: -1, twinSwap: 1,
+  editorRule: 0, revisionExposedUntil: 0, signatureExposedUntil: 0, editorRulesMask: 0
+});
+
+const createLastEditor = (state: GameState): BossState => ({
+  kind: 'last-editor',
+  x: 1050 * SCALE, y: 360 * SCALE, health: 2100, maxHealth: 2100,
+  armor: 0, maxArmor: 0, armorLayers: 0, phase: 1,
+  phaseStartedAt: state.tick, cycleStartedAt: state.tick,
+  fanAngle: Math.PI, fanWarningUntil: 0, fanFiresAt: 0, defeatedAt: null,
+  vaneSide: -1, windLockedUntil: 0, lockedWindDirection: 1, seamExposedUntil: 0,
+  activeSegment: 0, segmentMarkedUntil: 0, syncBrokenUntil: 0, vulnerableTwin: -1, twinSwap: 1,
+  editorRule: 0, revisionExposedUntil: 0, signatureExposedUntil: 0, editorRulesMask: 0
 });
 
 export const apocryphaTwinPoint = (boss: BossState, tick: number, side: -1 | 1): Point => {
@@ -268,7 +285,69 @@ const damageAdvocate = (state: GameState, boss: BossState, damage: number, coole
   }
 };
 
+const spawnEditorSignature = (state: GameState): void => {
+  const points = [
+    [630, 260], [780, 260], [930, 260], [930, 360],
+    [930, 460], [780, 460], [630, 460], [630, 360]
+  ] as const;
+  for (const [x, y] of points) {
+    if (state.bullets.filter((bullet) => bullet.kind === 'enemy').length >= stageDefinition(state.stageId).entityLimits.enemyBullets) {
+      state.metrics.rejectedEnemyBullets += 1;
+      continue;
+    }
+    state.bullets.push({ id: state.nextId++, x: x * SCALE, y: y * SCALE, vx: -Math.round(8 * SCALE / TICK_RATE), vy: 0,
+      radius: 11, kind: 'enemy', annotated: false, capturable: true, signatureInk: true, sourceAttack: 'editor-signature' });
+    state.metrics.enemyShots += 1;
+    state.metrics.editor.signatureInkSpawned += 1;
+  }
+  state.metrics.editor.attacks.signature += 1;
+};
+
 const updateBoss = (state: GameState, events: GameEvent[]): void => {
+  if (state.stageId === 'stage-06') {
+    if (!state.boss && state.tick >= STAGE_06_BOSS_START_TICK && !state.metrics.boss.defeated) {
+      state.bullets = state.bullets.filter((bullet) => bullet.kind !== 'enemy');
+      for (const enemy of state.enemies) state.metrics.enemyStats[enemy.kind].exited += 1;
+      state.enemies = [];
+      state.boss = createLastEditor(state);
+      state.metrics.boss.spawned = true;
+      state.metrics.boss.phaseReached[0] = true;
+      state.metrics.editor.phaseReached[0] = true;
+      events.push({ type: 'boss-spawned' });
+    }
+    const editor = state.boss;
+    if (!editor) return;
+    editor.y = 360 * SCALE + Math.round(Math.sin((state.tick - STAGE_06_BOSS_START_TICK) / 185) * 48 * SCALE);
+    if (editor.revisionExposedUntil >= state.tick) state.metrics.editor.revisionExposedTicks += 1;
+    if (editor.signatureExposedUntil >= state.tick) state.metrics.editor.signatureExposedTicks += 1;
+    const age = state.tick - editor.cycleStartedAt;
+    if (editor.phase === 3 && age % 360 === 1) spawnEditorSignature(state);
+    const attackPeriod = editor.phase === 1 ? 168 : editor.phase === 2 ? 132 : 108;
+    if (age > 0 && age % attackPeriod === 0) {
+      const rule = (Math.floor(age / attackPeriod) + editor.phase - 1) % 5 as 0 | 1 | 2 | 3 | 4;
+      editor.editorRule = rule;
+      if (rule === 0) {
+        for (const offset of [-0.48, -0.32, -0.16, 0, 0.16, 0.32, 0.48]) spawnEnemyBullet(state, editor, offset, 132, 'editor-erasure');
+        state.metrics.editor.attacks.erasure += 1;
+      } else if (rule === 1) {
+        for (const offset of [-0.22, 0, 0.22]) spawnEnemyBullet(state, { x: editor.x, y: editor.y + editor.vaneSide * 84 * SCALE }, offset, 184, 'editor-wind');
+        editor.vaneSide = editor.vaneSide === 1 ? -1 : 1;
+        state.metrics.editor.attacks.wind += 1;
+      } else if (rule === 2) {
+        for (const offset of [-0.42, -0.21, 0, 0.21, 0.42]) spawnEnemyBullet(state, editor, offset, 146, 'editor-rain');
+        state.metrics.editor.attacks.rain += 1;
+      } else if (rule === 3) {
+        for (const offset of [-0.3, 0.3]) spawnEnemyBullet(state, editor, offset, 76, 'editor-heat');
+        state.metrics.editor.attacks.heat += 1;
+      } else {
+        for (const offset of [-0.28, 0, 0.28]) spawnEnemyBullet(state, editor, offset, 158, 'editor-mirror');
+        for (const offset of [-0.44, -0.14, 0.14, 0.44]) spawnIllusoryBullet(state, editor, offset, 150);
+        state.metrics.editor.attacks.mirror += 1;
+      }
+    }
+    if (age >= 900) editor.cycleStartedAt = state.tick;
+    return;
+  }
   if (state.stageId === 'stage-05') {
     if (!state.boss && state.tick >= STAGE_05_BOSS_START_TICK && !state.metrics.boss.defeated) {
       state.bullets = state.bullets.filter((bullet) => bullet.kind !== 'enemy');
@@ -999,6 +1078,31 @@ const collate = (state: GameState, events: GameEvent[]): void => {
     }
     state.metrics.original!.inheritedCollates += 1;
     if (stageSixFolio(state.tick) === 'synthesis') state.metrics.original!.synthesisCollates += 1;
+    if (state.boss?.kind === 'last-editor') {
+      if (state.boss.phase < 3) {
+        const sources = ['editor-erasure', 'editor-wind', 'editor-rain', 'editor-heat', 'editor-mirror'] as const;
+        const rewrittenRules = sources.map((source, rule) => selected.some((bullet) => bullet.sourceAttack === source) ? rule as 0 | 1 | 2 | 3 | 4 : null)
+          .filter((rule): rule is 0 | 1 | 2 | 3 | 4 => rule !== null);
+        if (rewrittenRules.length > 0) {
+          state.boss.revisionExposedUntil = state.tick + 5 * TICK_RATE;
+          for (const rewritten of rewrittenRules) {
+            const ruleBit = 1 << rewritten;
+            if ((state.boss.editorRulesMask & ruleBit) === 0) {
+              state.boss.editorRulesMask |= ruleBit;
+              state.metrics.editor.rulesRewritten += 1;
+            }
+            events.push({ type: 'editor-rule-rewritten', rule: rewritten });
+          }
+        }
+      } else {
+        const ink = selected.filter((bullet) => bullet.signatureInk).length;
+        if (ink >= 5 && candidate.area >= 50_000) {
+          state.boss.signatureExposedUntil = state.tick + 8 * TICK_RATE;
+          state.metrics.editor.signatureClosures += 1;
+          events.push({ type: 'editor-signature-closed' });
+        }
+      }
+    }
   }
   if (selected.length === 0 && !state.enemies.some((enemy) => pointInPolygon(enemy, candidate.polygon))) state.metrics.emptyLoops += 1;
   state.metrics.captured += selected.length;
@@ -1092,7 +1196,37 @@ export const step = (previous: GameState, input: InputFrame): { state: GameState
     let consumed = false;
     if (bullet.kind !== 'enemy') {
       const boss = state.boss;
-      if (boss?.kind === 'apocrypha-twins') {
+      if (boss?.kind === 'last-editor') {
+        const bodyHit = distanceSq(bullet, boss) <= ((bullet.radius + 94) * SCALE) ** 2;
+        if (bodyHit) {
+          const exposed = boss.phase < 3 ? boss.revisionExposedUntil >= state.tick : boss.signatureExposedUntil >= state.tick;
+          const damage = exposed ? (bullet.kind === 'return' ? 110 : bullet.annotated ? 60 : 36)
+            : (bullet.kind === 'return' ? 5 : bullet.annotated ? 2 : 1);
+          boss.health -= damage;
+          if (exposed) {
+            state.metrics.editor.revisionHits += 1;
+            events.push(boss.phase === 3 ? { type: 'editor-signature-ink' } : { type: 'editor-revision-hit' });
+          } else state.metrics.editor.ordinaryHits += 1;
+          const phaseThreeReady = boss.editorRulesMask === 0b11111 || state.metrics.editor.ordinaryHits >= 1400;
+          if (boss.phase < 3 && boss.health <= boss.maxHealth / 3 && !phaseThreeReady) boss.health = Math.max(1, boss.health);
+          const nextPhase = boss.health <= boss.maxHealth / 3 && phaseThreeReady ? 3 : boss.health <= boss.maxHealth * 2 / 3 ? 2 : 1;
+          if (nextPhase > boss.phase) {
+            boss.phase = nextPhase; boss.phaseStartedAt = state.tick; boss.cycleStartedAt = state.tick;
+            if (nextPhase === 3) boss.health = Math.max(boss.health, boss.maxHealth / 3);
+            boss.revisionExposedUntil = 0; boss.signatureExposedUntil = 0;
+            state.bullets = state.bullets.filter((active) => active.kind !== 'enemy');
+            state.metrics.boss.phaseReached[nextPhase - 1] = true;
+            state.metrics.editor.phaseReached[nextPhase - 1] = true;
+            events.push({ type: 'boss-phase', phase: nextPhase });
+          }
+          if (boss.health <= 0) {
+            boss.health = 0; boss.defeatedAt = state.tick;
+            state.metrics.boss.defeated = true; state.metrics.boss.defeatTick = state.tick;
+            state.score += 60000; events.push({ type: 'boss-defeated' }); state.boss = null;
+          }
+          consumed = true;
+        }
+      } else if (boss?.kind === 'apocrypha-twins') {
         const vulnerable = apocryphaTwinPoint(boss, state.tick, boss.vulnerableTwin);
         const weakpointHit = boss.syncBrokenUntil >= state.tick
           && distanceSq(bullet, vulnerable) <= ((bullet.radius + 38) * SCALE) ** 2;
@@ -1295,7 +1429,8 @@ export const step = (previous: GameState, input: InputFrame): { state: GameState
         || bullet.sourceAttack === 'advocate-gavel' || bullet.sourceAttack === 'advocate-verdict';
       const twinsPressure = bullet.sourceAttack === 'twins-testimony'
         || bullet.sourceAttack === 'twins-cross-exam' || bullet.sourceAttack === 'twins-verdict';
-      if (!compilerPressure && !advocatePressure && !twinsPressure) {
+      const editorPressure = bullet.sourceAttack?.startsWith('editor-') ?? false;
+      if (!compilerPressure && !advocatePressure && !twinsPressure && !editorPressure) {
         state.trail = [];
         state.candidate = null;
       }
@@ -1314,6 +1449,12 @@ export const step = (previous: GameState, input: InputFrame): { state: GameState
       else if (bullet.sourceAttack === 'twins-testimony') state.metrics.apocrypha.damageByAttack.testimony += 1;
       else if (bullet.sourceAttack === 'twins-cross-exam') state.metrics.apocrypha.damageByAttack.crossExam += 1;
       else if (bullet.sourceAttack === 'twins-verdict') state.metrics.apocrypha.damageByAttack.verdict += 1;
+      else if (bullet.sourceAttack === 'editor-erasure') state.metrics.editor.damageByAttack.erasure += 1;
+      else if (bullet.sourceAttack === 'editor-wind') state.metrics.editor.damageByAttack.wind += 1;
+      else if (bullet.sourceAttack === 'editor-rain') state.metrics.editor.damageByAttack.rain += 1;
+      else if (bullet.sourceAttack === 'editor-heat') state.metrics.editor.damageByAttack.heat += 1;
+      else if (bullet.sourceAttack === 'editor-mirror') state.metrics.editor.damageByAttack.mirror += 1;
+      else if (bullet.sourceAttack === 'editor-signature') state.metrics.editor.damageByAttack.signature += 1;
       else if (state.boss) state.metrics.boss.damageByAttack.volley += 1;
       consumed = true;
       events.push({ type: 'damage' });

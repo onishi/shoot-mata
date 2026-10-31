@@ -3,10 +3,10 @@
 - Duration: 32400 ticks (270 seconds)
 - Scheduled spawns: 90
 - Max enemies / enemy bullets: 7 / 73
-- Longest no-combat gap: 0 ticks
+- Longest no-combat gap: 1 ticks
 - Binding / hound / choir / palanquin: 221 / 50 / 127 / 48
 - Inherited / synthesis COLLATE: 213 / 41
-- Determinism hashes: fde17fd5526c13db, fde17fd5526c13db, fde17fd5526c13db, fde17fd5526c13db
+- Determinism hashes: 3a3f71dd4365787d, 3a3f71dd4365787d, 3a3f71dd4365787d, 3a3f71dd4365787d
 
 | Enemy | Spawned | Attacks | Defeated | Exited |
 | --- | ---: | ---: | ---: | ---: |

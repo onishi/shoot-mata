@@ -11,7 +11,7 @@ export interface StageDefinition {
   durationTicks: number;
   spawns: StageEnemySpawn[];
   entityLimits: { enemies: number; enemyBullets: number };
-  boss: 'blank-bailiff' | 'crosswind-compiler' | 'lacuna-eel' | 'cinder-advocate' | 'apocrypha-twins' | null;
+  boss: 'blank-bailiff' | 'crosswind-compiler' | 'lacuna-eel' | 'cinder-advocate' | 'apocrypha-twins' | 'last-editor' | null;
   environment: 'stable' | 'crosswind' | 'rain' | 'heat' | 'mirror' | 'palimpsest';
 }
 
@@ -38,7 +38,7 @@ export const STAGES: Record<StageId, StageDefinition> = {
   },
   'stage-06': {
     id: 'stage-06', durationTicks: STAGE_06_DURATION_TICKS, spawns: STAGE_06_SPAWNS,
-    entityLimits: STAGE_06_ENTITY_LIMITS, boss: null, environment: 'palimpsest'
+    entityLimits: STAGE_06_ENTITY_LIMITS, boss: 'last-editor', environment: 'palimpsest'
   }
 };
 

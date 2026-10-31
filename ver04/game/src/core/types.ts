@@ -20,7 +20,9 @@ export interface Bullet extends Point {
   sourceAttack?: 'enemy-volley' | 'boss-fan' | 'boss-sweep' | 'compiler-gust' | 'compiler-lance' | 'compiler-storm'
     | 'eel-drizzle' | 'eel-wake' | 'eel-deluge'
     | 'advocate-ember' | 'advocate-gavel' | 'advocate-verdict'
-    | 'twins-testimony' | 'twins-cross-exam' | 'twins-verdict';
+    | 'twins-testimony' | 'twins-cross-exam' | 'twins-verdict'
+    | 'editor-erasure' | 'editor-wind' | 'editor-rain' | 'editor-heat' | 'editor-mirror' | 'editor-signature';
+  signatureInk?: boolean;
 }
 export type StageId = 'stage-01' | 'stage-02' | 'stage-03' | 'stage-04' | 'stage-05' | 'stage-06';
 export type EnemyKind =
@@ -50,7 +52,7 @@ export interface Enemy extends Point {
   stateTick: number;
 }
 export interface BossState extends Point {
-  kind: 'blank-bailiff' | 'crosswind-compiler' | 'lacuna-eel' | 'cinder-advocate' | 'apocrypha-twins';
+  kind: 'blank-bailiff' | 'crosswind-compiler' | 'lacuna-eel' | 'cinder-advocate' | 'apocrypha-twins' | 'last-editor';
   health: number;
   maxHealth: number;
   armor: number;
@@ -72,6 +74,10 @@ export interface BossState extends Point {
   syncBrokenUntil: number;
   vulnerableTwin: -1 | 1;
   twinSwap: -1 | 1;
+  editorRule: 0 | 1 | 2 | 3 | 4;
+  revisionExposedUntil: number;
+  signatureExposedUntil: number;
+  editorRulesMask: number;
 }
 export interface LoopCandidate {
   polygon: Point[];
@@ -124,6 +130,10 @@ export type GameEvent =
   | { type: 'twins-sync-broken'; vulnerable: -1 | 1 }
   | { type: 'twins-weakpoint-hit'; vulnerable: -1 | 1 }
   | { type: 'twins-swapped' }
+  | { type: 'editor-rule-rewritten'; rule: 0 | 1 | 2 | 3 | 4 }
+  | { type: 'editor-revision-hit' }
+  | { type: 'editor-signature-ink' }
+  | { type: 'editor-signature-closed' }
   | { type: 'boss-defeated' };
 export interface Metrics {
   candidates: number;
@@ -240,6 +250,18 @@ export interface Metrics {
     phaseReached: [boolean, boolean, boolean];
     attacks: { testimony: number; crossExam: number; verdict: number };
     damageByAttack: { testimony: number; crossExam: number; verdict: number };
+  };
+  editor: {
+    rulesRewritten: number;
+    revisionExposedTicks: number;
+    revisionHits: number;
+    ordinaryHits: number;
+    signatureInkSpawned: number;
+    signatureClosures: number;
+    signatureExposedTicks: number;
+    phaseReached: [boolean, boolean, boolean];
+    attacks: { erasure: number; wind: number; rain: number; heat: number; mirror: number; signature: number };
+    damageByAttack: { erasure: number; wind: number; rain: number; heat: number; mirror: number; signature: number };
   };
 }
 export interface GameState {

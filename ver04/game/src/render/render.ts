@@ -119,7 +119,7 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
       ctx.quadraticCurveTo(x + 34, y + Math.sin((state.tick + index * 27) / 40) * 22, x + 68, y); ctx.stroke();
     }
     ctx.fillStyle = palette[1]; ctx.font = '700 13px system-ui, sans-serif'; ctx.textAlign = 'center';
-    ctx.fillText(`${stageSixFolio(state.tick).toUpperCase()} FOLIO  /  ${rule.toUpperCase()} RULE`, WIDTH / 2, 72);
+    if (!state.boss) ctx.fillText(`${stageSixFolio(state.tick).toUpperCase()} FOLIO  /  ${rule.toUpperCase()} RULE`, WIDTH / 2, 72);
     ctx.textAlign = 'start'; ctx.restore();
     if (rule === 'mirror') {
       for (const band of STAGE_05_MIRROR_BANDS) {
@@ -333,6 +333,23 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
       ctx.globalAlpha = 1; ctx.shadowBlur = 18;
       drawSprite(ctx, 'cinder-advocate', x, y, 300, 292);
       ctx.restore();
+    } else if (boss.kind === 'last-editor') {
+      const exposed = boss.phase < 3 ? boss.revisionExposedUntil >= state.tick : boss.signatureExposedUntil >= state.tick;
+      const ruleColors = ['#f58b78', '#8de7ff', '#83f0d2', '#ff9b55', '#ef8cff'];
+      ctx.save(); ctx.translate(x, y);
+      ctx.shadowColor = exposed ? '#ffe88f' : ruleColors[boss.editorRule]; ctx.shadowBlur = exposed ? 34 : 18;
+      ctx.fillStyle = '#101426'; ctx.strokeStyle = exposed ? '#fff0a8' : ruleColors[boss.editorRule]; ctx.lineWidth = exposed ? 6 : 3;
+      ctx.beginPath(); ctx.moveTo(-112, -92); ctx.lineTo(74, -112); ctx.lineTo(120, -40); ctx.lineTo(98, 98); ctx.lineTo(-86, 112); ctx.lineTo(-124, 34); ctx.closePath(); ctx.fill(); ctx.stroke();
+      ctx.strokeStyle = ruleColors[(boss.editorRule + 1) % 5]; ctx.lineWidth = 3; ctx.setLineDash([12, 8]);
+      for (const offset of [-52, -18, 16, 50]) { ctx.beginPath(); ctx.moveTo(-72, offset); ctx.lineTo(68, offset - 10); ctx.stroke(); }
+      ctx.setLineDash([]); ctx.fillStyle = exposed ? '#fff0a8' : ruleColors[boss.editorRule];
+      diamond(ctx, -14, 0, 28 + Math.sin(state.tick / 8) * 3); ctx.fill(); ctx.restore();
+      if (exposed) {
+        ctx.fillStyle = '#ffeaa0'; ctx.font = '700 13px system-ui, sans-serif'; ctx.textAlign = 'center';
+        const until = boss.phase < 3 ? boss.revisionExposedUntil : boss.signatureExposedUntil;
+        ctx.fillText(`${boss.phase < 3 ? 'REVISION OPEN' : 'SIGNATURE ACCEPTED'}  ${Math.ceil((until - state.tick) / TICK_RATE)}s`, x, y - 142);
+        ctx.textAlign = 'start';
+      }
     } else {
       const twins = ([-1, 1] as const).map((side) => ({ side, point: apocryphaTwinPoint(boss, state.tick, side) }));
       const broken = boss.syncBrokenUntil >= state.tick;
@@ -369,6 +386,11 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
     if (bullet.kind === 'enemy') {
       const ember = bullet.sourceAttack === 'advocate-ember';
       if (ember) drawSprite(ctx, 'ember', x, y, bullet.radius * 3.8, bullet.radius * 3.1);
+      else if (bullet.signatureInk) {
+        ctx.save(); ctx.strokeStyle = '#ffe58a'; ctx.fillStyle = 'rgba(49,25,58,.88)'; ctx.lineWidth = 3; ctx.setLineDash([5, 4]);
+        diamond(ctx, x, y, bullet.radius + 7); ctx.fill(); ctx.stroke(); ctx.setLineDash([]);
+        ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI * 2); ctx.fillStyle = '#fff3b2'; ctx.fill(); ctx.restore();
+      }
       else if (bullet.illusory) {
         ctx.strokeStyle = '#ef8cff'; ctx.lineWidth = 2; ctx.setLineDash([4, 5]);
         diamond(ctx, x, y, bullet.radius + 4); ctx.stroke(); ctx.setLineDash([]);
@@ -440,7 +462,7 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
     ctx.textAlign = 'center';
     ctx.fillStyle = '#f5e6c8';
     ctx.font = '700 16px system-ui, sans-serif';
-    const bossName = boss.kind === 'blank-bailiff' ? 'BLANK BAILIFF' : boss.kind === 'crosswind-compiler' ? 'CROSSWIND COMPILER' : boss.kind === 'lacuna-eel' ? 'LACUNA EEL' : boss.kind === 'cinder-advocate' ? 'CINDER ADVOCATE' : 'APOCRYPHA TWINS';
+    const bossName = boss.kind === 'blank-bailiff' ? 'BLANK BAILIFF' : boss.kind === 'crosswind-compiler' ? 'CROSSWIND COMPILER' : boss.kind === 'lacuna-eel' ? 'LACUNA EEL' : boss.kind === 'cinder-advocate' ? 'CINDER ADVOCATE' : boss.kind === 'apocrypha-twins' ? 'APOCRYPHA TWINS' : 'THE LAST EDITOR';
     ctx.fillText(`${bossName}  ·  PHASE ${boss.phase}`, WIDTH / 2, 76);
     ctx.fillStyle = '#251927'; ctx.fillRect(430, 87, 420, 10);
     ctx.fillStyle = boss.kind === 'blank-bailiff' && boss.armorLayers > 0 ? '#f3d69b' : '#67e8f9';
