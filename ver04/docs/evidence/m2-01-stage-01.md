@@ -4,7 +4,7 @@
 - Scheduled spawns: 76
 - Max enemies / enemy bullets: 10 / 101
 - Longest no-combat gap: 291 ticks
-- Determinism hashes: e5efca89b680e167, e5efca89b680e167, e5efca89b680e167, e5efca89b680e167
+- Determinism hashes: e2be04026a205910, e2be04026a205910, e2be04026a205910, e2be04026a205910
 
 | Enemy | Spawned | Attacks | Defeated | Exited |
 | --- | ---: | ---: | ---: | ---: |

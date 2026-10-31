@@ -1,5 +1,6 @@
 import { distanceSq, pointInPolygon, px } from '../core/math';
 import { type GameState, type InputFrame, type Point } from '../core/types';
+import { eelSegmentPoint } from './game';
 
 export type PilotName = 'baseline' | 'safe' | 'stitch' | 'sweep';
 
@@ -52,11 +53,19 @@ export const createPilot = (name: PilotName): ((state: GameState) => InputFrame)
   let attackUntil = 0;
   let loopSequence = 0;
   let compilerPhase = 0;
+  let eelPhase = 0;
   const reactionTicks = name === 'safe' ? 8 : name === 'stitch' ? 10 : name === 'sweep' ? 14 : 12;
 
   return (state: GameState): InputFrame => {
     if (name === 'stitch' && state.boss?.kind === 'crosswind-compiler' && state.boss.phase !== compilerPhase) {
       compilerPhase = state.boss.phase;
+      attackUntil = 0;
+      waypoints = [];
+      candidateSeenAt = 0;
+      nextDecision = state.tick;
+    }
+    if (name === 'stitch' && state.boss?.kind === 'lacuna-eel' && state.boss.phase !== eelPhase) {
+      eelPhase = state.boss.phase;
       attackUntil = 0;
       waypoints = [];
       candidateSeenAt = 0;
@@ -68,7 +77,9 @@ export const createPilot = (name: PilotName): ((state: GameState) => InputFrame)
     const visible = visibleTarget(state);
     const exposedSeam = state.boss?.kind === 'crosswind-compiler' && state.boss.seamExposedUntil >= state.tick
       ? compilerPoint(state, 'seam') : null;
-    const target = exposedSeam ?? visible;
+    const eelWeakpoint = state.boss?.kind === 'lacuna-eel'
+      ? eelSegmentPoint(state.boss, state.tick, state.boss.activeSegment) : null;
+    const target = exposedSeam ?? eelWeakpoint ?? visible;
     if (name === 'baseline') {
       const aimY = target?.y ?? px(360);
       held = moveToward(state.player, { x: px(300), y: aimY });
@@ -131,15 +142,16 @@ export const createPilot = (name: PilotName): ((state: GameState) => InputFrame)
 
     if (waypoints.length === 0) {
       const compilerVane = name === 'stitch' ? compilerPoint(state, 'vane') : null;
-      const centerX = compilerVane?.x ?? (name === 'safe' ? px(300) : Math.min(px(910), Math.max(px(650), target?.x ?? px(900))));
+      const loopTarget = name === 'stitch' ? (compilerVane ?? eelWeakpoint) : null;
+      const centerX = loopTarget?.x ?? (name === 'safe' ? px(300) : Math.min(px(910), Math.max(px(650), target?.x ?? px(900))));
       const rawCenterY = name === 'safe'
         ? Math.min(px(600), Math.max(px(120), state.player.y))
-        : Math.min(px(570), Math.max(px(150), compilerVane?.y ?? target?.y ?? px(360)));
+        : Math.min(px(570), Math.max(px(150), loopTarget?.y ?? target?.y ?? px(360)));
       const centerY = Math.min(px(590), Math.max(px(130), rawCenterY + px((loopSequence % 3 - 1) * 14)));
       // Leave headroom inside the 3.2 second trail lifetime for reaction delay
       // and quantized corner arrival.
-      const halfWidth = px(compilerVane ? 75 : name === 'safe' ? 75 : name === 'stitch' ? 100 : 115);
-      const halfHeight = px(compilerVane ? 55 : name === 'safe' ? 55 : name === 'stitch' ? 75 : 90);
+      const halfWidth = px(loopTarget ? 75 : name === 'safe' ? 75 : name === 'stitch' ? 100 : 115);
+      const halfHeight = px(loopTarget ? 55 : name === 'safe' ? 55 : name === 'stitch' ? 75 : 90);
       waypoints = [
         { x: centerX - halfWidth, y: centerY - halfHeight },
         { x: centerX + halfWidth, y: centerY - halfHeight },

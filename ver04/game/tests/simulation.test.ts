@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { px } from '../src/core/math';
-import { createInitialState, step } from '../src/simulation/game';
+import { createInitialState, eelSegmentPoint, step } from '../src/simulation/game';
 import { STAGE_01_BOSS_START_TICK, STAGE_01_SPAWNS } from '../src/content/stage-01';
 import { STAGE_02_BOSS_START_TICK, STAGE_02_SPAWNS } from '../src/content/stage-02';
-import { STAGE_03_SPAWNS } from '../src/content/stage-03';
+import { STAGE_03_BOSS_START_TICK, STAGE_03_SPAWNS } from '../src/content/stage-03';
 import { findLoopCandidate } from '../src/simulation/trail';
 import type { GameState, InputFrame, TrailPoint } from '../src/core/types';
 
@@ -292,5 +292,25 @@ describe('M1 deterministic playground', () => {
     expect(state.metrics.rain.wetAnnotatedShots).toBe(1);
     expect(state.enemies[0].health).toBe(82);
     expect(state.metrics.rain.wetDamage).toBe(18);
+  });
+
+  it('marks the active LACUNA EEL segment with a small loop and rewards wet annotation', () => {
+    let state = createInitialState(33, 'stage-03');
+    state.tick = STAGE_03_BOSS_START_TICK - 1; state.encounterIndex = STAGE_03_SPAWNS.length; state.enemies = [];
+    state = step(state, {}).state;
+    const boss = state.boss!; const segment = eelSegmentPoint(boss, state.tick, boss.activeSegment);
+    state.candidate = { polygon: [
+      { x: segment.x - px(55), y: segment.y - px(55) }, { x: segment.x + px(55), y: segment.y - px(55) },
+      { x: segment.x + px(55), y: segment.y + px(55) }, { x: segment.x - px(55), y: segment.y + px(55) }
+    ], intersection: segment, startIndex: 0, area: 12100, expiresTick: state.tick + 60 };
+    const marked = step(state, { collate: true }); state = marked.state;
+    expect(marked.events).toContainEqual({ type: 'eel-segment-marked', segment: 0 });
+    expect(state.metrics.eel.segmentMarks).toBe(1);
+    const target = eelSegmentPoint(state.boss!, state.tick + 1, 0);
+    state.bullets = [{ id: 990, ...target, vx: 0, vy: 0, radius: 5, kind: 'player', annotated: true, wetAnnotated: true, capturable: false }];
+    const hit = step(state, {});
+    expect(hit.state.boss!.maxHealth - hit.state.boss!.health).toBe(96);
+    expect(hit.state.metrics.eel.wetWeakpointHits).toBe(1);
+    expect(hit.events).toContainEqual({ type: 'eel-segment-hit', segment: 0 });
   });
 });

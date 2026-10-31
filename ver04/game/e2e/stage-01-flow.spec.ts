@@ -4,9 +4,10 @@ type Screen = 'title' | 'guide' | 'stage-intro' | 'playing' | 'paused' | 'contin
 type QaWindow = Window & {
   __PALIMPSEST_ASSETS_READY__: Promise<unknown>;
   __PALIMPSEST_AUTOPLAY__: (ticks: number) => number;
+  __PALIMPSEST_ADVANCE__: (ticks: number) => number;
   __PALIMPSEST_APP_STATE__: () => { screen: Screen; continuesRemaining: number; checkpointName: string; game: { stageId: string; tick: number; player: { health: number }; gauge: number } };
   __PALIMPSEST_STATE__: () => { bullets: unknown[]; trail: unknown[]; candidate: unknown; metrics: { loops: number; retraces: number } };
-  __PALIMPSEST_QA_SCENARIO__: (scenario: 'damage' | 'setpiece' | 'stage-02-combat' | 'stage-02-setpiece' | 'stage-03-combat' | 'stage-03-setpiece' | 'boss-gate' | 'boss-defeat' | 'stage-02-boss') => Screen;
+  __PALIMPSEST_QA_SCENARIO__: (scenario: 'damage' | 'setpiece' | 'stage-02-combat' | 'stage-02-setpiece' | 'stage-03-combat' | 'stage-03-setpiece' | 'stage-03-boss' | 'boss-gate' | 'boss-defeat' | 'stage-02-boss') => Screen;
   __PALIMPSEST_AUDIO_READY__: () => Promise<void>;
   __PALIMPSEST_AUDIO_STATE__: () => { state: string; loaded: number; stems: number; stemStage: string | null; active: number; busLevels: Record<string, number>; cueCounts: Record<string, number> };
   __PALIMPSEST_AUDIO_BUS__: (bus: 'music' | 'se' | 'ui' | 'environment', level: number) => void;
@@ -257,4 +258,30 @@ test('Stage 3 development preview exposes rain, wet trail and water-gate roles',
   state = await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_STATE__()) as unknown as typeof state;
   expect(state.metrics.rain.wetTrailPeak).toBeGreaterThan(0);
   await page.locator('#game').screenshot({ path: '../docs/evidence/m3-06-stage-03-setpiece.png' });
+});
+
+test('LACUNA EEL preview shows the sequential marked segments in early and late phases', async ({ page }) => {
+  await page.goto('/'); await page.keyboard.press('Enter'); await page.keyboard.press('Enter');
+  await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_QA_SCENARIO__('stage-03-boss'));
+  let state = await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_STATE__()) as unknown as {
+    boss: { kind: string; phase: number; segmentMarkedUntil: number } | null; tick: number;
+    metrics: { eel: { segmentMarks: number; phaseReached: boolean[] } };
+  };
+  expect(state.boss?.kind).toBe('lacuna-eel'); expect(state.metrics.eel.segmentMarks).toBeGreaterThan(0);
+  expect(state.boss!.segmentMarkedUntil).toBeGreaterThanOrEqual(state.tick);
+  await page.locator('#game').screenshot({ path: '../docs/evidence/m3-07-lacuna-eel-marked.png' });
+  await page.evaluate(() => {
+    const state = (window as unknown as QaWindow).__PALIMPSEST_STATE__() as unknown as {
+      tick: number; boss: { phase: number; activeSegment: number; health: number; segmentMarkedUntil: number };
+      metrics: { eel: { phaseReached: boolean[] } };
+    };
+    state.boss.phase = 3; state.boss.activeSegment = 2; state.boss.health = 500; state.boss.segmentMarkedUntil = state.tick + 720;
+    state.metrics.eel.phaseReached = [true, true, true];
+  });
+  await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_ADVANCE__(30));
+  await page.waitForTimeout(50);
+  state = await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_STATE__()) as unknown as typeof state;
+  expect(state.metrics.eel.phaseReached).toEqual([true, true, true]);
+  expect(state.boss?.phase).toBe(3);
+  await page.locator('#game').screenshot({ path: '../docs/evidence/m3-07-lacuna-eel-phase-3.png' });
 });

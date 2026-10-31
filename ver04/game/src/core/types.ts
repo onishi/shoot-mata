@@ -14,7 +14,8 @@ export interface Bullet extends Point {
   annotated: boolean;
   wetAnnotated?: boolean;
   capturable: boolean;
-  sourceAttack?: 'enemy-volley' | 'boss-fan' | 'boss-sweep' | 'compiler-gust' | 'compiler-lance' | 'compiler-storm';
+  sourceAttack?: 'enemy-volley' | 'boss-fan' | 'boss-sweep' | 'compiler-gust' | 'compiler-lance' | 'compiler-storm'
+    | 'eel-drizzle' | 'eel-wake' | 'eel-deluge';
 }
 export type StageId = 'stage-01' | 'stage-02' | 'stage-03';
 export type EnemyKind =
@@ -41,7 +42,7 @@ export interface Enemy extends Point {
   stateTick: number;
 }
 export interface BossState extends Point {
-  kind: 'blank-bailiff' | 'crosswind-compiler';
+  kind: 'blank-bailiff' | 'crosswind-compiler' | 'lacuna-eel';
   health: number;
   maxHealth: number;
   armor: number;
@@ -58,6 +59,8 @@ export interface BossState extends Point {
   windLockedUntil: number;
   lockedWindDirection: -1 | 1;
   seamExposedUntil: number;
+  activeSegment: 0 | 1 | 2;
+  segmentMarkedUntil: number;
 }
 export interface LoopCandidate {
   polygon: Point[];
@@ -93,6 +96,8 @@ export type GameEvent =
   | { type: 'compiler-wind-locked'; direction: -1 | 1 }
   | { type: 'compiler-seam-exposed'; side: -1 | 1 }
   | { type: 'compiler-seam-hit' }
+  | { type: 'eel-segment-marked'; segment: 0 | 1 | 2 }
+  | { type: 'eel-segment-hit'; segment: 0 | 1 | 2 }
   | { type: 'boss-defeated' };
 export interface Metrics {
   candidates: number;
@@ -148,6 +153,16 @@ export interface Metrics {
     phaseReached: [boolean, boolean, boolean];
     attacks: { gust: number; lance: number; storm: number };
     damageByAttack: { gust: number; lance: number; storm: number };
+  };
+  eel: {
+    segmentMarks: number;
+    markedTicks: number;
+    weakpointHits: number;
+    wetWeakpointHits: number;
+    ordinaryHits: number;
+    phaseReached: [boolean, boolean, boolean];
+    attacks: { drizzle: number; wake: number; deluge: number };
+    damageByAttack: { drizzle: number; wake: number; deluge: number };
   };
 }
 export interface GameState {

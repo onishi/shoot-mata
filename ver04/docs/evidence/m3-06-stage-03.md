@@ -3,10 +3,10 @@
 - Duration: 23400 ticks (195 seconds)
 - Scheduled spawns: 65
 - Max enemies / enemy bullets: 8 / 82
-- Longest no-combat gap: 0 ticks
+- Longest no-combat gap: 1 ticks
 - Wet points / peak: 1179 / 121
 - Wet annotated shots / damage: 105 / 954
-- Determinism hashes: 026e557b658ef752, 026e557b658ef752, 026e557b658ef752, 026e557b658ef752
+- Determinism hashes: c14ae608915879dd, c14ae608915879dd, c14ae608915879dd, c14ae608915879dd
 
 | Enemy | Spawned | Attacks | Defeated | Exited |
 | --- | ---: | ---: | ---: | ---: |

@@ -137,3 +137,12 @@
 - 単体37件、自動計測5件、素材監査18 final・1 prototype、音量監査、型検査、production build、Chrome E2E 7件に合格した。既存Stage 1/2の計測ゲートも維持した。
 - `m3-06-stage-03-combat.png`と`setpiece.png`を1280×720で目視し、雨線、青緑の濡れ航跡、4役割のシルエット、暖色中空弾、HUDを識別でき、文字切れがないことを確認した。Stage 3のCanvas表現は素材台帳で`prototype`として追跡する。
 - 次回はLACUNA EELの複数小輪による発光節の順次印付け、濡れ添え書き弱点、3形態攻撃を実装する。
+
+## 2026-10-31 — M3-07 LACUNA EEL
+
+- Stage 3通常区間の直後へLACUNA EELを接続し、水路を横切る3つの発光節を形態ごとに順次弱点化する状態機械を実装した。現在節を小輪へ収めると6秒間の濡れ印が付き、形態移行時は次の節へ印を作り直す。
+- 本体中央への通常射撃は1 damageの低効率な逃げ道として残した。印付き節は通常射撃8、添え書き18、反撃片30、濡れ添え書き96 damageとし、形態1を3滴drizzle、形態2を5方向wake、形態3を高速7方向delugeに分けた。
+- 通常射撃は19,835tick、Stitch節攻略は8,154tickで58.9%短縮した。3節を各1回以上印付けし、弱点67hit・濡れ弱点2hit、全形態・全攻撃到達、最大敵弾45、生成拒否0、再実行hash`e42f4bc818997eb1`一致を`docs/evidence/m3-07-lacuna-eel.*`へ保存した。
+- 発光節の小輪印付けと濡れ添え書き96 damageを固定する回帰テストを追加した。`npm run verify`で単体38件、自動計測6件、素材・音量監査、型検査、production build、Chrome E2E 8件に合格した。
+- `m3-07-lacuna-eel-marked.png`と`phase-3.png`を1280×720で目視し、節番号、現在節、濡れ印、残り時間、耐久線、drizzle/deluge弾、自機、HUDを識別でき、文字切れがないことを確認した。ボスCanvas表現はStage 3完成素材まで`prototype`として扱う。
+- 次回はStage 2結果からStage 3章導入・通常区間・LACUNA EEL・結果までをAppStateで接続し、Stage 3開始地点とボス直前のコンティニューを実装する。

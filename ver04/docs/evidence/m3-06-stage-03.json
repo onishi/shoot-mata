@@ -3,15 +3,15 @@
   "durationTicks": 23400,
   "scheduledSpawns": 65,
   "seed": 3301,
-  "finalHash": "026e557b658ef752",
+  "finalHash": "c14ae608915879dd",
   "replayHashes": [
-    "026e557b658ef752",
-    "026e557b658ef752",
-    "026e557b658ef752"
+    "c14ae608915879dd",
+    "c14ae608915879dd",
+    "c14ae608915879dd"
   ],
   "maxEnemies": 8,
   "maxEnemyBullets": 82,
-  "maxCombatGapTicks": 0,
+  "maxCombatGapTicks": 1,
   "stats": {
     "drip-scribe": {
       "spawned": 26,

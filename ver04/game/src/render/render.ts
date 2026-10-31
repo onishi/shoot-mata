@@ -1,5 +1,6 @@
 import { HEIGHT, SCALE, TICK_RATE, WIDTH, type GameState, type Point } from '../core/types';
 import type { AppScreen, AppState } from '../app/app';
+import { eelSegmentPoint } from '../simulation/game';
 import { drawSprite, visuals } from './visual-assets';
 
 const path = (ctx: CanvasRenderingContext2D, points: Point[]): void => {
@@ -167,7 +168,7 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
       ctx.restore();
     }
     if (boss.kind === 'blank-bailiff') drawSprite(ctx, 'boss', x, y, 284, 238, boss.armorLayers > 0 ? 1 : 0.82);
-    else {
+    else if (boss.kind === 'crosswind-compiler') {
       const vaneY = y + boss.vaneSide * 108;
       const seamY = y - boss.vaneSide * 108;
       drawSprite(ctx, 'compiler', x, y, 320, 232, 1, boss.vaneSide < 0);
@@ -180,6 +181,28 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
         ctx.fillStyle = 'rgba(252, 209, 112, .88)'; ctx.font = '700 13px system-ui, sans-serif'; ctx.textAlign = 'center';
         ctx.fillText(`WIND INDEX LOCKED  ${Math.ceil((boss.windLockedUntil - state.tick) / TICK_RATE)}s`, x - 25, Math.min(vaneY, seamY) - 36); ctx.textAlign = 'start';
       }
+    } else {
+      const segments = ([0, 1, 2] as const).map((segment) => eelSegmentPoint(boss, state.tick, segment));
+      ctx.save(); ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+      ctx.beginPath(); ctx.moveTo(x + 72, y);
+      for (const point of segments) ctx.lineTo(point.x / SCALE, point.y / SCALE);
+      ctx.strokeStyle = 'rgba(8,31,42,.94)'; ctx.lineWidth = 72; ctx.stroke();
+      ctx.strokeStyle = '#63c9be'; ctx.lineWidth = 6; ctx.stroke();
+      for (const [index, point] of segments.entries()) {
+        const active = index === boss.activeSegment;
+        const marked = active && boss.segmentMarkedUntil >= state.tick;
+        ctx.shadowColor = marked ? '#ffe27a' : '#6fffe0'; ctx.shadowBlur = active ? (marked ? 34 : 18) : 2;
+        ctx.fillStyle = marked ? '#ffe27a' : active ? '#8effdf' : '#183d47';
+        ctx.strokeStyle = active ? '#effff8' : '#4b8b91'; ctx.lineWidth = active ? 5 : 3;
+        ctx.beginPath(); ctx.arc(point.x / SCALE, point.y / SCALE, active ? 28 : 22, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = '#06212b'; ctx.font = '700 14px system-ui, sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText(String(index + 1), point.x / SCALE, point.y / SCALE + 5);
+      }
+      if (boss.segmentMarkedUntil >= state.tick) {
+        const active = segments[boss.activeSegment]; ctx.fillStyle = '#ffeaa0'; ctx.font = '700 13px system-ui, sans-serif';
+        ctx.fillText(`WET MARK  ${Math.ceil((boss.segmentMarkedUntil - state.tick) / TICK_RATE)}s`, active.x / SCALE, active.y / SCALE - 42);
+      }
+      ctx.textAlign = 'start'; ctx.restore();
     }
     if (boss.kind === 'blank-bailiff' && boss.armorLayers === 0) {
       ctx.save(); ctx.strokeStyle = '#a8f7ff'; ctx.shadowColor = '#42e7ff'; ctx.shadowBlur = 24; ctx.lineWidth = 5;
@@ -245,7 +268,8 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
     ctx.textAlign = 'center';
     ctx.fillStyle = '#f5e6c8';
     ctx.font = '700 16px system-ui, sans-serif';
-    ctx.fillText(`${boss.kind === 'blank-bailiff' ? 'BLANK BAILIFF' : 'CROSSWIND COMPILER'}  ·  PHASE ${boss.phase}`, WIDTH / 2, 76);
+    const bossName = boss.kind === 'blank-bailiff' ? 'BLANK BAILIFF' : boss.kind === 'crosswind-compiler' ? 'CROSSWIND COMPILER' : 'LACUNA EEL';
+    ctx.fillText(`${bossName}  ·  PHASE ${boss.phase}`, WIDTH / 2, 76);
     ctx.fillStyle = '#251927'; ctx.fillRect(430, 87, 420, 10);
     ctx.fillStyle = boss.kind === 'blank-bailiff' && boss.armorLayers > 0 ? '#f3d69b' : '#67e8f9';
     const ratio = boss.kind === 'blank-bailiff' && boss.armorLayers > 0 ? ((boss.armorLayers - 1) + Math.max(0, boss.armor) / boss.maxArmor) / 3 : boss.health / boss.maxHealth;

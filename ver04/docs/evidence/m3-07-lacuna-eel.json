@@ -1,0 +1,77 @@
+{
+  "generatedAt": "2026-10-31",
+  "seed": 3307,
+  "baseline": {
+    "durationTicks": 19835,
+    "maxEnemyBullets": 50,
+    "eel": {
+      "segmentMarks": 0,
+      "markedTicks": 0,
+      "weakpointHits": 0,
+      "wetWeakpointHits": 0,
+      "ordinaryHits": 1782,
+      "phaseReached": [
+        true,
+        true,
+        true
+      ],
+      "attacks": {
+        "drizzle": 45,
+        "wake": 62,
+        "deluge": 84
+      },
+      "damageByAttack": {
+        "drizzle": 18,
+        "wake": 25,
+        "deluge": 37
+      }
+    },
+    "hash": "22c95b4ecc2e7ab6"
+  },
+  "stitch": {
+    "durationTicks": 8154,
+    "phaseTicks": [
+      0,
+      3542,
+      4679
+    ],
+    "maxEnemyBullets": 45,
+    "eel": {
+      "segmentMarks": 3,
+      "markedTicks": 885,
+      "weakpointHits": 67,
+      "wetWeakpointHits": 2,
+      "ordinaryHits": 656,
+      "phaseReached": [
+        true,
+        true,
+        true
+      ],
+      "attacks": {
+        "drizzle": 26,
+        "wake": 10,
+        "deluge": 41
+      },
+      "damageByAttack": {
+        "drizzle": 7,
+        "wake": 4,
+        "deluge": 16
+      }
+    },
+    "hash": "e42f4bc818997eb1"
+  },
+  "replayHash": "e42f4bc818997eb1",
+  "gates": {
+    "baselineDefeatsBoss": true,
+    "stitchDefeatsBoss": true,
+    "stitchAtLeastTwentyPercentFaster": true,
+    "allPhasesReached": true,
+    "oneSmallLoopPerSegment": true,
+    "wetWeakpointUsed": true,
+    "fallbackBodyRouteMeasured": true,
+    "allAttacksEmitted": true,
+    "attackDamageMeasured": true,
+    "bulletLimit": true,
+    "deterministicReplay": true
+  }
+}

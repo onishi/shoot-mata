@@ -3,7 +3,7 @@ import { HEIGHT, SCALE, TICK_RATE, WIDTH, type BossState, type Bullet, type Enem
 import { stageDefinition } from '../content/campaign';
 import { STAGE_01_BOSS_START_TICK, STAGE_01_DURATION_TICKS, type StageEnemySpawn } from '../content/stage-01';
 import { STAGE_02_BOSS_START_TICK, STAGE_02_WIND_HALF_CYCLE_TICKS } from '../content/stage-02';
-import { STAGE_03_RAIN_PERIOD_TICKS, STAGE_03_WET_TICKS } from '../content/stage-03';
+import { STAGE_03_BOSS_START_TICK, STAGE_03_RAIN_PERIOD_TICKS, STAGE_03_WET_TICKS } from '../content/stage-03';
 import { findLoopCandidate, shotCrossedTrail, shotCrossedWetTrail, shouldAddTrailPoint } from './trail';
 
 const PLAYER_SPEED = Math.round(320 * SCALE / TICK_RATE);
@@ -82,7 +82,8 @@ export const createInitialState = (seed = 1, stageId: StageId = 'stage-01'): Gam
     wind: { reversals: 0, playerDrift: 0, trailDrift: 0, collatesLeft: 0, collatesRight: 0, collatesNearReversal: 0 },
     rain: { drops: 0, trailPointsWetted: 0, wetTrailPeak: 0, wetAnnotatedShots: 0, wetDamage: 0, basinSurges: 0, needleDashes: 0 },
     boss: { spawned: false, defeated: false, defeatTick: null, phaseReached: [false, false, false], fanWarnings: 0, fanErases: 0, trailPointsErased: 0, returnedHits: 0, ordinaryHits: 0, armorLayersStripped: 0, damageByAttack: { fan: 0, sweep: 0, volley: 0 } },
-    compiler: { windLocks: 0, windLockedTicks: 0, weakpointHits: 0, ordinaryHits: 0, phaseReached: [false, false, false], attacks: { gust: 0, lance: 0, storm: 0 }, damageByAttack: { gust: 0, lance: 0, storm: 0 } } }
+    compiler: { windLocks: 0, windLockedTicks: 0, weakpointHits: 0, ordinaryHits: 0, phaseReached: [false, false, false], attacks: { gust: 0, lance: 0, storm: 0 }, damageByAttack: { gust: 0, lance: 0, storm: 0 } },
+    eel: { segmentMarks: 0, markedTicks: 0, weakpointHits: 0, wetWeakpointHits: 0, ordinaryHits: 0, phaseReached: [false, false, false], attacks: { drizzle: 0, wake: 0, deluge: 0 }, damageByAttack: { drizzle: 0, wake: 0, deluge: 0 } } }
   };
   if (stage.spawns[0]?.tick === 0) {
     state.enemies.push(createEnemy(state, stage.spawns[0]));
@@ -101,7 +102,7 @@ export const copyState = (state: GameState): GameState => ({
   enemies: state.enemies.map((enemy) => ({ ...enemy })),
   boss: state.boss ? { ...state.boss } : null,
   retrace: state.retrace ? { index: state.retrace.index, points: state.retrace.points.map((point) => ({ ...point })) } : null,
-  metrics: { ...state.metrics, wind: { ...state.metrics.wind }, rain: { ...state.metrics.rain }, enemyStats: Object.fromEntries(Object.entries(state.metrics.enemyStats).map(([kind, stats]) => [kind, { ...stats }])) as GameState['metrics']['enemyStats'], boss: { ...state.metrics.boss, phaseReached: [...state.metrics.boss.phaseReached], damageByAttack: { ...state.metrics.boss.damageByAttack } }, compiler: { ...state.metrics.compiler, phaseReached: [...state.metrics.compiler.phaseReached], attacks: { ...state.metrics.compiler.attacks }, damageByAttack: { ...state.metrics.compiler.damageByAttack } } }
+  metrics: { ...state.metrics, wind: { ...state.metrics.wind }, rain: { ...state.metrics.rain }, enemyStats: Object.fromEntries(Object.entries(state.metrics.enemyStats).map(([kind, stats]) => [kind, { ...stats }])) as GameState['metrics']['enemyStats'], boss: { ...state.metrics.boss, phaseReached: [...state.metrics.boss.phaseReached], damageByAttack: { ...state.metrics.boss.damageByAttack } }, compiler: { ...state.metrics.compiler, phaseReached: [...state.metrics.compiler.phaseReached], attacks: { ...state.metrics.compiler.attacks }, damageByAttack: { ...state.metrics.compiler.damageByAttack } }, eel: { ...state.metrics.eel, phaseReached: [...state.metrics.eel.phaseReached], attacks: { ...state.metrics.eel.attacks }, damageByAttack: { ...state.metrics.eel.damageByAttack } } }
 });
 
 const spawnEnemyBullet = (state: GameState, enemy: Point, angleOffset = 0, speedPx = 145, sourceAttack: Bullet['sourceAttack'] = 'enemy-volley'): boolean => {
@@ -125,7 +126,8 @@ const createBoss = (state: GameState): BossState => ({
   armor: 300, maxArmor: 300, armorLayers: 3, phase: 1,
   phaseStartedAt: state.tick, cycleStartedAt: state.tick,
   fanAngle: Math.PI, fanWarningUntil: state.tick + 90, fanFiresAt: state.tick + 90,
-  defeatedAt: null, vaneSide: -1, windLockedUntil: 0, lockedWindDirection: 1, seamExposedUntil: 0
+  defeatedAt: null, vaneSide: -1, windLockedUntil: 0, lockedWindDirection: 1, seamExposedUntil: 0,
+  activeSegment: 0, segmentMarkedUntil: 0
 });
 
 const createCompiler = (state: GameState): BossState => ({
@@ -135,12 +137,58 @@ const createCompiler = (state: GameState): BossState => ({
   phaseStartedAt: state.tick, cycleStartedAt: state.tick,
   fanAngle: Math.PI, fanWarningUntil: 0, fanFiresAt: 0, defeatedAt: null,
   vaneSide: stageTwoWindDirection(state.tick), windLockedUntil: 0,
-  lockedWindDirection: stageTwoWindDirection(state.tick), seamExposedUntil: 0
+  lockedWindDirection: stageTwoWindDirection(state.tick), seamExposedUntil: 0,
+  activeSegment: 0, segmentMarkedUntil: 0
+});
+
+const createEel = (state: GameState): BossState => ({
+  kind: 'lacuna-eel',
+  x: 1030 * SCALE, y: 360 * SCALE, health: 1800, maxHealth: 1800,
+  armor: 0, maxArmor: 0, armorLayers: 0, phase: 1,
+  phaseStartedAt: state.tick, cycleStartedAt: state.tick,
+  fanAngle: Math.PI, fanWarningUntil: 0, fanFiresAt: 0, defeatedAt: null,
+  vaneSide: -1, windLockedUntil: 0, lockedWindDirection: 1, seamExposedUntil: 0,
+  activeSegment: 0, segmentMarkedUntil: 0
+});
+
+export const eelSegmentPoint = (boss: BossState, tick: number, segment: 0 | 1 | 2): Point => ({
+  x: boss.x - (105 + segment * 118) * SCALE,
+  y: boss.y + Math.round(Math.sin((tick - boss.phaseStartedAt) / 180 + segment * 1.35) * (72 + segment * 14) * SCALE)
 });
 
 const angleDifference = (a: number, b: number): number => Math.abs(Math.atan2(Math.sin(a - b), Math.cos(a - b)));
 
 const updateBoss = (state: GameState, events: GameEvent[]): void => {
+  if (state.stageId === 'stage-03') {
+    if (!state.boss && state.tick >= STAGE_03_BOSS_START_TICK && !state.metrics.boss.defeated) {
+      state.bullets = state.bullets.filter((bullet) => bullet.kind !== 'enemy');
+      state.boss = createEel(state);
+      state.metrics.boss.spawned = true;
+      state.metrics.boss.phaseReached[0] = true;
+      state.metrics.eel.phaseReached[0] = true;
+      events.push({ type: 'boss-spawned' });
+    }
+    const eel = state.boss;
+    if (!eel) return;
+    eel.x = 1015 * SCALE + Math.round(Math.sin((state.tick - STAGE_03_BOSS_START_TICK) / 210) * 45 * SCALE);
+    eel.y = 360 * SCALE + Math.round(Math.sin((state.tick - STAGE_03_BOSS_START_TICK) / 210) * 42 * SCALE);
+    if (eel.segmentMarkedUntil >= state.tick) state.metrics.eel.markedTicks += 1;
+    const age = state.tick - eel.cycleStartedAt;
+    const origin = eelSegmentPoint(eel, state.tick, eel.activeSegment);
+    if (eel.phase === 1 && age > 0 && age % 132 === 0) {
+      for (const offset of [-0.24, 0, 0.24]) spawnEnemyBullet(state, origin, offset, 138, 'eel-drizzle');
+      state.metrics.eel.attacks.drizzle += 1;
+    } else if (eel.phase === 2 && age > 0 && age % 108 === 0) {
+      for (const offset of [-0.42, -0.21, 0, 0.21, 0.42]) spawnEnemyBullet(state, origin, offset, 148, 'eel-wake');
+      state.metrics.eel.attacks.wake += 1;
+    } else if (eel.phase === 3 && age > 0 && age % 84 === 0) {
+      for (const offset of [-0.6, -0.4, -0.2, 0, 0.2, 0.4, 0.6]) spawnEnemyBullet(state, origin, offset, 162, 'eel-deluge');
+      state.metrics.eel.attacks.deluge += 1;
+    }
+    const cycleLength = eel.phase === 1 ? 396 : eel.phase === 2 ? 324 : 252;
+    if (age >= cycleLength) eel.cycleStartedAt = state.tick;
+    return;
+  }
   if (state.stageId === 'stage-02') {
     if (!state.boss && state.tick >= STAGE_02_BOSS_START_TICK && !state.metrics.boss.defeated) {
       state.bullets = state.bullets.filter((bullet) => bullet.kind !== 'enemy');
@@ -500,6 +548,15 @@ const collate = (state: GameState, events: GameEvent[]): void => {
       }
     }
   }
+  if (state.stageId === 'stage-03' && state.boss?.kind === 'lacuna-eel') {
+    const segment = state.boss.activeSegment;
+    const weakpoint = eelSegmentPoint(state.boss, state.tick, segment);
+    if (pointInPolygon(weakpoint, candidate.polygon)) {
+      state.boss.segmentMarkedUntil = state.tick + 6 * TICK_RATE;
+      state.metrics.eel.segmentMarks += 1;
+      events.push({ type: 'eel-segment-marked', segment });
+    }
+  }
   if (selected.length === 0 && !state.enemies.some((enemy) => pointInPolygon(enemy, candidate.polygon))) state.metrics.emptyLoops += 1;
   state.metrics.captured += selected.length;
   state.trail = state.trail.slice(0, candidate.startIndex);
@@ -569,7 +626,41 @@ export const step = (previous: GameState, input: InputFrame): { state: GameState
     let consumed = false;
     if (bullet.kind !== 'enemy') {
       const boss = state.boss;
-      if (boss?.kind === 'crosswind-compiler') {
+      if (boss?.kind === 'lacuna-eel') {
+        const segment = boss.activeSegment;
+        const weakpoint = eelSegmentPoint(boss, state.tick, segment);
+        const segmentHit = boss.segmentMarkedUntil >= state.tick
+          && distanceSq(bullet, weakpoint) <= ((bullet.radius + 34) * SCALE) ** 2;
+        const bodyHit = distanceSq(bullet, boss) <= ((bullet.radius + 96) * SCALE) ** 2;
+        if (segmentHit || bodyHit) {
+          const damage = segmentHit
+            ? (bullet.wetAnnotated ? 96 : bullet.kind === 'return' ? 30 : bullet.annotated ? 18 : 8)
+            : (bullet.kind === 'return' ? 5 : bullet.annotated ? 2 : 1);
+          boss.health -= damage;
+          if (segmentHit) {
+            state.metrics.eel.weakpointHits += 1;
+            if (bullet.wetAnnotated) state.metrics.eel.wetWeakpointHits += 1;
+            events.push({ type: 'eel-segment-hit', segment });
+          } else state.metrics.eel.ordinaryHits += 1;
+          const nextPhase = boss.health <= boss.maxHealth / 3 ? 3 : boss.health <= boss.maxHealth * 2 / 3 ? 2 : 1;
+          if (nextPhase > boss.phase) {
+            boss.phase = nextPhase;
+            boss.phaseStartedAt = state.tick;
+            boss.cycleStartedAt = state.tick;
+            boss.activeSegment = (nextPhase - 1) as 0 | 1 | 2;
+            boss.segmentMarkedUntil = 0;
+            state.metrics.boss.phaseReached[nextPhase - 1] = true;
+            state.metrics.eel.phaseReached[nextPhase - 1] = true;
+            events.push({ type: 'boss-phase', phase: nextPhase });
+          }
+          if (boss.health <= 0) {
+            boss.health = 0; boss.defeatedAt = state.tick;
+            state.metrics.boss.defeated = true; state.metrics.boss.defeatTick = state.tick;
+            state.score += 35000; events.push({ type: 'boss-defeated' }); state.boss = null;
+          }
+          consumed = true;
+        }
+      } else if (boss?.kind === 'crosswind-compiler') {
         const seam = { x: boss.x - 100 * SCALE, y: boss.y - boss.vaneSide * 108 * SCALE };
         const seamHit = boss.seamExposedUntil >= state.tick && distanceSq(bullet, seam) <= ((bullet.radius + 28) * SCALE) ** 2;
         const bodyHit = distanceSq(bullet, boss) <= ((bullet.radius + 88) * SCALE) ** 2;
@@ -688,6 +779,9 @@ export const step = (previous: GameState, input: InputFrame): { state: GameState
       else if (bullet.sourceAttack === 'compiler-gust') state.metrics.compiler.damageByAttack.gust += 1;
       else if (bullet.sourceAttack === 'compiler-lance') state.metrics.compiler.damageByAttack.lance += 1;
       else if (bullet.sourceAttack === 'compiler-storm') state.metrics.compiler.damageByAttack.storm += 1;
+      else if (bullet.sourceAttack === 'eel-drizzle') state.metrics.eel.damageByAttack.drizzle += 1;
+      else if (bullet.sourceAttack === 'eel-wake') state.metrics.eel.damageByAttack.wake += 1;
+      else if (bullet.sourceAttack === 'eel-deluge') state.metrics.eel.damageByAttack.deluge += 1;
       else if (state.boss) state.metrics.boss.damageByAttack.volley += 1;
       consumed = true;
       events.push({ type: 'damage' });
