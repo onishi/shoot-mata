@@ -2,9 +2,11 @@ import { expect, test } from '@playwright/test';
 
 type Screen = 'title' | 'guide' | 'stage-intro' | 'playing' | 'paused' | 'continue' | 'result';
 type QaWindow = Window & {
+  __PALIMPSEST_ASSETS_READY__: Promise<unknown>;
+  __PALIMPSEST_AUTOPLAY__: (ticks: number) => number;
   __PALIMPSEST_APP_STATE__: () => { screen: Screen; continuesRemaining: number; checkpointName: string; game: { tick: number; player: { health: number }; gauge: number } };
   __PALIMPSEST_STATE__: () => { bullets: unknown[]; trail: unknown[]; candidate: unknown; metrics: { loops: number; retraces: number } };
-  __PALIMPSEST_QA_SCENARIO__: (scenario: 'damage' | 'boss-gate' | 'boss-defeat') => Screen;
+  __PALIMPSEST_QA_SCENARIO__: (scenario: 'damage' | 'setpiece' | 'boss-gate' | 'boss-defeat') => Screen;
 };
 
 test('Stage 1 title-to-result keyboard flow, continue and focus pause work in Chrome', async ({ page }) => {
@@ -13,7 +15,7 @@ test('Stage 1 title-to-result keyboard flow, continue and focus pause work in Ch
   const canvas = page.locator('#game');
   await expect(canvas).toBeVisible();
   const screen = () => page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_APP_STATE__().screen);
-  const scenario = (name: 'damage' | 'boss-gate' | 'boss-defeat') => page.evaluate((value) => (window as unknown as QaWindow).__PALIMPSEST_QA_SCENARIO__(value), name);
+  const scenario = (name: 'damage' | 'setpiece' | 'boss-gate' | 'boss-defeat') => page.evaluate((value) => (window as unknown as QaWindow).__PALIMPSEST_QA_SCENARIO__(value), name);
   const hold = async (key: string, milliseconds: number): Promise<void> => {
     await page.keyboard.down(key); await page.waitForTimeout(milliseconds); await page.keyboard.up(key);
   };
@@ -70,4 +72,34 @@ test('Stage 1 title-to-result keyboard flow, continue and focus pause work in Ch
   await canvas.screenshot({ path: '../docs/evidence/m2-03-result.png' });
   await page.keyboard.press('Enter');
   expect(await screen()).toBe('title');
+});
+
+test('Stage 1 final visual assets remain readable in combat, set piece and boss phases', async ({ page }) => {
+  await page.goto('/');
+  await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_ASSETS_READY__);
+  const canvas = page.locator('#game');
+  const scenario = (name: 'setpiece' | 'boss-gate') => page.evaluate((value) => (window as unknown as QaWindow).__PALIMPSEST_QA_SCENARIO__(value), name);
+
+  await page.keyboard.press('Enter');
+  await page.keyboard.press('Enter');
+  await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_AUTOPLAY__(500));
+  await canvas.screenshot({ path: '../docs/evidence/m2-04-combat.png' });
+
+  await scenario('setpiece');
+  await canvas.screenshot({ path: '../docs/evidence/m2-04-setpiece.png' });
+
+  await page.reload();
+  await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_ASSETS_READY__);
+  await page.keyboard.press('Enter');
+  await page.keyboard.press('Enter');
+  await scenario('boss-gate');
+  await canvas.screenshot({ path: '../docs/evidence/m2-04-boss-phase-1.png' });
+  await page.evaluate(() => {
+    const boss = (window as unknown as QaWindow).__PALIMPSEST_STATE__() as unknown as { boss: { phase: number; armorLayers: number; armor: number } };
+    boss.boss.phase = 3;
+    boss.boss.armorLayers = 0;
+    boss.boss.armor = 0;
+  });
+  await page.waitForTimeout(50);
+  await canvas.screenshot({ path: '../docs/evidence/m2-04-boss-phase-3.png' });
 });

@@ -27,4 +27,4 @@ Reviewed at 1280×720 in Chrome:
 - `m2-03-continue.png`: failure, checkpoint, restore values, and exit choice are distinct; the stopped encounter remains faintly visible behind the overlay.
 - `m2-03-result.png`: completion, score, run metrics, and return action are legible without clipping.
 
-These screens still use the prototype Canvas visual language. They satisfy the flow check but do not count as M2 final art.
+The same flow screenshots were recaptured after M2-04 and now show the final Stage 1 background behind the overlays. Their application-flow assertions are unchanged; combat-art review is recorded separately in `m2-04-final-visuals.md`.

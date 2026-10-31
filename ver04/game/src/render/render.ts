@@ -1,5 +1,6 @@
 import { HEIGHT, SCALE, TICK_RATE, WIDTH, type GameState, type Point } from '../core/types';
 import type { AppScreen, AppState } from '../app/app';
+import { drawSprite, visuals } from './visual-assets';
 
 const path = (ctx: CanvasRenderingContext2D, points: Point[]): void => {
   if (points.length === 0) return;
@@ -18,24 +19,18 @@ const diamond = (ctx: CanvasRenderingContext2D, x: number, y: number, radius: nu
 };
 
 export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: boolean): void => {
-  const gradient = ctx.createLinearGradient(0, 0, WIDTH, HEIGHT);
-  gradient.addColorStop(0, '#071121');
-  gradient.addColorStop(0.55, '#11152c');
-  gradient.addColorStop(1, '#21162b');
-  ctx.fillStyle = gradient;
+  ctx.fillStyle = '#071121';
   ctx.fillRect(0, 0, WIDTH, HEIGHT);
-
-  ctx.save();
-  ctx.globalAlpha = 0.18;
-  ctx.strokeStyle = '#8ea6bd';
-  ctx.lineWidth = 1;
-  for (let x = -80; x < WIDTH + 80; x += 80) {
-    ctx.beginPath();
-    ctx.moveTo(x - (state.tick % 480) / 6, 0);
-    ctx.lineTo(x + 160 - (state.tick % 480) / 6, HEIGHT);
-    ctx.stroke();
+  if (visuals.far.complete && visuals.far.naturalWidth > 0) {
+    const farDrift = (state.tick / 80) % 42;
+    ctx.drawImage(visuals.far, -farDrift, 0, WIDTH + 84, HEIGHT);
   }
-  ctx.restore();
+  if (visuals.mid.complete && visuals.mid.naturalWidth > 0) {
+    const midDrift = (state.tick / 34) % 110;
+    ctx.save(); ctx.globalAlpha = 0.68;
+    ctx.drawImage(visuals.mid, -midDrift, 0, WIDTH + 220, HEIGHT);
+    ctx.restore();
+  }
 
   if (state.candidate) {
     path(ctx, state.candidate.polygon);
@@ -47,13 +42,33 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
     ctx.setLineDash([20, 10]);
     ctx.stroke();
     ctx.setLineDash([]);
+    ctx.save();
+    ctx.clip();
+    ctx.globalAlpha = 0.22;
+    ctx.strokeStyle = '#fff1bd';
+    ctx.lineWidth = 2;
+    const scan = state.tick % 22;
+    for (let y = -22 + scan; y < HEIGHT; y += 22) {
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(WIDTH, y); ctx.stroke();
+    }
+    ctx.restore();
   }
 
   path(ctx, state.trail);
-  ctx.strokeStyle = '#67e8f9';
+  ctx.strokeStyle = 'rgba(42, 204, 255, .24)';
   ctx.shadowColor = '#36d9ff';
-  ctx.shadowBlur = 18;
-  ctx.lineWidth = 4;
+  ctx.shadowBlur = 22;
+  ctx.lineWidth = 13;
+  ctx.stroke();
+  path(ctx, state.trail);
+  ctx.strokeStyle = '#63e9ff';
+  ctx.shadowBlur = 10;
+  ctx.lineWidth = 5;
+  ctx.stroke();
+  path(ctx, state.trail);
+  ctx.strokeStyle = '#e9fdff';
+  ctx.shadowBlur = 0;
+  ctx.lineWidth = 1.5;
   ctx.stroke();
   ctx.shadowBlur = 0;
 
@@ -61,30 +76,13 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
     const x = enemy.x / SCALE;
     const y = enemy.y / SCALE;
     const size = { 'eraser-mite': 17, 'bracket-gull': 25, 'margin-skiff': 29, 'folio-hauler': 52 }[enemy.kind];
-    ctx.save();
-    ctx.translate(x, y);
-    ctx.strokeStyle = enemy.markedUntil >= state.tick ? '#fcd170' : '#ff8b72';
-    ctx.fillStyle = '#241526';
-    ctx.lineWidth = enemy.markedUntil >= state.tick ? 6 : 3;
-    ctx.beginPath();
-    if (enemy.kind === 'eraser-mite') {
-      ctx.moveTo(size, 0); ctx.lineTo(-size, -size * .65); ctx.lineTo(-size * .35, 0); ctx.lineTo(-size, size * .65); ctx.closePath();
-    } else if (enemy.kind === 'bracket-gull') {
-      ctx.moveTo(size, -size); ctx.lineTo(-size * .7, -size); ctx.lineTo(-size, 0); ctx.lineTo(-size * .7, size); ctx.lineTo(size, size);
-    } else if (enemy.kind === 'margin-skiff') {
-      ctx.moveTo(size, 0); ctx.lineTo(size * .2, -size); ctx.lineTo(-size, -size * .55); ctx.lineTo(-size, size * .55); ctx.lineTo(size * .2, size); ctx.closePath();
-    } else {
-      ctx.roundRect(-size, -size * .7, size * 2, size * 1.4, 12);
-    }
-    ctx.fill(); ctx.stroke();
-    if (enemy.kind === 'folio-hauler') {
-      ctx.fillStyle = '#fcd170';
-      ctx.fillRect(size - 4, -15, 9, 30);
-      ctx.strokeStyle = '#ff8b72';
-      ctx.lineWidth = 7;
-      ctx.beginPath(); ctx.moveTo(-size, -size * .55); ctx.lineTo(-size, size * .55); ctx.stroke();
-    }
-    ctx.restore();
+    const dimensions = {
+      'eraser-mite': [58, 48], 'bracket-gull': [82, 62], 'margin-skiff': [94, 48], 'folio-hauler': [150, 90]
+    }[enemy.kind];
+    if (enemy.markedUntil >= state.tick) {
+      ctx.save(); ctx.shadowColor = '#ffd477'; ctx.shadowBlur = 20;
+      drawSprite(ctx, enemy.kind, x, y, dimensions[0], dimensions[1]); ctx.restore();
+    } else drawSprite(ctx, enemy.kind, x, y, dimensions[0], dimensions[1]);
     ctx.fillStyle = '#131725';
     ctx.fillRect(x - size, y + size + 14, size * 2, 7);
     ctx.fillStyle = '#ff8b72';
@@ -111,35 +109,23 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
       ctx.stroke();
       ctx.restore();
     }
-    ctx.save();
-    ctx.translate(x, y);
-    ctx.fillStyle = '#1d1525';
-    ctx.strokeStyle = boss.armorLayers > 0 ? '#f3d69b' : '#67e8f9';
-    ctx.lineWidth = 5;
-    ctx.beginPath();
-    ctx.moveTo(82, -112); ctx.lineTo(-68, -78); ctx.lineTo(-102, 0);
-    ctx.lineTo(-68, 78); ctx.lineTo(82, 112); ctx.lineTo(44, 0); ctx.closePath();
-    ctx.fill(); ctx.stroke();
-    for (let layer = 0; layer < 3; layer += 1) {
-      ctx.strokeStyle = layer < boss.armorLayers ? '#f3d69b' : '#503b4d';
-      ctx.lineWidth = 8;
-      ctx.beginPath();
-      ctx.arc(-12, 0, 44 + layer * 18, -1.15, 1.15);
-      ctx.stroke();
+    drawSprite(ctx, 'boss', x, y, 284, 238, boss.armorLayers > 0 ? 1 : 0.82);
+    if (boss.armorLayers === 0) {
+      ctx.save(); ctx.strokeStyle = '#a8f7ff'; ctx.shadowColor = '#42e7ff'; ctx.shadowBlur = 24; ctx.lineWidth = 5;
+      ctx.beginPath(); ctx.arc(x - 50, y + 18, 28 + Math.sin(state.tick / 8) * 3, 0, Math.PI * 2); ctx.stroke(); ctx.restore();
     }
-    ctx.fillStyle = boss.armorLayers === 0 ? '#67e8f9' : '#ff8b72';
-    ctx.beginPath(); ctx.arc(-14, 0, 16, 0, Math.PI * 2); ctx.fill();
-    ctx.restore();
   }
 
   for (const bullet of state.bullets) {
     const x = bullet.x / SCALE;
     const y = bullet.y / SCALE;
     if (bullet.kind === 'enemy') {
-      ctx.strokeStyle = '#ff745f';
-      ctx.fillStyle = '#2b1521';
-      ctx.lineWidth = 3;
-      ctx.beginPath(); ctx.arc(x, y, bullet.radius, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+      ctx.strokeStyle = '#ff826f'; ctx.fillStyle = 'rgba(26, 8, 20, .82)'; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.arc(x, y, bullet.radius + 3, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+      ctx.strokeStyle = '#ffd1b3'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(x, y, Math.max(2, bullet.radius - 3), 0, Math.PI * 2); ctx.stroke();
+    } else if (bullet.kind === 'return') {
+      drawSprite(ctx, 'return', x, y, 38, 20);
     } else {
       ctx.strokeStyle = bullet.annotated ? '#fcd170' : '#a8f7ff';
       ctx.lineWidth = bullet.annotated ? 5 : 3;
@@ -149,20 +135,21 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
 
   const playerX = state.player.x / SCALE;
   const playerY = state.player.y / SCALE;
-  ctx.save();
-  ctx.translate(playerX, playerY);
-  if (state.player.invulnerableUntil >= state.tick) ctx.globalAlpha = 0.35 + Math.abs(Math.sin(state.tick / 4)) * 0.65;
-  ctx.fillStyle = '#dffbff';
-  ctx.strokeStyle = '#66e8ff';
-  ctx.lineWidth = 3;
-  ctx.beginPath(); ctx.moveTo(22, 0); ctx.lineTo(-16, -13); ctx.lineTo(-8, 0); ctx.lineTo(-16, 13); ctx.closePath(); ctx.fill(); ctx.stroke();
-  ctx.restore();
+  const playerAlpha = state.player.invulnerableUntil >= state.tick ? 0.35 + Math.abs(Math.sin(state.tick / 4)) * 0.65 : 1;
+  drawSprite(ctx, 'player', playerX, playerY, 74, 54, playerAlpha);
 
   ctx.beginPath();
   ctx.arc(playerX, playerY, 26, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * state.gauge / 100);
   ctx.strokeStyle = state.gauge >= 100 ? '#fcd170' : 'rgba(103,232,249,.45)';
   ctx.lineWidth = 3;
   ctx.stroke();
+
+  if (visuals.fore.complete && visuals.fore.naturalWidth > 0) {
+    const foreDrift = (state.tick / 18) % 160;
+    ctx.save(); ctx.globalAlpha = 0.64;
+    ctx.drawImage(visuals.fore, -foreDrift, 0, WIDTH + 320, HEIGHT);
+    ctx.restore();
+  }
 
   ctx.fillStyle = 'rgba(4, 10, 22, .72)';
   ctx.fillRect(0, 0, WIDTH, 52);

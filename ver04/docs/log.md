@@ -60,3 +60,12 @@
 - 単体26件、Stage 1/Boss自動計測、型検査、production build、Chrome E2Eが`npm run verify`で合格した。体力の0下限化により証拠hashは更新されたが、同一入力の再実行一致と既存ゲートは維持した。
 - `m2-03-title.png`、`guide`、`continue`、`result`の4画像を1280×720で目視し、文字切れ・重なりがなく、主操作と状態差を識別できることを確認した。画面とキャラクターはまだ`prototype`でありM2完成素材には数えない。
 - 次回はStage 1の背景、自機、4通常敵、BLANK BAILIFF、主要戦闘表現をv4専用完成素材へ置き換え、制作規格を固定する。
+
+## 2026-10-31 — M2-04 Stage 1完成ビジュアル
+
+- built-in image generationでv4専用のStage 1遠景・中景・前景と、TRACE SKIFF、4通常敵、BLANK BAILIFF、反撃片を含む透明アトラスを新規制作した。過去版素材や外部IP名は使用していない。
+- 背景3層を異なる速度で合成し、スプライト中心を既存の決定的当たり判定へ合わせた。航跡を外光・中心光・白芯の3層、候補を走査線付き、敵弾を二重中空輪へ変更した。
+- 素材台帳を5件の`final`・`project-original`へ更新し、ファイル存在、必須メタデータ、仮素材0件を検査する`audit:assets`を`npm run verify`へ追加した。
+- 単体26件、Stage 1/Boss自動計測2件、素材監査、型検査、production build、Chrome E2E 2件に合格した。シミュレーション規則と自動計測値は変更していない。
+- `m2-04-combat.png`、`setpiece`、`boss-phase-1`、`boss-phase-3`を目視し、自機、4敵の役割、Hauler背面弱点、暖色中空弾、ボス装甲と露出核、HUDを識別でき、文字切れ・前景遮蔽がないことを確認した。
+- 次回はStage 1専用の音楽3ステムと主要効果音、音声bus、音量監査を実装し、M2完成音響規格を固定する。

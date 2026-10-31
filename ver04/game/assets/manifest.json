@@ -2,24 +2,34 @@
   "schemaVersion": 1,
   "assets": [
     {
-      "id": "m1-canvas-primitives",
-      "kind": "procedural-visual",
-      "path": "src/render/render.ts",
-      "stage": "M1 playground",
-      "usage": "player, enemy, bullets, trail, loop candidate, HUD and background",
-      "version": 4,
-      "status": "prototype",
-      "createdBy": "procedural",
-      "sourcePrompt": "none; Canvas 2D primitives authored for the v4 M1 rules prototype",
-      "generatedAt": "2026-10-31",
-      "editHistory": [
-        "Initial M1 deterministic playground",
-        "M1-02: distinguish the large Hauler silhouette and add the 180 second encounter timer",
-        "M2-01: add distinct prototype silhouettes for four Stage 1 enemy roles",
-        "M2-02: add the BLANK BAILIFF prototype fan silhouette, armor texts, warning sector and boss HUD"
-      ],
-      "dimensions": "1280x720 logical canvas",
-      "license": "project-original"
+      "id": "stage-01-erased-harbor-far-v1", "kind": "background-raster", "path": "public/assets/stage-01/erased-harbor-far-v1.png",
+      "stage": "Stage 1: The Erased Harbor", "usage": "opaque far parallax layer", "version": 1, "status": "final", "createdBy": "image-generation",
+      "sourcePrompt": "Stage 1 The Erased Harbor: vast airborne manuscript harbor with torn ivory piers, hollow ship hulls, binding cables, archive towers and eraser-dust islands in a night-indigo sky; polished hand-painted 2D game background; calm dark play band; ivory moonlight, ultramarine shadow and amber beacons; background only, original design, no text or watermark.",
+      "generatedAt": "2026-10-31", "editHistory": ["Built-in image generation output copied without pixel edits; runtime crops to 1280x720 cover."], "dimensions": "1672x941 RGB", "license": "project-original"
+    },
+    {
+      "id": "stage-01-erased-harbor-mid-v1", "kind": "background-raster", "path": "public/assets/stage-01/erased-harbor-mid-v1.png",
+      "stage": "Stage 1: The Erased Harbor", "usage": "transparent middle parallax structures", "version": 1, "status": "final", "createdBy": "image-generation",
+      "sourcePrompt": "Transparent middle-distance Stage 1 structures: broken airborne piers, stitched bridges, hollow manuscript-ship ribs and amber route beacons; hand-painted paper fiber and graphite wear; structures at top and bottom with an open play center; original environment only, no text or watermark.",
+      "generatedAt": "2026-10-31", "editHistory": ["Built-in image generation output copied without pixel edits; alpha preserved."], "dimensions": "1983x793 RGBA", "license": "project-original"
+    },
+    {
+      "id": "stage-01-erased-harbor-fore-v1", "kind": "background-raster", "path": "public/assets/stage-01/erased-harbor-fore-v1.png",
+      "stage": "Stage 1: The Erased Harbor", "usage": "transparent foreground fragments and cables", "version": 1, "status": "final", "createdBy": "image-generation",
+      "sourcePrompt": "Transparent close foreground fragments for Stage 1: torn pier edges, braided binding cables, drifting eraser crumbs and graphite-black hull shards; sparse framing at corners and edges, unobstructed center; crisp paper texture; original design, no text or watermark.",
+      "generatedAt": "2026-10-31", "editHistory": ["Built-in image generation output copied without pixel edits; alpha preserved."], "dimensions": "1983x793 RGBA", "license": "project-original"
+    },
+    {
+      "id": "stage-01-sprites-v1", "kind": "sprite-atlas-raster", "path": "public/assets/stage-01/stage-01-sprites-v1.png",
+      "stage": "Stage 1: The Erased Harbor", "usage": "TRACE SKIFF, four normal enemies, BLANK BAILIFF and returned-fire shard", "version": 1, "status": "final", "createdBy": "image-generation",
+      "sourcePrompt": "Transparent production sprite atlas containing seven original side-view game sprites: two-wing TRACE SKIFF, hooked ERASER MITE, open-bracket BRACKET GULL, pointed MARGIN SKIFF, stitched FOLIO HAULER with amber rear weak point, folding-fan BLANK BAILIFF with three seal ribs and exposed cyan core, and a returned-fire shard; paper fiber, ivory, graphite, cyan, coral and amber; no labels, grid, overlap, text or watermark.",
+      "generatedAt": "2026-10-31", "editHistory": ["Built-in image generation output copied without pixel edits.", "Runtime source rectangles documented in src/render/visual-assets.ts; alpha preserved."], "dimensions": "1774x887 RGBA", "license": "project-original"
+    },
+    {
+      "id": "stage-01-canvas-effects-v1", "kind": "procedural-visual", "path": "src/render/render.ts",
+      "stage": "Stage 1: The Erased Harbor", "usage": "three-layer wake, scanned COLLATE candidate, hollow enemy fire, return fire, boss telegraph and marginal HUD", "version": 1, "status": "final", "createdBy": "procedural",
+      "sourcePrompt": "none; authored Canvas compositing from docs/02-art-and-audio-direction.md sections 1, 2 and 5", "generatedAt": "2026-10-31",
+      "editHistory": ["Replaced M1 primitive combat rendering with layered glow, inner line, scan fill, double-ring hazards and atlas-backed return shards."], "dimensions": "1280x720 logical canvas", "license": "project-original"
     }
   ]
 }

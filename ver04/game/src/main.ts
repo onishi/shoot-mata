@@ -2,6 +2,7 @@ import './style.css';
 import { advance, autoPause, createAppState, transition, type AppAction } from './app/app';
 import { TICK_RATE, type InputFrame } from './core/types';
 import { renderApp } from './render/render';
+import { assetsReady } from './render/visual-assets';
 import { createPilot } from './simulation/autopilot';
 import { STAGE_01_BOSS_START_TICK, STAGE_01_SPAWNS } from './content/stage-01';
 
@@ -98,6 +99,7 @@ const frame = (now: number): void => {
 requestAnimationFrame(frame);
 
 Object.assign(window, {
+  __PALIMPSEST_ASSETS_READY__: assetsReady,
   __PALIMPSEST_STATE__: () => app.game,
   __PALIMPSEST_APP_STATE__: () => app,
   __PALIMPSEST_ADVANCE__: (ticks: number) => {
@@ -113,12 +115,23 @@ Object.assign(window, {
     renderApp(ctx, app);
     return app.game.tick;
   },
-  __PALIMPSEST_QA_SCENARIO__: (scenario: 'damage' | 'boss-gate' | 'boss-defeat') => {
+  __PALIMPSEST_QA_SCENARIO__: (scenario: 'damage' | 'setpiece' | 'boss-gate' | 'boss-defeat') => {
     if (app.screen !== 'playing') return app.screen;
     if (scenario === 'damage') {
       app.game.player.health = 1;
       app.game.player.invulnerableUntil = 0;
       app.game.bullets.push({ id: app.game.nextId++, x: app.game.player.x, y: app.game.player.y, vx: 0, vy: 0, radius: 8, kind: 'enemy', annotated: false, capturable: true });
+    } else if (scenario === 'setpiece') {
+      const setpieceIndex = STAGE_01_SPAWNS.findIndex((spawn) => spawn.tick === 6840);
+      app.game.tick = 6839;
+      app.game.encounterIndex = setpieceIndex;
+      app.game.enemies = [];
+      app.game.bullets = [];
+      runStep({});
+      app.game.tick = 8279;
+      runStep({});
+      const pilot = createPilot('stitch');
+      for (let index = 0; index < 180 && app.screen === 'playing'; index += 1) runStep(pilot(app.game));
     } else if (scenario === 'boss-gate') {
       app.game.tick = STAGE_01_BOSS_START_TICK - 1;
       app.game.encounterIndex = STAGE_01_SPAWNS.length;
@@ -130,7 +143,7 @@ Object.assign(window, {
       app.game.boss.health = 1;
       app.game.bullets.push({ id: app.game.nextId++, x: app.game.boss.x, y: app.game.boss.y, vx: 0, vy: 0, radius: 5, kind: 'return', annotated: true, capturable: false });
     }
-    if (scenario !== 'boss-gate') runStep({});
+    if (scenario !== 'boss-gate' && scenario !== 'setpiece') runStep({});
     renderApp(ctx, app);
     return app.screen;
   }
