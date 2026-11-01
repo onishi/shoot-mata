@@ -29,7 +29,8 @@ const expected = [
   'stage-04-crisis-v1', 'stage-04-effects-v1', 'stage-05-mirror-chamber-far-v1',
   'stage-05-mirror-chamber-mid-v1', 'stage-05-mirror-chamber-fore-v1', 'stage-05-sprites-v1',
   'stage-05-canvas-effects-v1', 'stage-05-ambient-v1', 'stage-05-pulse-v1', 'stage-05-crisis-v1',
-  'stage-05-effects-v1'
+  'stage-05-effects-v1', 'stage-06-original-dawn-far-v1', 'stage-06-original-dawn-mid-v1',
+  'stage-06-original-dawn-fore-v1', 'stage-06-sprites-v1', 'stage-06-canvas-effects-v1'
 ];
 for (const id of expected) {
   if (!ids.has(id)) throw new Error(`required visual-slice asset is unregistered: ${id}`);

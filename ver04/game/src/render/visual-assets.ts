@@ -2,11 +2,13 @@ export type SpriteId = 'player' | 'eraser-mite' | 'bracket-gull' | 'margin-skiff
   | 'index-kite' | 'vane-scribe' | 'cross-reference-pair' | 'tab-binder' | 'compiler' | 'compiler-seam'
   | 'drip-scribe' | 'gutter-frog' | 'basin-bell' | 'reed-needle' | 'eel-head' | 'eel-segment' | 'eel-segment-marked'
   | 'ash-comma' | 'kiln-censor' | 'ember-courier' | 'char-press' | 'cinder-advocate' | 'heat-wall' | 'ember' | 'cooled-ember'
-  | 'mirror-mote' | 'quotation-ram' | 'false-witness' | 'silver-obelisk' | 'apocrypha-twin' | 'apocrypha-twin-exposed';
+  | 'mirror-mote' | 'quotation-ram' | 'false-witness' | 'silver-obelisk' | 'apocrypha-twin' | 'apocrypha-twin-exposed'
+  | 'binding-wasp' | 'revision-hound' | 'null-choir' | 'archive-palanquin' | 'last-editor' | 'last-editor-open'
+  | 'signature-ink' | 'signature-accepted';
 
 export interface SpriteFrame { x: number; y: number; width: number; height: number }
 
-type VisualStage = 'stage-01' | 'stage-02' | 'stage-03' | 'stage-04' | 'stage-05';
+type VisualStage = 'stage-01' | 'stage-02' | 'stage-03' | 'stage-04' | 'stage-05' | 'stage-06';
 
 const image = (stage: VisualStage, path: string): HTMLImageElement => {
   const result = new Image();
@@ -45,6 +47,12 @@ export const visuals = {
     mid: image('stage-05', 'mirror-chamber-mid-v1.png'),
     fore: image('stage-05', 'mirror-chamber-fore-v1.png'),
     sprites: image('stage-05', 'stage-05-sprites-v1.png')
+  },
+  'stage-06': {
+    far: image('stage-06', 'original-dawn-far-v1.png'),
+    mid: image('stage-06', 'original-dawn-mid-v1.png'),
+    fore: image('stage-06', 'original-dawn-fore-v1.png'),
+    sprites: image('stage-06', 'stage-06-sprites-v1.png')
   }
 };
 
@@ -82,7 +90,15 @@ export const spriteFrames: Record<SpriteId, SpriteFrame & { stage: VisualStage }
   'false-witness': { stage: 'stage-05', x: 800, y: 0, width: 420, height: 520 },
   'silver-obelisk': { stage: 'stage-05', x: 1190, y: 0, width: 346, height: 530 },
   'apocrypha-twin': { stage: 'stage-05', x: 0, y: 500, width: 770, height: 524 },
-  'apocrypha-twin-exposed': { stage: 'stage-05', x: 730, y: 500, width: 806, height: 524 }
+  'apocrypha-twin-exposed': { stage: 'stage-05', x: 730, y: 500, width: 806, height: 524 },
+  'binding-wasp': { stage: 'stage-06', x: 0, y: 20, width: 405, height: 370 },
+  'revision-hound': { stage: 'stage-06', x: 385, y: 105, width: 420, height: 290 },
+  'null-choir': { stage: 'stage-06', x: 785, y: 45, width: 405, height: 365 },
+  'archive-palanquin': { stage: 'stage-06', x: 1160, y: 0, width: 614, height: 420 },
+  'last-editor': { stage: 'stage-06', x: 535, y: 395, width: 575, height: 492 },
+  'last-editor-open': { stage: 'stage-06', x: 0, y: 390, width: 590, height: 497 },
+  'signature-ink': { stage: 'stage-06', x: 1080, y: 420, width: 365, height: 435 },
+  'signature-accepted': { stage: 'stage-06', x: 1370, y: 380, width: 404, height: 507 }
 };
 
 export const assetsReady = Promise.all(Object.values(visuals).flatMap((stage) => Object.values(stage)).map((asset) => asset.decode().catch(() => undefined)));

@@ -23,7 +23,7 @@ const diamond = (ctx: CanvasRenderingContext2D, x: number, y: number, radius: nu
 };
 
 export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: boolean): void => {
-  const stageVisuals = state.stageId === 'stage-06' ? undefined : visuals[state.stageId];
+  const stageVisuals = visuals[state.stageId];
   ctx.fillStyle = '#071121';
   ctx.fillRect(0, 0, WIDTH, HEIGHT);
   if (stageVisuals?.far.complete && stageVisuals.far.naturalWidth > 0) {
@@ -110,7 +110,7 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
     const palette = rule === 'wind' ? ['#10253b', '#83dcf2'] : rule === 'rain' ? ['#0b2630', '#65d9c3']
       : rule === 'heat' ? ['#321811', '#ff8c4b'] : ['#24122f', '#e784ff'];
     const wash = ctx.createLinearGradient(0, 0, WIDTH, HEIGHT);
-    wash.addColorStop(0, palette[0]); wash.addColorStop(1, 'rgba(8,12,25,.18)');
+    wash.addColorStop(0, `${palette[0]}88`); wash.addColorStop(0.52, 'rgba(8,12,25,.06)'); wash.addColorStop(1, `${palette[1]}1f`);
     ctx.fillStyle = wash; ctx.fillRect(0, 0, WIDTH, HEIGHT);
     ctx.save(); ctx.strokeStyle = `${palette[1]}66`; ctx.lineWidth = 2;
     for (let index = 0; index < 16; index += 1) {
@@ -240,23 +240,13 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
       drawSprite(ctx, kind, x, y, dimensions[0], dimensions[1]);
       ctx.restore();
     } else {
-      ctx.save(); ctx.translate(x, y);
+      const kind = enemy.kind as 'binding-wasp' | 'revision-hound' | 'null-choir' | 'archive-palanquin';
+      const dimensions = {
+        'binding-wasp': [78, 68], 'revision-hound': [112, 72], 'null-choir': [100, 94], 'archive-palanquin': [188, 112]
+      }[kind];
+      ctx.save();
       if (enemy.markedUntil >= state.tick) { ctx.shadowColor = '#ffe58b'; ctx.shadowBlur = 22; }
-      ctx.strokeStyle = '#e9fbff'; ctx.fillStyle = '#122738'; ctx.lineWidth = 3;
-      if (enemy.kind === 'binding-wasp') {
-        diamond(ctx, 0, 0, 25); ctx.fill(); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(-34, -20); ctx.lineTo(-12, 0); ctx.lineTo(-34, 20); ctx.moveTo(34, -20); ctx.lineTo(12, 0); ctx.lineTo(34, 20); ctx.stroke();
-      } else if (enemy.kind === 'revision-hound') {
-        ctx.beginPath(); ctx.moveTo(-40, -22); ctx.lineTo(24, -28); ctx.lineTo(42, 0); ctx.lineTo(18, 28); ctx.lineTo(-38, 20); ctx.closePath(); ctx.fill(); ctx.stroke();
-        ctx.strokeStyle = '#ffcb70'; ctx.beginPath(); ctx.moveTo(-16, -12); ctx.lineTo(22, 0); ctx.lineTo(-16, 12); ctx.stroke();
-      } else if (enemy.kind === 'null-choir') {
-        ctx.beginPath(); ctx.arc(0, 0, 31, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-        ctx.strokeStyle = '#8ff5e5'; for (const offset of [-12, 0, 12]) { ctx.beginPath(); ctx.moveTo(offset, -21); ctx.lineTo(offset, 21); ctx.stroke(); }
-      } else {
-        ctx.beginPath(); ctx.moveTo(-62, -34); ctx.lineTo(42, -42); ctx.lineTo(64, 0); ctx.lineTo(42, 42); ctx.lineTo(-62, 34); ctx.closePath(); ctx.fill(); ctx.stroke();
-        ctx.strokeStyle = '#f1b9ff'; ctx.strokeRect(-34, -21, 58, 42);
-        ctx.strokeStyle = '#ffcb70'; ctx.beginPath(); ctx.moveTo(32, -28); ctx.lineTo(52, 0); ctx.lineTo(32, 28); ctx.stroke();
-      }
+      drawSprite(ctx, kind, x, y, dimensions[0], dimensions[1]);
       ctx.restore();
     }
     ctx.fillStyle = '#131725';
@@ -336,14 +326,12 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
     } else if (boss.kind === 'last-editor') {
       const exposed = boss.phase < 3 ? boss.revisionExposedUntil >= state.tick : boss.signatureExposedUntil >= state.tick;
       const ruleColors = ['#f58b78', '#8de7ff', '#83f0d2', '#ff9b55', '#ef8cff'];
-      ctx.save(); ctx.translate(x, y);
+      ctx.save();
       ctx.shadowColor = exposed ? '#ffe88f' : ruleColors[boss.editorRule]; ctx.shadowBlur = exposed ? 34 : 18;
-      ctx.fillStyle = '#101426'; ctx.strokeStyle = exposed ? '#fff0a8' : ruleColors[boss.editorRule]; ctx.lineWidth = exposed ? 6 : 3;
-      ctx.beginPath(); ctx.moveTo(-112, -92); ctx.lineTo(74, -112); ctx.lineTo(120, -40); ctx.lineTo(98, 98); ctx.lineTo(-86, 112); ctx.lineTo(-124, 34); ctx.closePath(); ctx.fill(); ctx.stroke();
-      ctx.strokeStyle = ruleColors[(boss.editorRule + 1) % 5]; ctx.lineWidth = 3; ctx.setLineDash([12, 8]);
-      for (const offset of [-52, -18, 16, 50]) { ctx.beginPath(); ctx.moveTo(-72, offset); ctx.lineTo(68, offset - 10); ctx.stroke(); }
-      ctx.setLineDash([]); ctx.fillStyle = exposed ? '#fff0a8' : ruleColors[boss.editorRule];
-      diamond(ctx, -14, 0, 28 + Math.sin(state.tick / 8) * 3); ctx.fill(); ctx.restore();
+      drawSprite(ctx, exposed ? 'last-editor-open' : 'last-editor', x, y, 292, 246);
+      if (boss.phase === 3 && exposed) drawSprite(ctx, 'signature-accepted', x - 8, y, 112, 112);
+      ctx.strokeStyle = exposed ? '#fff0a8' : ruleColors[boss.editorRule]; ctx.lineWidth = exposed ? 4 : 2; ctx.setLineDash(exposed ? [4, 8] : [15, 8]);
+      ctx.beginPath(); ctx.ellipse(x, y, 142, 120, -0.08, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]); ctx.restore();
       if (exposed) {
         ctx.fillStyle = '#ffeaa0'; ctx.font = '700 13px system-ui, sans-serif'; ctx.textAlign = 'center';
         const until = boss.phase < 3 ? boss.revisionExposedUntil : boss.signatureExposedUntil;
@@ -387,9 +375,8 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
       const ember = bullet.sourceAttack === 'advocate-ember';
       if (ember) drawSprite(ctx, 'ember', x, y, bullet.radius * 3.8, bullet.radius * 3.1);
       else if (bullet.signatureInk) {
-        ctx.save(); ctx.strokeStyle = '#ffe58a'; ctx.fillStyle = 'rgba(49,25,58,.88)'; ctx.lineWidth = 3; ctx.setLineDash([5, 4]);
-        diamond(ctx, x, y, bullet.radius + 7); ctx.fill(); ctx.stroke(); ctx.setLineDash([]);
-        ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI * 2); ctx.fillStyle = '#fff3b2'; ctx.fill(); ctx.restore();
+        ctx.save(); ctx.shadowColor = '#ffe58a'; ctx.shadowBlur = 14;
+        drawSprite(ctx, 'signature-ink', x, y, (bullet.radius + 8) * 2.4, (bullet.radius + 8) * 2.4); ctx.restore();
       }
       else if (bullet.illusory) {
         ctx.strokeStyle = '#ef8cff'; ctx.lineWidth = 2; ctx.setLineDash([4, 5]);

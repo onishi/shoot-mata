@@ -293,11 +293,43 @@
       "editHistory": ["Synthesized as six 44.1 kHz stereo PCM16 files; connected to simulation events and inspected in the worst-case Stage 5 mix."], "dimensions": "6 files, 0.22s to 0.92s, stereo 44.1kHz PCM16", "license": "project-original"
     },
     {
-      "id": "stage-06-canvas-preview-v1", "kind": "procedural-visual", "path": "src/render/render.ts",
-      "stage": "Stage 6: Dawn of the Original", "usage": "development preview for five folios, four normal enemies, THE LAST EDITOR, inherited-rule revisions and enemy-ink signature",
-      "version": 1, "status": "prototype", "createdBy": "procedural",
-      "sourcePrompt": "none; authored Canvas preview from docs/01-game-design.md Stage 6 and enemy roster",
-      "generatedAt": "2026-11-01", "editHistory": ["Introduced rule-colored folio wash, synthesis label, four distinct geometric silhouettes and simulation-synchronized mirror bands.", "Added a geometric LAST EDITOR preview, five rule colors, revision-open cue and dashed gold signature-ink rounds for M3-22."],
+      "id": "stage-06-original-dawn-far-v1", "kind": "background-raster", "path": "public/assets/stage-06/original-dawn-far-v1.png",
+      "stage": "Stage 6: Dawn of the Original", "usage": "opaque far parallax where five restored routes converge on the original binding core at dawn",
+      "version": 1, "status": "final", "createdBy": "image-generation",
+      "sourcePrompt": "Wide Stage 6 Dawn of the Original far background: original airborne manuscript cosmos at pre-dawn, five restored routes converging toward one colossal distant binding core; wind towers, rain galleries, charred type foundries and mirror arches recomposed into one architecture; dark central gameplay band; night navy opening to pale multicolor dawn; no characters, UI, text or watermark.",
+      "generatedAt": "2026-11-01", "editHistory": ["Built-in image generation output copied without pixel edits; runtime crops to 1280x720 cover."],
+      "dimensions": "1672x940 RGB", "license": "project-original"
+    },
+    {
+      "id": "stage-06-original-dawn-mid-v1", "kind": "background-raster", "path": "public/assets/stage-06/original-dawn-mid-v1.png",
+      "stage": "Stage 6: Dawn of the Original", "usage": "transparent middle parallax binding ribs, folio frames and restored-route structures",
+      "version": 1, "status": "final", "createdBy": "image-generation",
+      "sourcePrompt": "Transparent wide middle layer for Dawn of the Original: curved binding ribs, floating blank folio frames, wind-vane spars, rain gutters, charred type braces and fractured mirror ligatures unified by pale-gold stitching; sparse top and bottom clusters with a fully open gameplay center; no characters, UI, text or watermark.",
+      "generatedAt": "2026-11-01", "editHistory": ["Built-in image generation output copied without pixel edits; alpha preserved."],
+      "dimensions": "1672x941 RGBA", "license": "project-original"
+    },
+    {
+      "id": "stage-06-original-dawn-fore-v1", "kind": "background-raster", "path": "public/assets/stage-06/original-dawn-fore-v1.png",
+      "stage": "Stage 6: Dawn of the Original", "usage": "transparent sparse foreground binding, paper, type and mirror fragments at the outer edges",
+      "version": 1, "status": "final", "createdBy": "image-generation",
+      "sourcePrompt": "Transparent sparse foreground for Dawn of the Original: cropped dark binding ribs, luminous stitch cords, torn blank paper corners, rain beads, cooled type shards, mirror splinters and gold paper-fiber motes only at extreme edges; open center and HUD bands; no characters, UI, text or watermark.",
+      "generatedAt": "2026-11-01", "editHistory": ["Built-in image generation output copied without pixel edits; alpha preserved."],
+      "dimensions": "1672x941 RGBA", "license": "project-original"
+    },
+    {
+      "id": "stage-06-sprites-v1", "kind": "sprite-atlas-raster", "path": "public/assets/stage-06/stage-06-sprites-v1.png",
+      "stage": "Stage 6: Dawn of the Original", "usage": "Binding Wasp, Revision Hound, Null Choir, Archive Palanquin, closed/open LAST EDITOR, signature round and accepted signature core",
+      "version": 1, "status": "final", "createdBy": "image-generation",
+      "sourcePrompt": "Transparent two-row production atlas with eight isolated original final-stage manuscript machines: thread-wing Binding Wasp, wedge Revision Hound, three-reed Null Choir, armored Archive Palanquin, matched closed/open THE LAST EDITOR variants, hollow eight-point signature ink round and luminous accepted signature core; graphite, paper, dark glass, silver and restrained five-rule accents; no scenery, labels, grid, text or watermark.",
+      "generatedAt": "2026-11-01", "editHistory": ["Built-in image generation output copied without pixel edits.", "Runtime source rectangles documented in src/render/visual-assets.ts; alpha preserved."],
+      "dimensions": "1774x887 RGBA", "license": "project-original"
+    },
+    {
+      "id": "stage-06-canvas-effects-v1", "kind": "procedural-visual", "path": "src/render/render.ts",
+      "stage": "Stage 6: Dawn of the Original", "usage": "five folio light states, inherited rules, atlas-backed enemies and Editor, revision seal and giant signature closure",
+      "version": 1, "status": "final", "createdBy": "procedural",
+      "sourcePrompt": "none; authored Canvas compositing from docs/02-art-and-audio-direction.md Stage 6 direction and M3-21 through M3-24 measured mechanics",
+      "generatedAt": "2026-11-01", "editHistory": ["Replaced the Stage 6 flat preview wash and geometric enemy and boss primitives with three-layer backgrounds and final atlas sprites.", "Retained simulation-synchronized wind, rain, heat and mirror cues as translucent environmental light; revision-open, signature rounds and accepted core use distinct silhouettes and dashed seals."],
       "dimensions": "1280x720 logical canvas", "license": "project-original"
     }
   ]

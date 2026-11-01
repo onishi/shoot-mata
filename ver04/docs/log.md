@@ -296,3 +296,12 @@
 - 単体54件、自動計測12件、素材監査45 final・1 prototype、音量監査50素材、型検査、production build、Chrome E2E 14件に合格した。ChromeではStage 1→6高速通し、Stage 6両復帰、ポーズ・コンティニュー・結果・エンディング境界中のtick停止、THE LAST EDITOR撃破を確認した。
 - `m3-23-stage-06-intro.png`と`m3-23-stage-06-result.png`を1280×720で目視し、章題、教材、最終結果、スコア、エンディングへの案内に文字切れ・重なりがないことを確認した。
 - 次回はStage 6の背景3層、4通常敵、THE LAST EDITOR、校訂核・署名弾・署名輪を完成素材へ置き換え、通常戦、統合山場、ボス3形態を画像確認する。
+
+## 2026-11-01 — M3-24 Stage 6完成ビジュアル
+
+- built-in image generationで原本の夜明けの遠景・中景・前景と、Binding Wasp、Revision Hound、Null Choir、Archive Palanquin、THE LAST EDITOR閉鎖核・開放核、署名弾・署名成立核を含む透明アトラスをv4専用に制作した。過去版素材や外部IP名は使用していない。
+- Stage 6へ背景3層とアトラスを接続し、単色規則washとCanvas敵・ボス図形を完成素材へ置換した。規則washは背景を隠さない半透明の環境光へ変更し、風・雨・熱・鏡のsimulation同期表現、巨大署名輪、区間表示は維持した。
+- 通常4敵は糸翼・低い楔・三本の声管・大型書庫という別形状にした。最終ボスは閉鎖核と三角切欠き・点線外周を持つ開放核を切り替え、形態3では8点輪郭の署名弾と独立した署名成立核を表示して、攻略状態を色だけに依存させない。
+- `m3-24-stage-06-combat.png`、`setpiece.png`、`last-editor-phase-1/2/3.png`を1280×720で目視し、5航路が夜明けの綴じ核へ収束する奥行き、4敵、危険弾、航跡、規則区間、校訂開放、署名8点、巨大点線輪、HUDを識別できた。文字切れ、前景遮蔽、アトラス混入、当たり判定との著しい見かけのずれはない。
+- 素材台帳をStage 6の背景3層・アトラス・Canvas効果の5件の`final`へ更新し、仮素材を0件にした。`npm run verify`のうち単体54件、自動計測12件、素材監査50 final・仮素材0、音量監査50素材、型検査、production buildに合格した。sandbox内のChrome起動は`EPERM 127.0.0.1:4174`で一度停止したが、許可済み実行経路でChrome E2E 14件に合格した。
+- 次回はStage 6専用の5航路統合・夜明け和音・THE LAST EDITOR危機ステムと環境・ボス効果音を制作し、音量監査とChromeのStage遷移・bus・ポーズ同期を確認する。
