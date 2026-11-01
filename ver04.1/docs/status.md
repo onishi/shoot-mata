@@ -6,7 +6,7 @@
 
 - 現在版: v4.1 (`ver04.1/`)
 - 公開版: v4.0
-- 段階: 改善実装（v4.1-01〜02 完了、v4.1-03 着手待ち）
+- 段階: 改善実装（v4.1-01〜02 完了、v4.1-03 counterfactual基盤完了・調整中）
 - v4.0変更: なし
 
 ## 達成内容
@@ -25,14 +25,17 @@
 - seed 4500〜4529の3難易度×30周が90/90完走。時間中央値は24.71 / 24.40 / 24.48分、被弾中央値は1 / 1 / 2、コンティニュー率は全難易度0%で、`ECHO <= NORMAL <= PROOF`とPROOF−ECHO 1を満たした。
 - balance証跡へ最大危険数、扇予告tick、攻略ギミック成功数、コンティニュー率を追加し、30seed正式実行では難易度順を自動検査するようにした。
 - 単体78/78、自動プレイ13/13、Chrome E2E 23/23、simulation性能、production build、素材・独自性・音量監査に合格した。
+- 全12 MARGINALIAを単独装備し、通常戦・BLANK BAILIFF・同一post-hit frameの3条件、計36 counterfactualをno-note baselineと比較する自動証跡を追加した。数値差10%以上とzero baselineからの新規発生を自動抽出する。
+- seed 4410の60秒通常戦・被弾復帰ではRECOVERY 4種が全指標でbaselineと一致し、BLANK BAILIFFではCITATIONだけがreturned hitsを15から17（+13.3%）へ変えた。REDACTION / PALINODE / AFTERWORDは3条件すべて無反応だった。
+- 新規counterfactual 1/1、単体78/78、counterfactualを含む全自動プレイ14/14、TypeScript型検査に合格した。全自動プレイの決定性hashも現行難易度プロファイルに対して再生成した。
 
 ## 未解決課題
 
-1. 無被弾条件ではRECOVERY構成がbaselineと完全一致する。
+1. 現行counterfactualではREDACTION / PALINODE / AFTERWORDが通常戦・ボス・被弾復帰の全条件でbaselineと完全一致する。CITATIONも通常戦・被弾復帰では無反応である。
 2. CINDER ADVOCATEが約19秒、Stage 6全体が5.67〜6.37分で、時間配分が偏る。
 
 ## 次の最優先作業
 
 **v4.1-03: RECOVERY系を被弾後だけの保険から、成功中にも準備と発動価値がある系統へ再設計する。**
 
-12種を通常戦・ボス・被弾復帰のcounterfactual条件で計測できる基盤を先に作り、AFTERWORDを含むRECOVERY候補が成功中にも準備状態を示し、意図した指標を10%以上変えるか新しい成功イベントを発生させるよう調整する。
+計測で無反応を確認したREDACTION / PALINODE / AFTERWORDを優先し、RECOVERY 4候補が成功中にも準備状態を示すゲーム状態・専用イベント・画面表示を実装する。各候補は意図した指標を10%以上変えるか新しい成功イベントを発生させ、同じ36条件を再実行して確認する。

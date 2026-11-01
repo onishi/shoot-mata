@@ -1,0 +1,1082 @@
+{
+  "generatedAt": "2026-11-01",
+  "seeds": {
+    "combat": 4410,
+    "boss": 4411,
+    "recovery": 4410
+  },
+  "baselines": {
+    "combat": {
+      "ticks": 7200,
+      "score": 31473,
+      "damage": 0,
+      "enemiesDefeated": 17,
+      "collates": 8,
+      "captured": 6,
+      "candidates": 8,
+      "annotatedShots": 222,
+      "retraces": 0,
+      "returnedHits": 0,
+      "armorLayersStripped": 0,
+      "bossDefeated": false,
+      "finalGauge": 99,
+      "trailPeak": 128,
+      "candidatePeak": 30268.45066833496
+    },
+    "boss": {
+      "ticks": 3961,
+      "score": 31004,
+      "damage": 1,
+      "enemiesDefeated": 0,
+      "collates": 4,
+      "captured": 20,
+      "candidates": 4,
+      "annotatedShots": 77,
+      "retraces": 0,
+      "returnedHits": 15,
+      "armorLayersStripped": 3,
+      "bossDefeated": true,
+      "finalGauge": 100,
+      "trailPeak": 122,
+      "candidatePeak": 19415.541137695312
+    },
+    "recovery": {
+      "ticks": 7200,
+      "score": 31473,
+      "damage": 1,
+      "enemiesDefeated": 17,
+      "collates": 8,
+      "captured": 6,
+      "candidates": 8,
+      "annotatedShots": 222,
+      "retraces": 0,
+      "returnedHits": 0,
+      "armorLayersStripped": 0,
+      "bossDefeated": false,
+      "finalGauge": 99,
+      "trailPeak": 128,
+      "candidatePeak": 30268.45066833496
+    }
+  },
+  "notes": {
+    "longhand": {
+      "family": "STROKE",
+      "outcomes": {
+        "combat": {
+          "outcome": {
+            "ticks": 7200,
+            "score": 30827,
+            "damage": 0,
+            "enemiesDefeated": 18,
+            "collates": 9,
+            "captured": 2,
+            "candidates": 9,
+            "annotatedShots": 222,
+            "retraces": 0,
+            "returnedHits": 0,
+            "armorLayersStripped": 0,
+            "bossDefeated": false,
+            "finalGauge": 83,
+            "trailPeak": 150,
+            "candidatePeak": 29253.762802124023
+          },
+          "changed": [
+            "score",
+            "enemiesDefeated",
+            "collates",
+            "captured",
+            "candidates",
+            "finalGauge",
+            "trailPeak",
+            "candidatePeak"
+          ],
+          "material": [
+            "collates:+12.5%",
+            "captured:-66.7%",
+            "candidates:+12.5%",
+            "finalGauge:-16.2%",
+            "trailPeak:+17.2%"
+          ]
+        },
+        "boss": {
+          "outcome": {
+            "ticks": 3961,
+            "score": 31004,
+            "damage": 1,
+            "enemiesDefeated": 0,
+            "collates": 4,
+            "captured": 20,
+            "candidates": 4,
+            "annotatedShots": 78,
+            "retraces": 0,
+            "returnedHits": 15,
+            "armorLayersStripped": 3,
+            "bossDefeated": true,
+            "finalGauge": 90,
+            "trailPeak": 122,
+            "candidatePeak": 19415.541137695312
+          },
+          "changed": [
+            "annotatedShots",
+            "finalGauge"
+          ],
+          "material": [
+            "finalGauge:-10.0%"
+          ]
+        },
+        "recovery": {
+          "outcome": {
+            "ticks": 7200,
+            "score": 30827,
+            "damage": 1,
+            "enemiesDefeated": 18,
+            "collates": 9,
+            "captured": 2,
+            "candidates": 9,
+            "annotatedShots": 222,
+            "retraces": 0,
+            "returnedHits": 0,
+            "armorLayersStripped": 0,
+            "bossDefeated": false,
+            "finalGauge": 83,
+            "trailPeak": 150,
+            "candidatePeak": 29253.762802124023
+          },
+          "changed": [
+            "score",
+            "enemiesDefeated",
+            "collates",
+            "captured",
+            "candidates",
+            "finalGauge",
+            "trailPeak",
+            "candidatePeak"
+          ],
+          "material": [
+            "collates:+12.5%",
+            "captured:-66.7%",
+            "candidates:+12.5%",
+            "finalGauge:-16.2%",
+            "trailPeak:+17.2%"
+          ]
+        }
+      }
+    },
+    "footnote": {
+      "family": "STROKE",
+      "outcomes": {
+        "combat": {
+          "outcome": {
+            "ticks": 7200,
+            "score": 31473,
+            "damage": 0,
+            "enemiesDefeated": 17,
+            "collates": 8,
+            "captured": 6,
+            "candidates": 8,
+            "annotatedShots": 222,
+            "retraces": 0,
+            "returnedHits": 0,
+            "armorLayersStripped": 0,
+            "bossDefeated": false,
+            "finalGauge": 99,
+            "trailPeak": 128,
+            "candidatePeak": 30268.45066833496
+          },
+          "changed": [],
+          "material": []
+        },
+        "boss": {
+          "outcome": {
+            "ticks": 3961,
+            "score": 31004,
+            "damage": 1,
+            "enemiesDefeated": 0,
+            "collates": 4,
+            "captured": 20,
+            "candidates": 4,
+            "annotatedShots": 77,
+            "retraces": 0,
+            "returnedHits": 15,
+            "armorLayersStripped": 3,
+            "bossDefeated": true,
+            "finalGauge": 100,
+            "trailPeak": 122,
+            "candidatePeak": 19415.541137695312
+          },
+          "changed": [],
+          "material": []
+        },
+        "recovery": {
+          "outcome": {
+            "ticks": 7200,
+            "score": 31473,
+            "damage": 1,
+            "enemiesDefeated": 17,
+            "collates": 8,
+            "captured": 6,
+            "candidates": 8,
+            "annotatedShots": 222,
+            "retraces": 0,
+            "returnedHits": 0,
+            "armorLayersStripped": 0,
+            "bossDefeated": false,
+            "finalGauge": 99,
+            "trailPeak": 128,
+            "candidatePeak": 30268.45066833496
+          },
+          "changed": [],
+          "material": []
+        }
+      }
+    },
+    "cross-reference": {
+      "family": "STROKE",
+      "outcomes": {
+        "combat": {
+          "outcome": {
+            "ticks": 7200,
+            "score": 31473,
+            "damage": 0,
+            "enemiesDefeated": 17,
+            "collates": 8,
+            "captured": 6,
+            "candidates": 8,
+            "annotatedShots": 222,
+            "retraces": 0,
+            "returnedHits": 0,
+            "armorLayersStripped": 0,
+            "bossDefeated": false,
+            "finalGauge": 99,
+            "trailPeak": 128,
+            "candidatePeak": 30268.45066833496
+          },
+          "changed": [],
+          "material": []
+        },
+        "boss": {
+          "outcome": {
+            "ticks": 3961,
+            "score": 31004,
+            "damage": 1,
+            "enemiesDefeated": 0,
+            "collates": 4,
+            "captured": 20,
+            "candidates": 4,
+            "annotatedShots": 77,
+            "retraces": 0,
+            "returnedHits": 15,
+            "armorLayersStripped": 3,
+            "bossDefeated": true,
+            "finalGauge": 100,
+            "trailPeak": 122,
+            "candidatePeak": 19415.541137695312
+          },
+          "changed": [],
+          "material": []
+        },
+        "recovery": {
+          "outcome": {
+            "ticks": 7200,
+            "score": 31473,
+            "damage": 1,
+            "enemiesDefeated": 17,
+            "collates": 8,
+            "captured": 6,
+            "candidates": 8,
+            "annotatedShots": 222,
+            "retraces": 0,
+            "returnedHits": 0,
+            "armorLayersStripped": 0,
+            "bossDefeated": false,
+            "finalGauge": 99,
+            "trailPeak": 128,
+            "candidatePeak": 30268.45066833496
+          },
+          "changed": [],
+          "material": []
+        }
+      }
+    },
+    "errata": {
+      "family": "STROKE",
+      "outcomes": {
+        "combat": {
+          "outcome": {
+            "ticks": 7200,
+            "score": 33330,
+            "damage": 0,
+            "enemiesDefeated": 15,
+            "collates": 11,
+            "captured": 3,
+            "candidates": 11,
+            "annotatedShots": 203,
+            "retraces": 0,
+            "returnedHits": 0,
+            "armorLayersStripped": 0,
+            "bossDefeated": false,
+            "finalGauge": 87,
+            "trailPeak": 128,
+            "candidatePeak": 30268.45066833496
+          },
+          "changed": [
+            "score",
+            "enemiesDefeated",
+            "collates",
+            "captured",
+            "candidates",
+            "annotatedShots",
+            "finalGauge"
+          ],
+          "material": [
+            "enemiesDefeated:-11.8%",
+            "collates:+37.5%",
+            "captured:-50.0%",
+            "candidates:+37.5%",
+            "finalGauge:-12.1%"
+          ]
+        },
+        "boss": {
+          "outcome": {
+            "ticks": 3961,
+            "score": 31004,
+            "damage": 1,
+            "enemiesDefeated": 0,
+            "collates": 4,
+            "captured": 20,
+            "candidates": 4,
+            "annotatedShots": 87,
+            "retraces": 0,
+            "returnedHits": 15,
+            "armorLayersStripped": 3,
+            "bossDefeated": true,
+            "finalGauge": 100,
+            "trailPeak": 122,
+            "candidatePeak": 19415.541137695312
+          },
+          "changed": [
+            "annotatedShots"
+          ],
+          "material": [
+            "annotatedShots:+13.0%"
+          ]
+        },
+        "recovery": {
+          "outcome": {
+            "ticks": 7200,
+            "score": 33330,
+            "damage": 1,
+            "enemiesDefeated": 15,
+            "collates": 11,
+            "captured": 3,
+            "candidates": 11,
+            "annotatedShots": 203,
+            "retraces": 0,
+            "returnedHits": 0,
+            "armorLayersStripped": 0,
+            "bossDefeated": false,
+            "finalGauge": 87,
+            "trailPeak": 128,
+            "candidatePeak": 30268.45066833496
+          },
+          "changed": [
+            "score",
+            "enemiesDefeated",
+            "collates",
+            "captured",
+            "candidates",
+            "annotatedShots",
+            "finalGauge"
+          ],
+          "material": [
+            "enemiesDefeated:-11.8%",
+            "collates:+37.5%",
+            "captured:-50.0%",
+            "candidates:+37.5%",
+            "finalGauge:-12.1%"
+          ]
+        }
+      }
+    },
+    "rubric": {
+      "family": "ANNOTATION",
+      "outcomes": {
+        "combat": {
+          "outcome": {
+            "ticks": 7200,
+            "score": 31033,
+            "damage": 0,
+            "enemiesDefeated": 14,
+            "collates": 10,
+            "captured": 8,
+            "candidates": 10,
+            "annotatedShots": 133,
+            "retraces": 0,
+            "returnedHits": 0,
+            "armorLayersStripped": 0,
+            "bossDefeated": false,
+            "finalGauge": 100,
+            "trailPeak": 128,
+            "candidatePeak": 31503.906562805176
+          },
+          "changed": [
+            "score",
+            "enemiesDefeated",
+            "collates",
+            "captured",
+            "candidates",
+            "annotatedShots",
+            "finalGauge",
+            "candidatePeak"
+          ],
+          "material": [
+            "enemiesDefeated:-17.6%",
+            "collates:+25.0%",
+            "captured:+33.3%",
+            "candidates:+25.0%",
+            "annotatedShots:-40.1%"
+          ]
+        },
+        "boss": {
+          "outcome": {
+            "ticks": 3961,
+            "score": 31004,
+            "damage": 1,
+            "enemiesDefeated": 0,
+            "collates": 4,
+            "captured": 20,
+            "candidates": 4,
+            "annotatedShots": 77,
+            "retraces": 0,
+            "returnedHits": 15,
+            "armorLayersStripped": 3,
+            "bossDefeated": true,
+            "finalGauge": 100,
+            "trailPeak": 122,
+            "candidatePeak": 19415.541137695312
+          },
+          "changed": [],
+          "material": []
+        },
+        "recovery": {
+          "outcome": {
+            "ticks": 7200,
+            "score": 31033,
+            "damage": 1,
+            "enemiesDefeated": 14,
+            "collates": 10,
+            "captured": 8,
+            "candidates": 10,
+            "annotatedShots": 133,
+            "retraces": 0,
+            "returnedHits": 0,
+            "armorLayersStripped": 0,
+            "bossDefeated": false,
+            "finalGauge": 100,
+            "trailPeak": 128,
+            "candidatePeak": 31503.906562805176
+          },
+          "changed": [
+            "score",
+            "enemiesDefeated",
+            "collates",
+            "captured",
+            "candidates",
+            "annotatedShots",
+            "finalGauge",
+            "candidatePeak"
+          ],
+          "material": [
+            "enemiesDefeated:-17.6%",
+            "collates:+25.0%",
+            "captured:+33.3%",
+            "candidates:+25.0%",
+            "annotatedShots:-40.1%"
+          ]
+        }
+      }
+    },
+    "gloss": {
+      "family": "ANNOTATION",
+      "outcomes": {
+        "combat": {
+          "outcome": {
+            "ticks": 7200,
+            "score": 30704,
+            "damage": 0,
+            "enemiesDefeated": 17,
+            "collates": 10,
+            "captured": 0,
+            "candidates": 11,
+            "annotatedShots": 220,
+            "retraces": 0,
+            "returnedHits": 0,
+            "armorLayersStripped": 0,
+            "bossDefeated": false,
+            "finalGauge": 75,
+            "trailPeak": 128,
+            "candidatePeak": 36355.41312408447
+          },
+          "changed": [
+            "score",
+            "collates",
+            "captured",
+            "candidates",
+            "annotatedShots",
+            "finalGauge",
+            "candidatePeak"
+          ],
+          "material": [
+            "collates:+25.0%",
+            "captured:-100.0%",
+            "candidates:+37.5%",
+            "finalGauge:-24.2%",
+            "candidatePeak:+20.1%"
+          ]
+        },
+        "boss": {
+          "outcome": {
+            "ticks": 3961,
+            "score": 31004,
+            "damage": 1,
+            "enemiesDefeated": 0,
+            "collates": 4,
+            "captured": 20,
+            "candidates": 4,
+            "annotatedShots": 77,
+            "retraces": 0,
+            "returnedHits": 15,
+            "armorLayersStripped": 3,
+            "bossDefeated": true,
+            "finalGauge": 100,
+            "trailPeak": 122,
+            "candidatePeak": 19415.541137695312
+          },
+          "changed": [],
+          "material": []
+        },
+        "recovery": {
+          "outcome": {
+            "ticks": 7200,
+            "score": 30704,
+            "damage": 1,
+            "enemiesDefeated": 17,
+            "collates": 10,
+            "captured": 0,
+            "candidates": 11,
+            "annotatedShots": 220,
+            "retraces": 0,
+            "returnedHits": 0,
+            "armorLayersStripped": 0,
+            "bossDefeated": false,
+            "finalGauge": 75,
+            "trailPeak": 128,
+            "candidatePeak": 36355.41312408447
+          },
+          "changed": [
+            "score",
+            "collates",
+            "captured",
+            "candidates",
+            "annotatedShots",
+            "finalGauge",
+            "candidatePeak"
+          ],
+          "material": [
+            "collates:+25.0%",
+            "captured:-100.0%",
+            "candidates:+37.5%",
+            "finalGauge:-24.2%",
+            "candidatePeak:+20.1%"
+          ]
+        }
+      }
+    },
+    "ligature": {
+      "family": "ANNOTATION",
+      "outcomes": {
+        "combat": {
+          "outcome": {
+            "ticks": 7200,
+            "score": 32064,
+            "damage": 0,
+            "enemiesDefeated": 16,
+            "collates": 9,
+            "captured": 8,
+            "candidates": 9,
+            "annotatedShots": 177,
+            "retraces": 0,
+            "returnedHits": 0,
+            "armorLayersStripped": 0,
+            "bossDefeated": false,
+            "finalGauge": 100,
+            "trailPeak": 128,
+            "candidatePeak": 30398.717056274414
+          },
+          "changed": [
+            "score",
+            "enemiesDefeated",
+            "collates",
+            "captured",
+            "candidates",
+            "annotatedShots",
+            "finalGauge",
+            "candidatePeak"
+          ],
+          "material": [
+            "collates:+12.5%",
+            "captured:+33.3%",
+            "candidates:+12.5%",
+            "annotatedShots:-20.3%"
+          ]
+        },
+        "boss": {
+          "outcome": {
+            "ticks": 3817,
+            "score": 29110,
+            "damage": 1,
+            "enemiesDefeated": 0,
+            "collates": 3,
+            "captured": 14,
+            "candidates": 3,
+            "annotatedShots": 77,
+            "retraces": 0,
+            "returnedHits": 14,
+            "armorLayersStripped": 3,
+            "bossDefeated": true,
+            "finalGauge": 100,
+            "trailPeak": 122,
+            "candidatePeak": 15793.255088806152
+          },
+          "changed": [
+            "ticks",
+            "score",
+            "collates",
+            "captured",
+            "candidates",
+            "returnedHits",
+            "candidatePeak"
+          ],
+          "material": [
+            "collates:-25.0%",
+            "captured:-30.0%",
+            "candidates:-25.0%",
+            "candidatePeak:-18.7%"
+          ]
+        },
+        "recovery": {
+          "outcome": {
+            "ticks": 7200,
+            "score": 32064,
+            "damage": 1,
+            "enemiesDefeated": 16,
+            "collates": 9,
+            "captured": 8,
+            "candidates": 9,
+            "annotatedShots": 177,
+            "retraces": 0,
+            "returnedHits": 0,
+            "armorLayersStripped": 0,
+            "bossDefeated": false,
+            "finalGauge": 100,
+            "trailPeak": 128,
+            "candidatePeak": 30398.717056274414
+          },
+          "changed": [
+            "score",
+            "enemiesDefeated",
+            "collates",
+            "captured",
+            "candidates",
+            "annotatedShots",
+            "finalGauge",
+            "candidatePeak"
+          ],
+          "material": [
+            "collates:+12.5%",
+            "captured:+33.3%",
+            "candidates:+12.5%",
+            "annotatedShots:-20.3%"
+          ]
+        }
+      }
+    },
+    "underline": {
+      "family": "ANNOTATION",
+      "outcomes": {
+        "combat": {
+          "outcome": {
+            "ticks": 7200,
+            "score": 27326,
+            "damage": 0,
+            "enemiesDefeated": 16,
+            "collates": 8,
+            "captured": 1,
+            "candidates": 8,
+            "annotatedShots": 211,
+            "retraces": 0,
+            "returnedHits": 0,
+            "armorLayersStripped": 0,
+            "bossDefeated": false,
+            "finalGauge": 79,
+            "trailPeak": 128,
+            "candidatePeak": 29267.05160522461
+          },
+          "changed": [
+            "score",
+            "enemiesDefeated",
+            "captured",
+            "annotatedShots",
+            "finalGauge",
+            "candidatePeak"
+          ],
+          "material": [
+            "score:-13.2%",
+            "captured:-83.3%",
+            "finalGauge:-20.2%"
+          ]
+        },
+        "boss": {
+          "outcome": {
+            "ticks": 3961,
+            "score": 31004,
+            "damage": 1,
+            "enemiesDefeated": 0,
+            "collates": 4,
+            "captured": 20,
+            "candidates": 4,
+            "annotatedShots": 77,
+            "retraces": 0,
+            "returnedHits": 15,
+            "armorLayersStripped": 3,
+            "bossDefeated": true,
+            "finalGauge": 100,
+            "trailPeak": 122,
+            "candidatePeak": 19415.541137695312
+          },
+          "changed": [],
+          "material": []
+        },
+        "recovery": {
+          "outcome": {
+            "ticks": 7200,
+            "score": 27326,
+            "damage": 1,
+            "enemiesDefeated": 16,
+            "collates": 8,
+            "captured": 1,
+            "candidates": 8,
+            "annotatedShots": 211,
+            "retraces": 0,
+            "returnedHits": 0,
+            "armorLayersStripped": 0,
+            "bossDefeated": false,
+            "finalGauge": 79,
+            "trailPeak": 128,
+            "candidatePeak": 29267.05160522461
+          },
+          "changed": [
+            "score",
+            "enemiesDefeated",
+            "captured",
+            "annotatedShots",
+            "finalGauge",
+            "candidatePeak"
+          ],
+          "material": [
+            "score:-13.2%",
+            "captured:-83.3%",
+            "finalGauge:-20.2%"
+          ]
+        }
+      }
+    },
+    "redaction": {
+      "family": "RECOVERY",
+      "outcomes": {
+        "combat": {
+          "outcome": {
+            "ticks": 7200,
+            "score": 31473,
+            "damage": 0,
+            "enemiesDefeated": 17,
+            "collates": 8,
+            "captured": 6,
+            "candidates": 8,
+            "annotatedShots": 222,
+            "retraces": 0,
+            "returnedHits": 0,
+            "armorLayersStripped": 0,
+            "bossDefeated": false,
+            "finalGauge": 99,
+            "trailPeak": 128,
+            "candidatePeak": 30268.45066833496
+          },
+          "changed": [],
+          "material": []
+        },
+        "boss": {
+          "outcome": {
+            "ticks": 3961,
+            "score": 31004,
+            "damage": 1,
+            "enemiesDefeated": 0,
+            "collates": 4,
+            "captured": 20,
+            "candidates": 4,
+            "annotatedShots": 77,
+            "retraces": 0,
+            "returnedHits": 15,
+            "armorLayersStripped": 3,
+            "bossDefeated": true,
+            "finalGauge": 100,
+            "trailPeak": 122,
+            "candidatePeak": 19415.541137695312
+          },
+          "changed": [],
+          "material": []
+        },
+        "recovery": {
+          "outcome": {
+            "ticks": 7200,
+            "score": 31473,
+            "damage": 1,
+            "enemiesDefeated": 17,
+            "collates": 8,
+            "captured": 6,
+            "candidates": 8,
+            "annotatedShots": 222,
+            "retraces": 0,
+            "returnedHits": 0,
+            "armorLayersStripped": 0,
+            "bossDefeated": false,
+            "finalGauge": 99,
+            "trailPeak": 128,
+            "candidatePeak": 30268.45066833496
+          },
+          "changed": [],
+          "material": []
+        }
+      }
+    },
+    "citation": {
+      "family": "RECOVERY",
+      "outcomes": {
+        "combat": {
+          "outcome": {
+            "ticks": 7200,
+            "score": 31473,
+            "damage": 0,
+            "enemiesDefeated": 17,
+            "collates": 8,
+            "captured": 6,
+            "candidates": 8,
+            "annotatedShots": 222,
+            "retraces": 0,
+            "returnedHits": 0,
+            "armorLayersStripped": 0,
+            "bossDefeated": false,
+            "finalGauge": 99,
+            "trailPeak": 128,
+            "candidatePeak": 30268.45066833496
+          },
+          "changed": [],
+          "material": []
+        },
+        "boss": {
+          "outcome": {
+            "ticks": 3831,
+            "score": 29113,
+            "damage": 1,
+            "enemiesDefeated": 0,
+            "collates": 3,
+            "captured": 14,
+            "candidates": 3,
+            "annotatedShots": 72,
+            "retraces": 0,
+            "returnedHits": 17,
+            "armorLayersStripped": 3,
+            "bossDefeated": true,
+            "finalGauge": 100,
+            "trailPeak": 122,
+            "candidatePeak": 15842.059196472168
+          },
+          "changed": [
+            "ticks",
+            "score",
+            "collates",
+            "captured",
+            "candidates",
+            "annotatedShots",
+            "returnedHits",
+            "candidatePeak"
+          ],
+          "material": [
+            "collates:-25.0%",
+            "captured:-30.0%",
+            "candidates:-25.0%",
+            "returnedHits:+13.3%",
+            "candidatePeak:-18.4%"
+          ]
+        },
+        "recovery": {
+          "outcome": {
+            "ticks": 7200,
+            "score": 31473,
+            "damage": 1,
+            "enemiesDefeated": 17,
+            "collates": 8,
+            "captured": 6,
+            "candidates": 8,
+            "annotatedShots": 222,
+            "retraces": 0,
+            "returnedHits": 0,
+            "armorLayersStripped": 0,
+            "bossDefeated": false,
+            "finalGauge": 99,
+            "trailPeak": 128,
+            "candidatePeak": 30268.45066833496
+          },
+          "changed": [],
+          "material": []
+        }
+      }
+    },
+    "palinode": {
+      "family": "RECOVERY",
+      "outcomes": {
+        "combat": {
+          "outcome": {
+            "ticks": 7200,
+            "score": 31473,
+            "damage": 0,
+            "enemiesDefeated": 17,
+            "collates": 8,
+            "captured": 6,
+            "candidates": 8,
+            "annotatedShots": 222,
+            "retraces": 0,
+            "returnedHits": 0,
+            "armorLayersStripped": 0,
+            "bossDefeated": false,
+            "finalGauge": 99,
+            "trailPeak": 128,
+            "candidatePeak": 30268.45066833496
+          },
+          "changed": [],
+          "material": []
+        },
+        "boss": {
+          "outcome": {
+            "ticks": 3961,
+            "score": 31004,
+            "damage": 1,
+            "enemiesDefeated": 0,
+            "collates": 4,
+            "captured": 20,
+            "candidates": 4,
+            "annotatedShots": 77,
+            "retraces": 0,
+            "returnedHits": 15,
+            "armorLayersStripped": 3,
+            "bossDefeated": true,
+            "finalGauge": 100,
+            "trailPeak": 122,
+            "candidatePeak": 19415.541137695312
+          },
+          "changed": [],
+          "material": []
+        },
+        "recovery": {
+          "outcome": {
+            "ticks": 7200,
+            "score": 31473,
+            "damage": 1,
+            "enemiesDefeated": 17,
+            "collates": 8,
+            "captured": 6,
+            "candidates": 8,
+            "annotatedShots": 222,
+            "retraces": 0,
+            "returnedHits": 0,
+            "armorLayersStripped": 0,
+            "bossDefeated": false,
+            "finalGauge": 99,
+            "trailPeak": 128,
+            "candidatePeak": 30268.45066833496
+          },
+          "changed": [],
+          "material": []
+        }
+      }
+    },
+    "afterword": {
+      "family": "RECOVERY",
+      "outcomes": {
+        "combat": {
+          "outcome": {
+            "ticks": 7200,
+            "score": 31473,
+            "damage": 0,
+            "enemiesDefeated": 17,
+            "collates": 8,
+            "captured": 6,
+            "candidates": 8,
+            "annotatedShots": 222,
+            "retraces": 0,
+            "returnedHits": 0,
+            "armorLayersStripped": 0,
+            "bossDefeated": false,
+            "finalGauge": 99,
+            "trailPeak": 128,
+            "candidatePeak": 30268.45066833496
+          },
+          "changed": [],
+          "material": []
+        },
+        "boss": {
+          "outcome": {
+            "ticks": 3961,
+            "score": 31004,
+            "damage": 1,
+            "enemiesDefeated": 0,
+            "collates": 4,
+            "captured": 20,
+            "candidates": 4,
+            "annotatedShots": 77,
+            "retraces": 0,
+            "returnedHits": 15,
+            "armorLayersStripped": 3,
+            "bossDefeated": true,
+            "finalGauge": 100,
+            "trailPeak": 122,
+            "candidatePeak": 19415.541137695312
+          },
+          "changed": [],
+          "material": []
+        },
+        "recovery": {
+          "outcome": {
+            "ticks": 7200,
+            "score": 31473,
+            "damage": 1,
+            "enemiesDefeated": 17,
+            "collates": 8,
+            "captured": 6,
+            "candidates": 8,
+            "annotatedShots": 222,
+            "retraces": 0,
+            "returnedHits": 0,
+            "armorLayersStripped": 0,
+            "bossDefeated": false,
+            "finalGauge": 99,
+            "trailPeak": 128,
+            "candidatePeak": 30268.45066833496
+          },
+          "changed": [],
+          "material": []
+        }
+      }
+    }
+  }
+}

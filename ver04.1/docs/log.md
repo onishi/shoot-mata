@@ -1,5 +1,12 @@
 # v4.1 Log
 
+## 2026-11-01 — v4.1-03 counterfactual計測基盤
+
+- 全12 MARGINALIAを単独装備し、通常戦・BLANK BAILIFF・同一post-hit frameの3条件でno-note baselineと比較する36ケースの自動証跡を追加した。
+- 比較はscore、被弾、撃破、COLLATE、捕捉、候補、注釈弾、RETRACE、ボス攻略、gauge、trail peakを記録し、10%以上の数値差またはzero baselineからの新規発生を抽出する。
+- seed 4410の60秒通常戦・被弾復帰ではRECOVERY 4種がbaselineと完全一致した。BLANK BAILIFFではCITATIONだけがreturned hitsを15から17（+13.3%）へ変え、REDACTION / PALINODE / AFTERWORDは無反応だった。
+- 新規counterfactual 1/1、単体78/78、counterfactualを含む全自動プレイ14/14、TypeScript型検査に合格した。全自動プレイの決定性hashを現行難易度プロファイルに対して再生成し、証跡を`evidence/v4.1-03-marginalia-counterfactual.md` / `.json`へ保存した。
+
 ## 2026-11-01 — v4.1-02 難易度差の再調整
 
 - 難易度パラメータを`DIFFICULTY_PRESSURE`へ集約し、ECHOは初弾・継続射撃・120tick予告・420tick無敵・被弾時全弾消去、PROOFは初弾・継続射撃・60tick予告・1.16倍射線幅で判断量を分けた。敵HP、弾速、ボス周期、攻略手順は変えていない。

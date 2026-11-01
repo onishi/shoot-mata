@@ -26,7 +26,7 @@
         "deluge": 25
       }
     },
-    "hash": "87ce880f52534cf7"
+    "hash": "97984adee32c0487"
   },
   "stitch": {
     "durationTicks": 6528,
@@ -58,9 +58,9 @@
         "deluge": 0
       }
     },
-    "hash": "45368e65bd2a2b13"
+    "hash": "d68a57fccb5de670"
   },
-  "replayHash": "45368e65bd2a2b13",
+  "replayHash": "d68a57fccb5de670",
   "gates": {
     "baselineDefeatsBoss": true,
     "stitchDefeatsBoss": true,

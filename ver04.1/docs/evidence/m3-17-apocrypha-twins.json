@@ -26,7 +26,7 @@
         "verdict": 11
       }
     },
-    "hash": "e8e31bbab17ea3fb"
+    "hash": "0967d0fe8058aa82"
   },
   "stitch": {
     "durationTicks": 2456,
@@ -58,9 +58,9 @@
         "verdict": 0
       }
     },
-    "hash": "e41c70701df51f66"
+    "hash": "44edb5792e473494"
   },
-  "replayHash": "e41c70701df51f66",
+  "replayHash": "44edb5792e473494",
   "gates": {
     "ordinaryFallbackDefeatsBoss": true,
     "stitchDefeatsBoss": true,
