@@ -370,3 +370,12 @@
 - simulation 1 tickは平均0.018ms、p95 0.032ms、最大1.518msで、基準0.8 / 1.5 / 4msをすべて下回った。最大同時敵8、敵弾42、敵・弾生成拒否0を`m4-05-simulation-performance.*`へ保存した。
 - `npm run verify`で単体74件、自動計測13件、性能計測1件、素材監査50 final・仮素材0、音量監査59素材、型検査、production build、Chrome E2E 20件に合格した。
 - 30seed計測の初期失敗は合格証拠にせず破棄した。次回は修正後の3難易度×30seed全通しを構成選択込みで再設計し、15〜25分、被弾、コンティニュー、候補選択率、面別・形態別時間を判定する。同時にChrome frame、long task、10分heapの残る性能ゲートを測る。
+
+## 2026-11-01 — M4-05後半 Chrome性能ゲート
+
+- Stage 6の鏡・統合区間からTHE LAST EDITOR入口までを固定Stitch入力で進めるChrome性能E2Eを追加した。CanvasのCPU描画を1,200frame、実時間60秒のlong task、入力から次描画、最重負荷を10回繰り返す10分相当のGC済みheapで測る。
+- 初回は同期render warmupで発生した185ms taskを`buffered: true`で計測窓へ混入させて失敗した。PerformanceObserverをwarmup後から開始し、過去entryを含めないよう修正して再計測した。
+- 全`npm run verify`時の表示frame CPUは平均0.063ms、p95 0.200ms、最大0.400msで8 / 12 / 25ms基準を下回った。入力から次描画0.600ms、60秒の50ms超long task 0、10分相当のGC済みheapは2,119,128から2,205,136 bytesへ4.06%増で15%未満となり、Chrome性能ゲートに合格した。
+- 3難易度×30seedの探索計測では既存Stitchが耐久0を無視していた問題を再確認し、実AppStateでは全走行がStage 1中に各2回の耐久3を使い切った。攻撃間隔や回復の推測調整は合格根拠にならなかったためすべて取り下げ、製品コードへ残していない。
+- 次回は画面内の危険と短期目標だけを使う通常クリア操縦を、耐久0停止・コンティニュー・中間/結果欄外注を含むAppState通しとして先に成立させる。その後3難易度×30seedで15〜25分、被弾、コンティニュー、選択率、面別・形態別時間を判定する。
+- `npm run verify`で単体74件、自動計測13件、simulation性能1件、素材監査50 final・仮素材0、音量監査59素材、型検査、production build、Chrome E2E 21件に合格した。

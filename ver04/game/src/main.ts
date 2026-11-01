@@ -221,6 +221,16 @@ Object.assign(window, {
     renderApp(ctx, app);
     return app.game.tick;
   },
+  __PALIMPSEST_RENDER_BENCHMARK__: (frames: number) => {
+    const count = Math.max(1, Math.min(3600, Math.floor(frames)));
+    const samples: number[] = [];
+    for (let index = 0; index < count; index += 1) {
+      const started = performance.now();
+      renderApp(ctx, app);
+      samples.push(performance.now() - started);
+    }
+    return samples;
+  },
   __PALIMPSEST_QA_SCENARIO__: (scenario: 'damage' | 'setpiece' | 'stage-02-combat' | 'stage-02-setpiece' | 'stage-03-combat' | 'stage-03-setpiece' | 'stage-03-boss' | 'stage-04-combat' | 'stage-04-setpiece' | 'stage-04-boss' | 'stage-05-combat' | 'stage-05-setpiece' | 'stage-05-boss' | 'stage-06-combat' | 'stage-06-setpiece' | 'stage-06-boss' | 'boss-gate' | 'boss-defeat' | 'stage-02-boss') => {
     if (app.screen !== 'playing') return app.screen;
     if (scenario === 'stage-06-boss') {
