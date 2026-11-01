@@ -89,12 +89,13 @@
 - `m3-26-ending.png`と`m3-26-campaign-result.png`を1280×720で目視し、6色の航跡が夜明けの署名輪へ収束する結末、6面の完走線、累積値、操作案内に文字切れ・重なりがないことを確認した。Stage 6の3ステムを結末用mixで再開し、画面遷移UI cueとTITLE帰還時の停止をChromeで確認した。
 - Stage 6の5航路統合・夜明け和音・THE LAST EDITOR危機ステムと6効果音は`final`として台帳登録済み。folio切替、Binding接続、Choir印付け穴、5規則校訂、署名輪成立、形態移行をsimulation eventから専用cueへ接続し、Stage 5→6切替、ポーズ停止・tick同期復帰に合格した。全59音素材は44.1kHz stereo PCM16、Stage 6最悪mixはリミッタ前peak -9.92 dBFS、NaN/clip 0だった。
 - M4-01でschema version・build version・stage・checkpoint・health・gauge・marginalia・score・seed・campaign・チェックサムを持つ保存を実装した。一時キー検証後の確定、破損・未知版の隔離、旧版キー分離、quota/security拒否時のメモリ継続と一度だけの警告に対応し、単体60件・Chrome E2E 17件を含む`npm run verify`に合格した。
+- M4-02でTITLE / PAUSEから入れるSETTINGS、BGM・SE 0〜100、画面揺れ、点滅軽減、ECHO / NORMAL / PROOFを実装した。設定はキャンペーンと独立したv4.0専用キーへ検証後に保存し、範囲外値の拒否、保存拒否時のメモリ適用、音bus即時反映に対応した。単体65件、自動計測12件、Chrome E2E 19件を含む検証に合格し、設定2画面を目視確認した。
 
 ## 次の最優先作業
 
-**M4-02: SETTINGS画面と設定保存を実装する。**
+**M4-03: 欄外注（成長）をキャンペーンへ接続する。**
 
-完了範囲は、TITLEとPAUSEから入れるSETTINGS、BGM・SEの個別0〜100、画面揺れ、点滅軽減、難易度、`palimpsest-wake:v4.0:settings`への独立保存を実装すること。設定だけの復元、範囲外値の拒否、保存拒否時のメモリ適用、音busへの即時反映を単体とChromeで検証する。
+設計済み12種から最初の実用的な縦切りとして、各Stageクリア時の3候補提示・1選択、取得済み欄外注のキャンペーン保持と保存復元、筆致・添え書き・回収の各系統が航跡・射撃・防御へ実際に作用する最小3種を実装する。通常射撃だけの単一最適解を避け、選択中のsimulation停止、キーボード操作、結果画面との遷移を単体・自動操縦・Chromeで検証する。
 
 ## v4.0完成ゲート
 

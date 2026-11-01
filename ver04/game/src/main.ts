@@ -13,6 +13,7 @@ import { STAGE_05_BOSS_START_TICK, STAGE_05_DURATION_TICKS, STAGE_05_SPAWNS } fr
 import { STAGE_06_BOSS_START_TICK, STAGE_06_SPAWNS } from './content/stage-06';
 import { StageOneAudio } from './audio/stage-01-audio';
 import { clearCampaign, loadCampaign, saveCampaign, type StorageLike } from './app/save';
+import { defaultSettings, loadSettings, saveSettings, type GameSettings } from './app/settings';
 
 const canvas = document.querySelector<HTMLCanvasElement>('#game');
 const status = document.querySelector<HTMLElement>('#status');
@@ -26,10 +27,17 @@ const browserStorage = (): StorageLike | null => {
 const storage = browserStorage();
 const loaded = storage ? loadCampaign(storage) : { status: 'unavailable' as const, state: null };
 let savedApp = loaded.state;
-let app = createAppState(404);
+const initialSettings = storage ? (loadSettings(storage) ?? defaultSettings()) : defaultSettings();
+let app = createAppState(404, initialSettings);
 app.saveAvailable = savedApp !== null;
 app.saveWarning = loaded.status === 'unavailable' || loaded.status === 'quarantined';
 const audio = new StageOneAudio();
+const applyAudioSettings = (settings: GameSettings): void => {
+  const bgm = settings.bgm / 100; const se = settings.se / 100;
+  audio.setBusLevel('music', bgm); audio.setBusLevel('environment', bgm);
+  audio.setBusLevel('se', se); audio.setBusLevel('ui', se);
+};
+applyAudioSettings(app.settings);
 let accumulator = 0;
 let previousTime = performance.now();
 const held = new Set<string>();
@@ -71,7 +79,7 @@ const persistCheckpoint = (): void => {
 
 const continueSavedVoyage = (): void => {
   if (!savedApp) return;
-  app = savedApp;
+  app = { ...savedApp, settings: app.settings };
   const refreshed = storage ? loadCampaign(storage) : null;
   if (refreshed?.state) savedApp = refreshed.state;
   app.saveAvailable = true; app.saveWarning = false;
@@ -79,18 +87,40 @@ const continueSavedVoyage = (): void => {
   held.clear(); pulses.collate = false; pulses.retrace = false; accumulator = 0;
 };
 
+const settingKeys: Array<keyof GameSettings> = ['bgm', 'se', 'screenShake', 'reducedFlash', 'difficulty'];
+const changeSetting = (direction: -1 | 1): void => {
+  const key = settingKeys[app.settingsIndex];
+  const settings = { ...app.settings };
+  if (key === 'bgm' || key === 'se') settings[key] = Math.max(0, Math.min(100, settings[key] + direction * 5));
+  else if (key === 'screenShake' || key === 'reducedFlash') settings[key] = !settings[key];
+  else {
+    const values: GameSettings['difficulty'][] = ['echo', 'normal', 'proof'];
+    settings.difficulty = values[(values.indexOf(settings.difficulty) + direction + values.length) % values.length];
+  }
+  app = { ...app, settings, settingsWarning: false };
+  applyAudioSettings(settings);
+  if (!storage || !saveSettings(storage, settings)) app.settingsWarning = true;
+  audio.playUi(false);
+};
+
 window.addEventListener('keydown', (event) => {
   void audio.ensureStarted();
   const { code } = event;
   if (!event.repeat) {
     if (app.screen === 'title' && code === 'KeyG') applyAction('guide');
+    else if (app.screen === 'title' && code === 'KeyS') applyAction('settings');
     else if (app.screen === 'title' && code === 'KeyC') continueSavedVoyage();
     else if (app.screen === 'title' && matches(code, ['Enter', 'Space', 'KeyN'])) applyAction('start');
     else if (app.screen === 'guide' && matches(code, ['Enter', 'Escape', 'Backspace'])) applyAction(code === 'Enter' ? 'confirm' : 'back');
+    else if (app.screen === 'settings' && matches(code, ['Escape', 'Backspace'])) applyAction('back');
+    else if (app.screen === 'settings' && code === 'ArrowUp') { app.settingsIndex = (app.settingsIndex + settingKeys.length - 1) % settingKeys.length; audio.playUi(false); }
+    else if (app.screen === 'settings' && code === 'ArrowDown') { app.settingsIndex = (app.settingsIndex + 1) % settingKeys.length; audio.playUi(false); }
+    else if (app.screen === 'settings' && matches(code, ['ArrowLeft', 'ArrowRight', 'Enter', 'Space'])) changeSetting(code === 'ArrowLeft' ? -1 : 1);
     else if (app.screen === 'stage-intro' && matches(code, ['Enter', 'Space'])) applyAction('confirm');
     else if (app.screen === 'stage-intro' && code === 'Escape') applyAction('back');
     else if (app.screen === 'playing' && matches(code, ['Escape', 'KeyP'])) applyAction('pause');
     else if (app.screen === 'paused' && matches(code, ['Escape', 'KeyP', 'Enter'])) applyAction(code === 'Enter' ? 'confirm' : 'pause');
+    else if (app.screen === 'paused' && code === 'KeyS') applyAction('settings');
     else if (app.screen === 'paused' && code === 'Backspace') applyAction('back');
     else if (app.screen === 'continue' && code === 'Enter') applyAction('confirm');
     else if (app.screen === 'continue' && code === 'Escape') applyAction('back');

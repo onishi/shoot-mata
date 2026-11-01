@@ -1,8 +1,9 @@
 import type { GameEvent, GameState, InputFrame, StageId } from '../core/types';
 import { copyState, createInitialState, step } from '../simulation/game';
+import { defaultSettings, type GameSettings } from './settings';
 
-export type AppScreen = 'title' | 'guide' | 'stage-intro' | 'playing' | 'paused' | 'continue' | 'result' | 'ending' | 'campaign-result';
-export type AppAction = 'start' | 'guide' | 'confirm' | 'back' | 'pause';
+export type AppScreen = 'title' | 'guide' | 'settings' | 'stage-intro' | 'playing' | 'paused' | 'continue' | 'result' | 'ending' | 'campaign-result';
+export type AppAction = 'start' | 'guide' | 'settings' | 'confirm' | 'back' | 'pause';
 export type CheckpointName =
   | 'harbor-entry' | 'bailiff-gate'
   | 'crosswind-entry' | 'compiler-gate'
@@ -20,6 +21,10 @@ export interface AppState {
   campaign: CampaignSummary;
   saveAvailable: boolean;
   saveWarning: boolean;
+  settings: GameSettings;
+  settingsReturn: 'title' | 'paused';
+  settingsIndex: number;
+  settingsWarning: boolean;
 }
 
 export interface CampaignSummary {
@@ -46,21 +51,21 @@ const nextStages: Partial<Record<StageId, StageId>> = {
   'stage-01': 'stage-02', 'stage-02': 'stage-03', 'stage-03': 'stage-04', 'stage-04': 'stage-05', 'stage-05': 'stage-06'
 };
 
-const beginStage = (stageId: StageId, seed: number, campaign: CampaignSummary): AppState => {
-  const game = createInitialState(seed || 404, stageId);
+const beginStage = (stageId: StageId, seed: number, campaign: CampaignSummary, settings: GameSettings): AppState => {
+  const game = createInitialState(seed || 404, stageId, settings.difficulty);
   return {
     screen: 'stage-intro', game, checkpoint: copyState(game),
     checkpointName: entryCheckpoints[stageId], continuesRemaining: 1, campaign,
-    saveAvailable: true, saveWarning: false
+    saveAvailable: true, saveWarning: false, settings, settingsReturn: 'title', settingsIndex: 0, settingsWarning: false
   };
 };
 
-export const createAppState = (seed = 404): AppState => {
-  const game = createInitialState(seed);
-  return { screen: 'title', game, checkpoint: copyState(game), checkpointName: 'harbor-entry', continuesRemaining: 1, campaign: emptyCampaign(), saveAvailable: false, saveWarning: false };
+export const createAppState = (seed = 404, settings: GameSettings = defaultSettings()): AppState => {
+  const game = createInitialState(seed, 'stage-01', settings.difficulty);
+  return { screen: 'title', game, checkpoint: copyState(game), checkpointName: 'harbor-entry', continuesRemaining: 1, campaign: emptyCampaign(), saveAvailable: false, saveWarning: false, settings, settingsReturn: 'title', settingsIndex: 0, settingsWarning: false };
 };
 
-const freshVoyage = (state: AppState): AppState => beginStage('stage-01', state.game.seed, emptyCampaign());
+const freshVoyage = (state: AppState): AppState => beginStage('stage-01', state.game.seed, emptyCampaign(), state.settings);
 
 const recordStage = (state: AppState): CampaignSummary => ({
   stagesCompleted: state.campaign.stagesCompleted + 1,
@@ -76,10 +81,15 @@ export const transition = (state: AppState, action: AppAction): AppState => {
   if (state.screen === 'title') {
     if (action === 'start' || action === 'confirm') return freshVoyage(state);
     if (action === 'guide') return { ...state, screen: 'guide' };
+    if (action === 'settings') return { ...state, screen: 'settings', settingsReturn: 'title', settingsIndex: 0 };
     return state;
   }
   if (state.screen === 'guide') {
     if (action === 'back' || action === 'confirm') return { ...state, screen: 'title' };
+    return state;
+  }
+  if (state.screen === 'settings') {
+    if (action === 'back') return { ...state, screen: state.settingsReturn };
     return state;
   }
   if (state.screen === 'stage-intro') {
@@ -89,6 +99,7 @@ export const transition = (state: AppState, action: AppAction): AppState => {
   }
   if (state.screen === 'playing') return action === 'pause' ? { ...state, screen: 'paused' } : state;
   if (state.screen === 'paused') {
+    if (action === 'settings') return { ...state, screen: 'settings', settingsReturn: 'paused', settingsIndex: 0 };
     if (action === 'pause' || action === 'confirm') return { ...state, screen: 'playing' };
     if (action === 'back') return { ...state, screen: 'title' };
     return state;
@@ -113,7 +124,7 @@ export const transition = (state: AppState, action: AppAction): AppState => {
     if (action === 'confirm') {
       const nextStage = nextStages[state.game.stageId];
       const campaign = recordStage(state);
-      return nextStage ? beginStage(nextStage, state.game.seed, campaign) : { ...state, screen: 'ending', campaign };
+      return nextStage ? beginStage(nextStage, state.game.seed, campaign, state.settings) : { ...state, screen: 'ending', campaign };
     }
   }
   if (state.screen === 'ending') {
@@ -126,7 +137,7 @@ export const transition = (state: AppState, action: AppAction): AppState => {
 
 export const advance = (state: AppState, input: InputFrame = {}): { state: AppState; events: GameEvent[] } => {
   if (state.screen !== 'playing') return { state, events: [] };
-  const result = step(state.game, input);
+  const result = step(state.game, input, state.settings.difficulty);
   let next: AppState = { ...state, game: result.state };
   if (result.events.some((event) => event.type === 'boss-spawned')) {
     next = { ...next, checkpoint: copyState(result.state), checkpointName: bossCheckpoints[result.state.stageId] };

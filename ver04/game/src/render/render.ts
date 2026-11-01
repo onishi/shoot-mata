@@ -22,7 +22,7 @@ const diamond = (ctx: CanvasRenderingContext2D, x: number, y: number, radius: nu
   ctx.closePath();
 };
 
-export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: boolean): void => {
+export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: boolean, reducedFlash = false): void => {
   const stageVisuals = visuals[state.stageId];
   ctx.fillStyle = '#071121';
   ctx.fillRect(0, 0, WIDTH, HEIGHT);
@@ -135,7 +135,7 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
     ctx.closePath();
     ctx.fillStyle = 'rgba(122, 244, 255, 0.09)';
     ctx.fill();
-    ctx.strokeStyle = `rgba(252, 209, 112, ${0.72 + Math.sin(state.tick / 10) * 0.22})`;
+    ctx.strokeStyle = `rgba(252, 209, 112, ${reducedFlash ? 0.82 : 0.72 + Math.sin(state.tick / 10) * 0.22})`;
     ctx.lineWidth = 8;
     ctx.setLineDash([20, 10]);
     ctx.stroke();
@@ -530,6 +530,7 @@ const renderScreen = (ctx: CanvasRenderingContext2D, app: AppState, screen: Excl
     line(ctx, 'ENTER / N', 428, '#7895a7', 15);
     line(ctx, app.saveAvailable ? 'C  CONTINUE SAVE' : 'CONTINUE SAVE · NO RECORD', 474, app.saveAvailable ? '#a8f7ff' : '#526b7b', 18);
     line(ctx, 'G  GUIDE', 520, '#adc2cf', 19);
+    line(ctx, 'S  SETTINGS', 558, '#adc2cf', 19);
     line(ctx, 'v4.0 · COMPLETE CAMPAIGN', 650, '#667f91', 14);
   } else if (screen === 'guide') {
     title(ctx, 'HOW TO WRITE THE WAKE', 120, 38);
@@ -538,6 +539,25 @@ const renderScreen = (ctx: CanvasRenderingContext2D, app: AppState, screen: Excl
     line(ctx, 'COLLATE', 395, '#f4c36a', 18); line(ctx, 'X / K · close a loop and return the fire caught inside', 428);
     line(ctx, 'RETRACE', 490, '#f4c36a', 18); line(ctx, 'C / L · spend 25 gauge to escape backward along the wake', 523);
     line(ctx, 'ENTER / ESC  RETURN', 625, '#a8f7ff', 18);
+  } else if (screen === 'settings') {
+    title(ctx, 'SETTINGS', 115, 42);
+    line(ctx, app.settingsReturn === 'paused' ? 'VOYAGE PAUSED' : 'BEFORE THE VOYAGE', 154, '#f4c36a', 14);
+    const rows = [
+      ['BGM', `${app.settings.bgm}%`], ['SE', `${app.settings.se}%`],
+      ['SCREEN SHAKE', app.settings.screenShake ? 'ON' : 'OFF'],
+      ['REDUCED FLASH', app.settings.reducedFlash ? 'ON' : 'OFF'],
+      ['DIFFICULTY', app.settings.difficulty.toUpperCase()]
+    ];
+    rows.forEach(([label, value], index) => {
+      const y = 238 + index * 68; const selected = index === app.settingsIndex;
+      if (selected) { ctx.fillStyle = 'rgba(97,225,239,.11)'; ctx.fillRect(330, y - 34, 620, 49); }
+      ctx.textAlign = 'left'; ctx.fillStyle = selected ? '#eafbff' : '#94adba'; ctx.font = `${selected ? 700 : 500} 20px system-ui, sans-serif`; ctx.fillText(`${selected ? '›' : ' '}  ${label}`, 370, y);
+      ctx.textAlign = 'right'; ctx.fillStyle = selected ? '#a8f7ff' : '#7895a7'; ctx.fillText(`‹  ${value}  ›`, 910, y);
+    });
+    ctx.textAlign = 'center';
+    line(ctx, '↑ ↓ SELECT   ·   ← → / ENTER CHANGE', 612, '#a8f7ff', 17);
+    line(ctx, 'ESC / BACKSPACE  RETURN', 650, '#7895a7', 15);
+    if (app.settingsWarning) line(ctx, 'SETTINGS SAVE UNAVAILABLE · CHANGES APPLY THIS SESSION', 690, '#ffb39d', 14);
   } else if (screen === 'stage-intro') {
     const stageCopy = {
       'stage-01': { number: 1, entry: 'THE ERASED HARBOR', gate: 'THE SEALED LEDGER', boss: 'BLANK BAILIFF',
@@ -562,7 +582,8 @@ const renderScreen = (ctx: CanvasRenderingContext2D, app: AppState, screen: Excl
   } else if (screen === 'paused') {
     title(ctx, 'PAUSED', 338, 54);
     line(ctx, 'ESC / P / ENTER  return to the wake', 390);
-    line(ctx, 'BACKSPACE  abandon voyage', 430, '#7895a7', 15);
+    line(ctx, 'S  settings', 430, '#a8f7ff', 17);
+    line(ctx, 'BACKSPACE  abandon voyage', 470, '#7895a7', 15);
   } else if (screen === 'continue') {
     title(ctx, app.continuesRemaining > 0 ? 'THE WAKE BREAKS' : 'VOYAGE ERASED', 270, 52, '#ffad91');
     const checkpointLabels: Record<AppState['checkpointName'], string> = {
@@ -629,6 +650,15 @@ const renderScreen = (ctx: CanvasRenderingContext2D, app: AppState, screen: Excl
 };
 
 export const renderApp = (ctx: CanvasRenderingContext2D, app: AppState): void => {
-  render(ctx, app.game, false);
+  ctx.save();
+  if (app.screen === 'playing' && app.settings.screenShake) {
+    const sinceDamage = app.game.player.invulnerableUntil - app.game.tick;
+    if (sinceDamage > 104 && sinceDamage <= (app.settings.difficulty === 'echo' ? 192 : 132)) {
+      const strength = Math.min(5, (sinceDamage - 104) / 5);
+      ctx.translate(Math.sin(app.game.tick * 2.3) * strength, Math.cos(app.game.tick * 1.7) * strength);
+    }
+  }
+  render(ctx, app.game, false, app.settings.reducedFlash);
+  ctx.restore();
   if (app.screen !== 'playing') renderScreen(ctx, app, app.screen);
 };

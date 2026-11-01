@@ -332,3 +332,13 @@
 - `m4-01-title-save.png`と`m4-01-save-unavailable.png`を1280×720で目視し、タイトル選択肢と警告に文字切れ・重なりがないことを確認した。
 - `npm run verify`で単体60件、自動計測12件、素材監査50 final・仮素材0、音量監査59素材、型検査、production build、Chrome E2E 17件に合格した。保存再読込、ボス前復帰、破損隔離、旧版分離、SecurityError後のメモリ進行をChromeで確認した。
 - 次回はM4-02として、TITLEとPAUSEから入れるSETTINGS、BGM・SE、画面揺れ、点滅軽減、難易度と設定独立保存を実装する。
+
+## 2026-11-01 — M4-02 SETTINGSと独立設定保存
+
+- TITLEとPAUSEの両方から入れるSETTINGSを追加し、BGM、SE、画面揺れ、点滅軽減、ECHO / NORMAL / PROOFをキーボードだけで変更できるようにした。PAUSEから戻った場合はsimulation tickを進めずPAUSEへ復帰する。
+- `palimpsest-wake:v4.0:settings`専用モジュールを追加し、一時キーの読戻し後に確定する。破損JSON、範囲外音量、未知難易度は既定値へ拒否し、キャンペーン保存と互いに読書きしない。
+- BGMをmusic / environment、SEをse / ui busへ知覚カーブで即時反映した。画面揺れOFFは被弾直後の局所揺れを止め、点滅軽減はCOLLATE候補の周期輝度を固定する。保存拒否時は変更をメモリへ残し、セッション限定であることを画面へ表示する。
+- ECHOは航跡寿命4.0秒・被弾無敵1.6秒、NORMALは既存値、PROOFは予告と弾速を維持し通常敵の初回攻撃間隔を18%短縮する。難易度は新規Stageと進行中simulationへ設定から適用する。
+- `m4-02-settings.png`と`m4-02-settings-unavailable.png`を1280×720で目視し、5項目、選択状態、値、操作案内、保存不能警告に文字切れ・重なりがないことを確認した。
+- 単体65件、自動計測12件、素材監査50 final・仮素材0、音量監査59素材、型検査、production buildに合格した。sandbox内のChrome preview bindは`EPERM 127.0.0.1:4174`で一度停止したが、許可済み実行経路でChrome E2E 19件に合格した。
+- 次回はM4-03として、設計済みなのに未接続の欄外注をStage結果へ接続し、成長選択・保存復元・simulation効果を実装する。

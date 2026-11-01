@@ -1,5 +1,5 @@
 import { clamp, distanceSq, pointInPolygon } from '../core/math';
-import { HEIGHT, SCALE, TICK_RATE, WIDTH, type BossState, type Bullet, type Enemy, type EnemyKind, type GameEvent, type GameState, type InputFrame, type Point, type StageId } from '../core/types';
+import { HEIGHT, SCALE, TICK_RATE, WIDTH, type BossState, type Bullet, type Difficulty, type Enemy, type EnemyKind, type GameEvent, type GameState, type InputFrame, type Point, type StageId } from '../core/types';
 import { stageDefinition } from '../content/campaign';
 import { STAGE_01_BOSS_START_TICK, STAGE_01_DURATION_TICKS, type StageEnemySpawn } from '../content/stage-01';
 import { STAGE_02_BOSS_START_TICK, STAGE_02_WIND_HALF_CYCLE_TICKS } from '../content/stage-02';
@@ -10,7 +10,7 @@ import { STAGE_06_BOSS_START_TICK, stageSixActiveRule, stageSixFolio } from '../
 import { findLoopCandidate, shotCrossedTrail, shotCrossedWetTrail, shouldAddTrailPoint } from './trail';
 
 const PLAYER_SPEED = Math.round(320 * SCALE / TICK_RATE);
-const TRAIL_LIFETIME = Math.round(3.2 * TICK_RATE);
+const trailLifetime = (difficulty: Difficulty): number => Math.round((difficulty === 'echo' ? 4 : 3.2) * TICK_RATE);
 const PLAYER_RADIUS = 13;
 export const PLAYGROUND_DURATION_TICKS = STAGE_01_DURATION_TICKS;
 
@@ -23,7 +23,7 @@ const nextRandom = (state: GameState): number => {
   return state.seed / 0x100000000;
 };
 
-const createEnemy = (state: GameState, encounter: StageEnemySpawn): Enemy => {
+const createEnemy = (state: GameState, encounter: StageEnemySpawn, difficulty: Difficulty = 'normal'): Enemy => {
   const stage = stageDefinition(state.stageId);
   const phaseJitter = Math.floor(nextRandom(state) * 180);
   const cooldownJitter = Math.floor(nextRandom(state) * 30);
@@ -32,14 +32,14 @@ const createEnemy = (state: GameState, encounter: StageEnemySpawn): Enemy => {
     x: encounter.x * SCALE, y: encounter.y * SCALE,
     health: encounter.health, maxHealth: encounter.health,
     markedUntil: 0,
-    fireCooldown: ({
+    fireCooldown: Math.round((({
       'eraser-mite': 72, 'bracket-gull': 150, 'margin-skiff': 120, 'folio-hauler': 100,
       'index-kite': 108, 'vane-scribe': 132, 'cross-reference-pair': 144, 'tab-binder': 96,
       'drip-scribe': 90, 'gutter-frog': 132, 'basin-bell': 180, 'reed-needle': 120,
       'ash-comma': 96, 'kiln-censor': 150, 'ember-courier': 126, 'char-press': 180,
       'mirror-mote': 102, 'quotation-ram': 132, 'false-witness': 144, 'silver-obelisk': 180,
       'binding-wasp': 114, 'revision-hound': 138, 'null-choir': 168, 'archive-palanquin': 192
-    }[encounter.kind]) + cooldownJitter,
+    }[encounter.kind]) + cooldownJitter) * (difficulty === 'proof' ? 0.82 : 1)),
     radius: ({
       'eraser-mite': 17, 'bracket-gull': 25, 'margin-skiff': 30, 'folio-hauler': 58,
       'index-kite': 21, 'vane-scribe': 31, 'cross-reference-pair': 27, 'tab-binder': 56,
@@ -82,7 +82,7 @@ const emptyEnemyStats = (): GameState['metrics']['enemyStats'] => ({
   , 'archive-palanquin': { spawned: 0, attacks: 0, defeated: 0, exited: 0 }
 });
 
-export const createInitialState = (seed = 1, stageId: StageId = 'stage-01'): GameState => {
+export const createInitialState = (seed = 1, stageId: StageId = 'stage-01', difficulty: Difficulty = 'normal'): GameState => {
   const stage = stageDefinition(stageId);
   const state: GameState = {
   stageId,
@@ -119,7 +119,7 @@ export const createInitialState = (seed = 1, stageId: StageId = 'stage-01'): Gam
   };
   else for (const kind of ['binding-wasp', 'revision-hound', 'null-choir', 'archive-palanquin'] as const) delete state.metrics.enemyStats[kind];
   if (stage.spawns[0]?.tick === 0) {
-    state.enemies.push(createEnemy(state, stage.spawns[0]));
+    state.enemies.push(createEnemy(state, stage.spawns[0], difficulty));
     state.metrics.enemyStats[stage.spawns[0].kind].spawned += 1;
     state.encounterIndex = 1;
   }
@@ -522,12 +522,12 @@ const updateBoss = (state: GameState, events: GameEvent[]): void => {
   }
 };
 
-const spawnDueEncounters = (state: GameState): void => {
+const spawnDueEncounters = (state: GameState, difficulty: Difficulty): void => {
   const stage = stageDefinition(state.stageId);
   while (state.encounterIndex < stage.spawns.length && stage.spawns[state.encounterIndex].tick <= state.tick) {
     const encounter = stage.spawns[state.encounterIndex];
     if (state.enemies.length < stage.entityLimits.enemies) {
-      state.enemies.push(createEnemy(state, encounter));
+      state.enemies.push(createEnemy(state, encounter, difficulty));
       state.metrics.enemyStats[encounter.kind].spawned += 1;
     } else state.metrics.rejectedEnemies += 1;
     state.encounterIndex += 1;
@@ -1115,7 +1115,7 @@ const collate = (state: GameState, events: GameEvent[]): void => {
   events.push({ type: 'loop-collated', captured: selected.length, area: candidate.area });
 };
 
-export const step = (previous: GameState, input: InputFrame): { state: GameState; events: GameEvent[] } => {
+export const step = (previous: GameState, input: InputFrame, difficulty: Difficulty = 'normal'): { state: GameState; events: GameEvent[] } => {
   const state = copyState(previous);
   const events: GameEvent[] = [];
   state.tick += 1;
@@ -1137,11 +1137,11 @@ export const step = (previous: GameState, input: InputFrame): { state: GameState
   applyCrosswind(state, events);
   updatePlayer(state, input, events);
 
-  spawnDueEncounters(state);
+  spawnDueEncounters(state, difficulty);
   updateBoss(state, events);
 
   applyHeat(state, events);
-  state.trail = state.trail.filter((point) => state.tick - point.bornTick <= TRAIL_LIFETIME || (point.cooledUntil ?? 0) >= state.tick);
+  state.trail = state.trail.filter((point) => state.tick - point.bornTick <= trailLifetime(difficulty) || (point.cooledUntil ?? 0) >= state.tick);
   applyRain(state, events);
   if (state.candidate?.expiresTick && state.candidate.expiresTick < state.tick) state.candidate = null;
   if (!state.retrace && shouldAddTrailPoint(state.trail, state.player, state.tick)) {
@@ -1427,7 +1427,7 @@ export const step = (previous: GameState, input: InputFrame): { state: GameState
     } else if (!bullet.illusory && !state.retrace && state.player.invulnerableUntil < state.tick
       && distanceSq(bullet, state.player) <= ((bullet.radius + PLAYER_RADIUS) * SCALE) ** 2) {
       state.player.health = Math.max(0, state.player.health - 1);
-      state.player.invulnerableUntil = state.tick + 132;
+      state.player.invulnerableUntil = state.tick + (difficulty === 'echo' ? 192 : 132);
       // Compiler pressure displaces the pilot but does not erase writing; its
       // boss lesson is completing a wind-bent loop, not restarting one after
       // every graze. Erasure remains a property of the Bailiff and Mites.

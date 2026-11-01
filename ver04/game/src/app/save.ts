@@ -1,5 +1,6 @@
 import type { AppState, CampaignSummary, CheckpointName } from './app';
 import type { GameState, StageId } from '../core/types';
+import { defaultSettings } from './settings';
 
 export const SAVE_KEY = 'palimpsest-wake:v4.0:save';
 export const SAVE_TEMP_KEY = `${SAVE_KEY}:temporary`;
@@ -112,7 +113,8 @@ const decode = (raw: string): AppState | null => {
   return {
     screen: 'stage-intro', game, checkpoint: game, checkpointName: checkpoint,
     continuesRemaining: body.continuesRemaining, campaign: body.campaign,
-    saveAvailable: true, saveWarning: false
+    saveAvailable: true, saveWarning: false,
+    settings: defaultSettings(), settingsReturn: 'title', settingsIndex: 0, settingsWarning: false
   };
 };
 

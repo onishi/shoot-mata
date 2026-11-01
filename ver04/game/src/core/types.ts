@@ -2,6 +2,7 @@ export const SCALE = 256;
 export const WIDTH = 1280;
 export const HEIGHT = 720;
 export const TICK_RATE = 120;
+export type Difficulty = 'echo' | 'normal' | 'proof';
 
 export interface Point { x: number; y: number }
 export interface TrailPoint extends Point { bornTick: number; segmentId: number; wetUntil?: number; cooledUntil?: number }
