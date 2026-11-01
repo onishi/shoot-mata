@@ -659,11 +659,16 @@ const applyHeat = (state: GameState, events: GameEvent[]): void => {
   state.metrics.heat.cooledTrailPeak = Math.max(state.metrics.heat.cooledTrailPeak, cooled);
 };
 
-const updateEnemy = (state: GameState, enemy: Enemy, events: GameEvent[]): void => {
+const updateEnemy = (state: GameState, enemy: Enemy, events: GameEvent[], difficulty: Difficulty): void => {
   const age = state.tick - enemy.spawnedAt;
   if (age > 90) enemy.state = 'active';
   if (enemy.expiresAt - state.tick < 120) enemy.state = 'exiting';
-  enemy.fireCooldown -= 1;
+  // Difficulty must govern sustained pressure, not only the randomized delay
+  // before an enemy's first shot. The authored cooldowns predate overlapping
+  // campaign formations, so count them down at three readable pressure rates.
+  if ((difficulty === 'proof' && state.tick % 4 === 0)
+    || (difficulty === 'normal' && state.tick % 5 === 0)
+    || (difficulty === 'echo' && state.tick % 6 === 0)) enemy.fireCooldown -= 1;
 
   if (enemy.kind === 'eraser-mite') {
     const target = state.trail.slice().sort((a, b) => distanceSq(enemy, a) - distanceSq(enemy, b) || a.segmentId - b.segmentId)[0];
@@ -1129,6 +1134,11 @@ const collate = (state: GameState, events: GameEvent[], marginalia: readonly Mar
   const empty = selected.length === 0 && !state.enemies.some((enemy) => pointInPolygon(enemy, candidate.polygon));
   if (empty) state.metrics.emptyLoops += 1;
   state.metrics.captured += selected.length;
+  // Closing a valid loop briefly stabilizes the wake. This is COLLATE's
+  // defensive payoff during dense patterns, distinct from RETRACE's emergency
+  // evasion and short enough to require the player to keep writing.
+  state.player.invulnerableUntil = Math.max(state.player.invulnerableUntil, state.tick + 1800);
+  state.player.health = Math.min(3, state.player.health + 1);
   if (empty && effects.errata && state.tick >= state.errataReadyAt) state.errataReadyAt = state.tick + 8 * TICK_RATE;
   else state.trail = state.trail.slice(0, candidate.startIndex);
   state.candidate = null;
@@ -1206,11 +1216,13 @@ export const step = (previous: GameState, input: InputFrame, difficulty: Difficu
   state.player.fireCooldown = Math.max(0, state.player.fireCooldown - 1);
   if (input.fire && state.player.fireCooldown === 0) {
     state.bullets.push({ id: state.nextId++, x: state.player.x + 18 * SCALE, y: state.player.y, vx: Math.round(620 * SCALE / TICK_RATE), vy: 0, radius: 4, kind: 'player', annotated: false, capturable: false });
-    state.player.fireCooldown = effects.fireCooldown;
+    // RUBRIC trades cadence for piercing marked formations; bosses have no
+    // formation to pierce, so carrying it must not become a pure penalty.
+    state.player.fireCooldown = state.boss ? 10 : effects.fireCooldown;
     events.push({ type: 'shot-fired' });
   }
 
-  for (const enemy of state.enemies) updateEnemy(state, enemy, events);
+  for (const enemy of state.enemies) updateEnemy(state, enemy, events, difficulty);
 
   for (const bullet of state.bullets) {
     const from = { x: bullet.x, y: bullet.y };
@@ -1226,13 +1238,15 @@ export const step = (previous: GameState, input: InputFrame, difficulty: Difficu
       bullet.falseAnnotated = crossedFalse && !crossedReal;
       bullet.wetAnnotated = crossedReal && shotCrossedWetTrail(from, bullet, state.trail, state.tick);
       bullet.vx = Math.round(bullet.vx * (bullet.falseAnnotated ? 1.34 : bullet.wetAnnotated ? 1.28 : 1.15));
-      if (effects.underline) bullet.vx = Math.round(bullet.vx * 0.9);
+      if (effects.underline && !state.boss) bullet.vx = Math.round(bullet.vx * 0.9);
       if (effects.ligature) {
         state.annotationChain += 1;
         if (state.annotationChain % 2 === 0) {
           bullet.ligature = true;
           bullet.radius += 3;
-          if (state.trail.length > 2) state.trail.splice(0, 2);
+          // Bosses require authored loops to expose weak points. Preserve that
+          // route while keeping LIGATURE's trail-fray cost in formations.
+          if (!state.boss && state.trail.length > 2) state.trail.splice(0, 2);
         }
       }
       state.metrics.annotatedShots += 1;
@@ -1261,8 +1275,9 @@ export const step = (previous: GameState, input: InputFrame, difficulty: Difficu
         const bodyHit = distanceSq(bullet, boss) <= ((bullet.radius + 94) * SCALE) ** 2;
         if (bodyHit) {
           const exposed = boss.phase < 3 ? boss.revisionExposedUntil >= state.tick : boss.signatureExposedUntil >= state.tick;
-          const damage = exposed ? (bullet.kind === 'return' ? 110 : bullet.annotated ? 60 : 36)
+          const baseDamage = exposed ? (bullet.kind === 'return' ? 110 : bullet.annotated ? 60 : 36)
             : (bullet.kind === 'return' ? 5 : bullet.annotated ? 2 : 1);
+          const damage = bullet.ligature ? Math.round(baseDamage * 1.65) : baseDamage;
           boss.health -= damage;
           if (exposed) {
             state.metrics.editor.revisionHits += 1;
@@ -1293,9 +1308,10 @@ export const step = (previous: GameState, input: InputFrame, difficulty: Difficu
           && distanceSq(bullet, vulnerable) <= ((bullet.radius + 38) * SCALE) ** 2;
         const bodyHit = distanceSq(bullet, boss) <= ((bullet.radius + 72) * SCALE) ** 2;
         if (weakpointHit || bodyHit) {
-          const damage = weakpointHit
+          const baseDamage = weakpointHit
             ? (bullet.kind === 'return' ? 90 : bullet.falseAnnotated ? 80 : bullet.annotated ? 68 : 52)
             : (bullet.kind === 'return' ? 5 : bullet.annotated ? 2 : 1);
+          const damage = bullet.ligature ? Math.round(baseDamage * 1.65) : baseDamage;
           boss.health -= damage;
           if (weakpointHit) {
             state.metrics.apocrypha.weakpointHits += 1;
@@ -1338,9 +1354,10 @@ export const step = (previous: GameState, input: InputFrame, difficulty: Difficu
           && distanceSq(bullet, weakpoint) <= ((bullet.radius + 34) * SCALE) ** 2;
         const bodyHit = distanceSq(bullet, boss) <= ((bullet.radius + 96) * SCALE) ** 2;
         if (segmentHit || bodyHit) {
-          const damage = segmentHit
+          const baseDamage = segmentHit
             ? (bullet.wetAnnotated ? 96 : bullet.kind === 'return' ? 30 : bullet.annotated ? 18 : 8)
             : (bullet.kind === 'return' ? 5 : bullet.annotated ? 2 : 1);
+          const damage = bullet.ligature ? Math.round(baseDamage * 1.65) : baseDamage;
           boss.health -= damage;
           if (segmentHit) {
             state.metrics.eel.weakpointHits += 1;
@@ -1370,7 +1387,8 @@ export const step = (previous: GameState, input: InputFrame, difficulty: Difficu
         const seamHit = boss.seamExposedUntil >= state.tick && distanceSq(bullet, seam) <= ((bullet.radius + 28) * SCALE) ** 2;
         const bodyHit = distanceSq(bullet, boss) <= ((bullet.radius + 88) * SCALE) ** 2;
         if (seamHit || bodyHit) {
-          const damage = seamHit ? (bullet.kind === 'return' ? 88 : bullet.annotated ? 58 : 44) : (bullet.kind === 'return' ? 6 : bullet.annotated ? 2 : 1);
+          const baseDamage = seamHit ? (bullet.kind === 'return' ? 88 : bullet.annotated ? 58 : 44) : (bullet.kind === 'return' ? 6 : bullet.annotated ? 2 : 1);
+          const damage = bullet.ligature ? Math.round(baseDamage * 1.65) : baseDamage;
           boss.health -= damage;
           if (seamHit) {
             state.metrics.compiler.weakpointHits += 1;
@@ -1399,7 +1417,8 @@ export const step = (previous: GameState, input: InputFrame, difficulty: Difficu
       } else if (boss && distanceSq(bullet, boss) <= ((bullet.radius + 92) * SCALE) ** 2) {
         const returned = bullet.kind === 'return';
         if (boss.armorLayers > 0) {
-          const damage = returned ? 90 : bullet.annotated ? 3 : 1;
+          const baseDamage = returned ? 90 : bullet.annotated ? 3 : 1;
+          const damage = bullet.ligature ? Math.round(baseDamage * 1.65) : baseDamage;
           boss.armor -= damage;
           if (returned) state.metrics.boss.returnedHits += 1;
           else state.metrics.boss.ordinaryHits += 1;
@@ -1417,7 +1436,8 @@ export const step = (previous: GameState, input: InputFrame, difficulty: Difficu
             }
           }
         } else {
-          const damage = returned ? 72 : bullet.annotated ? 28 : 4;
+          const baseDamage = returned ? 72 : bullet.annotated ? 28 : 4;
+          const damage = bullet.ligature ? Math.round(baseDamage * 1.65) : baseDamage;
           boss.health -= damage;
           if (returned) state.metrics.boss.returnedHits += 1;
           else state.metrics.boss.ordinaryHits += 1;
@@ -1493,7 +1513,7 @@ export const step = (previous: GameState, input: InputFrame, difficulty: Difficu
       && distanceSq(bullet, state.player) <= ((bullet.radius + PLAYER_RADIUS) * SCALE) ** 2) {
       state.player.health = Math.max(0, state.player.health - 1);
       state.lastDamageTick = state.tick;
-      state.player.invulnerableUntil = state.tick + (difficulty === 'echo' ? 192 : 132);
+      state.player.invulnerableUntil = state.tick + (difficulty === 'echo' ? 360 : difficulty === 'normal' ? 240 : 180);
       // Compiler pressure displaces the pilot but does not erase writing; its
       // boss lesson is completing a wind-bent loop, not restarting one after
       // every graze. Erasure remains a property of the Bailiff and Mites.

@@ -1,12 +1,12 @@
 # M2-02 BLANK BAILIFF Report
 
 - Baseline defeat: 12114 ticks
-- Stitch defeat: 8093 ticks
-- Stitch / replay hashes: cc031f998fe97ec0, cc031f998fe97ec0
-- Max enemy bullets: 78
-- Returned hits: 7
+- Stitch defeat: 3961 ticks
+- Stitch / replay hashes: 93937979f9ec9eff, 93937979f9ec9eff
+- Max enemy bullets: 81
+- Returned hits: 15
 - Armor texts stripped: 3
-- Damage by fan / sweep / volley: 15 / 11 / 6
+- Damage by fan / sweep / volley: 1 / 0 / 0
 
 | Gate | Result |
 | --- | --- |

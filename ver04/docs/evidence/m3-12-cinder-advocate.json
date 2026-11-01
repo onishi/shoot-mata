@@ -21,46 +21,46 @@
         "verdict": 73
       },
       "damageByAttack": {
-        "ember": 25,
-        "gavel": 22,
+        "ember": 19,
+        "gavel": 16,
         "verdict": 12
       }
     },
-    "hash": "833d051f8a77954d"
+    "hash": "680cb1cd687e45e8"
   },
   "stitch": {
-    "durationTicks": 3422,
+    "durationTicks": 2505,
     "phaseTicks": [
       0,
       1177,
-      2531
+      1904
     ],
-    "maxEnemyBullets": 51,
+    "maxEnemyBullets": 49,
     "advocate": {
-      "embersThrown": 20,
+      "embersThrown": 14,
       "embersCooled": 12,
-      "cooledHits": 10,
-      "wallBlocks": 185,
-      "wallActiveTicks": 3423,
+      "cooledHits": 11,
+      "wallBlocks": 173,
+      "wallActiveTicks": 2506,
       "phaseReached": [
         true,
         true,
         true
       ],
       "attacks": {
-        "ember": 20,
-        "gavel": 11,
-        "verdict": 10
+        "ember": 14,
+        "gavel": 6,
+        "verdict": 7
       },
       "damageByAttack": {
-        "ember": 5,
-        "gavel": 4,
-        "verdict": 3
+        "ember": 1,
+        "gavel": 0,
+        "verdict": 0
       }
     },
-    "hash": "186b0d4583c3920b"
+    "hash": "8f7ae987999a866d"
   },
-  "replayHash": "186b0d4583c3920b",
+  "replayHash": "8f7ae987999a866d",
   "gates": {
     "ordinaryFallbackDefeatsBoss": true,
     "stitchDefeatsBoss": true,

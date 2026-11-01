@@ -3,49 +3,49 @@
   "durationTicks": 23400,
   "scheduledSpawns": 65,
   "seed": 3301,
-  "finalHash": "43ebbe4d8d861791",
+  "finalHash": "f8fa2d7db7e2bb67",
   "replayHashes": [
-    "43ebbe4d8d861791",
-    "43ebbe4d8d861791",
-    "43ebbe4d8d861791"
+    "f8fa2d7db7e2bb67",
+    "f8fa2d7db7e2bb67",
+    "f8fa2d7db7e2bb67"
   ],
-  "maxEnemies": 8,
-  "maxEnemyBullets": 44,
+  "maxEnemies": 6,
+  "maxEnemyBullets": 14,
   "maxCombatGapTicks": 1,
   "stats": {
     "drip-scribe": {
       "spawned": 26,
-      "attacks": 194,
-      "defeated": 14,
-      "exited": 12
+      "attacks": 33,
+      "defeated": 21,
+      "exited": 5
     },
     "gutter-frog": {
       "spawned": 17,
-      "attacks": 93,
-      "defeated": 13,
-      "exited": 4
+      "attacks": 16,
+      "defeated": 15,
+      "exited": 2
     },
     "basin-bell": {
       "spawned": 7,
-      "attacks": 48,
+      "attacks": 7,
       "defeated": 6,
       "exited": 1
     },
     "reed-needle": {
       "spawned": 15,
-      "attacks": 114,
-      "defeated": 6,
-      "exited": 9
+      "attacks": 12,
+      "defeated": 13,
+      "exited": 2
     }
   },
   "rain": {
     "drops": 1300,
-    "trailPointsWetted": 1458,
-    "wetTrailPeak": 121,
-    "wetAnnotatedShots": 148,
-    "wetDamage": 846,
-    "basinSurges": 48,
-    "needleDashes": 114
+    "trailPointsWetted": 2894,
+    "wetTrailPeak": 118,
+    "wetAnnotatedShots": 203,
+    "wetDamage": 1710,
+    "basinSurges": 7,
+    "needleDashes": 12
   },
   "rejectedEnemies": 0,
   "rejectedEnemyBullets": 0,

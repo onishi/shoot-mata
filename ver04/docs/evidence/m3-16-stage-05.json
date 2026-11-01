@@ -3,52 +3,52 @@
   "durationTicks": 25200,
   "scheduledSpawns": 70,
   "seed": 3501,
-  "finalHash": "e8177df19eeeed33",
+  "finalHash": "b1098ffeb33bc9c0",
   "replayHashes": [
-    "e8177df19eeeed33",
-    "e8177df19eeeed33",
-    "e8177df19eeeed33"
+    "b1098ffeb33bc9c0",
+    "b1098ffeb33bc9c0",
+    "b1098ffeb33bc9c0"
   ],
   "maxEnemies": 10,
-  "maxEnemyBullets": 66,
-  "maxCombatGapTicks": 200,
-  "maxCombatGapStartTick": 1960,
-  "maxCombatGapEndTick": 2159,
+  "maxEnemyBullets": 24,
+  "maxCombatGapTicks": 170,
+  "maxCombatGapStartTick": 2350,
+  "maxCombatGapEndTick": 2519,
   "stats": {
     "mirror-mote": {
       "spawned": 29,
-      "attacks": 222,
-      "defeated": 9,
-      "exited": 20
+      "attacks": 36,
+      "defeated": 13,
+      "exited": 16
     },
     "quotation-ram": {
       "spawned": 18,
-      "attacks": 169,
-      "defeated": 8,
-      "exited": 10
+      "attacks": 25,
+      "defeated": 7,
+      "exited": 11
     },
     "false-witness": {
       "spawned": 17,
-      "attacks": 167,
-      "defeated": 4,
-      "exited": 13
+      "attacks": 26,
+      "defeated": 7,
+      "exited": 10
     },
     "silver-obelisk": {
       "spawned": 6,
-      "attacks": 79,
+      "attacks": 17,
       "defeated": 0,
       "exited": 6
     }
   },
   "mirror": {
     "falseTrailPeak": 127,
-    "falseAnnotations": 80,
-    "falseLoopRejections": 20078,
-    "illusoryShots": 984,
-    "moteEchoes": 222,
-    "ramCharges": 169,
-    "witnessMixes": 167,
-    "obeliskReflections": 79
+    "falseAnnotations": 105,
+    "falseLoopRejections": 24317,
+    "illusoryShots": 172,
+    "moteEchoes": 36,
+    "ramCharges": 25,
+    "witnessMixes": 26,
+    "obeliskReflections": 17
   },
   "rejectedEnemies": 0,
   "rejectedEnemyBullets": 0,

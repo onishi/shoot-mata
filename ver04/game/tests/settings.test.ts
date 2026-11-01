@@ -68,10 +68,23 @@ describe('M4 independent settings persistence', () => {
     const hit = createInitialState(404);
     hit.bullets = [{ id: hit.nextId++, x: hit.player.x, y: hit.player.y, vx: 0, vy: 0, radius: 8, kind: 'enemy', annotated: false, capturable: true }];
     const echoHit = step(hit, {}, 'echo').state;
-    expect(echoHit.player.invulnerableUntil - echoHit.tick).toBe(192);
+    expect(echoHit.player.invulnerableUntil - echoHit.tick).toBe(360);
 
     const normalOpening = createInitialState(404, 'stage-01', 'normal').enemies[0];
     const proofOpening = createInitialState(404, 'stage-01', 'proof').enemies[0];
     expect(proofOpening.fireCooldown).toBeLessThan(normalOpening.fireCooldown);
+
+    normalOpening.fireCooldown = 12;
+    proofOpening.fireCooldown = 12;
+    normal.enemies = [normalOpening];
+    const proof = createInitialState(404, 'stage-01', 'proof');
+    proof.enemies = [proofOpening];
+    let sustainedNormal = normal;
+    let sustainedProof = proof;
+    for (let tick = 0; tick < 20; tick += 1) {
+      sustainedNormal = step(sustainedNormal, {}, 'normal').state;
+      sustainedProof = step(sustainedProof, {}, 'proof').state;
+    }
+    expect(sustainedProof.enemies[0].fireCooldown).toBeLessThan(sustainedNormal.enemies[0].fireCooldown);
   });
 });

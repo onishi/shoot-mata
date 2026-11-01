@@ -5,9 +5,9 @@
 - Wind locks / locked ticks: 3 / 659
 - Weakpoint hits: 24
 - Gust / lance / storm attacks: 5 / 15 / 2
-- Gust / lance / storm damage: 3 / 4 / 1
-- Max enemy bullets: 31
-- Stitch / replay hashes: 487fb789f0f2ffc1, 487fb789f0f2ffc1
+- Gust / lance / storm damage: 2 / 0 / 0
+- Max enemy bullets: 32
+- Stitch / replay hashes: 57f1ab36c09a8ecd, 57f1ab36c09a8ecd
 
 | Gate | Result |
 | --- | --- |

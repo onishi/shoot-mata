@@ -4,11 +4,11 @@
 - Stitch defeat: 2456 ticks
 - Phase 2 / 3 arrival: 841 / 1455 ticks
 - Sync breaks / broken ticks: 3 / 363
-- Weakpoint / ordinary hits: 20 / 105
+- Weakpoint / ordinary hits: 20 / 106
 - Position exchanges: 11
 - Testimony / cross-exam / verdict attacks: 7 / 5 / 11
-- Max enemy bullets: 112
-- Stitch / replay hashes: 5ce46e51d43ef219, 5ce46e51d43ef219
+- Max enemy bullets: 115
+- Stitch / replay hashes: e41c70701df51f66, e41c70701df51f66
 
 | Gate | Result |
 | --- | --- |

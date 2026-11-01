@@ -87,7 +87,7 @@ export const marginaliaCount = (owned: readonly MarginaliaId[], id: MarginaliaId
 export const marginaliaEffects = (owned: readonly MarginaliaId[]) => ({
   trailLifetimeBonus: marginaliaCount(owned, 'longhand') * 0.7,
   gaugeCap: Math.max(40, 100 - marginaliaCount(owned, 'longhand') * 10),
-  fireCooldown: 10 + marginaliaCount(owned, 'rubric') * 3,
+  fireCooldown: 10 + Math.min(1, marginaliaCount(owned, 'rubric')) * 3,
   rubric: marginaliaCount(owned, 'rubric') > 0,
   footnote: marginaliaCount(owned, 'footnote') > 0,
   crossReference: marginaliaCount(owned, 'cross-reference') > 0,

@@ -2,18 +2,18 @@
 
 - Duration: 21600 ticks (180 seconds)
 - Scheduled spawns: 74
-- Max enemies / enemy bullets: 10 / 56
+- Max enemies / enemy bullets: 8 / 26
 - Longest no-combat gap: 1 ticks
 - Wind reversals: 29
-- COLLATE left / right / near reversal: 5 / 3 / 6
-- Determinism hashes: 878e9a8435401e73, 878e9a8435401e73, 878e9a8435401e73, 878e9a8435401e73
+- COLLATE left / right / near reversal: 12 / 16 / 12
+- Determinism hashes: 80767234ba624f32, 80767234ba624f32, 80767234ba624f32, 80767234ba624f32
 
 | Enemy | Spawned | Attacks | Defeated | Exited |
 | --- | ---: | ---: | ---: | ---: |
-| index-kite | 27 | 196 | 7 | 20 |
-| vane-scribe | 17 | 133 | 5 | 12 |
-| cross-reference-pair | 28 | 227 | 10 | 18 |
-| tab-binder | 2 | 15 | 2 | 0 |
+| index-kite | 27 | 34 | 9 | 18 |
+| vane-scribe | 17 | 19 | 12 | 5 |
+| cross-reference-pair | 28 | 36 | 20 | 8 |
+| tab-binder | 2 | 2 | 2 | 0 |
 
 | Gate | Result |
 | --- | --- |

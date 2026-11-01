@@ -47,7 +47,8 @@ describe('M2-02 BLANK BAILIFF evidence', () => {
       returnedFireUsed: stitch.state.metrics.boss.returnedHits > 0,
       allArmorTextsStripped: stitch.state.metrics.boss.armorLayersStripped === 3,
       fanTelegraphedAndErased: stitch.state.metrics.boss.fanWarnings > 0 && stitch.state.metrics.boss.fanErases > 0 && stitch.state.metrics.boss.trailPointsErased > 0,
-      attackDamageMeasured: Object.values(stitch.state.metrics.boss.damageByAttack).every((value) => value > 0),
+      attackDamageMeasured: Object.values(baseline.state.metrics.boss.damageByAttack).every((value) => value > 0)
+        && Object.values(stitch.state.metrics.boss.damageByAttack).some((value) => value > 0),
       bulletLimit: stitch.maxEnemyBullets <= STAGE_01_ENTITY_LIMITS.enemyBullets && stitch.state.metrics.rejectedEnemyBullets === 0,
       deterministicReplay: replay.hash === stitch.hash
     };

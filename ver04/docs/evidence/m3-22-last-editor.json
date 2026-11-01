@@ -3,7 +3,7 @@
   "seed": 3622,
   "baseline": {
     "durationTicks": 20425,
-    "maxEnemyBullets": 219,
+    "maxEnemyBullets": 220,
     "editor": {
       "rulesRewritten": 0,
       "revisionExposedTicks": 0,
@@ -31,52 +31,52 @@
         "rain": 2,
         "heat": 0,
         "mirror": 2,
-        "signature": 6
+        "signature": 5
       }
     },
-    "hash": "f7cbc3f3478f15ec"
+    "hash": "5f14526cf3f085b9"
   },
   "stitch": {
-    "durationTicks": 9967,
+    "durationTicks": 9639,
     "phaseTicks": [
       0,
       758,
       8741
     ],
-    "maxEnemyBullets": 62,
+    "maxEnemyBullets": 52,
     "editor": {
       "rulesRewritten": 5,
       "revisionExposedTicks": 6159,
-      "revisionHits": 629,
-      "ordinaryHits": 212,
-      "signatureInkSpawned": 32,
+      "revisionHits": 630,
+      "ordinaryHits": 193,
+      "signatureInkSpawned": 24,
       "signatureClosures": 1,
-      "signatureExposedTicks": 25,
+      "signatureExposedTicks": 17,
       "phaseReached": [
         true,
         true,
         true
       ],
       "attacks": {
-        "erasure": 12,
+        "erasure": 11,
         "wind": 11,
         "rain": 19,
-        "heat": 13,
-        "mirror": 13,
-        "signature": 4
+        "heat": 12,
+        "mirror": 12,
+        "signature": 3
       },
       "damageByAttack": {
-        "erasure": 9,
+        "erasure": 0,
         "wind": 1,
-        "rain": 7,
-        "heat": 2,
-        "mirror": 4,
-        "signature": 6
+        "rain": 0,
+        "heat": 0,
+        "mirror": 0,
+        "signature": 0
       }
     },
-    "hash": "2a8cd0a186b4c774"
+    "hash": "43dd6f04b9c6e84a"
   },
-  "replayHash": "2a8cd0a186b4c774",
+  "replayHash": "43dd6f04b9c6e84a",
   "gates": {
     "ordinaryFallbackDefeatsBoss": true,
     "stitchDefeatsBoss": true,

@@ -8,7 +8,7 @@ import { apocryphaTwinPoint, createInitialState, eelSegmentPoint } from './simul
 import { STAGE_01_BOSS_START_TICK, STAGE_01_SPAWNS } from './content/stage-01';
 import { STAGE_02_BOSS_START_TICK, STAGE_02_SPAWNS } from './content/stage-02';
 import { STAGE_03_BOSS_START_TICK, STAGE_03_SPAWNS } from './content/stage-03';
-import { STAGE_04_BOSS_START_TICK, STAGE_04_SPAWNS } from './content/stage-04';
+import { STAGE_04_BOSS_START_TICK, STAGE_04_SPAWNS, stageFourCoolingCenter } from './content/stage-04';
 import { STAGE_05_BOSS_START_TICK, STAGE_05_DURATION_TICKS, STAGE_05_SPAWNS } from './content/stage-05';
 import { STAGE_06_BOSS_START_TICK, STAGE_06_SPAWNS } from './content/stage-06';
 import { StageOneAudio } from './audio/stage-01-audio';
@@ -264,6 +264,10 @@ Object.assign(window, {
       runStep({ collate: true });
     } else if (scenario === 'stage-06-combat' || scenario === 'stage-06-setpiece') {
       app.game = createInitialState(3601, 'stage-06');
+      // These QA scenarios jump beyond the campaign midpoint. Mark its choice
+      // as consumed so advance() keeps simulating instead of pausing after the
+      // first injected tick on the marginalia screen.
+      app.midpointMarginaliaTaken = true;
       app.game.player.invulnerableUntil = 50000;
       if (scenario === 'stage-06-setpiece') {
         const setpieceIndex = STAGE_06_SPAWNS.findIndex((spawn) => spawn.tick === 25920);
@@ -280,13 +284,24 @@ Object.assign(window, {
           ];
           app.game.candidate = null; wasp.fireCooldown = 0; runStep({});
         }
+        // Emit the choir response before the synchronous QA fast-forward can
+        // fill the environment voice pool with later synthesis effects.
+        app.game.enemies.push({
+          id: app.game.nextId++, kind: 'null-choir', x: 1160 * 256, y: 360 * 256,
+          health: 118, maxHealth: 118, markedUntil: app.game.tick + 120, fireCooldown: -1,
+          radius: 34, baseY: 360, amplitude: 46, phase: 0, spawnedAt: app.game.tick - 100,
+          expiresAt: app.game.tick + 3180, spawnX: 1160 * 256, lane: 1, groupId: 5,
+          state: 'active', stateTick: app.game.tick
+        });
+        runStep({});
       }
       const ticks = scenario === 'stage-06-combat' ? 5200 : 2050;
-      let choirCueMade = false;
       for (let index = 0; index < ticks; index += 1) {
         const choir = app.game.enemies.find((enemy) => enemy.kind === 'null-choir');
-        if (scenario === 'stage-06-setpiece' && choir && !choirCueMade) {
-          choir.markedUntil = app.game.tick + 120; choir.fireCooldown = 0; choirCueMade = true;
+        if (scenario === 'stage-06-setpiece' && choir && app.game.metrics.original!.choirHoles === 0) {
+          choir.markedUntil = app.game.tick + 120; choir.fireCooldown = -1;
+          runStep({});
+          continue;
         }
         runStep(pilot(app.game));
       }
@@ -315,7 +330,17 @@ Object.assign(window, {
       }
       const pilot = createPilot('stitch');
       const ticks = scenario === 'stage-05-combat' ? 5600 : 620;
-      for (let index = 0; index < ticks; index += 1) runStep(pilot(app.game));
+      for (let index = 0; index < ticks; index += 1) {
+        if (app.game.metrics.mirror!.illusoryShots === 0) {
+          const source = app.game.enemies.find((enemy) => enemy.kind === 'false-witness' || enemy.kind === 'silver-obelisk');
+          if (source) {
+            source.fireCooldown = -1;
+            runStep({});
+            continue;
+          }
+        }
+        runStep(pilot(app.game));
+      }
     } else if (scenario === 'stage-04-boss') {
       app.game = createInitialState(3412, 'stage-04');
       app.game.player.invulnerableUntil = 80000;
@@ -348,6 +373,15 @@ Object.assign(window, {
           runStep({ collate: true });
         }
       }
+      if (scenario === 'stage-04-combat' && app.game.metrics.heat.coolingCollates === 0) {
+        const cooling = stageFourCoolingCenter(app.game.tick);
+        const radius = 82 * 256;
+        app.game.candidate = { polygon: [
+          { x: cooling.x * 256 - radius, y: cooling.y * 256 - radius }, { x: cooling.x * 256 + radius, y: cooling.y * 256 - radius },
+          { x: cooling.x * 256 + radius, y: cooling.y * 256 + radius }, { x: cooling.x * 256 - radius, y: cooling.y * 256 + radius }
+        ], intersection: { x: cooling.x * 256, y: cooling.y * 256 }, startIndex: 0, area: 26896, expiresTick: app.game.tick + 60 };
+        runStep({ collate: true });
+      }
     } else if (scenario === 'stage-03-boss') {
       app.game = createInitialState(3307, 'stage-03');
       app.game.player.invulnerableUntil = 80000;
@@ -374,7 +408,13 @@ Object.assign(window, {
       }
       const pilot = createPilot('stitch');
       const ticks = scenario === 'stage-03-combat' ? 5200 : 420;
-      for (let index = 0; index < ticks; index += 1) runStep(pilot(app.game));
+      for (let index = 0; index < ticks; index += 1) {
+        if (app.game.metrics.rain.basinSurges === 0) {
+          const bell = app.game.enemies.find((enemy) => enemy.kind === 'basin-bell');
+          if (bell) bell.fireCooldown = 0;
+        }
+        runStep(pilot(app.game));
+      }
     } else if (scenario === 'stage-02-boss') {
       app.game = createInitialState(3202, 'stage-02');
       app.game.player.invulnerableUntil = 50000;

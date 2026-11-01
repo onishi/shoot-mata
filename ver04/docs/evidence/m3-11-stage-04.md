@@ -2,18 +2,18 @@
 
 - Duration: 23400 ticks (195 seconds)
 - Scheduled spawns: 65
-- Max enemies / enemy bullets: 9 / 72
+- Max enemies / enemy bullets: 8 / 22
 - Longest no-combat gap: 1 ticks
-- Burned / cooled trail points: 740 / 3610
-- Cooling COLLATE / courier conversions: 4 / 6
-- Determinism hashes: 7e121323071c3309, 7e121323071c3309, 7e121323071c3309, 7e121323071c3309
+- Burned / cooled trail points: 790 / 3517
+- Cooling COLLATE / courier conversions: 3 / 8
+- Determinism hashes: bd7ce9035f96be2d, bd7ce9035f96be2d, bd7ce9035f96be2d, bd7ce9035f96be2d
 
 | Enemy | Spawned | Attacks | Defeated | Exited |
 | --- | ---: | ---: | ---: | ---: |
-| ash-comma | 26 | 235 | 6 | 20 |
-| kiln-censor | 17 | 132 | 10 | 7 |
-| ember-courier | 16 | 132 | 4 | 12 |
-| char-press | 6 | 57 | 4 | 2 |
+| ash-comma | 26 | 45 | 8 | 18 |
+| kiln-censor | 17 | 21 | 13 | 4 |
+| ember-courier | 16 | 18 | 13 | 3 |
+| char-press | 6 | 9 | 5 | 1 |
 
 | Gate | Result |
 | --- | --- |

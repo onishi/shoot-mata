@@ -26,11 +26,13 @@ describe('M2 application flow', () => {
     expect(app.screen).toBe('marginalia');
     expect(app.marginaliaMoment).toBe('midpoint');
     const stoppedTick = app.game.tick;
+    app.game.player.health = 1;
     expect(advance(app).state.game.tick).toBe(stoppedTick);
     app = transition(app, 'confirm');
     expect(app.screen).toBe('playing');
     expect(app.midpointMarginaliaTaken).toBe(true);
     expect(app.marginalia).toHaveLength(1);
+    expect(app.game.player.health).toBe(3);
     app = advance(app).state;
     expect(app.game.tick).toBe(stoppedTick + 1);
   });

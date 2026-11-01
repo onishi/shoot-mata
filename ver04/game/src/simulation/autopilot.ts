@@ -1,5 +1,5 @@
 import { distanceSq, pointInPolygon, px } from '../core/math';
-import { type GameState, type InputFrame, type Point } from '../core/types';
+import { HEIGHT, SCALE, WIDTH, type GameState, type InputFrame, type Point } from '../core/types';
 import { apocryphaTwinPoint, eelSegmentPoint } from './game';
 import { stageFourCoolingCenter } from '../content/stage-04';
 
@@ -122,9 +122,11 @@ export const createPilot = (name: PilotName): ((state: GameState) => InputFrame)
     if (state.candidate) {
       if (candidateSeenAt === 0) candidateSeenAt = state.tick;
       const targets = countCandidateTargets(state);
-      const shouldCollate = name === 'stitch'
+      const signatureReady = state.boss?.kind !== 'last-editor' || state.boss.phase !== 3
+        || state.bullets.filter((bullet) => bullet.signatureInk && pointInPolygon(bullet, state.candidate!.polygon)).length >= 5;
+      const shouldCollate = signatureReady && (name === 'stitch'
         || (name === 'safe' && targets > 0)
-        || (name === 'sweep' && (targets >= 2 || state.tick - candidateSeenAt >= 42));
+        || (name === 'sweep' && (targets >= 2 || state.tick - candidateSeenAt >= 42)));
       if (shouldCollate) {
         const coolsAdvocateEmber = state.boss?.kind === 'cinder-advocate'
           && state.bullets.some((bullet) => bullet.sourceAttack === 'advocate-ember' && pointInPolygon(bullet, state.candidate!.polygon));
@@ -187,9 +189,10 @@ export const createPilot = (name: PilotName): ((state: GameState) => InputFrame)
       const courierTarget = state.stageId === 'stage-04' && loopSequence % 4 === 0
         ? state.enemies.find((enemy) => enemy.kind === 'ember-courier') ?? null : null;
       const twinsTarget = state.boss?.kind === 'apocrypha-twins' && state.boss.syncBrokenUntil < state.tick ? state.boss : null;
+      const signatureInk = state.bullets.filter((bullet) => bullet.signatureInk);
       const signatureTarget = state.boss?.kind === 'last-editor' && state.boss.phase === 3
         && state.boss.signatureExposedUntil < state.tick
-        && state.bullets.some((bullet) => bullet.signatureInk) ? { x: px(780), y: px(360) } : null;
+        && signatureInk.length >= 5 ? { x: px(780), y: px(360) } : null;
       const editorTarget = state.boss?.kind === 'last-editor' && !editorExposed ? state.boss : null;
       const loopTarget = name === 'stitch' ? (compilerVane ?? eelWeakpoint ?? advocateEmber ?? twinsTarget ?? signatureTarget ?? editorTarget ?? courierTarget ?? coolingTarget) : null;
       const advocateCenterOffset = advocateEmber ? px(45) : 0;
@@ -201,8 +204,8 @@ export const createPilot = (name: PilotName): ((state: GameState) => InputFrame)
       // Leave headroom inside the 3.2 second trail lifetime for reaction delay
       // and quantized corner arrival.
       const enclosesTwins = Boolean(twinsTarget);
-      const halfWidth = px(signatureTarget ? 148 : enclosesTwins ? 112 : advocateEmber ? 95 : editorTarget ? 118 : loopTarget ? 75 : name === 'safe' ? 75 : name === 'stitch' ? 100 : 115);
-      const halfHeight = px(signatureTarget ? 100 : enclosesTwins ? 126 : advocateEmber ? 58 : editorTarget ? 86 : loopTarget ? 55 : name === 'safe' ? 55 : name === 'stitch' ? 75 : 90);
+      const halfWidth = px(signatureTarget ? 152 : enclosesTwins ? 112 : advocateEmber ? 95 : editorTarget ? 118 : loopTarget ? 75 : name === 'safe' ? 75 : name === 'stitch' ? 100 : 115);
+      const halfHeight = px(signatureTarget ? 102 : enclosesTwins ? 126 : advocateEmber ? 58 : editorTarget ? 86 : loopTarget ? 55 : name === 'safe' ? 55 : name === 'stitch' ? 75 : 90);
       waypoints = [
         { x: centerX - halfWidth, y: centerY - halfHeight },
         { x: centerX + halfWidth, y: centerY - halfHeight },
@@ -228,6 +231,103 @@ export const createPilot = (name: PilotName): ((state: GameState) => InputFrame)
     }
     held = moveToward(state.player, waypoints[waypointIndex]);
     return held;
+  };
+};
+
+/**
+ * Campaign pilot used for product balance runs. The attack pilot still decides
+ * what to surround and when to COLLATE; this wrapper only replaces movement
+ * when a bullet visible on the current frame is likely to cross the player's
+ * short-term path. It intentionally has no spawn-table or future-wave access.
+ */
+export const createCampaignPilot = (): ((state: GameState) => InputFrame) => {
+  const bossPilot = createPilot('stitch');
+  const patrol = [
+    { x: px(80), y: px(80) }, { x: px(365), y: px(80) },
+    { x: px(365), y: px(640) }, { x: px(80), y: px(640) }
+  ];
+  let patrolIndex = 0;
+  const directions = [
+    { x: 0, y: 0, input: {} },
+    { x: -1, y: 0, input: { left: true } },
+    { x: 1, y: 0, input: { right: true } },
+    { x: 0, y: -1, input: { up: true } },
+    { x: 0, y: 1, input: { down: true } },
+    { x: -0.707, y: -0.707, input: { left: true, up: true } },
+    { x: -0.707, y: 0.707, input: { left: true, down: true } },
+    { x: 0.707, y: -0.707, input: { right: true, up: true } },
+    { x: 0.707, y: 0.707, input: { right: true, down: true } }
+  ] as const;
+  let heldDodge: InputFrame | null = null;
+  let nextDodgeDecision = 0;
+  let retraceReadyAt = 0;
+
+  return (state: GameState): InputFrame => {
+    if (!state.boss && distanceSq(state.player, patrol[patrolIndex]) <= px(28) ** 2) {
+      patrolIndex = (patrolIndex + 1) % patrol.length;
+    }
+    const attack = state.boss
+      ? bossPilot(state)
+      : state.candidate && countCandidateTargets(state) > 0
+        ? { fire: true, collate: true }
+        : moveToward(state.player, patrol[patrolIndex]);
+    if (attack.collate || state.player.invulnerableUntil >= state.tick) return attack;
+    if (state.boss) return attack;
+
+    const threats = state.bullets.filter((bullet) => bullet.kind === 'enemy' && !bullet.illusory);
+    const horizons = Array.from({ length: 11 }, (_, index) => index * 9);
+    const imminent = threats.some((bullet) => {
+      for (const horizon of horizons) {
+        const dx = bullet.x + bullet.vx * horizon - state.player.x;
+        const dy = bullet.y + bullet.vy * horizon - state.player.y;
+        if (dx * dx + dy * dy < px(27) ** 2) return true;
+      }
+      return false;
+    });
+    if (!imminent) { heldDodge = null; return attack; }
+
+    // Closing an already visible useful loop is the primary defensive action;
+    // do not wait for the attack pilot's coarser ten-tick decision boundary.
+    if (state.candidate && countCandidateTargets(state) > 0) {
+      heldDodge = null;
+      return { fire: true, collate: true };
+    }
+
+    if (state.tick >= retraceReadyAt && state.gauge >= 25 && state.trail.length >= 4
+      && threats.some((bullet) => distanceSq(bullet, state.player) < px(170) ** 2)) {
+      retraceReadyAt = state.tick + 120;
+      return { fire: true, retrace: true };
+    }
+    if (heldDodge && state.tick < nextDodgeDecision) return heldDodge;
+
+    const speed = px(320 / 120);
+    const margin = px(25);
+    const maxX = px(WIDTH) - margin;
+    const maxY = px(HEIGHT) - margin;
+    const scored = directions.map((direction) => {
+      let clearance = Number.POSITIVE_INFINITY;
+      let collisionWindows = 0;
+      for (const horizon of horizons.slice(1)) {
+        const x = Math.min(maxX, Math.max(margin, state.player.x + direction.x * speed * horizon));
+        const y = Math.min(maxY, Math.max(margin, state.player.y + direction.y * speed * horizon));
+        for (const bullet of threats) {
+          const dx = bullet.x + bullet.vx * horizon - x;
+          const dy = bullet.y + bullet.vy * horizon - y;
+          const separation = dx * dx + dy * dy;
+          clearance = Math.min(clearance, separation);
+          if (separation < px(bullet.radius + 18) ** 2) collisionWindows += 1;
+        }
+      }
+      const projectedX = state.player.x + direction.x * speed * 42;
+      const projectedY = state.player.y + direction.y * speed * 42;
+      const edgePenalty = projectedX < px(55) || projectedX > px(760)
+        || projectedY < px(55) || projectedY > px(665) ? px(180) ** 2 : 0;
+      const leftLaneBias = Math.abs(projectedX - px(285)) * px(12);
+      return { direction, score: clearance - collisionWindows * px(1000) ** 2 - edgePenalty - leftLaneBias };
+    }).sort((a, b) => b.score - a.score);
+    heldDodge = { ...scored[0].direction.input, fire: true };
+    nextDodgeDecision = state.tick + 3;
+    return heldDodge;
   };
 };
 

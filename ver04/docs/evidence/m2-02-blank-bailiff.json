@@ -15,45 +15,45 @@
       ],
       "fanWarnings": 43,
       "fanErases": 43,
-      "trailPointsErased": 2070,
+      "trailPointsErased": 1974,
       "returnedHits": 0,
       "ordinaryHits": 1200,
       "armorLayersStripped": 3,
       "damageByAttack": {
-        "fan": 17,
-        "sweep": 16,
-        "volley": 8
+        "fan": 16,
+        "sweep": 13,
+        "volley": 7
       }
     },
-    "hash": "02736c517576cd47"
+    "hash": "9352e465ebe366a5"
   },
   "stitch": {
-    "durationTicks": 8093,
-    "maxEnemyBullets": 78,
+    "durationTicks": 3961,
+    "maxEnemyBullets": 81,
     "metrics": {
       "spawned": true,
       "defeated": true,
-      "defeatTick": 29693,
+      "defeatTick": 25561,
       "phaseReached": [
         true,
         true,
         true
       ],
-      "fanWarnings": 28,
-      "fanErases": 27,
-      "trailPointsErased": 789,
-      "returnedHits": 7,
-      "ordinaryHits": 601,
+      "fanWarnings": 14,
+      "fanErases": 14,
+      "trailPointsErased": 832,
+      "returnedHits": 15,
+      "ordinaryHits": 307,
       "armorLayersStripped": 3,
       "damageByAttack": {
-        "fan": 15,
-        "sweep": 11,
-        "volley": 6
+        "fan": 1,
+        "sweep": 0,
+        "volley": 0
       }
     },
-    "hash": "cc031f998fe97ec0"
+    "hash": "93937979f9ec9eff"
   },
-  "replayHash": "cc031f998fe97ec0",
+  "replayHash": "93937979f9ec9eff",
   "gates": {
     "baselineDefeatsBoss": true,
     "stitchDefeatsBoss": true,

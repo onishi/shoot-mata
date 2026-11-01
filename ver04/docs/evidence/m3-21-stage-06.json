@@ -3,37 +3,37 @@
   "durationTicks": 32400,
   "scheduledSpawns": 90,
   "seed": 3601,
-  "finalHash": "6bbcaeb7054a6e8c",
+  "finalHash": "089be441da8115a2",
   "replayHashes": [
-    "6bbcaeb7054a6e8c",
-    "6bbcaeb7054a6e8c",
-    "6bbcaeb7054a6e8c"
+    "089be441da8115a2",
+    "089be441da8115a2",
+    "089be441da8115a2"
   ],
   "maxEnemies": 8,
-  "maxEnemyBullets": 38,
+  "maxEnemyBullets": 20,
   "maxCombatGapTicks": 1,
   "stats": {
     "binding-wasp": {
       "spawned": 30,
-      "attacks": 240,
-      "defeated": 9,
-      "exited": 21
+      "attacks": 52,
+      "defeated": 6,
+      "exited": 24
     },
     "revision-hound": {
       "spawned": 20,
-      "attacks": 55,
+      "attacks": 10,
       "defeated": 20,
       "exited": 0
     },
     "null-choir": {
       "spawned": 30,
-      "attacks": 179,
+      "attacks": 32,
       "defeated": 25,
       "exited": 5
     },
     "archive-palanquin": {
       "spawned": 10,
-      "attacks": 62,
+      "attacks": 9,
       "defeated": 9,
       "exited": 1
     }
@@ -46,37 +46,37 @@
       "mirror": 6480,
       "synthesis": 6481
     },
-    "bindingLinks": 240,
-    "houndRevisions": 55,
-    "choirVerses": 170,
-    "choirHoles": 9,
-    "palanquinSalvos": 62,
-    "inheritedCollates": 232,
-    "synthesisCollates": 48
+    "bindingLinks": 52,
+    "houndRevisions": 10,
+    "choirVerses": 21,
+    "choirHoles": 11,
+    "palanquinSalvos": 9,
+    "inheritedCollates": 72,
+    "synthesisCollates": 15
   },
   "environment": {
     "wind": {
       "reversals": 11,
       "playerDrift": 226800,
-      "trailDrift": 11433352,
+      "trailDrift": 34935544,
       "collatesLeft": 0,
       "collatesRight": 0,
       "collatesNearReversal": 0
     },
     "rain": {
       "drops": 450,
-      "trailPointsWetted": 293,
-      "wetTrailPeak": 45,
-      "wetAnnotatedShots": 0,
-      "wetDamage": 0,
+      "trailPointsWetted": 674,
+      "wetTrailPeak": 72,
+      "wetAnnotatedShots": 52,
+      "wetDamage": 648,
       "basinSurges": 0,
       "needleDashes": 0
     },
     "heat": {
       "waves": 169,
-      "trailPointsBurned": 79,
-      "trailPointsCooled": 213,
-      "cooledTrailPeak": 45,
+      "trailPointsBurned": 134,
+      "trailPointsCooled": 396,
+      "cooledTrailPeak": 123,
       "coolingCollates": 0,
       "ashCoolingBursts": 0,
       "censorBrands": 0,
@@ -84,9 +84,9 @@
       "pressClosures": 0
     },
     "mirror": {
-      "falseTrailPeak": 89,
-      "falseAnnotations": 8,
-      "falseLoopRejections": 1129,
+      "falseTrailPeak": 131,
+      "falseAnnotations": 32,
+      "falseLoopRejections": 5764,
       "illusoryShots": 0,
       "moteEchoes": 0,
       "ramCharges": 0,

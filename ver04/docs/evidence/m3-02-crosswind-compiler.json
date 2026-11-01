@@ -20,21 +20,21 @@
         "storm": 16
       },
       "damageByAttack": {
-        "gust": 13,
+        "gust": 9,
         "lance": 4,
         "storm": 3
       }
     },
-    "hash": "587892109a9e5c1c"
+    "hash": "ef34689f990542a9"
   },
   "stitch": {
     "durationTicks": 3252,
-    "maxEnemyBullets": 31,
+    "maxEnemyBullets": 32,
     "compiler": {
       "windLocks": 3,
       "windLockedTicks": 659,
       "weakpointHits": 24,
-      "ordinaryHits": 166,
+      "ordinaryHits": 165,
       "phaseReached": [
         true,
         true,
@@ -46,14 +46,14 @@
         "storm": 2
       },
       "damageByAttack": {
-        "gust": 3,
-        "lance": 4,
-        "storm": 1
+        "gust": 2,
+        "lance": 0,
+        "storm": 0
       }
     },
-    "hash": "487fb789f0f2ffc1"
+    "hash": "57f1ab36c09a8ecd"
   },
-  "replayHash": "487fb789f0f2ffc1",
+  "replayHash": "57f1ab36c09a8ecd",
   "gates": {
     "baselineDefeatsBoss": true,
     "stitchDefeatsBoss": true,

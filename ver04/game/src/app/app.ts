@@ -1,4 +1,4 @@
-import type { GameEvent, GameState, InputFrame, StageId } from '../core/types';
+import { SCALE, type GameEvent, type GameState, type InputFrame, type StageId } from '../core/types';
 import { copyState, createInitialState, step } from '../simulation/game';
 import { defaultSettings, type GameSettings } from './settings';
 import { marginaliaCandidates, marginaliaEffects, type MarginaliaId } from '../content/marginalia';
@@ -141,7 +141,15 @@ export const transition = (state: AppState, action: AppAction): AppState => {
       const selected = state.marginaliaOptions[state.marginaliaIndex];
       if (!selected) return state;
       const marginalia = [...state.marginalia, selected];
-      if (state.marginaliaMoment === 'midpoint') return { ...state, screen: 'playing', marginalia, midpointMarginaliaTaken: true };
+      if (state.marginaliaMoment === 'midpoint') {
+        const game = copyState(state.game);
+        // The midpoint is the campaign's only guaranteed breathing point.
+        // Turning the page restores the three-hit budget without clearing the
+        // field, so the choice remains part of live play rather than a continue.
+        game.player.health = 3;
+        game.player.invulnerableUntil = Math.max(game.player.invulnerableUntil, game.tick + 132);
+        return { ...state, screen: 'playing', game, marginalia, midpointMarginaliaTaken: true };
+      }
       const nextStage = nextStages[state.game.stageId];
       return nextStage
         ? beginStage(nextStage, state.game.seed, state.campaign, state.settings, marginalia)
@@ -165,9 +173,25 @@ export const advance = (state: AppState, input: InputFrame = {}): { state: AppSt
     next = { ...next, screen: 'marginalia', marginaliaOptions: marginaliaCandidates(result.state.seed, result.state.stageId, 'midpoint'), marginaliaIndex: 0, marginaliaMoment: 'midpoint' };
   }
   if (result.events.some((event) => event.type === 'boss-spawned')) {
-    next = { ...next, checkpoint: copyState(result.state), checkpointName: bossCheckpoints[result.state.stageId] };
+    const game = copyState(result.state);
+    // Enter every duel from the common writing gate. Carrying a long approach
+    // trail from the scrolling section can otherwise consume the entire trail
+    // lifetime before the first authored weak-point loop is drawn.
+    game.player.x = 780 * SCALE;
+    game.player.y = 360 * SCALE;
+    game.trail = [];
+    game.candidate = null;
+    game.player.health = 3;
+    game.player.invulnerableUntil = Math.max(game.player.invulnerableUntil, game.tick + 1200);
+    next = { ...next, game, checkpoint: copyState(game), checkpointName: bossCheckpoints[result.state.stageId] };
   }
-  if (result.state.player.health <= 0) next = { ...next, screen: 'continue' };
+  if (result.events.some((event) => event.type === 'boss-phase')) {
+    const game = copyState(next.game);
+    game.player.health = 3;
+    game.player.invulnerableUntil = Math.max(game.player.invulnerableUntil, game.tick + 1200);
+    next = { ...next, game };
+  }
+  if (next.game.player.health <= 0) next = { ...next, screen: 'continue' };
   else if (result.events.some((event) => event.type === 'boss-defeated')) next = { ...next, screen: 'result' };
   return { state: next, events: result.events };
 };

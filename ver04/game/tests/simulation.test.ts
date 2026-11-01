@@ -52,6 +52,7 @@ describe('M1 deterministic playground', () => {
     state.enemies[0].x = px(300); state.enemies[0].y = px(300);
     state.trail = [trailPoint(100, 100, 0), trailPoint(500, 100, 0), trailPoint(500, 500, 0), trailPoint(100, 500, 0), trailPoint(100, 80, 0), trailPoint(300, 100, 0)];
     state.player.x = px(300); state.player.y = px(100);
+    state.player.health = 1;
     state.candidate = { polygon: state.trail.slice(0, 4), intersection: state.trail[0], startIndex: 1, area: 160000 };
     state.bullets = [
       { id: 8, x: px(250), y: px(250), vx: 0, vy: 0, radius: 8, kind: 'enemy', annotated: false, capturable: true },
@@ -60,6 +61,8 @@ describe('M1 deterministic playground', () => {
     const result = step(state, { collate: true });
     expect(result.events).toContainEqual({ type: 'loop-collated', captured: 1, area: 160000 });
     expect(result.state.metrics.captured).toBe(1);
+    expect(result.state.player.invulnerableUntil).toBe(result.state.tick + 1800);
+    expect(result.state.player.health).toBe(2);
     expect(result.state.enemies[0].markedUntil).toBeGreaterThan(result.state.tick);
     expect(result.state.trail.length).toBeLessThan(state.trail.length);
   });

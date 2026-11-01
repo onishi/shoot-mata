@@ -1,0 +1,7640 @@
+{
+  "generatedAt": "2026-11-01",
+  "seeds": [
+    4500,
+    4501,
+    4502,
+    4503,
+    4504,
+    4505,
+    4506,
+    4507,
+    4508,
+    4509,
+    4510,
+    4511,
+    4512,
+    4513,
+    4514,
+    4515,
+    4516,
+    4517,
+    4518,
+    4519,
+    4520,
+    4521,
+    4522,
+    4523,
+    4524,
+    4525,
+    4526,
+    4527,
+    4528,
+    4529
+  ],
+  "summary": [
+    {
+      "difficulty": "echo",
+      "completed": 30,
+      "minimumMinutes": 23.68,
+      "medianMinutes": 24.75,
+      "maximumMinutes": 25.39,
+      "medianDamage": 1,
+      "totalContinues": 0
+    },
+    {
+      "difficulty": "normal",
+      "completed": 30,
+      "minimumMinutes": 23.66,
+      "medianMinutes": 24.4,
+      "maximumMinutes": 25.55,
+      "medianDamage": 1,
+      "totalContinues": 0
+    },
+    {
+      "difficulty": "proof",
+      "completed": 30,
+      "minimumMinutes": 23.7,
+      "medianMinutes": 24.37,
+      "maximumMinutes": 25.49,
+      "medianDamage": 2,
+      "totalContinues": 0
+    }
+  ],
+  "selectionCounts": {
+    "cross-reference": 84,
+    "longhand": 84,
+    "errata": 96,
+    "footnote": 96,
+    "ligature": 87,
+    "gloss": 96,
+    "underline": 87,
+    "rubric": 90,
+    "redaction": 81,
+    "palinode": 99,
+    "afterword": 93,
+    "citation": 87
+  },
+  "runs": [
+    {
+      "difficulty": "echo",
+      "seed": 4500,
+      "complete": true,
+      "playedTicks": 171844,
+      "minutes": 23.87,
+      "damage": 0,
+      "continues": 0,
+      "selected": [
+        "cross-reference",
+        "longhand",
+        "longhand",
+        "longhand",
+        "errata",
+        "cross-reference",
+        "cross-reference",
+        "footnote",
+        "footnote",
+        "errata",
+        "footnote",
+        "errata"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24193,
+          "bossTicks": 2594,
+          "damage": 0,
+          "continues": 0,
+          "score": 37827
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 27431,
+          "bossTicks": 5832,
+          "damage": 0,
+          "continues": 0,
+          "score": 90048
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 29071,
+          "bossTicks": 5672,
+          "damage": 0,
+          "continues": 0,
+          "score": 432047
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 348939
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 27333,
+          "bossTicks": 2134,
+          "damage": 0,
+          "continues": 0,
+          "score": 416849
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 38202,
+          "bossTicks": 5803,
+          "damage": 0,
+          "continues": 0,
+          "score": 426981
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 38202,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 75,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "echo",
+      "seed": 4501,
+      "complete": true,
+      "playedTicks": 179296,
+      "minutes": 24.9,
+      "damage": 0,
+      "continues": 0,
+      "selected": [
+        "ligature",
+        "gloss",
+        "ligature",
+        "gloss",
+        "gloss",
+        "ligature",
+        "ligature",
+        "underline",
+        "rubric",
+        "ligature",
+        "ligature",
+        "underline"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 23900,
+          "bossTicks": 2301,
+          "damage": 0,
+          "continues": 0,
+          "score": 33627
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 27063,
+          "bossTicks": 5464,
+          "damage": 0,
+          "continues": 0,
+          "score": 73104
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 28208,
+          "bossTicks": 4809,
+          "damage": 0,
+          "continues": 0,
+          "score": 87608
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 213813
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 27321,
+          "bossTicks": 2122,
+          "damage": 0,
+          "continues": 0,
+          "score": 73911
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 47190,
+          "bossTicks": 14791,
+          "damage": 0,
+          "continues": 0,
+          "score": 306701
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 47190,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 52,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "echo",
+      "seed": 4502,
+      "complete": true,
+      "playedTicks": 178213,
+      "minutes": 24.75,
+      "damage": 0,
+      "continues": 0,
+      "selected": [
+        "redaction",
+        "palinode",
+        "palinode",
+        "palinode",
+        "afterword",
+        "citation",
+        "redaction",
+        "palinode",
+        "palinode",
+        "afterword",
+        "citation",
+        "palinode"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24193,
+          "bossTicks": 2594,
+          "damage": 0,
+          "continues": 0,
+          "score": 33527
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 24404,
+          "bossTicks": 2805,
+          "damage": 0,
+          "continues": 0,
+          "score": 43938
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 29563,
+          "bossTicks": 6164,
+          "damage": 0,
+          "continues": 0,
+          "score": 61474
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 225102
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 28575,
+          "bossTicks": 3376,
+          "damage": 0,
+          "continues": 0,
+          "score": 70537
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 45864,
+          "bossTicks": 13465,
+          "damage": 0,
+          "continues": 0,
+          "score": 319498
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 45864,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 55,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "echo",
+      "seed": 4503,
+      "complete": true,
+      "playedTicks": 171686,
+      "minutes": 23.85,
+      "damage": 0,
+      "continues": 0,
+      "selected": [
+        "longhand",
+        "errata",
+        "longhand",
+        "errata",
+        "footnote",
+        "footnote",
+        "longhand",
+        "longhand",
+        "errata",
+        "cross-reference",
+        "cross-reference",
+        "cross-reference"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 23461,
+          "bossTicks": 1862,
+          "damage": 0,
+          "continues": 0,
+          "score": 37281
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 26574,
+          "bossTicks": 4975,
+          "damage": 0,
+          "continues": 0,
+          "score": 158327
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 30662,
+          "bossTicks": 7263,
+          "damage": 0,
+          "continues": 0,
+          "score": 376175
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 295542
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 27173,
+          "bossTicks": 1974,
+          "damage": 0,
+          "continues": 0,
+          "score": 399213
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 38202,
+          "bossTicks": 5803,
+          "damage": 0,
+          "continues": 0,
+          "score": 438067
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 38202,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 74,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "echo",
+      "seed": 4504,
+      "complete": true,
+      "playedTicks": 176407,
+      "minutes": 24.5,
+      "damage": 2,
+      "continues": 0,
+      "selected": [
+        "underline",
+        "underline",
+        "underline",
+        "underline",
+        "underline",
+        "gloss",
+        "underline",
+        "ligature",
+        "underline",
+        "ligature",
+        "underline",
+        "ligature"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24193,
+          "bossTicks": 2594,
+          "damage": 0,
+          "continues": 0,
+          "score": 36627
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 25348,
+          "bossTicks": 3749,
+          "damage": 0,
+          "continues": 0,
+          "score": 50110
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 29563,
+          "bossTicks": 6164,
+          "damage": 0,
+          "continues": 0,
+          "score": 74274
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 252139
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 27321,
+          "bossTicks": 2122,
+          "damage": 2,
+          "continues": 0,
+          "score": 70411
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 44368,
+          "bossTicks": 11969,
+          "damage": 0,
+          "continues": 0,
+          "score": 263885
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 44368,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 41,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "echo",
+      "seed": 4505,
+      "complete": true,
+      "playedTicks": 178213,
+      "minutes": 24.75,
+      "damage": 3,
+      "continues": 0,
+      "selected": [
+        "afterword",
+        "palinode",
+        "citation",
+        "palinode",
+        "citation",
+        "citation",
+        "afterword",
+        "redaction",
+        "palinode",
+        "afterword",
+        "redaction",
+        "palinode"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24193,
+          "bossTicks": 2594,
+          "damage": 0,
+          "continues": 0,
+          "score": 36227
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 24404,
+          "bossTicks": 2805,
+          "damage": 0,
+          "continues": 0,
+          "score": 46038
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 29563,
+          "bossTicks": 6164,
+          "damage": 0,
+          "continues": 0,
+          "score": 63574
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 237444
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 28575,
+          "bossTicks": 3376,
+          "damage": 3,
+          "continues": 0,
+          "score": 68437
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 45864,
+          "bossTicks": 13465,
+          "damage": 0,
+          "continues": 0,
+          "score": 338104
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 45864,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 59,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "echo",
+      "seed": 4506,
+      "complete": true,
+      "playedTicks": 178235,
+      "minutes": 24.75,
+      "damage": 2,
+      "continues": 0,
+      "selected": [
+        "footnote",
+        "footnote",
+        "footnote",
+        "footnote",
+        "errata",
+        "cross-reference",
+        "footnote",
+        "footnote",
+        "longhand",
+        "cross-reference",
+        "errata",
+        "errata"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24193,
+          "bossTicks": 2594,
+          "damage": 0,
+          "continues": 0,
+          "score": 34227
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 27830,
+          "bossTicks": 6231,
+          "damage": 0,
+          "continues": 0,
+          "score": 56085
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 28786,
+          "bossTicks": 5387,
+          "damage": 1,
+          "continues": 0,
+          "score": 68480
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 182191
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 27321,
+          "bossTicks": 2122,
+          "damage": 1,
+          "continues": 0,
+          "score": 63382
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 44491,
+          "bossTicks": 12092,
+          "damage": 0,
+          "continues": 0,
+          "score": 252067
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 44491,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 60,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "echo",
+      "seed": 4507,
+      "complete": true,
+      "playedTicks": 180228,
+      "minutes": 25.03,
+      "damage": 0,
+      "continues": 0,
+      "selected": [
+        "gloss",
+        "rubric",
+        "underline",
+        "rubric",
+        "gloss",
+        "ligature",
+        "gloss",
+        "underline",
+        "gloss",
+        "underline",
+        "rubric",
+        "underline"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24193,
+          "bossTicks": 2594,
+          "damage": 0,
+          "continues": 0,
+          "score": 43727
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 24426,
+          "bossTicks": 2827,
+          "damage": 0,
+          "continues": 0,
+          "score": 52785
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 29563,
+          "bossTicks": 6164,
+          "damage": 0,
+          "continues": 0,
+          "score": 64274
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 198197
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 29242,
+          "bossTicks": 4043,
+          "damage": 0,
+          "continues": 0,
+          "score": 71727
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 47190,
+          "bossTicks": 14791,
+          "damage": 0,
+          "continues": 0,
+          "score": 317099
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 47190,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 53,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "echo",
+      "seed": 4508,
+      "complete": true,
+      "playedTicks": 177937,
+      "minutes": 24.71,
+      "damage": 0,
+      "continues": 0,
+      "selected": [
+        "citation",
+        "redaction",
+        "afterword",
+        "palinode",
+        "redaction",
+        "afterword",
+        "redaction",
+        "palinode",
+        "afterword",
+        "citation",
+        "afterword",
+        "citation"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 23891,
+          "bossTicks": 2292,
+          "damage": 0,
+          "continues": 0,
+          "score": 39874
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 24404,
+          "bossTicks": 2805,
+          "damage": 0,
+          "continues": 0,
+          "score": 44038
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 29563,
+          "bossTicks": 6164,
+          "damage": 0,
+          "continues": 0,
+          "score": 58574
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 230336
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 28602,
+          "bossTicks": 3403,
+          "damage": 0,
+          "continues": 0,
+          "score": 67737
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 45863,
+          "bossTicks": 13464,
+          "damage": 0,
+          "continues": 0,
+          "score": 313295
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 45863,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 55,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "echo",
+      "seed": 4509,
+      "complete": true,
+      "playedTicks": 172377,
+      "minutes": 23.94,
+      "damage": 0,
+      "continues": 0,
+      "selected": [
+        "footnote",
+        "footnote",
+        "footnote",
+        "errata",
+        "cross-reference",
+        "errata",
+        "longhand",
+        "longhand",
+        "cross-reference",
+        "longhand",
+        "longhand",
+        "footnote"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24193,
+          "bossTicks": 2594,
+          "damage": 0,
+          "continues": 0,
+          "score": 37227
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 27830,
+          "bossTicks": 6231,
+          "damage": 0,
+          "continues": 0,
+          "score": 50433
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 28940,
+          "bossTicks": 5541,
+          "damage": 0,
+          "continues": 0,
+          "score": 64836
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 216594
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 27598,
+          "bossTicks": 2399,
+          "damage": 0,
+          "continues": 0,
+          "score": 409768
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 38202,
+          "bossTicks": 5803,
+          "damage": 0,
+          "continues": 0,
+          "score": 444343
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 38202,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 81,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "echo",
+      "seed": 4510,
+      "complete": true,
+      "playedTicks": 181595,
+      "minutes": 25.22,
+      "damage": 0,
+      "continues": 0,
+      "selected": [
+        "underline",
+        "ligature",
+        "gloss",
+        "rubric",
+        "rubric",
+        "rubric",
+        "ligature",
+        "gloss",
+        "rubric",
+        "gloss",
+        "underline",
+        "rubric"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24193,
+          "bossTicks": 2594,
+          "damage": 0,
+          "continues": 0,
+          "score": 38715
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 27005,
+          "bossTicks": 5406,
+          "damage": 0,
+          "continues": 0,
+          "score": 68104
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 28516,
+          "bossTicks": 5117,
+          "damage": 0,
+          "continues": 0,
+          "score": 76275
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 220928
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 29077,
+          "bossTicks": 3878,
+          "damage": 0,
+          "continues": 0,
+          "score": 79871
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 47190,
+          "bossTicks": 14791,
+          "damage": 0,
+          "continues": 0,
+          "score": 316046
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 47190,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 54,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "echo",
+      "seed": 4511,
+      "complete": true,
+      "playedTicks": 178240,
+      "minutes": 24.76,
+      "damage": 2,
+      "continues": 0,
+      "selected": [
+        "afterword",
+        "afterword",
+        "afterword",
+        "citation",
+        "palinode",
+        "redaction",
+        "palinode",
+        "afterword",
+        "citation",
+        "redaction",
+        "redaction",
+        "redaction"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24193,
+          "bossTicks": 2594,
+          "damage": 0,
+          "continues": 0,
+          "score": 33528
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 24404,
+          "bossTicks": 2805,
+          "damage": 0,
+          "continues": 0,
+          "score": 41838
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 29563,
+          "bossTicks": 6164,
+          "damage": 1,
+          "continues": 0,
+          "score": 67874
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 228972
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 28602,
+          "bossTicks": 3403,
+          "damage": 1,
+          "continues": 0,
+          "score": 71237
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 45864,
+          "bossTicks": 13465,
+          "damage": 0,
+          "continues": 0,
+          "score": 302933
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 45864,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 57,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "echo",
+      "seed": 4512,
+      "complete": true,
+      "playedTicks": 173683,
+      "minutes": 24.12,
+      "damage": 0,
+      "continues": 0,
+      "selected": [
+        "footnote",
+        "cross-reference",
+        "cross-reference",
+        "longhand",
+        "errata",
+        "footnote",
+        "footnote",
+        "longhand",
+        "longhand",
+        "cross-reference",
+        "footnote",
+        "cross-reference"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24193,
+          "bossTicks": 2594,
+          "damage": 0,
+          "continues": 0,
+          "score": 31927
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 27830,
+          "bossTicks": 6231,
+          "damage": 0,
+          "continues": 0,
+          "score": 51785
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 30511,
+          "bossTicks": 7112,
+          "damage": 0,
+          "continues": 0,
+          "score": 114863
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 168740
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 27333,
+          "bossTicks": 2134,
+          "damage": 0,
+          "continues": 0,
+          "score": 401517
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 38202,
+          "bossTicks": 5803,
+          "damage": 0,
+          "continues": 0,
+          "score": 474746
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 38202,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 84,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "echo",
+      "seed": 4513,
+      "complete": true,
+      "playedTicks": 180178,
+      "minutes": 25.02,
+      "damage": 3,
+      "continues": 0,
+      "selected": [
+        "gloss",
+        "underline",
+        "rubric",
+        "gloss",
+        "gloss",
+        "gloss",
+        "gloss",
+        "ligature",
+        "gloss",
+        "underline",
+        "ligature",
+        "ligature"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24193,
+          "bossTicks": 2594,
+          "damage": 0,
+          "continues": 0,
+          "score": 46427
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 24448,
+          "bossTicks": 2849,
+          "damage": 0,
+          "continues": 0,
+          "score": 59987
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 29563,
+          "bossTicks": 6164,
+          "damage": 0,
+          "continues": 0,
+          "score": 58413
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 229065
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 29242,
+          "bossTicks": 4043,
+          "damage": 3,
+          "continues": 0,
+          "score": 72427
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 47118,
+          "bossTicks": 14719,
+          "damage": 0,
+          "continues": 0,
+          "score": 282382
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 47118,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 50,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "echo",
+      "seed": 4514,
+      "complete": true,
+      "playedTicks": 176421,
+      "minutes": 24.5,
+      "damage": 0,
+      "continues": 0,
+      "selected": [
+        "afterword",
+        "redaction",
+        "redaction",
+        "palinode",
+        "afterword",
+        "palinode",
+        "afterword",
+        "afterword",
+        "afterword",
+        "palinode",
+        "citation",
+        "afterword"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24193,
+          "bossTicks": 2594,
+          "damage": 0,
+          "continues": 0,
+          "score": 32927
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 24404,
+          "bossTicks": 2805,
+          "damage": 0,
+          "continues": 0,
+          "score": 47638
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 29026,
+          "bossTicks": 5627,
+          "damage": 0,
+          "continues": 0,
+          "score": 81066
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 224302
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 27321,
+          "bossTicks": 2122,
+          "damage": 0,
+          "continues": 0,
+          "score": 64811
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 45863,
+          "bossTicks": 13464,
+          "damage": 0,
+          "continues": 0,
+          "score": 299766
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 45863,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 54,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "echo",
+      "seed": 4515,
+      "complete": true,
+      "playedTicks": 177981,
+      "minutes": 24.72,
+      "damage": 2,
+      "continues": 0,
+      "selected": [
+        "errata",
+        "footnote",
+        "cross-reference",
+        "errata",
+        "footnote",
+        "cross-reference",
+        "errata",
+        "footnote",
+        "cross-reference",
+        "errata",
+        "cross-reference",
+        "errata"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24193,
+          "bossTicks": 2594,
+          "damage": 0,
+          "continues": 0,
+          "score": 32627
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 24369,
+          "bossTicks": 2770,
+          "damage": 0,
+          "continues": 0,
+          "score": 46071
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 30619,
+          "bossTicks": 7220,
+          "damage": 0,
+          "continues": 0,
+          "score": 68584
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 1,
+          "continues": 0,
+          "score": 153963
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 27321,
+          "bossTicks": 2122,
+          "damage": 1,
+          "continues": 0,
+          "score": 61982
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 45865,
+          "bossTicks": 13466,
+          "damage": 0,
+          "continues": 0,
+          "score": 277762
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 45865,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 61,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "echo",
+      "seed": 4516,
+      "complete": true,
+      "playedTicks": 182209,
+      "minutes": 25.31,
+      "damage": 1,
+      "continues": 0,
+      "selected": [
+        "underline",
+        "gloss",
+        "ligature",
+        "gloss",
+        "rubric",
+        "underline",
+        "ligature",
+        "rubric",
+        "rubric",
+        "gloss",
+        "gloss",
+        "gloss"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24193,
+          "bossTicks": 2594,
+          "damage": 0,
+          "continues": 0,
+          "score": 36827
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 26944,
+          "bossTicks": 5345,
+          "damage": 0,
+          "continues": 0,
+          "score": 74686
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 29191,
+          "bossTicks": 5792,
+          "damage": 0,
+          "continues": 0,
+          "score": 61759
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 233970
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 29077,
+          "bossTicks": 3878,
+          "damage": 1,
+          "continues": 0,
+          "score": 74271
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 47190,
+          "bossTicks": 14791,
+          "damage": 0,
+          "continues": 0,
+          "score": 313461
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 47190,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 55,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "echo",
+      "seed": 4517,
+      "complete": true,
+      "playedTicks": 178239,
+      "minutes": 24.76,
+      "damage": 1,
+      "continues": 0,
+      "selected": [
+        "afterword",
+        "redaction",
+        "redaction",
+        "redaction",
+        "palinode",
+        "afterword",
+        "palinode",
+        "palinode",
+        "citation",
+        "redaction",
+        "palinode",
+        "citation"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24193,
+          "bossTicks": 2594,
+          "damage": 0,
+          "continues": 0,
+          "score": 33827
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 24404,
+          "bossTicks": 2805,
+          "damage": 0,
+          "continues": 0,
+          "score": 51938
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 29563,
+          "bossTicks": 6164,
+          "damage": 0,
+          "continues": 0,
+          "score": 67874
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 230289
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 28602,
+          "bossTicks": 3403,
+          "damage": 1,
+          "continues": 0,
+          "score": 68437
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 45863,
+          "bossTicks": 13464,
+          "damage": 0,
+          "continues": 0,
+          "score": 305993
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 45863,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 61,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "echo",
+      "seed": 4518,
+      "complete": true,
+      "playedTicks": 170504,
+      "minutes": 23.68,
+      "damage": 0,
+      "continues": 0,
+      "selected": [
+        "footnote",
+        "errata",
+        "longhand",
+        "errata",
+        "longhand",
+        "longhand",
+        "longhand",
+        "errata",
+        "errata",
+        "footnote",
+        "footnote",
+        "longhand"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24193,
+          "bossTicks": 2594,
+          "damage": 0,
+          "continues": 0,
+          "score": 41127
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 24369,
+          "bossTicks": 2770,
+          "damage": 0,
+          "continues": 0,
+          "score": 48915
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 30953,
+          "bossTicks": 7554,
+          "damage": 0,
+          "continues": 0,
+          "score": 223021
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 307174
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 27173,
+          "bossTicks": 1974,
+          "damage": 0,
+          "continues": 0,
+          "score": 425213
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 38202,
+          "bossTicks": 5803,
+          "damage": 0,
+          "continues": 0,
+          "score": 461257
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 38202,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 79,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "echo",
+      "seed": 4519,
+      "complete": true,
+      "playedTicks": 181684,
+      "minutes": 25.23,
+      "damage": 3,
+      "continues": 0,
+      "selected": [
+        "gloss",
+        "ligature",
+        "ligature",
+        "ligature",
+        "ligature",
+        "rubric",
+        "rubric",
+        "gloss",
+        "ligature",
+        "rubric",
+        "ligature",
+        "rubric"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24193,
+          "bossTicks": 2594,
+          "damage": 0,
+          "continues": 0,
+          "score": 48327
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 27063,
+          "bossTicks": 5464,
+          "damage": 0,
+          "continues": 0,
+          "score": 81904
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 28547,
+          "bossTicks": 5148,
+          "damage": 0,
+          "continues": 0,
+          "score": 80314
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 192751
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 29077,
+          "bossTicks": 3878,
+          "damage": 1,
+          "continues": 0,
+          "score": 80571
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 47190,
+          "bossTicks": 14791,
+          "damage": 2,
+          "continues": 0,
+          "score": 297048
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 47190,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 57,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "echo",
+      "seed": 4520,
+      "complete": true,
+      "playedTicks": 177702,
+      "minutes": 24.68,
+      "damage": 3,
+      "continues": 0,
+      "selected": [
+        "palinode",
+        "palinode",
+        "citation",
+        "palinode",
+        "redaction",
+        "redaction",
+        "afterword",
+        "afterword",
+        "palinode",
+        "redaction",
+        "afterword",
+        "redaction"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24193,
+          "bossTicks": 2594,
+          "damage": 0,
+          "continues": 0,
+          "score": 35227
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 24404,
+          "bossTicks": 2805,
+          "damage": 0,
+          "continues": 0,
+          "score": 41638
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 29026,
+          "bossTicks": 5627,
+          "damage": 0,
+          "continues": 0,
+          "score": 67466
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 231020
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 28602,
+          "bossTicks": 3403,
+          "damage": 2,
+          "continues": 0,
+          "score": 66337
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 45863,
+          "bossTicks": 13464,
+          "damage": 1,
+          "continues": 0,
+          "score": 303088
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 45863,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 61,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "echo",
+      "seed": 4521,
+      "complete": true,
+      "playedTicks": 175453,
+      "minutes": 24.37,
+      "damage": 5,
+      "continues": 0,
+      "selected": [
+        "cross-reference",
+        "errata",
+        "errata",
+        "errata",
+        "cross-reference",
+        "longhand",
+        "errata",
+        "footnote",
+        "errata",
+        "footnote",
+        "longhand",
+        "longhand"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24193,
+          "bossTicks": 2594,
+          "damage": 0,
+          "continues": 0,
+          "score": 38749
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 24369,
+          "bossTicks": 2770,
+          "damage": 1,
+          "continues": 0,
+          "score": 45174
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 32297,
+          "bossTicks": 8898,
+          "damage": 1,
+          "continues": 0,
+          "score": 79336
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 183554
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 27321,
+          "bossTicks": 2122,
+          "damage": 3,
+          "continues": 0,
+          "score": 63382
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 41659,
+          "bossTicks": 9260,
+          "damage": 0,
+          "continues": 0,
+          "score": 348291
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 41659,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 67,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "echo",
+      "seed": 4522,
+      "complete": true,
+      "playedTicks": 182833,
+      "minutes": 25.39,
+      "damage": 1,
+      "continues": 0,
+      "selected": [
+        "rubric",
+        "rubric",
+        "underline",
+        "rubric",
+        "rubric",
+        "underline",
+        "gloss",
+        "rubric",
+        "gloss",
+        "rubric",
+        "underline",
+        "gloss"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24951,
+          "bossTicks": 3352,
+          "damage": 0,
+          "continues": 0,
+          "score": 32420
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 24426,
+          "bossTicks": 2827,
+          "damage": 0,
+          "continues": 0,
+          "score": 38585
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 29563,
+          "bossTicks": 6164,
+          "damage": 0,
+          "continues": 0,
+          "score": 52974
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 253817
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 31158,
+          "bossTicks": 5959,
+          "damage": 0,
+          "continues": 0,
+          "score": 82903
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 47121,
+          "bossTicks": 14722,
+          "damage": 1,
+          "continues": 0,
+          "score": 286276
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 47121,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 49,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "echo",
+      "seed": 4523,
+      "complete": true,
+      "playedTicks": 178224,
+      "minutes": 24.75,
+      "damage": 1,
+      "continues": 0,
+      "selected": [
+        "redaction",
+        "citation",
+        "citation",
+        "citation",
+        "palinode",
+        "afterword",
+        "citation",
+        "palinode",
+        "redaction",
+        "citation",
+        "redaction",
+        "citation"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24193,
+          "bossTicks": 2594,
+          "damage": 0,
+          "continues": 0,
+          "score": 36427
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 24404,
+          "bossTicks": 2805,
+          "damage": 1,
+          "continues": 0,
+          "score": 50023
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 29563,
+          "bossTicks": 6164,
+          "damage": 0,
+          "continues": 0,
+          "score": 67174
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 224481
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 28587,
+          "bossTicks": 3388,
+          "damage": 0,
+          "continues": 0,
+          "score": 70537
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 45863,
+          "bossTicks": 13464,
+          "damage": 0,
+          "continues": 0,
+          "score": 289276
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 45863,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 55,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "echo",
+      "seed": 4524,
+      "complete": true,
+      "playedTicks": 176807,
+      "minutes": 24.56,
+      "damage": 0,
+      "continues": 0,
+      "selected": [
+        "longhand",
+        "footnote",
+        "footnote",
+        "errata",
+        "errata",
+        "cross-reference",
+        "longhand",
+        "errata",
+        "cross-reference",
+        "errata",
+        "errata",
+        "errata"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 23461,
+          "bossTicks": 1862,
+          "damage": 0,
+          "continues": 0,
+          "score": 37981
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 27830,
+          "bossTicks": 6231,
+          "damage": 0,
+          "continues": 0,
+          "score": 75056
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 30645,
+          "bossTicks": 7246,
+          "damage": 0,
+          "continues": 0,
+          "score": 77620
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 248433
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 27598,
+          "bossTicks": 2399,
+          "damage": 0,
+          "continues": 0,
+          "score": 414838
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 41659,
+          "bossTicks": 9260,
+          "damage": 0,
+          "continues": 0,
+          "score": 457862
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 41659,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 82,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "echo",
+      "seed": 4525,
+      "complete": true,
+      "playedTicks": 179377,
+      "minutes": 24.91,
+      "damage": 1,
+      "continues": 0,
+      "selected": [
+        "rubric",
+        "rubric",
+        "underline",
+        "ligature",
+        "gloss",
+        "ligature",
+        "rubric",
+        "gloss",
+        "underline",
+        "ligature",
+        "rubric",
+        "underline"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24951,
+          "bossTicks": 3352,
+          "damage": 0,
+          "continues": 0,
+          "score": 35720
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 24426,
+          "bossTicks": 2827,
+          "damage": 1,
+          "continues": 0,
+          "score": 36485
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 27954,
+          "bossTicks": 4555,
+          "damage": 0,
+          "continues": 0,
+          "score": 75198
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 158985
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 29242,
+          "bossTicks": 4043,
+          "damage": 0,
+          "continues": 0,
+          "score": 75927
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 47190,
+          "bossTicks": 14791,
+          "damage": 0,
+          "continues": 0,
+          "score": 327928
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 47190,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 59,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "echo",
+      "seed": 4526,
+      "complete": true,
+      "playedTicks": 178212,
+      "minutes": 24.75,
+      "damage": 0,
+      "continues": 0,
+      "selected": [
+        "palinode",
+        "afterword",
+        "afterword",
+        "citation",
+        "afterword",
+        "citation",
+        "palinode",
+        "redaction",
+        "citation",
+        "afterword",
+        "afterword",
+        "palinode"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24193,
+          "bossTicks": 2594,
+          "damage": 0,
+          "continues": 0,
+          "score": 34527
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 24404,
+          "bossTicks": 2805,
+          "damage": 0,
+          "continues": 0,
+          "score": 40238
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 29563,
+          "bossTicks": 6164,
+          "damage": 0,
+          "continues": 0,
+          "score": 64974
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 232339
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 28575,
+          "bossTicks": 3376,
+          "damage": 0,
+          "continues": 0,
+          "score": 71937
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 45863,
+          "bossTicks": 13464,
+          "damage": 0,
+          "continues": 0,
+          "score": 327582
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 45863,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 57,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "echo",
+      "seed": 4527,
+      "complete": true,
+      "playedTicks": 173355,
+      "minutes": 24.08,
+      "damage": 1,
+      "continues": 0,
+      "selected": [
+        "cross-reference",
+        "cross-reference",
+        "footnote",
+        "longhand",
+        "footnote",
+        "footnote",
+        "cross-reference",
+        "cross-reference",
+        "longhand",
+        "cross-reference",
+        "longhand",
+        "cross-reference"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24193,
+          "bossTicks": 2594,
+          "damage": 0,
+          "continues": 0,
+          "score": 35437
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 27830,
+          "bossTicks": 6231,
+          "damage": 0,
+          "continues": 0,
+          "score": 54885
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 31661,
+          "bossTicks": 8262,
+          "damage": 0,
+          "continues": 0,
+          "score": 108268
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 1,
+          "continues": 0,
+          "score": 200280
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 27598,
+          "bossTicks": 2399,
+          "damage": 0,
+          "continues": 0,
+          "score": 225138
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 36459,
+          "bossTicks": 4060,
+          "damage": 0,
+          "continues": 0,
+          "score": 437256
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 36459,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 78,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "echo",
+      "seed": 4528,
+      "complete": true,
+      "playedTicks": 179804,
+      "minutes": 24.97,
+      "damage": 2,
+      "continues": 0,
+      "selected": [
+        "underline",
+        "rubric",
+        "underline",
+        "rubric",
+        "ligature",
+        "gloss",
+        "gloss",
+        "rubric",
+        "underline",
+        "gloss",
+        "ligature",
+        "ligature"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24193,
+          "bossTicks": 2594,
+          "damage": 0,
+          "continues": 0,
+          "score": 38027
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 24426,
+          "bossTicks": 2827,
+          "damage": 0,
+          "continues": 0,
+          "score": 37885
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 29139,
+          "bossTicks": 5740,
+          "damage": 0,
+          "continues": 0,
+          "score": 60459
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 225280
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 29242,
+          "bossTicks": 4043,
+          "damage": 1,
+          "continues": 0,
+          "score": 72427
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 47190,
+          "bossTicks": 14791,
+          "damage": 1,
+          "continues": 0,
+          "score": 322181
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 47190,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 55,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "echo",
+      "seed": 4529,
+      "complete": true,
+      "playedTicks": 178240,
+      "minutes": 24.76,
+      "damage": 4,
+      "continues": 0,
+      "selected": [
+        "afterword",
+        "citation",
+        "citation",
+        "citation",
+        "redaction",
+        "citation",
+        "citation",
+        "palinode",
+        "palinode",
+        "redaction",
+        "citation",
+        "palinode"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24193,
+          "bossTicks": 2594,
+          "damage": 1,
+          "continues": 0,
+          "score": 34227
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 24404,
+          "bossTicks": 2805,
+          "damage": 1,
+          "continues": 0,
+          "score": 41638
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 29563,
+          "bossTicks": 6164,
+          "damage": 0,
+          "continues": 0,
+          "score": 70674
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 226762
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 28602,
+          "bossTicks": 3403,
+          "damage": 2,
+          "continues": 0,
+          "score": 70537
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 45864,
+          "bossTicks": 13465,
+          "damage": 0,
+          "continues": 0,
+          "score": 349637
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 45864,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 60,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "normal",
+      "seed": 4500,
+      "complete": true,
+      "playedTicks": 174374,
+      "minutes": 24.22,
+      "damage": 1,
+      "continues": 0,
+      "selected": [
+        "cross-reference",
+        "longhand",
+        "longhand",
+        "longhand",
+        "errata",
+        "cross-reference",
+        "cross-reference",
+        "footnote",
+        "footnote",
+        "errata",
+        "footnote",
+        "errata"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24313,
+          "bossTicks": 2714,
+          "damage": 1,
+          "continues": 0,
+          "score": 36927
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 24404,
+          "bossTicks": 2805,
+          "damage": 0,
+          "continues": 0,
+          "score": 56511
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 31063,
+          "bossTicks": 7664,
+          "damage": 0,
+          "continues": 0,
+          "score": 418080
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 369679
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 27321,
+          "bossTicks": 2122,
+          "damage": 0,
+          "continues": 0,
+          "score": 383005
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 41659,
+          "bossTicks": 9260,
+          "damage": 0,
+          "continues": 0,
+          "score": 473171
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 41659,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 92,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "normal",
+      "seed": 4501,
+      "complete": true,
+      "playedTicks": 175298,
+      "minutes": 24.35,
+      "damage": 2,
+      "continues": 0,
+      "selected": [
+        "ligature",
+        "gloss",
+        "ligature",
+        "gloss",
+        "gloss",
+        "ligature",
+        "ligature",
+        "underline",
+        "rubric",
+        "ligature",
+        "ligature",
+        "underline"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 23912,
+          "bossTicks": 2313,
+          "damage": 0,
+          "continues": 0,
+          "score": 34815
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 26888,
+          "bossTicks": 5289,
+          "damage": 1,
+          "continues": 0,
+          "score": 71103
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 29867,
+          "bossTicks": 6468,
+          "damage": 0,
+          "continues": 0,
+          "score": 69475
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 167851
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 28145,
+          "bossTicks": 2946,
+          "damage": 0,
+          "continues": 0,
+          "score": 72648
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 40872,
+          "bossTicks": 8473,
+          "damage": 1,
+          "continues": 0,
+          "score": 285364
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 40872,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 61,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "normal",
+      "seed": 4502,
+      "complete": true,
+      "playedTicks": 175579,
+      "minutes": 24.39,
+      "damage": 3,
+      "continues": 0,
+      "selected": [
+        "redaction",
+        "palinode",
+        "palinode",
+        "palinode",
+        "afterword",
+        "citation",
+        "redaction",
+        "palinode",
+        "palinode",
+        "afterword",
+        "citation",
+        "palinode"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24313,
+          "bossTicks": 2714,
+          "damage": 1,
+          "continues": 0,
+          "score": 31227
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 24404,
+          "bossTicks": 2805,
+          "damage": 0,
+          "continues": 0,
+          "score": 49038
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 30179,
+          "bossTicks": 6780,
+          "damage": 1,
+          "continues": 0,
+          "score": 68223
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 1,
+          "continues": 0,
+          "score": 171178
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 28521,
+          "bossTicks": 3322,
+          "damage": 0,
+          "continues": 0,
+          "score": 68388
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 42548,
+          "bossTicks": 10149,
+          "damage": 0,
+          "continues": 0,
+          "score": 297765
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 42548,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 66,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "normal",
+      "seed": 4503,
+      "complete": true,
+      "playedTicks": 170480,
+      "minutes": 23.68,
+      "damage": 1,
+      "continues": 0,
+      "selected": [
+        "longhand",
+        "errata",
+        "longhand",
+        "errata",
+        "footnote",
+        "footnote",
+        "longhand",
+        "longhand",
+        "errata",
+        "cross-reference",
+        "cross-reference",
+        "cross-reference"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24253,
+          "bossTicks": 2654,
+          "damage": 0,
+          "continues": 0,
+          "score": 36527
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 24369,
+          "bossTicks": 2770,
+          "damage": 0,
+          "continues": 0,
+          "score": 48417
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 30709,
+          "bossTicks": 7310,
+          "damage": 1,
+          "continues": 0,
+          "score": 72452
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 254003
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 27333,
+          "bossTicks": 2134,
+          "damage": 0,
+          "continues": 0,
+          "score": 419142
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 38202,
+          "bossTicks": 5803,
+          "damage": 0,
+          "continues": 0,
+          "score": 463269
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 38202,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 89,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "normal",
+      "seed": 4504,
+      "complete": true,
+      "playedTicks": 178673,
+      "minutes": 24.82,
+      "damage": 1,
+      "continues": 0,
+      "selected": [
+        "underline",
+        "underline",
+        "underline",
+        "underline",
+        "underline",
+        "gloss",
+        "underline",
+        "ligature",
+        "underline",
+        "ligature",
+        "underline",
+        "ligature"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24313,
+          "bossTicks": 2714,
+          "damage": 1,
+          "continues": 0,
+          "score": 35827
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 27869,
+          "bossTicks": 6270,
+          "damage": 0,
+          "continues": 0,
+          "score": 54245
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 30179,
+          "bossTicks": 6780,
+          "damage": 0,
+          "continues": 0,
+          "score": 54023
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 184484
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 28145,
+          "bossTicks": 2946,
+          "damage": 0,
+          "continues": 0,
+          "score": 76148
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 42553,
+          "bossTicks": 10154,
+          "damage": 0,
+          "continues": 0,
+          "score": 285857
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 42553,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 55,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "normal",
+      "seed": 4505,
+      "complete": true,
+      "playedTicks": 175340,
+      "minutes": 24.35,
+      "damage": 1,
+      "continues": 0,
+      "selected": [
+        "afterword",
+        "palinode",
+        "citation",
+        "palinode",
+        "citation",
+        "citation",
+        "afterword",
+        "redaction",
+        "palinode",
+        "afterword",
+        "redaction",
+        "palinode"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24313,
+          "bossTicks": 2714,
+          "damage": 1,
+          "continues": 0,
+          "score": 33737
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 24404,
+          "bossTicks": 2805,
+          "damage": 0,
+          "continues": 0,
+          "score": 49351
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 29940,
+          "bossTicks": 6541,
+          "damage": 0,
+          "continues": 0,
+          "score": 58241
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 190288
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 28521,
+          "bossTicks": 3322,
+          "damage": 0,
+          "continues": 0,
+          "score": 66288
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 42548,
+          "bossTicks": 10149,
+          "damage": 0,
+          "continues": 0,
+          "score": 300573
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 42548,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 63,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "normal",
+      "seed": 4506,
+      "complete": true,
+      "playedTicks": 182946,
+      "minutes": 25.41,
+      "damage": 0,
+      "continues": 0,
+      "selected": [
+        "footnote",
+        "footnote",
+        "footnote",
+        "footnote",
+        "errata",
+        "cross-reference",
+        "footnote",
+        "footnote",
+        "longhand",
+        "cross-reference",
+        "errata",
+        "errata"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24313,
+          "bossTicks": 2714,
+          "damage": 0,
+          "continues": 0,
+          "score": 31327
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 27830,
+          "bossTicks": 6231,
+          "damage": 0,
+          "continues": 0,
+          "score": 56050
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 32003,
+          "bossTicks": 8604,
+          "damage": 0,
+          "continues": 0,
+          "score": 67723
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 149380
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 27321,
+          "bossTicks": 2122,
+          "damage": 0,
+          "continues": 0,
+          "score": 65482
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 45865,
+          "bossTicks": 13466,
+          "damage": 0,
+          "continues": 0,
+          "score": 299273
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 45865,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 66,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "normal",
+      "seed": 4507,
+      "complete": true,
+      "playedTicks": 181053,
+      "minutes": 25.15,
+      "damage": 2,
+      "continues": 0,
+      "selected": [
+        "gloss",
+        "rubric",
+        "underline",
+        "rubric",
+        "gloss",
+        "ligature",
+        "gloss",
+        "underline",
+        "gloss",
+        "underline",
+        "rubric",
+        "underline"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24313,
+          "bossTicks": 2714,
+          "damage": 0,
+          "continues": 0,
+          "score": 37827
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 24426,
+          "bossTicks": 2827,
+          "damage": 0,
+          "continues": 0,
+          "score": 52685
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 30179,
+          "bossTicks": 6780,
+          "damage": 1,
+          "continues": 0,
+          "score": 67523
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 119120
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 28324,
+          "bossTicks": 3125,
+          "damage": 0,
+          "continues": 0,
+          "score": 72651
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 48197,
+          "bossTicks": 15798,
+          "damage": 1,
+          "continues": 0,
+          "score": 309376
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 48197,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 65,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "normal",
+      "seed": 4508,
+      "complete": true,
+      "playedTicks": 175207,
+      "minutes": 24.33,
+      "damage": 3,
+      "continues": 0,
+      "selected": [
+        "citation",
+        "redaction",
+        "afterword",
+        "palinode",
+        "redaction",
+        "afterword",
+        "redaction",
+        "palinode",
+        "afterword",
+        "citation",
+        "afterword",
+        "citation"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 23891,
+          "bossTicks": 2292,
+          "damage": 1,
+          "continues": 0,
+          "score": 36574
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 24404,
+          "bossTicks": 2805,
+          "damage": 0,
+          "continues": 0,
+          "score": 40938
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 30229,
+          "bossTicks": 6830,
+          "damage": 2,
+          "continues": 0,
+          "score": 59582
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 181967
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 28521,
+          "bossTicks": 3322,
+          "damage": 0,
+          "continues": 0,
+          "score": 69088
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 42548,
+          "bossTicks": 10149,
+          "damage": 0,
+          "continues": 0,
+          "score": 297347
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 42548,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 68,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "normal",
+      "seed": 4509,
+      "complete": true,
+      "playedTicks": 171962,
+      "minutes": 23.88,
+      "damage": 0,
+      "continues": 0,
+      "selected": [
+        "footnote",
+        "footnote",
+        "footnote",
+        "errata",
+        "cross-reference",
+        "errata",
+        "longhand",
+        "longhand",
+        "cross-reference",
+        "longhand",
+        "longhand",
+        "footnote"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24313,
+          "bossTicks": 2714,
+          "damage": 0,
+          "continues": 0,
+          "score": 37127
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 27830,
+          "bossTicks": 6231,
+          "damage": 0,
+          "continues": 0,
+          "score": 59088
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 28682,
+          "bossTicks": 5283,
+          "damage": 0,
+          "continues": 0,
+          "score": 50160
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 157401
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 27321,
+          "bossTicks": 2122,
+          "damage": 0,
+          "continues": 0,
+          "score": 64082
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 38202,
+          "bossTicks": 5803,
+          "damage": 0,
+          "continues": 0,
+          "score": 459214
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 38202,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 89,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "normal",
+      "seed": 4510,
+      "complete": true,
+      "playedTicks": 182345,
+      "minutes": 25.33,
+      "damage": 0,
+      "continues": 0,
+      "selected": [
+        "underline",
+        "ligature",
+        "gloss",
+        "rubric",
+        "rubric",
+        "rubric",
+        "ligature",
+        "gloss",
+        "rubric",
+        "gloss",
+        "underline",
+        "rubric"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24313,
+          "bossTicks": 2714,
+          "damage": 0,
+          "continues": 0,
+          "score": 32627
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 26940,
+          "bossTicks": 5341,
+          "damage": 0,
+          "continues": 0,
+          "score": 62547
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 29960,
+          "bossTicks": 6561,
+          "damage": 0,
+          "continues": 0,
+          "score": 63319
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 142937
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 28324,
+          "bossTicks": 3125,
+          "damage": 0,
+          "continues": 0,
+          "score": 68451
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 47194,
+          "bossTicks": 14795,
+          "damage": 0,
+          "continues": 0,
+          "score": 294432
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 47194,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 61,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "normal",
+      "seed": 4511,
+      "complete": true,
+      "playedTicks": 176100,
+      "minutes": 24.46,
+      "damage": 1,
+      "continues": 0,
+      "selected": [
+        "afterword",
+        "afterword",
+        "afterword",
+        "citation",
+        "palinode",
+        "redaction",
+        "palinode",
+        "afterword",
+        "citation",
+        "redaction",
+        "redaction",
+        "redaction"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24313,
+          "bossTicks": 2714,
+          "damage": 0,
+          "continues": 0,
+          "score": 33827
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 24404,
+          "bossTicks": 2805,
+          "damage": 0,
+          "continues": 0,
+          "score": 46338
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 29940,
+          "bossTicks": 6541,
+          "damage": 0,
+          "continues": 0,
+          "score": 58241
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 1,
+          "continues": 0,
+          "score": 173516
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 29281,
+          "bossTicks": 4082,
+          "damage": 0,
+          "continues": 0,
+          "score": 76296
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 42548,
+          "bossTicks": 10149,
+          "damage": 0,
+          "continues": 0,
+          "score": 323548
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 42548,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 67,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "normal",
+      "seed": 4512,
+      "complete": true,
+      "playedTicks": 179012,
+      "minutes": 24.86,
+      "damage": 1,
+      "continues": 0,
+      "selected": [
+        "footnote",
+        "cross-reference",
+        "cross-reference",
+        "longhand",
+        "errata",
+        "footnote",
+        "footnote",
+        "longhand",
+        "longhand",
+        "cross-reference",
+        "footnote",
+        "cross-reference"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24313,
+          "bossTicks": 2714,
+          "damage": 1,
+          "continues": 0,
+          "score": 37827
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 27830,
+          "bossTicks": 6231,
+          "damage": 0,
+          "continues": 0,
+          "score": 51048
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 32275,
+          "bossTicks": 8876,
+          "damage": 0,
+          "continues": 0,
+          "score": 73323
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 160847
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 27321,
+          "bossTicks": 2122,
+          "damage": 0,
+          "continues": 0,
+          "score": 224113
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 41659,
+          "bossTicks": 9260,
+          "damage": 0,
+          "continues": 0,
+          "score": 475808
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 41659,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 96,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "normal",
+      "seed": 4513,
+      "complete": true,
+      "playedTicks": 181075,
+      "minutes": 25.15,
+      "damage": 5,
+      "continues": 0,
+      "selected": [
+        "gloss",
+        "underline",
+        "rubric",
+        "gloss",
+        "gloss",
+        "gloss",
+        "gloss",
+        "ligature",
+        "gloss",
+        "underline",
+        "ligature",
+        "ligature"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24313,
+          "bossTicks": 2714,
+          "damage": 0,
+          "continues": 0,
+          "score": 40227
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 24448,
+          "bossTicks": 2849,
+          "damage": 2,
+          "continues": 0,
+          "score": 64656
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 30179,
+          "bossTicks": 6780,
+          "damage": 1,
+          "continues": 0,
+          "score": 60423
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 177394
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 28324,
+          "bossTicks": 3125,
+          "damage": 1,
+          "continues": 0,
+          "score": 68451
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 48197,
+          "bossTicks": 15798,
+          "damage": 1,
+          "continues": 0,
+          "score": 282219
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 48197,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 62,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "normal",
+      "seed": 4514,
+      "complete": true,
+      "playedTicks": 174734,
+      "minutes": 24.27,
+      "damage": 3,
+      "continues": 0,
+      "selected": [
+        "afterword",
+        "redaction",
+        "redaction",
+        "palinode",
+        "afterword",
+        "palinode",
+        "afterword",
+        "afterword",
+        "afterword",
+        "palinode",
+        "citation",
+        "afterword"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24313,
+          "bossTicks": 2714,
+          "damage": 0,
+          "continues": 0,
+          "score": 37327
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 24404,
+          "bossTicks": 2805,
+          "damage": 2,
+          "continues": 0,
+          "score": 40938
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 30211,
+          "bossTicks": 6812,
+          "damage": 1,
+          "continues": 0,
+          "score": 58144
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 190128
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 27644,
+          "bossTicks": 2445,
+          "damage": 0,
+          "continues": 0,
+          "score": 70062
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 42548,
+          "bossTicks": 10149,
+          "damage": 0,
+          "continues": 0,
+          "score": 274039
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 42548,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 65,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "normal",
+      "seed": 4515,
+      "complete": true,
+      "playedTicks": 173980,
+      "minutes": 24.16,
+      "damage": 1,
+      "continues": 0,
+      "selected": [
+        "errata",
+        "footnote",
+        "cross-reference",
+        "errata",
+        "footnote",
+        "cross-reference",
+        "errata",
+        "footnote",
+        "cross-reference",
+        "errata",
+        "cross-reference",
+        "errata"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24313,
+          "bossTicks": 2714,
+          "damage": 0,
+          "continues": 0,
+          "score": 33527
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 24369,
+          "bossTicks": 2770,
+          "damage": 1,
+          "continues": 0,
+          "score": 49674
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 28682,
+          "bossTicks": 5283,
+          "damage": 0,
+          "continues": 0,
+          "score": 59360
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 166048
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 28264,
+          "bossTicks": 3065,
+          "damage": 0,
+          "continues": 0,
+          "score": 63638
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 42738,
+          "bossTicks": 10339,
+          "damage": 0,
+          "continues": 0,
+          "score": 277093
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 42738,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 71,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "normal",
+      "seed": 4516,
+      "complete": true,
+      "playedTicks": 182450,
+      "minutes": 25.34,
+      "damage": 2,
+      "continues": 0,
+      "selected": [
+        "underline",
+        "gloss",
+        "ligature",
+        "gloss",
+        "rubric",
+        "underline",
+        "ligature",
+        "rubric",
+        "rubric",
+        "gloss",
+        "gloss",
+        "gloss"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24313,
+          "bossTicks": 2714,
+          "damage": 0,
+          "continues": 0,
+          "score": 32627
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 26940,
+          "bossTicks": 5341,
+          "damage": 1,
+          "continues": 0,
+          "score": 69252
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 30065,
+          "bossTicks": 6666,
+          "damage": 0,
+          "continues": 0,
+          "score": 75554
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 1,
+          "continues": 0,
+          "score": 142594
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 28324,
+          "bossTicks": 3125,
+          "damage": 0,
+          "continues": 0,
+          "score": 67751
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 47194,
+          "bossTicks": 14795,
+          "damage": 0,
+          "continues": 0,
+          "score": 307589
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 47194,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 66,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "normal",
+      "seed": 4517,
+      "complete": true,
+      "playedTicks": 175419,
+      "minutes": 24.36,
+      "damage": 2,
+      "continues": 0,
+      "selected": [
+        "afterword",
+        "redaction",
+        "redaction",
+        "redaction",
+        "palinode",
+        "afterword",
+        "palinode",
+        "palinode",
+        "citation",
+        "redaction",
+        "palinode",
+        "citation"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24313,
+          "bossTicks": 2714,
+          "damage": 0,
+          "continues": 0,
+          "score": 39127
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 24376,
+          "bossTicks": 2777,
+          "damage": 0,
+          "continues": 0,
+          "score": 51375
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 30065,
+          "bossTicks": 6666,
+          "damage": 1,
+          "continues": 0,
+          "score": 53979
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 1,
+          "continues": 0,
+          "score": 180170
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 28503,
+          "bossTicks": 3304,
+          "damage": 0,
+          "continues": 0,
+          "score": 69771
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 42548,
+          "bossTicks": 10149,
+          "damage": 0,
+          "continues": 0,
+          "score": 312253
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 42548,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 67,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "normal",
+      "seed": 4518,
+      "complete": true,
+      "playedTicks": 170342,
+      "minutes": 23.66,
+      "damage": 1,
+      "continues": 0,
+      "selected": [
+        "footnote",
+        "errata",
+        "longhand",
+        "errata",
+        "longhand",
+        "longhand",
+        "longhand",
+        "errata",
+        "errata",
+        "footnote",
+        "footnote",
+        "longhand"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24313,
+          "bossTicks": 2714,
+          "damage": 0,
+          "continues": 0,
+          "score": 34527
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 24369,
+          "bossTicks": 2770,
+          "damage": 0,
+          "continues": 0,
+          "score": 53474
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 30511,
+          "bossTicks": 7112,
+          "damage": 1,
+          "continues": 0,
+          "score": 62479
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 299386
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 27333,
+          "bossTicks": 2134,
+          "damage": 0,
+          "continues": 0,
+          "score": 401908
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 38202,
+          "bossTicks": 5803,
+          "damage": 0,
+          "continues": 0,
+          "score": 487063
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 38202,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 91,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "normal",
+      "seed": 4519,
+      "complete": true,
+      "playedTicks": 183961,
+      "minutes": 25.55,
+      "damage": 1,
+      "continues": 0,
+      "selected": [
+        "gloss",
+        "ligature",
+        "ligature",
+        "ligature",
+        "ligature",
+        "rubric",
+        "rubric",
+        "gloss",
+        "ligature",
+        "rubric",
+        "ligature",
+        "rubric"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24313,
+          "bossTicks": 2714,
+          "damage": 0,
+          "continues": 0,
+          "score": 41427
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 26948,
+          "bossTicks": 5349,
+          "damage": 0,
+          "continues": 0,
+          "score": 62103
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 30583,
+          "bossTicks": 7184,
+          "damage": 0,
+          "continues": 0,
+          "score": 82657
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 143779
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 28306,
+          "bossTicks": 3107,
+          "damage": 0,
+          "continues": 0,
+          "score": 67826
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 48197,
+          "bossTicks": 15798,
+          "damage": 1,
+          "continues": 0,
+          "score": 301550
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 48197,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 69,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "normal",
+      "seed": 4520,
+      "complete": true,
+      "playedTicks": 176389,
+      "minutes": 24.5,
+      "damage": 0,
+      "continues": 0,
+      "selected": [
+        "palinode",
+        "palinode",
+        "citation",
+        "palinode",
+        "redaction",
+        "redaction",
+        "afterword",
+        "afterword",
+        "palinode",
+        "redaction",
+        "afterword",
+        "redaction"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24313,
+          "bossTicks": 2714,
+          "damage": 0,
+          "continues": 0,
+          "score": 34097
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 24404,
+          "bossTicks": 2805,
+          "damage": 0,
+          "continues": 0,
+          "score": 45438
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 30229,
+          "bossTicks": 6830,
+          "damage": 0,
+          "continues": 0,
+          "score": 66782
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 172169
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 29281,
+          "bossTicks": 4082,
+          "damage": 0,
+          "continues": 0,
+          "score": 68596
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 42548,
+          "bossTicks": 10149,
+          "damage": 0,
+          "continues": 0,
+          "score": 296097
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 42548,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 68,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "normal",
+      "seed": 4521,
+      "complete": true,
+      "playedTicks": 174161,
+      "minutes": 24.19,
+      "damage": 3,
+      "continues": 0,
+      "selected": [
+        "cross-reference",
+        "errata",
+        "errata",
+        "errata",
+        "cross-reference",
+        "longhand",
+        "errata",
+        "footnote",
+        "errata",
+        "footnote",
+        "longhand",
+        "longhand"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24313,
+          "bossTicks": 2714,
+          "damage": 1,
+          "continues": 0,
+          "score": 35227
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 24369,
+          "bossTicks": 2770,
+          "damage": 0,
+          "continues": 0,
+          "score": 39474
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 31686,
+          "bossTicks": 8287,
+          "damage": 1,
+          "continues": 0,
+          "score": 61641
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 1,
+          "continues": 0,
+          "score": 190896
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 27321,
+          "bossTicks": 2122,
+          "damage": 0,
+          "continues": 0,
+          "score": 61282
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 40858,
+          "bossTicks": 8459,
+          "damage": 0,
+          "continues": 0,
+          "score": 283350
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 40858,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 67,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "normal",
+      "seed": 4522,
+      "complete": true,
+      "playedTicks": 179348,
+      "minutes": 24.91,
+      "damage": 1,
+      "continues": 0,
+      "selected": [
+        "rubric",
+        "rubric",
+        "underline",
+        "rubric",
+        "rubric",
+        "underline",
+        "gloss",
+        "rubric",
+        "gloss",
+        "rubric",
+        "underline",
+        "gloss"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24106,
+          "bossTicks": 2507,
+          "damage": 0,
+          "continues": 0,
+          "score": 32427
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 24426,
+          "bossTicks": 2827,
+          "damage": 0,
+          "continues": 0,
+          "score": 39885
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 30065,
+          "bossTicks": 6666,
+          "damage": 1,
+          "continues": 0,
+          "score": 51977
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 122510
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 27943,
+          "bossTicks": 2744,
+          "damage": 0,
+          "continues": 0,
+          "score": 65944
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 47194,
+          "bossTicks": 14795,
+          "damage": 0,
+          "continues": 0,
+          "score": 328387
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 47194,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 69,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "normal",
+      "seed": 4523,
+      "complete": true,
+      "playedTicks": 175340,
+      "minutes": 24.35,
+      "damage": 1,
+      "continues": 0,
+      "selected": [
+        "redaction",
+        "citation",
+        "citation",
+        "citation",
+        "palinode",
+        "afterword",
+        "citation",
+        "palinode",
+        "redaction",
+        "citation",
+        "redaction",
+        "citation"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24313,
+          "bossTicks": 2714,
+          "damage": 1,
+          "continues": 0,
+          "score": 34227
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 24404,
+          "bossTicks": 2805,
+          "damage": 0,
+          "continues": 0,
+          "score": 45495
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 29940,
+          "bossTicks": 6541,
+          "damage": 0,
+          "continues": 0,
+          "score": 58241
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 181273
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 28521,
+          "bossTicks": 3322,
+          "damage": 0,
+          "continues": 0,
+          "score": 65688
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 42548,
+          "bossTicks": 10149,
+          "damage": 0,
+          "continues": 0,
+          "score": 297985
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 42548,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 65,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "normal",
+      "seed": 4524,
+      "complete": true,
+      "playedTicks": 176206,
+      "minutes": 24.47,
+      "damage": 0,
+      "continues": 0,
+      "selected": [
+        "longhand",
+        "footnote",
+        "footnote",
+        "errata",
+        "errata",
+        "cross-reference",
+        "longhand",
+        "errata",
+        "cross-reference",
+        "errata",
+        "errata",
+        "errata"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24253,
+          "bossTicks": 2654,
+          "damage": 0,
+          "continues": 0,
+          "score": 31727
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 27830,
+          "bossTicks": 6231,
+          "damage": 0,
+          "continues": 0,
+          "score": 52288
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 30330,
+          "bossTicks": 6931,
+          "damage": 0,
+          "continues": 0,
+          "score": 63902
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 179045
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 27321,
+          "bossTicks": 2122,
+          "damage": 0,
+          "continues": 0,
+          "score": 64782
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 40858,
+          "bossTicks": 8459,
+          "damage": 0,
+          "continues": 0,
+          "score": 305999
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 40858,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 66,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "normal",
+      "seed": 4525,
+      "complete": true,
+      "playedTicks": 180758,
+      "minutes": 25.11,
+      "damage": 4,
+      "continues": 0,
+      "selected": [
+        "rubric",
+        "rubric",
+        "underline",
+        "ligature",
+        "gloss",
+        "ligature",
+        "rubric",
+        "gloss",
+        "underline",
+        "ligature",
+        "rubric",
+        "underline"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24106,
+          "bossTicks": 2507,
+          "damage": 0,
+          "continues": 0,
+          "score": 32027
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 24426,
+          "bossTicks": 2827,
+          "damage": 1,
+          "continues": 0,
+          "score": 36785
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 29867,
+          "bossTicks": 6468,
+          "damage": 1,
+          "continues": 0,
+          "score": 60797
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 1,
+          "continues": 0,
+          "score": 179914
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 28548,
+          "bossTicks": 3349,
+          "damage": 0,
+          "continues": 0,
+          "score": 72056
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 48197,
+          "bossTicks": 15798,
+          "damage": 1,
+          "continues": 0,
+          "score": 293797
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 48197,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 64,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "normal",
+      "seed": 4526,
+      "complete": true,
+      "playedTicks": 175312,
+      "minutes": 24.35,
+      "damage": 3,
+      "continues": 0,
+      "selected": [
+        "palinode",
+        "afterword",
+        "afterword",
+        "citation",
+        "afterword",
+        "citation",
+        "palinode",
+        "redaction",
+        "citation",
+        "afterword",
+        "afterword",
+        "palinode"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24313,
+          "bossTicks": 2714,
+          "damage": 1,
+          "continues": 0,
+          "score": 32627
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 24376,
+          "bossTicks": 2777,
+          "damage": 1,
+          "continues": 0,
+          "score": 49275
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 29940,
+          "bossTicks": 6541,
+          "damage": 1,
+          "continues": 0,
+          "score": 59641
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 174654
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 28521,
+          "bossTicks": 3322,
+          "damage": 0,
+          "continues": 0,
+          "score": 65588
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 42548,
+          "bossTicks": 10149,
+          "damage": 0,
+          "continues": 0,
+          "score": 319239
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 42548,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 64,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "normal",
+      "seed": 4527,
+      "complete": true,
+      "playedTicks": 171100,
+      "minutes": 23.76,
+      "damage": 2,
+      "continues": 0,
+      "selected": [
+        "cross-reference",
+        "cross-reference",
+        "footnote",
+        "longhand",
+        "footnote",
+        "footnote",
+        "cross-reference",
+        "cross-reference",
+        "longhand",
+        "cross-reference",
+        "longhand",
+        "cross-reference"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24313,
+          "bossTicks": 2714,
+          "damage": 0,
+          "continues": 0,
+          "score": 36327
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 27830,
+          "bossTicks": 6231,
+          "damage": 2,
+          "continues": 0,
+          "score": 55488
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 29563,
+          "bossTicks": 6164,
+          "damage": 0,
+          "continues": 0,
+          "score": 62263
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 158894
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 27321,
+          "bossTicks": 2122,
+          "damage": 0,
+          "continues": 0,
+          "score": 62682
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 36459,
+          "bossTicks": 4060,
+          "damage": 0,
+          "continues": 0,
+          "score": 357947
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 36459,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 71,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "normal",
+      "seed": 4528,
+      "complete": true,
+      "playedTicks": 180751,
+      "minutes": 25.1,
+      "damage": 2,
+      "continues": 0,
+      "selected": [
+        "underline",
+        "rubric",
+        "underline",
+        "rubric",
+        "ligature",
+        "gloss",
+        "gloss",
+        "rubric",
+        "underline",
+        "gloss",
+        "ligature",
+        "ligature"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24313,
+          "bossTicks": 2714,
+          "damage": 0,
+          "continues": 0,
+          "score": 34327
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 24426,
+          "bossTicks": 2827,
+          "damage": 0,
+          "continues": 0,
+          "score": 42885
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 29877,
+          "bossTicks": 6478,
+          "damage": 0,
+          "continues": 0,
+          "score": 53275
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 132280
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 28324,
+          "bossTicks": 3125,
+          "damage": 0,
+          "continues": 0,
+          "score": 69151
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 48197,
+          "bossTicks": 15798,
+          "damage": 2,
+          "continues": 0,
+          "score": 298386
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 48197,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 66,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "normal",
+      "seed": 4529,
+      "complete": true,
+      "playedTicks": 175658,
+      "minutes": 24.4,
+      "damage": 2,
+      "continues": 0,
+      "selected": [
+        "afterword",
+        "citation",
+        "citation",
+        "citation",
+        "redaction",
+        "citation",
+        "citation",
+        "palinode",
+        "palinode",
+        "redaction",
+        "citation",
+        "palinode"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24313,
+          "bossTicks": 2714,
+          "damage": 1,
+          "continues": 0,
+          "score": 36127
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 24404,
+          "bossTicks": 2805,
+          "damage": 1,
+          "continues": 0,
+          "score": 50538
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 29940,
+          "bossTicks": 6541,
+          "damage": 0,
+          "continues": 0,
+          "score": 60341
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 181447
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 28839,
+          "bossTicks": 3640,
+          "damage": 0,
+          "continues": 0,
+          "score": 71276
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 42548,
+          "bossTicks": 10149,
+          "damage": 0,
+          "continues": 0,
+          "score": 309917
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 42548,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 68,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "proof",
+      "seed": 4500,
+      "complete": true,
+      "playedTicks": 174374,
+      "minutes": 24.22,
+      "damage": 0,
+      "continues": 0,
+      "selected": [
+        "cross-reference",
+        "longhand",
+        "longhand",
+        "longhand",
+        "errata",
+        "cross-reference",
+        "cross-reference",
+        "footnote",
+        "footnote",
+        "errata",
+        "footnote",
+        "errata"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24313,
+          "bossTicks": 2714,
+          "damage": 0,
+          "continues": 0,
+          "score": 34681
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 24404,
+          "bossTicks": 2805,
+          "damage": 0,
+          "continues": 0,
+          "score": 48938
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 31063,
+          "bossTicks": 7664,
+          "damage": 0,
+          "continues": 0,
+          "score": 266664
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 372374
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 27321,
+          "bossTicks": 2122,
+          "damage": 0,
+          "continues": 0,
+          "score": 401826
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 41659,
+          "bossTicks": 9260,
+          "damage": 0,
+          "continues": 0,
+          "score": 490264
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 41659,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 105,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "proof",
+      "seed": 4501,
+      "complete": true,
+      "playedTicks": 182627,
+      "minutes": 25.36,
+      "damage": 2,
+      "continues": 0,
+      "selected": [
+        "ligature",
+        "gloss",
+        "ligature",
+        "gloss",
+        "gloss",
+        "ligature",
+        "ligature",
+        "underline",
+        "rubric",
+        "ligature",
+        "ligature",
+        "underline"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 23912,
+          "bossTicks": 2313,
+          "damage": 0,
+          "continues": 0,
+          "score": 40027
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 26898,
+          "bossTicks": 5299,
+          "damage": 0,
+          "continues": 0,
+          "score": 66103
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 29877,
+          "bossTicks": 6478,
+          "damage": 0,
+          "continues": 0,
+          "score": 64575
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 172997
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 28126,
+          "bossTicks": 2927,
+          "damage": 0,
+          "continues": 0,
+          "score": 69848
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 48200,
+          "bossTicks": 15801,
+          "damage": 2,
+          "continues": 0,
+          "score": 332238
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 48200,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 73,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "proof",
+      "seed": 4502,
+      "complete": true,
+      "playedTicks": 175611,
+      "minutes": 24.39,
+      "damage": 2,
+      "continues": 0,
+      "selected": [
+        "redaction",
+        "palinode",
+        "palinode",
+        "palinode",
+        "afterword",
+        "citation",
+        "redaction",
+        "palinode",
+        "palinode",
+        "afterword",
+        "citation",
+        "palinode"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24313,
+          "bossTicks": 2714,
+          "damage": 0,
+          "continues": 0,
+          "score": 34527
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 24404,
+          "bossTicks": 2805,
+          "damage": 0,
+          "continues": 0,
+          "score": 48638
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 30211,
+          "bossTicks": 6812,
+          "damage": 1,
+          "continues": 0,
+          "score": 62423
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 1,
+          "continues": 0,
+          "score": 196047
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 28521,
+          "bossTicks": 3322,
+          "damage": 0,
+          "continues": 0,
+          "score": 66288
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 42548,
+          "bossTicks": 10149,
+          "damage": 0,
+          "continues": 0,
+          "score": 354383
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 42548,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 74,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "proof",
+      "seed": 4503,
+      "complete": true,
+      "playedTicks": 172085,
+      "minutes": 23.9,
+      "damage": 0,
+      "continues": 0,
+      "selected": [
+        "longhand",
+        "errata",
+        "longhand",
+        "errata",
+        "footnote",
+        "footnote",
+        "longhand",
+        "longhand",
+        "errata",
+        "cross-reference",
+        "cross-reference",
+        "cross-reference"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24253,
+          "bossTicks": 2654,
+          "damage": 0,
+          "continues": 0,
+          "score": 36678
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 24369,
+          "bossTicks": 2770,
+          "damage": 0,
+          "continues": 0,
+          "score": 73020
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 32314,
+          "bossTicks": 8915,
+          "damage": 0,
+          "continues": 0,
+          "score": 77667
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 241752
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 27333,
+          "bossTicks": 2134,
+          "damage": 0,
+          "continues": 0,
+          "score": 401205
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 38202,
+          "bossTicks": 5803,
+          "damage": 0,
+          "continues": 0,
+          "score": 477432
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 38202,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 92,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "proof",
+      "seed": 4504,
+      "complete": true,
+      "playedTicks": 178344,
+      "minutes": 24.77,
+      "damage": 1,
+      "continues": 0,
+      "selected": [
+        "underline",
+        "underline",
+        "underline",
+        "underline",
+        "underline",
+        "gloss",
+        "underline",
+        "ligature",
+        "underline",
+        "ligature",
+        "underline",
+        "ligature"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24313,
+          "bossTicks": 2714,
+          "damage": 0,
+          "continues": 0,
+          "score": 34327
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 27483,
+          "bossTicks": 5884,
+          "damage": 0,
+          "continues": 0,
+          "score": 56779
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 30261,
+          "bossTicks": 6862,
+          "damage": 0,
+          "continues": 0,
+          "score": 53860
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 164602
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 28125,
+          "bossTicks": 2926,
+          "damage": 0,
+          "continues": 0,
+          "score": 70548
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 42548,
+          "bossTicks": 10149,
+          "damage": 1,
+          "continues": 0,
+          "score": 348532
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 42548,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 66,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "proof",
+      "seed": 4505,
+      "complete": true,
+      "playedTicks": 175629,
+      "minutes": 24.39,
+      "damage": 4,
+      "continues": 0,
+      "selected": [
+        "afterword",
+        "palinode",
+        "citation",
+        "palinode",
+        "citation",
+        "citation",
+        "afterword",
+        "redaction",
+        "palinode",
+        "afterword",
+        "redaction",
+        "palinode"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24313,
+          "bossTicks": 2714,
+          "damage": 1,
+          "continues": 0,
+          "score": 33658
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 24404,
+          "bossTicks": 2805,
+          "damage": 1,
+          "continues": 0,
+          "score": 41638
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 30229,
+          "bossTicks": 6830,
+          "damage": 0,
+          "continues": 0,
+          "score": 54782
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 1,
+          "continues": 0,
+          "score": 198745
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 28521,
+          "bossTicks": 3322,
+          "damage": 1,
+          "continues": 0,
+          "score": 64888
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 42548,
+          "bossTicks": 10149,
+          "damage": 0,
+          "continues": 0,
+          "score": 355044
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 42548,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 73,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "proof",
+      "seed": 4506,
+      "complete": true,
+      "playedTicks": 179625,
+      "minutes": 24.95,
+      "damage": 4,
+      "continues": 0,
+      "selected": [
+        "footnote",
+        "footnote",
+        "footnote",
+        "footnote",
+        "errata",
+        "cross-reference",
+        "footnote",
+        "footnote",
+        "longhand",
+        "cross-reference",
+        "errata",
+        "errata"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24313,
+          "bossTicks": 2714,
+          "damage": 2,
+          "continues": 0,
+          "score": 41727
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 27830,
+          "bossTicks": 6231,
+          "damage": 0,
+          "continues": 0,
+          "score": 53188
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 28682,
+          "bossTicks": 5283,
+          "damage": 0,
+          "continues": 0,
+          "score": 57960
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 1,
+          "continues": 0,
+          "score": 165813
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 27321,
+          "bossTicks": 2122,
+          "damage": 1,
+          "continues": 0,
+          "score": 66882
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 45865,
+          "bossTicks": 13466,
+          "damage": 0,
+          "continues": 0,
+          "score": 343136
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 45865,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 78,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "proof",
+      "seed": 4507,
+      "complete": true,
+      "playedTicks": 171641,
+      "minutes": 23.84,
+      "damage": 2,
+      "continues": 0,
+      "selected": [
+        "gloss",
+        "rubric",
+        "underline",
+        "rubric",
+        "gloss",
+        "ligature",
+        "gloss",
+        "underline",
+        "gloss",
+        "underline",
+        "rubric",
+        "underline"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24313,
+          "bossTicks": 2714,
+          "damage": 1,
+          "continues": 0,
+          "score": 44827
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 24426,
+          "bossTicks": 2827,
+          "damage": 0,
+          "continues": 0,
+          "score": 56685
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 30179,
+          "bossTicks": 6780,
+          "damage": 0,
+          "continues": 0,
+          "score": 54023
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 1,
+          "continues": 0,
+          "score": 155165
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 28324,
+          "bossTicks": 3125,
+          "damage": 0,
+          "continues": 0,
+          "score": 68451
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 38785,
+          "bossTicks": 6386,
+          "damage": 0,
+          "continues": 0,
+          "score": 336040
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 38785,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 61,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "proof",
+      "seed": 4508,
+      "complete": true,
+      "playedTicks": 174907,
+      "minutes": 24.29,
+      "damage": 2,
+      "continues": 0,
+      "selected": [
+        "citation",
+        "redaction",
+        "afterword",
+        "palinode",
+        "redaction",
+        "afterword",
+        "redaction",
+        "palinode",
+        "afterword",
+        "citation",
+        "afterword",
+        "citation"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 23891,
+          "bossTicks": 2292,
+          "damage": 0,
+          "continues": 0,
+          "score": 33374
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 24404,
+          "bossTicks": 2805,
+          "damage": 1,
+          "continues": 0,
+          "score": 44738
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 29929,
+          "bossTicks": 6530,
+          "damage": 0,
+          "continues": 0,
+          "score": 60441
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 1,
+          "continues": 0,
+          "score": 187143
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 28521,
+          "bossTicks": 3322,
+          "damage": 0,
+          "continues": 0,
+          "score": 64888
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 42548,
+          "bossTicks": 10149,
+          "damage": 0,
+          "continues": 0,
+          "score": 361234
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 42548,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 75,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "proof",
+      "seed": 4509,
+      "complete": true,
+      "playedTicks": 174506,
+      "minutes": 24.24,
+      "damage": 5,
+      "continues": 0,
+      "selected": [
+        "footnote",
+        "footnote",
+        "footnote",
+        "errata",
+        "cross-reference",
+        "errata",
+        "longhand",
+        "longhand",
+        "cross-reference",
+        "longhand",
+        "longhand",
+        "footnote"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24313,
+          "bossTicks": 2714,
+          "damage": 0,
+          "continues": 0,
+          "score": 38109
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 27830,
+          "bossTicks": 6231,
+          "damage": 0,
+          "continues": 0,
+          "score": 49888
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 31226,
+          "bossTicks": 7827,
+          "damage": 0,
+          "continues": 0,
+          "score": 66558
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 2,
+          "continues": 0,
+          "score": 157975
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 27321,
+          "bossTicks": 2122,
+          "damage": 3,
+          "continues": 0,
+          "score": 63382
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 38202,
+          "bossTicks": 5803,
+          "damage": 0,
+          "continues": 0,
+          "score": 464719
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 38202,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 94,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "proof",
+      "seed": 4510,
+      "complete": true,
+      "playedTicks": 182220,
+      "minutes": 25.31,
+      "damage": 3,
+      "continues": 0,
+      "selected": [
+        "underline",
+        "ligature",
+        "gloss",
+        "rubric",
+        "rubric",
+        "rubric",
+        "ligature",
+        "gloss",
+        "rubric",
+        "gloss",
+        "underline",
+        "rubric"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24313,
+          "bossTicks": 2714,
+          "damage": 2,
+          "continues": 0,
+          "score": 38227
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 26898,
+          "bossTicks": 5299,
+          "damage": 0,
+          "continues": 0,
+          "score": 54303
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 29877,
+          "bossTicks": 6478,
+          "damage": 0,
+          "continues": 0,
+          "score": 73875
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 1,
+          "continues": 0,
+          "score": 96277
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 28324,
+          "bossTicks": 3125,
+          "damage": 0,
+          "continues": 0,
+          "score": 70551
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 47194,
+          "bossTicks": 14795,
+          "damage": 0,
+          "continues": 0,
+          "score": 370299
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 47194,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 78,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "proof",
+      "seed": 4511,
+      "complete": true,
+      "playedTicks": 175340,
+      "minutes": 24.35,
+      "damage": 1,
+      "continues": 0,
+      "selected": [
+        "afterword",
+        "afterword",
+        "afterword",
+        "citation",
+        "palinode",
+        "redaction",
+        "palinode",
+        "afterword",
+        "citation",
+        "redaction",
+        "redaction",
+        "redaction"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24313,
+          "bossTicks": 2714,
+          "damage": 0,
+          "continues": 0,
+          "score": 39227
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 24404,
+          "bossTicks": 2805,
+          "damage": 1,
+          "continues": 0,
+          "score": 47238
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 29940,
+          "bossTicks": 6541,
+          "damage": 0,
+          "continues": 0,
+          "score": 51941
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 196227
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 28521,
+          "bossTicks": 3322,
+          "damage": 0,
+          "continues": 0,
+          "score": 73388
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 42548,
+          "bossTicks": 10149,
+          "damage": 0,
+          "continues": 0,
+          "score": 386236
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 42548,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 78,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "proof",
+      "seed": 4512,
+      "complete": true,
+      "playedTicks": 177067,
+      "minutes": 24.59,
+      "damage": 1,
+      "continues": 0,
+      "selected": [
+        "footnote",
+        "cross-reference",
+        "cross-reference",
+        "longhand",
+        "errata",
+        "footnote",
+        "footnote",
+        "longhand",
+        "longhand",
+        "cross-reference",
+        "footnote",
+        "cross-reference"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24313,
+          "bossTicks": 2714,
+          "damage": 0,
+          "continues": 0,
+          "score": 35027
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 27830,
+          "bossTicks": 6231,
+          "damage": 0,
+          "continues": 0,
+          "score": 52388
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 30330,
+          "bossTicks": 6931,
+          "damage": 0,
+          "continues": 0,
+          "score": 66128
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 1,
+          "continues": 0,
+          "score": 164412
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 27321,
+          "bossTicks": 2122,
+          "damage": 0,
+          "continues": 0,
+          "score": 196547
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 41659,
+          "bossTicks": 9260,
+          "damage": 0,
+          "continues": 0,
+          "score": 514850
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 41659,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 103,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "proof",
+      "seed": 4513,
+      "complete": true,
+      "playedTicks": 171549,
+      "minutes": 23.83,
+      "damage": 0,
+      "continues": 0,
+      "selected": [
+        "gloss",
+        "underline",
+        "rubric",
+        "gloss",
+        "gloss",
+        "gloss",
+        "gloss",
+        "ligature",
+        "gloss",
+        "underline",
+        "ligature",
+        "ligature"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24313,
+          "bossTicks": 2714,
+          "damage": 0,
+          "continues": 0,
+          "score": 51627
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 24448,
+          "bossTicks": 2849,
+          "damage": 0,
+          "continues": 0,
+          "score": 55287
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 30065,
+          "bossTicks": 6666,
+          "damage": 0,
+          "continues": 0,
+          "score": 63179
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 194097
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 28324,
+          "bossTicks": 3125,
+          "damage": 0,
+          "continues": 0,
+          "score": 67051
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 38785,
+          "bossTicks": 6386,
+          "damage": 0,
+          "continues": 0,
+          "score": 356505
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 38785,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 66,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "proof",
+      "seed": 4514,
+      "complete": true,
+      "playedTicks": 175332,
+      "minutes": 24.35,
+      "damage": 2,
+      "continues": 0,
+      "selected": [
+        "afterword",
+        "redaction",
+        "redaction",
+        "palinode",
+        "afterword",
+        "palinode",
+        "afterword",
+        "afterword",
+        "afterword",
+        "palinode",
+        "citation",
+        "afterword"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24313,
+          "bossTicks": 2714,
+          "damage": 0,
+          "continues": 0,
+          "score": 37527
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 24404,
+          "bossTicks": 2805,
+          "damage": 0,
+          "continues": 0,
+          "score": 38138
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 30211,
+          "bossTicks": 6812,
+          "damage": 0,
+          "continues": 0,
+          "score": 68923
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 1,
+          "continues": 0,
+          "score": 187697
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 28242,
+          "bossTicks": 3043,
+          "damage": 1,
+          "continues": 0,
+          "score": 66348
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 42548,
+          "bossTicks": 10149,
+          "damage": 0,
+          "continues": 0,
+          "score": 355980
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 42548,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 75,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "proof",
+      "seed": 4515,
+      "complete": true,
+      "playedTicks": 176984,
+      "minutes": 24.58,
+      "damage": 1,
+      "continues": 0,
+      "selected": [
+        "errata",
+        "footnote",
+        "cross-reference",
+        "errata",
+        "footnote",
+        "cross-reference",
+        "errata",
+        "footnote",
+        "cross-reference",
+        "errata",
+        "cross-reference",
+        "errata"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24313,
+          "bossTicks": 2714,
+          "damage": 1,
+          "continues": 0,
+          "score": 34927
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 24369,
+          "bossTicks": 2770,
+          "damage": 0,
+          "continues": 0,
+          "score": 46874
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 31686,
+          "bossTicks": 8287,
+          "damage": 0,
+          "continues": 0,
+          "score": 52937
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 161380
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 28264,
+          "bossTicks": 3065,
+          "damage": 0,
+          "continues": 0,
+          "score": 63638
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 42738,
+          "bossTicks": 10339,
+          "damage": 0,
+          "continues": 0,
+          "score": 320149
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 42738,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 77,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "proof",
+      "seed": 4516,
+      "complete": true,
+      "playedTicks": 183516,
+      "minutes": 25.49,
+      "damage": 2,
+      "continues": 0,
+      "selected": [
+        "underline",
+        "gloss",
+        "ligature",
+        "gloss",
+        "rubric",
+        "underline",
+        "ligature",
+        "rubric",
+        "rubric",
+        "gloss",
+        "gloss",
+        "gloss"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24313,
+          "bossTicks": 2714,
+          "damage": 0,
+          "continues": 0,
+          "score": 37927
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 26881,
+          "bossTicks": 5282,
+          "damage": 0,
+          "continues": 0,
+          "score": 63003
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 29960,
+          "bossTicks": 6561,
+          "damage": 0,
+          "continues": 0,
+          "score": 61819
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 151522
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 28548,
+          "bossTicks": 3349,
+          "damage": 0,
+          "continues": 0,
+          "score": 73456
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 48200,
+          "bossTicks": 15801,
+          "damage": 2,
+          "continues": 0,
+          "score": 359108
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 48200,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 76,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "proof",
+      "seed": 4517,
+      "complete": true,
+      "playedTicks": 175478,
+      "minutes": 24.37,
+      "damage": 0,
+      "continues": 0,
+      "selected": [
+        "afterword",
+        "redaction",
+        "redaction",
+        "redaction",
+        "palinode",
+        "afterword",
+        "palinode",
+        "palinode",
+        "citation",
+        "redaction",
+        "palinode",
+        "citation"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24313,
+          "bossTicks": 2714,
+          "damage": 0,
+          "continues": 0,
+          "score": 34027
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 24376,
+          "bossTicks": 2777,
+          "damage": 0,
+          "continues": 0,
+          "score": 43375
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 30106,
+          "bossTicks": 6707,
+          "damage": 0,
+          "continues": 0,
+          "score": 59262
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 183335
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 28521,
+          "bossTicks": 3322,
+          "damage": 0,
+          "continues": 0,
+          "score": 67688
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 42548,
+          "bossTicks": 10149,
+          "damage": 0,
+          "continues": 0,
+          "score": 370676
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 42548,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 77,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "proof",
+      "seed": 4518,
+      "complete": true,
+      "playedTicks": 170607,
+      "minutes": 23.7,
+      "damage": 1,
+      "continues": 0,
+      "selected": [
+        "footnote",
+        "errata",
+        "longhand",
+        "errata",
+        "longhand",
+        "longhand",
+        "longhand",
+        "errata",
+        "errata",
+        "footnote",
+        "footnote",
+        "longhand"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24313,
+          "bossTicks": 2714,
+          "damage": 0,
+          "continues": 0,
+          "score": 35222
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 24369,
+          "bossTicks": 2770,
+          "damage": 0,
+          "continues": 0,
+          "score": 46174
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 30511,
+          "bossTicks": 7112,
+          "damage": 0,
+          "continues": 0,
+          "score": 67997
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 291633
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 27598,
+          "bossTicks": 2399,
+          "damage": 0,
+          "continues": 0,
+          "score": 394974
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 38202,
+          "bossTicks": 5803,
+          "damage": 1,
+          "continues": 0,
+          "score": 474772
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 38202,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 88,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "proof",
+      "seed": 4519,
+      "complete": true,
+      "playedTicks": 173926,
+      "minutes": 24.16,
+      "damage": 1,
+      "continues": 0,
+      "selected": [
+        "gloss",
+        "ligature",
+        "ligature",
+        "ligature",
+        "ligature",
+        "rubric",
+        "rubric",
+        "gloss",
+        "ligature",
+        "rubric",
+        "ligature",
+        "rubric"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24313,
+          "bossTicks": 2714,
+          "damage": 1,
+          "continues": 0,
+          "score": 40827
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 26948,
+          "bossTicks": 5349,
+          "damage": 0,
+          "continues": 0,
+          "score": 60603
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 29960,
+          "bossTicks": 6561,
+          "damage": 0,
+          "continues": 0,
+          "score": 54119
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 159042
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 28306,
+          "bossTicks": 3107,
+          "damage": 0,
+          "continues": 0,
+          "score": 68526
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 38785,
+          "bossTicks": 6386,
+          "damage": 0,
+          "continues": 0,
+          "score": 360807
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 38785,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 70,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "proof",
+      "seed": 4520,
+      "complete": true,
+      "playedTicks": 175346,
+      "minutes": 24.35,
+      "damage": 1,
+      "continues": 0,
+      "selected": [
+        "palinode",
+        "palinode",
+        "citation",
+        "palinode",
+        "redaction",
+        "redaction",
+        "afterword",
+        "afterword",
+        "palinode",
+        "redaction",
+        "afterword",
+        "redaction"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24313,
+          "bossTicks": 2714,
+          "damage": 0,
+          "continues": 0,
+          "score": 33027
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 24376,
+          "bossTicks": 2777,
+          "damage": 1,
+          "continues": 0,
+          "score": 51611
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 29992,
+          "bossTicks": 6593,
+          "damage": 0,
+          "continues": 0,
+          "score": 64980
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 192593
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 28503,
+          "bossTicks": 3304,
+          "damage": 0,
+          "continues": 0,
+          "score": 69771
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 42548,
+          "bossTicks": 10149,
+          "damage": 0,
+          "continues": 0,
+          "score": 359105
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 42548,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 73,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "proof",
+      "seed": 4521,
+      "complete": true,
+      "playedTicks": 173469,
+      "minutes": 24.09,
+      "damage": 3,
+      "continues": 0,
+      "selected": [
+        "cross-reference",
+        "errata",
+        "errata",
+        "errata",
+        "cross-reference",
+        "longhand",
+        "errata",
+        "footnote",
+        "errata",
+        "footnote",
+        "longhand",
+        "longhand"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24313,
+          "bossTicks": 2714,
+          "damage": 1,
+          "continues": 0,
+          "score": 31227
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 24369,
+          "bossTicks": 2770,
+          "damage": 0,
+          "continues": 0,
+          "score": 46574
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 30994,
+          "bossTicks": 7595,
+          "damage": 0,
+          "continues": 0,
+          "score": 61960
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 1,
+          "continues": 0,
+          "score": 192419
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 27321,
+          "bossTicks": 2122,
+          "damage": 1,
+          "continues": 0,
+          "score": 66182
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 40858,
+          "bossTicks": 8459,
+          "damage": 0,
+          "continues": 0,
+          "score": 322054
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 40858,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 74,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "proof",
+      "seed": 4522,
+      "complete": true,
+      "playedTicks": 179462,
+      "minutes": 24.93,
+      "damage": 0,
+      "continues": 0,
+      "selected": [
+        "rubric",
+        "rubric",
+        "underline",
+        "rubric",
+        "rubric",
+        "underline",
+        "gloss",
+        "rubric",
+        "gloss",
+        "rubric",
+        "underline",
+        "gloss"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24106,
+          "bossTicks": 2507,
+          "damage": 0,
+          "continues": 0,
+          "score": 35127
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 24426,
+          "bossTicks": 2827,
+          "damage": 0,
+          "continues": 0,
+          "score": 47885
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 30179,
+          "bossTicks": 6780,
+          "damage": 0,
+          "continues": 0,
+          "score": 56223
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 165048
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 27943,
+          "bossTicks": 2744,
+          "damage": 0,
+          "continues": 0,
+          "score": 69444
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 47194,
+          "bossTicks": 14795,
+          "damage": 0,
+          "continues": 0,
+          "score": 351438
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 47194,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 75,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "proof",
+      "seed": 4523,
+      "complete": true,
+      "playedTicks": 175601,
+      "minutes": 24.39,
+      "damage": 2,
+      "continues": 0,
+      "selected": [
+        "redaction",
+        "citation",
+        "citation",
+        "citation",
+        "palinode",
+        "afterword",
+        "citation",
+        "palinode",
+        "redaction",
+        "citation",
+        "redaction",
+        "citation"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24313,
+          "bossTicks": 2714,
+          "damage": 2,
+          "continues": 0,
+          "score": 38227
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 24376,
+          "bossTicks": 2777,
+          "damage": 0,
+          "continues": 0,
+          "score": 48975
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 30229,
+          "bossTicks": 6830,
+          "damage": 0,
+          "continues": 0,
+          "score": 52146
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 187351
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 28521,
+          "bossTicks": 3322,
+          "damage": 0,
+          "continues": 0,
+          "score": 65588
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 42548,
+          "bossTicks": 10149,
+          "damage": 0,
+          "continues": 0,
+          "score": 370950
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 42548,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 77,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "proof",
+      "seed": 4524,
+      "complete": true,
+      "playedTicks": 176206,
+      "minutes": 24.47,
+      "damage": 2,
+      "continues": 0,
+      "selected": [
+        "longhand",
+        "footnote",
+        "footnote",
+        "errata",
+        "errata",
+        "cross-reference",
+        "longhand",
+        "errata",
+        "cross-reference",
+        "errata",
+        "errata",
+        "errata"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24253,
+          "bossTicks": 2654,
+          "damage": 1,
+          "continues": 0,
+          "score": 37027
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 27830,
+          "bossTicks": 6231,
+          "damage": 1,
+          "continues": 0,
+          "score": 47788
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 30330,
+          "bossTicks": 6931,
+          "damage": 0,
+          "continues": 0,
+          "score": 64900
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 154725
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 27321,
+          "bossTicks": 2122,
+          "damage": 0,
+          "continues": 0,
+          "score": 64782
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 40858,
+          "bossTicks": 8459,
+          "damage": 0,
+          "continues": 0,
+          "score": 327743
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 40858,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 74,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "proof",
+      "seed": 4525,
+      "complete": true,
+      "playedTicks": 179755,
+      "minutes": 24.97,
+      "damage": 4,
+      "continues": 0,
+      "selected": [
+        "rubric",
+        "rubric",
+        "underline",
+        "ligature",
+        "gloss",
+        "ligature",
+        "rubric",
+        "gloss",
+        "underline",
+        "ligature",
+        "rubric",
+        "underline"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24106,
+          "bossTicks": 2507,
+          "damage": 0,
+          "continues": 0,
+          "score": 31727
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 24426,
+          "bossTicks": 2827,
+          "damage": 0,
+          "continues": 0,
+          "score": 37485
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 29867,
+          "bossTicks": 6468,
+          "damage": 1,
+          "continues": 0,
+          "score": 61718
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 1,
+          "continues": 0,
+          "score": 115850
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 28548,
+          "bossTicks": 3349,
+          "damage": 1,
+          "continues": 0,
+          "score": 73483
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 47194,
+          "bossTicks": 14795,
+          "damage": 1,
+          "continues": 0,
+          "score": 354155
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 47194,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 71,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "proof",
+      "seed": 4526,
+      "complete": true,
+      "playedTicks": 175340,
+      "minutes": 24.35,
+      "damage": 5,
+      "continues": 0,
+      "selected": [
+        "palinode",
+        "afterword",
+        "afterword",
+        "citation",
+        "afterword",
+        "citation",
+        "palinode",
+        "redaction",
+        "citation",
+        "afterword",
+        "afterword",
+        "palinode"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24313,
+          "bossTicks": 2714,
+          "damage": 3,
+          "continues": 0,
+          "score": 34027
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 24404,
+          "bossTicks": 2805,
+          "damage": 0,
+          "continues": 0,
+          "score": 49638
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 29940,
+          "bossTicks": 6541,
+          "damage": 0,
+          "continues": 0,
+          "score": 60341
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 1,
+          "continues": 0,
+          "score": 190944
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 28521,
+          "bossTicks": 3322,
+          "damage": 1,
+          "continues": 0,
+          "score": 70488
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 42548,
+          "bossTicks": 10149,
+          "damage": 0,
+          "continues": 0,
+          "score": 358633
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 42548,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 75,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "proof",
+      "seed": 4527,
+      "complete": true,
+      "playedTicks": 171907,
+      "minutes": 23.88,
+      "damage": 2,
+      "continues": 0,
+      "selected": [
+        "cross-reference",
+        "cross-reference",
+        "footnote",
+        "longhand",
+        "footnote",
+        "footnote",
+        "cross-reference",
+        "cross-reference",
+        "longhand",
+        "cross-reference",
+        "longhand",
+        "cross-reference"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24313,
+          "bossTicks": 2714,
+          "damage": 0,
+          "continues": 0,
+          "score": 32627
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 27830,
+          "bossTicks": 6231,
+          "damage": 1,
+          "continues": 0,
+          "score": 48888
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 30370,
+          "bossTicks": 6971,
+          "damage": 0,
+          "continues": 0,
+          "score": 69691
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 180886
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 27321,
+          "bossTicks": 2122,
+          "damage": 1,
+          "continues": 0,
+          "score": 60582
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 36459,
+          "bossTicks": 4060,
+          "damage": 0,
+          "continues": 0,
+          "score": 397356
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 36459,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 82,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "proof",
+      "seed": 4528,
+      "complete": true,
+      "playedTicks": 173640,
+      "minutes": 24.12,
+      "damage": 1,
+      "continues": 0,
+      "selected": [
+        "underline",
+        "rubric",
+        "underline",
+        "rubric",
+        "ligature",
+        "gloss",
+        "gloss",
+        "rubric",
+        "underline",
+        "gloss",
+        "ligature",
+        "ligature"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24313,
+          "bossTicks": 2714,
+          "damage": 0,
+          "continues": 0,
+          "score": 32227
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 24426,
+          "bossTicks": 2827,
+          "damage": 0,
+          "continues": 0,
+          "score": 36485
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 29867,
+          "bossTicks": 6468,
+          "damage": 0,
+          "continues": 0,
+          "score": 59675
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 0,
+          "continues": 0,
+          "score": 151406
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 28548,
+          "bossTicks": 3349,
+          "damage": 0,
+          "continues": 0,
+          "score": 73456
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 40872,
+          "bossTicks": 8473,
+          "damage": 1,
+          "continues": 0,
+          "score": 350567
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 40872,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 66,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    },
+    {
+      "difficulty": "proof",
+      "seed": 4529,
+      "complete": true,
+      "playedTicks": 175629,
+      "minutes": 24.39,
+      "damage": 1,
+      "continues": 0,
+      "selected": [
+        "afterword",
+        "citation",
+        "citation",
+        "citation",
+        "redaction",
+        "citation",
+        "citation",
+        "palinode",
+        "palinode",
+        "redaction",
+        "citation",
+        "palinode"
+      ],
+      "stages": [
+        {
+          "stage": "stage-01",
+          "playedTicks": 24313,
+          "bossTicks": 2714,
+          "damage": 0,
+          "continues": 0,
+          "score": 33527
+        },
+        {
+          "stage": "stage-02",
+          "playedTicks": 24404,
+          "bossTicks": 2805,
+          "damage": 0,
+          "continues": 0,
+          "score": 47638
+        },
+        {
+          "stage": "stage-03",
+          "playedTicks": 30229,
+          "bossTicks": 6830,
+          "damage": 0,
+          "continues": 0,
+          "score": 53282
+        },
+        {
+          "stage": "stage-04",
+          "playedTicks": 25614,
+          "bossTicks": 2215,
+          "damage": 1,
+          "continues": 0,
+          "score": 160263
+        },
+        {
+          "stage": "stage-05",
+          "playedTicks": 28521,
+          "bossTicks": 3322,
+          "damage": 0,
+          "continues": 0,
+          "score": 64188
+        },
+        {
+          "stage": "stage-06",
+          "playedTicks": 42548,
+          "bossTicks": 10149,
+          "damage": 0,
+          "continues": 0,
+          "score": 357355
+        }
+      ],
+      "stoppedAt": {
+        "stage": "stage-06",
+        "tick": 42548,
+        "checkpoint": "last-editor-gate",
+        "boss": null,
+        "phase": null,
+        "bossHealth": null,
+        "loops": 75,
+        "syncBreaks": 0,
+        "signatureClosures": 1
+      }
+    }
+  ]
+}

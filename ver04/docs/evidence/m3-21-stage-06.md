@@ -2,18 +2,18 @@
 
 - Duration: 32400 ticks (270 seconds)
 - Scheduled spawns: 90
-- Max enemies / enemy bullets: 8 / 38
+- Max enemies / enemy bullets: 8 / 20
 - Longest no-combat gap: 1 ticks
-- Binding / hound / choir / palanquin: 240 / 55 / 170 / 62
-- Inherited / synthesis COLLATE: 232 / 48
-- Determinism hashes: 6bbcaeb7054a6e8c, 6bbcaeb7054a6e8c, 6bbcaeb7054a6e8c, 6bbcaeb7054a6e8c
+- Binding / hound / choir / palanquin: 52 / 10 / 21 / 9
+- Inherited / synthesis COLLATE: 72 / 15
+- Determinism hashes: 089be441da8115a2, 089be441da8115a2, 089be441da8115a2, 089be441da8115a2
 
 | Enemy | Spawned | Attacks | Defeated | Exited |
 | --- | ---: | ---: | ---: | ---: |
-| binding-wasp | 30 | 240 | 9 | 21 |
-| revision-hound | 20 | 55 | 20 | 0 |
-| null-choir | 30 | 179 | 25 | 5 |
-| archive-palanquin | 10 | 62 | 9 | 1 |
+| binding-wasp | 30 | 52 | 6 | 24 |
+| revision-hound | 20 | 10 | 20 | 0 |
+| null-choir | 30 | 32 | 25 | 5 |
+| archive-palanquin | 10 | 9 | 9 | 1 |
 
 | Gate | Result |
 | --- | --- |

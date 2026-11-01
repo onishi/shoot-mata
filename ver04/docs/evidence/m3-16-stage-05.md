@@ -2,18 +2,18 @@
 
 - Duration: 25200 ticks (210 seconds)
 - Scheduled spawns: 70
-- Max enemies / enemy bullets: 10 / 66
-- Longest no-combat gap: 200 ticks
-- False trail peak / false annotations / loop exclusions: 127 / 80 / 20078
-- Illusory shots: 984
-- Determinism hashes: e8177df19eeeed33, e8177df19eeeed33, e8177df19eeeed33, e8177df19eeeed33
+- Max enemies / enemy bullets: 10 / 24
+- Longest no-combat gap: 170 ticks
+- False trail peak / false annotations / loop exclusions: 127 / 105 / 24317
+- Illusory shots: 172
+- Determinism hashes: b1098ffeb33bc9c0, b1098ffeb33bc9c0, b1098ffeb33bc9c0, b1098ffeb33bc9c0
 
 | Enemy | Spawned | Attacks | Defeated | Exited |
 | --- | ---: | ---: | ---: | ---: |
-| mirror-mote | 29 | 222 | 9 | 20 |
-| quotation-ram | 18 | 169 | 8 | 10 |
-| false-witness | 17 | 167 | 4 | 13 |
-| silver-obelisk | 6 | 79 | 0 | 6 |
+| mirror-mote | 29 | 36 | 13 | 16 |
+| quotation-ram | 18 | 25 | 7 | 11 |
+| false-witness | 17 | 26 | 7 | 10 |
+| silver-obelisk | 6 | 17 | 0 | 6 |
 
 | Gate | Result |
 | --- | --- |
