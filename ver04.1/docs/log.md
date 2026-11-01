@@ -1,5 +1,11 @@
 # v4.1 Log
 
+## 2026-11-02 — v4.1公開完了
+
+- release commit `fc3e37e`をmainへpushし、GitHub Actions run `41336937505`に合格した。build jobは完全`npm run verify`、v3系とv4.0の再構成・検査、8経路artifact uploadを完了し、deploy jobはPages公開と実URL検査を完了した。
+- `https://onishi.github.io/shoot-mata/`と`/v4.1/`はv4.1版表示とrelease commitが一致した。`/v4.0/`はv4.0版表示とrelease metadataを維持し、v3〜v3.4の固定URLも成功応答を返した。主要JavaScriptとCSSのMIMEも合格した。
+- workflow後に開発環境から同じ公開検査を独立再実行し、8経路、commit、v4.0保持、2 typed assetsに再度合格した。v4.1は完成・公開済みとし、次はv4.2の再評価へ進む。
+
 ## 2026-11-02 — v4.1-05 完成監査・release candidate
 
 - 4改善と継承製品ゲートを`evidence/v4.1-05-completion-audit.md`へ対応付け、公開以外の全項目に合格した。全6通常戦と全6ボスの現行画像を再目視し、戦闘情報、攻略対象、HUD、文字配置に回帰がないことを確認した。
