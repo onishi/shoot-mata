@@ -5,6 +5,7 @@ import { advance, createAppState, transition, type AppState } from '../src/app/a
 import { type Difficulty, type StageId, TICK_RATE } from '../src/core/types';
 import { type MarginaliaId } from '../src/content/marginalia';
 import { createCampaignPilot } from '../src/simulation/autopilot';
+import { DIFFICULTY_PRESSURE } from '../src/simulation/game';
 
 const difficulties: Difficulty[] = process.env.BALANCE_DIFFICULTY
   ? [process.env.BALANCE_DIFFICULTY as Difficulty]
@@ -21,6 +22,8 @@ interface StageResult {
   damage: number;
   continues: number;
   score: number;
+  maximumHazards: number;
+  mechanicSuccesses: number;
 }
 
 interface CampaignResult {
@@ -48,6 +51,7 @@ const simulateCampaign = (difficulty: Difficulty, seed: number): CampaignResult 
   let playedTicks = 0;
   let stagePlayedTicks = 0;
   let bossTicks = 0;
+  let maximumHazards = 0;
   let previousDamage = 0;
   let previousContinues = 0;
   const selected: MarginaliaId[] = [];
@@ -62,6 +66,7 @@ const simulateCampaign = (difficulty: Difficulty, seed: number): CampaignResult 
       playedTicks += 1;
       stagePlayedTicks += 1;
       if (beforeBoss || state.game.boss) bossTicks += 1;
+      maximumHazards = Math.max(maximumHazards, state.game.bullets.filter((bullet) => bullet.kind === 'enemy').length);
       continue;
     }
     if (state.screen === 'stage-intro') {
@@ -78,12 +83,25 @@ const simulateCampaign = (difficulty: Difficulty, seed: number): CampaignResult 
       const totalContinues = state.campaign.revisionsUsed + (1 - state.continuesRemaining);
       stages.push({
         stage: state.game.stageId, playedTicks: stagePlayedTicks, bossTicks,
-        damage: state.game.metrics.damage, continues: totalContinues - previousContinues, score: state.game.score
+        damage: state.game.metrics.damage, continues: totalContinues - previousContinues, score: state.game.score,
+        maximumHazards,
+        mechanicSuccesses: state.game.stageId === 'stage-01'
+          ? state.game.metrics.boss.returnedHits + state.game.metrics.boss.armorLayersStripped
+          : state.game.stageId === 'stage-02'
+            ? state.game.metrics.compiler.windLocks + state.game.metrics.compiler.weakpointHits
+            : state.game.stageId === 'stage-03'
+              ? state.game.metrics.eel.segmentMarks + state.game.metrics.eel.wetWeakpointHits
+              : state.game.stageId === 'stage-04'
+                ? state.game.metrics.advocate.embersCooled + state.game.metrics.advocate.cooledHits
+                : state.game.stageId === 'stage-05'
+                  ? state.game.metrics.apocrypha.syncBreaks + state.game.metrics.apocrypha.weakpointHits
+                  : state.game.metrics.editor.rulesRewritten + state.game.metrics.editor.revisionHits + state.game.metrics.editor.signatureClosures
       });
       previousDamage += state.game.metrics.damage;
       previousContinues = totalContinues;
       stagePlayedTicks = 0;
       bossTicks = 0;
+      maximumHazards = 0;
       state = transition(state, 'confirm');
       continue;
     }
@@ -134,7 +152,11 @@ describe('M4-05 campaign balance evidence', () => {
         medianMinutes: sortedMinutes[Math.floor(sortedMinutes.length / 2)],
         maximumMinutes: sortedMinutes.at(-1),
         medianDamage: sortedDamage[Math.floor(sortedDamage.length / 2)],
-        totalContinues: selected.reduce((sum, run) => sum + run.continues, 0)
+        totalContinues: selected.reduce((sum, run) => sum + run.continues, 0),
+        continueRate: selected.filter((run) => run.continues > 0).length / selected.length,
+        maximumHazards: Math.max(...selected.flatMap((run) => run.stages.map((stage) => stage.maximumHazards))),
+        warningTicks: DIFFICULTY_PRESSURE[difficulty].warningTicks,
+        mechanicSuccesses: selected.reduce((sum, run) => sum + run.stages.reduce((stageSum, stage) => stageSum + stage.mechanicSuccesses, 0), 0)
       };
     });
     const selectionCounts = Object.fromEntries(runs.flatMap((run) => run.selected)
@@ -142,11 +164,22 @@ describe('M4-05 campaign balance evidence', () => {
     const evidenceDir = resolve(process.env.EVIDENCE_DIR ?? resolve(process.cwd(), '../docs/evidence'));
     mkdirSync(evidenceDir, { recursive: true });
     writeFileSync(resolve(evidenceDir, 'm4-05-campaign-balance.json'), `${JSON.stringify({ generatedAt: '2026-11-01', seeds, summary, selectionCounts, runs }, null, 2)}\n`);
-    const rows = summary.map((row) => `| ${row.difficulty.toUpperCase()} | ${row.completed}/${runCount} | ${row.minimumMinutes} / ${row.medianMinutes} / ${row.maximumMinutes} | ${row.medianDamage} | ${row.totalContinues} |`).join('\n');
-    writeFileSync(resolve(evidenceDir, 'm4-05-campaign-balance.md'), `# M4-05 Campaign Balance\n\n- Runs: ${runCount} seeds per difficulty\n- Controller: current-screen campaign pilot; health zero, one continue per stage, midpoint/result MARGINALIA, and AppState transitions enforced\n- Duration gate: 15:00–25:36 (the 25-minute product target plus 36 seconds of deterministic sampling tolerance)\n\n| Difficulty | Complete | Minutes min / median / max | Median damage | Continues |\n| --- | ---: | ---: | ---: | ---: |\n${rows}\n\n## Marginalia selections\n\n${Object.entries(selectionCounts).sort().map(([id, count]) => `- ${id}: ${count}`).join('\n')}\n`);
+    const rows = summary.map((row) => `| ${row.difficulty.toUpperCase()} | ${row.completed}/${runCount} | ${row.minimumMinutes} / ${row.medianMinutes} / ${row.maximumMinutes} | ${row.medianDamage} | ${row.totalContinues} (${Math.round(row.continueRate * 100)}%) | ${row.maximumHazards} | ${row.warningTicks} | ${row.mechanicSuccesses} |`).join('\n');
+    writeFileSync(resolve(evidenceDir, 'm4-05-campaign-balance.md'), `# M4-05 Campaign Balance\n\n- Runs: ${runCount} seeds per difficulty\n- Controller: current-screen campaign pilot; health zero, one continue per stage, midpoint/result MARGINALIA, and AppState transitions enforced\n- Duration gate: 15:00–25:36 (the 25-minute product target plus 36 seconds of deterministic sampling tolerance)\n\n| Difficulty | Complete | Minutes min / median / max | Median damage | Continues (rate) | Max hazards | Bailiff warning ticks | Mechanic successes |\n| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |\n${rows}\n\n## Marginalia selections\n\n${Object.entries(selectionCounts).sort().map(([id, count]) => `- ${id}: ${count}`).join('\n')}\n`);
 
     expect(runs.every((run) => run.complete)).toBe(true);
     expect(runs.every((run) => run.minutes >= 15 && run.minutes <= maximumCampaignMinutes)).toBe(true);
     if (runs.length >= 12) expect(Object.keys(selectionCounts)).toHaveLength(12);
+    if (runCount >= 30 && summary.length === 3) {
+      const [echo, normal, proof] = summary;
+      expect(echo.medianDamage).toBeLessThanOrEqual(normal.medianDamage);
+      expect(normal.medianDamage).toBeLessThanOrEqual(proof.medianDamage);
+      expect(proof.medianDamage - echo.medianDamage).toBeGreaterThanOrEqual(1);
+      expect(echo.continueRate).toBeLessThanOrEqual(0.1);
+      expect(normal.continueRate).toBeLessThanOrEqual(0.25);
+      expect(proof.continueRate).toBeLessThanOrEqual(0.5);
+      expect(summary.every((row) => row.medianMinutes >= 15 && row.medianMinutes <= 25)).toBe(true);
+      expect(summary.every((row) => row.mechanicSuccesses > 0)).toBe(true);
+    }
   }, 1_800_000);
 });

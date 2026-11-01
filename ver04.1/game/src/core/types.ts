@@ -272,6 +272,7 @@ export interface Metrics {
 }
 export interface GameState {
   stageId: StageId;
+  difficulty: Difficulty;
   tick: number;
   nextId: number;
   seed: number;

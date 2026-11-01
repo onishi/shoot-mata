@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { createAppState, transition } from '../src/app/app';
 import { defaultSettings, loadSettings, saveSettings, SETTINGS_KEY, SETTINGS_TEMP_KEY } from '../src/app/settings';
 import type { StorageLike } from '../src/app/save';
-import { createInitialState, step } from '../src/simulation/game';
+import { STAGE_01_BOSS_START_TICK, STAGE_01_SPAWNS } from '../src/content/stage-01';
+import { createInitialState, DIFFICULTY_PRESSURE, step } from '../src/simulation/game';
 
 class MemoryStorage implements StorageLike {
   values = new Map<string, string>();
@@ -69,7 +70,26 @@ describe('M4 independent settings persistence', () => {
     const hit = createInitialState(404);
     hit.bullets = [{ id: hit.nextId++, x: hit.player.x, y: hit.player.y, vx: 0, vy: 0, radius: 8, kind: 'enemy', annotated: false, capturable: true }];
     const echoHit = step(hit, {}, 'echo').state;
-    expect(echoHit.player.invulnerableUntil - echoHit.tick).toBe(360);
+    expect(echoHit.player.invulnerableUntil - echoHit.tick).toBe(420);
+    expect(echoHit.bullets.filter((bullet) => bullet.kind === 'enemy')).toHaveLength(0);
+
+    expect(DIFFICULTY_PRESSURE.echo.warningTicks).toBeGreaterThan(DIFFICULTY_PRESSURE.normal.warningTicks);
+    expect(DIFFICULTY_PRESSURE.normal.warningTicks).toBeGreaterThan(DIFFICULTY_PRESSURE.proof.warningTicks);
+    expect(DIFFICULTY_PRESSURE.echo.aimSpread).toBe(DIFFICULTY_PRESSURE.normal.aimSpread);
+    expect(DIFFICULTY_PRESSURE.proof.aimSpread).toBeGreaterThan(DIFFICULTY_PRESSURE.normal.aimSpread);
+
+    const echoGate = createInitialState(404, 'stage-01', 'echo');
+    echoGate.tick = STAGE_01_BOSS_START_TICK - 1;
+    echoGate.encounterIndex = STAGE_01_SPAWNS.length;
+    echoGate.enemies = [];
+    const proofGate = createInitialState(404, 'stage-01', 'proof');
+    proofGate.tick = STAGE_01_BOSS_START_TICK - 1;
+    proofGate.encounterIndex = STAGE_01_SPAWNS.length;
+    proofGate.enemies = [];
+    const echoBoss = step(echoGate, {}, 'echo').state;
+    const proofBoss = step(proofGate, {}, 'proof').state;
+    expect(echoBoss.boss!.fanFiresAt - echoBoss.tick).toBe(120);
+    expect(proofBoss.boss!.fanFiresAt - proofBoss.tick).toBe(60);
 
     const normalOpening = createInitialState(404, 'stage-01', 'normal').enemies[0];
     const proofOpening = createInitialState(404, 'stage-01', 'proof').enemies[0];

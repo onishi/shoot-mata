@@ -16,6 +16,19 @@ const trailLifetime = (difficulty: Difficulty): number => Math.round((difficulty
 const PLAYER_RADIUS = 13;
 export const PLAYGROUND_DURATION_TICKS = STAGE_01_DURATION_TICKS;
 
+export const DIFFICULTY_PRESSURE = {
+  echo: { initialCooldown: 1.18, cooldownStep: 7, warningTicks: 120, invulnerabilityTicks: 420, hazardRecovery: 'all', aimSpread: 1 },
+  normal: { initialCooldown: 1, cooldownStep: 5, warningTicks: 90, invulnerabilityTicks: 240, hazardRecovery: 'weak', aimSpread: 1 },
+  proof: { initialCooldown: 0.82, cooldownStep: 4, warningTicks: 60, invulnerabilityTicks: 240, hazardRecovery: 'weak', aimSpread: 1.16 }
+} as const satisfies Record<Difficulty, {
+  initialCooldown: number;
+  cooldownStep: number;
+  warningTicks: number;
+  invulnerabilityTicks: number;
+  hazardRecovery: 'all' | 'weak' | 'none';
+  aimSpread: number;
+}>;
+
 const nextRandom = (state: GameState): number => {
   let value = state.seed | 0;
   value ^= value << 13;
@@ -41,7 +54,7 @@ const createEnemy = (state: GameState, encounter: StageEnemySpawn, difficulty: D
       'ash-comma': 96, 'kiln-censor': 150, 'ember-courier': 126, 'char-press': 180,
       'mirror-mote': 102, 'quotation-ram': 132, 'false-witness': 144, 'silver-obelisk': 180,
       'binding-wasp': 114, 'revision-hound': 138, 'null-choir': 168, 'archive-palanquin': 192
-    }[encounter.kind]) + cooldownJitter) * (difficulty === 'proof' ? 0.82 : 1)),
+    }[encounter.kind]) + cooldownJitter) * DIFFICULTY_PRESSURE[difficulty].initialCooldown),
     radius: ENEMY_VISUAL_CONTRACT[encounter.kind].collisionRadius,
     baseY: encounter.y * SCALE, amplitude: encounter.amplitude,
     phase: phaseJitter, spawnedAt: state.tick, expiresAt: Math.min(state.tick + encounter.lifetime, stage.durationTicks - 1),
@@ -81,6 +94,7 @@ export const createInitialState = (seed = 1, stageId: StageId = 'stage-01', diff
   const stage = stageDefinition(stageId);
   const state: GameState = {
   stageId,
+  difficulty,
   tick: 0,
   nextId: 1,
   seed: seed || 1,
@@ -141,7 +155,8 @@ const spawnEnemyBullet = (state: GameState, enemy: Point, angleOffset = 0, speed
     state.metrics.rejectedEnemyBullets += 1;
     return false;
   }
-  const aim = Math.atan2(state.player.y - enemy.y, state.player.x - enemy.x) + angleOffset;
+  const aim = Math.atan2(state.player.y - enemy.y, state.player.x - enemy.x)
+    + angleOffset * DIFFICULTY_PRESSURE[state.difficulty].aimSpread;
   const dx = Math.cos(aim);
   const dy = Math.sin(aim);
   const length = Math.max(1, Math.hypot(dx, dy));
@@ -164,12 +179,13 @@ const spawnIllusoryBullet = (state: GameState, enemy: Point, angleOffset: number
   return true;
 };
 
-const createBoss = (state: GameState): BossState => ({
+const createBoss = (state: GameState, difficulty: Difficulty): BossState => ({
   kind: 'blank-bailiff',
   x: 1050 * SCALE, y: 360 * SCALE, health: 1200, maxHealth: 1200,
   armor: 300, maxArmor: 300, armorLayers: 3, phase: 1,
   phaseStartedAt: state.tick, cycleStartedAt: state.tick,
-  fanAngle: Math.PI, fanWarningUntil: state.tick + 90, fanFiresAt: state.tick + 90,
+  fanAngle: Math.PI, fanWarningUntil: state.tick + DIFFICULTY_PRESSURE[difficulty].warningTicks,
+  fanFiresAt: state.tick + DIFFICULTY_PRESSURE[difficulty].warningTicks,
   defeatedAt: null, vaneSide: -1, windLockedUntil: 0, lockedWindDirection: 1, seamExposedUntil: 0,
   activeSegment: 0, segmentMarkedUntil: 0, syncBrokenUntil: 0, vulnerableTwin: -1, twinSwap: 1,
   editorRule: 0, revisionExposedUntil: 0, signatureExposedUntil: 0, editorRulesMask: 0
@@ -301,7 +317,7 @@ const spawnEditorSignature = (state: GameState): void => {
   state.metrics.editor.attacks.signature += 1;
 };
 
-const updateBoss = (state: GameState, events: GameEvent[]): void => {
+const updateBoss = (state: GameState, events: GameEvent[], difficulty: Difficulty): void => {
   if (state.stageId === 'stage-06') {
     if (!state.boss && state.tick >= STAGE_06_BOSS_START_TICK && !state.metrics.boss.defeated) {
       state.bullets = state.bullets.filter((bullet) => bullet.kind !== 'enemy');
@@ -482,7 +498,7 @@ const updateBoss = (state: GameState, events: GameEvent[]): void => {
     // The harbor route closes before the duel: stale formation fire must not
     // obscure the Bailiff's first authored warning.
     state.bullets = state.bullets.filter((bullet) => bullet.kind !== 'enemy');
-    state.boss = createBoss(state);
+    state.boss = createBoss(state, difficulty);
     state.metrics.boss.spawned = true;
     state.metrics.boss.phaseReached[0] = true;
     state.metrics.boss.fanWarnings += 1;
@@ -513,8 +529,8 @@ const updateBoss = (state: GameState, events: GameEvent[]): void => {
   if (age >= cycleLength) {
     boss.cycleStartedAt = state.tick;
     boss.fanAngle = Math.atan2(state.player.y - boss.y, state.player.x - boss.x);
-    boss.fanWarningUntil = state.tick + 90;
-    boss.fanFiresAt = state.tick + 90;
+    boss.fanWarningUntil = state.tick + DIFFICULTY_PRESSURE[difficulty].warningTicks;
+    boss.fanFiresAt = state.tick + DIFFICULTY_PRESSURE[difficulty].warningTicks;
     state.metrics.boss.fanWarnings += 1;
     events.push({ type: 'boss-warning' });
   }
@@ -660,9 +676,7 @@ const updateEnemy = (state: GameState, enemy: Enemy, events: GameEvent[], diffic
   // Difficulty must govern sustained pressure, not only the randomized delay
   // before an enemy's first shot. The authored cooldowns predate overlapping
   // campaign formations, so count them down at three readable pressure rates.
-  if ((difficulty === 'proof' && state.tick % 4 === 0)
-    || (difficulty === 'normal' && state.tick % 5 === 0)
-    || (difficulty === 'echo' && state.tick % 6 === 0)) enemy.fireCooldown -= 1;
+  if (state.tick % DIFFICULTY_PRESSURE[difficulty].cooldownStep === 0) enemy.fireCooldown -= 1;
 
   if (enemy.kind === 'eraser-mite') {
     const target = state.trail.slice().sort((a, b) => distanceSq(enemy, a) - distanceSq(enemy, b) || a.segmentId - b.segmentId)[0];
@@ -1141,6 +1155,7 @@ const collate = (state: GameState, events: GameEvent[], marginalia: readonly Mar
 
 export const step = (previous: GameState, input: InputFrame, difficulty: Difficulty = 'normal', marginalia: readonly MarginaliaId[] = []): { state: GameState; events: GameEvent[] } => {
   const state = copyState(previous);
+  state.difficulty = difficulty;
   const events: GameEvent[] = [];
   const effects = marginaliaEffects(marginalia);
   state.tick += 1;
@@ -1176,7 +1191,7 @@ export const step = (previous: GameState, input: InputFrame, difficulty: Difficu
   }
 
   spawnDueEncounters(state, difficulty);
-  updateBoss(state, events);
+  updateBoss(state, events, difficulty);
 
   applyHeat(state, events);
   const afterwordBonus = effects.afterword && state.tick - state.lastDamageTick <= 3 * TICK_RATE ? TICK_RATE : 0;
@@ -1261,6 +1276,7 @@ export const step = (previous: GameState, input: InputFrame, difficulty: Difficu
   const remaining: Bullet[] = [];
   const defeated = new Set<number>();
   let clearWeakEnemyBullets = false;
+  let clearAllEnemyBullets = false;
   for (const bullet of state.bullets) {
     let consumed = false;
     if (bullet.kind !== 'enemy') {
@@ -1507,7 +1523,7 @@ export const step = (previous: GameState, input: InputFrame, difficulty: Difficu
       && distanceSq(bullet, state.player) <= ((bullet.radius + PLAYER_RADIUS) * SCALE) ** 2) {
       state.player.health = Math.max(0, state.player.health - 1);
       state.lastDamageTick = state.tick;
-      state.player.invulnerableUntil = state.tick + (difficulty === 'echo' ? 360 : difficulty === 'normal' ? 240 : 180);
+      state.player.invulnerableUntil = state.tick + DIFFICULTY_PRESSURE[difficulty].invulnerabilityTicks;
       // Compiler pressure displaces the pilot but does not erase writing; its
       // boss lesson is completing a wind-bent loop, not restarting one after
       // every graze. Erasure remains a property of the Bailiff and Mites.
@@ -1523,7 +1539,9 @@ export const step = (previous: GameState, input: InputFrame, difficulty: Difficu
         state.candidate = null;
       }
       state.metrics.damage += 1;
-      if (bullet.sourceAttack === 'enemy-volley' || bullet.sourceAttack === undefined) clearWeakEnemyBullets = true;
+      const recovery = DIFFICULTY_PRESSURE[difficulty].hazardRecovery;
+      if (recovery === 'all') clearAllEnemyBullets = true;
+      else if (recovery === 'weak' && (bullet.sourceAttack === 'enemy-volley' || bullet.sourceAttack === undefined)) clearWeakEnemyBullets = true;
       if (bullet.sourceAttack === 'boss-fan') state.metrics.boss.damageByAttack.fan += 1;
       else if (bullet.sourceAttack === 'boss-sweep') state.metrics.boss.damageByAttack.sweep += 1;
       else if (bullet.sourceAttack === 'compiler-gust') state.metrics.compiler.damageByAttack.gust += 1;
@@ -1550,7 +1568,9 @@ export const step = (previous: GameState, input: InputFrame, difficulty: Difficu
     }
     if (!consumed && bullet.x > -30 * SCALE && bullet.x < (WIDTH + 30) * SCALE && bullet.y > -30 * SCALE && bullet.y < (HEIGHT + 30) * SCALE) remaining.push(bullet);
   }
-  state.bullets = clearWeakEnemyBullets
+  state.bullets = clearAllEnemyBullets
+    ? remaining.filter((bullet) => bullet.kind !== 'enemy')
+    : clearWeakEnemyBullets
     ? remaining.filter((bullet) => bullet.kind !== 'enemy' || (bullet.sourceAttack !== 'enemy-volley' && bullet.sourceAttack !== undefined))
     : remaining;
   state.enemies = state.enemies.filter((enemy) => {
