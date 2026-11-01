@@ -2,68 +2,68 @@
   "generatedAt": "2026-11-01",
   "seed": 3622,
   "baseline": {
-    "durationTicks": 20425,
-    "maxEnemyBullets": 220,
+    "durationTicks": 15033,
+    "maxEnemyBullets": 128,
     "editor": {
       "rulesRewritten": 0,
       "revisionExposedTicks": 0,
-      "revisionHits": 0,
-      "ordinaryHits": 2031,
-      "signatureInkSpawned": 176,
-      "signatureClosures": 0,
-      "signatureExposedTicks": 0,
+      "revisionHits": 304,
+      "ordinaryHits": 1188,
+      "signatureInkSpawned": 80,
+      "signatureClosures": 1,
+      "signatureExposedTicks": 960,
       "phaseReached": [
         true,
         true,
         true
       ],
       "attacks": {
-        "erasure": 29,
-        "wind": 23,
-        "rain": 32,
-        "heat": 29,
-        "mirror": 29,
-        "signature": 22
+        "erasure": 19,
+        "wind": 17,
+        "rain": 23,
+        "heat": 20,
+        "mirror": 20,
+        "signature": 10
       },
       "damageByAttack": {
-        "erasure": 9,
+        "erasure": 6,
         "wind": 1,
         "rain": 2,
         "heat": 0,
-        "mirror": 2,
-        "signature": 5
+        "mirror": 3,
+        "signature": 0
       }
     },
-    "hash": "e4ac510b4d1d9be5"
+    "hash": "f18647aa7817c80a"
   },
   "stitch": {
-    "durationTicks": 9639,
+    "durationTicks": 11722,
     "phaseTicks": [
       0,
       758,
-      8741
+      8721
     ],
-    "maxEnemyBullets": 52,
+    "maxEnemyBullets": 108,
     "editor": {
       "rulesRewritten": 5,
-      "revisionExposedTicks": 6159,
-      "revisionHits": 630,
-      "ordinaryHits": 193,
-      "signatureInkSpawned": 24,
-      "signatureClosures": 1,
-      "signatureExposedTicks": 17,
+      "revisionExposedTicks": 6149,
+      "revisionHits": 817,
+      "ordinaryHits": 216,
+      "signatureInkSpawned": 80,
+      "signatureClosures": 2,
+      "signatureExposedTicks": 1920,
       "phaseReached": [
         true,
         true,
         true
       ],
       "attacks": {
-        "erasure": 11,
-        "wind": 11,
-        "rain": 19,
-        "heat": 12,
-        "mirror": 12,
-        "signature": 3
+        "erasure": 15,
+        "wind": 13,
+        "rain": 21,
+        "heat": 17,
+        "mirror": 17,
+        "signature": 10
       },
       "damageByAttack": {
         "erasure": 0,
@@ -74,13 +74,14 @@
         "signature": 0
       }
     },
-    "hash": "e3b2d70d5169b33b"
+    "hash": "8ba8750eea939d25"
   },
-  "replayHash": "e3b2d70d5169b33b",
+  "replayHash": "8ba8750eea939d25",
   "gates": {
     "ordinaryFallbackDefeatsBoss": true,
     "stitchDefeatsBoss": true,
-    "authoredRouteAtLeastFortyPercentFaster": true,
+    "finalBossRunsSeventyTwoToOneHundredThirtyTwoSeconds": true,
+    "authoredRouteAtLeastTwentyPercentFaster": true,
     "allPhasesReached": true,
     "inheritedRulesRewritten": true,
     "exposedRouteUsed": true,

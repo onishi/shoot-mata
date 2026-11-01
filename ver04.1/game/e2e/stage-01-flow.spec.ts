@@ -340,7 +340,7 @@ test('campaign advances through Stage 6, restores its checkpoints and preserves 
   await scenario('boss-gate');
   state = await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_APP_STATE__()) as typeof state;
   expect(state).toMatchObject({ screen: 'playing', checkpointName: 'last-editor-gate', game: { stageId: 'stage-06' } });
-  expect(state.game.tick).toBeGreaterThanOrEqual(32400);
+  expect(state.game.tick).toBeGreaterThanOrEqual(23760);
   await page.keyboard.press('Escape');
   const stageSixPausedTick = (await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_APP_STATE__())).game.tick;
   await page.waitForTimeout(80);
@@ -427,7 +427,7 @@ test('campaign advances through Stage 6, restores its checkpoints and preserves 
   expect(await screen()).toBe('continue');
   await page.keyboard.press('Enter');
   state = await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_APP_STATE__()) as typeof state;
-  expect(state).toMatchObject({ screen: 'stage-intro', checkpointName: 'last-editor-gate', continuesRemaining: 0, game: { stageId: 'stage-06', tick: 32400, player: { health: 3 }, gauge: 50 } });
+  expect(state).toMatchObject({ screen: 'stage-intro', checkpointName: 'last-editor-gate', continuesRemaining: 0, game: { stageId: 'stage-06', tick: 23760, player: { health: 3 }, gauge: 50 } });
 });
 
 test('Stage 1 final visual assets remain readable in combat, set piece and boss phases', async ({ page }) => {

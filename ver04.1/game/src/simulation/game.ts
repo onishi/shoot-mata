@@ -17,14 +17,15 @@ const PLAYER_RADIUS = 13;
 export const PLAYGROUND_DURATION_TICKS = STAGE_01_DURATION_TICKS;
 
 export const DIFFICULTY_PRESSURE = {
-  echo: { initialCooldown: 1.18, cooldownStep: 7, warningTicks: 120, invulnerabilityTicks: 420, hazardRecovery: 'all', aimSpread: 1 },
-  normal: { initialCooldown: 1, cooldownStep: 5, warningTicks: 90, invulnerabilityTicks: 240, hazardRecovery: 'weak', aimSpread: 1 },
-  proof: { initialCooldown: 0.82, cooldownStep: 4, warningTicks: 60, invulnerabilityTicks: 240, hazardRecovery: 'weak', aimSpread: 1.16 }
+  echo: { initialCooldown: 1.18, cooldownStep: 7, warningTicks: 120, invulnerabilityTicks: 420, collateInvulnerabilityTicks: 1800, hazardRecovery: 'all', aimSpread: 1 },
+  normal: { initialCooldown: 1, cooldownStep: 5, warningTicks: 90, invulnerabilityTicks: 240, collateInvulnerabilityTicks: 1800, hazardRecovery: 'weak', aimSpread: 1 },
+  proof: { initialCooldown: 0.82, cooldownStep: 4, warningTicks: 60, invulnerabilityTicks: 240, collateInvulnerabilityTicks: 1200, hazardRecovery: 'weak', aimSpread: 1.16 }
 } as const satisfies Record<Difficulty, {
   initialCooldown: number;
   cooldownStep: number;
   warningTicks: number;
   invulnerabilityTicks: number;
+  collateInvulnerabilityTicks: number;
   hazardRecovery: 'all' | 'weak' | 'none';
   aimSpread: number;
 }>;
@@ -119,7 +120,7 @@ export const createInitialState = (seed = 1, stageId: StageId = 'stage-01', diff
     boss: { spawned: false, defeated: false, defeatTick: null, phaseReached: [false, false, false], fanWarnings: 0, fanErases: 0, trailPointsErased: 0, returnedHits: 0, ordinaryHits: 0, armorLayersStripped: 0, damageByAttack: { fan: 0, sweep: 0, volley: 0 } },
     compiler: { windLocks: 0, windLockedTicks: 0, weakpointHits: 0, ordinaryHits: 0, phaseReached: [false, false, false], attacks: { gust: 0, lance: 0, storm: 0 }, damageByAttack: { gust: 0, lance: 0, storm: 0 } },
     eel: { segmentMarks: 0, markedTicks: 0, weakpointHits: 0, wetWeakpointHits: 0, ordinaryHits: 0, phaseReached: [false, false, false], attacks: { drizzle: 0, wake: 0, deluge: 0 }, damageByAttack: { drizzle: 0, wake: 0, deluge: 0 } },
-    advocate: { embersThrown: 0, embersCooled: 0, cooledHits: 0, wallBlocks: 0, wallActiveTicks: 0, phaseReached: [false, false, false], attacks: { ember: 0, gavel: 0, verdict: 0 }, damageByAttack: { ember: 0, gavel: 0, verdict: 0 } },
+    advocate: { embersThrown: 0, embersCooled: 0, cooledHits: 0, cooledHitsByPhase: [0, 0, 0], wallBlocks: 0, wallActiveTicks: 0, phaseReached: [false, false, false], attacks: { ember: 0, gavel: 0, verdict: 0 }, damageByAttack: { ember: 0, gavel: 0, verdict: 0 } },
     apocrypha: { syncBreaks: 0, syncBrokenTicks: 0, weakpointHits: 0, ordinaryHits: 0, swaps: 0, phaseReached: [false, false, false], attacks: { testimony: 0, crossExam: 0, verdict: 0 }, damageByAttack: { testimony: 0, crossExam: 0, verdict: 0 } },
     editor: { rulesRewritten: 0, revisionExposedTicks: 0, revisionHits: 0, ordinaryHits: 0, signatureInkSpawned: 0, signatureClosures: 0, signatureExposedTicks: 0, phaseReached: [false, false, false], attacks: { erasure: 0, wind: 0, rain: 0, heat: 0, mirror: 0, signature: 0 }, damageByAttack: { erasure: 0, wind: 0, rain: 0, heat: 0, mirror: 0, signature: 0 } },
     recovery: { redactionTriggers: 0, redactionBulletsCleared: 0, redactionBlocks: 0, citationLances: 0, palinodePrimes: 0, palinodeClosures: 0, afterwordPrimes: 0, afterwordProtectedTicks: 0 } }
@@ -150,7 +151,7 @@ export const copyState = (state: GameState): GameState => ({
   boss: state.boss ? { ...state.boss } : null,
   retrace: state.retrace ? { index: state.retrace.index, points: state.retrace.points.map((point) => ({ ...point })) } : null,
   recovery: { ...state.recovery },
-  metrics: { ...state.metrics, recovery: { ...state.metrics.recovery }, wind: { ...state.metrics.wind }, rain: { ...state.metrics.rain }, heat: { ...state.metrics.heat }, ...(state.metrics.mirror ? { mirror: { ...state.metrics.mirror } } : {}), ...(state.metrics.original ? { original: { ...state.metrics.original, folioTicks: { ...state.metrics.original.folioTicks } } } : {}), enemyStats: Object.fromEntries(Object.entries(state.metrics.enemyStats).map(([kind, stats]) => [kind, { ...stats }])) as GameState['metrics']['enemyStats'], boss: { ...state.metrics.boss, phaseReached: [...state.metrics.boss.phaseReached], damageByAttack: { ...state.metrics.boss.damageByAttack } }, compiler: { ...state.metrics.compiler, phaseReached: [...state.metrics.compiler.phaseReached], attacks: { ...state.metrics.compiler.attacks }, damageByAttack: { ...state.metrics.compiler.damageByAttack } }, eel: { ...state.metrics.eel, phaseReached: [...state.metrics.eel.phaseReached], attacks: { ...state.metrics.eel.attacks }, damageByAttack: { ...state.metrics.eel.damageByAttack } }, advocate: { ...state.metrics.advocate, phaseReached: [...state.metrics.advocate.phaseReached], attacks: { ...state.metrics.advocate.attacks }, damageByAttack: { ...state.metrics.advocate.damageByAttack } }, apocrypha: { ...state.metrics.apocrypha, phaseReached: [...state.metrics.apocrypha.phaseReached], attacks: { ...state.metrics.apocrypha.attacks }, damageByAttack: { ...state.metrics.apocrypha.damageByAttack } }, editor: { ...state.metrics.editor, phaseReached: [...state.metrics.editor.phaseReached], attacks: { ...state.metrics.editor.attacks }, damageByAttack: { ...state.metrics.editor.damageByAttack } } }
+  metrics: { ...state.metrics, recovery: { ...state.metrics.recovery }, wind: { ...state.metrics.wind }, rain: { ...state.metrics.rain }, heat: { ...state.metrics.heat }, ...(state.metrics.mirror ? { mirror: { ...state.metrics.mirror } } : {}), ...(state.metrics.original ? { original: { ...state.metrics.original, folioTicks: { ...state.metrics.original.folioTicks } } } : {}), enemyStats: Object.fromEntries(Object.entries(state.metrics.enemyStats).map(([kind, stats]) => [kind, { ...stats }])) as GameState['metrics']['enemyStats'], boss: { ...state.metrics.boss, phaseReached: [...state.metrics.boss.phaseReached], damageByAttack: { ...state.metrics.boss.damageByAttack } }, compiler: { ...state.metrics.compiler, phaseReached: [...state.metrics.compiler.phaseReached], attacks: { ...state.metrics.compiler.attacks }, damageByAttack: { ...state.metrics.compiler.damageByAttack } }, eel: { ...state.metrics.eel, phaseReached: [...state.metrics.eel.phaseReached], attacks: { ...state.metrics.eel.attacks }, damageByAttack: { ...state.metrics.eel.damageByAttack } }, advocate: { ...state.metrics.advocate, cooledHitsByPhase: [...state.metrics.advocate.cooledHitsByPhase], phaseReached: [...state.metrics.advocate.phaseReached], attacks: { ...state.metrics.advocate.attacks }, damageByAttack: { ...state.metrics.advocate.damageByAttack } }, apocrypha: { ...state.metrics.apocrypha, phaseReached: [...state.metrics.apocrypha.phaseReached], attacks: { ...state.metrics.apocrypha.attacks }, damageByAttack: { ...state.metrics.apocrypha.damageByAttack } }, editor: { ...state.metrics.editor, phaseReached: [...state.metrics.editor.phaseReached], attacks: { ...state.metrics.editor.attacks }, damageByAttack: { ...state.metrics.editor.damageByAttack } } }
 });
 
 const spawnEnemyBullet = (state: GameState, enemy: Point, angleOffset = 0, speedPx = 145, sourceAttack: Bullet['sourceAttack'] = 'enemy-volley'): boolean => {
@@ -286,6 +287,7 @@ const damageAdvocate = (state: GameState, boss: BossState, damage: number, coole
   boss.health -= damage;
   if (cooledEmber) {
     state.metrics.advocate.cooledHits += 1;
+    state.metrics.advocate.cooledHitsByPhase[boss.phase - 1] += 1;
     events.push({ type: 'advocate-ember-hit' });
   }
   const nextPhase = boss.health <= boss.maxHealth / 3 ? 3 : boss.health <= boss.maxHealth * 2 / 3 ? 2 : 1;
@@ -335,10 +337,25 @@ const updateBoss = (state: GameState, events: GameEvent[], difficulty: Difficult
     const editor = state.boss;
     if (!editor) return;
     editor.y = 360 * SCALE + Math.round(Math.sin((state.tick - STAGE_06_BOSS_START_TICK) / 185) * 48 * SCALE);
+    if (editor.phase < 3 && editor.editorRulesMask === 0b11111) {
+      // Completing the full rewrite is a lasting solution, not a five-second
+      // timing trap. This keeps build and difficulty variance from turning the
+      // authored route into several minutes of chip damage.
+      editor.revisionExposedUntil = Math.max(editor.revisionExposedUntil, state.tick + 1);
+    }
     if (editor.revisionExposedUntil >= state.tick) state.metrics.editor.revisionExposedTicks += 1;
     if (editor.signatureExposedUntil >= state.tick) state.metrics.editor.signatureExposedTicks += 1;
     const age = state.tick - editor.cycleStartedAt;
     if (editor.phase === 3 && age % 360 === 1) spawnEditorSignature(state);
+    if (editor.phase === 3 && age >= 360 && state.metrics.editor.signatureClosures === 0
+      && editor.signatureExposedUntil < state.tick) {
+      // One complete ink signature is enough evidence when a dense pattern
+      // prevents the loop detector from enclosing three marks at once. The
+      // authored COLLATE route still opens it during the first cycle.
+      editor.signatureExposedUntil = state.tick + 8 * TICK_RATE;
+      state.metrics.editor.signatureClosures += 1;
+      events.push({ type: 'editor-signature-closed' });
+    }
     const attackPeriod = editor.phase === 1 ? 168 : editor.phase === 2 ? 132 : 108;
     if (age > 0 && age % attackPeriod === 0) {
       const rule = (Math.floor(age / attackPeriod) + editor.phase - 1) % 5 as 0 | 1 | 2 | 3 | 4;
@@ -420,7 +437,7 @@ const updateBoss = (state: GameState, events: GameEvent[], difficulty: Difficult
     advocate.y = 360 * SCALE + Math.round(Math.sin((state.tick - STAGE_04_BOSS_START_TICK) / 190) * 54 * SCALE);
     state.metrics.advocate.wallActiveTicks += 1;
     const age = state.tick - advocate.cycleStartedAt;
-    const emberPeriod = advocate.phase === 1 ? 180 : advocate.phase === 2 ? 156 : 132;
+    const emberPeriod = advocate.phase === 1 ? 300 : advocate.phase === 2 ? 264 : 228;
     if (age > 0 && age % emberPeriod === 0) {
       spawnAdvocateEmber(state, advocate.phase === 1 ? 0 : ((Math.floor(age / emberPeriod) % 2) * 2 - 1) * 110);
       state.metrics.advocate.attacks.ember += 1;
@@ -1161,7 +1178,7 @@ const collate = (state: GameState, events: GameEvent[], marginalia: readonly Mar
         }
       } else {
         const ink = selected.filter((bullet) => bullet.signatureInk).length;
-        if (ink >= 5 && candidate.area >= 50_000) {
+        if (ink >= 3 && candidate.area >= 50_000) {
           state.boss.signatureExposedUntil = state.tick + 8 * TICK_RATE;
           state.metrics.editor.signatureClosures += 1;
           events.push({ type: 'editor-signature-closed' });
@@ -1175,7 +1192,8 @@ const collate = (state: GameState, events: GameEvent[], marginalia: readonly Mar
   // Closing a valid loop briefly stabilizes the wake. This is COLLATE's
   // defensive payoff during dense patterns, distinct from RETRACE's emergency
   // evasion and short enough to require the player to keep writing.
-  state.player.invulnerableUntil = Math.max(state.player.invulnerableUntil, state.tick + 1800);
+  state.player.invulnerableUntil = Math.max(state.player.invulnerableUntil,
+    state.tick + DIFFICULTY_PRESSURE[state.difficulty].collateInvulnerabilityTicks);
   state.player.health = Math.min(3, state.player.health + 1);
   if (effects.palinode && !state.recovery.palinodeReady) {
     state.recovery.palinodeProgress += 1;
@@ -1347,7 +1365,9 @@ export const step = (previous: GameState, input: InputFrame, difficulty: Difficu
       if (boss?.kind === 'last-editor') {
         const bodyHit = distanceSq(bullet, boss) <= ((bullet.radius + 94) * SCALE) ** 2;
         if (bodyHit) {
-          const exposed = boss.phase < 3 ? boss.revisionExposedUntil >= state.tick : boss.signatureExposedUntil >= state.tick;
+          const hearingExpired = state.tick - STAGE_06_BOSS_START_TICK >= 100 * TICK_RATE;
+          const exposed = hearingExpired || (boss.phase < 3
+            ? boss.revisionExposedUntil >= state.tick : boss.signatureExposedUntil >= state.tick);
           const baseDamage = exposed ? (bullet.kind === 'return' ? 110 : bullet.annotated ? 60 : 36)
             : (bullet.kind === 'return' ? 5 : bullet.annotated ? 2 : 1);
           const damage = bullet.ligature ? Math.round(baseDamage * 1.65) : baseDamage;
@@ -1356,7 +1376,14 @@ export const step = (previous: GameState, input: InputFrame, difficulty: Difficu
             state.metrics.editor.revisionHits += 1;
             events.push(boss.phase === 3 ? { type: 'editor-signature-ink' } : { type: 'editor-revision-hit' });
           } else state.metrics.editor.ordinaryHits += 1;
-          const phaseThreeReady = boss.editorRulesMask === 0b11111 || state.metrics.editor.ordinaryHits >= 1400;
+          const rewrittenRuleCount = state.metrics.editor.rulesRewritten;
+          // A run that has demonstrated three distinct rewrites may force the
+          // final signature after sustained pressure. This bounds unlucky
+          // bullet trajectories without turning ordinary fire into the fast
+          // route; rewriting all five rules still opens it immediately.
+          const phaseThreeReady = hearingExpired || boss.editorRulesMask === 0b11111
+            || state.metrics.editor.ordinaryHits >= 1400
+            || (rewrittenRuleCount >= 3 && state.metrics.editor.ordinaryHits >= 360);
           if (boss.phase < 3 && boss.health <= boss.maxHealth / 3 && !phaseThreeReady) boss.health = Math.max(1, boss.health);
           const nextPhase = boss.health <= boss.maxHealth / 3 && phaseThreeReady ? 3 : boss.health <= boss.maxHealth * 2 / 3 ? 2 : 1;
           if (nextPhase > boss.phase) {
@@ -1367,6 +1394,11 @@ export const step = (previous: GameState, input: InputFrame, difficulty: Difficu
             state.metrics.boss.phaseReached[nextPhase - 1] = true;
             state.metrics.editor.phaseReached[nextPhase - 1] = true;
             events.push({ type: 'boss-phase', phase: nextPhase });
+          }
+          if (boss.phase === 3 && boss.health <= 0 && state.tick - boss.phaseStartedAt < 25 * TICK_RATE) {
+            // Keep the final signature readable long enough to function as a
+            // phase instead of disappearing in one exposed firing burst.
+            boss.health = 1;
           }
           if (boss.health <= 0) {
             boss.health = 0; boss.defeatedAt = state.tick;

@@ -10,7 +10,7 @@ import { STAGE_02_BOSS_START_TICK, STAGE_02_SPAWNS } from './content/stage-02';
 import { STAGE_03_BOSS_START_TICK, STAGE_03_SPAWNS } from './content/stage-03';
 import { STAGE_04_BOSS_START_TICK, STAGE_04_SPAWNS, stageFourCoolingCenter } from './content/stage-04';
 import { STAGE_05_BOSS_START_TICK, STAGE_05_DURATION_TICKS, STAGE_05_SPAWNS } from './content/stage-05';
-import { STAGE_06_BOSS_START_TICK, STAGE_06_SPAWNS } from './content/stage-06';
+import { STAGE_06_BOSS_START_TICK, STAGE_06_SPAWNS, STAGE_06_SYNTHESIS_START_TICK } from './content/stage-06';
 import { StageOneAudio } from './audio/stage-01-audio';
 import { clearCampaign, loadCampaign, saveCampaign, type StorageLike } from './app/save';
 import { defaultSettings, loadSettings, saveSettings, type GameSettings } from './app/settings';
@@ -270,8 +270,8 @@ Object.assign(window, {
       app.midpointMarginaliaTaken = true;
       app.game.player.invulnerableUntil = 50000;
       if (scenario === 'stage-06-setpiece') {
-        const setpieceIndex = STAGE_06_SPAWNS.findIndex((spawn) => spawn.tick === 25920);
-        app.game.tick = 25919; app.game.encounterIndex = setpieceIndex;
+        const setpieceIndex = STAGE_06_SPAWNS.findIndex((spawn) => spawn.tick === STAGE_06_SYNTHESIS_START_TICK);
+        app.game.tick = STAGE_06_SYNTHESIS_START_TICK - 1; app.game.encounterIndex = setpieceIndex;
       }
       const pilot = createPilot('stitch');
       if (scenario === 'stage-06-setpiece') {
@@ -464,6 +464,7 @@ Object.assign(window, {
       runStep({});
     } else if (app.game.boss?.kind === 'last-editor') {
       app.game.boss.phase = 3;
+      app.game.boss.phaseStartedAt = app.game.tick - 25 * TICK_RATE;
       app.game.boss.editorRulesMask = 0b11111;
       app.game.boss.signatureExposedUntil = app.game.tick + 60;
       app.game.boss.health = 1;

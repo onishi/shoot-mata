@@ -7,6 +7,7 @@ import { STAGE_04_BOSS_START_TICK, STAGE_04_SPAWNS } from '../src/content/stage-
 import { STAGE_05_BOSS_START_TICK, STAGE_05_SPAWNS } from '../src/content/stage-05';
 import { STAGE_06_BOSS_START_TICK, STAGE_06_SPAWNS } from '../src/content/stage-06';
 import { px } from '../src/core/math';
+import { TICK_RATE } from '../src/core/types';
 
 const start = (): AppState => transition(transition(createAppState(404), 'start'), 'confirm');
 const chooseMarginalia = (state: AppState): AppState => transition(transition(state, 'confirm'), 'confirm');
@@ -298,6 +299,7 @@ describe('M2 application flow', () => {
 
     app = transition(app, 'confirm');
     app.game.boss!.phase = 3;
+    app.game.boss!.phaseStartedAt = app.game.tick - 25 * TICK_RATE;
     app.game.boss!.editorRulesMask = 0b11111;
     app.game.boss!.signatureExposedUntil = app.game.tick + 60;
     app.game.boss!.health = 1;

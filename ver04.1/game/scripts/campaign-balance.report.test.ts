@@ -11,7 +11,7 @@ const difficulties: Difficulty[] = process.env.BALANCE_DIFFICULTY
   ? [process.env.BALANCE_DIFFICULTY as Difficulty]
   : ['echo', 'normal', 'proof'];
 const runCount = Number(process.env.BALANCE_RUNS ?? 30);
-const maximumCampaignMinutes = 25.6; // 25-minute target with a 36-second deterministic sampling tolerance.
+const maximumCampaignMinutes = 25;
 const seedStart = Number(process.env.BALANCE_SEED ?? 4500);
 const seeds = Array.from({ length: runCount }, (_, index) => seedStart + index);
 
@@ -36,7 +36,7 @@ interface CampaignResult {
   continues: number;
   selected: MarginaliaId[];
   stages: StageResult[];
-  stoppedAt: { stage: StageId; tick: number; checkpoint: AppState['checkpointName']; boss: string | null; phase: number | null; bossHealth: number | null; loops: number; syncBreaks: number; signatureClosures: number };
+  stoppedAt: { stage: StageId; tick: number; checkpoint: AppState['checkpointName']; boss: string | null; phase: number | null; bossHealth: number | null; loops: number; syncBreaks: number; editorRules: number; editorOrdinaryHits: number; signatureClosures: number };
 }
 
 const chooseMarginalia = (state: AppState, index: number): AppState => {
@@ -126,7 +126,8 @@ const simulateCampaign = (difficulty: Difficulty, seed: number): CampaignResult 
       stage: state.game.stageId, tick: state.game.tick, checkpoint: state.checkpointName,
       boss: state.game.boss?.kind ?? null, phase: state.game.boss?.phase ?? null,
       bossHealth: state.game.boss?.health ?? null, loops: state.game.metrics.loops,
-      syncBreaks: state.game.metrics.apocrypha.syncBreaks, signatureClosures: state.game.metrics.editor.signatureClosures
+      syncBreaks: state.game.metrics.apocrypha.syncBreaks, editorRules: state.game.metrics.editor.rulesRewritten,
+      editorOrdinaryHits: state.game.metrics.editor.ordinaryHits, signatureClosures: state.game.metrics.editor.signatureClosures
     }
   };
 };
@@ -165,7 +166,7 @@ describe('M4-05 campaign balance evidence', () => {
     mkdirSync(evidenceDir, { recursive: true });
     writeFileSync(resolve(evidenceDir, 'm4-05-campaign-balance.json'), `${JSON.stringify({ generatedAt: '2026-11-01', seeds, summary, selectionCounts, runs }, null, 2)}\n`);
     const rows = summary.map((row) => `| ${row.difficulty.toUpperCase()} | ${row.completed}/${runCount} | ${row.minimumMinutes} / ${row.medianMinutes} / ${row.maximumMinutes} | ${row.medianDamage} | ${row.totalContinues} (${Math.round(row.continueRate * 100)}%) | ${row.maximumHazards} | ${row.warningTicks} | ${row.mechanicSuccesses} |`).join('\n');
-    writeFileSync(resolve(evidenceDir, 'm4-05-campaign-balance.md'), `# M4-05 Campaign Balance\n\n- Runs: ${runCount} seeds per difficulty\n- Controller: current-screen campaign pilot; health zero, one continue per stage, midpoint/result MARGINALIA, and AppState transitions enforced\n- Duration gate: 15:00–25:36 (the 25-minute product target plus 36 seconds of deterministic sampling tolerance)\n\n| Difficulty | Complete | Minutes min / median / max | Median damage | Continues (rate) | Max hazards | Bailiff warning ticks | Mechanic successes |\n| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |\n${rows}\n\n## Marginalia selections\n\n${Object.entries(selectionCounts).sort().map(([id, count]) => `- ${id}: ${count}`).join('\n')}\n`);
+    writeFileSync(resolve(evidenceDir, 'm4-05-campaign-balance.md'), `# M4-05 Campaign Balance\n\n- Runs: ${runCount} seeds per difficulty\n- Controller: current-screen campaign pilot; health zero, one continue per stage, midpoint/result MARGINALIA, and AppState transitions enforced\n- Duration gate: 15:00–25:00; formal 30-seed median target: 21:00–24:00\n\n| Difficulty | Complete | Minutes min / median / max | Median damage | Continues (rate) | Max hazards | Bailiff warning ticks | Mechanic successes |\n| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |\n${rows}\n\n## Marginalia selections\n\n${Object.entries(selectionCounts).sort().map(([id, count]) => `- ${id}: ${count}`).join('\n')}\n`);
 
     expect(runs.every((run) => run.complete)).toBe(true);
     expect(runs.every((run) => run.minutes >= 15 && run.minutes <= maximumCampaignMinutes)).toBe(true);
@@ -180,6 +181,13 @@ describe('M4-05 campaign balance evidence', () => {
       expect(proof.continueRate).toBeLessThanOrEqual(0.5);
       expect(summary.every((row) => row.medianMinutes >= 15 && row.medianMinutes <= 25)).toBe(true);
       expect(summary.every((row) => row.mechanicSuccesses > 0)).toBe(true);
+      expect(summary.every((row) => row.medianMinutes >= 21 && row.medianMinutes <= 24)).toBe(true);
+      for (const difficulty of difficulties) {
+        const stageSixMinutes = runs.filter((run) => run.difficulty === difficulty)
+          .map((run) => run.stages.find((stage) => stage.stage === 'stage-06')!.playedTicks / TICK_RATE / 60)
+          .sort((a, b) => a - b);
+        expect(stageSixMinutes[Math.floor(stageSixMinutes.length / 2)]).toBeLessThanOrEqual(5.5);
+      }
     }
   }, 1_800_000);
 });

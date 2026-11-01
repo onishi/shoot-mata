@@ -243,6 +243,7 @@ export interface Metrics {
     embersThrown: number;
     embersCooled: number;
     cooledHits: number;
+    cooledHitsByPhase: [number, number, number];
     wallBlocks: number;
     wallActiveTicks: number;
     phaseReached: [boolean, boolean, boolean];

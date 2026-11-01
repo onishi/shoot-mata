@@ -123,7 +123,7 @@ export const createPilot = (name: PilotName): ((state: GameState) => InputFrame)
       if (candidateSeenAt === 0) candidateSeenAt = state.tick;
       const targets = countCandidateTargets(state);
       const signatureReady = state.boss?.kind !== 'last-editor' || state.boss.phase !== 3
-        || state.bullets.filter((bullet) => bullet.signatureInk && pointInPolygon(bullet, state.candidate!.polygon)).length >= 5;
+        || state.bullets.filter((bullet) => bullet.signatureInk && pointInPolygon(bullet, state.candidate!.polygon)).length >= 3;
       const shouldCollate = signatureReady && (name === 'stitch'
         || (name === 'safe' && targets > 0)
         || (name === 'sweep' && (targets >= 2 || state.tick - candidateSeenAt >= 42)));
@@ -192,7 +192,7 @@ export const createPilot = (name: PilotName): ((state: GameState) => InputFrame)
       const signatureInk = state.bullets.filter((bullet) => bullet.signatureInk);
       const signatureTarget = state.boss?.kind === 'last-editor' && state.boss.phase === 3
         && state.boss.signatureExposedUntil < state.tick
-        && signatureInk.length >= 5 ? { x: px(780), y: px(360) } : null;
+        && signatureInk.length >= 3 ? { x: px(780), y: px(360) } : null;
       const editorTarget = state.boss?.kind === 'last-editor' && !editorExposed ? state.boss : null;
       const loopTarget = name === 'stitch' ? (compilerVane ?? eelWeakpoint ?? advocateEmber ?? twinsTarget ?? signatureTarget ?? editorTarget ?? courierTarget ?? coolingTarget) : null;
       const advocateCenterOffset = advocateEmber ? px(45) : 0;

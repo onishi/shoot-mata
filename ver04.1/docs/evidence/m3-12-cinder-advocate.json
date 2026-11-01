@@ -2,70 +2,82 @@
   "generatedAt": "2026-11-01",
   "seed": 3412,
   "baseline": {
-    "durationTicks": 19902,
-    "maxEnemyBullets": 84,
+    "durationTicks": 19901,
+    "maxEnemyBullets": 74,
     "advocate": {
-      "embersThrown": 118,
+      "embersThrown": 63,
       "embersCooled": 0,
       "cooledHits": 0,
+      "cooledHitsByPhase": [
+        0,
+        0,
+        0
+      ],
       "wallBlocks": 1980,
-      "wallActiveTicks": 19903,
+      "wallActiveTicks": 19902,
       "phaseReached": [
         true,
         true,
         true
       ],
       "attacks": {
-        "ember": 118,
+        "ember": 63,
         "gavel": 55,
         "verdict": 73
       },
       "damageByAttack": {
-        "ember": 19,
-        "gavel": 16,
-        "verdict": 12
+        "ember": 13,
+        "gavel": 18,
+        "verdict": 13
       }
     },
-    "hash": "b4f0f4e1cdbd44ba"
+    "hash": "a29a53c143dbf475"
   },
   "stitch": {
-    "durationTicks": 2505,
+    "durationTicks": 5301,
     "phaseTicks": [
       0,
-      1177,
-      1904
+      1862,
+      4270
     ],
-    "maxEnemyBullets": 49,
+    "maxEnemyBullets": 56,
     "advocate": {
-      "embersThrown": 14,
-      "embersCooled": 12,
-      "cooledHits": 11,
-      "wallBlocks": 173,
-      "wallActiveTicks": 2506,
+      "embersThrown": 15,
+      "embersCooled": 10,
+      "cooledHits": 9,
+      "cooledHitsByPhase": [
+        3,
+        3,
+        3
+      ],
+      "wallBlocks": 381,
+      "wallActiveTicks": 5302,
       "phaseReached": [
         true,
         true,
         true
       ],
       "attacks": {
-        "ember": 14,
-        "gavel": 6,
-        "verdict": 7
+        "ember": 15,
+        "gavel": 20,
+        "verdict": 11
       },
       "damageByAttack": {
-        "ember": 1,
+        "ember": 0,
         "gavel": 0,
         "verdict": 0
       }
     },
-    "hash": "00675fc5f692e206"
+    "hash": "8864e4071273e986"
   },
-  "replayHash": "00675fc5f692e206",
+  "replayHash": "8864e4071273e986",
   "gates": {
     "ordinaryFallbackDefeatsBoss": true,
     "stitchDefeatsBoss": true,
     "cooledRouteAtLeastSeventyPercentFaster": true,
     "allPhasesReached": true,
+    "cooledDecisionInEveryPhase": true,
+    "encounterRunsThirtyToSixtySeconds": true,
     "cooledRouteDominatesDamage": true,
     "wallNeverDrops": true,
     "allAttacksEmitted": true,

@@ -40,6 +40,8 @@ describe('M3-12 CINDER ADVOCATE evidence', () => {
       stitchDefeatsBoss: stitch.state.metrics.boss.defeated,
       cooledRouteAtLeastSeventyPercentFaster: stitch.duration !== null && baseline.duration !== null && stitch.duration <= baseline.duration * 0.3,
       allPhasesReached: metrics.phaseReached.every(Boolean),
+      cooledDecisionInEveryPhase: metrics.cooledHitsByPhase.every((hits) => hits > 0),
+      encounterRunsThirtyToSixtySeconds: stitch.duration !== null && stitch.duration >= 30 * 120 && stitch.duration <= 60 * 120,
       cooledRouteDominatesDamage: metrics.embersCooled >= 10 && metrics.cooledHits >= 9 && metrics.cooledHits * 180 > metrics.wallBlocks,
       wallNeverDrops: stitch.duration !== null && metrics.wallActiveTicks === stitch.duration + 1,
       allAttacksEmitted: Object.values(metrics.attacks).every((value) => value > 0),

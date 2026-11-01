@@ -1,13 +1,13 @@
 # M3-12 CINDER ADVOCATE Report
 
-- Baseline defeat: 19902 ticks
-- Stitch defeat: 2505 ticks
-- Phase 2 / 3 arrival: 1177 / 1904 ticks
-- Embers thrown / cooled / hit: 14 / 12 / 11
-- Wall blocks / active ticks: 173 / 2506
-- Ember / gavel / verdict attacks: 14 / 6 / 7
-- Max enemy bullets: 49
-- Stitch / replay hashes: 00675fc5f692e206, 00675fc5f692e206
+- Baseline defeat: 19901 ticks
+- Stitch defeat: 5301 ticks
+- Phase 2 / 3 arrival: 1862 / 4270 ticks
+- Embers thrown / cooled / hit: 15 / 10 / 9
+- Wall blocks / active ticks: 381 / 5302
+- Ember / gavel / verdict attacks: 15 / 20 / 11
+- Max enemy bullets: 56
+- Stitch / replay hashes: 8864e4071273e986, 8864e4071273e986
 
 | Gate | Result |
 | --- | --- |
@@ -15,6 +15,8 @@
 | stitchDefeatsBoss | PASS |
 | cooledRouteAtLeastSeventyPercentFaster | PASS |
 | allPhasesReached | PASS |
+| cooledDecisionInEveryPhase | PASS |
+| encounterRunsThirtyToSixtySeconds | PASS |
 | cooledRouteDominatesDamage | PASS |
 | wallNeverDrops | PASS |
 | allAttacksEmitted | PASS |

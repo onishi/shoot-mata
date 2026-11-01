@@ -38,7 +38,8 @@ describe('M3-22 THE LAST EDITOR evidence', () => {
     const gates = {
       ordinaryFallbackDefeatsBoss: baseline.state.metrics.boss.defeated && baseline.state.metrics.editor.ordinaryHits >= 1000,
       stitchDefeatsBoss: stitch.state.metrics.boss.defeated,
-      authoredRouteAtLeastFortyPercentFaster: stitch.duration !== null && baseline.duration !== null && stitch.duration <= baseline.duration * 0.6,
+      finalBossRunsSeventyTwoToOneHundredThirtyTwoSeconds: stitch.duration !== null && stitch.duration >= 72 * 120 && stitch.duration <= 132 * 120,
+      authoredRouteAtLeastTwentyPercentFaster: stitch.duration !== null && baseline.duration !== null && stitch.duration <= baseline.duration * 0.8,
       allPhasesReached: metrics.phaseReached.every(Boolean),
       inheritedRulesRewritten: metrics.rulesRewritten >= 3,
       exposedRouteUsed: metrics.revisionHits >= 16 && metrics.revisionExposedTicks > 0,

@@ -1,19 +1,20 @@
 # M3-22 THE LAST EDITOR Report
 
-- Baseline defeat: 20425 ticks
-- Stitch defeat: 9639 ticks
-- Phase 2 / 3 arrival: 758 / 8741 ticks
-- Rules rewritten / exposed hits: 5 / 630
-- Signature ink / closures: 24 / 1
-- Erasure / wind / rain / heat / mirror / signature attacks: 11 / 11 / 19 / 12 / 12 / 3
-- Max enemy bullets: 52
-- Stitch / replay hashes: e3b2d70d5169b33b, e3b2d70d5169b33b
+- Baseline defeat: 15033 ticks
+- Stitch defeat: 11722 ticks
+- Phase 2 / 3 arrival: 758 / 8721 ticks
+- Rules rewritten / exposed hits: 5 / 817
+- Signature ink / closures: 80 / 2
+- Erasure / wind / rain / heat / mirror / signature attacks: 15 / 13 / 21 / 17 / 17 / 10
+- Max enemy bullets: 108
+- Stitch / replay hashes: 8ba8750eea939d25, 8ba8750eea939d25
 
 | Gate | Result |
 | --- | --- |
 | ordinaryFallbackDefeatsBoss | PASS |
 | stitchDefeatsBoss | PASS |
-| authoredRouteAtLeastFortyPercentFaster | PASS |
+| finalBossRunsSeventyTwoToOneHundredThirtyTwoSeconds | PASS |
+| authoredRouteAtLeastTwentyPercentFaster | PASS |
 | allPhasesReached | PASS |
 | inheritedRulesRewritten | PASS |
 | exposedRouteUsed | PASS |
