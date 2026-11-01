@@ -3,7 +3,7 @@
 - Scenario: Stage 6 late mirror, synthesis, and THE LAST EDITOR entry on PROOF with all marginalia
 - Warmup: 1200 ticks (10 seconds)
 - Measurement: 7200 ticks (60 seconds)
-- Tick average / p95 / max: 0.030 / 0.055 / 0.213 ms
+- Tick average / p95 / max: 0.030 / 0.056 / 1.067 ms
 - Peak enemies / enemy bullets: 8 / 19
 - Rejected enemies / bullets: 0 / 0
 

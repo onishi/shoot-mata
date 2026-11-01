@@ -18,7 +18,7 @@
 | M1 コア試作 | 完了 | 3分遭遇、4操縦×10seed、5回hash一致、全仮説ゲート、Chrome操作・画像確認に合格 |
 | M2 垂直スライス | 完了 | 3分通常区間、4敵種、BLANK BAILIFF、タイトル〜結果、完成画面、3音楽ステム・11効果音、bus・音量監査を実装。Stage 1の仮素材0 |
 | M3 キャンペーン | 完了 | Stage 1〜6、24通常敵、6ボス、全画音、ENDING、CAMPAIGN RESULTを接続し、Chrome全通しに合格 |
-| M4 製品仕上げ | 進行中 | 公開以外の完成ゲートに合格。M4-07でrelease candidateを全検証し、公開とURL確認を行う |
+| M4 製品仕上げ | 進行中 | M4-07 release candidateの全検証とPages artifact検査に合格。公開CIと実URL確認を残す |
 
 ## M0検査
 
@@ -100,7 +100,7 @@
 
 **M4-07: release candidateを全検証し、v4.0をトップと`/v4.0/`へ公開する。**
 
-`npm run verify`をrelease candidateへ実行し、公開用のトップと`/v4.0/`、旧版固定URLを構成する。CI成功後に公開URLの版表示、主要素材MIME、トップ、`/v4.0/`、v3系固定URLのHTTP応答を確認し、最後の完成ゲートだけを閉じる。
+release candidateをコミットして`main`へpushする。CI成功後に公開URLの版表示、release commit、主要素材MIME、トップ、`/v4.0/`、v3系固定URLのHTTP応答を確認し、最後の完成ゲートだけを閉じる。ローカルでは`npm run verify`（単体76件、自動操縦13件、90周バランス、全監査、Chrome 22件）とPages artifact 7経路の検査に合格済み。
 
 ## v4.0完成ゲート
 

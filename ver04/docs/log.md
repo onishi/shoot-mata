@@ -399,3 +399,11 @@
 - 最初の全E2Eは6 workerの競合で同期描画中に2.7秒の停止が混入し、p95 0.1msに対して平均12.97ms・最大2717.8msとなった。性能試験単独では0.045 / 0.100 / 0.400msで合格したため、描画CPU時間ではなくhost scheduler停止と切り分けた。250ms超だけをyield後に同数再計測し、再計測値には既存の最大25ms基準をそのまま適用し、生値最大と除外数も証跡へ残すよう計測を修正した。
 - 最終の単一worker Chrome E2Eは22件すべて合格した。性能値は平均0.049ms・p95 0.100ms・最大2.600ms、250ms超scheduler停止6回、生値最大2517.8ms、long task 0、入力0.3ms、heap増加3.09%だった。単体76件、自動操縦13件、simulation性能、90周バランス、非流用・素材・音量監査、production buildも合格した。
 - 次回はM4-07としてrelease candidateへ`npm run verify`を実行し、トップと`/v4.0/`へ公開する。CI後に版表示、素材MIME、v3系固定URLを実URLで確認して最後のゲートを閉じる。
+
+## 2026-11-01 — M4-07 release candidate公開前検証
+
+- v4 production buildをトップと`/v4.0/`へ複製し、v3.4〜v3の固定5経路を同じPages artifactへ収容するrelease packagerを追加した。トップと`/v4.0/`には版とgit commitを持つ`release.json`を配置し、artifact自己検査で全7経路とv4素材ディレクトリを確認した。
+- HTMLタイトルから開発中の`Vertical Slice`表記を除き、`PALIMPSEST WAKE — v4.0`へ更新した。公開workflowはv4のlocked dependency、Chrome、全検証、旧版build、artifact検査、Pages deployの順に変更した。
+- deploy後に公開URLのトップ、`/v4.0/`、`/v3.4/`、`/v3.3/`、`/v3.2/`、`/v3.1/`、`/v3/`、版表示、release commit、JS/CSS MIMEを検査し、不一致ならCIを失敗させる外部検査を追加した。
+- release candidateの`npm run verify`に合格した。単体76件、自動操縦13件、simulation性能1件、3難易度×30seedの90周、非流用106ファイル・完全一致0、素材50 final・仮素材0、音量59素材、production build、単一worker Chrome E2E 22件がすべて合格した。
+- 次はこのrelease candidateを`main`へpushし、Pages CIと上記の実URL検査を完了して最後の完成ゲートを閉じる。公開成功まではv4.0を公開済みと扱わない。

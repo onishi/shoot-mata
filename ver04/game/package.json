@@ -15,6 +15,9 @@
     "generate:audio": "node scripts/generate-audio.mjs",
     "audit:audio": "node scripts/audit-audio.mjs",
     "build": "npm run typecheck && vite build",
+    "package:release": "node scripts/package-release.mjs",
+    "verify:release": "node scripts/verify-release.mjs",
+    "verify:deployment": "node scripts/verify-deployment.mjs",
     "test:e2e": "playwright test --workers=1",
     "verify": "npm run test && npm run autoplay && npm run performance && npm run balance && npm run audit:originality && npm run audit:assets && npm run audit:audio && npm run build && npm run test:e2e"
   },
