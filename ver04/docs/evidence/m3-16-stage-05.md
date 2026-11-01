@@ -1,18 +1,18 @@
 # M3-16 Stage 5 Report
 
 - Duration: 25200 ticks (210 seconds)
-- Scheduled spawns: 69
-- Max enemies / enemy bullets: 10 / 88
-- Longest no-combat gap: 1 ticks
-- False trail peak / false annotations / loop exclusions: 127 / 93 / 21164
-- Illusory shots: 924
-- Determinism hashes: fd2c692ec1e18004, fd2c692ec1e18004, fd2c692ec1e18004, fd2c692ec1e18004
+- Scheduled spawns: 70
+- Max enemies / enemy bullets: 10 / 66
+- Longest no-combat gap: 200 ticks
+- False trail peak / false annotations / loop exclusions: 127 / 80 / 20078
+- Illusory shots: 984
+- Determinism hashes: e8177df19eeeed33, e8177df19eeeed33, e8177df19eeeed33, e8177df19eeeed33
 
 | Enemy | Spawned | Attacks | Defeated | Exited |
 | --- | ---: | ---: | ---: | ---: |
-| mirror-mote | 28 | 198 | 11 | 17 |
-| quotation-ram | 18 | 153 | 7 | 11 |
-| false-witness | 17 | 152 | 6 | 11 |
+| mirror-mote | 29 | 222 | 9 | 20 |
+| quotation-ram | 18 | 169 | 8 | 10 |
+| false-witness | 17 | 167 | 4 | 13 |
 | silver-obelisk | 6 | 79 | 0 | 6 |
 
 | Gate | Result |

@@ -14,15 +14,15 @@ const simulate = (seed: number, replay?: InputFrame[]) => {
   let state = createInitialState(seed, 'stage-05');
   const pilot = createPilot('stitch');
   const frames: InputFrame[] = [];
-  let maxEnemies = 0; let maxEnemyBullets = 0; let currentCombatGap = 0; let maxCombatGap = 0;
+  let maxEnemies = 0; let maxEnemyBullets = 0; let currentCombatGap = 0; let maxCombatGap = 0; let maxCombatGapEnd = 0;
   for (let tick = 0; tick < STAGE_05_DURATION_TICKS; tick += 1) {
     const input = replay?.[tick] ?? pilot(state); frames.push(input); state = step(state, input).state;
     const enemyBullets = state.bullets.filter((bullet) => bullet.kind === 'enemy').length;
     maxEnemies = Math.max(maxEnemies, state.enemies.length); maxEnemyBullets = Math.max(maxEnemyBullets, enemyBullets);
     currentCombatGap = state.enemies.length === 0 && enemyBullets === 0 ? currentCombatGap + 1 : 0;
-    maxCombatGap = Math.max(maxCombatGap, currentCombatGap);
+    if (currentCombatGap > maxCombatGap) { maxCombatGap = currentCombatGap; maxCombatGapEnd = state.tick; }
   }
-  return { state, frames, maxEnemies, maxEnemyBullets, maxCombatGap, hash: hashState(state) };
+  return { state, frames, maxEnemies, maxEnemyBullets, maxCombatGap, maxCombatGapEnd, hash: hashState(state) };
 };
 
 describe('M3-16 Stage 5 evidence', () => {
@@ -48,7 +48,8 @@ describe('M3-16 Stage 5 evidence', () => {
     };
     const report = { generatedAt: '2026-11-01', durationTicks: STAGE_05_DURATION_TICKS, scheduledSpawns: STAGE_05_SPAWNS.length,
       seed: 3501, finalHash: first.hash, replayHashes, maxEnemies: first.maxEnemies, maxEnemyBullets: first.maxEnemyBullets,
-      maxCombatGapTicks: first.maxCombatGap, stats: Object.fromEntries(enemyKinds.map((kind) => [kind, stats[kind]])), mirror,
+      maxCombatGapTicks: first.maxCombatGap, maxCombatGapStartTick: first.maxCombatGapEnd - first.maxCombatGap + 1,
+      maxCombatGapEndTick: first.maxCombatGapEnd, stats: Object.fromEntries(enemyKinds.map((kind) => [kind, stats[kind]])), mirror,
       rejectedEnemies: first.state.metrics.rejectedEnemies, rejectedEnemyBullets: first.state.metrics.rejectedEnemyBullets, gates };
     const evidenceDir = resolve(import.meta.dirname, '../../docs/evidence'); mkdirSync(evidenceDir, { recursive: true });
     writeFileSync(resolve(evidenceDir, 'm3-16-stage-05.json'), `${JSON.stringify(report, null, 2)}\n`);

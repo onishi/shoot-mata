@@ -1252,6 +1252,7 @@ export const step = (previous: GameState, input: InputFrame, difficulty: Difficu
 
   const remaining: Bullet[] = [];
   const defeated = new Set<number>();
+  let clearWeakEnemyBullets = false;
   for (const bullet of state.bullets) {
     let consumed = false;
     if (bullet.kind !== 'enemy') {
@@ -1508,6 +1509,7 @@ export const step = (previous: GameState, input: InputFrame, difficulty: Difficu
         state.candidate = null;
       }
       state.metrics.damage += 1;
+      if (bullet.sourceAttack === 'enemy-volley' || bullet.sourceAttack === undefined) clearWeakEnemyBullets = true;
       if (bullet.sourceAttack === 'boss-fan') state.metrics.boss.damageByAttack.fan += 1;
       else if (bullet.sourceAttack === 'boss-sweep') state.metrics.boss.damageByAttack.sweep += 1;
       else if (bullet.sourceAttack === 'compiler-gust') state.metrics.compiler.damageByAttack.gust += 1;
@@ -1534,7 +1536,9 @@ export const step = (previous: GameState, input: InputFrame, difficulty: Difficu
     }
     if (!consumed && bullet.x > -30 * SCALE && bullet.x < (WIDTH + 30) * SCALE && bullet.y > -30 * SCALE && bullet.y < (HEIGHT + 30) * SCALE) remaining.push(bullet);
   }
-  state.bullets = remaining;
+  state.bullets = clearWeakEnemyBullets
+    ? remaining.filter((bullet) => bullet.kind !== 'enemy' || (bullet.sourceAttack !== 'enemy-volley' && bullet.sourceAttack !== undefined))
+    : remaining;
   state.enemies = state.enemies.filter((enemy) => {
     if (defeated.has(enemy.id)) return false;
     if (enemy.expiresAt < state.tick) {

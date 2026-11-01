@@ -15,17 +15,17 @@
       ],
       "fanWarnings": 43,
       "fanErases": 43,
-      "trailPointsErased": 1865,
+      "trailPointsErased": 2070,
       "returnedHits": 0,
       "ordinaryHits": 1200,
       "armorLayersStripped": 3,
       "damageByAttack": {
-        "fan": 13,
+        "fan": 17,
         "sweep": 16,
-        "volley": 23
+        "volley": 8
       }
     },
-    "hash": "8695ab58e4d38124"
+    "hash": "02736c517576cd47"
   },
   "stitch": {
     "durationTicks": 8093,
@@ -41,19 +41,19 @@
       ],
       "fanWarnings": 28,
       "fanErases": 27,
-      "trailPointsErased": 793,
+      "trailPointsErased": 789,
       "returnedHits": 7,
       "ordinaryHits": 601,
       "armorLayersStripped": 3,
       "damageByAttack": {
-        "fan": 14,
+        "fan": 15,
         "sweep": 11,
-        "volley": 7
+        "volley": 6
       }
     },
-    "hash": "97bb8fa5c27b9808"
+    "hash": "cc031f998fe97ec0"
   },
-  "replayHash": "97bb8fa5c27b9808",
+  "replayHash": "cc031f998fe97ec0",
   "gates": {
     "baselineDefeatsBoss": true,
     "stitchDefeatsBoss": true,

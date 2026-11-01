@@ -1,0 +1,19 @@
+{
+  "generatedAt": "2026-11-01",
+  "scenario": "Stage 6 late mirror, synthesis, and THE LAST EDITOR entry on PROOF with all marginalia",
+  "warmupTicks": 1200,
+  "measuredTicks": 7200,
+  "averageMs": 0.018331783750001024,
+  "p95Ms": 0.03220900000007987,
+  "maxMs": 1.517582999999945,
+  "maxEnemies": 8,
+  "maxEnemyBullets": 42,
+  "rejectedEnemies": 0,
+  "rejectedEnemyBullets": 0,
+  "gates": {
+    "average": true,
+    "p95": true,
+    "maximum": true,
+    "noRejectedEntities": true
+  }
+}

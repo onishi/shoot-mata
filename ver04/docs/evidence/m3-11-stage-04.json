@@ -3,51 +3,51 @@
   "durationTicks": 23400,
   "scheduledSpawns": 65,
   "seed": 3401,
-  "finalHash": "a6347b8fa8e0da78",
+  "finalHash": "7e121323071c3309",
   "replayHashes": [
-    "a6347b8fa8e0da78",
-    "a6347b8fa8e0da78",
-    "a6347b8fa8e0da78"
+    "7e121323071c3309",
+    "7e121323071c3309",
+    "7e121323071c3309"
   ],
   "maxEnemies": 9,
-  "maxEnemyBullets": 105,
+  "maxEnemyBullets": 72,
   "maxCombatGapTicks": 1,
   "stats": {
     "ash-comma": {
       "spawned": 26,
-      "attacks": 236,
-      "defeated": 5,
-      "exited": 21
+      "attacks": 235,
+      "defeated": 6,
+      "exited": 20
     },
     "kiln-censor": {
       "spawned": 17,
-      "attacks": 131,
+      "attacks": 132,
       "defeated": 10,
       "exited": 7
     },
     "ember-courier": {
       "spawned": 16,
-      "attacks": 123,
-      "defeated": 9,
-      "exited": 7
+      "attacks": 132,
+      "defeated": 4,
+      "exited": 12
     },
     "char-press": {
       "spawned": 6,
-      "attacks": 64,
-      "defeated": 3,
-      "exited": 3
+      "attacks": 57,
+      "defeated": 4,
+      "exited": 2
     }
   },
   "heat": {
     "waves": 975,
-    "trailPointsBurned": 480,
-    "trailPointsCooled": 3359,
-    "cooledTrailPeak": 151,
-    "coolingCollates": 5,
-    "ashCoolingBursts": 5,
-    "censorBrands": 131,
-    "courierConversions": 5,
-    "pressClosures": 64
+    "trailPointsBurned": 740,
+    "trailPointsCooled": 3610,
+    "cooledTrailPeak": 183,
+    "coolingCollates": 4,
+    "ashCoolingBursts": 6,
+    "censorBrands": 132,
+    "courierConversions": 6,
+    "pressClosures": 57
   },
   "rejectedEnemies": 0,
   "rejectedEnemyBullets": 0,

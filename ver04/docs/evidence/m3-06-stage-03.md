@@ -2,18 +2,18 @@
 
 - Duration: 23400 ticks (195 seconds)
 - Scheduled spawns: 65
-- Max enemies / enemy bullets: 8 / 82
+- Max enemies / enemy bullets: 8 / 44
 - Longest no-combat gap: 1 ticks
-- Wet points / peak: 1179 / 121
-- Wet annotated shots / damage: 105 / 954
-- Determinism hashes: 66d868cfc02d7dab, 66d868cfc02d7dab, 66d868cfc02d7dab, 66d868cfc02d7dab
+- Wet points / peak: 1458 / 121
+- Wet annotated shots / damage: 148 / 846
+- Determinism hashes: 43ebbe4d8d861791, 43ebbe4d8d861791, 43ebbe4d8d861791, 43ebbe4d8d861791
 
 | Enemy | Spawned | Attacks | Defeated | Exited |
 | --- | ---: | ---: | ---: | ---: |
-| drip-scribe | 26 | 199 | 15 | 11 |
-| gutter-frog | 17 | 103 | 12 | 5 |
-| basin-bell | 7 | 54 | 4 | 3 |
-| reed-needle | 15 | 102 | 5 | 10 |
+| drip-scribe | 26 | 194 | 14 | 12 |
+| gutter-frog | 17 | 93 | 13 | 4 |
+| basin-bell | 7 | 48 | 6 | 1 |
+| reed-needle | 15 | 114 | 6 | 9 |
 
 | Gate | Result |
 | --- | --- |

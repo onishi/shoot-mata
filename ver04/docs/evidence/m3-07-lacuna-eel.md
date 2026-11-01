@@ -8,7 +8,7 @@
 - Drizzle / wake / deluge attacks: 26 / 10 / 41
 - Drizzle / wake / deluge damage: 7 / 4 / 16
 - Max enemy bullets: 45
-- Stitch / replay hashes: 1c23a8f5bffaac23, 1c23a8f5bffaac23
+- Stitch / replay hashes: 6e4c8fab460d6554, 6e4c8fab460d6554
 
 | Gate | Result |
 | --- | --- |

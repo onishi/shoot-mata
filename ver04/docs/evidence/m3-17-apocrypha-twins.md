@@ -8,7 +8,7 @@
 - Position exchanges: 11
 - Testimony / cross-exam / verdict attacks: 7 / 5 / 11
 - Max enemy bullets: 112
-- Stitch / replay hashes: f9b09e5e80be8b89, f9b09e5e80be8b89
+- Stitch / replay hashes: 5ce46e51d43ef219, 5ce46e51d43ef219
 
 | Gate | Result |
 | --- | --- |

@@ -81,6 +81,19 @@ describe('M1 deterministic playground', () => {
     expect(step(state, { retrace: true }).events).toContainEqual({ type: 'retrace-denied' });
   });
 
+  it('clears weak enemy volleys after damage but preserves authored boss pressure', () => {
+    const state = createInitialState();
+    state.player.invulnerableUntil = 0;
+    state.bullets = [
+      { id: 11, x: state.player.x, y: state.player.y, vx: 0, vy: 0, radius: 8, kind: 'enemy', annotated: false, capturable: true, sourceAttack: 'enemy-volley' },
+      { id: 12, x: px(500), y: px(300), vx: 0, vy: 0, radius: 8, kind: 'enemy', annotated: false, capturable: true, sourceAttack: 'enemy-volley' },
+      { id: 13, x: px(600), y: px(300), vx: 0, vy: 0, radius: 8, kind: 'enemy', annotated: false, capturable: true, sourceAttack: 'boss-sweep' }
+    ];
+    const result = step(state, {});
+    expect(result.state.player.health).toBe(2);
+    expect(result.state.bullets.map((bullet) => bullet.id)).toEqual([13]);
+  });
+
   it('removes a defeated hauler and records its first defeat tick instead of resetting it', () => {
     let state = createInitialState(99);
     state.enemies[0].kind = 'folio-hauler';

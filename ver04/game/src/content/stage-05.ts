@@ -18,7 +18,7 @@ const obelisk = (tick: number, y: number, lane: -1 | 1): StageEnemySpawn => ({
 // false copy, 84-126s mixes harmless quotation rounds into real fire, and the
 // second half composes all four roles around two fixed-mirror hearings.
 export const STAGE_05_SPAWNS: StageEnemySpawn[] = [
-  mote(0, 190), mote(360, 510), mote(720, 320), mote(1080, 560), mote(1440, 230), mote(1800, 430),
+  mote(0, 190), mote(360, 510), mote(720, 320), mote(1080, 560), mote(1440, 230), mote(1800, 430), mote(2160, 300),
   ram(2520, 190), mote(2880, 510), ram(3240, 520), mote(3600, 280),
   ram(3960, 350), mote(4320, 170), ram(4680, 530), mote(5040, 390),
   witness(5400, 190), mote(5760, 500), witness(6120, 520), ram(6480, 280),
