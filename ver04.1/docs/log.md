@@ -1,5 +1,15 @@
 # v4.1 Log
 
+## 2026-11-01 — v4.1-01 独立実装土台と戦闘視認性
+
+- v4.0を`ver04.1/game`へ複製し、版表示をv4.1、保存・設定キーを`palimpsest-wake:v4.1:*`、previewを4184番、公開経路をトップと`/v4.1/`へ分離した。公開パッケージは`/v4.0/`とv3系を保持する。
+- v4.0ではforeground画像が自機・敵・弾より後に描かれていたため、装飾前景を戦闘物の背面へ移した。背景画像自体は変更していない。
+- 自機、通常敵、危険弾、ボスへ暗い局所コントラスト面と色・形状による外周を追加した。追加幅は敵5px、自機6px、弾7pxに制限し、当たり判定と表示契約を維持した。
+- reduced flash時は外周opacityと被弾無敵中の自機opacityを固定し、点滅を止めても識別性が落ちないようにした。
+- Stage 1 / 4 / 6通常戦、全6ボス、Stage 6 reduced flashを1280×720で採取し、v4.0同一シナリオと目視比較した。詳細は`evidence/v4.1-01-visibility.md`。
+- 単体78/78、自動プレイ13/13、Chrome E2E 23/23、build、originality、assets、audio監査に合格した。Chrome性能は平均0.056ms / p95 0.100ms / 最大0.500ms、simulationは平均0.029ms / p95 0.053ms / 最大0.396msだった。
+- 90周balanceの途中進捗を`console.info`へ出したがVitestが完了まで保持したため、`process.stdout.write`へ変更した。1-run smoke testで即時表示と`EVIDENCE_DIR`による出力分離を確認した。ゲーム規則を変えていないため正式90周はv4.1-02の難易度調整後に行う。
+
 ## 2026-11-01 — baseline再評価と改善方針固定
 
 - v4.0を変更しないため、一時コピーで通常区間・全ボス・強化、simulation性能、Chrome E2Eを再実行した。

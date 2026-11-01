@@ -1,0 +1,68 @@
+{
+  "generatedAt": "2026-11-01",
+  "durationTicks": 23400,
+  "scheduledSpawns": 65,
+  "seed": 3401,
+  "finalHash": "bd7ce9035f96be2d",
+  "replayHashes": [
+    "bd7ce9035f96be2d",
+    "bd7ce9035f96be2d",
+    "bd7ce9035f96be2d"
+  ],
+  "maxEnemies": 8,
+  "maxEnemyBullets": 22,
+  "maxCombatGapTicks": 1,
+  "stats": {
+    "ash-comma": {
+      "spawned": 26,
+      "attacks": 45,
+      "defeated": 8,
+      "exited": 18
+    },
+    "kiln-censor": {
+      "spawned": 17,
+      "attacks": 21,
+      "defeated": 13,
+      "exited": 4
+    },
+    "ember-courier": {
+      "spawned": 16,
+      "attacks": 18,
+      "defeated": 13,
+      "exited": 3
+    },
+    "char-press": {
+      "spawned": 6,
+      "attacks": 9,
+      "defeated": 5,
+      "exited": 1
+    }
+  },
+  "heat": {
+    "waves": 975,
+    "trailPointsBurned": 790,
+    "trailPointsCooled": 3517,
+    "cooledTrailPeak": 223,
+    "coolingCollates": 3,
+    "ashCoolingBursts": 8,
+    "censorBrands": 21,
+    "courierConversions": 8,
+    "pressClosures": 9
+  },
+  "rejectedEnemies": 0,
+  "rejectedEnemyBullets": 0,
+  "gates": {
+    "allKindsSpawned": true,
+    "allKindsAttacked": true,
+    "allKindsDefeated": true,
+    "allSpawnsAccounted": true,
+    "heatBurnsOldWriting": true,
+    "coolingExtendsWriting": true,
+    "enemyRolesActivated": true,
+    "noUnintendedFourSecondGap": true,
+    "enemyLimit": true,
+    "bulletLimit": true,
+    "deterministicReplay": true,
+    "stageDrained": true
+  }
+}
