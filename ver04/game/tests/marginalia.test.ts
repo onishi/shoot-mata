@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { marginaliaCandidates, marginaliaEffects } from '../src/content/marginalia';
+import { MARGINALIA_IDS, marginaliaCandidates, marginaliaEffects } from '../src/content/marginalia';
 import { createInitialState, step } from '../src/simulation/game';
 
 describe('M4 marginalia growth', () => {
@@ -7,6 +7,19 @@ describe('M4 marginalia growth', () => {
     const first = marginaliaCandidates(404, 'stage-01');
     expect(marginaliaCandidates(404, 'stage-01')).toEqual(first);
     expect(new Set(first)).toEqual(new Set(['longhand', 'rubric', 'redaction']));
+  });
+
+  it('makes all twelve notes reachable across midpoint and result offers', () => {
+    const offered = new Set<string>();
+    for (const stage of ['stage-01', 'stage-02', 'stage-03', 'stage-04', 'stage-05', 'stage-06'] as const) {
+      for (const moment of ['midpoint', 'result'] as const) {
+        const candidates = marginaliaCandidates(404, stage, moment);
+        expect(candidates).toHaveLength(3);
+        expect(candidates.map((id) => id === 'longhand' || id === 'footnote' || id === 'cross-reference' || id === 'errata').filter(Boolean)).toHaveLength(1);
+        candidates.forEach((id) => offered.add(id));
+      }
+    }
+    expect(offered).toEqual(new Set(MARGINALIA_IDS));
   });
 
   it('stacks LONGHAND while paying its maximum-gauge cost', () => {
@@ -54,5 +67,42 @@ describe('M4 marginalia growth', () => {
     };
     expect(step(make(), { collate: true }).state.metrics.captured).toBe(18);
     expect(step(make(), { collate: true }, 'normal', ['redaction']).state.metrics.captured).toBe(24);
+  });
+
+  it('preserves an empty ERRATA loop once and makes CITATION add a fifth return shot', () => {
+    const empty = createInitialState(12);
+    empty.enemies = [];
+    empty.trail = Array.from({ length: 8 }, (_, index) => ({ x: (100 + index * 10) * 256, y: 100 * 256, bornTick: 0, segmentId: index }));
+    empty.candidate = { polygon: [
+      { x: 100 * 256, y: 100 * 256 }, { x: 500 * 256, y: 100 * 256 },
+      { x: 500 * 256, y: 500 * 256 }, { x: 100 * 256, y: 500 * 256 }
+    ], intersection: { x: 100 * 256, y: 100 * 256 }, startIndex: 3, area: 160000 };
+    const corrected = step(empty, { collate: true }, 'normal', ['errata']).state;
+    expect(corrected.trail).toHaveLength(9);
+    expect(corrected.errataReadyAt).toBe(1 + 8 * 120);
+
+    const cited = createInitialState(13);
+    cited.enemies[0].x = 700 * 256; cited.enemies[0].y = 360 * 256;
+    cited.candidate = { polygon: [
+      { x: 100 * 256, y: 100 * 256 }, { x: 600 * 256, y: 100 * 256 },
+      { x: 600 * 256, y: 600 * 256 }, { x: 100 * 256, y: 600 * 256 }
+    ], intersection: { x: 100 * 256, y: 100 * 256 }, startIndex: 0, area: 250000 };
+    cited.bullets = Array.from({ length: 4 }, (_, index) => ({
+      id: cited.nextId++, x: (300 + index * 20) * 256, y: 360 * 256, vx: 0, vy: 0,
+      radius: 8, kind: 'enemy' as const, annotated: false, capturable: true
+    }));
+    const returned = step(cited, { collate: true }, 'normal', ['citation']).state.bullets.filter((bullet) => bullet.kind === 'return');
+    expect(returned).toHaveLength(5);
+    expect(returned.some((bullet) => bullet.radius === 9)).toBe(true);
+  });
+
+  it('charges PALINODE ten extra gauge and exposes every remaining effect flag', () => {
+    const state = createInitialState(14);
+    state.gauge = 30;
+    state.trail = Array.from({ length: 5 }, (_, index) => ({ x: (200 + index * 10) * 256, y: 360 * 256, bornTick: 0, segmentId: index }));
+    expect(step(state, { retrace: true }).events.some((event) => event.type === 'retrace-started')).toBe(true);
+    expect(step(state, { retrace: true }, 'normal', ['palinode']).events.some((event) => event.type === 'retrace-denied')).toBe(true);
+    const effects = marginaliaEffects(MARGINALIA_IDS);
+    expect(effects).toMatchObject({ footnote: true, crossReference: true, errata: true, gloss: true, ligature: true, underline: true, citation: true, palinode: true, afterword: true });
   });
 });

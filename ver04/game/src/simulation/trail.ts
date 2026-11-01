@@ -1,8 +1,9 @@
 import { distanceSq, polygonArea, px, segmentIntersection } from '../core/math';
 import { HEIGHT, SCALE, WIDTH, type LoopCandidate, type Point, type TrailPoint } from '../core/types';
 
-export const findLoopCandidate = (trail: TrailPoint[]): LoopCandidate | null => {
-  if (trail.length < 6) return null;
+export const findLoopCandidates = (trail: TrailPoint[], minimumArea = 8000): LoopCandidate[] => {
+  if (trail.length < 6) return [];
+  const candidates: LoopCandidate[] = [];
   const a = trail[trail.length - 2];
   const b = trail[trail.length - 1];
   for (let i = trail.length - 5; i >= 0; i -= 1) {
@@ -11,10 +12,13 @@ export const findLoopCandidate = (trail: TrailPoint[]): LoopCandidate | null => 
     const polygon: Point[] = [intersection, ...trail.slice(i + 1)];
     if (polygon.some((point) => point.x < 0 || point.x > WIDTH * SCALE || point.y < 0 || point.y > HEIGHT * SCALE)) continue;
     const area = polygonArea(polygon);
-    if (area >= 8000) return { polygon, intersection, startIndex: i + 1, area };
+    if (area >= minimumArea) candidates.push({ polygon, intersection, startIndex: i + 1, area });
   }
-  return null;
+  return candidates;
 };
+
+export const findLoopCandidate = (trail: TrailPoint[], minimumArea = 8000): LoopCandidate | null =>
+  findLoopCandidates(trail, minimumArea)[0] ?? null;
 
 export const shouldAddTrailPoint = (trail: TrailPoint[], point: Point, tick: number): boolean => {
   const last = trail.at(-1);

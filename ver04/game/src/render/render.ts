@@ -616,7 +616,7 @@ const renderScreen = (ctx: CanvasRenderingContext2D, app: AppState, screen: Excl
     line(ctx, resultCopy.action, 550, '#a8f7ff', 20);
     line(ctx, 'ESC  END VOYAGE', 590, '#7895a7', 15);
   } else if (screen === 'marginalia') {
-    line(ctx, `STAGE ${Number(app.game.stageId.slice(-2))} · MARGINALIA`, 94, '#f4c36a', 16);
+    line(ctx, `STAGE ${Number(app.game.stageId.slice(-2))} · ${app.marginaliaMoment === 'midpoint' ? 'MIDPOINT' : 'RESULT'} MARGINALIA`, 94, '#f4c36a', 16);
     title(ctx, 'CHOOSE WHAT THE WAKE REMEMBERS', 147, 38);
     line(ctx, 'Each note changes a strength and leaves a deliberate cost.', 184, '#9fb7c4', 15);
     app.marginaliaOptions.forEach((id, index) => {

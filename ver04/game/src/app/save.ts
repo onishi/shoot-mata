@@ -2,6 +2,7 @@ import type { AppState, CampaignSummary, CheckpointName } from './app';
 import type { GameState, StageId } from '../core/types';
 import { defaultSettings } from './settings';
 import { MARGINALIA_IDS, type MarginaliaId } from '../content/marginalia';
+import { stageDefinition } from '../content/campaign';
 
 export const SAVE_KEY = 'palimpsest-wake:v4.0:save';
 export const SAVE_TEMP_KEY = `${SAVE_KEY}:temporary`;
@@ -102,7 +103,7 @@ const decode = (raw: string): AppState | null => {
   const checkpoint = body.checkpoint as CheckpointName;
   if (checkpointStages[checkpoint] !== body.stage) return null;
   if (!finiteInteger(body.health, 0, 3) || !finiteInteger(body.gauge, 0, 100)) return null;
-  if (!Array.isArray(body.marginalia) || body.marginalia.length > 6
+  if (!Array.isArray(body.marginalia) || body.marginalia.length > 12
     || !body.marginalia.every((item) => MARGINALIA_IDS.includes(item as MarginaliaId))) return null;
   if (!finiteInteger(body.score, 0, Number.MAX_SAFE_INTEGER) || !finiteInteger(body.seed, 0, 0xffffffff)) return null;
   if (!finiteInteger(body.continuesRemaining, 0, 1) || !validCampaign(body.campaign)) return null;
@@ -112,12 +113,16 @@ const decode = (raw: string): AppState | null => {
   if (!finiteInteger(game.tick, 0, 100000) || !finiteInteger(game.gauge, 0, 100)) return null;
   if (!game.player || game.player.health !== body.health || game.gauge !== body.gauge) return null;
   if (!Array.isArray(game.trail) || !Array.isArray(game.bullets) || !Array.isArray(game.enemies)) return null;
+  game.annotationChain = finiteInteger(game.annotationChain, 0, Number.MAX_SAFE_INTEGER) ? game.annotationChain : 0;
+  game.errataReadyAt = finiteInteger(game.errataReadyAt, 0, 100000) ? game.errataReadyAt : 0;
+  game.lastDamageTick = typeof game.lastDamageTick === 'number' && Number.isFinite(game.lastDamageTick) ? game.lastDamageTick : -100000;
   return {
     screen: 'stage-intro', game, checkpoint: game, checkpointName: checkpoint,
     continuesRemaining: body.continuesRemaining, campaign: body.campaign,
     saveAvailable: true, saveWarning: false,
     settings: defaultSettings(), settingsReturn: 'title', settingsIndex: 0, settingsWarning: false,
-    marginalia: body.marginalia, marginaliaOptions: [], marginaliaIndex: 0
+    marginalia: body.marginalia, marginaliaOptions: [], marginaliaIndex: 0,
+    marginaliaMoment: 'midpoint', midpointMarginaliaTaken: game.tick >= Math.floor(stageDefinition(game.stageId).durationTicks / 2)
   };
 };
 

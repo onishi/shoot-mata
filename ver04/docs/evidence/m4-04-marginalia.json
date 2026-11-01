@@ -1,0 +1,80 @@
+{
+  "generatedAt": "2026-11-01",
+  "durationTicks": 7200,
+  "reachable": [
+    "afterword",
+    "citation",
+    "cross-reference",
+    "errata",
+    "footnote",
+    "gloss",
+    "ligature",
+    "longhand",
+    "palinode",
+    "redaction",
+    "rubric",
+    "underline"
+  ],
+  "builds": {
+    "baseline": {
+      "score": 12184,
+      "damage": 22,
+      "enemiesDefeated": 10,
+      "collates": 2,
+      "captured": 0,
+      "annotatedShots": 149,
+      "shots": 720,
+      "finalGauge": 75
+    },
+    "stroke": {
+      "score": 19181,
+      "damage": 21,
+      "enemiesDefeated": 15,
+      "collates": 5,
+      "captured": 0,
+      "annotatedShots": 156,
+      "shots": 720,
+      "finalGauge": 75
+    },
+    "annotation": {
+      "score": 21859,
+      "damage": 18,
+      "enemiesDefeated": 17,
+      "collates": 4,
+      "captured": 5,
+      "annotatedShots": 131,
+      "shots": 554,
+      "finalGauge": 95
+    },
+    "recovery": {
+      "score": 12184,
+      "damage": 22,
+      "enemiesDefeated": 10,
+      "collates": 2,
+      "captured": 0,
+      "annotatedShots": 149,
+      "shots": 720,
+      "finalGauge": 75
+    },
+    "balanced": {
+      "score": 25552,
+      "damage": 13,
+      "enemiesDefeated": 19,
+      "collates": 6,
+      "captured": 6,
+      "annotatedShots": 191,
+      "shots": 720,
+      "finalGauge": 99
+    },
+    "resilient": {
+      "score": 12946,
+      "damage": 23,
+      "enemiesDefeated": 9,
+      "collates": 3,
+      "captured": 0,
+      "annotatedShots": 113,
+      "shots": 554,
+      "finalGauge": 75
+    }
+  }
+}

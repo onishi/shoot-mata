@@ -2,6 +2,7 @@ import type { GameEvent, GameState, InputFrame, StageId } from '../core/types';
 import { copyState, createInitialState, step } from '../simulation/game';
 import { defaultSettings, type GameSettings } from './settings';
 import { marginaliaCandidates, marginaliaEffects, type MarginaliaId } from '../content/marginalia';
+import { stageDefinition } from '../content/campaign';
 
 export type AppScreen = 'title' | 'guide' | 'settings' | 'stage-intro' | 'playing' | 'paused' | 'continue' | 'result' | 'marginalia' | 'ending' | 'campaign-result';
 export type AppAction = 'start' | 'guide' | 'settings' | 'confirm' | 'back' | 'pause';
@@ -29,6 +30,8 @@ export interface AppState {
   marginalia: MarginaliaId[];
   marginaliaOptions: MarginaliaId[];
   marginaliaIndex: number;
+  marginaliaMoment: 'midpoint' | 'result';
+  midpointMarginaliaTaken: boolean;
 }
 
 export interface CampaignSummary {
@@ -62,13 +65,13 @@ const beginStage = (stageId: StageId, seed: number, campaign: CampaignSummary, s
     screen: 'stage-intro', game, checkpoint: copyState(game),
     checkpointName: entryCheckpoints[stageId], continuesRemaining: 1, campaign,
     saveAvailable: true, saveWarning: false, settings, settingsReturn: 'title', settingsIndex: 0, settingsWarning: false,
-    marginalia, marginaliaOptions: [], marginaliaIndex: 0
+    marginalia, marginaliaOptions: [], marginaliaIndex: 0, marginaliaMoment: 'midpoint', midpointMarginaliaTaken: false
   };
 };
 
 export const createAppState = (seed = 404, settings: GameSettings = defaultSettings()): AppState => {
   const game = createInitialState(seed, 'stage-01', settings.difficulty);
-  return { screen: 'title', game, checkpoint: copyState(game), checkpointName: 'harbor-entry', continuesRemaining: 1, campaign: emptyCampaign(), saveAvailable: false, saveWarning: false, settings, settingsReturn: 'title', settingsIndex: 0, settingsWarning: false, marginalia: [], marginaliaOptions: [], marginaliaIndex: 0 };
+  return { screen: 'title', game, checkpoint: copyState(game), checkpointName: 'harbor-entry', continuesRemaining: 1, campaign: emptyCampaign(), saveAvailable: false, saveWarning: false, settings, settingsReturn: 'title', settingsIndex: 0, settingsWarning: false, marginalia: [], marginaliaOptions: [], marginaliaIndex: 0, marginaliaMoment: 'midpoint', midpointMarginaliaTaken: false };
 };
 
 const freshVoyage = (state: AppState): AppState => beginStage('stage-01', state.game.seed, emptyCampaign(), state.settings, []);
@@ -129,7 +132,7 @@ export const transition = (state: AppState, action: AppAction): AppState => {
     if (action === 'back') return { ...state, screen: 'title' };
     if (action === 'confirm') {
       const campaign = recordStage(state);
-      return { ...state, screen: 'marginalia', campaign, marginaliaOptions: marginaliaCandidates(state.game.seed, state.game.stageId), marginaliaIndex: 0 };
+      return { ...state, screen: 'marginalia', campaign, marginaliaOptions: marginaliaCandidates(state.game.seed, state.game.stageId, 'result'), marginaliaIndex: 0, marginaliaMoment: 'result' };
     }
   }
   if (state.screen === 'marginalia') {
@@ -138,6 +141,7 @@ export const transition = (state: AppState, action: AppAction): AppState => {
       const selected = state.marginaliaOptions[state.marginaliaIndex];
       if (!selected) return state;
       const marginalia = [...state.marginalia, selected];
+      if (state.marginaliaMoment === 'midpoint') return { ...state, screen: 'playing', marginalia, midpointMarginaliaTaken: true };
       const nextStage = nextStages[state.game.stageId];
       return nextStage
         ? beginStage(nextStage, state.game.seed, state.campaign, state.settings, marginalia)
@@ -156,6 +160,10 @@ export const advance = (state: AppState, input: InputFrame = {}): { state: AppSt
   if (state.screen !== 'playing') return { state, events: [] };
   const result = step(state.game, input, state.settings.difficulty, state.marginalia);
   let next: AppState = { ...state, game: result.state };
+  const midpoint = Math.floor(stageDefinition(result.state.stageId).durationTicks / 2);
+  if (!state.midpointMarginaliaTaken && state.game.tick < midpoint && result.state.tick >= midpoint) {
+    next = { ...next, screen: 'marginalia', marginaliaOptions: marginaliaCandidates(result.state.seed, result.state.stageId, 'midpoint'), marginaliaIndex: 0, marginaliaMoment: 'midpoint' };
+  }
   if (result.events.some((event) => event.type === 'boss-spawned')) {
     next = { ...next, checkpoint: copyState(result.state), checkpointName: bossCheckpoints[result.state.stageId] };
   }

@@ -50,8 +50,9 @@ const applyAction = (action: AppAction): void => {
   const beforeContinues = app.continuesRemaining;
   app = transition(app, action);
   if (app.saveWarning && before !== app.screen) app.saveWarning = false;
-  const shouldSave = app.screen === 'stage-intro'
-    && (before === 'title' || app.checkpointName !== beforeCheckpoint || app.continuesRemaining !== beforeContinues);
+  const shouldSave = (app.screen === 'stage-intro'
+    && (before === 'title' || app.checkpointName !== beforeCheckpoint || app.continuesRemaining !== beforeContinues))
+    || (before === 'marginalia' && app.screen === 'playing' && action === 'confirm');
   if (shouldSave) persistCheckpoint();
   if (app.screen === 'ending' && storage) {
     clearCampaign(storage); savedApp = null; app.saveAvailable = false;

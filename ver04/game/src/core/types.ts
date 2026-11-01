@@ -24,6 +24,8 @@ export interface Bullet extends Point {
     | 'twins-testimony' | 'twins-cross-exam' | 'twins-verdict'
     | 'editor-erasure' | 'editor-wind' | 'editor-rain' | 'editor-heat' | 'editor-mirror' | 'editor-signature';
   signatureInk?: boolean;
+  glossShard?: boolean;
+  ligature?: boolean;
 }
 export type StageId = 'stage-01' | 'stage-02' | 'stage-03' | 'stage-04' | 'stage-05' | 'stage-06';
 export type EnemyKind =
@@ -283,5 +285,8 @@ export interface GameState {
   boss: BossState | null;
   encounterIndex: number;
   retrace: { points: Point[]; index: number } | null;
+  annotationChain: number;
+  errataReadyAt: number;
+  lastDamageTick: number;
   metrics: Metrics;
 }

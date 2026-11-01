@@ -7,7 +7,7 @@ import { STAGE_03_BOSS_START_TICK, STAGE_03_RAIN_PERIOD_TICKS, STAGE_03_WET_TICK
 import { STAGE_04_BOSS_START_TICK, STAGE_04_COOLING_EXTENSION_TICKS, STAGE_04_COOLING_RADIUS_PX, STAGE_04_HEAT_PERIOD_TICKS, stageFourCoolingCenter } from '../content/stage-04';
 import { STAGE_05_BOSS_START_TICK, isInStageFiveMirrorBand, stageFiveFalseTrail } from '../content/stage-05';
 import { STAGE_06_BOSS_START_TICK, stageSixActiveRule, stageSixFolio } from '../content/stage-06';
-import { findLoopCandidate, shotCrossedTrail, shotCrossedWetTrail, shouldAddTrailPoint } from './trail';
+import { findLoopCandidates, shotCrossedTrail, shotCrossedWetTrail, shouldAddTrailPoint } from './trail';
 import { marginaliaEffects, type MarginaliaId } from '../content/marginalia';
 
 const PLAYER_SPEED = Math.round(320 * SCALE / TICK_RATE);
@@ -100,6 +100,9 @@ export const createInitialState = (seed = 1, stageId: StageId = 'stage-01', diff
   boss: null,
   encounterIndex: 0,
   retrace: null,
+  annotationChain: 0,
+  errataReadyAt: 0,
+  lastDamageTick: -100000,
   metrics: { candidates: 0, loops: 0, emptyLoops: 0, missedCollates: 0, captured: 0, annotatedShots: 0, retraces: 0, damage: 0, enemiesDefeated: 0, haulersDefeated: 0, firstHaulerDefeatTick: null, enemyShots: 0, enemyStats: emptyEnemyStats(), rejectedEnemies: 0, rejectedEnemyBullets: 0,
     wind: { reversals: 0, playerDrift: 0, trailDrift: 0, collatesLeft: 0, collatesRight: 0, collatesNearReversal: 0 },
     rain: { drops: 0, trailPointsWetted: 0, wetTrailPeak: 0, wetAnnotatedShots: 0, wetDamage: 0, basinSurges: 0, needleDashes: 0 },
@@ -1017,11 +1020,22 @@ const collate = (state: GameState, events: GameEvent[], marginalia: readonly Mar
       events.push({ type: 'advocate-ember-cooled' });
     }
   }
+  if (effects.citation) {
+    for (let index = 3; index < selected.length; index += 4) {
+      const captured = selected[index];
+      const target = [...state.enemies, ...(state.boss ? [state.boss] : [])]
+        .sort((a, b) => distanceSq(a, captured) - distanceSq(b, captured) || ('id' in a ? a.id : 0) - ('id' in b ? b.id : 0))[0];
+      if (!target) continue;
+      const aim = Math.atan2(target.y - captured.y, target.x - captured.x);
+      const speed = 690 * SCALE / TICK_RATE;
+      state.bullets.push({ id: state.nextId++, x: captured.x, y: captured.y, vx: Math.round(Math.cos(aim) * speed), vy: Math.round(Math.sin(aim) * speed), radius: 9, kind: 'return', annotated: true, capturable: false });
+    }
+  }
   for (const enemy of state.enemies) if (pointInPolygon(enemy, candidate.polygon)) enemy.markedUntil = state.tick + 6 * TICK_RATE;
   state.gauge = clamp(state.gauge + selected.length * 4, 0, effects.gaugeCap);
   // Larger, riskier loops need enough score leverage to distinguish Sweep from
   // safe bullet erasure during the M1 strategy comparison.
-  state.score += selected.length * 100 + Math.round(candidate.area / 15);
+  state.score += selected.length * 100 + Math.round(candidate.area / (effects.footnote && candidate.area >= 32000 ? 19 : 15));
   state.metrics.loops += 1;
   if (state.stageId === 'stage-02') {
     if (stageTwoWindDirection(state.tick) < 0) state.metrics.wind.collatesLeft += 1;
@@ -1112,9 +1126,11 @@ const collate = (state: GameState, events: GameEvent[], marginalia: readonly Mar
       }
     }
   }
-  if (selected.length === 0 && !state.enemies.some((enemy) => pointInPolygon(enemy, candidate.polygon))) state.metrics.emptyLoops += 1;
+  const empty = selected.length === 0 && !state.enemies.some((enemy) => pointInPolygon(enemy, candidate.polygon));
+  if (empty) state.metrics.emptyLoops += 1;
   state.metrics.captured += selected.length;
-  state.trail = state.trail.slice(0, candidate.startIndex);
+  if (empty && effects.errata && state.tick >= state.errataReadyAt) state.errataReadyAt = state.tick + 8 * TICK_RATE;
+  else state.trail = state.trail.slice(0, candidate.startIndex);
   state.candidate = null;
   events.push({ type: 'loop-collated', captured: selected.length, area: candidate.area });
 };
@@ -1132,22 +1148,35 @@ export const step = (previous: GameState, input: InputFrame, difficulty: Difficu
   }
 
   if (input.retrace && !state.retrace) {
-    if (state.gauge >= 25 && state.trail.length >= 4) {
+    const retraceCost = effects.palinode ? 35 : 25;
+    if (state.gauge >= retraceCost && state.trail.length >= 4) {
       const recent = state.trail.filter((point) => state.tick - point.bornTick <= 90).slice().reverse();
       state.retrace = { points: recent, index: 0 };
-      state.gauge -= 25;
+      state.gauge -= retraceCost;
       state.metrics.retraces += 1;
       events.push({ type: 'retrace-started' });
     } else events.push({ type: 'retrace-denied' });
   }
   applyCrosswind(state, events);
+  const wasRetracing = Boolean(state.retrace);
   updatePlayer(state, input, events);
+  if (wasRetracing && !state.retrace && effects.palinode && state.trail.length >= 6) {
+    const center = state.player;
+    const radius = 58 * SCALE;
+    const polygon = Array.from({ length: 9 }, (_, index) => ({
+      x: center.x + Math.round(Math.cos(index / 8 * Math.PI * 2) * radius),
+      y: center.y + Math.round(Math.sin(index / 8 * Math.PI * 2) * radius)
+    }));
+    state.candidate = { polygon, intersection: polygon[0], startIndex: Math.max(0, state.trail.length - 6), area: 10500, expiresTick: state.tick + 1 };
+    collate(state, events, marginalia);
+  }
 
   spawnDueEncounters(state, difficulty);
   updateBoss(state, events);
 
   applyHeat(state, events);
-  state.trail = state.trail.filter((point) => state.tick - point.bornTick <= trailLifetime(difficulty) + Math.round(effects.trailLifetimeBonus * TICK_RATE) || (point.cooledUntil ?? 0) >= state.tick);
+  const afterwordBonus = effects.afterword && state.tick - state.lastDamageTick <= 3 * TICK_RATE ? TICK_RATE : 0;
+  state.trail = state.trail.filter((point) => state.tick - point.bornTick <= trailLifetime(difficulty) + Math.round(effects.trailLifetimeBonus * TICK_RATE) + afterwordBonus || (point.cooledUntil ?? 0) >= state.tick);
   applyRain(state, events);
   if (state.candidate?.expiresTick && state.candidate.expiresTick < state.tick) state.candidate = null;
   if (!state.retrace && shouldAddTrailPoint(state.trail, state.player, state.tick)) {
@@ -1158,8 +1187,12 @@ export const step = (previous: GameState, input: InputFrame, difficulty: Difficu
     if (mirrorActive && isInStageFiveMirrorBand(state.player)
       && (!previousTrailPoint || !isInStageFiveMirrorBand(previousTrailPoint))) events.push({ type: 'mirror-band-reflected' });
     const wasReady = Boolean(state.candidate);
-    const detected = findLoopCandidate(state.trail);
-    if (detected) state.candidate = { ...detected, expiresTick: state.tick + 60 };
+    const minimumArea = effects.footnote || (effects.afterword && state.tick - state.lastDamageTick <= 3 * TICK_RATE) ? 5200 : 8000;
+    const candidates = findLoopCandidates(state.trail, minimumArea);
+    const detected = effects.crossReference
+      ? candidates.slice(0, 2).sort((a, b) => b.area - a.area)[0] ?? null
+      : candidates[0] ?? null;
+    if (detected) state.candidate = { ...detected, expiresTick: state.tick + (effects.crossReference ? 36 : 60) };
     if (!wasReady && detected) { state.metrics.candidates += 1; events.push({ type: 'loop-ready' }); }
   }
   if (state.stageId === 'stage-05' || (state.stageId === 'stage-06' && stageSixActiveRule(state.tick) === 'mirror')) {
@@ -1193,6 +1226,15 @@ export const step = (previous: GameState, input: InputFrame, difficulty: Difficu
       bullet.falseAnnotated = crossedFalse && !crossedReal;
       bullet.wetAnnotated = crossedReal && shotCrossedWetTrail(from, bullet, state.trail, state.tick);
       bullet.vx = Math.round(bullet.vx * (bullet.falseAnnotated ? 1.34 : bullet.wetAnnotated ? 1.28 : 1.15));
+      if (effects.underline) bullet.vx = Math.round(bullet.vx * 0.9);
+      if (effects.ligature) {
+        state.annotationChain += 1;
+        if (state.annotationChain % 2 === 0) {
+          bullet.ligature = true;
+          bullet.radius += 3;
+          if (state.trail.length > 2) state.trail.splice(0, 2);
+        }
+      }
       state.metrics.annotatedShots += 1;
       if (bullet.wetAnnotated) state.metrics.rain.wetAnnotatedShots += 1;
       if (bullet.falseAnnotated) {
@@ -1200,6 +1242,10 @@ export const step = (previous: GameState, input: InputFrame, difficulty: Difficu
         events.push({ type: 'false-trail-annotated' });
       } else events.push(bullet.wetAnnotated ? { type: 'wet-annotation' } : { type: 'shot-annotated' });
     }
+  }
+
+  if (effects.underline) for (const bullet of state.bullets) {
+    if (bullet.kind === 'player' && bullet.annotated) bullet.radius = Math.min(11, bullet.radius + 0.025);
   }
 
   if (input.collate) collate(state, events, marginalia);
@@ -1395,6 +1441,8 @@ export const step = (previous: GameState, input: InputFrame, difficulty: Difficu
           let damage = bullet.kind === 'return' ? 16 : bullet.wetAnnotated ? 18
             : bullet.falseAnnotated && enemy.markedUntil >= state.tick ? 36
               : bullet.falseAnnotated ? 12 : bullet.annotated && enemy.markedUntil >= state.tick ? 28 : bullet.annotated ? 6 : 4;
+          if (effects.gloss && bullet.annotated && bullet.kind === 'player') damage = Math.max(1, Math.round(damage * 0.78));
+          if (bullet.ligature) damage = Math.round(damage * 1.65);
           if (bullet.wetAnnotated) state.metrics.rain.wetDamage += damage;
           if (enemy.kind === 'folio-hauler') {
             // Ordinary fire hits the broad front plate. Returned fire and shots
@@ -1409,6 +1457,13 @@ export const step = (previous: GameState, input: InputFrame, difficulty: Difficu
             break;
           }
           enemy.health -= damage;
+          if (effects.gloss && bullet.annotated && bullet.kind === 'player' && !bullet.glossShard) {
+            for (const direction of [-1, 1]) state.bullets.push({
+              id: state.nextId++, x: bullet.x, y: bullet.y, vx: Math.round(330 * SCALE / TICK_RATE),
+              vy: direction * Math.round(210 * SCALE / TICK_RATE), radius: 3, kind: 'player',
+              annotated: true, glossShard: true, capturable: false
+            });
+          }
           const rubricPierce = effects.rubric && bullet.kind === 'player' && bullet.annotated
             && enemy.markedUntil >= state.tick;
           consumed = !rubricPierce;
@@ -1436,6 +1491,7 @@ export const step = (previous: GameState, input: InputFrame, difficulty: Difficu
     } else if (!bullet.illusory && !state.retrace && state.player.invulnerableUntil < state.tick
       && distanceSq(bullet, state.player) <= ((bullet.radius + PLAYER_RADIUS) * SCALE) ** 2) {
       state.player.health = Math.max(0, state.player.health - 1);
+      state.lastDamageTick = state.tick;
       state.player.invulnerableUntil = state.tick + (difficulty === 'echo' ? 192 : 132);
       // Compiler pressure displaces the pilot but does not erase writing; its
       // boss lesson is completing a wind-bent loop, not restarting one after

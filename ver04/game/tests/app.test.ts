@@ -19,6 +19,21 @@ const fatalHit = (state: AppState): AppState => {
 };
 
 describe('M2 application flow', () => {
+  it('pauses once at the Stage midpoint, applies a note, and resumes the same tick', () => {
+    let app = start();
+    app.game.tick = STAGE_01_BOSS_START_TICK / 2 - 1;
+    app = advance(app).state;
+    expect(app.screen).toBe('marginalia');
+    expect(app.marginaliaMoment).toBe('midpoint');
+    const stoppedTick = app.game.tick;
+    expect(advance(app).state.game.tick).toBe(stoppedTick);
+    app = transition(app, 'confirm');
+    expect(app.screen).toBe('playing');
+    expect(app.midpointMarginaliaTaken).toBe(true);
+    expect(app.marginalia).toHaveLength(1);
+    app = advance(app).state;
+    expect(app.game.tick).toBe(stoppedTick + 1);
+  });
   it('connects title, guide, intro, play and pause without advancing simulation on overlays', () => {
     let app = createAppState();
     app = transition(app, 'guide');
