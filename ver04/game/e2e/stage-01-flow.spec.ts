@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-type Screen = 'title' | 'guide' | 'stage-intro' | 'playing' | 'paused' | 'continue' | 'result' | 'ending' | 'campaign-result';
+type Screen = 'title' | 'guide' | 'stage-intro' | 'playing' | 'paused' | 'continue' | 'result' | 'marginalia' | 'ending' | 'campaign-result';
 type QaWindow = Window & {
   __PALIMPSEST_ASSETS_READY__: Promise<unknown>;
   __PALIMPSEST_AUTOPLAY__: (ticks: number) => number;
@@ -34,6 +34,7 @@ test('campaign audio starts from a gesture, separates buses and follows every st
   await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_QA_SCENARIO__('boss-defeat'));
   await page.keyboard.press('Enter');
   await page.keyboard.press('Enter');
+  await page.keyboard.press('Enter');
   await expect.poll(() => page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_AUDIO_STATE__().stemStage)).toBe('stage-02');
   await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_QA_SCENARIO__('stage-02-boss'));
   const stageTwoAudio = await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_AUDIO_STATE__());
@@ -43,6 +44,7 @@ test('campaign audio starts from a gesture, separates buses and follows every st
   expect(stageTwoAudio.cueCounts['seam-exposed']).toBeGreaterThan(0);
 
   await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_QA_SCENARIO__('boss-defeat'));
+  await page.keyboard.press('Enter');
   await page.keyboard.press('Enter');
   await page.keyboard.press('Enter');
   await expect.poll(() => page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_AUDIO_STATE__().stemStage)).toBe('stage-03');
@@ -65,6 +67,7 @@ test('campaign audio starts from a gesture, separates buses and follows every st
   await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_QA_SCENARIO__('boss-defeat'));
   await page.keyboard.press('Enter');
   await page.keyboard.press('Enter');
+  await page.keyboard.press('Enter');
   await expect.poll(() => page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_AUDIO_STATE__().stemStage)).toBe('stage-04');
   await page.keyboard.press('Escape');
   expect(await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_AUDIO_STATE__().stems)).toBe(0);
@@ -85,6 +88,7 @@ test('campaign audio starts from a gesture, separates buses and follows every st
   await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_QA_SCENARIO__('boss-defeat'));
   await page.keyboard.press('Enter');
   await page.keyboard.press('Enter');
+  await page.keyboard.press('Enter');
   await expect.poll(() => page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_AUDIO_STATE__().stemStage)).toBe('stage-05');
   await page.keyboard.press('Escape');
   expect(await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_AUDIO_STATE__().stems)).toBe(0);
@@ -103,6 +107,7 @@ test('campaign audio starts from a gesture, separates buses and follows every st
   expect(stageFiveAudio.cueCounts['twins-phase']).toBeGreaterThan(0);
 
   await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_QA_SCENARIO__('boss-defeat'));
+  await page.keyboard.press('Enter');
   await page.keyboard.press('Enter');
   await page.keyboard.press('Enter');
   await expect.poll(() => page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_AUDIO_STATE__().stemStage)).toBe('stage-06');
@@ -187,6 +192,13 @@ test('Stage 1 title-to-result keyboard flow, continue and focus pause work in Ch
   expect(await screen()).toBe('result');
   await canvas.screenshot({ path: '../docs/evidence/m2-03-result.png' });
   await page.keyboard.press('Enter');
+  expect(await screen()).toBe('marginalia');
+  const marginaliaTick = await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_APP_STATE__().game.tick);
+  await page.waitForTimeout(80);
+  expect(await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_APP_STATE__().game.tick)).toBe(marginaliaTick);
+  await canvas.screenshot({ path: '../docs/evidence/m4-03-marginalia.png' });
+  await page.keyboard.press('ArrowRight');
+  await page.keyboard.press('Enter');
   expect(await screen()).toBe('stage-intro');
   expect((await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_APP_STATE__())).game).toMatchObject({ tick: 0 });
 });
@@ -200,6 +212,7 @@ test('campaign advances through Stage 6, restores its checkpoints and preserves 
   await page.keyboard.press('Enter');
   await scenario('boss-gate');
   await scenario('boss-defeat');
+  await page.keyboard.press('Enter');
   await page.keyboard.press('Enter');
   let state = await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_APP_STATE__()) as unknown as { screen: Screen; checkpointName: string; continuesRemaining: number; game: { stageId: string; tick: number; player: { health: number }; gauge: number } };
   expect(state).toMatchObject({ screen: 'stage-intro', checkpointName: 'crosswind-entry', continuesRemaining: 1, game: { stageId: 'stage-02', tick: 0 } });
@@ -224,6 +237,7 @@ test('campaign advances through Stage 6, restores its checkpoints and preserves 
   await scenario('boss-defeat');
   expect(await screen()).toBe('result');
   await canvas.screenshot({ path: '../docs/evidence/m3-03-stage-02-result.png' });
+  await page.keyboard.press('Enter');
   await page.keyboard.press('Enter');
   state = await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_APP_STATE__()) as typeof state;
   expect(state).toMatchObject({ screen: 'stage-intro', checkpointName: 'rain-gallery-entry', continuesRemaining: 1, game: { stageId: 'stage-03', tick: 0 } });
@@ -252,6 +266,7 @@ test('campaign advances through Stage 6, restores its checkpoints and preserves 
   expect(await screen()).toBe('result');
   await canvas.screenshot({ path: '../docs/evidence/m3-08-stage-03-result.png' });
   await page.keyboard.press('Enter');
+  await page.keyboard.press('Enter');
   state = await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_APP_STATE__()) as typeof state;
   expect(state).toMatchObject({ screen: 'stage-intro', checkpointName: 'burnt-footnote-entry', continuesRemaining: 1, game: { stageId: 'stage-04', tick: 0 } });
   await canvas.screenshot({ path: '../docs/evidence/m3-13-stage-04-intro.png' });
@@ -278,6 +293,7 @@ test('campaign advances through Stage 6, restores its checkpoints and preserves 
   await scenario('boss-defeat');
   expect(await screen()).toBe('result');
   await canvas.screenshot({ path: '../docs/evidence/m3-13-stage-04-result.png' });
+  await page.keyboard.press('Enter');
   await page.keyboard.press('Enter');
   state = await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_APP_STATE__()) as typeof state;
   expect(state).toMatchObject({ screen: 'stage-intro', checkpointName: 'mirror-chamber-entry', continuesRemaining: 1, game: { stageId: 'stage-05', tick: 0 } });
@@ -306,6 +322,7 @@ test('campaign advances through Stage 6, restores its checkpoints and preserves 
   expect(await screen()).toBe('result');
   await canvas.screenshot({ path: '../docs/evidence/m3-18-stage-05-result.png' });
   await page.keyboard.press('Enter');
+  await page.keyboard.press('Enter');
   state = await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_APP_STATE__()) as typeof state;
   expect(state).toMatchObject({ screen: 'stage-intro', checkpointName: 'original-dawn-entry', continuesRemaining: 1, game: { stageId: 'stage-06', tick: 0 } });
   await canvas.screenshot({ path: '../docs/evidence/m3-23-stage-06-intro.png' });
@@ -332,6 +349,7 @@ test('campaign advances through Stage 6, restores its checkpoints and preserves 
   expect(await screen()).toBe('result');
   await canvas.screenshot({ path: '../docs/evidence/m3-23-stage-06-result.png' });
   await page.keyboard.press('Enter');
+  await page.keyboard.press('Enter');
   expect(await screen()).toBe('ending');
   const endingTick = (await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_APP_STATE__())).game.tick;
   await page.waitForTimeout(80);
@@ -356,8 +374,10 @@ test('campaign advances through Stage 6, restores its checkpoints and preserves 
   await scenario('boss-defeat');
   await page.keyboard.press('Enter');
   await page.keyboard.press('Enter');
+  await page.keyboard.press('Enter');
   await scenario('boss-gate');
   await scenario('boss-defeat');
+  await page.keyboard.press('Enter');
   await page.keyboard.press('Enter');
   await page.keyboard.press('Enter');
   await scenario('boss-gate');
@@ -372,6 +392,7 @@ test('campaign advances through Stage 6, restores its checkpoints and preserves 
   await scenario('boss-defeat');
   await page.keyboard.press('Enter');
   await page.keyboard.press('Enter');
+  await page.keyboard.press('Enter');
   await scenario('boss-gate');
   state = await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_APP_STATE__()) as typeof state;
   expect(state).toMatchObject({ screen: 'playing', checkpointName: 'advocate-gate', continuesRemaining: 1, game: { stageId: 'stage-04' } });
@@ -384,6 +405,7 @@ test('campaign advances through Stage 6, restores its checkpoints and preserves 
   await scenario('boss-defeat');
   await page.keyboard.press('Enter');
   await page.keyboard.press('Enter');
+  await page.keyboard.press('Enter');
   await scenario('boss-gate');
   state = await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_APP_STATE__()) as typeof state;
   expect(state).toMatchObject({ screen: 'playing', checkpointName: 'apocrypha-gate', continuesRemaining: 1, game: { stageId: 'stage-05' } });
@@ -394,6 +416,7 @@ test('campaign advances through Stage 6, restores its checkpoints and preserves 
   expect(state).toMatchObject({ screen: 'stage-intro', checkpointName: 'apocrypha-gate', continuesRemaining: 0, game: { stageId: 'stage-05', tick: 25200, player: { health: 3 }, gauge: 50 } });
   await page.keyboard.press('Enter');
   await scenario('boss-defeat');
+  await page.keyboard.press('Enter');
   await page.keyboard.press('Enter');
   await page.keyboard.press('Enter');
   await scenario('boss-gate');

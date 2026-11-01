@@ -17,6 +17,7 @@ describe('M4 campaign persistence', () => {
   it('round-trips an entry checkpoint through the v4-only transactional key', () => {
     const storage = new MemoryStorage();
     const app = started();
+    app.marginalia = ['longhand', 'rubric'];
     const checkpointSeed = app.checkpoint.seed;
     expect(saveCampaign(storage, app)).toBe(true);
     expect(storage.getItem(SAVE_TEMP_KEY)).toBeNull();
@@ -24,6 +25,7 @@ describe('M4 campaign persistence', () => {
     expect(loaded.status).toBe('loaded');
     expect(loaded.state).toMatchObject({ screen: 'stage-intro', checkpointName: 'harbor-entry', continuesRemaining: 1, saveAvailable: true });
     expect(loaded.state?.game).toMatchObject({ stageId: 'stage-01', tick: 0, seed: checkpointSeed });
+    expect(loaded.state?.marginalia).toEqual(['longhand', 'rubric']);
   });
 
   it('restores the boss gate rather than transient combat state', () => {

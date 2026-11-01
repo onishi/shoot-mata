@@ -125,6 +125,9 @@ window.addEventListener('keydown', (event) => {
     else if (app.screen === 'continue' && code === 'Enter') applyAction('confirm');
     else if (app.screen === 'continue' && code === 'Escape') applyAction('back');
     else if (app.screen === 'result' && matches(code, ['Enter', 'Escape'])) applyAction(code === 'Enter' ? 'confirm' : 'back');
+    else if (app.screen === 'marginalia' && matches(code, ['ArrowLeft', 'ArrowUp'])) { app.marginaliaIndex = (app.marginaliaIndex + 2) % 3; audio.playUi(false); }
+    else if (app.screen === 'marginalia' && matches(code, ['ArrowRight', 'ArrowDown'])) { app.marginaliaIndex = (app.marginaliaIndex + 1) % 3; audio.playUi(false); }
+    else if (app.screen === 'marginalia' && matches(code, ['Enter', 'Space', 'Escape'])) applyAction(code === 'Escape' ? 'back' : 'confirm');
     else if ((app.screen === 'ending' || app.screen === 'campaign-result') && matches(code, ['Enter', 'Escape'])) applyAction(code === 'Enter' ? 'confirm' : 'back');
     else if (app.screen === 'playing' && matches(code, ['KeyX', 'KeyK'])) pulses.collate = true;
     else if (app.screen === 'playing' && matches(code, ['KeyC', 'KeyL'])) pulses.retrace = true;
@@ -173,6 +176,7 @@ const runStep = (frameInput: InputFrame): void => {
           : app.game.stageId === 'stage-05'
             ? 'Stage 5 complete. Continue into Dawn of the Original.'
             : 'Stage 6 complete. Continue into the first unwritten dawn.';
+  if (app.screen === 'marginalia') status.textContent = 'Choose one marginal note. The simulation remains paused while you decide.';
 };
 
 const frame = (now: number): void => {

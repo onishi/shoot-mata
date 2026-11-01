@@ -5,6 +5,7 @@ import { STAGE_04_COOLING_RADIUS_PX, stageFourCoolingCenter } from '../content/s
 import { STAGE_05_MIRROR_BANDS, stageFiveFalseTrail } from '../content/stage-05';
 import { stageSixActiveRule, stageSixFolio } from '../content/stage-06';
 import { drawSprite, visuals } from './visual-assets';
+import { MARGINALIA } from '../content/marginalia';
 
 const path = (ctx: CanvasRenderingContext2D, points: Point[]): void => {
   if (points.length === 0) return;
@@ -600,12 +601,12 @@ const renderScreen = (ctx: CanvasRenderingContext2D, app: AppState, screen: Excl
     line(ctx, 'ESC  RETURN TO TITLE', 535, '#7895a7', 15);
   } else if (screen === 'result') {
     const resultCopy = {
-      'stage-01': { number: 1, title: 'THE HARBOR REMEMBERS', action: 'ENTER  CONTINUE TO STAGE 2' },
-      'stage-02': { number: 2, title: 'THE INDEX HOLDS ITS COURSE', action: 'ENTER  CONTINUE TO STAGE 3' },
-      'stage-03': { number: 3, title: 'THE GALLERY RELEASES ITS RAIN', action: 'ENTER  CONTINUE TO STAGE 4' },
-      'stage-04': { number: 4, title: 'THE FOOTNOTE COOLS', action: 'ENTER  CONTINUE TO STAGE 5' },
-      'stage-05': { number: 5, title: 'THE MIRROR TESTIMONY BREAKS', action: 'ENTER  CONTINUE TO STAGE 6' },
-      'stage-06': { number: 6, title: 'THE ORIGINAL WAKES', action: 'ENTER  CONTINUE TO ENDING' }
+      'stage-01': { number: 1, title: 'THE HARBOR REMEMBERS', action: 'ENTER  INSCRIBE A MARGINAL NOTE' },
+      'stage-02': { number: 2, title: 'THE INDEX HOLDS ITS COURSE', action: 'ENTER  INSCRIBE A MARGINAL NOTE' },
+      'stage-03': { number: 3, title: 'THE GALLERY RELEASES ITS RAIN', action: 'ENTER  INSCRIBE A MARGINAL NOTE' },
+      'stage-04': { number: 4, title: 'THE FOOTNOTE COOLS', action: 'ENTER  INSCRIBE A MARGINAL NOTE' },
+      'stage-05': { number: 5, title: 'THE MIRROR TESTIMONY BREAKS', action: 'ENTER  INSCRIBE A MARGINAL NOTE' },
+      'stage-06': { number: 6, title: 'THE ORIGINAL WAKES', action: 'ENTER  INSCRIBE THE FINAL NOTE' }
     }[app.game.stageId];
     line(ctx, `STAGE ${resultCopy.number} COMPLETE`, 190, '#f4c36a', 18);
     title(ctx, resultCopy.title, 280, 48);
@@ -614,6 +615,26 @@ const renderScreen = (ctx: CanvasRenderingContext2D, app: AppState, screen: Excl
     line(ctx, `DAMAGE ${app.game.metrics.damage}   ·   REVISIONS USED ${1 - app.continuesRemaining}`, 450);
     line(ctx, resultCopy.action, 550, '#a8f7ff', 20);
     line(ctx, 'ESC  END VOYAGE', 590, '#7895a7', 15);
+  } else if (screen === 'marginalia') {
+    line(ctx, `STAGE ${Number(app.game.stageId.slice(-2))} · MARGINALIA`, 94, '#f4c36a', 16);
+    title(ctx, 'CHOOSE WHAT THE WAKE REMEMBERS', 147, 38);
+    line(ctx, 'Each note changes a strength and leaves a deliberate cost.', 184, '#9fb7c4', 15);
+    app.marginaliaOptions.forEach((id, index) => {
+      const note = MARGINALIA[id]; const selected = index === app.marginaliaIndex;
+      const x = 72 + index * 400; const y = 238;
+      ctx.fillStyle = selected ? 'rgba(91, 224, 235, .15)' : 'rgba(18, 37, 53, .82)';
+      ctx.fillRect(x, y, 336, 248);
+      ctx.strokeStyle = selected ? '#a8f7ff' : '#405c6c'; ctx.lineWidth = selected ? 3 : 1; ctx.strokeRect(x, y, 336, 248);
+      ctx.textAlign = 'left'; ctx.font = '700 13px system-ui, sans-serif'; ctx.fillStyle = selected ? '#f4c36a' : '#7895a7'; ctx.fillText(note.family, x + 24, y + 37);
+      ctx.font = '800 25px system-ui, sans-serif'; ctx.fillStyle = selected ? '#efffff' : '#b5c7cf'; ctx.fillText(note.name, x + 24, y + 79);
+      ctx.font = '500 15px system-ui, sans-serif'; ctx.fillStyle = '#a8f7ff'; ctx.fillText(note.benefit, x + 24, y + 130);
+      ctx.fillStyle = '#ffb39d'; ctx.fillText(note.cost, x + 24, y + 170);
+      const count = app.marginalia.filter((item) => item === id).length;
+      ctx.fillStyle = '#7895a7'; ctx.fillText(count > 0 ? `OWNED ×${count} · stacks` : 'NEW NOTE', x + 24, y + 215);
+    });
+    ctx.textAlign = 'center';
+    line(ctx, '← → / ↑ ↓  SELECT   ·   ENTER  INSCRIBE', 555, '#a8f7ff', 18);
+    line(ctx, `NOTES HELD  ${app.marginalia.length}   ·   ESC  END VOYAGE`, 600, '#7895a7', 15);
   } else if (screen === 'ending') {
     line(ctx, 'ENDING · THE ORIGINAL DAWN', 112, '#f4c36a', 17);
     title(ctx, 'THE FIRST LINE REMAINS', 190, 48, '#fff0c5');

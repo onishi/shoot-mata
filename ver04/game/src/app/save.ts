@@ -1,6 +1,7 @@
 import type { AppState, CampaignSummary, CheckpointName } from './app';
 import type { GameState, StageId } from '../core/types';
 import { defaultSettings } from './settings';
+import { MARGINALIA_IDS, type MarginaliaId } from '../content/marginalia';
 
 export const SAVE_KEY = 'palimpsest-wake:v4.0:save';
 export const SAVE_TEMP_KEY = `${SAVE_KEY}:temporary`;
@@ -20,7 +21,7 @@ interface SaveBody {
   checkpoint: CheckpointName;
   health: number;
   gauge: number;
-  marginalia: string[];
+  marginalia: MarginaliaId[];
   score: number;
   seed: number;
   continuesRemaining: number;
@@ -64,7 +65,7 @@ const bodyFrom = (state: AppState): SaveBody => ({
   checkpoint: state.checkpointName,
   health: state.checkpoint.player.health,
   gauge: state.checkpoint.gauge,
-  marginalia: [],
+  marginalia: state.marginalia,
   score: state.checkpoint.score,
   seed: state.checkpoint.seed,
   continuesRemaining: state.continuesRemaining,
@@ -101,7 +102,8 @@ const decode = (raw: string): AppState | null => {
   const checkpoint = body.checkpoint as CheckpointName;
   if (checkpointStages[checkpoint] !== body.stage) return null;
   if (!finiteInteger(body.health, 0, 3) || !finiteInteger(body.gauge, 0, 100)) return null;
-  if (!Array.isArray(body.marginalia) || !body.marginalia.every((item) => typeof item === 'string')) return null;
+  if (!Array.isArray(body.marginalia) || body.marginalia.length > 6
+    || !body.marginalia.every((item) => MARGINALIA_IDS.includes(item as MarginaliaId))) return null;
   if (!finiteInteger(body.score, 0, Number.MAX_SAFE_INTEGER) || !finiteInteger(body.seed, 0, 0xffffffff)) return null;
   if (!finiteInteger(body.continuesRemaining, 0, 1) || !validCampaign(body.campaign)) return null;
   if (!body.checkpointState || typeof body.checkpointState !== 'object') return null;
@@ -114,7 +116,8 @@ const decode = (raw: string): AppState | null => {
     screen: 'stage-intro', game, checkpoint: game, checkpointName: checkpoint,
     continuesRemaining: body.continuesRemaining, campaign: body.campaign,
     saveAvailable: true, saveWarning: false,
-    settings: defaultSettings(), settingsReturn: 'title', settingsIndex: 0, settingsWarning: false
+    settings: defaultSettings(), settingsReturn: 'title', settingsIndex: 0, settingsWarning: false,
+    marginalia: body.marginalia, marginaliaOptions: [], marginaliaIndex: 0
   };
 };
 

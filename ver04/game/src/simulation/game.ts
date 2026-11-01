@@ -8,6 +8,7 @@ import { STAGE_04_BOSS_START_TICK, STAGE_04_COOLING_EXTENSION_TICKS, STAGE_04_CO
 import { STAGE_05_BOSS_START_TICK, isInStageFiveMirrorBand, stageFiveFalseTrail } from '../content/stage-05';
 import { STAGE_06_BOSS_START_TICK, stageSixActiveRule, stageSixFolio } from '../content/stage-06';
 import { findLoopCandidate, shotCrossedTrail, shotCrossedWetTrail, shouldAddTrailPoint } from './trail';
+import { marginaliaEffects, type MarginaliaId } from '../content/marginalia';
 
 const PLAYER_SPEED = Math.round(320 * SCALE / TICK_RATE);
 const trailLifetime = (difficulty: Difficulty): number => Math.round((difficulty === 'echo' ? 4 : 3.2) * TICK_RATE);
@@ -989,21 +990,24 @@ const updatePlayer = (state: GameState, input: InputFrame, events: GameEvent[]):
   state.player.y = clamp(state.player.y + Math.round(dy * PLAYER_SPEED), PLAYER_RADIUS * SCALE, (HEIGHT - PLAYER_RADIUS) * SCALE);
 };
 
-const collate = (state: GameState, events: GameEvent[]): void => {
+const collate = (state: GameState, events: GameEvent[], marginalia: readonly MarginaliaId[]): void => {
+  const effects = marginaliaEffects(marginalia);
   const candidate = state.candidate;
   if (!candidate) { state.metrics.missedCollates += 1; events.push({ type: 'collate-missed' }); return; }
   const selected = state.bullets
     .filter((bullet) => bullet.kind === 'enemy' && bullet.capturable && pointInPolygon(bullet, candidate.polygon))
     .sort((a, b) => distanceSq(a, state.player) - distanceSq(b, state.player) || a.id - b.id)
-    .slice(0, state.gauge >= 100 ? undefined : 18);
+    .slice(0, state.gauge >= effects.gaugeCap ? undefined : effects.captureLimit);
   const ids = new Set(selected.map((bullet) => bullet.id));
   state.bullets = state.bullets.filter((bullet) => !ids.has(bullet.id));
   for (const captured of selected) {
     const targets: Point[] = [...state.enemies, ...(state.boss ? [state.boss] : [])];
     const target = targets.sort((a, b) => distanceSq(a, captured) - distanceSq(b, captured))[0];
     if (!target) continue;
-    const dx = target.x - captured.x;
-    const dy = target.y - captured.y;
+    const trackingOffset = effects.redaction ? (((captured.id % 5) - 2) * 0.055) : 0;
+    const aim = Math.atan2(target.y - captured.y, target.x - captured.x) + trackingOffset;
+    const dx = Math.cos(aim);
+    const dy = Math.sin(aim);
     const length = Math.max(1, Math.hypot(dx, dy));
     const speed = 500 * SCALE / TICK_RATE;
     const cooledEmber = captured.sourceAttack === 'advocate-ember';
@@ -1014,7 +1018,7 @@ const collate = (state: GameState, events: GameEvent[]): void => {
     }
   }
   for (const enemy of state.enemies) if (pointInPolygon(enemy, candidate.polygon)) enemy.markedUntil = state.tick + 6 * TICK_RATE;
-  state.gauge = clamp(state.gauge + selected.length * 4, 0, 100);
+  state.gauge = clamp(state.gauge + selected.length * 4, 0, effects.gaugeCap);
   // Larger, riskier loops need enough score leverage to distinguish Sweep from
   // safe bullet erasure during the M1 strategy comparison.
   state.score += selected.length * 100 + Math.round(candidate.area / 15);
@@ -1115,10 +1119,12 @@ const collate = (state: GameState, events: GameEvent[]): void => {
   events.push({ type: 'loop-collated', captured: selected.length, area: candidate.area });
 };
 
-export const step = (previous: GameState, input: InputFrame, difficulty: Difficulty = 'normal'): { state: GameState; events: GameEvent[] } => {
+export const step = (previous: GameState, input: InputFrame, difficulty: Difficulty = 'normal', marginalia: readonly MarginaliaId[] = []): { state: GameState; events: GameEvent[] } => {
   const state = copyState(previous);
   const events: GameEvent[] = [];
+  const effects = marginaliaEffects(marginalia);
   state.tick += 1;
+  state.gauge = Math.min(state.gauge, effects.gaugeCap);
   if (state.stageId === 'stage-06') {
     const folio = stageSixFolio(state.tick);
     state.metrics.original!.folioTicks[folio] += 1;
@@ -1141,7 +1147,7 @@ export const step = (previous: GameState, input: InputFrame, difficulty: Difficu
   updateBoss(state, events);
 
   applyHeat(state, events);
-  state.trail = state.trail.filter((point) => state.tick - point.bornTick <= trailLifetime(difficulty) || (point.cooledUntil ?? 0) >= state.tick);
+  state.trail = state.trail.filter((point) => state.tick - point.bornTick <= trailLifetime(difficulty) + Math.round(effects.trailLifetimeBonus * TICK_RATE) || (point.cooledUntil ?? 0) >= state.tick);
   applyRain(state, events);
   if (state.candidate?.expiresTick && state.candidate.expiresTick < state.tick) state.candidate = null;
   if (!state.retrace && shouldAddTrailPoint(state.trail, state.player, state.tick)) {
@@ -1167,7 +1173,7 @@ export const step = (previous: GameState, input: InputFrame, difficulty: Difficu
   state.player.fireCooldown = Math.max(0, state.player.fireCooldown - 1);
   if (input.fire && state.player.fireCooldown === 0) {
     state.bullets.push({ id: state.nextId++, x: state.player.x + 18 * SCALE, y: state.player.y, vx: Math.round(620 * SCALE / TICK_RATE), vy: 0, radius: 4, kind: 'player', annotated: false, capturable: false });
-    state.player.fireCooldown = 10;
+    state.player.fireCooldown = effects.fireCooldown;
     events.push({ type: 'shot-fired' });
   }
 
@@ -1196,7 +1202,7 @@ export const step = (previous: GameState, input: InputFrame, difficulty: Difficu
     }
   }
 
-  if (input.collate) collate(state, events);
+  if (input.collate) collate(state, events, marginalia);
 
   const remaining: Bullet[] = [];
   const defeated = new Set<number>();
@@ -1403,7 +1409,10 @@ export const step = (previous: GameState, input: InputFrame, difficulty: Difficu
             break;
           }
           enemy.health -= damage;
-          consumed = true;
+          const rubricPierce = effects.rubric && bullet.kind === 'player' && bullet.annotated
+            && enemy.markedUntil >= state.tick;
+          consumed = !rubricPierce;
+          if (rubricPierce) bullet.x = enemy.x + (enemy.radius + bullet.radius + 2) * SCALE;
           if (enemy.health <= 0) {
             state.score += enemy.kind === 'folio-hauler' || enemy.kind === 'tab-binder' || enemy.kind === 'basin-bell' || enemy.kind === 'char-press' ? 5000
               : enemy.kind === 'margin-skiff' || enemy.kind === 'vane-scribe' ? 1600

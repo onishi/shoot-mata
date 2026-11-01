@@ -9,6 +9,7 @@ import { STAGE_06_BOSS_START_TICK, STAGE_06_SPAWNS } from '../src/content/stage-
 import { px } from '../src/core/math';
 
 const start = (): AppState => transition(transition(createAppState(404), 'start'), 'confirm');
+const chooseMarginalia = (state: AppState): AppState => transition(transition(state, 'confirm'), 'confirm');
 
 const fatalHit = (state: AppState): AppState => {
   state.game.player.health = 1;
@@ -81,6 +82,9 @@ describe('M2 application flow', () => {
     app.game.bullets = [{ id: app.game.nextId++, x: app.game.boss!.x, y: app.game.boss!.y, vx: 0, vy: 0, radius: 5, kind: 'return', annotated: true, capturable: false }];
     app = advance(app).state;
     app = transition(app, 'confirm');
+    expect(app.screen).toBe('marginalia');
+    expect(advance(app).state.game.tick).toBe(app.game.tick);
+    app = transition(app, 'confirm');
     expect(app.screen).toBe('stage-intro');
     expect(app.game.stageId).toBe('stage-02');
     expect(app.game.tick).toBe(0);
@@ -92,8 +96,9 @@ describe('M2 application flow', () => {
     let app = start();
     app.game.metrics.boss.defeated = true;
     app.screen = 'result';
-    app = transition(transition(app, 'confirm'), 'confirm');
+    app = chooseMarginalia(app);
     expect(app.game.stageId).toBe('stage-02');
+    app = transition(app, 'confirm');
     app = fatalHit(app);
     expect(app.screen).toBe('continue');
     const entryTick = app.game.tick;
@@ -123,10 +128,10 @@ describe('M2 application flow', () => {
     let app = start();
     app.game.metrics.boss.defeated = true;
     app.screen = 'result';
-    app = transition(app, 'confirm');
+    app = chooseMarginalia(app);
     app.game.metrics.boss.defeated = true;
     app.screen = 'result';
-    app = transition(app, 'confirm');
+    app = chooseMarginalia(app);
     expect(app).toMatchObject({ screen: 'stage-intro', checkpointName: 'rain-gallery-entry', continuesRemaining: 1 });
     expect(app.game).toMatchObject({ stageId: 'stage-03', tick: 0 });
 
@@ -163,8 +168,7 @@ describe('M2 application flow', () => {
       expect(app.game.stageId).toBe(stageId);
       app.game.metrics.boss.defeated = true;
       app.screen = 'result';
-      app = transition(app, 'confirm');
-      if (stageId !== 'stage-03') app = transition(app, 'confirm');
+      app = chooseMarginalia(app);
     }
     expect(app).toMatchObject({ screen: 'stage-intro', checkpointName: 'burnt-footnote-entry', continuesRemaining: 1 });
     expect(app.game).toMatchObject({ stageId: 'stage-04', tick: 0 });
@@ -202,8 +206,7 @@ describe('M2 application flow', () => {
       expect(app.game.stageId).toBe(stageId);
       app.game.metrics.boss.defeated = true;
       app.screen = 'result';
-      app = transition(app, 'confirm');
-      if (stageId !== 'stage-04') app = transition(app, 'confirm');
+      app = chooseMarginalia(app);
     }
     expect(app).toMatchObject({ screen: 'stage-intro', checkpointName: 'mirror-chamber-entry', continuesRemaining: 1 });
     expect(app.game).toMatchObject({ stageId: 'stage-05', tick: 0 });
@@ -244,8 +247,7 @@ describe('M2 application flow', () => {
       app.game.metrics.captured = 3;
       app.game.metrics.boss.defeated = true;
       app.screen = 'result';
-      app = transition(app, 'confirm');
-      if (stageId !== 'stage-05') app = transition(app, 'confirm');
+      app = chooseMarginalia(app);
     }
     expect(app).toMatchObject({ screen: 'stage-intro', checkpointName: 'original-dawn-entry', continuesRemaining: 1 });
     expect(app.game).toMatchObject({ stageId: 'stage-06', tick: 0 });
@@ -289,7 +291,7 @@ describe('M2 application flow', () => {
     app.game.bullets = [{ id: app.game.nextId++, x: app.game.boss!.x, y: app.game.boss!.y, vx: 0, vy: 0, radius: 5, kind: 'return', annotated: true, capturable: false }];
     app = advance(app).state;
     expect(app.screen).toBe('result');
-    app = transition(app, 'confirm');
+    app = chooseMarginalia(app);
     expect(app.screen).toBe('ending');
     expect(app.campaign).toMatchObject({ stagesCompleted: 6, score: 67400, collates: 17, returnedFire: 26, damage: 2, complete: true });
     const endingTick = app.game.tick;

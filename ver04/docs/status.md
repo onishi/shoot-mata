@@ -90,12 +90,13 @@
 - Stage 6の5航路統合・夜明け和音・THE LAST EDITOR危機ステムと6効果音は`final`として台帳登録済み。folio切替、Binding接続、Choir印付け穴、5規則校訂、署名輪成立、形態移行をsimulation eventから専用cueへ接続し、Stage 5→6切替、ポーズ停止・tick同期復帰に合格した。全59音素材は44.1kHz stereo PCM16、Stage 6最悪mixはリミッタ前peak -9.92 dBFS、NaN/clip 0だった。
 - M4-01でschema version・build version・stage・checkpoint・health・gauge・marginalia・score・seed・campaign・チェックサムを持つ保存を実装した。一時キー検証後の確定、破損・未知版の隔離、旧版キー分離、quota/security拒否時のメモリ継続と一度だけの警告に対応し、単体60件・Chrome E2E 17件を含む`npm run verify`に合格した。
 - M4-02でTITLE / PAUSEから入れるSETTINGS、BGM・SE 0〜100、画面揺れ、点滅軽減、ECHO / NORMAL / PROOFを実装した。設定はキャンペーンと独立したv4.0専用キーへ検証後に保存し、範囲外値の拒否、保存拒否時のメモリ適用、音bus即時反映に対応した。単体65件、自動計測12件、Chrome E2E 19件を含む検証に合格し、設定2画面を目視確認した。
+- M4-03で各Stage結果後の欄外注選択を接続し、固定seedの3候補、キーボード選択、選択中のsimulation停止、キャンペーン保持、チェックポイント保存復元を実装した。最初の実動作3種としてLONGHAND（航跡寿命とゲージ上限）、RUBRIC（印付き敵への貫通注釈弾と連射間隔）、REDACTION（捕捉上限と反撃精度）を代償込みで接続した。単体69件、自動計測12件、Chrome E2E 19件を含む検証に合格し、選択画面を目視確認した。
 
 ## 次の最優先作業
 
-**M4-03: 欄外注（成長）をキャンペーンへ接続する。**
+**M4-04: 欄外注12種と中間選択を完成する。**
 
-設計済み12種から最初の実用的な縦切りとして、各Stageクリア時の3候補提示・1選択、取得済み欄外注のキャンペーン保持と保存復元、筆致・添え書き・回収の各系統が航跡・射撃・防御へ実際に作用する最小3種を実装する。通常射撃だけの単一最適解を避け、選択中のsimulation停止、キーボード操作、結果画面との遷移を単体・自動操縦・Chromeで検証する。
+残るFOOTNOTE / CROSS-REFERENCE / ERRATA、GLOSS / LIGATURE / UNDERLINE、CITATION / PALINODE / AFTERWORDを代償込みで実装し、各Stage中間の安全な選択停止を接続する。全12候補の到達可能性、重ね取りと異系統構成、保存復元、構成別の火力・被弾・攻略時間を自動操縦で比較し、単一構成だけが支配しない最初のバランスへ調整する。
 
 ## v4.0完成ゲート
 

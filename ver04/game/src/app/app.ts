@@ -1,8 +1,9 @@
 import type { GameEvent, GameState, InputFrame, StageId } from '../core/types';
 import { copyState, createInitialState, step } from '../simulation/game';
 import { defaultSettings, type GameSettings } from './settings';
+import { marginaliaCandidates, marginaliaEffects, type MarginaliaId } from '../content/marginalia';
 
-export type AppScreen = 'title' | 'guide' | 'settings' | 'stage-intro' | 'playing' | 'paused' | 'continue' | 'result' | 'ending' | 'campaign-result';
+export type AppScreen = 'title' | 'guide' | 'settings' | 'stage-intro' | 'playing' | 'paused' | 'continue' | 'result' | 'marginalia' | 'ending' | 'campaign-result';
 export type AppAction = 'start' | 'guide' | 'settings' | 'confirm' | 'back' | 'pause';
 export type CheckpointName =
   | 'harbor-entry' | 'bailiff-gate'
@@ -25,6 +26,9 @@ export interface AppState {
   settingsReturn: 'title' | 'paused';
   settingsIndex: number;
   settingsWarning: boolean;
+  marginalia: MarginaliaId[];
+  marginaliaOptions: MarginaliaId[];
+  marginaliaIndex: number;
 }
 
 export interface CampaignSummary {
@@ -51,21 +55,23 @@ const nextStages: Partial<Record<StageId, StageId>> = {
   'stage-01': 'stage-02', 'stage-02': 'stage-03', 'stage-03': 'stage-04', 'stage-04': 'stage-05', 'stage-05': 'stage-06'
 };
 
-const beginStage = (stageId: StageId, seed: number, campaign: CampaignSummary, settings: GameSettings): AppState => {
+const beginStage = (stageId: StageId, seed: number, campaign: CampaignSummary, settings: GameSettings, marginalia: MarginaliaId[]): AppState => {
   const game = createInitialState(seed || 404, stageId, settings.difficulty);
+  game.gauge = Math.min(game.gauge, marginaliaEffects(marginalia).gaugeCap);
   return {
     screen: 'stage-intro', game, checkpoint: copyState(game),
     checkpointName: entryCheckpoints[stageId], continuesRemaining: 1, campaign,
-    saveAvailable: true, saveWarning: false, settings, settingsReturn: 'title', settingsIndex: 0, settingsWarning: false
+    saveAvailable: true, saveWarning: false, settings, settingsReturn: 'title', settingsIndex: 0, settingsWarning: false,
+    marginalia, marginaliaOptions: [], marginaliaIndex: 0
   };
 };
 
 export const createAppState = (seed = 404, settings: GameSettings = defaultSettings()): AppState => {
   const game = createInitialState(seed, 'stage-01', settings.difficulty);
-  return { screen: 'title', game, checkpoint: copyState(game), checkpointName: 'harbor-entry', continuesRemaining: 1, campaign: emptyCampaign(), saveAvailable: false, saveWarning: false, settings, settingsReturn: 'title', settingsIndex: 0, settingsWarning: false };
+  return { screen: 'title', game, checkpoint: copyState(game), checkpointName: 'harbor-entry', continuesRemaining: 1, campaign: emptyCampaign(), saveAvailable: false, saveWarning: false, settings, settingsReturn: 'title', settingsIndex: 0, settingsWarning: false, marginalia: [], marginaliaOptions: [], marginaliaIndex: 0 };
 };
 
-const freshVoyage = (state: AppState): AppState => beginStage('stage-01', state.game.seed, emptyCampaign(), state.settings);
+const freshVoyage = (state: AppState): AppState => beginStage('stage-01', state.game.seed, emptyCampaign(), state.settings, []);
 
 const recordStage = (state: AppState): CampaignSummary => ({
   stagesCompleted: state.campaign.stagesCompleted + 1,
@@ -122,9 +128,20 @@ export const transition = (state: AppState, action: AppAction): AppState => {
   if (state.screen === 'result') {
     if (action === 'back') return { ...state, screen: 'title' };
     if (action === 'confirm') {
-      const nextStage = nextStages[state.game.stageId];
       const campaign = recordStage(state);
-      return nextStage ? beginStage(nextStage, state.game.seed, campaign, state.settings) : { ...state, screen: 'ending', campaign };
+      return { ...state, screen: 'marginalia', campaign, marginaliaOptions: marginaliaCandidates(state.game.seed, state.game.stageId), marginaliaIndex: 0 };
+    }
+  }
+  if (state.screen === 'marginalia') {
+    if (action === 'back') return { ...state, screen: 'title' };
+    if (action === 'confirm') {
+      const selected = state.marginaliaOptions[state.marginaliaIndex];
+      if (!selected) return state;
+      const marginalia = [...state.marginalia, selected];
+      const nextStage = nextStages[state.game.stageId];
+      return nextStage
+        ? beginStage(nextStage, state.game.seed, state.campaign, state.settings, marginalia)
+        : { ...state, screen: 'ending', marginalia };
     }
   }
   if (state.screen === 'ending') {
@@ -137,7 +154,7 @@ export const transition = (state: AppState, action: AppAction): AppState => {
 
 export const advance = (state: AppState, input: InputFrame = {}): { state: AppState; events: GameEvent[] } => {
   if (state.screen !== 'playing') return { state, events: [] };
-  const result = step(state.game, input, state.settings.difficulty);
+  const result = step(state.game, input, state.settings.difficulty, state.marginalia);
   let next: AppState = { ...state, game: result.state };
   if (result.events.some((event) => event.type === 'boss-spawned')) {
     next = { ...next, checkpoint: copyState(result.state), checkpointName: bossCheckpoints[result.state.stageId] };
