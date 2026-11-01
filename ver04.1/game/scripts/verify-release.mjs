@@ -22,6 +22,13 @@ for (const route of ['.', 'v4.1']) {
   }
 }
 
+const v40Index = await readFile(resolve(distRoot, 'v4.0/index.html'), 'utf8');
+if (!v40Index.includes('PALIMPSEST WAKE — v4.0</title>')) {
+  throw new Error('/v4.0 does not preserve the v4.0 release');
+}
+const v40Metadata = JSON.parse(await readFile(resolve(distRoot, 'v4.0/release.json'), 'utf8'));
+if (v40Metadata.version !== 'v4.0') throw new Error('/v4.0 has invalid release metadata');
+
 const assets = await stat(resolve(distRoot, 'v4.1/assets'));
 if (!assets.isDirectory()) throw new Error('/v4.1/assets is not a directory');
 

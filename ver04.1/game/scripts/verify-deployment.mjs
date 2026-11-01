@@ -28,6 +28,13 @@ for (const route of ['', 'v4.1/']) {
   }
 }
 
+const v40Page = pages.get('v4.0/');
+if (!v40Page.body.includes('PALIMPSEST WAKE — v4.0</title>')) {
+  throw new Error(`${v40Page.url} does not preserve v4.0`);
+}
+const v40Release = JSON.parse((await fetchOk('v4.0/release.json')).body);
+if (v40Release.version !== 'v4.0') throw new Error(`${v40Page.url} has invalid release metadata`);
+
 const rootHtml = pages.get('').body;
 const assetPaths = [...rootHtml.matchAll(/(?:src|href)="(\.\/assets\/[^"]+\.(?:js|css))"/g)].map((match) => match[1]);
 if (assetPaths.length < 2) throw new Error('could not find the v4 JavaScript and CSS assets');

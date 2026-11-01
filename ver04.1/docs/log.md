@@ -1,5 +1,12 @@
 # v4.1 Log
 
+## 2026-11-02 — v4.1-05 完成監査・release candidate
+
+- 4改善と継承製品ゲートを`evidence/v4.1-05-completion-audit.md`へ対応付け、公開以外の全項目に合格した。全6通常戦と全6ボスの現行画像を再目視し、戦闘情報、攻略対象、HUD、文字配置に回帰がないことを確認した。
+- release candidateの`npm run verify`に一括合格した。単体79/79、自動プレイ14/14、正式90周、simulation性能、独自性・素材・音量監査、production build、Chrome E2E 24/24がすべて成功した。
+- Pages workflowを`ver04.1/game`へ切り替えた。クリーンCIでv3系とv4.0を再構成・検査し、v4.1 artifactへ収容する。ローカル・公開検査へv4.0のタイトルとrelease metadata確認も追加した。
+- 次はrelease candidateをmainへpushし、Pages CIと実URLを確認する。成功まではv4.1を公開済みと扱わない。
+
 ## 2026-11-02 — v4.1-04 キャンペーン時間配分
 
 - Stage 6の継承4 folioを54秒から36秒へ短縮し、54秒のsynthesis folioは維持した。通常区間は270秒から198秒となり、4敵種、継承規則、統合COLLATE、無戦闘最大1 tickを維持した。
