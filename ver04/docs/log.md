@@ -407,3 +407,10 @@
 - deploy後に公開URLのトップ、`/v4.0/`、`/v3.4/`、`/v3.3/`、`/v3.2/`、`/v3.1/`、`/v3/`、版表示、release commit、JS/CSS MIMEを検査し、不一致ならCIを失敗させる外部検査を追加した。
 - release candidateの`npm run verify`に合格した。単体76件、自動操縦13件、simulation性能1件、3難易度×30seedの90周、非流用106ファイル・完全一致0、素材50 final・仮素材0、音量59素材、production build、単一worker Chrome E2E 22件がすべて合格した。
 - 次はこのrelease candidateを`main`へpushし、Pages CIと上記の実URL検査を完了して最後の完成ゲートを閉じる。公開成功まではv4.0を公開済みと扱わない。
+
+## 2026-11-01 — M4-07 v4.0公開完了
+
+- release commit `b96ed25`を`main`へpushし、GitHub Actions run `41294207436`に合格した。build jobではlocked install、Chrome導入、全`npm run verify`、旧版経路build、7経路artifact検査、Pages uploadがすべて成功した。
+- deploy jobでPages公開と実URL検査に合格した。`https://onishi.github.io/shoot-mata/`と`/v4.0/`はv4.0版表示とrelease commitが一致し、`/v3.4/`、`/v3.3/`、`/v3.2/`、`/v3.1/`、`/v3/`はHTTP成功応答を返した。主要JavaScriptとCSSのMIMEも合格した。
+- workflow完了後、開発環境から同じ公開検査を独立して再実行し、7経路、commit、2 typed assetsに再度合格した。結果を`m4-07-release.md`へ記録した。
+- v4.0完成ゲート12件をすべて閉じ、M4を完了した。次回はv4.0を変更せず、v4.1の基礎計測、批評、上位3〜5課題の改善方針固定へ進む。
