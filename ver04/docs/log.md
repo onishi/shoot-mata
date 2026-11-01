@@ -389,3 +389,13 @@
 - 高速QAでStage 6中間選択に停止していたシナリオを修正し、同期進行で環境voice上限へ達する前に実際のNull Choir攻撃イベントを発火させた。全E2Eで音声cueを含む6面遷移を再確認した。
 - 最終状態で単体74件、自動操縦13件、simulation性能1件、Chrome E2E 21件、production build、素材監査50 final・仮素材0、音量監査59素材（Stage 6最悪リミッタ前peak -9.92 dBFS）に合格した。
 - 次回はM4-06として、完成ゲートと既存証跡を一件ずつ照合し、非流用、画面・当たり判定整合、全画面目視の未確認分を閉じる。
+
+## 2026-11-01 — M4-06 完成ゲート監査
+
+- `audit:originality`を追加し、v4の製品コード・画像・音106ファイルをv1〜v3.4の製品ファイル649件とSHA-256で照合した。完全一致は0件で、素材台帳54件はすべて制作方法と`project-original`来歴を持つ。監査を`npm run verify`へ組み込んだ。
+- 24通常敵の描画寸法と当たり判定半径を`ENEMY_VISUAL_CONTRACT`へ統合した。短辺より判定円が大きかった大型敵を含め、表示本体が判定円を内包するよう寸法を修正し、全24種の共有契約とsimulation適用を単体テストで固定した。単体は76件に増えた。
+- ポーズ画面と1280×720・1440×900・1920×1080のHUD画像をChromeから追加採取した。変更後の6 Stage、6ボス、TITLE / GUIDE / SETTINGS / PAUSED / CONTINUE / MARGINALIA / RESULT / ENDING / CAMPAIGN RESULTを目視し、危険・弱点・選択状態の識別、文字切れ、重なり、仮表示、前景遮蔽に問題がないことを確認した。
+- `m4-06-completion-gate-audit.md`で全12完成ゲートを証拠へ対応付けた。公開を除く11件に合格し、対象Chrome 15件、production build、非流用監査に合格した。公開済みとは扱わない。
+- 最初の全E2Eは6 workerの競合で同期描画中に2.7秒の停止が混入し、p95 0.1msに対して平均12.97ms・最大2717.8msとなった。性能試験単独では0.045 / 0.100 / 0.400msで合格したため、描画CPU時間ではなくhost scheduler停止と切り分けた。250ms超だけをyield後に同数再計測し、再計測値には既存の最大25ms基準をそのまま適用し、生値最大と除外数も証跡へ残すよう計測を修正した。
+- 最終の単一worker Chrome E2Eは22件すべて合格した。性能値は平均0.049ms・p95 0.100ms・最大2.600ms、250ms超scheduler停止6回、生値最大2517.8ms、long task 0、入力0.3ms、heap増加3.09%だった。単体76件、自動操縦13件、simulation性能、90周バランス、非流用・素材・音量監査、production buildも合格した。
+- 次回はM4-07としてrelease candidateへ`npm run verify`を実行し、トップと`/v4.0/`へ公開する。CI後に版表示、素材MIME、v3系固定URLを実URLで確認して最後のゲートを閉じる。

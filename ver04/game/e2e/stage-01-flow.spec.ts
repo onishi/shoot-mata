@@ -168,6 +168,7 @@ test('Stage 1 title-to-result keyboard flow, continue and focus pause work in Ch
 
   await page.evaluate(() => window.dispatchEvent(new Event('blur')));
   expect(await screen()).toBe('paused');
+  await canvas.screenshot({ path: '../docs/evidence/m4-06-paused.png' });
   const pausedTick = await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_APP_STATE__().game.tick);
   await page.waitForTimeout(100);
   expect(await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_APP_STATE__().game.tick)).toBe(pausedTick);

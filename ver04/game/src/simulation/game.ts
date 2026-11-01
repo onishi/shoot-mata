@@ -9,6 +9,7 @@ import { STAGE_05_BOSS_START_TICK, isInStageFiveMirrorBand, stageFiveFalseTrail 
 import { STAGE_06_BOSS_START_TICK, stageSixActiveRule, stageSixFolio } from '../content/stage-06';
 import { findLoopCandidates, shotCrossedTrail, shotCrossedWetTrail, shouldAddTrailPoint } from './trail';
 import { marginaliaEffects, type MarginaliaId } from '../content/marginalia';
+import { ENEMY_VISUAL_CONTRACT } from '../render/visual-contract';
 
 const PLAYER_SPEED = Math.round(320 * SCALE / TICK_RATE);
 const trailLifetime = (difficulty: Difficulty): number => Math.round((difficulty === 'echo' ? 4 : 3.2) * TICK_RATE);
@@ -41,14 +42,7 @@ const createEnemy = (state: GameState, encounter: StageEnemySpawn, difficulty: D
       'mirror-mote': 102, 'quotation-ram': 132, 'false-witness': 144, 'silver-obelisk': 180,
       'binding-wasp': 114, 'revision-hound': 138, 'null-choir': 168, 'archive-palanquin': 192
     }[encounter.kind]) + cooldownJitter) * (difficulty === 'proof' ? 0.82 : 1)),
-    radius: ({
-      'eraser-mite': 17, 'bracket-gull': 25, 'margin-skiff': 30, 'folio-hauler': 58,
-      'index-kite': 21, 'vane-scribe': 31, 'cross-reference-pair': 27, 'tab-binder': 56,
-      'drip-scribe': 24, 'gutter-frog': 30, 'basin-bell': 58, 'reed-needle': 25,
-      'ash-comma': 22, 'kiln-censor': 34, 'ember-courier': 29, 'char-press': 60,
-      'mirror-mote': 23, 'quotation-ram': 38, 'false-witness': 33, 'silver-obelisk': 62,
-      'binding-wasp': 25, 'revision-hound': 40, 'null-choir': 34, 'archive-palanquin': 66
-    }[encounter.kind]),
+    radius: ENEMY_VISUAL_CONTRACT[encounter.kind].collisionRadius,
     baseY: encounter.y * SCALE, amplitude: encounter.amplitude,
     phase: phaseJitter, spawnedAt: state.tick, expiresAt: Math.min(state.tick + encounter.lifetime, stage.durationTicks - 1),
     spawnX: encounter.x * SCALE, lane: encounter.lane ?? 0, groupId: encounter.groupId ?? 0,

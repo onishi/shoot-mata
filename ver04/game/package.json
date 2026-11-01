@@ -11,11 +11,12 @@
     "performance": "vitest run scripts/performance.report.test.ts",
     "balance": "vitest run scripts/campaign-balance.report.test.ts",
     "audit:assets": "node scripts/audit-assets.mjs",
+    "audit:originality": "node scripts/audit-originality.mjs",
     "generate:audio": "node scripts/generate-audio.mjs",
     "audit:audio": "node scripts/audit-audio.mjs",
     "build": "npm run typecheck && vite build",
-    "test:e2e": "playwright test",
-    "verify": "npm run test && npm run autoplay && npm run performance && npm run balance && npm run audit:assets && npm run audit:audio && npm run build && npm run test:e2e"
+    "test:e2e": "playwright test --workers=1",
+    "verify": "npm run test && npm run autoplay && npm run performance && npm run balance && npm run audit:originality && npm run audit:assets && npm run audit:audio && npm run build && npm run test:e2e"
   },
   "devDependencies": {
     "@playwright/test": "^1.56.1",

@@ -6,6 +6,7 @@ import { STAGE_05_MIRROR_BANDS, stageFiveFalseTrail } from '../content/stage-05'
 import { stageSixActiveRule, stageSixFolio } from '../content/stage-06';
 import { drawSprite, visuals } from './visual-assets';
 import { MARGINALIA } from '../content/marginalia';
+import { ENEMY_VISUAL_CONTRACT } from './visual-contract';
 
 const path = (ctx: CanvasRenderingContext2D, points: Point[]): void => {
   if (points.length === 0) return;
@@ -192,64 +193,15 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
   for (const enemy of state.enemies) {
     const x = enemy.x / SCALE;
     const y = enemy.y / SCALE;
-    const size = state.stageId === 'stage-01'
-      ? { 'eraser-mite': 17, 'bracket-gull': 25, 'margin-skiff': 29, 'folio-hauler': 52 }[enemy.kind as 'eraser-mite' | 'bracket-gull' | 'margin-skiff' | 'folio-hauler']
-      : enemy.radius;
-    if (state.stageId === 'stage-01') {
-      const kind = enemy.kind as 'eraser-mite' | 'bracket-gull' | 'margin-skiff' | 'folio-hauler';
-      const dimensions = {
-        'eraser-mite': [58, 48], 'bracket-gull': [82, 62], 'margin-skiff': [94, 48], 'folio-hauler': [150, 90]
-      }[kind];
-      if (enemy.markedUntil >= state.tick) {
-        ctx.save(); ctx.shadowColor = '#ffd477'; ctx.shadowBlur = 20;
-        drawSprite(ctx, kind, x, y, dimensions[0], dimensions[1]); ctx.restore();
-      } else drawSprite(ctx, kind, x, y, dimensions[0], dimensions[1]);
-    } else if (state.stageId === 'stage-02') {
-      const kind = enemy.kind as 'index-kite' | 'vane-scribe' | 'cross-reference-pair' | 'tab-binder';
-      const dimensions = {
-        'index-kite': [82, 52], 'vane-scribe': [76, 70], 'cross-reference-pair': [94, 62], 'tab-binder': [160, 96]
-      }[kind];
-      if (enemy.markedUntil >= state.tick) {
-        ctx.save(); ctx.shadowColor = '#ffd477'; ctx.shadowBlur = 20;
-        drawSprite(ctx, kind, x, y, dimensions[0], dimensions[1]); ctx.restore();
-      } else drawSprite(ctx, kind, x, y, dimensions[0], dimensions[1]);
-    } else if (state.stageId === 'stage-03') {
-      const kind = enemy.kind as 'drip-scribe' | 'gutter-frog' | 'basin-bell' | 'reed-needle';
-      const dimensions = {
-        'drip-scribe': [62, 76], 'gutter-frog': [96, 66], 'basin-bell': [156, 110], 'reed-needle': [126, 58]
-      }[kind];
-      if (enemy.markedUntil >= state.tick) {
-        ctx.save(); ctx.shadowColor = '#ffe38a'; ctx.shadowBlur = 22;
-        drawSprite(ctx, kind, x, y, dimensions[0], dimensions[1]); ctx.restore();
-      } else drawSprite(ctx, kind, x, y, dimensions[0], dimensions[1]);
-    } else if (state.stageId === 'stage-04') {
-      const kind = enemy.kind as 'ash-comma' | 'kiln-censor' | 'ember-courier' | 'char-press';
-      const dimensions = {
-        'ash-comma': [62, 70], 'kiln-censor': [92, 82], 'ember-courier': [104, 72], 'char-press': [170, 104]
-      }[kind];
-      ctx.save();
-      if (enemy.markedUntil >= state.tick) { ctx.shadowColor = '#ffe58b'; ctx.shadowBlur = 22; }
-      drawSprite(ctx, kind, x, y, dimensions[0], dimensions[1]);
-      ctx.restore();
-    } else if (state.stageId === 'stage-05') {
-      const kind = enemy.kind as 'mirror-mote' | 'quotation-ram' | 'false-witness' | 'silver-obelisk';
-      const dimensions = {
-        'mirror-mote': [68, 62], 'quotation-ram': [118, 74], 'false-witness': [96, 88], 'silver-obelisk': [76, 142]
-      }[kind];
-      ctx.save();
-      if (enemy.markedUntil >= state.tick) { ctx.shadowColor = '#ffe58b'; ctx.shadowBlur = 22; }
-      drawSprite(ctx, kind, x, y, dimensions[0], dimensions[1]);
-      ctx.restore();
-    } else {
-      const kind = enemy.kind as 'binding-wasp' | 'revision-hound' | 'null-choir' | 'archive-palanquin';
-      const dimensions = {
-        'binding-wasp': [78, 68], 'revision-hound': [112, 72], 'null-choir': [100, 94], 'archive-palanquin': [188, 112]
-      }[kind];
-      ctx.save();
-      if (enemy.markedUntil >= state.tick) { ctx.shadowColor = '#ffe58b'; ctx.shadowBlur = 22; }
-      drawSprite(ctx, kind, x, y, dimensions[0], dimensions[1]);
-      ctx.restore();
+    const visual = ENEMY_VISUAL_CONTRACT[enemy.kind];
+    ctx.save();
+    if (enemy.markedUntil >= state.tick) {
+      ctx.shadowColor = state.stageId === 'stage-01' || state.stageId === 'stage-02' ? '#ffd477' : '#ffe58b';
+      ctx.shadowBlur = state.stageId === 'stage-01' || state.stageId === 'stage-02' ? 20 : 22;
     }
+    drawSprite(ctx, enemy.kind, x, y, visual.width, visual.height);
+    ctx.restore();
+    const size = enemy.radius;
     ctx.fillStyle = '#131725';
     ctx.fillRect(x - size, y + size + 14, size * 2, 7);
     ctx.fillStyle = '#ff8b72';
