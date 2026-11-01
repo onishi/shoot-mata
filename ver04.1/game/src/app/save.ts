@@ -116,6 +116,9 @@ const decode = (raw: string): AppState | null => {
   game.annotationChain = finiteInteger(game.annotationChain, 0, Number.MAX_SAFE_INTEGER) ? game.annotationChain : 0;
   game.errataReadyAt = finiteInteger(game.errataReadyAt, 0, 100000) ? game.errataReadyAt : 0;
   game.lastDamageTick = typeof game.lastDamageTick === 'number' && Number.isFinite(game.lastDamageTick) ? game.lastDamageTick : -100000;
+  game.recovery ??= { active: null, redactionProgress: 0, redactionReadyUntil: 0, citationProgress: 0, palinodeProgress: 0, palinodeReady: false, afterwordProgress: 0, afterwordReady: false, afterwordReadyUntil: 0, afterwordRecoveryUntil: 0, feedbackUntil: 0 };
+  game.recovery.afterwordRecoveryUntil ??= 0;
+  game.metrics.recovery ??= { redactionTriggers: 0, redactionBulletsCleared: 0, redactionBlocks: 0, citationLances: 0, palinodePrimes: 0, palinodeClosures: 0, afterwordPrimes: 0, afterwordProtectedTicks: 0 };
   return {
     screen: 'stage-intro', game, checkpoint: game, checkpointName: checkpoint,
     continuesRemaining: body.continuesRemaining, campaign: body.campaign,

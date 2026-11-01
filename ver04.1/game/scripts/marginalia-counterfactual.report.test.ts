@@ -25,6 +25,12 @@ interface Outcome {
   finalGauge: number;
   trailPeak: number;
   candidatePeak: number;
+  redactionTriggers: number;
+  redactionBlocks: number;
+  citationLances: number;
+  palinodePrimes: number;
+  afterwordPrimes: number;
+  afterwordProtectedTicks: number;
 }
 
 const bossStart = (seed: number): GameState => {
@@ -78,7 +84,13 @@ const simulate = (scenario: Scenario, note?: MarginaliaId): Outcome => {
     bossDefeated: state.metrics.boss.defeated,
     finalGauge: state.gauge,
     trailPeak,
-    candidatePeak
+    candidatePeak,
+    redactionTriggers: state.metrics.recovery.redactionTriggers,
+    redactionBlocks: state.metrics.recovery.redactionBlocks,
+    citationLances: state.metrics.recovery.citationLances,
+    palinodePrimes: state.metrics.recovery.palinodePrimes,
+    afterwordPrimes: state.metrics.recovery.afterwordPrimes,
+    afterwordProtectedTicks: state.metrics.recovery.afterwordProtectedTicks
   };
 };
 
@@ -119,7 +131,7 @@ describe('v4.1-03 marginalia counterfactual evidence', () => {
       const result = notes[id].outcomes[scenario];
       return `| ${MARGINALIA[id].name} | ${MARGINALIA[id].family} | ${scenario} | ${result.changed.join(', ') || 'none'} | ${result.material.join(', ') || 'none'} | ${result.outcome.score} | ${result.outcome.damage} | ${result.outcome.collates} | ${result.outcome.captured} |`;
     })).join('\n');
-    writeFileSync(resolve(evidenceDir, 'v4.1-03-marginalia-counterfactual.md'), `# v4.1-03 MARGINALIA Counterfactual Baseline\n\n- Each note is equipped alone against a no-note baseline.\n- Combat and recovery use seed 4410 for 7,200 ticks; recovery begins on the same deterministic post-hit frame.\n- Boss uses seed 4411 from BLANK BAILIFF entry for at most 14,400 ticks.\n- “Material” records numeric changes of at least 10%, or a new non-zero result from a zero baseline. It is diagnostic, not a completion claim; tuning must move the intended metric or add an authored success event.\n\n| Note | Family | Condition | Changed metrics | Material changes | Score | Damage | Collates | Captured |\n| --- | --- | --- | --- | --- | ---: | ---: | ---: | ---: |\n${rows}\n`);
+    writeFileSync(resolve(evidenceDir, 'v4.1-03-marginalia-counterfactual.md'), `# v4.1-03 MARGINALIA Counterfactual\n\n- Each note is equipped alone against a no-note baseline.\n- Combat and recovery use seed 4410 for 7,200 ticks; recovery begins on the same deterministic post-hit frame.\n- Boss uses seed 4411 from BLANK BAILIFF entry for at most 14,400 ticks.\n- “Material” records numeric changes of at least 10%, or a new authored success event from a zero baseline.\n\n| Note | Family | Condition | Changed metrics | Material changes | Score | Damage | Collates | Captured |\n| --- | --- | --- | --- | --- | ---: | ---: | ---: | ---: |\n${rows}\n`);
 
     expect(Object.keys(notes)).toEqual(MARGINALIA_IDS);
     for (const id of MARGINALIA_IDS) {

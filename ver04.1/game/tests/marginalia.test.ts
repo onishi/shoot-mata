@@ -69,6 +69,35 @@ describe('M4 marginalia growth', () => {
     expect(step(make(), { collate: true }, 'normal', ['redaction']).state.metrics.captured).toBe(24);
   });
 
+  it('turns successful RECOVERY play into visible preparation and authored triggers', () => {
+    const loop = (state: ReturnType<typeof createInitialState>, bullets = 0) => {
+      state.candidate = { polygon: [
+        { x: 100 * 256, y: 100 * 256 }, { x: 600 * 256, y: 100 * 256 },
+        { x: 600 * 256, y: 600 * 256 }, { x: 100 * 256, y: 600 * 256 }
+      ], intersection: { x: 100 * 256, y: 100 * 256 }, startIndex: 0, area: 250000 };
+      state.bullets = Array.from({ length: bullets }, (_, index) => ({
+        id: state.nextId++, x: (300 + index * 20) * 256, y: 360 * 256, vx: 0, vy: 0,
+        radius: 8, kind: 'enemy' as const, annotated: false, capturable: true
+      }));
+    };
+
+    let redaction = createInitialState(31); loop(redaction, 6);
+    redaction = step(redaction, { collate: true }, 'normal', ['redaction']).state;
+    expect(redaction.metrics.recovery.redactionTriggers).toBe(1);
+
+    let palinode = createInitialState(32); loop(palinode);
+    palinode = step(palinode, { collate: true }, 'normal', ['palinode']).state; loop(palinode);
+    const primed = step(palinode, { collate: true }, 'normal', ['palinode']);
+    expect(primed.state.recovery.palinodeReady).toBe(true);
+    expect(primed.events).toContainEqual({ type: 'recovery-primed', note: 'palinode' });
+
+    let afterword = createInitialState(33);
+    for (let index = 0; index < 3; index += 1) { loop(afterword); afterword = step(afterword, { collate: true }, 'normal', ['afterword']).state; }
+    expect(afterword.recovery.afterwordReady).toBe(true);
+    const protectedTick = step(afterword, {}, 'normal', ['afterword']).state;
+    expect(protectedTick.metrics.recovery.afterwordProtectedTicks).toBe(1);
+  });
+
   it('preserves an empty ERRATA loop once and makes CITATION add a fifth return shot', () => {
     const empty = createInitialState(12);
     empty.enemies = [];

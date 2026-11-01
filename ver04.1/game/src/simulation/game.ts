@@ -111,6 +111,7 @@ export const createInitialState = (seed = 1, stageId: StageId = 'stage-01', diff
   annotationChain: 0,
   errataReadyAt: 0,
   lastDamageTick: -100000,
+  recovery: { active: null, redactionProgress: 0, redactionReadyUntil: 0, citationProgress: 0, palinodeProgress: 0, palinodeReady: false, afterwordProgress: 0, afterwordReady: false, afterwordReadyUntil: 0, afterwordRecoveryUntil: 0, feedbackUntil: 0 },
   metrics: { candidates: 0, loops: 0, emptyLoops: 0, missedCollates: 0, captured: 0, annotatedShots: 0, retraces: 0, damage: 0, enemiesDefeated: 0, haulersDefeated: 0, firstHaulerDefeatTick: null, enemyShots: 0, enemyStats: emptyEnemyStats(), rejectedEnemies: 0, rejectedEnemyBullets: 0,
     wind: { reversals: 0, playerDrift: 0, trailDrift: 0, collatesLeft: 0, collatesRight: 0, collatesNearReversal: 0 },
     rain: { drops: 0, trailPointsWetted: 0, wetTrailPeak: 0, wetAnnotatedShots: 0, wetDamage: 0, basinSurges: 0, needleDashes: 0 },
@@ -120,7 +121,8 @@ export const createInitialState = (seed = 1, stageId: StageId = 'stage-01', diff
     eel: { segmentMarks: 0, markedTicks: 0, weakpointHits: 0, wetWeakpointHits: 0, ordinaryHits: 0, phaseReached: [false, false, false], attacks: { drizzle: 0, wake: 0, deluge: 0 }, damageByAttack: { drizzle: 0, wake: 0, deluge: 0 } },
     advocate: { embersThrown: 0, embersCooled: 0, cooledHits: 0, wallBlocks: 0, wallActiveTicks: 0, phaseReached: [false, false, false], attacks: { ember: 0, gavel: 0, verdict: 0 }, damageByAttack: { ember: 0, gavel: 0, verdict: 0 } },
     apocrypha: { syncBreaks: 0, syncBrokenTicks: 0, weakpointHits: 0, ordinaryHits: 0, swaps: 0, phaseReached: [false, false, false], attacks: { testimony: 0, crossExam: 0, verdict: 0 }, damageByAttack: { testimony: 0, crossExam: 0, verdict: 0 } },
-    editor: { rulesRewritten: 0, revisionExposedTicks: 0, revisionHits: 0, ordinaryHits: 0, signatureInkSpawned: 0, signatureClosures: 0, signatureExposedTicks: 0, phaseReached: [false, false, false], attacks: { erasure: 0, wind: 0, rain: 0, heat: 0, mirror: 0, signature: 0 }, damageByAttack: { erasure: 0, wind: 0, rain: 0, heat: 0, mirror: 0, signature: 0 } } }
+    editor: { rulesRewritten: 0, revisionExposedTicks: 0, revisionHits: 0, ordinaryHits: 0, signatureInkSpawned: 0, signatureClosures: 0, signatureExposedTicks: 0, phaseReached: [false, false, false], attacks: { erasure: 0, wind: 0, rain: 0, heat: 0, mirror: 0, signature: 0 }, damageByAttack: { erasure: 0, wind: 0, rain: 0, heat: 0, mirror: 0, signature: 0 } },
+    recovery: { redactionTriggers: 0, redactionBulletsCleared: 0, redactionBlocks: 0, citationLances: 0, palinodePrimes: 0, palinodeClosures: 0, afterwordPrimes: 0, afterwordProtectedTicks: 0 } }
   };
   if (stageId === 'stage-05' || stageId === 'stage-06') state.metrics.mirror = { falseTrailPeak: 0, falseAnnotations: 0, falseLoopRejections: 0, illusoryShots: 0, moteEchoes: 0, ramCharges: 0, witnessMixes: 0, obeliskReflections: 0 };
   else for (const kind of ['mirror-mote', 'quotation-ram', 'false-witness', 'silver-obelisk'] as const) delete state.metrics.enemyStats[kind];
@@ -147,7 +149,8 @@ export const copyState = (state: GameState): GameState => ({
   enemies: state.enemies.map((enemy) => ({ ...enemy })),
   boss: state.boss ? { ...state.boss } : null,
   retrace: state.retrace ? { index: state.retrace.index, points: state.retrace.points.map((point) => ({ ...point })) } : null,
-  metrics: { ...state.metrics, wind: { ...state.metrics.wind }, rain: { ...state.metrics.rain }, heat: { ...state.metrics.heat }, ...(state.metrics.mirror ? { mirror: { ...state.metrics.mirror } } : {}), ...(state.metrics.original ? { original: { ...state.metrics.original, folioTicks: { ...state.metrics.original.folioTicks } } } : {}), enemyStats: Object.fromEntries(Object.entries(state.metrics.enemyStats).map(([kind, stats]) => [kind, { ...stats }])) as GameState['metrics']['enemyStats'], boss: { ...state.metrics.boss, phaseReached: [...state.metrics.boss.phaseReached], damageByAttack: { ...state.metrics.boss.damageByAttack } }, compiler: { ...state.metrics.compiler, phaseReached: [...state.metrics.compiler.phaseReached], attacks: { ...state.metrics.compiler.attacks }, damageByAttack: { ...state.metrics.compiler.damageByAttack } }, eel: { ...state.metrics.eel, phaseReached: [...state.metrics.eel.phaseReached], attacks: { ...state.metrics.eel.attacks }, damageByAttack: { ...state.metrics.eel.damageByAttack } }, advocate: { ...state.metrics.advocate, phaseReached: [...state.metrics.advocate.phaseReached], attacks: { ...state.metrics.advocate.attacks }, damageByAttack: { ...state.metrics.advocate.damageByAttack } }, apocrypha: { ...state.metrics.apocrypha, phaseReached: [...state.metrics.apocrypha.phaseReached], attacks: { ...state.metrics.apocrypha.attacks }, damageByAttack: { ...state.metrics.apocrypha.damageByAttack } }, editor: { ...state.metrics.editor, phaseReached: [...state.metrics.editor.phaseReached], attacks: { ...state.metrics.editor.attacks }, damageByAttack: { ...state.metrics.editor.damageByAttack } } }
+  recovery: { ...state.recovery },
+  metrics: { ...state.metrics, recovery: { ...state.metrics.recovery }, wind: { ...state.metrics.wind }, rain: { ...state.metrics.rain }, heat: { ...state.metrics.heat }, ...(state.metrics.mirror ? { mirror: { ...state.metrics.mirror } } : {}), ...(state.metrics.original ? { original: { ...state.metrics.original, folioTicks: { ...state.metrics.original.folioTicks } } } : {}), enemyStats: Object.fromEntries(Object.entries(state.metrics.enemyStats).map(([kind, stats]) => [kind, { ...stats }])) as GameState['metrics']['enemyStats'], boss: { ...state.metrics.boss, phaseReached: [...state.metrics.boss.phaseReached], damageByAttack: { ...state.metrics.boss.damageByAttack } }, compiler: { ...state.metrics.compiler, phaseReached: [...state.metrics.compiler.phaseReached], attacks: { ...state.metrics.compiler.attacks }, damageByAttack: { ...state.metrics.compiler.damageByAttack } }, eel: { ...state.metrics.eel, phaseReached: [...state.metrics.eel.phaseReached], attacks: { ...state.metrics.eel.attacks }, damageByAttack: { ...state.metrics.eel.damageByAttack } }, advocate: { ...state.metrics.advocate, phaseReached: [...state.metrics.advocate.phaseReached], attacks: { ...state.metrics.advocate.attacks }, damageByAttack: { ...state.metrics.advocate.damageByAttack } }, apocrypha: { ...state.metrics.apocrypha, phaseReached: [...state.metrics.apocrypha.phaseReached], attacks: { ...state.metrics.apocrypha.attacks }, damageByAttack: { ...state.metrics.apocrypha.damageByAttack } }, editor: { ...state.metrics.editor, phaseReached: [...state.metrics.editor.phaseReached], attacks: { ...state.metrics.editor.attacks }, damageByAttack: { ...state.metrics.editor.damageByAttack } } }
 });
 
 const spawnEnemyBullet = (state: GameState, enemy: Point, angleOffset = 0, speedPx = 145, sourceAttack: Bullet['sourceAttack'] = 'enemy-volley'): boolean => {
@@ -1033,15 +1036,42 @@ const collate = (state: GameState, events: GameEvent[], marginalia: readonly Mar
       events.push({ type: 'advocate-ember-cooled' });
     }
   }
-  if (effects.citation) {
-    for (let index = 3; index < selected.length; index += 4) {
-      const captured = selected[index];
+  if (effects.citation && selected.length > 0) {
+    // Authored bosses require a specific number of hazards in the same loop.
+    // Do not carry ordinary-combat progress across that contract boundary.
+    const previousProgress = state.boss ? 0 : state.recovery.citationProgress;
+    const lanceCount = state.boss ? Math.floor(selected.length / 4) : Math.floor((previousProgress + selected.length) / 4);
+    state.recovery.citationProgress = state.boss ? 0 : (previousProgress + selected.length) % 4;
+    for (let index = 0; index < lanceCount; index += 1) {
+      const captured = selected[Math.min(selected.length - 1, Math.max(0, 3 - previousProgress + index * 4))];
       const target = [...state.enemies, ...(state.boss ? [state.boss] : [])]
         .sort((a, b) => distanceSq(a, captured) - distanceSq(b, captured) || ('id' in a ? a.id : 0) - ('id' in b ? b.id : 0))[0];
       if (!target) continue;
       const aim = Math.atan2(target.y - captured.y, target.x - captured.x);
       const speed = 690 * SCALE / TICK_RATE;
       state.bullets.push({ id: state.nextId++, x: captured.x, y: captured.y, vx: Math.round(Math.cos(aim) * speed), vy: Math.round(Math.sin(aim) * speed), radius: 9, kind: 'return', annotated: true, capturable: false });
+      state.metrics.recovery.citationLances += 1;
+      state.recovery.feedbackUntil = state.tick + TICK_RATE;
+      events.push({ type: 'recovery-triggered', note: 'citation', amount: 1 });
+    }
+  }
+  if (effects.redaction && selected.length > 0) {
+    const before = state.recovery.redactionProgress;
+    const total = before + selected.length;
+    if (before < 4 && total >= 4) events.push({ type: 'recovery-primed', note: 'redaction' });
+    const releases = Math.floor(total / 6);
+    state.recovery.redactionProgress = total % 6;
+    for (let release = 0; release < releases; release += 1) {
+      const hazards = state.bullets.filter((bullet) => bullet.kind === 'enemy' && !bullet.illusory)
+        .sort((a, b) => distanceSq(a, state.player) - distanceSq(b, state.player) || a.id - b.id)
+        .slice(0, 6);
+      const cleared = new Set(hazards.map((bullet) => bullet.id));
+      state.bullets = state.bullets.filter((bullet) => !cleared.has(bullet.id));
+      state.metrics.recovery.redactionTriggers += 1;
+      state.metrics.recovery.redactionBulletsCleared += hazards.length;
+      state.recovery.redactionReadyUntil = state.tick + 3 * TICK_RATE;
+      state.recovery.feedbackUntil = state.tick + TICK_RATE;
+      events.push({ type: 'recovery-triggered', note: 'redaction', amount: hazards.length });
     }
   }
   for (const enemy of state.enemies) if (pointInPolygon(enemy, candidate.polygon)) enemy.markedUntil = state.tick + 6 * TICK_RATE;
@@ -1147,6 +1177,28 @@ const collate = (state: GameState, events: GameEvent[], marginalia: readonly Mar
   // evasion and short enough to require the player to keep writing.
   state.player.invulnerableUntil = Math.max(state.player.invulnerableUntil, state.tick + 1800);
   state.player.health = Math.min(3, state.player.health + 1);
+  if (effects.palinode && !state.recovery.palinodeReady) {
+    state.recovery.palinodeProgress += 1;
+    if (state.recovery.palinodeProgress >= 2) {
+      state.recovery.palinodeProgress = 2;
+      state.recovery.palinodeReady = true;
+      state.metrics.recovery.palinodePrimes += 1;
+      state.recovery.feedbackUntil = state.tick + TICK_RATE;
+      events.push({ type: 'recovery-primed', note: 'palinode' });
+    }
+  }
+  if (effects.afterword && !state.recovery.afterwordReady) {
+    state.recovery.afterwordProgress += 1;
+    if (state.recovery.afterwordProgress >= 3) {
+      state.recovery.afterwordProgress = 3;
+      state.recovery.afterwordReady = true;
+      state.recovery.afterwordReadyUntil = state.tick + 3 * TICK_RATE;
+      state.score += 600;
+      state.metrics.recovery.afterwordPrimes += 1;
+      state.recovery.feedbackUntil = state.tick + TICK_RATE;
+      events.push({ type: 'recovery-primed', note: 'afterword' });
+    }
+  }
   if (empty && effects.errata && state.tick >= state.errataReadyAt) state.errataReadyAt = state.tick + 8 * TICK_RATE;
   else state.trail = state.trail.slice(0, candidate.startIndex);
   state.candidate = null;
@@ -1158,7 +1210,12 @@ export const step = (previous: GameState, input: InputFrame, difficulty: Difficu
   state.difficulty = difficulty;
   const events: GameEvent[] = [];
   const effects = marginaliaEffects(marginalia);
+  state.recovery.active = (['redaction', 'citation', 'palinode', 'afterword'] as const).find((id) => marginalia.includes(id)) ?? null;
   state.tick += 1;
+  if (state.recovery.afterwordReady && state.recovery.afterwordReadyUntil < state.tick) {
+    state.recovery.afterwordReady = false;
+    state.recovery.afterwordProgress = 0;
+  }
   state.gauge = Math.min(state.gauge, effects.gaugeCap);
   if (state.stageId === 'stage-06') {
     const folio = stageSixFolio(state.tick);
@@ -1179,7 +1236,7 @@ export const step = (previous: GameState, input: InputFrame, difficulty: Difficu
   applyCrosswind(state, events);
   const wasRetracing = Boolean(state.retrace);
   updatePlayer(state, input, events);
-  if (wasRetracing && !state.retrace && effects.palinode && state.trail.length >= 6) {
+  if (wasRetracing && !state.retrace && effects.palinode && state.recovery.palinodeReady && state.trail.length >= 6) {
     const center = state.player;
     const radius = 58 * SCALE;
     const polygon = Array.from({ length: 9 }, (_, index) => ({
@@ -1187,6 +1244,11 @@ export const step = (previous: GameState, input: InputFrame, difficulty: Difficu
       y: center.y + Math.round(Math.sin(index / 8 * Math.PI * 2) * radius)
     }));
     state.candidate = { polygon, intersection: polygon[0], startIndex: Math.max(0, state.trail.length - 6), area: 10500, expiresTick: state.tick + 1 };
+    state.recovery.palinodeReady = false;
+    state.recovery.palinodeProgress = 0;
+    state.metrics.recovery.palinodeClosures += 1;
+    state.recovery.feedbackUntil = state.tick + TICK_RATE;
+    events.push({ type: 'recovery-triggered', note: 'palinode', amount: 1 });
     collate(state, events, marginalia);
   }
 
@@ -1194,7 +1256,8 @@ export const step = (previous: GameState, input: InputFrame, difficulty: Difficu
   updateBoss(state, events, difficulty);
 
   applyHeat(state, events);
-  const afterwordBonus = effects.afterword && state.tick - state.lastDamageTick <= 3 * TICK_RATE ? TICK_RATE : 0;
+  const afterwordBonus = effects.afterword && state.recovery.afterwordRecoveryUntil >= state.tick ? TICK_RATE : 0;
+  if (effects.afterword && state.recovery.afterwordReady) state.metrics.recovery.afterwordProtectedTicks += 1;
   state.trail = state.trail.filter((point) => state.tick - point.bornTick <= trailLifetime(difficulty) + Math.round(effects.trailLifetimeBonus * TICK_RATE) + afterwordBonus || (point.cooledUntil ?? 0) >= state.tick);
   applyRain(state, events);
   if (state.candidate?.expiresTick && state.candidate.expiresTick < state.tick) state.candidate = null;
@@ -1206,7 +1269,7 @@ export const step = (previous: GameState, input: InputFrame, difficulty: Difficu
     if (mirrorActive && isInStageFiveMirrorBand(state.player)
       && (!previousTrailPoint || !isInStageFiveMirrorBand(previousTrailPoint))) events.push({ type: 'mirror-band-reflected' });
     const wasReady = Boolean(state.candidate);
-    const minimumArea = effects.footnote || (effects.afterword && state.tick - state.lastDamageTick <= 3 * TICK_RATE) ? 5200 : 8000;
+    const minimumArea = effects.footnote ? 5200 : 8000;
     const candidates = findLoopCandidates(state.trail, minimumArea);
     const detected = effects.crossReference
       ? candidates.slice(0, 2).sort((a, b) => b.area - a.area)[0] ?? null
@@ -1521,6 +1584,13 @@ export const step = (previous: GameState, input: InputFrame, difficulty: Difficu
       }
     } else if (!bullet.illusory && !state.retrace && state.player.invulnerableUntil < state.tick
       && distanceSq(bullet, state.player) <= ((bullet.radius + PLAYER_RADIUS) * SCALE) ** 2) {
+      if (effects.redaction && state.recovery.redactionReadyUntil >= state.tick) {
+        state.recovery.redactionReadyUntil = 0;
+        state.metrics.recovery.redactionBlocks += 1;
+        state.recovery.feedbackUntil = state.tick + TICK_RATE;
+        consumed = true;
+        events.push({ type: 'recovery-triggered', note: 'redaction', amount: 1 });
+      } else {
       state.player.health = Math.max(0, state.player.health - 1);
       state.lastDamageTick = state.tick;
       state.player.invulnerableUntil = state.tick + DIFFICULTY_PRESSURE[difficulty].invulnerabilityTicks;
@@ -1539,6 +1609,14 @@ export const step = (previous: GameState, input: InputFrame, difficulty: Difficu
         state.candidate = null;
       }
       state.metrics.damage += 1;
+      if (effects.afterword && state.recovery.afterwordReady) {
+        state.recovery.afterwordReady = false;
+        state.recovery.afterwordProgress = 0;
+        state.recovery.afterwordReadyUntil = 0;
+        state.recovery.afterwordRecoveryUntil = state.tick + 3 * TICK_RATE;
+        state.recovery.feedbackUntil = state.tick + TICK_RATE;
+        events.push({ type: 'recovery-triggered', note: 'afterword', amount: 1 });
+      }
       const recovery = DIFFICULTY_PRESSURE[difficulty].hazardRecovery;
       if (recovery === 'all') clearAllEnemyBullets = true;
       else if (recovery === 'weak' && (bullet.sourceAttack === 'enemy-volley' || bullet.sourceAttack === undefined)) clearWeakEnemyBullets = true;
@@ -1565,6 +1643,7 @@ export const step = (previous: GameState, input: InputFrame, difficulty: Difficu
       else if (state.boss) state.metrics.boss.damageByAttack.volley += 1;
       consumed = true;
       events.push({ type: 'damage' });
+      }
     }
     if (!consumed && bullet.x > -30 * SCALE && bullet.x < (WIDTH + 30) * SCALE && bullet.y > -30 * SCALE && bullet.y < (HEIGHT + 30) * SCALE) remaining.push(bullet);
   }

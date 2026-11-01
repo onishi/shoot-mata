@@ -6,9 +6,9 @@
 
 | Difficulty | Complete | Minutes min / median / max | Median damage | Continues (rate) | Max hazards | Bailiff warning ticks | Mechanic successes |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| ECHO | 30/30 | 23.42 / 24.71 / 25.25 | 1 | 0 (0%) | 115 | 120 | 25831 |
-| NORMAL | 30/30 | 23.66 / 24.4 / 25.55 | 1 | 0 (0%) | 116 | 90 | 22665 |
-| PROOF | 30/30 | 23.79 / 24.48 / 25.58 | 2 | 0 (0%) | 113 | 60 | 20678 |
+| ECHO | 30/30 | 23.42 / 24.74 / 25.25 | 1 | 0 (0%) | 115 | 120 | 25835 |
+| NORMAL | 30/30 | 23.66 / 24.55 / 25.55 | 1 | 0 (0%) | 115 | 90 | 22670 |
+| PROOF | 30/30 | 23.79 / 24.51 / 25.58 | 2 | 0 (0%) | 113 | 60 | 20683 |
 
 ## Marginalia selections
 

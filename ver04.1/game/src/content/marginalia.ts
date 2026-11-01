@@ -48,19 +48,19 @@ export const MARGINALIA: Record<MarginaliaId, MarginaliaDefinition> = {
   },
   redaction: {
     id: 'redaction', name: 'REDACTION', family: 'RECOVERY',
-    benefit: 'Capture limit +6', cost: 'Returned fire tracks less precisely'
+    benefit: 'Six captures redact nearby fire and prime one guard', cost: 'Returned fire tracks less precisely'
   },
   citation: {
     id: 'citation', name: 'CITATION', family: 'RECOVERY',
-    benefit: 'Each four captures launch a heavy lance', cost: 'Small captures cannot trigger it'
+    benefit: 'Every four cumulative captures launch a heavy lance', cost: 'Only captured fire advances it'
   },
   palinode: {
     id: 'palinode', name: 'PALINODE', family: 'RECOVERY',
-    benefit: 'RETRACE ending auto-closes a small loop', cost: 'RETRACE costs ten more gauge'
+    benefit: 'Two COLLATEs prime a RETRACE closing loop', cost: 'RETRACE costs ten more gauge'
   },
   afterword: {
     id: 'afterword', name: 'AFTERWORD', family: 'RECOVERY',
-    benefit: 'Damage grants three seconds of longer wake', cost: 'No benefit while untouched'
+    benefit: 'Three safe COLLATEs score and prime a post-hit long wake', cost: 'Damage spends the prepared draft'
   }
 };
 

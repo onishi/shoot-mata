@@ -21,7 +21,13 @@
       "bossDefeated": false,
       "finalGauge": 99,
       "trailPeak": 128,
-      "candidatePeak": 30268.45066833496
+      "candidatePeak": 30268.45066833496,
+      "redactionTriggers": 0,
+      "redactionBlocks": 0,
+      "citationLances": 0,
+      "palinodePrimes": 0,
+      "afterwordPrimes": 0,
+      "afterwordProtectedTicks": 0
     },
     "boss": {
       "ticks": 3961,
@@ -38,7 +44,13 @@
       "bossDefeated": true,
       "finalGauge": 100,
       "trailPeak": 122,
-      "candidatePeak": 19415.541137695312
+      "candidatePeak": 19415.541137695312,
+      "redactionTriggers": 0,
+      "redactionBlocks": 0,
+      "citationLances": 0,
+      "palinodePrimes": 0,
+      "afterwordPrimes": 0,
+      "afterwordProtectedTicks": 0
     },
     "recovery": {
       "ticks": 7200,
@@ -55,7 +67,13 @@
       "bossDefeated": false,
       "finalGauge": 99,
       "trailPeak": 128,
-      "candidatePeak": 30268.45066833496
+      "candidatePeak": 30268.45066833496,
+      "redactionTriggers": 0,
+      "redactionBlocks": 0,
+      "citationLances": 0,
+      "palinodePrimes": 0,
+      "afterwordPrimes": 0,
+      "afterwordProtectedTicks": 0
     }
   },
   "notes": {
@@ -78,7 +96,13 @@
             "bossDefeated": false,
             "finalGauge": 83,
             "trailPeak": 150,
-            "candidatePeak": 29253.762802124023
+            "candidatePeak": 29253.762802124023,
+            "redactionTriggers": 0,
+            "redactionBlocks": 0,
+            "citationLances": 0,
+            "palinodePrimes": 0,
+            "afterwordPrimes": 0,
+            "afterwordProtectedTicks": 0
           },
           "changed": [
             "score",
@@ -114,7 +138,13 @@
             "bossDefeated": true,
             "finalGauge": 90,
             "trailPeak": 122,
-            "candidatePeak": 19415.541137695312
+            "candidatePeak": 19415.541137695312,
+            "redactionTriggers": 0,
+            "redactionBlocks": 0,
+            "citationLances": 0,
+            "palinodePrimes": 0,
+            "afterwordPrimes": 0,
+            "afterwordProtectedTicks": 0
           },
           "changed": [
             "annotatedShots",
@@ -140,7 +170,13 @@
             "bossDefeated": false,
             "finalGauge": 83,
             "trailPeak": 150,
-            "candidatePeak": 29253.762802124023
+            "candidatePeak": 29253.762802124023,
+            "redactionTriggers": 0,
+            "redactionBlocks": 0,
+            "citationLances": 0,
+            "palinodePrimes": 0,
+            "afterwordPrimes": 0,
+            "afterwordProtectedTicks": 0
           },
           "changed": [
             "score",
@@ -181,7 +217,13 @@
             "bossDefeated": false,
             "finalGauge": 99,
             "trailPeak": 128,
-            "candidatePeak": 30268.45066833496
+            "candidatePeak": 30268.45066833496,
+            "redactionTriggers": 0,
+            "redactionBlocks": 0,
+            "citationLances": 0,
+            "palinodePrimes": 0,
+            "afterwordPrimes": 0,
+            "afterwordProtectedTicks": 0
           },
           "changed": [],
           "material": []
@@ -202,7 +244,13 @@
             "bossDefeated": true,
             "finalGauge": 100,
             "trailPeak": 122,
-            "candidatePeak": 19415.541137695312
+            "candidatePeak": 19415.541137695312,
+            "redactionTriggers": 0,
+            "redactionBlocks": 0,
+            "citationLances": 0,
+            "palinodePrimes": 0,
+            "afterwordPrimes": 0,
+            "afterwordProtectedTicks": 0
           },
           "changed": [],
           "material": []
@@ -223,7 +271,13 @@
             "bossDefeated": false,
             "finalGauge": 99,
             "trailPeak": 128,
-            "candidatePeak": 30268.45066833496
+            "candidatePeak": 30268.45066833496,
+            "redactionTriggers": 0,
+            "redactionBlocks": 0,
+            "citationLances": 0,
+            "palinodePrimes": 0,
+            "afterwordPrimes": 0,
+            "afterwordProtectedTicks": 0
           },
           "changed": [],
           "material": []
@@ -249,7 +303,13 @@
             "bossDefeated": false,
             "finalGauge": 99,
             "trailPeak": 128,
-            "candidatePeak": 30268.45066833496
+            "candidatePeak": 30268.45066833496,
+            "redactionTriggers": 0,
+            "redactionBlocks": 0,
+            "citationLances": 0,
+            "palinodePrimes": 0,
+            "afterwordPrimes": 0,
+            "afterwordProtectedTicks": 0
           },
           "changed": [],
           "material": []
@@ -270,7 +330,13 @@
             "bossDefeated": true,
             "finalGauge": 100,
             "trailPeak": 122,
-            "candidatePeak": 19415.541137695312
+            "candidatePeak": 19415.541137695312,
+            "redactionTriggers": 0,
+            "redactionBlocks": 0,
+            "citationLances": 0,
+            "palinodePrimes": 0,
+            "afterwordPrimes": 0,
+            "afterwordProtectedTicks": 0
           },
           "changed": [],
           "material": []
@@ -291,7 +357,13 @@
             "bossDefeated": false,
             "finalGauge": 99,
             "trailPeak": 128,
-            "candidatePeak": 30268.45066833496
+            "candidatePeak": 30268.45066833496,
+            "redactionTriggers": 0,
+            "redactionBlocks": 0,
+            "citationLances": 0,
+            "palinodePrimes": 0,
+            "afterwordPrimes": 0,
+            "afterwordProtectedTicks": 0
           },
           "changed": [],
           "material": []
@@ -317,7 +389,13 @@
             "bossDefeated": false,
             "finalGauge": 87,
             "trailPeak": 128,
-            "candidatePeak": 30268.45066833496
+            "candidatePeak": 30268.45066833496,
+            "redactionTriggers": 0,
+            "redactionBlocks": 0,
+            "citationLances": 0,
+            "palinodePrimes": 0,
+            "afterwordPrimes": 0,
+            "afterwordProtectedTicks": 0
           },
           "changed": [
             "score",
@@ -352,7 +430,13 @@
             "bossDefeated": true,
             "finalGauge": 100,
             "trailPeak": 122,
-            "candidatePeak": 19415.541137695312
+            "candidatePeak": 19415.541137695312,
+            "redactionTriggers": 0,
+            "redactionBlocks": 0,
+            "citationLances": 0,
+            "palinodePrimes": 0,
+            "afterwordPrimes": 0,
+            "afterwordProtectedTicks": 0
           },
           "changed": [
             "annotatedShots"
@@ -377,7 +461,13 @@
             "bossDefeated": false,
             "finalGauge": 87,
             "trailPeak": 128,
-            "candidatePeak": 30268.45066833496
+            "candidatePeak": 30268.45066833496,
+            "redactionTriggers": 0,
+            "redactionBlocks": 0,
+            "citationLances": 0,
+            "palinodePrimes": 0,
+            "afterwordPrimes": 0,
+            "afterwordProtectedTicks": 0
           },
           "changed": [
             "score",
@@ -417,7 +507,13 @@
             "bossDefeated": false,
             "finalGauge": 100,
             "trailPeak": 128,
-            "candidatePeak": 31503.906562805176
+            "candidatePeak": 31503.906562805176,
+            "redactionTriggers": 0,
+            "redactionBlocks": 0,
+            "citationLances": 0,
+            "palinodePrimes": 0,
+            "afterwordPrimes": 0,
+            "afterwordProtectedTicks": 0
           },
           "changed": [
             "score",
@@ -453,7 +549,13 @@
             "bossDefeated": true,
             "finalGauge": 100,
             "trailPeak": 122,
-            "candidatePeak": 19415.541137695312
+            "candidatePeak": 19415.541137695312,
+            "redactionTriggers": 0,
+            "redactionBlocks": 0,
+            "citationLances": 0,
+            "palinodePrimes": 0,
+            "afterwordPrimes": 0,
+            "afterwordProtectedTicks": 0
           },
           "changed": [],
           "material": []
@@ -474,7 +576,13 @@
             "bossDefeated": false,
             "finalGauge": 100,
             "trailPeak": 128,
-            "candidatePeak": 31503.906562805176
+            "candidatePeak": 31503.906562805176,
+            "redactionTriggers": 0,
+            "redactionBlocks": 0,
+            "citationLances": 0,
+            "palinodePrimes": 0,
+            "afterwordPrimes": 0,
+            "afterwordProtectedTicks": 0
           },
           "changed": [
             "score",
@@ -515,7 +623,13 @@
             "bossDefeated": false,
             "finalGauge": 75,
             "trailPeak": 128,
-            "candidatePeak": 36355.41312408447
+            "candidatePeak": 36355.41312408447,
+            "redactionTriggers": 0,
+            "redactionBlocks": 0,
+            "citationLances": 0,
+            "palinodePrimes": 0,
+            "afterwordPrimes": 0,
+            "afterwordProtectedTicks": 0
           },
           "changed": [
             "score",
@@ -550,7 +664,13 @@
             "bossDefeated": true,
             "finalGauge": 100,
             "trailPeak": 122,
-            "candidatePeak": 19415.541137695312
+            "candidatePeak": 19415.541137695312,
+            "redactionTriggers": 0,
+            "redactionBlocks": 0,
+            "citationLances": 0,
+            "palinodePrimes": 0,
+            "afterwordPrimes": 0,
+            "afterwordProtectedTicks": 0
           },
           "changed": [],
           "material": []
@@ -571,7 +691,13 @@
             "bossDefeated": false,
             "finalGauge": 75,
             "trailPeak": 128,
-            "candidatePeak": 36355.41312408447
+            "candidatePeak": 36355.41312408447,
+            "redactionTriggers": 0,
+            "redactionBlocks": 0,
+            "citationLances": 0,
+            "palinodePrimes": 0,
+            "afterwordPrimes": 0,
+            "afterwordProtectedTicks": 0
           },
           "changed": [
             "score",
@@ -611,7 +737,13 @@
             "bossDefeated": false,
             "finalGauge": 100,
             "trailPeak": 128,
-            "candidatePeak": 30398.717056274414
+            "candidatePeak": 30398.717056274414,
+            "redactionTriggers": 0,
+            "redactionBlocks": 0,
+            "citationLances": 0,
+            "palinodePrimes": 0,
+            "afterwordPrimes": 0,
+            "afterwordProtectedTicks": 0
           },
           "changed": [
             "score",
@@ -646,7 +778,13 @@
             "bossDefeated": true,
             "finalGauge": 100,
             "trailPeak": 122,
-            "candidatePeak": 15793.255088806152
+            "candidatePeak": 15793.255088806152,
+            "redactionTriggers": 0,
+            "redactionBlocks": 0,
+            "citationLances": 0,
+            "palinodePrimes": 0,
+            "afterwordPrimes": 0,
+            "afterwordProtectedTicks": 0
           },
           "changed": [
             "ticks",
@@ -680,7 +818,13 @@
             "bossDefeated": false,
             "finalGauge": 100,
             "trailPeak": 128,
-            "candidatePeak": 30398.717056274414
+            "candidatePeak": 30398.717056274414,
+            "redactionTriggers": 0,
+            "redactionBlocks": 0,
+            "citationLances": 0,
+            "palinodePrimes": 0,
+            "afterwordPrimes": 0,
+            "afterwordProtectedTicks": 0
           },
           "changed": [
             "score",
@@ -720,7 +864,13 @@
             "bossDefeated": false,
             "finalGauge": 79,
             "trailPeak": 128,
-            "candidatePeak": 29267.05160522461
+            "candidatePeak": 29267.05160522461,
+            "redactionTriggers": 0,
+            "redactionBlocks": 0,
+            "citationLances": 0,
+            "palinodePrimes": 0,
+            "afterwordPrimes": 0,
+            "afterwordProtectedTicks": 0
           },
           "changed": [
             "score",
@@ -752,7 +902,13 @@
             "bossDefeated": true,
             "finalGauge": 100,
             "trailPeak": 122,
-            "candidatePeak": 19415.541137695312
+            "candidatePeak": 19415.541137695312,
+            "redactionTriggers": 0,
+            "redactionBlocks": 0,
+            "citationLances": 0,
+            "palinodePrimes": 0,
+            "afterwordPrimes": 0,
+            "afterwordProtectedTicks": 0
           },
           "changed": [],
           "material": []
@@ -773,7 +929,13 @@
             "bossDefeated": false,
             "finalGauge": 79,
             "trailPeak": 128,
-            "candidatePeak": 29267.05160522461
+            "candidatePeak": 29267.05160522461,
+            "redactionTriggers": 0,
+            "redactionBlocks": 0,
+            "citationLances": 0,
+            "palinodePrimes": 0,
+            "afterwordPrimes": 0,
+            "afterwordProtectedTicks": 0
           },
           "changed": [
             "score",
@@ -810,10 +972,20 @@
             "bossDefeated": false,
             "finalGauge": 99,
             "trailPeak": 128,
-            "candidatePeak": 30268.45066833496
+            "candidatePeak": 30268.45066833496,
+            "redactionTriggers": 1,
+            "redactionBlocks": 0,
+            "citationLances": 0,
+            "palinodePrimes": 0,
+            "afterwordPrimes": 0,
+            "afterwordProtectedTicks": 0
           },
-          "changed": [],
-          "material": []
+          "changed": [
+            "redactionTriggers"
+          ],
+          "material": [
+            "redactionTriggers:new(1)"
+          ]
         },
         "boss": {
           "outcome": {
@@ -831,92 +1003,19 @@
             "bossDefeated": true,
             "finalGauge": 100,
             "trailPeak": 122,
-            "candidatePeak": 19415.541137695312
-          },
-          "changed": [],
-          "material": []
-        },
-        "recovery": {
-          "outcome": {
-            "ticks": 7200,
-            "score": 31473,
-            "damage": 1,
-            "enemiesDefeated": 17,
-            "collates": 8,
-            "captured": 6,
-            "candidates": 8,
-            "annotatedShots": 222,
-            "retraces": 0,
-            "returnedHits": 0,
-            "armorLayersStripped": 0,
-            "bossDefeated": false,
-            "finalGauge": 99,
-            "trailPeak": 128,
-            "candidatePeak": 30268.45066833496
-          },
-          "changed": [],
-          "material": []
-        }
-      }
-    },
-    "citation": {
-      "family": "RECOVERY",
-      "outcomes": {
-        "combat": {
-          "outcome": {
-            "ticks": 7200,
-            "score": 31473,
-            "damage": 0,
-            "enemiesDefeated": 17,
-            "collates": 8,
-            "captured": 6,
-            "candidates": 8,
-            "annotatedShots": 222,
-            "retraces": 0,
-            "returnedHits": 0,
-            "armorLayersStripped": 0,
-            "bossDefeated": false,
-            "finalGauge": 99,
-            "trailPeak": 128,
-            "candidatePeak": 30268.45066833496
-          },
-          "changed": [],
-          "material": []
-        },
-        "boss": {
-          "outcome": {
-            "ticks": 3831,
-            "score": 29113,
-            "damage": 1,
-            "enemiesDefeated": 0,
-            "collates": 3,
-            "captured": 14,
-            "candidates": 3,
-            "annotatedShots": 72,
-            "retraces": 0,
-            "returnedHits": 17,
-            "armorLayersStripped": 3,
-            "bossDefeated": true,
-            "finalGauge": 100,
-            "trailPeak": 122,
-            "candidatePeak": 15842.059196472168
+            "candidatePeak": 19415.541137695312,
+            "redactionTriggers": 3,
+            "redactionBlocks": 0,
+            "citationLances": 0,
+            "palinodePrimes": 0,
+            "afterwordPrimes": 0,
+            "afterwordProtectedTicks": 0
           },
           "changed": [
-            "ticks",
-            "score",
-            "collates",
-            "captured",
-            "candidates",
-            "annotatedShots",
-            "returnedHits",
-            "candidatePeak"
+            "redactionTriggers"
           ],
           "material": [
-            "collates:-25.0%",
-            "captured:-30.0%",
-            "candidates:-25.0%",
-            "returnedHits:+13.3%",
-            "candidatePeak:-18.4%"
+            "redactionTriggers:new(3)"
           ]
         },
         "recovery": {
@@ -935,10 +1034,137 @@
             "bossDefeated": false,
             "finalGauge": 99,
             "trailPeak": 128,
-            "candidatePeak": 30268.45066833496
+            "candidatePeak": 30268.45066833496,
+            "redactionTriggers": 1,
+            "redactionBlocks": 0,
+            "citationLances": 0,
+            "palinodePrimes": 0,
+            "afterwordPrimes": 0,
+            "afterwordProtectedTicks": 0
           },
-          "changed": [],
-          "material": []
+          "changed": [
+            "redactionTriggers"
+          ],
+          "material": [
+            "redactionTriggers:new(1)"
+          ]
+        }
+      }
+    },
+    "citation": {
+      "family": "RECOVERY",
+      "outcomes": {
+        "combat": {
+          "outcome": {
+            "ticks": 7200,
+            "score": 29873,
+            "damage": 0,
+            "enemiesDefeated": 16,
+            "collates": 8,
+            "captured": 6,
+            "candidates": 8,
+            "annotatedShots": 217,
+            "retraces": 0,
+            "returnedHits": 0,
+            "armorLayersStripped": 0,
+            "bossDefeated": false,
+            "finalGauge": 99,
+            "trailPeak": 128,
+            "candidatePeak": 30268.45066833496,
+            "redactionTriggers": 0,
+            "redactionBlocks": 0,
+            "citationLances": 1,
+            "palinodePrimes": 0,
+            "afterwordPrimes": 0,
+            "afterwordProtectedTicks": 0
+          },
+          "changed": [
+            "score",
+            "enemiesDefeated",
+            "annotatedShots",
+            "citationLances"
+          ],
+          "material": [
+            "citationLances:new(1)"
+          ]
+        },
+        "boss": {
+          "outcome": {
+            "ticks": 3831,
+            "score": 29113,
+            "damage": 1,
+            "enemiesDefeated": 0,
+            "collates": 3,
+            "captured": 14,
+            "candidates": 3,
+            "annotatedShots": 72,
+            "retraces": 0,
+            "returnedHits": 17,
+            "armorLayersStripped": 3,
+            "bossDefeated": true,
+            "finalGauge": 100,
+            "trailPeak": 122,
+            "candidatePeak": 15842.059196472168,
+            "redactionTriggers": 0,
+            "redactionBlocks": 0,
+            "citationLances": 3,
+            "palinodePrimes": 0,
+            "afterwordPrimes": 0,
+            "afterwordProtectedTicks": 0
+          },
+          "changed": [
+            "ticks",
+            "score",
+            "collates",
+            "captured",
+            "candidates",
+            "annotatedShots",
+            "returnedHits",
+            "candidatePeak",
+            "citationLances"
+          ],
+          "material": [
+            "collates:-25.0%",
+            "captured:-30.0%",
+            "candidates:-25.0%",
+            "returnedHits:+13.3%",
+            "candidatePeak:-18.4%",
+            "citationLances:new(3)"
+          ]
+        },
+        "recovery": {
+          "outcome": {
+            "ticks": 7200,
+            "score": 29873,
+            "damage": 1,
+            "enemiesDefeated": 16,
+            "collates": 8,
+            "captured": 6,
+            "candidates": 8,
+            "annotatedShots": 217,
+            "retraces": 0,
+            "returnedHits": 0,
+            "armorLayersStripped": 0,
+            "bossDefeated": false,
+            "finalGauge": 99,
+            "trailPeak": 128,
+            "candidatePeak": 30268.45066833496,
+            "redactionTriggers": 0,
+            "redactionBlocks": 0,
+            "citationLances": 1,
+            "palinodePrimes": 0,
+            "afterwordPrimes": 0,
+            "afterwordProtectedTicks": 0
+          },
+          "changed": [
+            "score",
+            "enemiesDefeated",
+            "annotatedShots",
+            "citationLances"
+          ],
+          "material": [
+            "citationLances:new(1)"
+          ]
         }
       }
     },
@@ -961,10 +1187,20 @@
             "bossDefeated": false,
             "finalGauge": 99,
             "trailPeak": 128,
-            "candidatePeak": 30268.45066833496
+            "candidatePeak": 30268.45066833496,
+            "redactionTriggers": 0,
+            "redactionBlocks": 0,
+            "citationLances": 0,
+            "palinodePrimes": 1,
+            "afterwordPrimes": 0,
+            "afterwordProtectedTicks": 0
           },
-          "changed": [],
-          "material": []
+          "changed": [
+            "palinodePrimes"
+          ],
+          "material": [
+            "palinodePrimes:new(1)"
+          ]
         },
         "boss": {
           "outcome": {
@@ -982,10 +1218,20 @@
             "bossDefeated": true,
             "finalGauge": 100,
             "trailPeak": 122,
-            "candidatePeak": 19415.541137695312
+            "candidatePeak": 19415.541137695312,
+            "redactionTriggers": 0,
+            "redactionBlocks": 0,
+            "citationLances": 0,
+            "palinodePrimes": 1,
+            "afterwordPrimes": 0,
+            "afterwordProtectedTicks": 0
           },
-          "changed": [],
-          "material": []
+          "changed": [
+            "palinodePrimes"
+          ],
+          "material": [
+            "palinodePrimes:new(1)"
+          ]
         },
         "recovery": {
           "outcome": {
@@ -1003,10 +1249,20 @@
             "bossDefeated": false,
             "finalGauge": 99,
             "trailPeak": 128,
-            "candidatePeak": 30268.45066833496
+            "candidatePeak": 30268.45066833496,
+            "redactionTriggers": 0,
+            "redactionBlocks": 0,
+            "citationLances": 0,
+            "palinodePrimes": 1,
+            "afterwordPrimes": 0,
+            "afterwordProtectedTicks": 0
           },
-          "changed": [],
-          "material": []
+          "changed": [
+            "palinodePrimes"
+          ],
+          "material": [
+            "palinodePrimes:new(1)"
+          ]
         }
       }
     },
@@ -1016,7 +1272,7 @@
         "combat": {
           "outcome": {
             "ticks": 7200,
-            "score": 31473,
+            "score": 32673,
             "damage": 0,
             "enemiesDefeated": 17,
             "collates": 8,
@@ -1029,15 +1285,28 @@
             "bossDefeated": false,
             "finalGauge": 99,
             "trailPeak": 128,
-            "candidatePeak": 30268.45066833496
+            "candidatePeak": 30268.45066833496,
+            "redactionTriggers": 0,
+            "redactionBlocks": 0,
+            "citationLances": 0,
+            "palinodePrimes": 0,
+            "afterwordPrimes": 2,
+            "afterwordProtectedTicks": 720
           },
-          "changed": [],
-          "material": []
+          "changed": [
+            "score",
+            "afterwordPrimes",
+            "afterwordProtectedTicks"
+          ],
+          "material": [
+            "afterwordPrimes:new(2)",
+            "afterwordProtectedTicks:new(720)"
+          ]
         },
         "boss": {
           "outcome": {
             "ticks": 3961,
-            "score": 31004,
+            "score": 31604,
             "damage": 1,
             "enemiesDefeated": 0,
             "collates": 4,
@@ -1050,15 +1319,28 @@
             "bossDefeated": true,
             "finalGauge": 100,
             "trailPeak": 122,
-            "candidatePeak": 19415.541137695312
+            "candidatePeak": 19415.541137695312,
+            "redactionTriggers": 0,
+            "redactionBlocks": 0,
+            "citationLances": 0,
+            "palinodePrimes": 0,
+            "afterwordPrimes": 1,
+            "afterwordProtectedTicks": 360
           },
-          "changed": [],
-          "material": []
+          "changed": [
+            "score",
+            "afterwordPrimes",
+            "afterwordProtectedTicks"
+          ],
+          "material": [
+            "afterwordPrimes:new(1)",
+            "afterwordProtectedTicks:new(360)"
+          ]
         },
         "recovery": {
           "outcome": {
             "ticks": 7200,
-            "score": 31473,
+            "score": 32673,
             "damage": 1,
             "enemiesDefeated": 17,
             "collates": 8,
@@ -1071,10 +1353,23 @@
             "bossDefeated": false,
             "finalGauge": 99,
             "trailPeak": 128,
-            "candidatePeak": 30268.45066833496
+            "candidatePeak": 30268.45066833496,
+            "redactionTriggers": 0,
+            "redactionBlocks": 0,
+            "citationLances": 0,
+            "palinodePrimes": 0,
+            "afterwordPrimes": 2,
+            "afterwordProtectedTicks": 720
           },
-          "changed": [],
-          "material": []
+          "changed": [
+            "score",
+            "afterwordPrimes",
+            "afterwordProtectedTicks"
+          ],
+          "material": [
+            "afterwordPrimes:new(2)",
+            "afterwordProtectedTicks:new(720)"
+          ]
         }
       }
     }

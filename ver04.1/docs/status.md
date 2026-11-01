@@ -1,12 +1,12 @@
 # v4.1 Status
 
-最終更新: 2026-11-01
+最終更新: 2026-11-02
 
 ## 現在状態
 
 - 現在版: v4.1 (`ver04.1/`)
 - 公開版: v4.0
-- 段階: 改善実装（v4.1-01〜02 完了、v4.1-03 counterfactual基盤完了・調整中）
+- 段階: 改善実装（v4.1-01〜03 完了、v4.1-04 着手前）
 - v4.0変更: なし
 
 ## 達成内容
@@ -28,14 +28,19 @@
 - 全12 MARGINALIAを単独装備し、通常戦・BLANK BAILIFF・同一post-hit frameの3条件、計36 counterfactualをno-note baselineと比較する自動証跡を追加した。数値差10%以上とzero baselineからの新規発生を自動抽出する。
 - seed 4410の60秒通常戦・被弾復帰ではRECOVERY 4種が全指標でbaselineと一致し、BLANK BAILIFFではCITATIONだけがreturned hitsを15から17（+13.3%）へ変えた。REDACTION / PALINODE / AFTERWORDは3条件すべて無反応だった。
 - 新規counterfactual 1/1、単体78/78、counterfactualを含む全自動プレイ14/14、TypeScript型検査に合格した。全自動プレイの決定性hashも現行難易度プロファイルに対して再生成した。
+- RECOVERY 4候補へ成功中の進捗・準備状態・専用イベントを追加した。REDACTIONは6捕捉で近傍弾消去と1回guard、CITATIONは通常戦で累積4捕捉の重弾、PALINODEは2 COLLATEでRETRACE再閉鎖を準備、AFTERWORDは3 COLLATEで得点とpost-hit long wakeを準備する。
+- counterfactual 36条件を再実行し、RECOVERY 4候補が通常戦・BLANK BAILIFF・被弾復帰の全条件で固有成功イベントを1回以上発生した。CITATIONは通常戦でもlance 1回、AFTERWORDは通常戦でprime 2回と+1,200 scoreを記録した。
+- RECOVERY準備進捗を上部HUD、発動を自機周囲の金色破線と専用音へ表示した。1280×720 Chrome画像を目視し、体力・時間・スコアと干渉しないことを確認した。
+- 無期限AFTERWORDがキャンペーンを25.88分、CITATIONの通常戦進捗持越しがStage 6ボスを10,149から21,183 tickへ延ばしたため棄却した。AFTERWORDは3秒準備窓とpost-hit効果へ、CITATIONはボスで1 COLLATE内判定へ境界を修正した。
+- 調整後の3難易度×30seedは90/90完走。時間の中央値は24.74 / 24.55 / 24.51分、最大25.25 / 25.55 / 25.58分、被弾中央値1 / 1 / 2、コンティニュー0。全12候補は81〜99回選択された。
+- 単体79/79、自動プレイ14/14、simulation性能、production build、素材・独自性・音量監査、Chrome E2E 24/24に合格した。
 
 ## 未解決課題
 
-1. 現行counterfactualではREDACTION / PALINODE / AFTERWORDが通常戦・ボス・被弾復帰の全条件でbaselineと完全一致する。CITATIONも通常戦・被弾復帰では無反応である。
-2. CINDER ADVOCATEが約19秒、Stage 6全体が5.67〜6.37分で、時間配分が偏る。
+1. CINDER ADVOCATEが約19秒、Stage 6全体が5.67〜6.37分で、時間配分が偏る。
 
 ## 次の最優先作業
 
-**v4.1-03: RECOVERY系を被弾後だけの保険から、成功中にも準備と発動価値がある系統へ再設計する。**
+**v4.1-04: Stage 4ボスとStage 6のキャンペーン時間配分を再調整する。**
 
-計測で無反応を確認したREDACTION / PALINODE / AFTERWORDを優先し、RECOVERY 4候補が成功中にも準備状態を示すゲーム状態・専用イベント・画面表示を実装する。各候補は意図した指標を10%以上変えるか新しい成功イベントを発生させ、同じ36条件を再実行して確認する。
+Stage 6の各継承規則の再説明を短縮し、統合区間は残す。CINDER ADVOCATEはHP増加ではなく、冷却した火種を壁越しに通す固有判断をもう一度要求する。90周中央値21〜24分、Stage 6中央値5.5分以内、CINDER ADVOCATE 30〜60秒を同時に満たす。

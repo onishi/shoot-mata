@@ -420,6 +420,15 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
     '#8ff6ff', state.tick, reducedFlash
   );
   drawSprite(ctx, 'player', playerX, playerY, 74, 54, playerAlpha);
+  if (state.recovery.feedbackUntil >= state.tick) {
+    ctx.save();
+    ctx.strokeStyle = '#f4c36a';
+    ctx.globalAlpha = reducedFlash ? 0.82 : 0.45 + Math.abs(Math.sin(state.tick / 7)) * 0.45;
+    ctx.lineWidth = 3;
+    ctx.setLineDash([5, 5]);
+    ctx.beginPath(); ctx.arc(playerX, playerY, 43, 0, Math.PI * 2); ctx.stroke();
+    ctx.restore();
+  }
 
   ctx.beginPath();
   ctx.arc(playerX, playerY, 26, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * state.gauge / 100);
@@ -447,6 +456,18 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
   for (let i = 0; i < 3; i += 1) {
     ctx.fillStyle = i < state.player.health ? '#a8f7ff' : '#283449';
     diamond(ctx, 650 + i * 26, 27, 8); ctx.fill();
+  }
+  const activeRecovery = state.recovery.active;
+  if (activeRecovery) {
+    const recovery = state.recovery;
+    const active = activeRecovery;
+    const progress = active === 'redaction' ? (recovery.redactionReadyUntil >= state.tick ? 'GUARD' : `${recovery.redactionProgress}/6`)
+      : active === 'citation' ? `${recovery.citationProgress}/4`
+        : active === 'palinode' ? (recovery.palinodeReady ? 'READY' : `${recovery.palinodeProgress}/2`)
+          : recovery.afterwordReady ? 'READY' : `${recovery.afterwordProgress}/3`;
+    ctx.fillStyle = recovery.feedbackUntil >= state.tick ? '#f4c36a' : '#78cbd3';
+    ctx.font = '700 12px system-ui, sans-serif';
+    ctx.fillText(`${active.toUpperCase()}  ${progress}`, 748, 31);
   }
   if (state.boss) {
     const boss = state.boss;

@@ -3,8 +3,8 @@
 - Scenario: Stage 6 late mirror, synthesis, and THE LAST EDITOR entry on PROOF with all marginalia
 - Warmup: 1200 ticks (10 seconds)
 - Measurement: 7200 ticks (60 seconds)
-- Tick average / p95 / max: 0.029 / 0.053 / 0.396 ms
-- Peak enemies / enemy bullets: 8 / 19
+- Tick average / p95 / max: 0.030 / 0.053 / 0.624 ms
+- Peak enemies / enemy bullets: 8 / 23
 - Rejected enemies / bullets: 0 / 0
 
 All simulation tick gates passed. Chrome frame, long-task, and heap gates remain part of M4-05.

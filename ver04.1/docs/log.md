@@ -1,5 +1,14 @@
 # v4.1 Log
 
+## 2026-11-02 — v4.1-03 RECOVERY系の能動価値
+
+- RECOVERY 4候補へ成功中の進捗、準備状態、専用イベントを追加した。REDACTIONは6捕捉で近傍弾消去とguard、CITATIONは通常戦の累積4捕捉で重弾、PALINODEは2 COLLATEでRETRACE再閉鎖、AFTERWORDは3 COLLATEで得点とpost-hit long wakeを準備する。
+- 進捗をHUDへ、準備・発動を金色破線、自機周囲のリング、専用音へ表示した。Chromeの1280×720画像で体力・時間・スコアと衝突しないことを目視確認した。
+- counterfactual 36条件ではRECOVERY 4候補すべてが通常戦・ボス・被弾復帰で固有成功イベントを発生した。CITATIONは通常戦lance 1回、AFTERWORDは通常戦prime 2回・+1,200 scoreとなった。
+- 初案の無期限AFTERWORDは一部seedを25.88分へ延長したため3秒準備窓へ変更した。CITATIONの通常戦累積をボスへ持ち越す案はStage 6ボスを10,149から21,183 tickへ延長したため、ボスでは従来の1 COLLATE内4捕捉へ境界を戻した。
+- 最終90周は90/90完走。時間中央値ECHO 24.74 / NORMAL 24.55 / PROOF 24.51分、最大25.25 / 25.55 / 25.58分、被弾中央値1 / 1 / 2、コンティニュー0。全12候補は81〜99回選択された。
+- 単体79/79、自動プレイ14/14、simulation性能、build、素材・独自性・音量監査、Chrome E2E 24/24に合格した。次はv4.1-04のキャンペーン時間配分へ進む。
+
 ## 2026-11-01 — v4.1-03 counterfactual計測基盤
 
 - 全12 MARGINALIAを単独装備し、通常戦・BLANK BAILIFF・同一post-hit frameの3条件でno-note baselineと比較する36ケースの自動証跡を追加した。

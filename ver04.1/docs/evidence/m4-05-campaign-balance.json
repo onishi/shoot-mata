@@ -37,40 +37,40 @@
       "difficulty": "echo",
       "completed": 30,
       "minimumMinutes": 23.42,
-      "medianMinutes": 24.71,
+      "medianMinutes": 24.74,
       "maximumMinutes": 25.25,
       "medianDamage": 1,
       "totalContinues": 0,
       "continueRate": 0,
       "maximumHazards": 115,
       "warningTicks": 120,
-      "mechanicSuccesses": 25831
+      "mechanicSuccesses": 25835
     },
     {
       "difficulty": "normal",
       "completed": 30,
       "minimumMinutes": 23.66,
-      "medianMinutes": 24.4,
+      "medianMinutes": 24.55,
       "maximumMinutes": 25.55,
       "medianDamage": 1,
       "totalContinues": 0,
       "continueRate": 0,
-      "maximumHazards": 116,
+      "maximumHazards": 115,
       "warningTicks": 90,
-      "mechanicSuccesses": 22665
+      "mechanicSuccesses": 22670
     },
     {
       "difficulty": "proof",
       "completed": 30,
       "minimumMinutes": 23.79,
-      "medianMinutes": 24.48,
+      "medianMinutes": 24.51,
       "maximumMinutes": 25.58,
       "medianDamage": 2,
       "totalContinues": 0,
       "continueRate": 0,
       "maximumHazards": 113,
       "warningTicks": 60,
-      "mechanicSuccesses": 20678
+      "mechanicSuccesses": 20683
     }
   ],
   "selectionCounts": {
@@ -284,8 +284,8 @@
       "difficulty": "echo",
       "seed": 4502,
       "complete": true,
-      "playedTicks": 177372,
-      "minutes": 24.64,
+      "playedTicks": 179588,
+      "minutes": 24.94,
       "damage": 0,
       "continues": 0,
       "selected": [
@@ -315,33 +315,33 @@
         },
         {
           "stage": "stage-02",
-          "playedTicks": 24404,
-          "bossTicks": 2805,
+          "playedTicks": 24376,
+          "bossTicks": 2777,
           "damage": 0,
           "continues": 0,
-          "score": 45038,
+          "score": 40575,
           "maximumHazards": 27,
-          "mechanicSuccesses": 32
+          "mechanicSuccesses": 31
         },
         {
           "stage": "stage-03",
-          "playedTicks": 29026,
-          "bossTicks": 5627,
+          "playedTicks": 29563,
+          "bossTicks": 6164,
           "damage": 0,
           "continues": 0,
-          "score": 66066,
-          "maximumHazards": 46,
+          "score": 65474,
+          "maximumHazards": 47,
           "mechanicSuccesses": 7
         },
         {
           "stage": "stage-04",
-          "playedTicks": 25614,
-          "bossTicks": 2215,
+          "playedTicks": 27322,
+          "bossTicks": 3923,
           "damage": 0,
           "continues": 0,
-          "score": 193598,
-          "maximumHazards": 39,
-          "mechanicSuccesses": 22
+          "score": 151062,
+          "maximumHazards": 60,
+          "mechanicSuccesses": 21
         },
         {
           "stage": "stage-05",
@@ -349,24 +349,24 @@
           "bossTicks": 3376,
           "damage": 0,
           "continues": 0,
-          "score": 65637,
+          "score": 65537,
           "maximumHazards": 87,
           "mechanicSuccesses": 26
         },
         {
           "stage": "stage-06",
-          "playedTicks": 45864,
-          "bossTicks": 13465,
+          "playedTicks": 45863,
+          "bossTicks": 13464,
           "damage": 0,
           "continues": 0,
-          "score": 282135,
+          "score": 292535,
           "maximumHazards": 75,
           "mechanicSuccesses": 953
         }
       ],
       "stoppedAt": {
         "stage": "stage-06",
-        "tick": 45864,
+        "tick": 45863,
         "checkpoint": "last-editor-gate",
         "boss": null,
         "phase": null,
@@ -572,9 +572,9 @@
       "difficulty": "echo",
       "seed": 4505,
       "complete": true,
-      "playedTicks": 177879,
+      "playedTicks": 177908,
       "minutes": 24.71,
-      "damage": 0,
+      "damage": 1,
       "continues": 0,
       "selected": [
         "afterword",
@@ -597,27 +597,27 @@
           "bossTicks": 2289,
           "damage": 0,
           "continues": 0,
-          "score": 33026,
+          "score": 33626,
           "maximumHazards": 74,
           "mechanicSuccesses": 18
         },
         {
           "stage": "stage-02",
-          "playedTicks": 24376,
-          "bossTicks": 2777,
+          "playedTicks": 24404,
+          "bossTicks": 2805,
           "damage": 0,
           "continues": 0,
-          "score": 49775,
+          "score": 45104,
           "maximumHazards": 27,
-          "mechanicSuccesses": 31
+          "mechanicSuccesses": 32
         },
         {
           "stage": "stage-03",
           "playedTicks": 29563,
           "bossTicks": 6164,
-          "damage": 0,
+          "damage": 1,
           "continues": 0,
-          "score": 67874,
+          "score": 63374,
           "maximumHazards": 47,
           "mechanicSuccesses": 7
         },
@@ -627,7 +627,7 @@
           "bossTicks": 2215,
           "damage": 0,
           "continues": 0,
-          "score": 205224,
+          "score": 197743,
           "maximumHazards": 39,
           "mechanicSuccesses": 22
         },
@@ -637,24 +637,24 @@
           "bossTicks": 3376,
           "damage": 0,
           "continues": 0,
-          "score": 67037,
+          "score": 66237,
           "maximumHazards": 87,
           "mechanicSuccesses": 26
         },
         {
           "stage": "stage-06",
-          "playedTicks": 45863,
-          "bossTicks": 13464,
+          "playedTicks": 45864,
+          "bossTicks": 13465,
           "damage": 0,
           "continues": 0,
-          "score": 268865,
+          "score": 277865,
           "maximumHazards": 75,
           "mechanicSuccesses": 953
         }
       ],
       "stoppedAt": {
         "stage": "stage-06",
-        "tick": 45863,
+        "tick": 45864,
         "checkpoint": "last-editor-gate",
         "boss": null,
         "phase": null,
@@ -860,8 +860,8 @@
       "difficulty": "echo",
       "seed": 4508,
       "complete": true,
-      "playedTicks": 177907,
-      "minutes": 24.71,
+      "playedTicks": 178676,
+      "minutes": 24.82,
       "damage": 0,
       "continues": 0,
       "selected": [
@@ -895,7 +895,7 @@
           "bossTicks": 2805,
           "damage": 0,
           "continues": 0,
-          "score": 46938,
+          "score": 47538,
           "maximumHazards": 27,
           "mechanicSuccesses": 32
         },
@@ -905,18 +905,18 @@
           "bossTicks": 6164,
           "damage": 0,
           "continues": 0,
-          "score": 68574,
+          "score": 67574,
           "maximumHazards": 47,
           "mechanicSuccesses": 7
         },
         {
           "stage": "stage-04",
-          "playedTicks": 25614,
-          "bossTicks": 2215,
+          "playedTicks": 26383,
+          "bossTicks": 2984,
           "damage": 0,
           "continues": 0,
-          "score": 236794,
-          "maximumHazards": 39,
+          "score": 180315,
+          "maximumHazards": 69,
           "mechanicSuccesses": 22
         },
         {
@@ -925,7 +925,7 @@
           "bossTicks": 3376,
           "damage": 0,
           "continues": 0,
-          "score": 67737,
+          "score": 66237,
           "maximumHazards": 87,
           "mechanicSuccesses": 26
         },
@@ -935,7 +935,7 @@
           "bossTicks": 13465,
           "damage": 0,
           "continues": 0,
-          "score": 295672,
+          "score": 305455,
           "maximumHazards": 75,
           "mechanicSuccesses": 953
         }
@@ -1148,8 +1148,8 @@
       "difficulty": "echo",
       "seed": 4511,
       "complete": true,
-      "playedTicks": 177383,
-      "minutes": 24.64,
+      "playedTicks": 178140,
+      "minutes": 24.74,
       "damage": 1,
       "continues": 0,
       "selected": [
@@ -1173,7 +1173,7 @@
           "bossTicks": 2289,
           "damage": 0,
           "continues": 0,
-          "score": 38026,
+          "score": 38626,
           "maximumHazards": 74,
           "mechanicSuccesses": 18
         },
@@ -1183,7 +1183,7 @@
           "bossTicks": 2805,
           "damage": 0,
           "continues": 0,
-          "score": 41838,
+          "score": 42438,
           "maximumHazards": 27,
           "mechanicSuccesses": 32
         },
@@ -1193,27 +1193,27 @@
           "bossTicks": 5627,
           "damage": 1,
           "continues": 0,
-          "score": 67666,
+          "score": 68866,
           "maximumHazards": 46,
           "mechanicSuccesses": 7
         },
         {
           "stage": "stage-04",
-          "playedTicks": 25614,
-          "bossTicks": 2215,
+          "playedTicks": 26383,
+          "bossTicks": 2984,
           "damage": 0,
           "continues": 0,
-          "score": 221861,
-          "maximumHazards": 39,
+          "score": 206413,
+          "maximumHazards": 69,
           "mechanicSuccesses": 22
         },
         {
           "stage": "stage-05",
-          "playedTicks": 28587,
-          "bossTicks": 3388,
+          "playedTicks": 28575,
+          "bossTicks": 3376,
           "damage": 0,
           "continues": 0,
-          "score": 69137,
+          "score": 67637,
           "maximumHazards": 87,
           "mechanicSuccesses": 26
         },
@@ -1223,7 +1223,7 @@
           "bossTicks": 13465,
           "damage": 0,
           "continues": 0,
-          "score": 277544,
+          "score": 287844,
           "maximumHazards": 75,
           "mechanicSuccesses": 953
         }
@@ -1436,8 +1436,8 @@
       "difficulty": "echo",
       "seed": 4514,
       "complete": true,
-      "playedTicks": 176116,
-      "minutes": 24.46,
+      "playedTicks": 176729,
+      "minutes": 24.55,
       "damage": 0,
       "continues": 0,
       "selected": [
@@ -1461,7 +1461,7 @@
           "bossTicks": 2289,
           "damage": 0,
           "continues": 0,
-          "score": 38626,
+          "score": 39226,
           "maximumHazards": 74,
           "mechanicSuccesses": 18
         },
@@ -1471,29 +1471,29 @@
           "bossTicks": 2805,
           "damage": 0,
           "continues": 0,
-          "score": 49038,
+          "score": 49638,
           "maximumHazards": 27,
           "mechanicSuccesses": 32
         },
         {
           "stage": "stage-03",
-          "playedTicks": 29026,
-          "bossTicks": 5627,
+          "playedTicks": 29563,
+          "bossTicks": 6164,
           "damage": 0,
           "continues": 0,
-          "score": 68625,
-          "maximumHazards": 46,
+          "score": 60474,
+          "maximumHazards": 47,
           "mechanicSuccesses": 7
         },
         {
           "stage": "stage-04",
-          "playedTicks": 25614,
-          "bossTicks": 2215,
+          "playedTicks": 25690,
+          "bossTicks": 2291,
           "damage": 0,
           "continues": 0,
-          "score": 219404,
-          "maximumHazards": 39,
-          "mechanicSuccesses": 22
+          "score": 186943,
+          "maximumHazards": 33,
+          "mechanicSuccesses": 24
         },
         {
           "stage": "stage-05",
@@ -1501,8 +1501,8 @@
           "bossTicks": 2122,
           "damage": 0,
           "continues": 0,
-          "score": 64811,
-          "maximumHazards": 66,
+          "score": 61211,
+          "maximumHazards": 63,
           "mechanicSuccesses": 27
         },
         {
@@ -1511,7 +1511,7 @@
           "bossTicks": 13464,
           "damage": 0,
           "continues": 0,
-          "score": 285218,
+          "score": 294818,
           "maximumHazards": 75,
           "mechanicSuccesses": 953
         }
@@ -1724,9 +1724,9 @@
       "difficulty": "echo",
       "seed": 4517,
       "complete": true,
-      "playedTicks": 177371,
-      "minutes": 24.63,
-      "damage": 1,
+      "playedTicks": 178140,
+      "minutes": 24.74,
+      "damage": 0,
       "continues": 0,
       "selected": [
         "afterword",
@@ -1749,7 +1749,7 @@
           "bossTicks": 2289,
           "damage": 0,
           "continues": 0,
-          "score": 36026,
+          "score": 36626,
           "maximumHazards": 74,
           "mechanicSuccesses": 18
         },
@@ -1759,7 +1759,7 @@
           "bossTicks": 2805,
           "damage": 0,
           "continues": 0,
-          "score": 41238,
+          "score": 41838,
           "maximumHazards": 27,
           "mechanicSuccesses": 32
         },
@@ -1769,27 +1769,27 @@
           "bossTicks": 5627,
           "damage": 0,
           "continues": 0,
-          "score": 69666,
+          "score": 70866,
           "maximumHazards": 46,
           "mechanicSuccesses": 7
         },
         {
           "stage": "stage-04",
-          "playedTicks": 25614,
-          "bossTicks": 2215,
+          "playedTicks": 26383,
+          "bossTicks": 2984,
           "damage": 0,
           "continues": 0,
-          "score": 205658,
-          "maximumHazards": 39,
+          "score": 195162,
+          "maximumHazards": 69,
           "mechanicSuccesses": 22
         },
         {
           "stage": "stage-05",
           "playedTicks": 28575,
           "bossTicks": 3376,
-          "damage": 1,
+          "damage": 0,
           "continues": 0,
-          "score": 67037,
+          "score": 67637,
           "maximumHazards": 87,
           "mechanicSuccesses": 26
         },
@@ -1799,7 +1799,7 @@
           "bossTicks": 13465,
           "damage": 0,
           "continues": 0,
-          "score": 268737,
+          "score": 277737,
           "maximumHazards": 75,
           "mechanicSuccesses": 953
         }
@@ -2012,9 +2012,9 @@
       "difficulty": "echo",
       "seed": 4520,
       "complete": true,
-      "playedTicks": 177370,
-      "minutes": 24.63,
-      "damage": 2,
+      "playedTicks": 178010,
+      "minutes": 24.72,
+      "damage": 1,
       "continues": 0,
       "selected": [
         "palinode",
@@ -2045,41 +2045,41 @@
           "stage": "stage-02",
           "playedTicks": 24404,
           "bossTicks": 2805,
-          "damage": 1,
+          "damage": 0,
           "continues": 0,
-          "score": 42338,
+          "score": 42538,
           "maximumHazards": 27,
           "mechanicSuccesses": 32
         },
         {
           "stage": "stage-03",
-          "playedTicks": 29026,
-          "bossTicks": 5627,
+          "playedTicks": 29563,
+          "bossTicks": 6164,
           "damage": 0,
           "continues": 0,
-          "score": 58266,
-          "maximumHazards": 46,
+          "score": 73574,
+          "maximumHazards": 47,
           "mechanicSuccesses": 7
         },
         {
           "stage": "stage-04",
-          "playedTicks": 25614,
-          "bossTicks": 2215,
+          "playedTicks": 25690,
+          "bossTicks": 2291,
           "damage": 0,
           "continues": 0,
-          "score": 201964,
-          "maximumHazards": 39,
-          "mechanicSuccesses": 22
+          "score": 194356,
+          "maximumHazards": 33,
+          "mechanicSuccesses": 24
         },
         {
           "stage": "stage-05",
-          "playedTicks": 28575,
-          "bossTicks": 3376,
+          "playedTicks": 28602,
+          "bossTicks": 3403,
           "damage": 0,
           "continues": 0,
-          "score": 69837,
+          "score": 65537,
           "maximumHazards": 87,
-          "mechanicSuccesses": 26
+          "mechanicSuccesses": 27
         },
         {
           "stage": "stage-06",
@@ -2087,7 +2087,7 @@
           "bossTicks": 13464,
           "damage": 0,
           "continues": 0,
-          "score": 310635,
+          "score": 311866,
           "maximumHazards": 75,
           "mechanicSuccesses": 953
         }
@@ -2099,7 +2099,7 @@
         "boss": null,
         "phase": null,
         "bossHealth": null,
-        "loops": 52,
+        "loops": 51,
         "syncBreaks": 0,
         "signatureClosures": 1
       }
@@ -2300,8 +2300,8 @@
       "difficulty": "echo",
       "seed": 4523,
       "complete": true,
-      "playedTicks": 177909,
-      "minutes": 24.71,
+      "playedTicks": 178678,
+      "minutes": 24.82,
       "damage": 1,
       "continues": 0,
       "selected": [
@@ -2351,12 +2351,12 @@
         },
         {
           "stage": "stage-04",
-          "playedTicks": 25614,
-          "bossTicks": 2215,
+          "playedTicks": 26383,
+          "bossTicks": 2984,
           "damage": 0,
           "continues": 0,
-          "score": 173166,
-          "maximumHazards": 39,
+          "score": 182698,
+          "maximumHazards": 69,
           "mechanicSuccesses": 22
         },
         {
@@ -2365,7 +2365,7 @@
           "bossTicks": 3376,
           "damage": 0,
           "continues": 0,
-          "score": 67037,
+          "score": 66237,
           "maximumHazards": 87,
           "mechanicSuccesses": 26
         },
@@ -2375,7 +2375,7 @@
           "bossTicks": 13465,
           "damage": 0,
           "continues": 0,
-          "score": 257349,
+          "score": 265749,
           "maximumHazards": 75,
           "mechanicSuccesses": 953
         }
@@ -2590,7 +2590,7 @@
       "complete": true,
       "playedTicks": 177934,
       "minutes": 24.71,
-      "damage": 3,
+      "damage": 4,
       "continues": 0,
       "selected": [
         "palinode",
@@ -2623,7 +2623,7 @@
           "bossTicks": 2805,
           "damage": 0,
           "continues": 0,
-          "score": 47638,
+          "score": 48538,
           "maximumHazards": 27,
           "mechanicSuccesses": 32
         },
@@ -2633,7 +2633,7 @@
           "bossTicks": 6164,
           "damage": 0,
           "continues": 0,
-          "score": 76374,
+          "score": 64674,
           "maximumHazards": 47,
           "mechanicSuccesses": 7
         },
@@ -2643,7 +2643,7 @@
           "bossTicks": 2215,
           "damage": 0,
           "continues": 0,
-          "score": 219370,
+          "score": 189737,
           "maximumHazards": 39,
           "mechanicSuccesses": 22
         },
@@ -2651,9 +2651,9 @@
           "stage": "stage-05",
           "playedTicks": 28602,
           "bossTicks": 3403,
-          "damage": 1,
+          "damage": 2,
           "continues": 0,
-          "score": 67737,
+          "score": 67637,
           "maximumHazards": 87,
           "mechanicSuccesses": 27
         },
@@ -2663,7 +2663,7 @@
           "bossTicks": 13464,
           "damage": 0,
           "continues": 0,
-          "score": 305738,
+          "score": 316938,
           "maximumHazards": 75,
           "mechanicSuccesses": 953
         }
@@ -2876,7 +2876,7 @@
       "difficulty": "echo",
       "seed": 4529,
       "complete": true,
-      "playedTicks": 178151,
+      "playedTicks": 178138,
       "minutes": 24.74,
       "damage": 0,
       "continues": 0,
@@ -2901,7 +2901,7 @@
           "bossTicks": 2289,
           "damage": 0,
           "continues": 0,
-          "score": 32326,
+          "score": 32926,
           "maximumHazards": 74,
           "mechanicSuccesses": 18
         },
@@ -2911,7 +2911,7 @@
           "bossTicks": 2805,
           "damage": 0,
           "continues": 0,
-          "score": 47738,
+          "score": 48338,
           "maximumHazards": 27,
           "mechanicSuccesses": 32
         },
@@ -2921,18 +2921,18 @@
           "bossTicks": 5627,
           "damage": 0,
           "continues": 0,
-          "score": 66166,
+          "score": 67366,
           "maximumHazards": 46,
           "mechanicSuccesses": 7
         },
         {
           "stage": "stage-04",
-          "playedTicks": 26394,
-          "bossTicks": 2995,
+          "playedTicks": 26382,
+          "bossTicks": 2983,
           "damage": 0,
           "continues": 0,
-          "score": 168860,
-          "maximumHazards": 45,
+          "score": 173817,
+          "maximumHazards": 41,
           "mechanicSuccesses": 21
         },
         {
@@ -2941,24 +2941,24 @@
           "bossTicks": 3376,
           "damage": 0,
           "continues": 0,
-          "score": 67737,
+          "score": 66237,
           "maximumHazards": 87,
           "mechanicSuccesses": 26
         },
         {
           "stage": "stage-06",
-          "playedTicks": 45864,
-          "bossTicks": 13465,
+          "playedTicks": 45863,
+          "bossTicks": 13464,
           "damage": 0,
           "continues": 0,
-          "score": 276328,
+          "score": 288719,
           "maximumHazards": 75,
           "mechanicSuccesses": 953
         }
       ],
       "stoppedAt": {
         "stage": "stage-06",
-        "tick": 45864,
+        "tick": 45863,
         "checkpoint": "last-editor-gate",
         "boss": null,
         "phase": null,
@@ -3164,8 +3164,8 @@
       "difficulty": "normal",
       "seed": 4502,
       "complete": true,
-      "playedTicks": 175579,
-      "minutes": 24.39,
+      "playedTicks": 177965,
+      "minutes": 24.72,
       "damage": 3,
       "continues": 0,
       "selected": [
@@ -3199,39 +3199,39 @@
           "bossTicks": 2805,
           "damage": 0,
           "continues": 0,
-          "score": 49038,
-          "maximumHazards": 34,
+          "score": 48538,
+          "maximumHazards": 38,
           "mechanicSuccesses": 32
         },
         {
           "stage": "stage-03",
-          "playedTicks": 30179,
-          "bossTicks": 6780,
-          "damage": 1,
+          "playedTicks": 30065,
+          "bossTicks": 6666,
+          "damage": 2,
           "continues": 0,
-          "score": 68223,
-          "maximumHazards": 47,
-          "mechanicSuccesses": 4
+          "score": 58579,
+          "maximumHazards": 49,
+          "mechanicSuccesses": 5
         },
         {
           "stage": "stage-04",
-          "playedTicks": 25614,
-          "bossTicks": 2215,
-          "damage": 1,
+          "playedTicks": 27354,
+          "bossTicks": 3955,
+          "damage": 0,
           "continues": 0,
-          "score": 171178,
-          "maximumHazards": 39,
-          "mechanicSuccesses": 22
+          "score": 182542,
+          "maximumHazards": 60,
+          "mechanicSuccesses": 21
         },
         {
           "stage": "stage-05",
-          "playedTicks": 28521,
-          "bossTicks": 3322,
+          "playedTicks": 29281,
+          "bossTicks": 4082,
           "damage": 0,
           "continues": 0,
-          "score": 68388,
-          "maximumHazards": 83,
-          "mechanicSuccesses": 29
+          "score": 73996,
+          "maximumHazards": 112,
+          "mechanicSuccesses": 26
         },
         {
           "stage": "stage-06",
@@ -3239,7 +3239,7 @@
           "bossTicks": 10149,
           "damage": 0,
           "continues": 0,
-          "score": 297765,
+          "score": 307972,
           "maximumHazards": 63,
           "mechanicSuccesses": 700
         }
@@ -3251,7 +3251,7 @@
         "boss": null,
         "phase": null,
         "bossHealth": null,
-        "loops": 66,
+        "loops": 65,
         "syncBreaks": 0,
         "signatureClosures": 1
       }
@@ -3452,8 +3452,8 @@
       "difficulty": "normal",
       "seed": 4505,
       "complete": true,
-      "playedTicks": 175340,
-      "minutes": 24.35,
+      "playedTicks": 176379,
+      "minutes": 24.5,
       "damage": 1,
       "continues": 0,
       "selected": [
@@ -3477,7 +3477,7 @@
           "bossTicks": 2714,
           "damage": 1,
           "continues": 0,
-          "score": 33737,
+          "score": 34337,
           "maximumHazards": 71,
           "mechanicSuccesses": 17
         },
@@ -3487,17 +3487,17 @@
           "bossTicks": 2805,
           "damage": 0,
           "continues": 0,
-          "score": 49351,
-          "maximumHazards": 35,
+          "score": 40438,
+          "maximumHazards": 36,
           "mechanicSuccesses": 32
         },
         {
           "stage": "stage-03",
-          "playedTicks": 29940,
-          "bossTicks": 6541,
+          "playedTicks": 30219,
+          "bossTicks": 6820,
           "damage": 0,
           "continues": 0,
-          "score": 58241,
+          "score": 55082,
           "maximumHazards": 49,
           "mechanicSuccesses": 4
         },
@@ -3507,19 +3507,19 @@
           "bossTicks": 2215,
           "damage": 0,
           "continues": 0,
-          "score": 190288,
+          "score": 187606,
           "maximumHazards": 39,
           "mechanicSuccesses": 22
         },
         {
           "stage": "stage-05",
-          "playedTicks": 28521,
-          "bossTicks": 3322,
+          "playedTicks": 29281,
+          "bossTicks": 4082,
           "damage": 0,
           "continues": 0,
-          "score": 66288,
-          "maximumHazards": 83,
-          "mechanicSuccesses": 29
+          "score": 74696,
+          "maximumHazards": 112,
+          "mechanicSuccesses": 26
         },
         {
           "stage": "stage-06",
@@ -3527,8 +3527,8 @@
           "bossTicks": 10149,
           "damage": 0,
           "continues": 0,
-          "score": 300573,
-          "maximumHazards": 63,
+          "score": 311844,
+          "maximumHazards": 62,
           "mechanicSuccesses": 700
         }
       ],
@@ -3539,7 +3539,7 @@
         "boss": null,
         "phase": null,
         "bossHealth": null,
-        "loops": 63,
+        "loops": 62,
         "syncBreaks": 0,
         "signatureClosures": 1
       }
@@ -3740,9 +3740,9 @@
       "difficulty": "normal",
       "seed": 4508,
       "complete": true,
-      "playedTicks": 175207,
-      "minutes": 24.33,
-      "damage": 3,
+      "playedTicks": 176736,
+      "minutes": 24.55,
+      "damage": 1,
       "continues": 0,
       "selected": [
         "citation",
@@ -3775,7 +3775,7 @@
           "bossTicks": 2805,
           "damage": 0,
           "continues": 0,
-          "score": 40938,
+          "score": 41538,
           "maximumHazards": 36,
           "mechanicSuccesses": 32
         },
@@ -3783,31 +3783,31 @@
           "stage": "stage-03",
           "playedTicks": 30229,
           "bossTicks": 6830,
-          "damage": 2,
+          "damage": 0,
           "continues": 0,
-          "score": 59582,
+          "score": 57182,
           "maximumHazards": 49,
           "mechanicSuccesses": 4
         },
         {
           "stage": "stage-04",
-          "playedTicks": 25614,
-          "bossTicks": 2215,
+          "playedTicks": 26383,
+          "bossTicks": 2984,
           "damage": 0,
           "continues": 0,
-          "score": 181967,
-          "maximumHazards": 39,
+          "score": 197219,
+          "maximumHazards": 69,
           "mechanicSuccesses": 22
         },
         {
           "stage": "stage-05",
-          "playedTicks": 28521,
-          "bossTicks": 3322,
+          "playedTicks": 29281,
+          "bossTicks": 4082,
           "damage": 0,
           "continues": 0,
-          "score": 69088,
-          "maximumHazards": 83,
-          "mechanicSuccesses": 29
+          "score": 75396,
+          "maximumHazards": 112,
+          "mechanicSuccesses": 26
         },
         {
           "stage": "stage-06",
@@ -3815,8 +3815,8 @@
           "bossTicks": 10149,
           "damage": 0,
           "continues": 0,
-          "score": 297347,
-          "maximumHazards": 63,
+          "score": 310247,
+          "maximumHazards": 62,
           "mechanicSuccesses": 700
         }
       ],
@@ -4028,9 +4028,9 @@
       "difficulty": "normal",
       "seed": 4511,
       "complete": true,
-      "playedTicks": 176100,
-      "minutes": 24.46,
-      "damage": 1,
+      "playedTicks": 175416,
+      "minutes": 24.36,
+      "damage": 0,
       "continues": 0,
       "selected": [
         "afterword",
@@ -4053,7 +4053,7 @@
           "bossTicks": 2714,
           "damage": 0,
           "continues": 0,
-          "score": 33827,
+          "score": 34427,
           "maximumHazards": 71,
           "mechanicSuccesses": 17
         },
@@ -4063,7 +4063,7 @@
           "bossTicks": 2805,
           "damage": 0,
           "continues": 0,
-          "score": 46338,
+          "score": 46938,
           "maximumHazards": 35,
           "mechanicSuccesses": 32
         },
@@ -4073,29 +4073,29 @@
           "bossTicks": 6541,
           "damage": 0,
           "continues": 0,
-          "score": 58241,
+          "score": 60041,
           "maximumHazards": 49,
           "mechanicSuccesses": 4
         },
         {
           "stage": "stage-04",
-          "playedTicks": 25614,
-          "bossTicks": 2215,
-          "damage": 1,
+          "playedTicks": 25690,
+          "bossTicks": 2291,
+          "damage": 0,
           "continues": 0,
-          "score": 173516,
-          "maximumHazards": 39,
-          "mechanicSuccesses": 22
+          "score": 181550,
+          "maximumHazards": 33,
+          "mechanicSuccesses": 24
         },
         {
           "stage": "stage-05",
-          "playedTicks": 29281,
-          "bossTicks": 4082,
+          "playedTicks": 28521,
+          "bossTicks": 3322,
           "damage": 0,
           "continues": 0,
-          "score": 76296,
-          "maximumHazards": 112,
-          "mechanicSuccesses": 26
+          "score": 68288,
+          "maximumHazards": 83,
+          "mechanicSuccesses": 29
         },
         {
           "stage": "stage-06",
@@ -4103,8 +4103,8 @@
           "bossTicks": 10149,
           "damage": 0,
           "continues": 0,
-          "score": 323548,
-          "maximumHazards": 63,
+          "score": 327149,
+          "maximumHazards": 62,
           "mechanicSuccesses": 700
         }
       ],
@@ -4115,7 +4115,7 @@
         "boss": null,
         "phase": null,
         "bossHealth": null,
-        "loops": 67,
+        "loops": 64,
         "syncBreaks": 0,
         "signatureClosures": 1
       }
@@ -4316,9 +4316,9 @@
       "difficulty": "normal",
       "seed": 4514,
       "complete": true,
-      "playedTicks": 174734,
-      "minutes": 24.27,
-      "damage": 3,
+      "playedTicks": 175430,
+      "minutes": 24.37,
+      "damage": 4,
       "continues": 0,
       "selected": [
         "afterword",
@@ -4341,7 +4341,7 @@
           "bossTicks": 2714,
           "damage": 0,
           "continues": 0,
-          "score": 37327,
+          "score": 37927,
           "maximumHazards": 71,
           "mechanicSuccesses": 17
         },
@@ -4351,7 +4351,7 @@
           "bossTicks": 2805,
           "damage": 2,
           "continues": 0,
-          "score": 40938,
+          "score": 41538,
           "maximumHazards": 36,
           "mechanicSuccesses": 32
         },
@@ -4359,31 +4359,31 @@
           "stage": "stage-03",
           "playedTicks": 30211,
           "bossTicks": 6812,
-          "damage": 1,
+          "damage": 0,
           "continues": 0,
-          "score": 58144,
+          "score": 55823,
           "maximumHazards": 47,
           "mechanicSuccesses": 4
         },
         {
           "stage": "stage-04",
-          "playedTicks": 25614,
-          "bossTicks": 2215,
-          "damage": 0,
+          "playedTicks": 25690,
+          "bossTicks": 2291,
+          "damage": 2,
           "continues": 0,
-          "score": 190128,
-          "maximumHazards": 39,
-          "mechanicSuccesses": 22
+          "score": 159610,
+          "maximumHazards": 33,
+          "mechanicSuccesses": 24
         },
         {
           "stage": "stage-05",
-          "playedTicks": 27644,
-          "bossTicks": 2445,
+          "playedTicks": 28264,
+          "bossTicks": 3065,
           "damage": 0,
           "continues": 0,
-          "score": 70062,
-          "maximumHazards": 66,
-          "mechanicSuccesses": 30
+          "score": 68348,
+          "maximumHazards": 77,
+          "mechanicSuccesses": 29
         },
         {
           "stage": "stage-06",
@@ -4391,7 +4391,7 @@
           "bossTicks": 10149,
           "damage": 0,
           "continues": 0,
-          "score": 274039,
+          "score": 328836,
           "maximumHazards": 63,
           "mechanicSuccesses": 700
         }
@@ -4403,7 +4403,7 @@
         "boss": null,
         "phase": null,
         "bossHealth": null,
-        "loops": 65,
+        "loops": 66,
         "syncBreaks": 0,
         "signatureClosures": 1
       }
@@ -4604,8 +4604,8 @@
       "difficulty": "normal",
       "seed": 4517,
       "complete": true,
-      "playedTicks": 175419,
-      "minutes": 24.36,
+      "playedTicks": 177177,
+      "minutes": 24.61,
       "damage": 2,
       "continues": 0,
       "selected": [
@@ -4629,7 +4629,7 @@
           "bossTicks": 2714,
           "damage": 0,
           "continues": 0,
-          "score": 39127,
+          "score": 39727,
           "maximumHazards": 71,
           "mechanicSuccesses": 17
         },
@@ -4639,7 +4639,7 @@
           "bossTicks": 2777,
           "damage": 0,
           "continues": 0,
-          "score": 51375,
+          "score": 51975,
           "maximumHazards": 35,
           "mechanicSuccesses": 31
         },
@@ -4649,28 +4649,28 @@
           "bossTicks": 6666,
           "damage": 1,
           "continues": 0,
-          "score": 53979,
+          "score": 55779,
           "maximumHazards": 49,
           "mechanicSuccesses": 5
         },
         {
           "stage": "stage-04",
-          "playedTicks": 25614,
-          "bossTicks": 2215,
-          "damage": 1,
+          "playedTicks": 27354,
+          "bossTicks": 3955,
+          "damage": 0,
           "continues": 0,
-          "score": 180170,
-          "maximumHazards": 39,
-          "mechanicSuccesses": 22
+          "score": 188454,
+          "maximumHazards": 60,
+          "mechanicSuccesses": 21
         },
         {
           "stage": "stage-05",
-          "playedTicks": 28503,
-          "bossTicks": 3304,
-          "damage": 0,
+          "playedTicks": 28521,
+          "bossTicks": 3322,
+          "damage": 1,
           "continues": 0,
-          "score": 69771,
-          "maximumHazards": 78,
+          "score": 66888,
+          "maximumHazards": 83,
           "mechanicSuccesses": 29
         },
         {
@@ -4679,8 +4679,8 @@
           "bossTicks": 10149,
           "damage": 0,
           "continues": 0,
-          "score": 312253,
-          "maximumHazards": 63,
+          "score": 324405,
+          "maximumHazards": 62,
           "mechanicSuccesses": 700
         }
       ],
@@ -4892,9 +4892,9 @@
       "difficulty": "normal",
       "seed": 4520,
       "complete": true,
-      "playedTicks": 176389,
-      "minutes": 24.5,
-      "damage": 0,
+      "playedTicks": 176098,
+      "minutes": 24.46,
+      "damage": 2,
       "continues": 0,
       "selected": [
         "palinode",
@@ -4925,41 +4925,41 @@
           "stage": "stage-02",
           "playedTicks": 24404,
           "bossTicks": 2805,
-          "damage": 0,
+          "damage": 1,
           "continues": 0,
-          "score": 45438,
-          "maximumHazards": 35,
+          "score": 38138,
+          "maximumHazards": 38,
           "mechanicSuccesses": 32
         },
         {
           "stage": "stage-03",
-          "playedTicks": 30229,
-          "bossTicks": 6830,
+          "playedTicks": 29929,
+          "bossTicks": 6530,
           "damage": 0,
           "continues": 0,
-          "score": 66782,
+          "score": 54741,
           "maximumHazards": 49,
           "mechanicSuccesses": 4
         },
         {
           "stage": "stage-04",
-          "playedTicks": 25614,
-          "bossTicks": 2215,
+          "playedTicks": 26383,
+          "bossTicks": 2984,
           "damage": 0,
           "continues": 0,
-          "score": 172169,
-          "maximumHazards": 39,
+          "score": 165605,
+          "maximumHazards": 69,
           "mechanicSuccesses": 22
         },
         {
           "stage": "stage-05",
-          "playedTicks": 29281,
-          "bossTicks": 4082,
-          "damage": 0,
+          "playedTicks": 28521,
+          "bossTicks": 3322,
+          "damage": 1,
           "continues": 0,
-          "score": 68596,
-          "maximumHazards": 112,
-          "mechanicSuccesses": 26
+          "score": 65488,
+          "maximumHazards": 83,
+          "mechanicSuccesses": 29
         },
         {
           "stage": "stage-06",
@@ -4967,7 +4967,7 @@
           "bossTicks": 10149,
           "damage": 0,
           "continues": 0,
-          "score": 296097,
+          "score": 307679,
           "maximumHazards": 63,
           "mechanicSuccesses": 700
         }
@@ -4979,7 +4979,7 @@
         "boss": null,
         "phase": null,
         "bossHealth": null,
-        "loops": 68,
+        "loops": 67,
         "syncBreaks": 0,
         "signatureClosures": 1
       }
@@ -5180,8 +5180,8 @@
       "difficulty": "normal",
       "seed": 4523,
       "complete": true,
-      "playedTicks": 175340,
-      "minutes": 24.35,
+      "playedTicks": 177080,
+      "minutes": 24.59,
       "damage": 1,
       "continues": 0,
       "selected": [
@@ -5231,13 +5231,13 @@
         },
         {
           "stage": "stage-04",
-          "playedTicks": 25614,
-          "bossTicks": 2215,
+          "playedTicks": 27354,
+          "bossTicks": 3955,
           "damage": 0,
           "continues": 0,
-          "score": 181273,
-          "maximumHazards": 39,
-          "mechanicSuccesses": 22
+          "score": 167056,
+          "maximumHazards": 60,
+          "mechanicSuccesses": 21
         },
         {
           "stage": "stage-05",
@@ -5245,7 +5245,7 @@
           "bossTicks": 3322,
           "damage": 0,
           "continues": 0,
-          "score": 65688,
+          "score": 64788,
           "maximumHazards": 83,
           "mechanicSuccesses": 29
         },
@@ -5255,8 +5255,8 @@
           "bossTicks": 10149,
           "damage": 0,
           "continues": 0,
-          "score": 297985,
-          "maximumHazards": 63,
+          "score": 311745,
+          "maximumHazards": 62,
           "mechanicSuccesses": 700
         }
       ],
@@ -5468,9 +5468,9 @@
       "difficulty": "normal",
       "seed": 4526,
       "complete": true,
-      "playedTicks": 175312,
+      "playedTicks": 175329,
       "minutes": 24.35,
-      "damage": 3,
+      "damage": 2,
       "continues": 0,
       "selected": [
         "palinode",
@@ -5499,21 +5499,21 @@
         },
         {
           "stage": "stage-02",
-          "playedTicks": 24376,
-          "bossTicks": 2777,
-          "damage": 1,
+          "playedTicks": 24404,
+          "bossTicks": 2805,
+          "damage": 0,
           "continues": 0,
-          "score": 49275,
-          "maximumHazards": 37,
-          "mechanicSuccesses": 31
+          "score": 48738,
+          "maximumHazards": 34,
+          "mechanicSuccesses": 32
         },
         {
           "stage": "stage-03",
-          "playedTicks": 29940,
-          "bossTicks": 6541,
-          "damage": 1,
+          "playedTicks": 29929,
+          "bossTicks": 6530,
+          "damage": 0,
           "continues": 0,
-          "score": 59641,
+          "score": 61541,
           "maximumHazards": 49,
           "mechanicSuccesses": 4
         },
@@ -5521,9 +5521,9 @@
           "stage": "stage-04",
           "playedTicks": 25614,
           "bossTicks": 2215,
-          "damage": 0,
+          "damage": 1,
           "continues": 0,
-          "score": 174654,
+          "score": 207112,
           "maximumHazards": 39,
           "mechanicSuccesses": 22
         },
@@ -5533,7 +5533,7 @@
           "bossTicks": 3322,
           "damage": 0,
           "continues": 0,
-          "score": 65588,
+          "score": 68288,
           "maximumHazards": 83,
           "mechanicSuccesses": 29
         },
@@ -5543,8 +5543,8 @@
           "bossTicks": 10149,
           "damage": 0,
           "continues": 0,
-          "score": 319239,
-          "maximumHazards": 63,
+          "score": 330939,
+          "maximumHazards": 62,
           "mechanicSuccesses": 700
         }
       ],
@@ -5756,8 +5756,8 @@
       "difficulty": "normal",
       "seed": 4529,
       "complete": true,
-      "playedTicks": 175658,
-      "minutes": 24.4,
+      "playedTicks": 175416,
+      "minutes": 24.36,
       "damage": 2,
       "continues": 0,
       "selected": [
@@ -5781,7 +5781,7 @@
           "bossTicks": 2714,
           "damage": 1,
           "continues": 0,
-          "score": 36127,
+          "score": 36727,
           "maximumHazards": 71,
           "mechanicSuccesses": 17
         },
@@ -5791,7 +5791,7 @@
           "bossTicks": 2805,
           "damage": 1,
           "continues": 0,
-          "score": 50538,
+          "score": 51138,
           "maximumHazards": 37,
           "mechanicSuccesses": 32
         },
@@ -5801,29 +5801,29 @@
           "bossTicks": 6541,
           "damage": 0,
           "continues": 0,
-          "score": 60341,
+          "score": 62141,
           "maximumHazards": 49,
           "mechanicSuccesses": 4
         },
         {
           "stage": "stage-04",
-          "playedTicks": 25614,
-          "bossTicks": 2215,
+          "playedTicks": 25690,
+          "bossTicks": 2291,
           "damage": 0,
           "continues": 0,
-          "score": 181447,
-          "maximumHazards": 39,
-          "mechanicSuccesses": 22
+          "score": 152003,
+          "maximumHazards": 33,
+          "mechanicSuccesses": 24
         },
         {
           "stage": "stage-05",
-          "playedTicks": 28839,
-          "bossTicks": 3640,
+          "playedTicks": 28521,
+          "bossTicks": 3322,
           "damage": 0,
           "continues": 0,
-          "score": 71276,
-          "maximumHazards": 116,
-          "mechanicSuccesses": 25
+          "score": 64088,
+          "maximumHazards": 83,
+          "mechanicSuccesses": 29
         },
         {
           "stage": "stage-06",
@@ -5831,7 +5831,7 @@
           "bossTicks": 10149,
           "damage": 0,
           "continues": 0,
-          "score": 309917,
+          "score": 322537,
           "maximumHazards": 63,
           "mechanicSuccesses": 700
         }
@@ -5843,7 +5843,7 @@
         "boss": null,
         "phase": null,
         "bossHealth": null,
-        "loops": 68,
+        "loops": 67,
         "syncBreaks": 0,
         "signatureClosures": 1
       }
@@ -6044,9 +6044,9 @@
       "difficulty": "proof",
       "seed": 4502,
       "complete": true,
-      "playedTicks": 176529,
-      "minutes": 24.52,
-      "damage": 2,
+      "playedTicks": 177272,
+      "minutes": 24.62,
+      "damage": 0,
       "continues": 0,
       "selected": [
         "redaction",
@@ -6077,30 +6077,30 @@
           "stage": "stage-02",
           "playedTicks": 24376,
           "bossTicks": 2777,
-          "damage": 2,
+          "damage": 0,
           "continues": 0,
-          "score": 49675,
-          "maximumHazards": 42,
+          "score": 44348,
+          "maximumHazards": 41,
           "mechanicSuccesses": 31
         },
         {
           "stage": "stage-03",
-          "playedTicks": 30260,
-          "bossTicks": 6861,
+          "playedTicks": 30233,
+          "bossTicks": 6834,
           "damage": 0,
           "continues": 0,
-          "score": 61523,
+          "score": 63323,
           "maximumHazards": 46,
           "mechanicSuccesses": 4
         },
         {
           "stage": "stage-04",
-          "playedTicks": 25614,
-          "bossTicks": 2215,
+          "playedTicks": 26383,
+          "bossTicks": 2984,
           "damage": 0,
           "continues": 0,
-          "score": 209079,
-          "maximumHazards": 40,
+          "score": 220248,
+          "maximumHazards": 65,
           "mechanicSuccesses": 22
         },
         {
@@ -6109,29 +6109,29 @@
           "bossTicks": 3322,
           "damage": 0,
           "continues": 0,
-          "score": 68388,
+          "score": 67588,
           "maximumHazards": 79,
           "mechanicSuccesses": 29
         },
         {
           "stage": "stage-06",
-          "playedTicks": 42547,
-          "bossTicks": 10148,
+          "playedTicks": 42548,
+          "bossTicks": 10149,
           "damage": 0,
           "continues": 0,
-          "score": 363289,
+          "score": 371758,
           "maximumHazards": 63,
           "mechanicSuccesses": 699
         }
       ],
       "stoppedAt": {
         "stage": "stage-06",
-        "tick": 42547,
+        "tick": 42548,
         "checkpoint": "last-editor-gate",
         "boss": null,
         "phase": null,
         "bossHealth": null,
-        "loops": 76,
+        "loops": 73,
         "syncBreaks": 0,
         "signatureClosures": 1
       }
@@ -6332,9 +6332,9 @@
       "difficulty": "proof",
       "seed": 4505,
       "complete": true,
-      "playedTicks": 176248,
+      "playedTicks": 176279,
       "minutes": 24.48,
-      "damage": 2,
+      "damage": 3,
       "continues": 0,
       "selected": [
         "afterword",
@@ -6357,7 +6357,7 @@
           "bossTicks": 3612,
           "damage": 1,
           "continues": 0,
-          "score": 35949,
+          "score": 36549,
           "maximumHazards": 70,
           "mechanicSuccesses": 21
         },
@@ -6367,17 +6367,17 @@
           "bossTicks": 2805,
           "damage": 0,
           "continues": 0,
-          "score": 41538,
+          "score": 44738,
           "maximumHazards": 45,
           "mechanicSuccesses": 32
         },
         {
           "stage": "stage-03",
-          "playedTicks": 29950,
-          "bossTicks": 6551,
-          "damage": 0,
+          "playedTicks": 29982,
+          "bossTicks": 6583,
+          "damage": 1,
           "continues": 0,
-          "score": 61741,
+          "score": 61280,
           "maximumHazards": 47,
           "mechanicSuccesses": 4
         },
@@ -6385,9 +6385,9 @@
           "stage": "stage-04",
           "playedTicks": 25614,
           "bossTicks": 2215,
-          "damage": 1,
+          "damage": 0,
           "continues": 0,
-          "score": 203347,
+          "score": 207167,
           "maximumHazards": 40,
           "mechanicSuccesses": 22
         },
@@ -6397,24 +6397,24 @@
           "bossTicks": 3322,
           "damage": 0,
           "continues": 0,
-          "score": 66988,
+          "score": 66188,
           "maximumHazards": 79,
           "mechanicSuccesses": 29
         },
         {
           "stage": "stage-06",
-          "playedTicks": 42548,
-          "bossTicks": 10149,
-          "damage": 0,
+          "playedTicks": 42547,
+          "bossTicks": 10148,
+          "damage": 1,
           "continues": 0,
-          "score": 360435,
+          "score": 379990,
           "maximumHazards": 63,
           "mechanicSuccesses": 699
         }
       ],
       "stoppedAt": {
         "stage": "stage-06",
-        "tick": 42548,
+        "tick": 42547,
         "checkpoint": "last-editor-gate",
         "boss": null,
         "phase": null,
@@ -6620,9 +6620,9 @@
       "difficulty": "proof",
       "seed": 4508,
       "complete": true,
-      "playedTicks": 176367,
-      "minutes": 24.5,
-      "damage": 3,
+      "playedTicks": 176460,
+      "minutes": 24.51,
+      "damage": 1,
       "continues": 0,
       "selected": [
         "citation",
@@ -6655,7 +6655,7 @@
           "bossTicks": 2805,
           "damage": 0,
           "continues": 0,
-          "score": 41938,
+          "score": 42538,
           "maximumHazards": 44,
           "mechanicSuccesses": 32
         },
@@ -6665,49 +6665,49 @@
           "bossTicks": 6840,
           "damage": 0,
           "continues": 0,
-          "score": 60882,
+          "score": 59882,
           "maximumHazards": 48,
           "mechanicSuccesses": 4
         },
         {
           "stage": "stage-04",
-          "playedTicks": 25614,
-          "bossTicks": 2215,
-          "damage": 2,
+          "playedTicks": 25690,
+          "bossTicks": 2291,
+          "damage": 0,
           "continues": 0,
-          "score": 176416,
-          "maximumHazards": 40,
-          "mechanicSuccesses": 22
+          "score": 208417,
+          "maximumHazards": 33,
+          "mechanicSuccesses": 24
         },
         {
           "stage": "stage-05",
-          "playedTicks": 28503,
-          "bossTicks": 3304,
+          "playedTicks": 28521,
+          "bossTicks": 3322,
           "damage": 1,
           "continues": 0,
-          "score": 67671,
-          "maximumHazards": 78,
+          "score": 66888,
+          "maximumHazards": 79,
           "mechanicSuccesses": 29
         },
         {
           "stage": "stage-06",
-          "playedTicks": 42548,
-          "bossTicks": 10149,
+          "playedTicks": 42547,
+          "bossTicks": 10148,
           "damage": 0,
           "continues": 0,
-          "score": 361519,
+          "score": 370686,
           "maximumHazards": 63,
           "mechanicSuccesses": 699
         }
       ],
       "stoppedAt": {
         "stage": "stage-06",
-        "tick": 42548,
+        "tick": 42547,
         "checkpoint": "last-editor-gate",
         "boss": null,
         "phase": null,
         "bossHealth": null,
-        "loops": 75,
+        "loops": 73,
         "syncBreaks": 0,
         "signatureClosures": 1
       }
@@ -6908,8 +6908,8 @@
       "difficulty": "proof",
       "seed": 4511,
       "complete": true,
-      "playedTicks": 176220,
-      "minutes": 24.48,
+      "playedTicks": 176989,
+      "minutes": 24.58,
       "damage": 3,
       "continues": 0,
       "selected": [
@@ -6933,7 +6933,7 @@
           "bossTicks": 3612,
           "damage": 1,
           "continues": 0,
-          "score": 38249,
+          "score": 38849,
           "maximumHazards": 70,
           "mechanicSuccesses": 21
         },
@@ -6943,7 +6943,7 @@
           "bossTicks": 2777,
           "damage": 0,
           "continues": 0,
-          "score": 44253,
+          "score": 44853,
           "maximumHazards": 42,
           "mechanicSuccesses": 31
         },
@@ -6953,27 +6953,27 @@
           "bossTicks": 6551,
           "damage": 1,
           "continues": 0,
-          "score": 58941,
+          "score": 60741,
           "maximumHazards": 47,
           "mechanicSuccesses": 4
         },
         {
           "stage": "stage-04",
-          "playedTicks": 25614,
-          "bossTicks": 2215,
+          "playedTicks": 26383,
+          "bossTicks": 2984,
           "damage": 0,
           "continues": 0,
-          "score": 193730,
-          "maximumHazards": 40,
+          "score": 146559,
+          "maximumHazards": 65,
           "mechanicSuccesses": 22
         },
         {
           "stage": "stage-05",
           "playedTicks": 28521,
           "bossTicks": 3322,
-          "damage": 1,
+          "damage": 0,
           "continues": 0,
-          "score": 67088,
+          "score": 67588,
           "maximumHazards": 79,
           "mechanicSuccesses": 29
         },
@@ -6981,9 +6981,9 @@
           "stage": "stage-06",
           "playedTicks": 42548,
           "bossTicks": 10149,
-          "damage": 0,
+          "damage": 1,
           "continues": 0,
-          "score": 383568,
+          "score": 358140,
           "maximumHazards": 63,
           "mechanicSuccesses": 699
         }
@@ -6995,7 +6995,7 @@
         "boss": null,
         "phase": null,
         "bossHealth": null,
-        "loops": 78,
+        "loops": 66,
         "syncBreaks": 0,
         "signatureClosures": 1
       }
@@ -7196,9 +7196,9 @@
       "difficulty": "proof",
       "seed": 4514,
       "complete": true,
-      "playedTicks": 175498,
-      "minutes": 24.37,
-      "damage": 1,
+      "playedTicks": 176171,
+      "minutes": 24.47,
+      "damage": 2,
       "continues": 0,
       "selected": [
         "afterword",
@@ -7221,7 +7221,7 @@
           "bossTicks": 3612,
           "damage": 0,
           "continues": 0,
-          "score": 36949,
+          "score": 37549,
           "maximumHazards": 70,
           "mechanicSuccesses": 21
         },
@@ -7231,7 +7231,7 @@
           "bossTicks": 2805,
           "damage": 0,
           "continues": 0,
-          "score": 41838,
+          "score": 42438,
           "maximumHazards": 49,
           "mechanicSuccesses": 32
         },
@@ -7239,51 +7239,51 @@
           "stage": "stage-03",
           "playedTicks": 30077,
           "bossTicks": 6678,
-          "damage": 0,
+          "damage": 1,
           "continues": 0,
-          "score": 55279,
+          "score": 60579,
           "maximumHazards": 49,
           "mechanicSuccesses": 5
         },
         {
           "stage": "stage-04",
-          "playedTicks": 25614,
-          "bossTicks": 2215,
-          "damage": 1,
+          "playedTicks": 25690,
+          "bossTicks": 2291,
+          "damage": 0,
           "continues": 0,
-          "score": 188859,
-          "maximumHazards": 40,
-          "mechanicSuccesses": 22
+          "score": 174535,
+          "maximumHazards": 34,
+          "mechanicSuccesses": 24
         },
         {
           "stage": "stage-05",
-          "playedTicks": 27644,
-          "bossTicks": 2445,
-          "damage": 0,
+          "playedTicks": 28242,
+          "bossTicks": 3043,
+          "damage": 1,
           "continues": 0,
-          "score": 73462,
-          "maximumHazards": 66,
-          "mechanicSuccesses": 30
+          "score": 67548,
+          "maximumHazards": 77,
+          "mechanicSuccesses": 28
         },
         {
           "stage": "stage-06",
-          "playedTicks": 42548,
-          "bossTicks": 10149,
+          "playedTicks": 42547,
+          "bossTicks": 10148,
           "damage": 0,
           "continues": 0,
-          "score": 355282,
+          "score": 369996,
           "maximumHazards": 63,
           "mechanicSuccesses": 699
         }
       ],
       "stoppedAt": {
         "stage": "stage-06",
-        "tick": 42548,
+        "tick": 42547,
         "checkpoint": "last-editor-gate",
         "boss": null,
         "phase": null,
         "bossHealth": null,
-        "loops": 75,
+        "loops": 72,
         "syncBreaks": 0,
         "signatureClosures": 1
       }
@@ -7484,9 +7484,9 @@
       "difficulty": "proof",
       "seed": 4517,
       "complete": true,
-      "playedTicks": 176530,
-      "minutes": 24.52,
-      "damage": 2,
+      "playedTicks": 176589,
+      "minutes": 24.53,
+      "damage": 0,
       "continues": 0,
       "selected": [
         "afterword",
@@ -7509,7 +7509,7 @@
           "bossTicks": 3612,
           "damage": 0,
           "continues": 0,
-          "score": 39649,
+          "score": 40249,
           "maximumHazards": 70,
           "mechanicSuccesses": 21
         },
@@ -7519,7 +7519,7 @@
           "bossTicks": 2805,
           "damage": 0,
           "continues": 0,
-          "score": 46538,
+          "score": 47138,
           "maximumHazards": 43,
           "mechanicSuccesses": 32
         },
@@ -7529,49 +7529,49 @@
           "bossTicks": 6834,
           "damage": 0,
           "continues": 0,
-          "score": 54423,
+          "score": 56223,
           "maximumHazards": 46,
           "mechanicSuccesses": 4
         },
         {
           "stage": "stage-04",
-          "playedTicks": 25614,
-          "bossTicks": 2215,
-          "damage": 1,
+          "playedTicks": 25690,
+          "bossTicks": 2291,
+          "damage": 0,
           "continues": 0,
-          "score": 173563,
-          "maximumHazards": 40,
-          "mechanicSuccesses": 22
+          "score": 174627,
+          "maximumHazards": 35,
+          "mechanicSuccesses": 24
         },
         {
           "stage": "stage-05",
-          "playedTicks": 28521,
-          "bossTicks": 3322,
-          "damage": 1,
+          "playedTicks": 28503,
+          "bossTicks": 3304,
+          "damage": 0,
           "continues": 0,
-          "score": 67688,
-          "maximumHazards": 79,
+          "score": 67571,
+          "maximumHazards": 78,
           "mechanicSuccesses": 29
         },
         {
           "stage": "stage-06",
-          "playedTicks": 42547,
-          "bossTicks": 10148,
+          "playedTicks": 42548,
+          "bossTicks": 10149,
           "damage": 0,
           "continues": 0,
-          "score": 368621,
+          "score": 379542,
           "maximumHazards": 63,
           "mechanicSuccesses": 699
         }
       ],
       "stoppedAt": {
         "stage": "stage-06",
-        "tick": 42547,
+        "tick": 42548,
         "checkpoint": "last-editor-gate",
         "boss": null,
         "phase": null,
         "bossHealth": null,
-        "loops": 75,
+        "loops": 72,
         "syncBreaks": 0,
         "signatureClosures": 1
       }
@@ -7772,9 +7772,9 @@
       "difficulty": "proof",
       "seed": 4520,
       "complete": true,
-      "playedTicks": 176518,
-      "minutes": 24.52,
-      "damage": 1,
+      "playedTicks": 177306,
+      "minutes": 24.63,
+      "damage": 0,
       "continues": 0,
       "selected": [
         "palinode",
@@ -7807,8 +7807,8 @@
           "bossTicks": 2805,
           "damage": 0,
           "continues": 0,
-          "score": 49855,
-          "maximumHazards": 40,
+          "score": 42838,
+          "maximumHazards": 41,
           "mechanicSuccesses": 32
         },
         {
@@ -7817,49 +7817,49 @@
           "bossTicks": 6840,
           "damage": 0,
           "continues": 0,
-          "score": 63682,
+          "score": 52382,
           "maximumHazards": 48,
           "mechanicSuccesses": 4
         },
         {
           "stage": "stage-04",
-          "playedTicks": 25614,
-          "bossTicks": 2215,
-          "damage": 1,
+          "playedTicks": 26383,
+          "bossTicks": 2984,
+          "damage": 0,
           "continues": 0,
-          "score": 211652,
-          "maximumHazards": 40,
+          "score": 138169,
+          "maximumHazards": 65,
           "mechanicSuccesses": 22
         },
         {
           "stage": "stage-05",
-          "playedTicks": 28503,
-          "bossTicks": 3304,
+          "playedTicks": 28521,
+          "bossTicks": 3322,
           "damage": 0,
           "continues": 0,
-          "score": 64871,
-          "maximumHazards": 78,
+          "score": 66188,
+          "maximumHazards": 79,
           "mechanicSuccesses": 29
         },
         {
           "stage": "stage-06",
-          "playedTicks": 42547,
-          "bossTicks": 10148,
+          "playedTicks": 42548,
+          "bossTicks": 10149,
           "damage": 0,
           "continues": 0,
-          "score": 357798,
-          "maximumHazards": 63,
+          "score": 370512,
+          "maximumHazards": 62,
           "mechanicSuccesses": 699
         }
       ],
       "stoppedAt": {
         "stage": "stage-06",
-        "tick": 42547,
+        "tick": 42548,
         "checkpoint": "last-editor-gate",
         "boss": null,
         "phase": null,
         "bossHealth": null,
-        "loops": 73,
+        "loops": 72,
         "syncBreaks": 0,
         "signatureClosures": 1
       }
@@ -8060,8 +8060,8 @@
       "difficulty": "proof",
       "seed": 4523,
       "complete": true,
-      "playedTicks": 177248,
-      "minutes": 24.62,
+      "playedTicks": 177950,
+      "minutes": 24.72,
       "damage": 3,
       "continues": 0,
       "selected": [
@@ -8111,43 +8111,43 @@
         },
         {
           "stage": "stage-04",
-          "playedTicks": 25614,
-          "bossTicks": 2215,
+          "playedTicks": 27354,
+          "bossTicks": 3955,
           "damage": 1,
           "continues": 0,
-          "score": 190953,
-          "maximumHazards": 40,
-          "mechanicSuccesses": 22
+          "score": 168232,
+          "maximumHazards": 59,
+          "mechanicSuccesses": 21
         },
         {
           "stage": "stage-05",
-          "playedTicks": 29560,
-          "bossTicks": 4361,
+          "playedTicks": 28521,
+          "bossTicks": 3322,
           "damage": 0,
           "continues": 0,
-          "score": 73296,
-          "maximumHazards": 108,
-          "mechanicSuccesses": 27
+          "score": 66188,
+          "maximumHazards": 79,
+          "mechanicSuccesses": 29
         },
         {
           "stage": "stage-06",
-          "playedTicks": 42547,
-          "bossTicks": 10148,
+          "playedTicks": 42548,
+          "bossTicks": 10149,
           "damage": 0,
           "continues": 0,
-          "score": 370657,
-          "maximumHazards": 63,
+          "score": 385195,
+          "maximumHazards": 62,
           "mechanicSuccesses": 699
         }
       ],
       "stoppedAt": {
         "stage": "stage-06",
-        "tick": 42547,
+        "tick": 42548,
         "checkpoint": "last-editor-gate",
         "boss": null,
         "phase": null,
         "bossHealth": null,
-        "loops": 77,
+        "loops": 72,
         "syncBreaks": 0,
         "signatureClosures": 1
       }
@@ -8348,9 +8348,9 @@
       "difficulty": "proof",
       "seed": 4526,
       "complete": true,
-      "playedTicks": 177576,
-      "minutes": 24.66,
-      "damage": 3,
+      "playedTicks": 176527,
+      "minutes": 24.52,
+      "damage": 4,
       "continues": 0,
       "selected": [
         "palinode",
@@ -8383,17 +8383,17 @@
           "bossTicks": 2805,
           "damage": 0,
           "continues": 0,
-          "score": 41238,
-          "maximumHazards": 46,
+          "score": 41538,
+          "maximumHazards": 44,
           "mechanicSuccesses": 32
         },
         {
           "stage": "stage-03",
-          "playedTicks": 30239,
-          "bossTicks": 6840,
-          "damage": 0,
+          "playedTicks": 30229,
+          "bossTicks": 6830,
+          "damage": 1,
           "continues": 0,
-          "score": 63793,
+          "score": 59082,
           "maximumHazards": 48,
           "mechanicSuccesses": 4
         },
@@ -8401,21 +8401,21 @@
           "stage": "stage-04",
           "playedTicks": 25614,
           "bossTicks": 2215,
-          "damage": 1,
+          "damage": 0,
           "continues": 0,
-          "score": 192467,
+          "score": 189895,
           "maximumHazards": 40,
           "mechanicSuccesses": 22
         },
         {
           "stage": "stage-05",
-          "playedTicks": 29560,
-          "bossTicks": 4361,
-          "damage": 0,
+          "playedTicks": 28521,
+          "bossTicks": 3322,
+          "damage": 1,
           "continues": 0,
-          "score": 73996,
-          "maximumHazards": 108,
-          "mechanicSuccesses": 27
+          "score": 67588,
+          "maximumHazards": 79,
+          "mechanicSuccesses": 29
         },
         {
           "stage": "stage-06",
@@ -8423,8 +8423,8 @@
           "bossTicks": 10149,
           "damage": 0,
           "continues": 0,
-          "score": 357432,
-          "maximumHazards": 63,
+          "score": 364876,
+          "maximumHazards": 62,
           "mechanicSuccesses": 699
         }
       ],
@@ -8435,7 +8435,7 @@
         "boss": null,
         "phase": null,
         "bossHealth": null,
-        "loops": 75,
+        "loops": 66,
         "syncBreaks": 0,
         "signatureClosures": 1
       }
@@ -8636,8 +8636,8 @@
       "difficulty": "proof",
       "seed": 4529,
       "complete": true,
-      "playedTicks": 176247,
-      "minutes": 24.48,
+      "playedTicks": 178055,
+      "minutes": 24.73,
       "damage": 1,
       "continues": 0,
       "selected": [
@@ -8661,7 +8661,7 @@
           "bossTicks": 3612,
           "damage": 0,
           "continues": 0,
-          "score": 37280,
+          "score": 37880,
           "maximumHazards": 70,
           "mechanicSuccesses": 21
         },
@@ -8671,7 +8671,7 @@
           "bossTicks": 2805,
           "damage": 0,
           "continues": 0,
-          "score": 48938,
+          "score": 49538,
           "maximumHazards": 40,
           "mechanicSuccesses": 32
         },
@@ -8681,29 +8681,29 @@
           "bossTicks": 6551,
           "damage": 0,
           "continues": 0,
-          "score": 54641,
+          "score": 56441,
           "maximumHazards": 47,
           "mechanicSuccesses": 4
         },
         {
           "stage": "stage-04",
-          "playedTicks": 25614,
-          "bossTicks": 2215,
+          "playedTicks": 26383,
+          "bossTicks": 2984,
           "damage": 1,
           "continues": 0,
-          "score": 186894,
-          "maximumHazards": 40,
+          "score": 191435,
+          "maximumHazards": 65,
           "mechanicSuccesses": 22
         },
         {
           "stage": "stage-05",
-          "playedTicks": 28521,
-          "bossTicks": 3322,
+          "playedTicks": 29560,
+          "bossTicks": 4361,
           "damage": 0,
           "continues": 0,
-          "score": 66988,
-          "maximumHazards": 79,
-          "mechanicSuccesses": 29
+          "score": 75996,
+          "maximumHazards": 108,
+          "mechanicSuccesses": 27
         },
         {
           "stage": "stage-06",
@@ -8711,7 +8711,7 @@
           "bossTicks": 10148,
           "damage": 0,
           "continues": 0,
-          "score": 356278,
+          "score": 375395,
           "maximumHazards": 63,
           "mechanicSuccesses": 699
         }
@@ -8723,7 +8723,7 @@
         "boss": null,
         "phase": null,
         "bossHealth": null,
-        "loops": 75,
+        "loops": 72,
         "syncBreaks": 0,
         "signatureClosures": 1
       }

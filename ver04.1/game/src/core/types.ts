@@ -107,6 +107,8 @@ export type GameEvent =
   | { type: 'retrace-started' }
   | { type: 'retrace-ended' }
   | { type: 'retrace-denied' }
+  | { type: 'recovery-primed'; note: 'redaction' | 'palinode' | 'afterword' }
+  | { type: 'recovery-triggered'; note: 'redaction' | 'citation' | 'palinode' | 'afterword'; amount: number }
   | { type: 'damage' }
   | { type: 'enemy-defeated' }
   | { type: 'boss-spawned' }
@@ -269,6 +271,29 @@ export interface Metrics {
     attacks: { erasure: number; wind: number; rain: number; heat: number; mirror: number; signature: number };
     damageByAttack: { erasure: number; wind: number; rain: number; heat: number; mirror: number; signature: number };
   };
+  recovery: {
+    redactionTriggers: number;
+    redactionBulletsCleared: number;
+    redactionBlocks: number;
+    citationLances: number;
+    palinodePrimes: number;
+    palinodeClosures: number;
+    afterwordPrimes: number;
+    afterwordProtectedTicks: number;
+  };
+}
+export interface RecoveryState {
+  active: 'redaction' | 'citation' | 'palinode' | 'afterword' | null;
+  redactionProgress: number;
+  redactionReadyUntil: number;
+  citationProgress: number;
+  palinodeProgress: number;
+  palinodeReady: boolean;
+  afterwordProgress: number;
+  afterwordReady: boolean;
+  afterwordReadyUntil: number;
+  afterwordRecoveryUntil: number;
+  feedbackUntil: number;
 }
 export interface GameState {
   stageId: StageId;
@@ -289,5 +314,6 @@ export interface GameState {
   annotationChain: number;
   errataReadyAt: number;
   lastDamageTick: number;
+  recovery: RecoveryState;
   metrics: Metrics;
 }
