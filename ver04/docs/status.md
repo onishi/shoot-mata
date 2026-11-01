@@ -48,7 +48,7 @@
 - 自動操縦では全出現を撃破または退場まで処理できる一方、Folio Haulerは退場となり撃破されていない。ボスの弾返し攻略は成立したため、次はHauler背面教材の自動操縦を補強する必要がある。
 - Stage 1の背景3層、自機、4通常敵、BLANK BAILIFF、主要弾・航跡・COLLATE表現は`final`として台帳登録・画像確認済み。Stage 2以降へ展開する際は同じアトラス矩形とパララックス規格を使う。
 - Stage 1の環境・脈動・危機ステムと11効果音は`final`として台帳登録済み。Stage 2以降も44.1kHz stereo PCM16、4 bus、SE 24・環境8・音楽6 voice上限、最悪同時発音監査を適用する。
-- 耐久0ではsimulationを停止してコンティニューへ移り、各Stageの開始地点またはボス直前から耐久3・ゲージ50で各面1回だけ復帰する。Stage 1→2は接続済み。保存再読込は未実装。
+- 耐久0ではsimulationを停止してコンティニューへ移り、各Stageの開始地点またはボス直前から耐久3・ゲージ50で各面1回だけ復帰する。全6面の入口・ボス前をv4.0専用キーへチェックサム付きで保存し、TITLEのCONTINUE SAVEから再読込できる。
 - SafeはSweepより低被弾だが通常射撃基準より8.5被弾が多い。小輪の防御価値をM2の実画面で再評価する。
 - Stage 2の背景3層、4通常敵、CROSSWIND COMPILER、風向・風固定・露出綴じ目表現は`final`として台帳登録・画像確認済み。Stage 2の仮素材は0件。
 - Stage 2の左右風音、羽根3:4ポリリズム、Compiler危機ステムと6効果音は`final`として台帳登録済み。横風反転、風固定、露出綴じ目、弱点命中、形態移行へ専用cueを接続し、4 busと発音上限を維持した。
@@ -88,12 +88,13 @@
 - Stage 6結果から正式なENDING、CAMPAIGN RESULT、TITLEを接続した。6面の累積スコア、COLLATE、返弾、被弾、復帰使用数、6/6完走状態を保持し、両完成画面でsimulation tickを停止する。
 - `m3-26-ending.png`と`m3-26-campaign-result.png`を1280×720で目視し、6色の航跡が夜明けの署名輪へ収束する結末、6面の完走線、累積値、操作案内に文字切れ・重なりがないことを確認した。Stage 6の3ステムを結末用mixで再開し、画面遷移UI cueとTITLE帰還時の停止をChromeで確認した。
 - Stage 6の5航路統合・夜明け和音・THE LAST EDITOR危機ステムと6効果音は`final`として台帳登録済み。folio切替、Binding接続、Choir印付け穴、5規則校訂、署名輪成立、形態移行をsimulation eventから専用cueへ接続し、Stage 5→6切替、ポーズ停止・tick同期復帰に合格した。全59音素材は44.1kHz stereo PCM16、Stage 6最悪mixはリミッタ前peak -9.92 dBFS、NaN/clip 0だった。
+- M4-01でschema version・build version・stage・checkpoint・health・gauge・marginalia・score・seed・campaign・チェックサムを持つ保存を実装した。一時キー検証後の確定、破損・未知版の隔離、旧版キー分離、quota/security拒否時のメモリ継続と一度だけの警告に対応し、単体60件・Chrome E2E 17件を含む`npm run verify`に合格した。
 
 ## 次の最優先作業
 
-**M4-01: キャンペーン保存、CONTINUE SAVE、保存拒否時のメモリ継続を実装する。**
+**M4-02: SETTINGS画面と設定保存を実装する。**
 
-完了範囲は、設計済み保存スキーマとチェックサム、ステージ入口・ボス前チェックポイント保存、TITLEのCONTINUE SAVE、破損・未知版の隔離、quota・security拒否時の一度だけの非保存表示を実装すること。保存不能でも同一セッションのキャンペーンを完走でき、正常保存・拒否・破損・旧版分離を単体とChromeで検証する。
+完了範囲は、TITLEとPAUSEから入れるSETTINGS、BGM・SEの個別0〜100、画面揺れ、点滅軽減、難易度、`palimpsest-wake:v4.0:settings`への独立保存を実装すること。設定だけの復元、範囲外値の拒否、保存拒否時のメモリ適用、音busへの即時反映を単体とChromeで検証する。
 
 ## v4.0完成ゲート
 

@@ -12,6 +12,7 @@ import { STAGE_04_BOSS_START_TICK, STAGE_04_SPAWNS } from './content/stage-04';
 import { STAGE_05_BOSS_START_TICK, STAGE_05_DURATION_TICKS, STAGE_05_SPAWNS } from './content/stage-05';
 import { STAGE_06_BOSS_START_TICK, STAGE_06_SPAWNS } from './content/stage-06';
 import { StageOneAudio } from './audio/stage-01-audio';
+import { clearCampaign, loadCampaign, saveCampaign, type StorageLike } from './app/save';
 
 const canvas = document.querySelector<HTMLCanvasElement>('#game');
 const status = document.querySelector<HTMLElement>('#status');
@@ -19,7 +20,15 @@ if (!canvas || !status) throw new Error('Required game elements are missing');
 const ctx = canvas.getContext('2d');
 if (!ctx) throw new Error('Canvas 2D is unavailable');
 
+const browserStorage = (): StorageLike | null => {
+  try { return window.localStorage; } catch { return null; }
+};
+const storage = browserStorage();
+const loaded = storage ? loadCampaign(storage) : { status: 'unavailable' as const, state: null };
+let savedApp = loaded.state;
 let app = createAppState(404);
+app.saveAvailable = savedApp !== null;
+app.saveWarning = loaded.status === 'unavailable' || loaded.status === 'quarantined';
 const audio = new StageOneAudio();
 let accumulator = 0;
 let previousTime = performance.now();
@@ -29,7 +38,16 @@ const matches = (code: string, values: string[]): boolean => values.includes(cod
 
 const applyAction = (action: AppAction): void => {
   const before = app.screen;
+  const beforeCheckpoint = app.checkpointName;
+  const beforeContinues = app.continuesRemaining;
   app = transition(app, action);
+  if (app.saveWarning && before !== app.screen) app.saveWarning = false;
+  const shouldSave = app.screen === 'stage-intro'
+    && (before === 'title' || app.checkpointName !== beforeCheckpoint || app.continuesRemaining !== beforeContinues);
+  if (shouldSave) persistCheckpoint();
+  if (app.screen === 'ending' && storage) {
+    clearCampaign(storage); savedApp = null; app.saveAvailable = false;
+  }
   if (before !== app.screen) {
     audio.playUi(action === 'back');
     audio.setScreen(app.screen, app.game.tick, app.game.stageId);
@@ -40,11 +58,33 @@ const applyAction = (action: AppAction): void => {
   }
 };
 
+const persistCheckpoint = (): void => {
+  if (!storage || !saveCampaign(storage, app)) {
+    app.saveAvailable = savedApp !== null;
+    if (!app.saveWarning) app.saveWarning = true;
+    return;
+  }
+  const refreshed = loadCampaign(storage);
+  savedApp = refreshed.state;
+  app.saveAvailable = savedApp !== null;
+};
+
+const continueSavedVoyage = (): void => {
+  if (!savedApp) return;
+  app = savedApp;
+  const refreshed = storage ? loadCampaign(storage) : null;
+  if (refreshed?.state) savedApp = refreshed.state;
+  app.saveAvailable = true; app.saveWarning = false;
+  audio.playUi(false); audio.setScreen(app.screen, app.game.tick, app.game.stageId);
+  held.clear(); pulses.collate = false; pulses.retrace = false; accumulator = 0;
+};
+
 window.addEventListener('keydown', (event) => {
   void audio.ensureStarted();
   const { code } = event;
   if (!event.repeat) {
     if (app.screen === 'title' && code === 'KeyG') applyAction('guide');
+    else if (app.screen === 'title' && code === 'KeyC') continueSavedVoyage();
     else if (app.screen === 'title' && matches(code, ['Enter', 'Space', 'KeyN'])) applyAction('start');
     else if (app.screen === 'guide' && matches(code, ['Enter', 'Escape', 'Backspace'])) applyAction(code === 'Enter' ? 'confirm' : 'back');
     else if (app.screen === 'stage-intro' && matches(code, ['Enter', 'Space'])) applyAction('confirm');
@@ -84,8 +124,10 @@ const input = (): InputFrame => ({
 });
 
 const runStep = (frameInput: InputFrame): void => {
+  const checkpointBefore = app.checkpointName;
   const result = advance(app, frameInput);
   app = result.state;
+  if (app.checkpointName !== checkpointBefore) persistCheckpoint();
   for (const event of result.events) audio.playEvent(event, app.game.stageId);
   audio.setScreen(app.screen, app.game.tick, app.game.stageId);
   if (result.events.some((event) => event.type === 'loop-collated')) status.textContent = 'COLLATE succeeded. Captured fire has been returned.';

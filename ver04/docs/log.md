@@ -322,3 +322,13 @@
 - 結末2画面ではsimulation tickを停止し、EnterによるENDING→CAMPAIGN RESULT→TITLEの明示遷移とEscape帰還を実装した。Stage 6の3ステムを結末用mixで再開し、画面遷移UI cueを維持し、TITLE帰還時に停止する。
 - 単体55件、自動計測12件、素材監査50 final・仮素材0、音量監査59素材、型検査、production build、Chrome E2E 14件に合格した。Stage 1から6面、最終ボス、ENDING、CAMPAIGN RESULT、TITLEまでの高速全通しに合格し、M3を完了してM4へ移行した。
 - 次回はM4-01として、キャンペーン保存、TITLEのCONTINUE SAVE、保存拒否時のメモリ継続と非保存表示を実装する。
+
+## 2026-11-01 — M4-01 キャンペーン保存とCONTINUE SAVE
+
+- `palimpsest-wake:v4.0:save`専用の保存モジュールを追加した。schema version 1、build version、stage、checkpoint、health、gauge、marginalia、score、seed、残り復帰、累積campaign、決定的checkpoint stateをFNV-1aチェックサム付きで記録する。
+- 一時キーへ書込み、読戻しとスキーマ・チェックサム検証後に本キーを更新する。壊れたJSON、改変値、未知版、範囲外値はtimestamp付き隔離キーへ移し、v3.4など旧版キーは読込・削除しない。
+- 全6面の入口とボス直前、復帰使用後に自動保存し、TITLEへ`C  CONTINUE SAVE`を追加した。完走してENDINGへ入った時点で再開データを消し、完了済みボス前へ戻らないようにした。
+- quota・security・private mode相当の例外はゲームを止めず、同一セッションをメモリ上で継続する。非保存表示は一度だけ出し、次の画面遷移で消える。
+- `m4-01-title-save.png`と`m4-01-save-unavailable.png`を1280×720で目視し、タイトル選択肢と警告に文字切れ・重なりがないことを確認した。
+- `npm run verify`で単体60件、自動計測12件、素材監査50 final・仮素材0、音量監査59素材、型検査、production build、Chrome E2E 17件に合格した。保存再読込、ボス前復帰、破損隔離、旧版分離、SecurityError後のメモリ進行をChromeで確認した。
+- 次回はM4-02として、TITLEとPAUSEから入れるSETTINGS、BGM・SE、画面揺れ、点滅軽減、難易度と設定独立保存を実装する。

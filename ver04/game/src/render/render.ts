@@ -528,7 +528,8 @@ const renderScreen = (ctx: CanvasRenderingContext2D, app: AppState, screen: Excl
     title(ctx, 'PALIMPSEST WAKE', 290, 70);
     line(ctx, 'NEW VOYAGE', 395, '#a8f7ff', 26);
     line(ctx, 'ENTER / N', 428, '#7895a7', 15);
-    line(ctx, 'G  GUIDE', 492, '#adc2cf', 19);
+    line(ctx, app.saveAvailable ? 'C  CONTINUE SAVE' : 'CONTINUE SAVE · NO RECORD', 474, app.saveAvailable ? '#a8f7ff' : '#526b7b', 18);
+    line(ctx, 'G  GUIDE', 520, '#adc2cf', 19);
     line(ctx, 'v4.0 · COMPLETE CAMPAIGN', 650, '#667f91', 14);
   } else if (screen === 'guide') {
     title(ctx, 'HOW TO WRITE THE WAKE', 120, 38);
@@ -619,6 +620,10 @@ const renderScreen = (ctx: CanvasRenderingContext2D, app: AppState, screen: Excl
     line(ctx, `DAMAGE ${app.campaign.damage}   ·   REVISIONS USED ${app.campaign.revisionsUsed}`, 503, '#b9d3df', 18);
     line(ctx, 'THE WAKE REMEMBERS THE WHOLE VOYAGE', 555, '#f4c36a', 15);
     line(ctx, 'ENTER / ESC  RETURN TO TITLE', 625, '#a8f7ff', 20);
+  }
+  if (app.saveWarning) {
+    ctx.fillStyle = 'rgba(62, 25, 25, .94)'; ctx.fillRect(300, 666, 680, 34);
+    line(ctx, 'SAVE UNAVAILABLE · THIS VOYAGE CONTINUES IN MEMORY', 690, '#ffb39d', 14);
   }
   ctx.textAlign = 'start';
 };

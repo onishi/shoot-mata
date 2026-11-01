@@ -18,6 +18,8 @@ export interface AppState {
   checkpointName: CheckpointName;
   continuesRemaining: number;
   campaign: CampaignSummary;
+  saveAvailable: boolean;
+  saveWarning: boolean;
 }
 
 export interface CampaignSummary {
@@ -48,13 +50,14 @@ const beginStage = (stageId: StageId, seed: number, campaign: CampaignSummary): 
   const game = createInitialState(seed || 404, stageId);
   return {
     screen: 'stage-intro', game, checkpoint: copyState(game),
-    checkpointName: entryCheckpoints[stageId], continuesRemaining: 1, campaign
+    checkpointName: entryCheckpoints[stageId], continuesRemaining: 1, campaign,
+    saveAvailable: true, saveWarning: false
   };
 };
 
 export const createAppState = (seed = 404): AppState => {
   const game = createInitialState(seed);
-  return { screen: 'title', game, checkpoint: copyState(game), checkpointName: 'harbor-entry', continuesRemaining: 1, campaign: emptyCampaign() };
+  return { screen: 'title', game, checkpoint: copyState(game), checkpointName: 'harbor-entry', continuesRemaining: 1, campaign: emptyCampaign(), saveAvailable: false, saveWarning: false };
 };
 
 const freshVoyage = (state: AppState): AppState => beginStage('stage-01', state.game.seed, emptyCampaign());
