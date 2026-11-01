@@ -314,3 +314,11 @@
 - 全59素材は44.1kHz stereo PCM16で、Stage 6 BGM RMS -20.01〜-19.00 dBFS、SE RMS -18.00 dBFS、SE peak -7.64 dBFS以下に合格した。Stage 6最悪mixはリミッタ前peak -9.92 dBFS、NaN/clip 0で、`docs/evidence/m3-25-audio-audit.json`へ保存した。
 - `npm run verify`で単体55件、自動計測12件、素材監査50 final・仮素材0、音量監査、型検査、production build、Chrome E2E 14件に合格した。ChromeではStage 5→6ステム切替、Stage 6ポーズ停止・tick同期復帰、6専用cueを実際のsimulation eventから確認した。
 - 次回はStage 6結果からENDING、CAMPAIGN RESULT、TITLEまでを完成画面と演出で接続し、Stage 1からのChrome全通しでM3完了条件を判定する。
+
+## 2026-11-01 — M3-26 ENDINGとキャンペーン完走
+
+- 仮の`ending-boundary`を正式な`ending`と`campaign-result`へ置換し、Stage 6結果からENDING、CAMPAIGN RESULT、TITLEまでを接続した。各結果確定時にスコア、COLLATE、返弾、被弾、復帰使用数を累積し、6/6面の完走状態を保持する。
+- ENDINGは6色の航跡が夜明けの署名輪へ収束する専用Canvas演出、CAMPAIGN RESULTは6面の完走線と累積実績を表示する完成画面とした。`m3-26-ending.png`と`m3-26-campaign-result.png`を1280×720で目視し、文字切れ・重なりがなく、結末と集計の情報階層を判別できることを確認した。
+- 結末2画面ではsimulation tickを停止し、EnterによるENDING→CAMPAIGN RESULT→TITLEの明示遷移とEscape帰還を実装した。Stage 6の3ステムを結末用mixで再開し、画面遷移UI cueを維持し、TITLE帰還時に停止する。
+- 単体55件、自動計測12件、素材監査50 final・仮素材0、音量監査59素材、型検査、production build、Chrome E2E 14件に合格した。Stage 1から6面、最終ボス、ENDING、CAMPAIGN RESULT、TITLEまでの高速全通しに合格し、M3を完了してM4へ移行した。
+- 次回はM4-01として、キャンペーン保存、TITLEのCONTINUE SAVE、保存拒否時のメモリ継続と非保存表示を実装する。

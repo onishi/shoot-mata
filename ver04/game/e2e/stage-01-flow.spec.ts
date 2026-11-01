@@ -1,11 +1,11 @@
 import { expect, test } from '@playwright/test';
 
-type Screen = 'title' | 'guide' | 'stage-intro' | 'playing' | 'paused' | 'continue' | 'result' | 'ending-boundary';
+type Screen = 'title' | 'guide' | 'stage-intro' | 'playing' | 'paused' | 'continue' | 'result' | 'ending' | 'campaign-result';
 type QaWindow = Window & {
   __PALIMPSEST_ASSETS_READY__: Promise<unknown>;
   __PALIMPSEST_AUTOPLAY__: (ticks: number) => number;
   __PALIMPSEST_ADVANCE__: (ticks: number) => number;
-  __PALIMPSEST_APP_STATE__: () => { screen: Screen; continuesRemaining: number; checkpointName: string; game: { stageId: string; tick: number; player: { health: number }; gauge: number } };
+  __PALIMPSEST_APP_STATE__: () => { screen: Screen; continuesRemaining: number; checkpointName: string; campaign: { stagesCompleted: number; score: number; complete: boolean }; game: { stageId: string; tick: number; player: { health: number }; gauge: number } };
   __PALIMPSEST_STATE__: () => { bullets: unknown[]; trail: unknown[]; candidate: unknown; metrics: { loops: number; retraces: number } };
   __PALIMPSEST_QA_SCENARIO__: (scenario: 'damage' | 'setpiece' | 'stage-02-combat' | 'stage-02-setpiece' | 'stage-03-combat' | 'stage-03-setpiece' | 'stage-03-boss' | 'stage-04-combat' | 'stage-04-setpiece' | 'stage-04-boss' | 'stage-05-combat' | 'stage-05-setpiece' | 'stage-05-boss' | 'stage-06-combat' | 'stage-06-setpiece' | 'stage-06-boss' | 'boss-gate' | 'boss-defeat' | 'stage-02-boss') => Screen;
   __PALIMPSEST_AUDIO_READY__: () => Promise<void>;
@@ -332,12 +332,21 @@ test('campaign advances through Stage 6, restores its checkpoints and preserves 
   expect(await screen()).toBe('result');
   await canvas.screenshot({ path: '../docs/evidence/m3-23-stage-06-result.png' });
   await page.keyboard.press('Enter');
-  expect(await screen()).toBe('ending-boundary');
+  expect(await screen()).toBe('ending');
   const endingTick = (await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_APP_STATE__())).game.tick;
   await page.waitForTimeout(80);
   expect((await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_APP_STATE__())).game.tick).toBe(endingTick);
+  await expect.poll(() => page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_AUDIO_STATE__().stemStage)).toBe('stage-06');
+  await canvas.screenshot({ path: '../docs/evidence/m3-26-ending.png' });
+  await page.keyboard.press('Enter');
+  expect(await screen()).toBe('campaign-result');
+  const campaign = (await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_APP_STATE__())).campaign;
+  expect(campaign).toMatchObject({ stagesCompleted: 6, complete: true });
+  expect((await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_APP_STATE__())).game.tick).toBe(endingTick);
+  await canvas.screenshot({ path: '../docs/evidence/m3-26-campaign-result.png' });
   await page.keyboard.press('Enter');
   expect(await screen()).toBe('title');
+  expect((await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_AUDIO_STATE__()))).toMatchObject({ stems: 0, stemStage: null });
 
   // A fresh voyage verifies the independent per-stage revision at the second
   // Stage 3 boss checkpoint as well; the first half spent its revision at entry.

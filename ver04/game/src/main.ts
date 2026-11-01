@@ -55,7 +55,7 @@ window.addEventListener('keydown', (event) => {
     else if (app.screen === 'continue' && code === 'Enter') applyAction('confirm');
     else if (app.screen === 'continue' && code === 'Escape') applyAction('back');
     else if (app.screen === 'result' && matches(code, ['Enter', 'Escape'])) applyAction(code === 'Enter' ? 'confirm' : 'back');
-    else if (app.screen === 'ending-boundary' && matches(code, ['Enter', 'Escape'])) applyAction(code === 'Enter' ? 'confirm' : 'back');
+    else if ((app.screen === 'ending' || app.screen === 'campaign-result') && matches(code, ['Enter', 'Escape'])) applyAction(code === 'Enter' ? 'confirm' : 'back');
     else if (app.screen === 'playing' && matches(code, ['KeyX', 'KeyK'])) pulses.collate = true;
     else if (app.screen === 'playing' && matches(code, ['KeyC', 'KeyL'])) pulses.retrace = true;
   }
@@ -100,7 +100,7 @@ const runStep = (frameInput: InputFrame): void => {
           ? 'Stage 4 complete. Continue into the Mirror Chamber.'
           : app.game.stageId === 'stage-05'
             ? 'Stage 5 complete. Continue into Dawn of the Original.'
-            : 'Stage 6 complete. Continue to the ending sequence boundary.';
+            : 'Stage 6 complete. Continue into the first unwritten dawn.';
 };
 
 const frame = (now: number): void => {

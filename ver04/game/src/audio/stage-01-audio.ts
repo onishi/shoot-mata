@@ -148,7 +148,10 @@ export class StageOneAudio {
     if (!this.context) return;
     this.loading ??= this.loadBuffers();
     await Promise.all([this.loading, this.context.resume()]);
-    if (this.desiredScreen === 'playing' && this.stems.length === 0) this.startStems(this.desiredTick, this.desiredStage);
+    if (this.isMusicalScreen(this.desiredScreen) && this.stems.length === 0) {
+      this.startStems(this.desiredTick, this.desiredStage);
+      this.applyScreenMix(this.desiredScreen);
+    }
   }
 
   private createGraph(): void {
@@ -198,12 +201,29 @@ export class StageOneAudio {
     this.stems = []; this.activeStemStage = null;
   }
 
+  private isMusicalScreen(screen: AppScreen): boolean {
+    return screen === 'playing' || screen === 'ending' || screen === 'campaign-result';
+  }
+
+  private applyScreenMix(screen: AppScreen): void {
+    if (screen !== 'ending' && screen !== 'campaign-result') return;
+    const now = this.context?.currentTime ?? 0;
+    for (const stem of this.stems) {
+      const level = screen === 'ending'
+        ? (stem.name === 'ambient' ? 0.34 : stem.name === 'pulse' ? 0.19 : 0.035)
+        : (stem.name === 'ambient' ? 0.25 : stem.name === 'pulse' ? 0.1 : 0);
+      stem.gain.gain.setTargetAtTime(level, now, 0.22);
+    }
+  }
+
   setScreen(screen: AppScreen, tick: number, stageId: StageId = this.desiredStage): void {
-    const wasPlaying = this.desiredScreen === 'playing'; const stageChanged = stageId !== this.desiredStage;
+    const wasMusical = this.isMusicalScreen(this.desiredScreen); const stageChanged = stageId !== this.desiredStage;
     this.desiredScreen = screen; this.desiredTick = tick; this.desiredStage = stageId;
     if (!this.context) return;
-    if (screen === 'playing' && (!wasPlaying || stageChanged)) this.startStems(tick, stageId);
-    else if (screen !== 'playing' && wasPlaying) this.stopStems();
+    const musical = this.isMusicalScreen(screen);
+    if (musical && (!wasMusical || stageChanged)) this.startStems(tick, stageId);
+    else if (!musical && wasMusical) this.stopStems();
+    this.applyScreenMix(screen);
   }
 
   updateMix(state: GameState): void {

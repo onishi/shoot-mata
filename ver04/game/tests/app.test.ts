@@ -235,10 +235,13 @@ describe('M2 application flow', () => {
     expect(app.game.boss?.kind).toBe('apocrypha-twins');
   });
 
-  it('continues from Stage 5 through Stage 6, restores both final checkpoints and exposes the ending boundary', () => {
+  it('continues from Stage 5 through Stage 6, restores both final checkpoints and completes the campaign', () => {
     let app = start();
     for (const stageId of ['stage-01', 'stage-02', 'stage-03', 'stage-04', 'stage-05'] as const) {
       expect(app.game.stageId).toBe(stageId);
+      app.game.score = 1000;
+      app.game.metrics.loops = 2;
+      app.game.metrics.captured = 3;
       app.game.metrics.boss.defeated = true;
       app.screen = 'result';
       app = transition(app, 'confirm');
@@ -246,6 +249,7 @@ describe('M2 application flow', () => {
     }
     expect(app).toMatchObject({ screen: 'stage-intro', checkpointName: 'original-dawn-entry', continuesRemaining: 1 });
     expect(app.game).toMatchObject({ stageId: 'stage-06', tick: 0 });
+    expect(app.campaign).toMatchObject({ stagesCompleted: 5, score: 5000, collates: 10, returnedFire: 15, complete: false });
 
     app = transition(app, 'confirm');
     app = fatalHit(app);
@@ -278,13 +282,21 @@ describe('M2 application flow', () => {
     app.game.boss!.editorRulesMask = 0b11111;
     app.game.boss!.signatureExposedUntil = app.game.tick + 60;
     app.game.boss!.health = 1;
+    app.game.score = 2400;
+    app.game.metrics.loops = 7;
+    app.game.metrics.captured = 11;
+    app.game.metrics.damage = 2;
     app.game.bullets = [{ id: app.game.nextId++, x: app.game.boss!.x, y: app.game.boss!.y, vx: 0, vy: 0, radius: 5, kind: 'return', annotated: true, capturable: false }];
     app = advance(app).state;
     expect(app.screen).toBe('result');
     app = transition(app, 'confirm');
-    expect(app.screen).toBe('ending-boundary');
-    const boundaryTick = app.game.tick;
-    expect(advance(app).state.game.tick).toBe(boundaryTick);
+    expect(app.screen).toBe('ending');
+    expect(app.campaign).toMatchObject({ stagesCompleted: 6, score: 67400, collates: 17, returnedFire: 26, damage: 2, complete: true });
+    const endingTick = app.game.tick;
+    expect(advance(app).state.game.tick).toBe(endingTick);
+    app = transition(app, 'confirm');
+    expect(app.screen).toBe('campaign-result');
+    expect(advance(app).state.game.tick).toBe(endingTick);
     expect(transition(app, 'confirm').screen).toBe('title');
   });
 

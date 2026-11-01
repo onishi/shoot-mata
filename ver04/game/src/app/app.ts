@@ -1,7 +1,7 @@
 import type { GameEvent, GameState, InputFrame, StageId } from '../core/types';
 import { copyState, createInitialState, step } from '../simulation/game';
 
-export type AppScreen = 'title' | 'guide' | 'stage-intro' | 'playing' | 'paused' | 'continue' | 'result' | 'ending-boundary';
+export type AppScreen = 'title' | 'guide' | 'stage-intro' | 'playing' | 'paused' | 'continue' | 'result' | 'ending' | 'campaign-result';
 export type AppAction = 'start' | 'guide' | 'confirm' | 'back' | 'pause';
 export type CheckpointName =
   | 'harbor-entry' | 'bailiff-gate'
@@ -17,7 +17,22 @@ export interface AppState {
   checkpoint: GameState;
   checkpointName: CheckpointName;
   continuesRemaining: number;
+  campaign: CampaignSummary;
 }
+
+export interface CampaignSummary {
+  stagesCompleted: number;
+  score: number;
+  collates: number;
+  returnedFire: number;
+  damage: number;
+  revisionsUsed: number;
+  complete: boolean;
+}
+
+const emptyCampaign = (): CampaignSummary => ({
+  stagesCompleted: 0, score: 0, collates: 0, returnedFire: 0, damage: 0, revisionsUsed: 0, complete: false
+});
 
 const entryCheckpoints: Record<StageId, CheckpointName> = {
   'stage-01': 'harbor-entry', 'stage-02': 'crosswind-entry', 'stage-03': 'rain-gallery-entry', 'stage-04': 'burnt-footnote-entry', 'stage-05': 'mirror-chamber-entry', 'stage-06': 'original-dawn-entry'
@@ -29,20 +44,30 @@ const nextStages: Partial<Record<StageId, StageId>> = {
   'stage-01': 'stage-02', 'stage-02': 'stage-03', 'stage-03': 'stage-04', 'stage-04': 'stage-05', 'stage-05': 'stage-06'
 };
 
-const beginStage = (stageId: StageId, seed: number): AppState => {
+const beginStage = (stageId: StageId, seed: number, campaign: CampaignSummary): AppState => {
   const game = createInitialState(seed || 404, stageId);
   return {
     screen: 'stage-intro', game, checkpoint: copyState(game),
-    checkpointName: entryCheckpoints[stageId], continuesRemaining: 1
+    checkpointName: entryCheckpoints[stageId], continuesRemaining: 1, campaign
   };
 };
 
 export const createAppState = (seed = 404): AppState => {
   const game = createInitialState(seed);
-  return { screen: 'title', game, checkpoint: copyState(game), checkpointName: 'harbor-entry', continuesRemaining: 1 };
+  return { screen: 'title', game, checkpoint: copyState(game), checkpointName: 'harbor-entry', continuesRemaining: 1, campaign: emptyCampaign() };
 };
 
-const freshVoyage = (state: AppState): AppState => beginStage('stage-01', state.game.seed);
+const freshVoyage = (state: AppState): AppState => beginStage('stage-01', state.game.seed, emptyCampaign());
+
+const recordStage = (state: AppState): CampaignSummary => ({
+  stagesCompleted: state.campaign.stagesCompleted + 1,
+  score: state.campaign.score + state.game.score,
+  collates: state.campaign.collates + state.game.metrics.loops,
+  returnedFire: state.campaign.returnedFire + state.game.metrics.captured,
+  damage: state.campaign.damage + state.game.metrics.damage,
+  revisionsUsed: state.campaign.revisionsUsed + (1 - state.continuesRemaining),
+  complete: state.game.stageId === 'stage-06'
+});
 
 export const transition = (state: AppState, action: AppAction): AppState => {
   if (state.screen === 'title') {
@@ -84,10 +109,15 @@ export const transition = (state: AppState, action: AppAction): AppState => {
     if (action === 'back') return { ...state, screen: 'title' };
     if (action === 'confirm') {
       const nextStage = nextStages[state.game.stageId];
-      return nextStage ? beginStage(nextStage, state.game.seed) : { ...state, screen: 'ending-boundary' };
+      const campaign = recordStage(state);
+      return nextStage ? beginStage(nextStage, state.game.seed, campaign) : { ...state, screen: 'ending', campaign };
     }
   }
-  if (state.screen === 'ending-boundary' && (action === 'confirm' || action === 'back')) return { ...state, screen: 'title' };
+  if (state.screen === 'ending') {
+    if (action === 'confirm') return { ...state, screen: 'campaign-result' };
+    if (action === 'back') return { ...state, screen: 'title' };
+  }
+  if (state.screen === 'campaign-result' && (action === 'confirm' || action === 'back')) return { ...state, screen: 'title' };
   return state;
 };
 

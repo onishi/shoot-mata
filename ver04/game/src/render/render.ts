@@ -499,15 +499,37 @@ const line = (ctx: CanvasRenderingContext2D, text: string, y: number, color = '#
   ctx.fillText(text, WIDTH / 2, y);
 };
 
+const endingDawn = (ctx: CanvasRenderingContext2D): void => {
+  const sky = ctx.createLinearGradient(0, 0, 0, HEIGHT);
+  sky.addColorStop(0, '#050817'); sky.addColorStop(0.55, '#132c44'); sky.addColorStop(1, '#d98f63');
+  ctx.fillStyle = sky; ctx.fillRect(0, 0, WIDTH, HEIGHT);
+  const glow = ctx.createRadialGradient(WIDTH * 0.73, 420, 10, WIDTH * 0.73, 420, 390);
+  glow.addColorStop(0, 'rgba(255,241,177,.92)'); glow.addColorStop(0.22, 'rgba(255,181,105,.3)'); glow.addColorStop(1, 'rgba(255,181,105,0)');
+  ctx.fillStyle = glow; ctx.fillRect(0, 0, WIDTH, HEIGHT);
+  ctx.save(); ctx.globalCompositeOperation = 'screen'; ctx.lineCap = 'round';
+  const colors = ['#69eaff', '#a7f3ff', '#77f2ce', '#ffb36d', '#e889ff', '#ffe59a'];
+  for (let index = 0; index < 6; index += 1) {
+    const startY = 115 + index * 86;
+    ctx.beginPath(); ctx.moveTo(-35, startY);
+    ctx.bezierCurveTo(240 + index * 28, startY + (index % 2 ? 90 : -70), 520 + index * 25, 520 - index * 34, 930, 420);
+    ctx.strokeStyle = colors[index]; ctx.shadowColor = colors[index]; ctx.shadowBlur = 18; ctx.lineWidth = index === 5 ? 5 : 3; ctx.stroke();
+  }
+  ctx.beginPath(); ctx.arc(930, 420, 76, 0, Math.PI * 2); ctx.strokeStyle = '#fff0aa'; ctx.shadowColor = '#ffd980'; ctx.shadowBlur = 35; ctx.lineWidth = 4; ctx.stroke();
+  ctx.beginPath(); ctx.arc(930, 420, 48, 0, Math.PI * 2); ctx.setLineDash([4, 9]); ctx.stroke(); ctx.setLineDash([]); ctx.restore();
+  const ground = ctx.createLinearGradient(0, 510, 0, HEIGHT);
+  ground.addColorStop(0, 'rgba(5,10,20,.15)'); ground.addColorStop(1, '#030711'); ctx.fillStyle = ground; ctx.fillRect(0, 510, WIDTH, 210);
+};
+
 const renderScreen = (ctx: CanvasRenderingContext2D, app: AppState, screen: Exclude<AppScreen, 'playing'>): void => {
-  overlay(ctx, screen === 'paused' ? 0.76 : 0.9);
+  if (screen === 'ending') { endingDawn(ctx); ctx.textAlign = 'center'; }
+  else overlay(ctx, screen === 'paused' ? 0.76 : screen === 'campaign-result' ? 0.94 : 0.9);
   if (screen === 'title') {
     line(ctx, 'A flight written against erasure', 188, '#f4c36a', 18);
     title(ctx, 'PALIMPSEST WAKE', 290, 70);
     line(ctx, 'NEW VOYAGE', 395, '#a8f7ff', 26);
     line(ctx, 'ENTER / N', 428, '#7895a7', 15);
     line(ctx, 'G  GUIDE', 492, '#adc2cf', 19);
-    line(ctx, 'v4.0 · VERTICAL SLICE', 650, '#667f91', 14);
+    line(ctx, 'v4.0 · COMPLETE CAMPAIGN', 650, '#667f91', 14);
   } else if (screen === 'guide') {
     title(ctx, 'HOW TO WRITE THE WAKE', 120, 38);
     line(ctx, 'MOVE', 205, '#f4c36a', 18); line(ctx, 'WASD / ARROWS · your path leaves a short luminous trace', 238);
@@ -570,11 +592,33 @@ const renderScreen = (ctx: CanvasRenderingContext2D, app: AppState, screen: Excl
     line(ctx, `DAMAGE ${app.game.metrics.damage}   ·   REVISIONS USED ${1 - app.continuesRemaining}`, 450);
     line(ctx, resultCopy.action, 550, '#a8f7ff', 20);
     line(ctx, 'ESC  END VOYAGE', 590, '#7895a7', 15);
-  } else if (screen === 'ending-boundary') {
-    line(ctx, 'ENDING SEQUENCE', 205, '#f4c36a', 18);
-    title(ctx, 'THE FIRST LINE REMAINS', 300, 48);
-    line(ctx, 'The final illustrated ending is the next campaign slice.', 370);
-    line(ctx, 'ENTER / ESC  RETURN TO TITLE', 530, '#a8f7ff', 20);
+  } else if (screen === 'ending') {
+    line(ctx, 'ENDING · THE ORIGINAL DAWN', 112, '#f4c36a', 17);
+    title(ctx, 'THE FIRST LINE REMAINS', 190, 48, '#fff0c5');
+    line(ctx, 'Six broken routes meet where no editor can erase them.', 248, '#d9edf1', 19);
+    line(ctx, 'The wake is no longer a record of flight. It is the way home.', 278, '#d9edf1', 19);
+    line(ctx, 'ENTER  BIND THE VOYAGE', 626, '#d8fbff', 20);
+    line(ctx, 'ESC  RETURN TO TITLE', 660, '#7895a7', 14);
+  } else if (screen === 'campaign-result') {
+    line(ctx, 'CAMPAIGN RESULT', 105, '#f4c36a', 17);
+    title(ctx, app.campaign.complete ? 'VOYAGE INSCRIBED' : 'VOYAGE INCOMPLETE', 174, 45);
+    line(ctx, `${app.campaign.stagesCompleted} / 6 STAGES BOUND`, 220, '#a8f7ff', 18);
+    const labels = ['HARBOR', 'INDEX', 'GALLERY', 'FOOTNOTE', 'MIRROR', 'ORIGINAL'];
+    ctx.font = '700 12px system-ui, sans-serif';
+    for (let index = 0; index < labels.length; index += 1) {
+      const x = 215 + index * 170;
+      ctx.beginPath(); ctx.arc(x, 292, 23, 0, Math.PI * 2);
+      ctx.fillStyle = index < app.campaign.stagesCompleted ? '#71e6ec' : '#263748'; ctx.fill();
+      ctx.strokeStyle = index < app.campaign.stagesCompleted ? '#e8ffff' : '#536a79'; ctx.lineWidth = 2; ctx.stroke();
+      ctx.fillStyle = index < app.campaign.stagesCompleted ? '#07111b' : '#93a6b2'; ctx.fillText(String(index + 1), x, 297);
+      ctx.fillStyle = '#91aab8'; ctx.fillText(labels[index], x, 335);
+      if (index < labels.length - 1) { ctx.strokeStyle = '#456675'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x + 26, 292); ctx.lineTo(x + 144, 292); ctx.stroke(); }
+    }
+    line(ctx, `FINAL SCORE  ${String(app.campaign.score).padStart(8, '0')}`, 414, '#fff0aa', 29);
+    line(ctx, `COLLATES ${app.campaign.collates}   ·   RETURNED FIRE ${app.campaign.returnedFire}`, 467, '#b9d3df', 18);
+    line(ctx, `DAMAGE ${app.campaign.damage}   ·   REVISIONS USED ${app.campaign.revisionsUsed}`, 503, '#b9d3df', 18);
+    line(ctx, 'THE WAKE REMEMBERS THE WHOLE VOYAGE', 555, '#f4c36a', 15);
+    line(ctx, 'ENTER / ESC  RETURN TO TITLE', 625, '#a8f7ff', 20);
   }
   ctx.textAlign = 'start';
 };
