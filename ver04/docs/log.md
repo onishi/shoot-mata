@@ -305,3 +305,12 @@
 - `m3-24-stage-06-combat.png`、`setpiece.png`、`last-editor-phase-1/2/3.png`を1280×720で目視し、5航路が夜明けの綴じ核へ収束する奥行き、4敵、危険弾、航跡、規則区間、校訂開放、署名8点、巨大点線輪、HUDを識別できた。文字切れ、前景遮蔽、アトラス混入、当たり判定との著しい見かけのずれはない。
 - 素材台帳をStage 6の背景3層・アトラス・Canvas効果の5件の`final`へ更新し、仮素材を0件にした。`npm run verify`のうち単体54件、自動計測12件、素材監査50 final・仮素材0、音量監査50素材、型検査、production buildに合格した。sandbox内のChrome起動は`EPERM 127.0.0.1:4174`で一度停止したが、許可済み実行経路でChrome E2E 14件に合格した。
 - 次回はStage 6専用の5航路統合・夜明け和音・THE LAST EDITOR危機ステムと環境・ボス効果音を制作し、音量監査とChromeのStage遷移・bus・ポーズ同期を確認する。
+
+## 2026-11-01 — M3-25 Stage 6完成音響
+
+- 決定的音声制作へStage 6を追加し、5航路の音色を3.2秒ごとに再構成する環境、全区間を一本のstitch rhythmで束ねる脈動、THE LAST EDITORの低い編集圧を担う16秒の環境・脈動・危機3ステムを44.1kHz stereo PCM16で制作した。Stage 1〜5の生成済み音声は変更していない。
+- folio切替、Binding Waspの航跡接続、Null Choirの印付け射線穴、THE LAST EDITORの規則校訂、巨大署名輪成立、形態移行の6効果音を制作した。最初のChrome QAでは校訂済みmaskを先に設定したため実イベントが抑止され、Binding接続条件も不十分だった。音を直接発火せず、実simulation規則を通る決定的シナリオへ修正した。
+- Stage 6の3ステムと6効果音を既存4 busへ接続し、SE 24・UI 4・環境8・音楽6 voice上限を維持した。区間境界、Binding接続、Choir休唱を新しいsimulation eventとして定義し、ボスの既存攻略eventと同じ経路で再生する。
+- 全59素材は44.1kHz stereo PCM16で、Stage 6 BGM RMS -20.01〜-19.00 dBFS、SE RMS -18.00 dBFS、SE peak -7.64 dBFS以下に合格した。Stage 6最悪mixはリミッタ前peak -9.92 dBFS、NaN/clip 0で、`docs/evidence/m3-25-audio-audit.json`へ保存した。
+- `npm run verify`で単体55件、自動計測12件、素材監査50 final・仮素材0、音量監査、型検査、production build、Chrome E2E 14件に合格した。ChromeではStage 5→6ステム切替、Stage 6ポーズ停止・tick同期復帰、6専用cueを実際のsimulation eventから確認した。
+- 次回はStage 6結果からENDING、CAMPAIGN RESULT、TITLEまでを完成画面と演出で接続し、Stage 1からのChrome全通しでM3完了条件を判定する。

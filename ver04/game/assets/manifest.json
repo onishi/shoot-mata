@@ -331,6 +331,34 @@
       "sourcePrompt": "none; authored Canvas compositing from docs/02-art-and-audio-direction.md Stage 6 direction and M3-21 through M3-24 measured mechanics",
       "generatedAt": "2026-11-01", "editHistory": ["Replaced the Stage 6 flat preview wash and geometric enemy and boss primitives with three-layer backgrounds and final atlas sprites.", "Retained simulation-synchronized wind, rain, heat and mirror cues as translucent environmental light; revision-open, signature rounds and accepted core use distinct silhouettes and dashed seals."],
       "dimensions": "1280x720 logical canvas", "license": "project-original"
+    },
+    {
+      "id": "stage-06-ambient-v1", "kind": "audio-stem", "path": "public/assets/audio/stage-06/original-ambient-v1.wav",
+      "stage": "Stage 6: Dawn of the Original", "usage": "five-route ambient reconstruction and dawn resonance",
+      "version": 1, "status": "final", "createdBy": "procedural",
+      "sourcePrompt": "scripts/generate-audio.mjs deterministic synthesis; five changing fundamentals, paper grain, route-colored overtones and continuous dawn body", "generatedAt": "2026-11-01",
+      "editHistory": ["Synthesized as 16-second loopable 44.1 kHz stereo PCM16; inspected by scripts/audit-audio.mjs."], "dimensions": "16s stereo 44.1kHz PCM16", "license": "project-original"
+    },
+    {
+      "id": "stage-06-pulse-v1", "kind": "audio-stem", "path": "public/assets/audio/stage-06/original-pulse-v1.wav",
+      "stage": "Stage 6: Dawn of the Original", "usage": "continuous stitch rhythm with five-folio turns",
+      "version": 1, "status": "final", "createdBy": "procedural",
+      "sourcePrompt": "scripts/generate-audio.mjs deterministic synthesis; stitched pulse, folio-turn impact and a shared harmonic rail across all routes", "generatedAt": "2026-11-01",
+      "editHistory": ["Synthesized as 16-second loopable 44.1 kHz stereo PCM16; inspected by scripts/audit-audio.mjs."], "dimensions": "16s stereo 44.1kHz PCM16", "license": "project-original"
+    },
+    {
+      "id": "stage-06-crisis-v1", "kind": "audio-stem", "path": "public/assets/audio/stage-06/original-crisis-v1.wav",
+      "stage": "Stage 6: Dawn of the Original", "usage": "THE LAST EDITOR crisis pressure and resolved rule harmony",
+      "version": 1, "status": "final", "createdBy": "procedural",
+      "sourcePrompt": "scripts/generate-audio.mjs deterministic synthesis; low editorial fundamentals, five-rule harmonic grain and restrained final pressure", "generatedAt": "2026-11-01",
+      "editHistory": ["Synthesized as 16-second loopable 44.1 kHz stereo PCM16; inspected by scripts/audit-audio.mjs."], "dimensions": "16s stereo 44.1kHz PCM16", "license": "project-original"
+    },
+    {
+      "id": "stage-06-effects-v1", "kind": "audio-effect-set", "path": "public/assets/audio/stage-06/folio-shift-v1.wav",
+      "stage": "Stage 6: Dawn of the Original", "usage": "folio change, Binding link, Choir hole, rule rewrite, signature closure and Editor phase feedback",
+      "version": 1, "status": "final", "createdBy": "procedural",
+      "sourcePrompt": "scripts/generate-audio.mjs deterministic synthesis; turning folio sweep, stitched binding rise, absent choir cadence, five-register rewrite, giant signature closure and Editor phase pressure", "generatedAt": "2026-11-01",
+      "editHistory": ["Synthesized as six 44.1 kHz stereo PCM16 files; all files and worst-case mix inspected by scripts/audit-audio.mjs."], "dimensions": "6 files, 0.48s to 1.04s, stereo 44.1kHz PCM16", "license": "project-original"
     }
   ]
 }

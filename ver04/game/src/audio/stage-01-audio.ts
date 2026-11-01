@@ -6,10 +6,11 @@ type Cue = 'shot' | 'annotation' | 'candidate' | 'collate' | 'collate-miss' | 'r
   | 'wind-left' | 'wind-right' | 'wind-lock' | 'seam-exposed' | 'seam-hit' | 'compiler-phase'
   | 'rain-wet' | 'basin-surge' | 'wet-annotation' | 'eel-marked' | 'eel-hit' | 'eel-phase'
   | 'heat-wave' | 'cooling-field' | 'courier-convert' | 'ember-cooled' | 'wall-hit' | 'advocate-phase'
-  | 'mirror-reflect' | 'false-annotation' | 'false-volley' | 'twins-sync' | 'twins-hit' | 'twins-phase';
+  | 'mirror-reflect' | 'false-annotation' | 'false-volley' | 'twins-sync' | 'twins-hit' | 'twins-phase'
+  | 'folio-shift' | 'binding-link' | 'choir-hole' | 'editor-rewrite' | 'signature-close' | 'editor-phase';
 type StemName = 'ambient' | 'pulse' | 'crisis';
 
-const commonFiles: Record<Exclude<Cue, 'wind-left' | 'wind-right' | 'wind-lock' | 'seam-exposed' | 'seam-hit' | 'compiler-phase' | 'rain-wet' | 'basin-surge' | 'wet-annotation' | 'eel-marked' | 'eel-hit' | 'eel-phase' | 'heat-wave' | 'cooling-field' | 'courier-convert' | 'ember-cooled' | 'wall-hit' | 'advocate-phase' | 'mirror-reflect' | 'false-annotation' | 'false-volley' | 'twins-sync' | 'twins-hit' | 'twins-phase'>, string> = {
+const commonFiles: Record<Exclude<Cue, 'wind-left' | 'wind-right' | 'wind-lock' | 'seam-exposed' | 'seam-hit' | 'compiler-phase' | 'rain-wet' | 'basin-surge' | 'wet-annotation' | 'eel-marked' | 'eel-hit' | 'eel-phase' | 'heat-wave' | 'cooling-field' | 'courier-convert' | 'ember-cooled' | 'wall-hit' | 'advocate-phase' | 'mirror-reflect' | 'false-annotation' | 'false-volley' | 'twins-sync' | 'twins-hit' | 'twins-phase' | 'folio-shift' | 'binding-link' | 'choir-hole' | 'editor-rewrite' | 'signature-close' | 'editor-phase'>, string> = {
   shot: 'stage-01/shot-v1.wav', annotation: 'stage-01/annotation-v1.wav', candidate: 'stage-01/candidate-v1.wav', collate: 'stage-01/collate-v1.wav',
   'collate-miss': 'stage-01/collate-miss-v1.wav', 'retrace-start': 'stage-01/retrace-start-v1.wav', 'retrace-end': 'stage-01/retrace-end-v1.wav',
   damage: 'stage-01/damage-v1.wav', warning: 'stage-01/warning-v1.wav', 'ui-confirm': 'stage-01/ui-confirm-v1.wav', 'ui-back': 'stage-01/ui-back-v1.wav'
@@ -30,14 +31,19 @@ const stageFiveFiles = {
   'mirror-reflect': 'stage-05/mirror-reflect-v1.wav', 'false-annotation': 'stage-05/false-annotation-v1.wav', 'false-volley': 'stage-05/false-volley-v1.wav',
   'twins-sync': 'stage-05/twins-sync-v1.wav', 'twins-hit': 'stage-05/twins-hit-v1.wav', 'twins-phase': 'stage-05/twins-phase-v1.wav'
 } as const;
+const stageSixFiles = {
+  'folio-shift': 'stage-06/folio-shift-v1.wav', 'binding-link': 'stage-06/binding-link-v1.wav', 'choir-hole': 'stage-06/choir-hole-v1.wav',
+  'editor-rewrite': 'stage-06/editor-rewrite-v1.wav', 'signature-close': 'stage-06/signature-close-v1.wav', 'editor-phase': 'stage-06/editor-phase-v1.wav'
+} as const;
 const stemFiles: Partial<Record<StageId, Record<StemName, string>>> = {
   'stage-01': { ambient: 'stage-01/harbor-ambient-v1.wav', pulse: 'stage-01/harbor-pulse-v1.wav', crisis: 'stage-01/harbor-crisis-v1.wav' },
   'stage-02': { ambient: 'stage-02/crosswind-ambient-v1.wav', pulse: 'stage-02/crosswind-pulse-v1.wav', crisis: 'stage-02/crosswind-crisis-v1.wav' },
   'stage-03': { ambient: 'stage-03/rain-ambient-v1.wav', pulse: 'stage-03/rain-pulse-v1.wav', crisis: 'stage-03/rain-crisis-v1.wav' },
   'stage-04': { ambient: 'stage-04/furnace-ambient-v1.wav', pulse: 'stage-04/furnace-pulse-v1.wav', crisis: 'stage-04/furnace-crisis-v1.wav' },
-  'stage-05': { ambient: 'stage-05/mirror-ambient-v1.wav', pulse: 'stage-05/mirror-pulse-v1.wav', crisis: 'stage-05/mirror-crisis-v1.wav' }
+  'stage-05': { ambient: 'stage-05/mirror-ambient-v1.wav', pulse: 'stage-05/mirror-pulse-v1.wav', crisis: 'stage-05/mirror-crisis-v1.wav' },
+  'stage-06': { ambient: 'stage-06/original-ambient-v1.wav', pulse: 'stage-06/original-pulse-v1.wav', crisis: 'stage-06/original-crisis-v1.wav' }
 };
-const files = { ...commonFiles, ...stageTwoFiles, ...stageThreeFiles, ...stageFourFiles, ...stageFiveFiles, ...Object.fromEntries(Object.entries(stemFiles).flatMap(([stage, stems]) => Object.entries(stems).map(([name, file]) => [`${stage}-${name}`, file]))) };
+const files = { ...commonFiles, ...stageTwoFiles, ...stageThreeFiles, ...stageFourFiles, ...stageFiveFiles, ...stageSixFiles, ...Object.fromEntries(Object.entries(stemFiles).flatMap(([stage, stems]) => Object.entries(stems).map(([name, file]) => [`${stage}-${name}`, file]))) };
 
 const cueRules: Record<Cue, { bus: Bus; gain: number; cooldown: number; max: number }> = {
   shot: { bus: 'se', gain: 0.45, cooldown: 0.055, max: 3 }, annotation: { bus: 'se', gain: 0.45, cooldown: 0.045, max: 3 },
@@ -66,7 +72,13 @@ const cueRules: Record<Cue, { bus: Bus; gain: number; cooldown: number; max: num
   'false-volley': { bus: 'environment', gain: 0.44, cooldown: 0.12, max: 2 },
   'twins-sync': { bus: 'se', gain: 0.72, cooldown: 0.2, max: 1 },
   'twins-hit': { bus: 'se', gain: 0.68, cooldown: 0.06, max: 3 },
-  'twins-phase': { bus: 'se', gain: 0.78, cooldown: 0.3, max: 1 }
+  'twins-phase': { bus: 'se', gain: 0.78, cooldown: 0.3, max: 1 },
+  'folio-shift': { bus: 'environment', gain: 0.58, cooldown: 0.3, max: 1 },
+  'binding-link': { bus: 'environment', gain: 0.56, cooldown: 0.14, max: 2 },
+  'choir-hole': { bus: 'environment', gain: 0.6, cooldown: 0.16, max: 2 },
+  'editor-rewrite': { bus: 'se', gain: 0.72, cooldown: 0.12, max: 2 },
+  'signature-close': { bus: 'se', gain: 0.78, cooldown: 0.25, max: 1 },
+  'editor-phase': { bus: 'se', gain: 0.8, cooldown: 0.3, max: 1 }
 };
 
 export const cueForEvent = (event: GameEvent, stageId: StageId = 'stage-01'): { cue: Cue; rate: number } | null => {
@@ -89,6 +101,11 @@ export const cueForEvent = (event: GameEvent, stageId: StageId = 'stage-01'): { 
   if (event.type === 'false-volley') return { cue: 'false-volley', rate: 1 };
   if (event.type === 'twins-sync-broken') return { cue: 'twins-sync', rate: event.vulnerable < 0 ? 0.96 : 1.04 };
   if (event.type === 'twins-weakpoint-hit') return { cue: 'twins-hit', rate: event.vulnerable < 0 ? 0.97 : 1.03 };
+  if (event.type === 'folio-changed') return { cue: 'folio-shift', rate: event.folio === 'synthesis' ? 1.12 : 0.94 + ['wind', 'rain', 'heat', 'mirror'].indexOf(event.folio) * 0.04 };
+  if (event.type === 'binding-linked') return { cue: 'binding-link', rate: 1 };
+  if (event.type === 'choir-hole') return { cue: 'choir-hole', rate: 1 };
+  if (event.type === 'editor-rule-rewritten') return { cue: 'editor-rewrite', rate: 0.92 + event.rule * 0.04 };
+  if (event.type === 'editor-signature-closed') return { cue: 'signature-close', rate: 1 };
   if (event.type === 'shot-fired') return { cue: 'shot', rate: 1 };
   if (event.type === 'shot-annotated') return { cue: 'annotation', rate: 1 };
   if (event.type === 'loop-ready') return { cue: 'candidate', rate: 1 };
@@ -101,6 +118,7 @@ export const cueForEvent = (event: GameEvent, stageId: StageId = 'stage-01'): { 
   if (stageId === 'stage-03' && (event.type === 'boss-spawned' || event.type === 'boss-phase')) return { cue: 'eel-phase', rate: event.type === 'boss-phase' ? 0.9 + event.phase * 0.1 : 0.84 };
   if (stageId === 'stage-04' && (event.type === 'boss-spawned' || event.type === 'boss-phase')) return { cue: 'advocate-phase', rate: event.type === 'boss-phase' ? 0.9 + event.phase * 0.1 : 0.82 };
   if (stageId === 'stage-05' && (event.type === 'boss-spawned' || event.type === 'boss-phase' || event.type === 'twins-swapped')) return { cue: 'twins-phase', rate: event.type === 'boss-phase' ? 0.9 + event.phase * 0.1 : event.type === 'twins-swapped' ? 1.08 : 0.82 };
+  if (stageId === 'stage-06' && (event.type === 'boss-spawned' || event.type === 'boss-phase')) return { cue: 'editor-phase', rate: event.type === 'boss-phase' ? 0.9 + event.phase * 0.1 : 0.8 };
   if (event.type === 'boss-spawned' || event.type === 'boss-warning') return { cue: 'warning', rate: 1 };
   if (event.type === 'boss-phase') return { cue: 'warning', rate: 1 + event.phase * 0.06 };
   if (event.type === 'boss-defeated' || event.type === 'enemy-defeated') return { cue: 'collate', rate: event.type === 'boss-defeated' ? 0.74 : 1.34 };

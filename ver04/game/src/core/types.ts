@@ -130,6 +130,9 @@ export type GameEvent =
   | { type: 'twins-sync-broken'; vulnerable: -1 | 1 }
   | { type: 'twins-weakpoint-hit'; vulnerable: -1 | 1 }
   | { type: 'twins-swapped' }
+  | { type: 'folio-changed'; folio: 'wind' | 'rain' | 'heat' | 'mirror' | 'synthesis' }
+  | { type: 'binding-linked' }
+  | { type: 'choir-hole' }
   | { type: 'editor-rule-rewritten'; rule: 0 | 1 | 2 | 3 | 4 }
   | { type: 'editor-revision-hit' }
   | { type: 'editor-signature-ink' }

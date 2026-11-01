@@ -8,7 +8,8 @@ const stageTwo = ['crosswind-ambient-v1.wav', 'crosswind-pulse-v1.wav', 'crosswi
 const stageThree = ['rain-ambient-v1.wav', 'rain-pulse-v1.wav', 'rain-crisis-v1.wav', 'rain-wet-v1.wav', 'basin-surge-v1.wav', 'wet-annotation-v1.wav', 'eel-marked-v1.wav', 'eel-hit-v1.wav', 'eel-phase-v1.wav'].map((name) => `stage-03/${name}`);
 const stageFour = ['furnace-ambient-v1.wav', 'furnace-pulse-v1.wav', 'furnace-crisis-v1.wav', 'heat-wave-v1.wav', 'cooling-field-v1.wav', 'courier-convert-v1.wav', 'ember-cooled-v1.wav', 'wall-hit-v1.wav', 'advocate-phase-v1.wav'].map((name) => `stage-04/${name}`);
 const stageFive = ['mirror-ambient-v1.wav', 'mirror-pulse-v1.wav', 'mirror-crisis-v1.wav', 'mirror-reflect-v1.wav', 'false-annotation-v1.wav', 'false-volley-v1.wav', 'twins-sync-v1.wav', 'twins-hit-v1.wav', 'twins-phase-v1.wav'].map((name) => `stage-05/${name}`);
-const names = [...stageOne, ...stageTwo, ...stageThree, ...stageFour, ...stageFive];
+const stageSix = ['original-ambient-v1.wav', 'original-pulse-v1.wav', 'original-crisis-v1.wav', 'folio-shift-v1.wav', 'binding-link-v1.wav', 'choir-hole-v1.wav', 'editor-rewrite-v1.wav', 'signature-close-v1.wav', 'editor-phase-v1.wav'].map((name) => `stage-06/${name}`);
+const names = [...stageOne, ...stageTwo, ...stageThree, ...stageFour, ...stageFive, ...stageSix];
 
 const decode = async (name) => {
   const data = await readFile(resolve(directory, name));
@@ -44,8 +45,9 @@ const renderWorstCase = (stage) => {
     const source = audio[`${stage}/${name}`] ?? audio[`stage-01/${name}`]; const start = Math.round(time * rate);
     for (let channel = 0; channel < 2; channel += 1) for (let index = 0; index < source.channels[channel].length && start + index < mix[channel].length; index += 1) mix[channel][start + index] += source.channels[channel][index] * gain;
   };
-  const stageTwoMix = stage === 'stage-02'; const stageThreeMix = stage === 'stage-03'; const stageFourMix = stage === 'stage-04'; const stageFiveMix = stage === 'stage-05';
-  const stems = stageFiveMix ? ['mirror-ambient-v1.wav', 'mirror-pulse-v1.wav', 'mirror-crisis-v1.wav']
+  const stageTwoMix = stage === 'stage-02'; const stageThreeMix = stage === 'stage-03'; const stageFourMix = stage === 'stage-04'; const stageFiveMix = stage === 'stage-05'; const stageSixMix = stage === 'stage-06';
+  const stems = stageSixMix ? ['original-ambient-v1.wav', 'original-pulse-v1.wav', 'original-crisis-v1.wav']
+    : stageFiveMix ? ['mirror-ambient-v1.wav', 'mirror-pulse-v1.wav', 'mirror-crisis-v1.wav']
     : stageFourMix ? ['furnace-ambient-v1.wav', 'furnace-pulse-v1.wav', 'furnace-crisis-v1.wav']
     : stageThreeMix ? ['rain-ambient-v1.wav', 'rain-pulse-v1.wav', 'rain-crisis-v1.wav']
     : stageTwoMix ? ['crosswind-ambient-v1.wav', 'crosswind-pulse-v1.wav', 'crosswind-crisis-v1.wav']
@@ -53,7 +55,10 @@ const renderWorstCase = (stage) => {
   for (const stem of stems) add(stem, 0, stem.includes('ambient') ? 0.18 : 0.14);
   for (let index = 0; index < 10; index += 1) add('shot-v1.wav', index * 0.085, 0.19);
   add('collate-v1.wav', 0.4, 0.3);
-  if (stageFiveMix) {
+  if (stageSixMix) {
+    add('folio-shift-v1.wav', 0.08, 0.26); add('binding-link-v1.wav', 0.24, 0.25); add('choir-hole-v1.wav', 0.42, 0.27);
+    add('editor-rewrite-v1.wav', 0.58, 0.31); add('signature-close-v1.wav', 0.78, 0.34); add('editor-phase-v1.wav', 0.96, 0.34);
+  } else if (stageFiveMix) {
     add('mirror-reflect-v1.wav', 0.08, 0.25); add('false-annotation-v1.wav', 0.22, 0.24); add('false-volley-v1.wav', 0.38, 0.2);
     add('twins-sync-v1.wav', 0.56, 0.31); add('twins-hit-v1.wav', 0.82, 0.3); add('twins-phase-v1.wav', 0.96, 0.33);
   } else if (stageFourMix) {
@@ -71,9 +76,9 @@ const renderWorstCase = (stage) => {
   for (const channel of mix) for (const sample of channel) { sum += sample * sample; peak = Math.max(peak, Math.abs(sample)); count += 1; if (!Number.isFinite(sample)) throw new Error(`${stage} mix contains NaN`); if (Math.abs(sample) > 1) clipped += 1; }
   const preLimiterPeakDbfs = db(peak);
   if (preLimiterPeakDbfs > -6) throw new Error(`${stage} worst mix lacks 6 dB headroom: ${preLimiterPeakDbfs.toFixed(2)} dBFS`);
-  return { scenario: stageFiveMix ? '3 Stage 5 stems + 10 shots + COLLATE + mirror/false writing/false volley + Twins sync/hit/phase + 5 UI cues' : stageFourMix ? '3 Stage 4 stems + 10 shots + COLLATE + heat/cooling/Courier/ember/wall/Advocate cues + 5 UI cues' : stageThreeMix ? '3 Stage 3 stems + 10 shots + COLLATE + rain wet/basin surge/wet annotation + Eel mark/hit/phase + 5 UI cues' : stageTwoMix ? '3 Stage 2 stems + 10 shots + COLLATE + wind reversal/lock + seam exposed/hit + Compiler phase + 5 UI cues' : '3 Stage 1 stems + 10 shots + 18-capture chord + boss warning + damage + 5 UI cues', preLimiterRmsDbfs: Number(db(Math.sqrt(sum / count)).toFixed(2)), preLimiterPeakDbfs: Number(preLimiterPeakDbfs.toFixed(2)), outputPeakDbfs: Number(Math.min(-1.1, preLimiterPeakDbfs).toFixed(2)), nanSamples: 0, clippedSamples: clipped, seVoicesPeak: stageTwoMix || stageThreeMix || stageFourMix || stageFiveMix ? 5 : 4, uiVoicesPeak: 2, musicVoicesPeak: 2, environmentVoicesPeak: stageThreeMix ? 3 : stageTwoMix || stageFourMix || stageFiveMix ? 2 : 1 };
+  return { scenario: stageSixMix ? '3 Stage 6 stems + 10 shots + COLLATE + folio/binding/Choir/rewrite/signature/Editor cues + 5 UI cues' : stageFiveMix ? '3 Stage 5 stems + 10 shots + COLLATE + mirror/false writing/false volley + Twins sync/hit/phase + 5 UI cues' : stageFourMix ? '3 Stage 4 stems + 10 shots + COLLATE + heat/cooling/Courier/ember/wall/Advocate cues + 5 UI cues' : stageThreeMix ? '3 Stage 3 stems + 10 shots + COLLATE + rain wet/basin surge/wet annotation + Eel mark/hit/phase + 5 UI cues' : stageTwoMix ? '3 Stage 2 stems + 10 shots + COLLATE + wind reversal/lock + seam exposed/hit + Compiler phase + 5 UI cues' : '3 Stage 1 stems + 10 shots + 18-capture chord + boss warning + damage + 5 UI cues', preLimiterRmsDbfs: Number(db(Math.sqrt(sum / count)).toFixed(2)), preLimiterPeakDbfs: Number(preLimiterPeakDbfs.toFixed(2)), outputPeakDbfs: Number(Math.min(-1.1, preLimiterPeakDbfs).toFixed(2)), nanSamples: 0, clippedSamples: clipped, seVoicesPeak: stageTwoMix || stageThreeMix || stageFourMix || stageFiveMix || stageSixMix ? 5 : 4, uiVoicesPeak: 2, musicVoicesPeak: 2, environmentVoicesPeak: stageThreeMix ? 3 : stageTwoMix || stageFourMix || stageFiveMix || stageSixMix ? 2 : 1 };
 };
 
-const report = { generatedAt: '2026-11-01', assets, worstCaseMix: { stage01: renderWorstCase('stage-01'), stage02: renderWorstCase('stage-02'), stage03: renderWorstCase('stage-03'), stage04: renderWorstCase('stage-04'), stage05: renderWorstCase('stage-05') } };
-await writeFile(resolve(root, '../docs/evidence/m3-20-audio-audit.json'), `${JSON.stringify(report, null, 2)}\n`);
-console.log(`audio audit passed: ${names.length} assets, Stage 5 worst pre-limiter peak ${report.worstCaseMix.stage05.preLimiterPeakDbfs.toFixed(2)} dBFS`);
+const report = { generatedAt: '2026-11-01', assets, worstCaseMix: { stage01: renderWorstCase('stage-01'), stage02: renderWorstCase('stage-02'), stage03: renderWorstCase('stage-03'), stage04: renderWorstCase('stage-04'), stage05: renderWorstCase('stage-05'), stage06: renderWorstCase('stage-06') } };
+await writeFile(resolve(root, '../docs/evidence/m3-25-audio-audit.json'), `${JSON.stringify(report, null, 2)}\n`);
+console.log(`audio audit passed: ${names.length} assets, Stage 6 worst pre-limiter peak ${report.worstCaseMix.stage06.preLimiterPeakDbfs.toFixed(2)} dBFS`);

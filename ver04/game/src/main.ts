@@ -153,8 +153,28 @@ Object.assign(window, {
       app.game.encounterIndex = STAGE_06_SPAWNS.length;
       app.game.enemies = []; app.game.player.x = 560 * 256;
       runStep({});
-      const pilot = createPilot('stitch');
-      for (let index = 0; index < 720; index += 1) runStep(pilot(app.game));
+      const editor = app.game.boss!;
+      app.game.bullets.push({ id: app.game.nextId++, x: 900 * 256, y: 300 * 256, vx: 0, vy: 0, radius: 9, kind: 'enemy', annotated: false, capturable: true, sourceAttack: 'editor-mirror' });
+      app.game.candidate = { polygon: [
+        { x: 820 * 256, y: 220 * 256 }, { x: 1020 * 256, y: 220 * 256 },
+        { x: 1020 * 256, y: 420 * 256 }, { x: 820 * 256, y: 420 * 256 }
+      ], intersection: { x: 820 * 256, y: 220 * 256 }, startIndex: 0, area: 80000, expiresTick: app.game.tick + 60 };
+      runStep({ collate: true });
+      app.game.boss!.revisionExposedUntil = app.game.tick + 120;
+      app.game.boss!.editorRulesMask = 0b11111;
+      app.game.boss!.health = Math.floor(editor.maxHealth * 2 / 3) + 10;
+      app.game.bullets.push({ id: app.game.nextId++, x: editor.x, y: editor.y, vx: 0, vy: 0, radius: 5, kind: 'player', annotated: true, capturable: false });
+      runStep({});
+      app.game.boss!.phase = 3;
+      for (let index = 0; index < 5; index += 1) app.game.bullets.push({
+        id: app.game.nextId++, x: (840 + index * 35) * 256, y: (285 + (index % 2) * 70) * 256,
+        vx: 0, vy: 0, radius: 9, kind: 'enemy', annotated: false, capturable: true, sourceAttack: 'editor-signature', signatureInk: true
+      });
+      app.game.candidate = { polygon: [
+        { x: 780 * 256, y: 190 * 256 }, { x: 1080 * 256, y: 190 * 256 },
+        { x: 1080 * 256, y: 470 * 256 }, { x: 780 * 256, y: 470 * 256 }
+      ], intersection: { x: 780 * 256, y: 190 * 256 }, startIndex: 0, area: 84000, expiresTick: app.game.tick + 60 };
+      runStep({ collate: true });
     } else if (scenario === 'stage-06-combat' || scenario === 'stage-06-setpiece') {
       app.game = createInitialState(3601, 'stage-06');
       app.game.player.invulnerableUntil = 50000;
@@ -163,8 +183,26 @@ Object.assign(window, {
         app.game.tick = 25919; app.game.encounterIndex = setpieceIndex;
       }
       const pilot = createPilot('stitch');
+      if (scenario === 'stage-06-setpiece') {
+        for (let attempt = 0; attempt < 8 && app.game.metrics.original!.bindingLinks === 0; attempt += 1) {
+          const wasp = app.game.enemies.find((enemy) => enemy.kind === 'binding-wasp');
+          if (!wasp) { runStep({}); continue; }
+          app.game.trail = [
+            { x: 300 * 256, y: 240 * 256, bornTick: app.game.tick, segmentId: 1 },
+            { x: 620 * 256, y: 480 * 256, bornTick: app.game.tick, segmentId: 1 }
+          ];
+          app.game.candidate = null; wasp.fireCooldown = 0; runStep({});
+        }
+      }
       const ticks = scenario === 'stage-06-combat' ? 5200 : 2050;
-      for (let index = 0; index < ticks; index += 1) runStep(pilot(app.game));
+      let choirCueMade = false;
+      for (let index = 0; index < ticks; index += 1) {
+        const choir = app.game.enemies.find((enemy) => enemy.kind === 'null-choir');
+        if (scenario === 'stage-06-setpiece' && choir && !choirCueMade) {
+          choir.markedUntil = app.game.tick + 120; choir.fireCooldown = 0; choirCueMade = true;
+        }
+        runStep(pilot(app.game));
+      }
     } else if (scenario === 'stage-05-boss') {
       app.game = createInitialState(3517, 'stage-05');
       app.game.player.invulnerableUntil = 80000;

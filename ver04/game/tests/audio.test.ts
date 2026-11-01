@@ -57,4 +57,13 @@ describe('Stage 1 audio event map', () => {
     expect(cueForEvent({ type: 'twins-weakpoint-hit', vulnerable: 1 }, 'stage-05')?.cue).toBe('twins-hit');
     expect(cueForEvent({ type: 'boss-phase', phase: 3 }, 'stage-05')?.cue).toBe('twins-phase');
   });
+
+  it('maps Stage 6 folio, archive and LAST EDITOR feedback to dedicated cues', () => {
+    expect(cueForEvent({ type: 'folio-changed', folio: 'synthesis' }, 'stage-06')?.cue).toBe('folio-shift');
+    expect(cueForEvent({ type: 'binding-linked' }, 'stage-06')?.cue).toBe('binding-link');
+    expect(cueForEvent({ type: 'choir-hole' }, 'stage-06')?.cue).toBe('choir-hole');
+    expect(cueForEvent({ type: 'editor-rule-rewritten', rule: 4 }, 'stage-06')?.cue).toBe('editor-rewrite');
+    expect(cueForEvent({ type: 'editor-signature-closed' }, 'stage-06')?.cue).toBe('signature-close');
+    expect(cueForEvent({ type: 'boss-phase', phase: 3 }, 'stage-06')?.cue).toBe('editor-phase');
+  });
 });

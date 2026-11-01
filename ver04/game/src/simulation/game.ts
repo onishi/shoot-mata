@@ -897,6 +897,7 @@ const updateEnemy = (state: GameState, enemy: Enemy, events: GameEvent[]): void 
           area: Math.round(4 * halfWidth * halfHeight / SCALE ** 2), expiresTick: state.tick + 120
         };
         state.metrics.original!.bindingLinks += 1;
+        events.push({ type: 'binding-linked' });
       }
       spawnEnemyBullet(state, enemy, 0, 132);
       enemy.fireCooldown = 252; state.metrics.enemyStats[enemy.kind].attacks += 1;
@@ -925,7 +926,10 @@ const updateEnemy = (state: GameState, enemy: Enemy, events: GameEvent[]): void 
     enemy.y = enemy.baseY + Math.round(Math.sin((age + enemy.phase) / 148) * enemy.amplitude * SCALE * enemy.lane);
     if (enemy.state === 'exiting') enemy.x += (state.tick - (enemy.expiresAt - 120)) * 3 * SCALE;
     if (enemy.fireCooldown <= 0) {
-      if (enemy.markedUntil >= state.tick) state.metrics.original!.choirHoles += 1;
+      if (enemy.markedUntil >= state.tick) {
+        state.metrics.original!.choirHoles += 1;
+        events.push({ type: 'choir-hole' });
+      }
       else {
         for (const offset of [-0.34, -0.17, 0, 0.17, 0.34]) spawnEnemyBullet(state, enemy, offset, 146);
         state.metrics.original!.choirVerses += 1;
@@ -1115,7 +1119,11 @@ export const step = (previous: GameState, input: InputFrame): { state: GameState
   const state = copyState(previous);
   const events: GameEvent[] = [];
   state.tick += 1;
-  if (state.stageId === 'stage-06') state.metrics.original!.folioTicks[stageSixFolio(state.tick)] += 1;
+  if (state.stageId === 'stage-06') {
+    const folio = stageSixFolio(state.tick);
+    state.metrics.original!.folioTicks[folio] += 1;
+    if (state.tick > 1 && stageSixFolio(state.tick - 1) !== folio) events.push({ type: 'folio-changed', folio });
+  }
 
   if (input.retrace && !state.retrace) {
     if (state.gauge >= 25 && state.trail.length >= 4) {
