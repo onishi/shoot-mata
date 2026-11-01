@@ -5,6 +5,7 @@ import { STAGE_02_BOSS_START_TICK, STAGE_02_SPAWNS } from '../src/content/stage-
 import { STAGE_03_BOSS_START_TICK, STAGE_03_SPAWNS } from '../src/content/stage-03';
 import { STAGE_04_BOSS_START_TICK, STAGE_04_SPAWNS } from '../src/content/stage-04';
 import { STAGE_05_BOSS_START_TICK, STAGE_05_SPAWNS } from '../src/content/stage-05';
+import { STAGE_06_BOSS_START_TICK, STAGE_06_SPAWNS } from '../src/content/stage-06';
 import { px } from '../src/core/math';
 
 const start = (): AppState => transition(transition(createAppState(404), 'start'), 'confirm');
@@ -232,6 +233,59 @@ describe('M2 application flow', () => {
     expect(app.game.player.x).not.toBe(px(500));
     expect(app.game.bullets.filter((bullet) => bullet.kind === 'enemy')).toHaveLength(0);
     expect(app.game.boss?.kind).toBe('apocrypha-twins');
+  });
+
+  it('continues from Stage 5 through Stage 6, restores both final checkpoints and exposes the ending boundary', () => {
+    let app = start();
+    for (const stageId of ['stage-01', 'stage-02', 'stage-03', 'stage-04', 'stage-05'] as const) {
+      expect(app.game.stageId).toBe(stageId);
+      app.game.metrics.boss.defeated = true;
+      app.screen = 'result';
+      app = transition(app, 'confirm');
+      if (stageId !== 'stage-05') app = transition(app, 'confirm');
+    }
+    expect(app).toMatchObject({ screen: 'stage-intro', checkpointName: 'original-dawn-entry', continuesRemaining: 1 });
+    expect(app.game).toMatchObject({ stageId: 'stage-06', tick: 0 });
+
+    app = transition(app, 'confirm');
+    app = fatalHit(app);
+    expect(app.screen).toBe('continue');
+    const stoppedTick = app.game.tick;
+    expect(advance(app).state.game.tick).toBe(stoppedTick);
+    app = transition(app, 'confirm');
+    expect(app).toMatchObject({ screen: 'stage-intro', checkpointName: 'original-dawn-entry', continuesRemaining: 0 });
+    expect(app.game).toMatchObject({ stageId: 'stage-06', tick: 0, gauge: 50, player: { health: 3 } });
+
+    app = transition(app, 'confirm');
+    app.game.tick = STAGE_06_BOSS_START_TICK - 1;
+    app.game.encounterIndex = STAGE_06_SPAWNS.length;
+    app.game.enemies = [];
+    app = advance(app).state;
+    expect(app.checkpointName).toBe('last-editor-gate');
+    expect(app.checkpoint.tick).toBe(STAGE_06_BOSS_START_TICK);
+    app.game.player.x = px(500);
+    app.continuesRemaining = 1;
+    app = fatalHit(app);
+    app = transition(app, 'confirm');
+    expect(app.screen).toBe('stage-intro');
+    expect(app.game.tick).toBe(STAGE_06_BOSS_START_TICK);
+    expect(app.game.player.x).not.toBe(px(500));
+    expect(app.game.bullets.filter((bullet) => bullet.kind === 'enemy')).toHaveLength(0);
+    expect(app.game.boss?.kind).toBe('last-editor');
+
+    app = transition(app, 'confirm');
+    app.game.boss!.phase = 3;
+    app.game.boss!.editorRulesMask = 0b11111;
+    app.game.boss!.signatureExposedUntil = app.game.tick + 60;
+    app.game.boss!.health = 1;
+    app.game.bullets = [{ id: app.game.nextId++, x: app.game.boss!.x, y: app.game.boss!.y, vx: 0, vy: 0, radius: 5, kind: 'return', annotated: true, capturable: false }];
+    app = advance(app).state;
+    expect(app.screen).toBe('result');
+    app = transition(app, 'confirm');
+    expect(app.screen).toBe('ending-boundary');
+    const boundaryTick = app.game.tick;
+    expect(advance(app).state.game.tick).toBe(boundaryTick);
+    expect(transition(app, 'confirm').screen).toBe('title');
   });
 
   it('enters result when the boss is defeated and auto-pauses only active play', () => {

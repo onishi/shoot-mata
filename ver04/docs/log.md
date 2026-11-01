@@ -287,3 +287,12 @@
 - `m3-22-last-editor-phase-1/2/3.png`を1280×720で目視した。初回画像でStage 6区間名とボス名が重なったため、ボス戦中は区間名を非表示にして再撮影し、形態名、金色の校訂輪郭、署名8点、成立表示、耐久線、自機、HUDに文字切れ・重なりがないことを確認した。Canvas表現はStage 6完成素材まで`prototype`として追跡する。
 - `npm run verify`で単体53件、自動計測12件、素材監査45 final・1 prototype、音量監査50素材、型検査、production build、Chrome E2E 14件に合格した。既存Stage 1〜6通常区間・5ボスの決定性と画面回帰も維持した。
 - 次回はStage 5結果からStage 6章導入、270秒通常区間、THE LAST EDITOR、Stage 6結果までをAppStateで接続し、Stage 6開始地点とボス直前のコンティニューを実装する。
+
+## 2026-11-01 — M3-23 Stage 5→6キャンペーン遷移と復帰
+
+- Stage 5結果の決定入力からStage 6章導入、270秒通常区間、THE LAST EDITOR、Stage 6結果までをAppStateで接続した。Stage 1〜5の既存結果遷移とEscapeによる終了も維持した。
+- Stage 6へ`original-dawn-entry`と`last-editor-gate`を接続した。各面1回のコンティニューで、開始地点または32,400tickのボス直前へ耐久3・ゲージ50・未確定航跡なし・敵弾なしで復帰する。
+- 原本の夜明けの章題、風・雨・熱・鏡へ一つの意図を引き継ぐ教材、THE LAST EDITORの全規則校訂と署名輪攻略文、Stage 6結果文を通しで確認した。最終結果の決定入力は未実装エンディング専用の`ending-boundary`へ進み、完成扱いせず後続実装の遷移契約を固定した。
+- 単体54件、自動計測12件、素材監査45 final・1 prototype、音量監査50素材、型検査、production build、Chrome E2E 14件に合格した。ChromeではStage 1→6高速通し、Stage 6両復帰、ポーズ・コンティニュー・結果・エンディング境界中のtick停止、THE LAST EDITOR撃破を確認した。
+- `m3-23-stage-06-intro.png`と`m3-23-stage-06-result.png`を1280×720で目視し、章題、教材、最終結果、スコア、エンディングへの案内に文字切れ・重なりがないことを確認した。
+- 次回はStage 6の背景3層、4通常敵、THE LAST EDITOR、校訂核・署名弾・署名輪を完成素材へ置き換え、通常戦、統合山場、ボス3形態を画像確認する。

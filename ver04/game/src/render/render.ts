@@ -572,9 +572,9 @@ const renderScreen = (ctx: CanvasRenderingContext2D, app: AppState, screen: Excl
       'stage-01': { number: 1, title: 'THE HARBOR REMEMBERS', action: 'ENTER  CONTINUE TO STAGE 2' },
       'stage-02': { number: 2, title: 'THE INDEX HOLDS ITS COURSE', action: 'ENTER  CONTINUE TO STAGE 3' },
       'stage-03': { number: 3, title: 'THE GALLERY RELEASES ITS RAIN', action: 'ENTER  CONTINUE TO STAGE 4' },
-      'stage-04': { number: 4, title: 'THE FOOTNOTE COOLS', action: 'ENTER  CONTINUE TO STAGE 5' }
-      , 'stage-05': { number: 5, title: 'THE MIRROR TESTIMONY BREAKS', action: 'ENTER  RETURN TO TITLE' }
-      , 'stage-06': { number: 6, title: 'THE ORIGINAL WAKES', action: 'ENTER  RETURN TO TITLE' }
+      'stage-04': { number: 4, title: 'THE FOOTNOTE COOLS', action: 'ENTER  CONTINUE TO STAGE 5' },
+      'stage-05': { number: 5, title: 'THE MIRROR TESTIMONY BREAKS', action: 'ENTER  CONTINUE TO STAGE 6' },
+      'stage-06': { number: 6, title: 'THE ORIGINAL WAKES', action: 'ENTER  CONTINUE TO ENDING' }
     }[app.game.stageId];
     line(ctx, `STAGE ${resultCopy.number} COMPLETE`, 190, '#f4c36a', 18);
     title(ctx, resultCopy.title, 280, 48);
@@ -583,6 +583,11 @@ const renderScreen = (ctx: CanvasRenderingContext2D, app: AppState, screen: Excl
     line(ctx, `DAMAGE ${app.game.metrics.damage}   ·   REVISIONS USED ${1 - app.continuesRemaining}`, 450);
     line(ctx, resultCopy.action, 550, '#a8f7ff', 20);
     line(ctx, 'ESC  END VOYAGE', 590, '#7895a7', 15);
+  } else if (screen === 'ending-boundary') {
+    line(ctx, 'ENDING SEQUENCE', 205, '#f4c36a', 18);
+    title(ctx, 'THE FIRST LINE REMAINS', 300, 48);
+    line(ctx, 'The final illustrated ending is the next campaign slice.', 370);
+    line(ctx, 'ENTER / ESC  RETURN TO TITLE', 530, '#a8f7ff', 20);
   }
   ctx.textAlign = 'start';
 };

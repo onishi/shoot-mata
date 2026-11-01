@@ -55,6 +55,7 @@ window.addEventListener('keydown', (event) => {
     else if (app.screen === 'continue' && code === 'Enter') applyAction('confirm');
     else if (app.screen === 'continue' && code === 'Escape') applyAction('back');
     else if (app.screen === 'result' && matches(code, ['Enter', 'Escape'])) applyAction(code === 'Enter' ? 'confirm' : 'back');
+    else if (app.screen === 'ending-boundary' && matches(code, ['Enter', 'Escape'])) applyAction(code === 'Enter' ? 'confirm' : 'back');
     else if (app.screen === 'playing' && matches(code, ['KeyX', 'KeyK'])) pulses.collate = true;
     else if (app.screen === 'playing' && matches(code, ['KeyC', 'KeyL'])) pulses.retrace = true;
   }
@@ -97,7 +98,9 @@ const runStep = (frameInput: InputFrame): void => {
         ? 'Stage 3 complete. Continue into the Burnt Footnote.'
         : app.game.stageId === 'stage-04'
           ? 'Stage 4 complete. Continue into the Mirror Chamber.'
-          : 'Stage 5 complete. The mirror testimony breaks.';
+          : app.game.stageId === 'stage-05'
+            ? 'Stage 5 complete. Continue into Dawn of the Original.'
+            : 'Stage 6 complete. Continue to the ending sequence boundary.';
 };
 
 const frame = (now: number): void => {
@@ -294,6 +297,12 @@ Object.assign(window, {
       app.game.enemies = [];
       app.game.bullets = [];
       runStep({});
+    } else if (app.game.boss?.kind === 'last-editor') {
+      app.game.boss.phase = 3;
+      app.game.boss.editorRulesMask = 0b11111;
+      app.game.boss.signatureExposedUntil = app.game.tick + 60;
+      app.game.boss.health = 1;
+      app.game.bullets.push({ id: app.game.nextId++, x: app.game.boss.x, y: app.game.boss.y, vx: 0, vy: 0, radius: 5, kind: 'return', annotated: true, capturable: false });
     } else if (app.game.boss?.kind === 'cinder-advocate') {
       app.game.boss.health = 1;
       app.game.bullets.push({ id: app.game.nextId++, x: app.game.boss.x, y: app.game.boss.y, vx: 0, vy: 0, radius: 10, kind: 'return', annotated: true, cooledEmber: true, capturable: false });

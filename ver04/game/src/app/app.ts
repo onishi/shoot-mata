@@ -1,7 +1,7 @@
 import type { GameEvent, GameState, InputFrame, StageId } from '../core/types';
 import { copyState, createInitialState, step } from '../simulation/game';
 
-export type AppScreen = 'title' | 'guide' | 'stage-intro' | 'playing' | 'paused' | 'continue' | 'result';
+export type AppScreen = 'title' | 'guide' | 'stage-intro' | 'playing' | 'paused' | 'continue' | 'result' | 'ending-boundary';
 export type AppAction = 'start' | 'guide' | 'confirm' | 'back' | 'pause';
 export type CheckpointName =
   | 'harbor-entry' | 'bailiff-gate'
@@ -26,7 +26,7 @@ const bossCheckpoints: Record<StageId, CheckpointName> = {
   'stage-01': 'bailiff-gate', 'stage-02': 'compiler-gate', 'stage-03': 'eel-gate', 'stage-04': 'advocate-gate', 'stage-05': 'apocrypha-gate', 'stage-06': 'last-editor-gate'
 };
 const nextStages: Partial<Record<StageId, StageId>> = {
-  'stage-01': 'stage-02', 'stage-02': 'stage-03', 'stage-03': 'stage-04', 'stage-04': 'stage-05'
+  'stage-01': 'stage-02', 'stage-02': 'stage-03', 'stage-03': 'stage-04', 'stage-04': 'stage-05', 'stage-05': 'stage-06'
 };
 
 const beginStage = (stageId: StageId, seed: number): AppState => {
@@ -84,9 +84,10 @@ export const transition = (state: AppState, action: AppAction): AppState => {
     if (action === 'back') return { ...state, screen: 'title' };
     if (action === 'confirm') {
       const nextStage = nextStages[state.game.stageId];
-      return nextStage ? beginStage(nextStage, state.game.seed) : { ...state, screen: 'title' };
+      return nextStage ? beginStage(nextStage, state.game.seed) : { ...state, screen: 'ending-boundary' };
     }
   }
+  if (state.screen === 'ending-boundary' && (action === 'confirm' || action === 'back')) return { ...state, screen: 'title' };
   return state;
 };
 
