@@ -36,7 +36,17 @@ canvas {
   border-radius: 14px;
   background: #07121d;
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55), inset 0 0 80px rgba(58, 105, 103, 0.08);
-  outline: none;
+  outline: 3px solid transparent;
+  outline-offset: 3px;
+}
+
+canvas:focus-visible {
+  outline-color: #f3ca68;
+  box-shadow: 0 0 0 6px rgba(243, 202, 104, 0.2), 0 24px 80px rgba(0, 0, 0, 0.55);
+}
+
+#compact-status {
+  display: none;
 }
 
 .sr-only {
@@ -52,9 +62,31 @@ canvas {
 }
 
 @media (max-aspect-ratio: 4 / 3) {
-  #app { padding: 6px; }
+  #app {
+    align-content: center;
+    gap: 14px;
+    padding: 6px;
+  }
   canvas {
     width: calc(100vw - 12px);
     height: calc((100vw - 12px) * 9 / 16);
   }
+  #compact-status {
+    display: grid;
+    width: calc(100vw - 24px);
+    max-width: 720px;
+    gap: 5px;
+    padding: 12px 14px;
+    border: 1px solid rgba(243, 202, 104, 0.38);
+    border-radius: 12px;
+    background: rgba(7, 18, 29, 0.96);
+    color: #dce8de;
+    font-size: 14px;
+    line-height: 1.35;
+  }
+  #compact-heading {
+    color: #f3ca68;
+    font-size: 16px;
+  }
+  .compact-controls { color: #9fb7af; }
 }

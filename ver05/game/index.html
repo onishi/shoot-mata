@@ -10,8 +10,16 @@
   </head>
   <body>
     <main id="app">
-      <canvas id="game" width="1280" height="720" aria-label="CHORUS SHIFT game board"></canvas>
-      <div id="live" class="sr-only" aria-live="polite"></div>
+      <h1 class="sr-only">CHORUS SHIFT</h1>
+      <p id="controls" class="sr-only">矢印またはWASDで移動、スペースで一拍待機、Backspaceで一手戻す、Rで現在のフレーズを録り直す、Hでヒント、Escapeでポーズします。</p>
+      <canvas id="game" width="1280" height="720" tabindex="0" aria-label="CHORUS SHIFT タイトル" aria-describedby="controls screen-summary"></canvas>
+      <p id="screen-summary" class="sr-only"></p>
+      <div id="live" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
+      <section id="compact-status" aria-label="現在のゲーム状態">
+        <strong id="compact-heading">CHORUS SHIFT</strong>
+        <span id="compact-detail">読み込み中</span>
+        <span id="compact-controls" class="compact-controls">矢印/WASD 移動 · SPACE 待機 · H ヒント · ESC ポーズ</span>
+      </section>
     </main>
     <script type="module" src="/src/main.ts"></script>
   </body>

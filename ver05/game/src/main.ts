@@ -33,7 +33,11 @@ type Screen = 'title' | 'settings' | 'playing' | 'paused' | 'hint' | 'won';
 
 const canvas = document.querySelector<HTMLCanvasElement>('#game')!;
 const live = document.querySelector<HTMLDivElement>('#live')!;
-if (!canvas || !live) throw new Error('game surface missing');
+const screenSummary = document.querySelector<HTMLParagraphElement>('#screen-summary')!;
+const compactHeading = document.querySelector<HTMLElement>('#compact-heading')!;
+const compactDetail = document.querySelector<HTMLElement>('#compact-detail')!;
+const compactControls = document.querySelector<HTMLElement>('#compact-controls')!;
+if (!canvas || !live || !screenSummary || !compactHeading || !compactDetail || !compactControls) throw new Error('game surface missing');
 const ctx = canvas.getContext('2d')!;
 if (!ctx) throw new Error('2d canvas unavailable');
 
@@ -199,6 +203,7 @@ let lastTime = 0;
 let audio: AudioContext | null = null;
 let hintLevel = 0;
 let hintReturn: 'playing' | 'paused' = 'playing';
+const heldActionKeys = new Set<string>();
 
 function beginRoom(index: number): void {
   roomIndex = index;
@@ -252,6 +257,13 @@ window.addEventListener('keydown', (event) => {
   const action = actionFromKey(event.key);
   if (action || ['Enter', 'Escape', 'Backspace'].includes(event.key) || ['r', 'h'].includes(event.key.toLowerCase())) {
     event.preventDefault();
+  }
+
+  // One deliberate press advances one turn. Ignore OS repeat and ambiguous
+  // direction chords until every movement key has been released.
+  if (action) {
+    if (event.repeat || heldActionKeys.size > 0) return;
+    heldActionKeys.add(event.code);
   }
 
   ensureAudio();
@@ -358,8 +370,15 @@ window.addEventListener('keydown', (event) => {
     phraseNumber += 1;
     announce(`フレーズを記憶しました。第${phraseNumber}フレーズ`, 1800);
     tone(palette.length > tracks.length ? 330 : 392, 0.18, 0.035);
+  } else {
+    const positions = ensemblePositions(room, [...tracks, currentActions], currentActions.length, tracks.length);
+    live.textContent = `拍 ${currentActions.length} / ${room.phraseLength}。${positions.map((point, index) => `奏者${index + 1}は${point.x + 1}列${point.y + 1}行`).join('、')}`;
   }
 });
+
+window.addEventListener('keyup', (event) => heldActionKeys.delete(event.code));
+window.addEventListener('blur', () => heldActionKeys.clear());
+canvas.addEventListener('pointerdown', () => canvas.focus());
 
 function updateSetting(direction: -1 | 1): void {
   if (settingsRow === 0) {
@@ -792,6 +811,46 @@ function render(time: number): void {
 
 canvas.dataset.gameState = screen;
 new MutationObserver(() => undefined).observe(canvas, { attributes: true });
+
+function screenDescription(): { label: string; heading: string; detail: string; controls: string } {
+  const entry = rooms[roomIndex]!;
+  if (screen === 'title') {
+    const selected = rooms[titleRoomIndex]!;
+    return {
+      label: `CHORUS SHIFT タイトル。選択中の部屋 ${titleRoomIndex + 1}、${selected.name}`,
+      heading: `部屋 ${titleRoomIndex + 1} / ${rooms.length} · ${selected.name}`,
+      detail: save.completedRooms.includes(titleRoomIndex) ? 'クリア済み。Enterで再演します。' : 'Enterで調律を始めます。左右で部屋選択、Sで設定。',
+      controls: '← → / A D 部屋選択 · ENTER 開始 · S 設定',
+    };
+  }
+  if (screen === 'settings') {
+    const selected = settingsRow === 0 ? '音量' : '動きの軽減';
+    const detail = `選択中 ${selected}。音量 ${Math.round(save.settings.volume * 100)}%。動きの軽減 ${save.settings.reducedMotion ? 'オン' : 'オフ'}。`;
+    return { label: `CHORUS SHIFT 設定。${detail}`, heading: '設定', detail: `${detail} 上下で項目、左右で変更。`, controls: '↑ ↓ 項目 · ← → 変更 · ENTER / ESC 戻る' };
+  }
+
+  const positions = ensemblePositions(room, [...tracks, currentActions], currentActions.length, tracks.length);
+  const positionText = positions.map((point, index) => `奏者${index + 1} ${point.x + 1}列${point.y + 1}行`).join('、');
+  const plates = room.plates.map((point) => `${point.x + 1}列${point.y + 1}行`).join('、');
+  const stateName = screen === 'playing' ? '演奏中' : screen === 'paused' ? '一時停止' : screen === 'hint' ? `ヒント${hintLevel + 1}` : 'クリア';
+  const progress = `第${phraseNumber}フレーズ、拍 ${currentActions.length} / ${room.phraseLength}、録音済み ${tracks.length}声`;
+  return {
+    label: `CHORUS SHIFT ${stateName}。部屋${roomIndex + 1} ${entry.name}。${progress}`,
+    heading: `${stateName} · ${entry.name}`,
+    detail: `${entry.objective}。${progress}。${positionText || '奏者1は開始位置'}。音盤は${plates}。`,
+    controls: screen === 'playing' ? '矢印/WASD 移動 · SPACE 待機 · H ヒント · ESC ポーズ' : screen === 'hint' ? 'H 次のヒント · ENTER / ESC 戻る' : screen === 'paused' ? 'ESC 再開 · H ヒント' : 'ENTER 次の部屋へ',
+  };
+}
+
+function updateAccessibleState(): void {
+  const description = screenDescription();
+  canvas.setAttribute('aria-label', description.label);
+  screenSummary.textContent = description.detail;
+  compactHeading.textContent = description.heading;
+  compactDetail.textContent = description.detail;
+  compactControls.textContent = description.controls;
+}
+
 setInterval(() => {
   canvas.dataset.gameState = screen;
   canvas.dataset.beat = String(currentActions.length);
@@ -800,8 +859,11 @@ setInterval(() => {
   canvas.dataset.unlockedRoom = String(save.highestUnlockedRoom + 1);
   canvas.dataset.reducedMotion = String(save.settings.reducedMotion);
   canvas.dataset.hint = screen === 'hint' ? String(hintLevel + 1) : '0';
+  updateAccessibleState();
 }, 100);
 
+updateAccessibleState();
+canvas.focus();
 requestAnimationFrame(render);
 
 void lastTime;

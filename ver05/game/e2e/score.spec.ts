@@ -125,6 +125,35 @@ test.beforeEach(async ({ page }) => {
   await page.reload();
 });
 
+test('focus, screen-reader state, key rollover, and compact text remain accessible', async ({ page }) => {
+  const canvas = page.locator('#game');
+  await expect(canvas).toBeFocused();
+  await expect(canvas).toHaveAttribute('aria-label', /タイトル.*FIRST CHORD/);
+  await expect(page.locator('#screen-summary')).toContainText('Enterで調律');
+
+  await page.keyboard.press('Enter');
+  await expectState(page, 'playing');
+  await expect(canvas).toHaveAttribute('aria-label', /演奏中.*拍 0 \/ 8/);
+
+  await page.keyboard.down('ArrowUp');
+  await page.waitForTimeout(450);
+  await page.keyboard.down('ArrowRight');
+  await page.waitForTimeout(150);
+  await expect(canvas).toHaveAttribute('data-beat', '1');
+  await page.keyboard.up('ArrowRight');
+  await page.keyboard.up('ArrowUp');
+  await page.keyboard.press('ArrowRight');
+  await expect(canvas).toHaveAttribute('data-beat', '2');
+  await expect(page.locator('#live')).toContainText('拍 2 / 8');
+
+  await page.setViewportSize({ width: 640, height: 800 });
+  await expect(page.locator('#compact-status')).toBeVisible();
+  await expect(page.locator('#compact-status')).toContainText('FIRST CHORD');
+  const fontSize = await page.locator('#compact-detail').evaluate((element) => Number.parseFloat(getComputedStyle(element).fontSize));
+  expect(fontSize).toBeGreaterThanOrEqual(14);
+  await expectCanvasContained(page, { width: 640, height: 800 });
+});
+
 test('keyboard flow completes all available rooms and persists clean room progress', async ({ page }, testInfo) => {
   const errors: string[] = [];
   page.on('console', (message) => {
