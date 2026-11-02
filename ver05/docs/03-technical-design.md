@@ -33,4 +33,4 @@
 
 ## ブラウザ検証
 
-Playwrightからproduction previewを起動し、端末のGoogle Chromeを1 workerで操作する。規則を直接呼ばず、キーボードイベントとCanvasの`data-*`状態だけで5部屋の通し、保存、設定、ヒント、ポーズ、viewportを検査する。`npm run verify`は単体、型検査、buildの後にE2Eまで一括実行する。
+Playwrightからproduction previewを起動し、端末のGoogle Chromeを1 workerで操作する。規則を直接呼ばず、キーボードイベントとCanvasの`data-*`状態だけで6部屋の通し、保存、設定、ヒント、ポーズ、viewportを検査する。`npm run verify`は単体、型検査、buildの後にE2Eまで一括実行する。

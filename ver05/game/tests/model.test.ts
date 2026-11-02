@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   FIRST_CHORD,
   FINAL_CADENCE,
+  GLASS_RETURN,
   HELD_NOTE,
   LONG_TONE,
   MIRROR_ENTRY,
@@ -168,6 +169,28 @@ describe('MIRROR ENTRY replay inversion', () => {
 
   it('has a deterministic solution that depends on the first voice changing course', () => {
     expect(runSolution(MIRROR_ENTRY, [mirroredPhrase, leftPhrase, rightPhrase])).toEqual({ won: true, beat: 4 });
+  });
+});
+
+describe('GLASS RETURN double inversion', () => {
+  const returnPhrase: Action[] = ['right', 'right', 'up', 'right', 'up', 'wait', 'wait', 'wait'];
+  const leftPhrase: Action[] = ['left', 'left', 'left', 'wait', 'wait', 'wait', 'wait', 'wait'];
+  const rightPhrase: Action[] = ['right', 'right', 'right', 'wait', 'wait', 'wait', 'wait', 'wait'];
+
+  it('uses inverted movement only between the two glass crossings', () => {
+    expect(ensemblePositions(GLASS_RETURN, [returnPhrase], 1)).toEqual([{ x: 5, y: 5 }]);
+    expect(ensemblePositions(GLASS_RETURN, [returnPhrase], 2)).toEqual([{ x: 4, y: 5 }]);
+    expect(ensemblePositions(GLASS_RETURN, [returnPhrase], 3)).toEqual([{ x: 4, y: 4 }]);
+    expect(ensemblePositions(GLASS_RETURN, [returnPhrase], 4)).toEqual([{ x: 5, y: 4 }]);
+  });
+
+  it('keeps the recording literal while replay returns through both glass floors', () => {
+    expect(positionAfter(GLASS_RETURN, returnPhrase, 5)).toEqual({ x: 6, y: 3 });
+    expect(ensemblePositions(GLASS_RETURN, [returnPhrase], 5)).toEqual([{ x: 5, y: 3 }]);
+  });
+
+  it('has a deterministic solution that restores horizontal direction before the chord', () => {
+    expect(runSolution(GLASS_RETURN, [returnPhrase, leftPhrase, rightPhrase])).toEqual({ won: true, beat: 5 });
   });
 });
 
