@@ -247,7 +247,18 @@ Object.assign(window, {
     }
     return samples;
   },
-  __PALIMPSEST_QA_SCENARIO__: (scenario: 'damage' | 'setpiece' | 'stage-02-combat' | 'stage-02-setpiece' | 'stage-03-combat' | 'stage-03-setpiece' | 'stage-03-boss' | 'stage-04-combat' | 'stage-04-setpiece' | 'stage-04-boss' | 'stage-05-combat' | 'stage-05-setpiece' | 'stage-05-boss' | 'stage-06-combat' | 'stage-06-setpiece' | 'stage-06-boss' | 'boss-gate' | 'boss-defeat' | 'stage-02-boss') => {
+  __PALIMPSEST_QA_SCENARIO__: (scenario: 'first-wake' | 'damage' | 'setpiece' | 'stage-02-combat' | 'stage-02-setpiece' | 'stage-03-combat' | 'stage-03-setpiece' | 'stage-03-boss' | 'stage-04-combat' | 'stage-04-setpiece' | 'stage-04-boss' | 'stage-05-combat' | 'stage-05-setpiece' | 'stage-05-boss' | 'stage-06-combat' | 'stage-06-setpiece' | 'stage-06-boss' | 'boss-gate' | 'boss-defeat' | 'stage-02-boss') => {
+    if (scenario === 'first-wake') {
+      // Browser rendering can advance a few real-time ticks between the two
+      // Enter presses and a synchronous QA fast-forward. Re-enter the same
+      // authored evidence seed at tick zero so the captured tutorial timing
+      // does not depend on CI runner speed.
+      app = transition(transition(createAppState(4203, app.settings, true), 'start'), 'confirm');
+      audio.setScreen(app.screen, app.game.tick, app.game.stageId);
+      accumulator = 0;
+      renderApp(ctx, app);
+      return app.screen;
+    }
     if (app.screen !== 'playing') return app.screen;
     if (scenario === 'stage-06-boss') {
       app.game = createInitialState(3622, 'stage-06');
