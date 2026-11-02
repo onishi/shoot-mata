@@ -8,6 +8,7 @@ import {
   MIRROR_ENTRY,
   NEGATIVE_SPACE,
   REST_MARK,
+  SHORT_MEASURE,
   ensemblePositions,
   keyOf,
   playAction,
@@ -127,6 +128,17 @@ const rooms: readonly RoomEntry[] = [
       ['反転と静寂は同じ再演へ続けて作用します。', '静寂が一拍を消しても、左右の反転はそのまま続きます。'],
       ['まず右の反転床へ入り、反転した右入力で中央へ戻ります。', 'そこから上へ進むと静寂帯へ入れます。'],
       ['静寂の次の右を休符にし、もう一度右を反転させて左へ。', '上の盤と左右の盤を六拍目に揃えてください。'],
+    ],
+  },
+  {
+    room: SHORT_MEASURE,
+    name: 'SHORT MEASURE',
+    objective: '6拍の短い小節で、三つの経路を同時に閉じる',
+    guidance: 'この部屋のフレーズは6拍です。拍表示の終端を確かめてください',
+    hints: [
+      ['この部屋では六拍目がフレーズの終端です。', '八拍のつもりで待つと、譜面は先に記憶されます。'],
+      ['左と上の音盤には、一拍だけ音を保つ余裕があります。', '右上の音盤へ向かう役には余白がありません。'],
+      ['左は横を先に、上は縦に、右上は縦横を三拍ずつ。', '三人を六拍目に着地させてください。'],
     ],
   },
 ];
@@ -376,7 +388,7 @@ function drawTitle(time: number): void {
   ctx.restore();
   text('CHORUS', 640, 386, 68, '#f3ead2', 'center', 260);
   text('SHIFT', 640, 448, 68, '#f3ca68', 'center', 720);
-  text('過去の8手と、同じ拍を奏でる', 640, 505, 20, '#9ec4bd', 'center', 450);
+  text('過去のフレーズと、同じ拍を奏でる', 640, 505, 20, '#9ec4bd', 'center', 450);
   const selected = rooms[titleRoomIndex]!;
   const selection = `${titleRoomIndex + 1} / ${rooms.length}  ${selected.name}`;
   text(`◀  ${selection}  ▶`, 640, 550, 15, '#d6c994', 'center', 650);
@@ -730,8 +742,9 @@ function render(time: number): void {
     if (screen === 'won') {
       const finalRoom = roomIndex === scoreRoomCount - 1;
       const lastAvailableRoom = roomIndex === rooms.length - 1;
+      const chapterBoundary = roomIndex === 3 || roomIndex === 7;
       drawOverlay(
-        finalRoom ? 'SCORE COMPLETE' : lastAvailableRoom ? 'CHAPTER COMPLETE' : 'CHORD FOUND',
+        finalRoom ? 'SCORE COMPLETE' : chapterBoundary ? 'CHAPTER COMPLETE' : 'CHORD FOUND',
         `第${phraseNumber}フレーズで三和音がひらきました`,
         finalRoom || lastAvailableRoom ? 'ENTER で最初から' : 'ENTER で次の部屋へ',
       );

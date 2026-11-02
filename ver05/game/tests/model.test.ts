@@ -8,6 +8,7 @@ import {
   MIRROR_ENTRY,
   NEGATIVE_SPACE,
   REST_MARK,
+  SHORT_MEASURE,
   ensemblePositions,
   move,
   occupiesAllPlates,
@@ -238,6 +239,33 @@ describe('NEGATIVE SPACE combined replay transforms', () => {
 
   it('has a deterministic solution that requires both replay transformations', () => {
     expect(runSolution(NEGATIVE_SPACE, [negativePhrase, leftPhrase, rightPhrase])).toEqual({ won: true, beat: 6 });
+  });
+});
+
+describe('SHORT MEASURE variable phrase length', () => {
+  const leftPhrase: Action[] = ['left', 'left', 'left', 'up', 'up', 'wait'];
+  const upperPhrase: Action[] = ['up', 'up', 'up', 'up', 'wait', 'wait'];
+  const rightPhrase: Action[] = ['right', 'right', 'right', 'up', 'up', 'up'];
+
+  it('commits a phrase on its sixth beat rather than the default eighth', () => {
+    let current: readonly Action[] = [];
+    let result = playAction(SHORT_MEASURE, [], current, leftPhrase[0]!);
+    for (const action of leftPhrase.slice(1)) {
+      current = result.currentActions;
+      result = playAction(SHORT_MEASURE, result.tracks, current, action);
+    }
+    expect(result.phraseCommitted).toBe(true);
+    expect(result.beat).toBe(0);
+    expect(result.tracks).toEqual([leftPhrase]);
+  });
+
+  it('uses all six beats on the longest route', () => {
+    expect(positionAfter(SHORT_MEASURE, rightPhrase, 5)).toEqual({ x: 7, y: 3 });
+    expect(positionAfter(SHORT_MEASURE, rightPhrase)).toEqual({ x: 7, y: 2 });
+  });
+
+  it('has a deterministic three-phrase solution on beat six', () => {
+    expect(runSolution(SHORT_MEASURE, [leftPhrase, upperPhrase, rightPhrase])).toEqual({ won: true, beat: 6 });
   });
 });
 

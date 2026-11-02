@@ -51,6 +51,11 @@ const solutions: readonly (readonly (readonly Action[])[])[] = [
     ['left', 'left', 'left', 'wait', 'wait', 'wait', 'wait', 'wait'],
     ['right', 'right', 'right', 'wait', 'wait', 'wait', 'wait', 'wait'],
   ],
+  [
+    ['left', 'left', 'left', 'up', 'up', 'wait'],
+    ['up', 'up', 'up', 'up', 'wait', 'wait'],
+    ['right', 'right', 'right', 'up', 'up', 'up'],
+  ],
 ];
 
 async function expectState(page: Page, state: string): Promise<void> {
@@ -144,6 +149,21 @@ test('keyboard flow completes all available rooms and persists clean room progre
       await playPhrase(page, solutions[7]![1]!.slice(5));
       await playPhrase(page, solutions[7]![2]!);
       await expectState(page, 'won');
+      await page.keyboard.press('Enter');
+      await expectState(page, 'playing');
+      continue;
+    }
+    if (room === 9) {
+      await playPhrase(page, solutions[8]![0]!);
+      await expect(page.locator('#game')).toHaveAttribute('data-tracks', '1');
+      await expect(page.locator('#game')).toHaveAttribute('data-beat', '0');
+      await playPhrase(page, solutions[8]![1]!);
+      await expect(page.locator('#game')).toHaveAttribute('data-tracks', '2');
+      await playPhrase(page, solutions[8]![2]!.slice(0, 5));
+      await expect(page.locator('#game')).toHaveAttribute('data-beat', '5');
+      await page.locator('#game').screenshot({ path: '../docs/evidence/m3-short-measure-beat-5.png' });
+      await playPhrase(page, solutions[8]![2]!.slice(5));
+      await expectState(page, 'won');
       break;
     }
     await playRoom(page, room);
@@ -152,20 +172,20 @@ test('keyboard flow completes all available rooms and persists clean room progre
       await expectState(page, 'playing');
     }
   }
-  await page.locator('#game').screenshot({ path: '../docs/evidence/m3-e2e-negative-space-complete.png' });
-  await expect(page.locator('#game')).toHaveAttribute('data-unlocked-room', '8');
+  await page.locator('#game').screenshot({ path: '../docs/evidence/m3-e2e-short-measure-complete.png' });
+  await expect(page.locator('#game')).toHaveAttribute('data-unlocked-room', '9');
 
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('chorus-shift:v1') ?? 'null'));
-  expect(saved.highestUnlockedRoom).toBe(7);
-  expect(saved.completedRooms).toEqual([0, 1, 2, 3, 4, 5, 6, 7]);
+  expect(saved.highestUnlockedRoom).toBe(8);
+  expect(saved.completedRooms).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8]);
   expect(saved.hintsSeen).toEqual([0]);
 
   await page.reload();
   await expectState(page, 'title');
-  await expect(page.locator('#game')).toHaveAttribute('data-unlocked-room', '8');
+  await expect(page.locator('#game')).toHaveAttribute('data-unlocked-room', '9');
   await page.keyboard.press('Enter');
   await expectState(page, 'playing');
-  await expect(page.locator('#game')).toHaveAttribute('data-room', '8');
+  await expect(page.locator('#game')).toHaveAttribute('data-room', '9');
   await expect(page.locator('#game')).toHaveAttribute('data-beat', '0');
   await expect(page.locator('#game')).toHaveAttribute('data-tracks', '0');
   expect(errors).toEqual([]);
