@@ -1,5 +1,5 @@
 import { distanceSq, pointInPolygon, px } from '../core/math';
-import { HEIGHT, SCALE, WIDTH, type GameState, type InputFrame, type Point } from '../core/types';
+import { HEIGHT, SCALE, TICK_RATE, WIDTH, type GameState, type InputFrame, type Point } from '../core/types';
 import { apocryphaTwinPoint, eelSegmentPoint } from './game';
 import { stageFourCoolingCenter } from '../content/stage-04';
 
@@ -112,7 +112,14 @@ export const createPilot = (name: PilotName): ((state: GameState) => InputFrame)
     const editorExposed = state.boss?.kind === 'last-editor'
       && (state.boss.phase < 3 ? state.boss.revisionExposedUntil >= state.tick : state.boss.signatureExposedUntil >= state.tick)
       ? state.boss : null;
-    const target = exposedSeam ?? eelWeakpoint ?? advocateEmber ?? apocryphaWeakpoint ?? editorExposed ?? visible;
+    // The First Wake exercise releases a deliberately slow aimed bracket after
+    // the first loop. Treat that visible lesson mark as the next loop target;
+    // ordinary combat bullets retain the controller's existing threat logic.
+    const firstWakeBracket = state.stageId === 'stage-01' && state.tick <= 30 * TICK_RATE && state.metrics.loops > 0 && state.metrics.captured === 0
+      ? state.bullets.find((bullet) => bullet.kind === 'enemy' && bullet.sourceAttack === 'enemy-aimed'
+        && Math.abs(bullet.vx) <= px(25) / TICK_RATE && Math.abs(bullet.vy) <= px(25) / TICK_RATE) ?? null
+      : null;
+    const target = exposedSeam ?? eelWeakpoint ?? advocateEmber ?? apocryphaWeakpoint ?? editorExposed ?? firstWakeBracket ?? visible;
     if (name === 'baseline') {
       const aimY = target?.y ?? px(360);
       held = moveToward(state.player, { x: px(300), y: aimY });

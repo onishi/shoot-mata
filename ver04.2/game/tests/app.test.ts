@@ -20,6 +20,19 @@ const fatalHit = (state: AppState): AppState => {
 };
 
 describe('M2 application flow', () => {
+  it('shows the first wake only for a fresh Stage 1 voyage and suppresses it after a continue', () => {
+    let app = start();
+    expect(app.tutorial).toMatchObject({ active: true, eligible: true });
+    app = fatalHit(app);
+    app = transition(app, 'confirm');
+    expect(app.tutorial).toMatchObject({ active: false, eligible: false });
+    app = transition(app, 'confirm');
+    expect(advance(app, { right: true, fire: true }).state.tutorial.movedAt).toBeNull();
+
+    const experienced = transition(transition(createAppState(404, undefined, false), 'start'), 'confirm');
+    expect(experienced.tutorial).toMatchObject({ active: false, eligible: false });
+  });
+
   it('pauses once at the Stage midpoint, applies a note, and resumes the same tick', () => {
     let app = start();
     app.game.tick = STAGE_01_BOSS_START_TICK / 2 - 1;

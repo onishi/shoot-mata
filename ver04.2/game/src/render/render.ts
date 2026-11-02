@@ -79,6 +79,37 @@ const combatHalo = (
   ctx.restore();
 };
 
+const renderTutorial = (ctx: CanvasRenderingContext2D, app: AppState): void => {
+  const tutorial = app.tutorial;
+  const showingFeedback = tutorial.feedback !== null && tutorial.feedbackUntil >= app.game.tick;
+  if (!tutorial.active && !showingFeedback) return;
+  const prompt = tutorial.movedAt === null
+    ? 'MOVE · ARROWS / WASD  —  DRAW A WAKE'
+    : tutorial.firedAt === null
+      ? 'FIRE · Z / J  —  CROSS YOUR WAKE TO ANNOTATE'
+      : tutorial.collatedAt === null
+        ? 'CLOSE THE WAKE · THEN COLLATE · X / K'
+        : 'ENCIRCLE THE BRIGHT HOSTILE FIRE · COLLATE TO RETURN IT';
+  const completed = [tutorial.movedAt, tutorial.firedAt, tutorial.collatedAt, tutorial.reflectedAt].filter((tick) => tick !== null).length;
+  ctx.save();
+  ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(4, 12, 24, .88)';
+  ctx.strokeStyle = showingFeedback ? '#fff0a3' : '#73e8f1';
+  ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.roundRect(330, 72, 620, 78, 12); ctx.fill(); ctx.stroke();
+  ctx.font = '700 13px system-ui, sans-serif';
+  ctx.fillStyle = showingFeedback ? '#fff0a3' : '#91aab8';
+  ctx.fillText(showingFeedback ? tutorial.feedback! : `FIRST WAKE  ${completed} / 4`, WIDTH / 2, 99);
+  ctx.font = '700 16px system-ui, sans-serif';
+  ctx.fillStyle = '#e7fbff';
+  ctx.fillText(showingFeedback ? 'SUCCESS · KEEP WRITING' : prompt, WIDTH / 2, 126);
+  for (let index = 0; index < 4; index += 1) {
+    ctx.fillStyle = index < completed ? '#fff0a3' : '#294556';
+    diamond(ctx, 607 + index * 22, 143, 4); ctx.fill();
+  }
+  ctx.restore();
+};
+
 export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: boolean, reducedFlash = false): void => {
   const stageVisuals = visuals[state.stageId];
   ctx.fillStyle = '#071121';
@@ -764,5 +795,6 @@ export const renderApp = (ctx: CanvasRenderingContext2D, app: AppState): void =>
   }
   render(ctx, app.game, false, app.settings.reducedFlash);
   ctx.restore();
+  if (app.screen === 'playing') renderTutorial(ctx, app);
   if (app.screen !== 'playing') renderScreen(ctx, app, app.screen);
 };

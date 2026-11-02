@@ -1,4 +1,4 @@
-import { SCALE, type GameEvent, type GameState, type InputFrame, type StageId } from '../core/types';
+import { SCALE, TICK_RATE, type GameEvent, type GameState, type InputFrame, type StageId } from '../core/types';
 import { copyState, createInitialState, step } from '../simulation/game';
 import { defaultSettings, type GameSettings } from './settings';
 import { marginaliaCandidates, marginaliaEffects, type MarginaliaId } from '../content/marginalia';
@@ -32,7 +32,29 @@ export interface AppState {
   marginaliaIndex: number;
   marginaliaMoment: 'midpoint' | 'result';
   midpointMarginaliaTaken: boolean;
+  tutorial: TutorialState;
 }
+
+export type TutorialFeedback = 'WAKE DRAWN' | 'FIRE INSCRIBED' | 'LOOP CLOSED' | 'FIRE RETURNED';
+export interface TutorialState {
+  eligible: boolean;
+  active: boolean;
+  movedAt: number | null;
+  firedAt: number | null;
+  collatedAt: number | null;
+  reflectedAt: number | null;
+  completedAt: number | null;
+  practiceSpawned: boolean;
+  feedback: TutorialFeedback | null;
+  feedbackUntil: number;
+}
+
+export const FIRST_WAKE_LIMIT_TICKS = 30 * TICK_RATE;
+export const createTutorialState = (eligible: boolean, active = false): TutorialState => ({
+  eligible, active: eligible && active,
+  movedAt: null, firedAt: null, collatedAt: null, reflectedAt: null, completedAt: null, practiceSpawned: false,
+  feedback: null, feedbackUntil: 0
+});
 
 export interface CampaignSummary {
   stagesCompleted: number;
@@ -58,23 +80,24 @@ const nextStages: Partial<Record<StageId, StageId>> = {
   'stage-01': 'stage-02', 'stage-02': 'stage-03', 'stage-03': 'stage-04', 'stage-04': 'stage-05', 'stage-05': 'stage-06'
 };
 
-const beginStage = (stageId: StageId, seed: number, campaign: CampaignSummary, settings: GameSettings, marginalia: MarginaliaId[]): AppState => {
+const beginStage = (stageId: StageId, seed: number, campaign: CampaignSummary, settings: GameSettings, marginalia: MarginaliaId[], tutorialEligible = false): AppState => {
   const game = createInitialState(seed || 404, stageId, settings.difficulty);
   game.gauge = Math.min(game.gauge, marginaliaEffects(marginalia).gaugeCap);
   return {
     screen: 'stage-intro', game, checkpoint: copyState(game),
     checkpointName: entryCheckpoints[stageId], continuesRemaining: 1, campaign,
     saveAvailable: true, saveWarning: false, settings, settingsReturn: 'title', settingsIndex: 0, settingsWarning: false,
-    marginalia, marginaliaOptions: [], marginaliaIndex: 0, marginaliaMoment: 'midpoint', midpointMarginaliaTaken: false
+    marginalia, marginaliaOptions: [], marginaliaIndex: 0, marginaliaMoment: 'midpoint', midpointMarginaliaTaken: false,
+    tutorial: createTutorialState(tutorialEligible && stageId === 'stage-01', tutorialEligible && stageId === 'stage-01')
   };
 };
 
-export const createAppState = (seed = 404, settings: GameSettings = defaultSettings()): AppState => {
+export const createAppState = (seed = 404, settings: GameSettings = defaultSettings(), tutorialEligible = true): AppState => {
   const game = createInitialState(seed, 'stage-01', settings.difficulty);
-  return { screen: 'title', game, checkpoint: copyState(game), checkpointName: 'harbor-entry', continuesRemaining: 1, campaign: emptyCampaign(), saveAvailable: false, saveWarning: false, settings, settingsReturn: 'title', settingsIndex: 0, settingsWarning: false, marginalia: [], marginaliaOptions: [], marginaliaIndex: 0, marginaliaMoment: 'midpoint', midpointMarginaliaTaken: false };
+  return { screen: 'title', game, checkpoint: copyState(game), checkpointName: 'harbor-entry', continuesRemaining: 1, campaign: emptyCampaign(), saveAvailable: false, saveWarning: false, settings, settingsReturn: 'title', settingsIndex: 0, settingsWarning: false, marginalia: [], marginaliaOptions: [], marginaliaIndex: 0, marginaliaMoment: 'midpoint', midpointMarginaliaTaken: false, tutorial: createTutorialState(tutorialEligible) };
 };
 
-const freshVoyage = (state: AppState): AppState => beginStage('stage-01', state.game.seed, emptyCampaign(), state.settings, []);
+const freshVoyage = (state: AppState): AppState => beginStage('stage-01', state.game.seed, emptyCampaign(), state.settings, [], state.tutorial.eligible);
 
 const recordStage = (state: AppState): CampaignSummary => ({
   stagesCompleted: state.campaign.stagesCompleted + 1,
@@ -124,7 +147,7 @@ export const transition = (state: AppState, action: AppAction): AppState => {
       game.candidate = null;
       game.retrace = null;
       game.bullets = game.bullets.filter((bullet) => bullet.kind !== 'enemy');
-      return { ...state, screen: 'stage-intro', game, continuesRemaining: state.continuesRemaining - 1 };
+      return { ...state, screen: 'stage-intro', game, continuesRemaining: state.continuesRemaining - 1, tutorial: createTutorialState(false) };
     }
     return state;
   }
@@ -168,6 +191,44 @@ export const advance = (state: AppState, input: InputFrame = {}): { state: AppSt
   if (state.screen !== 'playing') return { state, events: [] };
   const result = step(state.game, input, state.settings.difficulty, state.marginalia);
   let next: AppState = { ...state, game: result.state };
+  if (state.tutorial.active) {
+    const tutorial = { ...state.tutorial };
+    const moved = Boolean(input.up || input.down || input.left || input.right)
+      && (result.state.player.x !== state.game.player.x || result.state.player.y !== state.game.player.y);
+    const fired = result.events.some((event) => event.type === 'shot-fired');
+    const collateEvent = result.events.find((event) => event.type === 'loop-collated');
+    const completedCollateBeforeThisTick = tutorial.collatedAt !== null;
+    if (tutorial.movedAt === null && moved) {
+      tutorial.movedAt = result.state.tick; tutorial.feedback = 'WAKE DRAWN'; tutorial.feedbackUntil = result.state.tick + TICK_RATE;
+    } else if (tutorial.firedAt === null && fired) {
+      tutorial.firedAt = result.state.tick; tutorial.feedback = 'FIRE INSCRIBED'; tutorial.feedbackUntil = result.state.tick + TICK_RATE;
+    } else if (tutorial.collatedAt === null && collateEvent) {
+      tutorial.collatedAt = result.state.tick; tutorial.feedback = 'LOOP CLOSED'; tutorial.feedbackUntil = result.state.tick + TICK_RATE;
+      // The opening mites erase wake but intentionally do not fire. Release one
+      // slow, readable practice bracket after the player proves they can close
+      // a loop, so the next loop teaches capture without adding a lethal wall.
+      // Three lanes keep the exercise reachable without steering the player.
+      if (!tutorial.practiceSpawned && result.state.stageId === 'stage-01') {
+        for (const y of [240, 360, 480]) {
+          result.state.bullets.push({
+            id: result.state.nextId++, x: 850 * SCALE, y: y * SCALE,
+            vx: Math.round(-20 * SCALE / TICK_RATE), vy: 0, radius: 7,
+            kind: 'enemy', annotated: false, capturable: true, sourceAttack: 'enemy-aimed'
+          });
+        }
+        result.state.player.invulnerableUntil = Math.max(result.state.player.invulnerableUntil, FIRST_WAKE_LIMIT_TICKS);
+        tutorial.practiceSpawned = true;
+      }
+    } else if (tutorial.reflectedAt === null && completedCollateBeforeThisTick && collateEvent && collateEvent.captured > 0) {
+      tutorial.reflectedAt = result.state.tick; tutorial.completedAt = result.state.tick;
+      tutorial.feedback = 'FIRE RETURNED'; tutorial.feedbackUntil = result.state.tick + 2 * TICK_RATE;
+      tutorial.active = false; tutorial.eligible = false;
+    }
+    if (tutorial.active && result.state.tick >= FIRST_WAKE_LIMIT_TICKS) {
+      tutorial.active = false; tutorial.eligible = false;
+    }
+    next.tutorial = tutorial;
+  }
   const midpoint = Math.floor(stageDefinition(result.state.stageId).durationTicks / 2);
   if (!state.midpointMarginaliaTaken && state.game.tick < midpoint && result.state.tick >= midpoint) {
     next = { ...next, screen: 'marginalia', marginaliaOptions: marginaliaCandidates(result.state.seed, result.state.stageId, 'midpoint'), marginaliaIndex: 0, marginaliaMoment: 'midpoint' };

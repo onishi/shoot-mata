@@ -1,4 +1,4 @@
-import type { AppState, CampaignSummary, CheckpointName } from './app';
+import { createTutorialState, type AppState, type CampaignSummary, type CheckpointName } from './app';
 import type { GameState, StageId } from '../core/types';
 import { defaultSettings } from './settings';
 import { MARGINALIA_IDS, type MarginaliaId } from '../content/marginalia';
@@ -125,7 +125,8 @@ const decode = (raw: string): AppState | null => {
     saveAvailable: true, saveWarning: false,
     settings: defaultSettings(), settingsReturn: 'title', settingsIndex: 0, settingsWarning: false,
     marginalia: body.marginalia, marginaliaOptions: [], marginaliaIndex: 0,
-    marginaliaMoment: 'midpoint', midpointMarginaliaTaken: game.tick >= Math.floor(stageDefinition(game.stageId).durationTicks / 2)
+    marginaliaMoment: 'midpoint', midpointMarginaliaTaken: game.tick >= Math.floor(stageDefinition(game.stageId).durationTicks / 2),
+    tutorial: createTutorialState(false)
   };
 };
 

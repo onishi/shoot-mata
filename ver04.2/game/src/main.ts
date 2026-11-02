@@ -25,10 +25,15 @@ const browserStorage = (): StorageLike | null => {
   try { return window.localStorage; } catch { return null; }
 };
 const storage = browserStorage();
+const TUTORIAL_KEY = 'palimpsest-wake:v4.2:first-wake-complete';
+const tutorialCompleted = (() => {
+  if (!storage) return false;
+  try { return storage.getItem(TUTORIAL_KEY) === '1'; } catch { return false; }
+})();
 const loaded = storage ? loadCampaign(storage) : { status: 'unavailable' as const, state: null };
 let savedApp = loaded.state;
 const initialSettings = storage ? (loadSettings(storage) ?? defaultSettings()) : defaultSettings();
-let app = createAppState(404, initialSettings);
+let app = createAppState(404, initialSettings, !tutorialCompleted);
 app.saveAvailable = savedApp !== null;
 app.saveWarning = loaded.status === 'unavailable' || loaded.status === 'quarantined';
 const audio = new StageOneAudio();
@@ -159,10 +164,21 @@ const input = (): InputFrame => ({
 
 const runStep = (frameInput: InputFrame): void => {
   const checkpointBefore = app.checkpointName;
+  const tutorialProgressBefore = [app.tutorial.movedAt, app.tutorial.firedAt, app.tutorial.collatedAt, app.tutorial.reflectedAt].filter((tick) => tick !== null).length;
   const result = advance(app, frameInput);
   app = result.state;
   if (app.checkpointName !== checkpointBefore) persistCheckpoint();
   for (const event of result.events) audio.playEvent(event, app.game.stageId);
+  const tutorialProgressAfter = [app.tutorial.movedAt, app.tutorial.firedAt, app.tutorial.collatedAt, app.tutorial.reflectedAt].filter((tick) => tick !== null).length;
+  if (tutorialProgressAfter > tutorialProgressBefore) {
+    audio.playUi(false);
+    status.textContent = app.tutorial.feedback === 'FIRE RETURNED'
+      ? 'First Wake complete. Captured fire returns to its source.'
+      : `${app.tutorial.feedback ?? 'First Wake progress'}. Keep writing.`;
+    if (app.tutorial.completedAt !== null && storage) {
+      try { storage.setItem(TUTORIAL_KEY, '1'); } catch { /* The voyage remains playable without preference storage. */ }
+    }
+  }
   audio.setScreen(app.screen, app.game.tick, app.game.stageId);
   if (result.events.some((event) => event.type === 'loop-collated')) status.textContent = 'COLLATE succeeded. Captured fire has been returned.';
   if (app.screen === 'continue') status.textContent = 'The wake broke. Continue from the checkpoint or return to title.';

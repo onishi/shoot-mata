@@ -1,0 +1,23 @@
+{
+  "generatedAt": "2026-11-02",
+  "seed": 4203,
+  "limitTicks": 3600,
+  "completedAt": 1251,
+  "timestamps": {
+    "moved": 1,
+    "fired": 11,
+    "collated": 491,
+    "reflected": 1251
+  },
+  "capturedAtCompletion": 1,
+  "maxOpeningCombatGapTicks": 0,
+  "gates": {
+    "completedWithinThirtySeconds": true,
+    "orderedSuccesses": true,
+    "returnedCapturedFire": true,
+    "tutorialDismissed": true,
+    "stageDurationUnchanged": true,
+    "fourEnemyKindsMaintained": true,
+    "noFourSecondOpeningGap": true
+  }
+}
