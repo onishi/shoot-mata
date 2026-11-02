@@ -49,3 +49,11 @@
 - 初回閲覧した部屋を既存の`hintsSeen`へ重複なく保存する`markHintSeen`と回帰テストを追加した。途中の譜面や表示段階は保存せず、再訪時に弱いヒントから読み直せる。
 - `npm run verify`は単体19/19、型検査、production buildに合格した。ChromeでHELD NOTEの3段階表示、ポーズ中の再表示とポーズへの復帰を目視した。
 - 詳細は`evidence/m2-progressive-hints.md`に記録した。次はChrome E2Eと複数viewport監査を自動化する。
+
+## 2026-11-03 — M2 Chrome E2Eとviewport監査
+
+- Playwrightをproduction buildへ接続し、端末のGoogle Chromeを実キーだけで操作するE2E入口を追加した。単体テストがE2Eを誤収集した初回失敗は、Vitest対象を`tests/`へ限定して修復した。
+- 第1シナリオでポーズ、ヒント2段階、復帰、4部屋固定解法、SCORE COMPLETE、保存内容、再読込後の第4室0拍・VOICE 0本を確認した。第2シナリオで音量75%・動き軽減ONの再読込と、1280×720・640×800のタイトル、ヒント、ポーズを確認した。
+- 初回Chrome監査でfaviconの404を検出したため、作品色と三本の弧を使うdata URL faviconを追加し、console errorとpage errorを0件へ戻した。
+- 採取した7画面を目視し、キャンバスの切れ、overlayの重なり、主要状態の欠落がないことを確認した。640×800は判読可能だが縮小文字になるため、M4で最小実用解像度を再監査する。
+- `npm run verify`は単体19/19、型検査、production build、Google Chrome E2E 2/2に合格し、M2を完了した。詳細は`evidence/m2-browser-qa.md`。次はM3の章構成を固定し、第5室の反転床を縦切り実装する。

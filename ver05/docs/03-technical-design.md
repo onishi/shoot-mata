@@ -28,3 +28,7 @@
 ## 配信
 
 `npm run build`で静的ファイルを生成する。v5公開経路は完成監査まで既存Pages workflowへ接続しない。
+
+## ブラウザ検証
+
+Playwrightからproduction previewを起動し、端末のGoogle Chromeを1 workerで操作する。規則を直接呼ばず、キーボードイベントとCanvasの`data-*`状態だけで4部屋の通し、保存、設定、ヒント、ポーズ、viewportを検査する。`npm run verify`は単体、型検査、buildの後にE2Eまで一括実行する。
