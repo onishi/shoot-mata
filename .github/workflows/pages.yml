@@ -1,14 +1,14 @@
-name: Verify and deploy PALIMPSEST WAKE v4.1
+name: Verify and deploy PALIMPSEST WAKE v4.2
 
 on:
   push:
     branches: [main]
     paths:
-      - "ver04.1/game/**"
+      - "ver04.2/game/**"
       - ".github/workflows/pages.yml"
   pull_request:
     paths:
-      - "ver04.1/game/**"
+      - "ver04.2/game/**"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
 
@@ -30,21 +30,21 @@ jobs:
         with:
           node-version: 24.22.1
           cache: npm
-          cache-dependency-path: ver04.1/game/package-lock.json
+          cache-dependency-path: ver04.2/game/package-lock.json
 
       - name: Install the pinned npm version
         run: npm install --global npm@11.19.1
 
       - name: Install the locked dependency tree
-        working-directory: ver04.1/game
+        working-directory: ver04.2/game
         run: npm ci
 
       - name: Install the pinned Chrome runtime
-        working-directory: ver04.1/game
+        working-directory: ver04.2/game
         run: npx playwright install --with-deps chromium
 
-      - name: Verify the v4.1 release candidate
-        working-directory: ver04.1/game
+      - name: Verify the v4.2 release candidate
+        working-directory: ver04.2/game
         run: npm run verify
 
       - name: Build the preserved v3 routes
@@ -58,7 +58,7 @@ jobs:
         run: npm ci && npm run build && npm run package:release && npm run verify:release
 
       - name: Assemble and inspect the Pages artifact
-        working-directory: ver04.1/game
+        working-directory: ver04.2/game
         env:
           RELEASE_COMMIT: ${{ github.sha }}
         run: npm run package:release && npm run verify:release
@@ -66,11 +66,11 @@ jobs:
       - uses: actions/configure-pages@v6
         if: github.event_name != 'pull_request'
 
-      - name: Upload verified v4.1 with preserved v4.0 and v3 routes
+      - name: Upload verified v4.2 with preserved v4.1, v4.0 and v3 routes
         if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v5
         with:
-          path: ver04.1/game/dist
+          path: ver04.2/game/dist
 
   deploy:
     environment:
@@ -87,4 +87,4 @@ jobs:
         uses: actions/deploy-pages@v5
 
       - name: Verify the live release and preserved routes
-        run: node ver04.1/game/scripts/verify-deployment.mjs "${{ steps.deployment.outputs.page_url }}" "${{ github.sha }}"
+        run: node ver04.2/game/scripts/verify-deployment.mjs "${{ steps.deployment.outputs.page_url }}" "${{ github.sha }}"
