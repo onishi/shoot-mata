@@ -6,6 +6,12 @@ export type Difficulty = 'echo' | 'normal' | 'proof';
 
 export interface Point { x: number; y: number }
 export interface TrailPoint extends Point { bornTick: number; segmentId: number; wetUntil?: number; cooledUntil?: number }
+export type AttackSource = 'enemy-aimed' | 'enemy-spread' | 'enemy-control' | 'enemy-sniper' | 'enemy-decoy'
+  | 'enemy-volley' | 'boss-fan' | 'boss-sweep' | 'compiler-gust' | 'compiler-lance' | 'compiler-storm'
+  | 'eel-drizzle' | 'eel-wake' | 'eel-deluge'
+  | 'advocate-ember' | 'advocate-gavel' | 'advocate-verdict'
+  | 'twins-testimony' | 'twins-cross-exam' | 'twins-verdict'
+  | 'editor-erasure' | 'editor-wind' | 'editor-rain' | 'editor-heat' | 'editor-mirror' | 'editor-signature';
 export interface Bullet extends Point {
   id: number;
   vx: number;
@@ -18,11 +24,7 @@ export interface Bullet extends Point {
   falseAnnotated?: boolean;
   illusory?: boolean;
   capturable: boolean;
-  sourceAttack?: 'enemy-volley' | 'boss-fan' | 'boss-sweep' | 'compiler-gust' | 'compiler-lance' | 'compiler-storm'
-    | 'eel-drizzle' | 'eel-wake' | 'eel-deluge'
-    | 'advocate-ember' | 'advocate-gavel' | 'advocate-verdict'
-    | 'twins-testimony' | 'twins-cross-exam' | 'twins-verdict'
-    | 'editor-erasure' | 'editor-wind' | 'editor-rain' | 'editor-heat' | 'editor-mirror' | 'editor-signature';
+  sourceAttack?: AttackSource;
   signatureInk?: boolean;
   glossShard?: boolean;
   ligature?: boolean;

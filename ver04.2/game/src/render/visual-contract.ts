@@ -1,4 +1,4 @@
-import type { EnemyKind } from '../core/types';
+import type { AttackSource, EnemyKind } from '../core/types';
 
 export interface EnemyVisualContract {
   width: number;
@@ -18,6 +18,55 @@ export const COMBAT_VISUAL_CONTRACT = {
 
 export const combatCueAlpha = (tick: number, reducedFlash: boolean): number =>
   reducedFlash ? 0.88 : 0.76 + Math.sin(tick / 9) * 0.12;
+
+export type HazardSilhouette = 'aimed' | 'spread' | 'control' | 'sniper';
+
+// Every authored enemy is assigned to the same four-word visual language used
+// by boss attacks. The assignment describes what the player must do next, not
+// merely which stage emitted the shot.
+export const ENEMY_ATTACK_SOURCE: Record<EnemyKind, AttackSource> = {
+  'eraser-mite': 'enemy-control',
+  'bracket-gull': 'enemy-control',
+  'margin-skiff': 'enemy-spread',
+  'folio-hauler': 'enemy-spread',
+  'index-kite': 'enemy-aimed',
+  'vane-scribe': 'enemy-spread',
+  'cross-reference-pair': 'enemy-aimed',
+  'tab-binder': 'enemy-control',
+  'drip-scribe': 'enemy-aimed',
+  'gutter-frog': 'enemy-spread',
+  'basin-bell': 'enemy-control',
+  'reed-needle': 'enemy-sniper',
+  'ash-comma': 'enemy-aimed',
+  'kiln-censor': 'enemy-control',
+  'ember-courier': 'enemy-sniper',
+  'char-press': 'enemy-control',
+  'mirror-mote': 'enemy-aimed',
+  'quotation-ram': 'enemy-sniper',
+  'false-witness': 'enemy-spread',
+  'silver-obelisk': 'enemy-control',
+  'binding-wasp': 'enemy-control',
+  'revision-hound': 'enemy-sniper',
+  'null-choir': 'enemy-spread',
+  'archive-palanquin': 'enemy-control'
+};
+
+const HAZARD_SILHOUETTES: Record<AttackSource, HazardSilhouette> = {
+  'enemy-aimed': 'aimed', 'enemy-spread': 'spread', 'enemy-control': 'control', 'enemy-sniper': 'sniper',
+  'enemy-decoy': 'spread', 'enemy-volley': 'aimed', 'boss-fan': 'spread', 'boss-sweep': 'control',
+  'compiler-gust': 'control', 'compiler-lance': 'sniper', 'compiler-storm': 'spread',
+  'eel-drizzle': 'aimed', 'eel-wake': 'control', 'eel-deluge': 'spread',
+  'advocate-ember': 'control', 'advocate-gavel': 'aimed', 'advocate-verdict': 'spread',
+  'twins-testimony': 'aimed', 'twins-cross-exam': 'sniper', 'twins-verdict': 'spread',
+  'editor-erasure': 'spread', 'editor-wind': 'sniper', 'editor-rain': 'aimed',
+  'editor-heat': 'control', 'editor-mirror': 'sniper', 'editor-signature': 'control'
+};
+
+export const hazardSilhouette = (source: AttackSource | undefined): HazardSilhouette =>
+  source ? HAZARD_SILHOUETTES[source] : 'aimed';
+
+export const isRegularEnemyAttack = (source: AttackSource | undefined): boolean =>
+  source === undefined || source === 'enemy-volley' || source.startsWith('enemy-');
 
 // Rendering and simulation share this table so the visible body can never
 // drift away from the circle used for hits. Width/height include the solid

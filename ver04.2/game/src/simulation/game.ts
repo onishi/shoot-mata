@@ -9,7 +9,7 @@ import { STAGE_05_BOSS_START_TICK, isInStageFiveMirrorBand, stageFiveFalseTrail 
 import { STAGE_06_BOSS_START_TICK, stageSixActiveRule, stageSixFolio } from '../content/stage-06';
 import { findLoopCandidates, shotCrossedTrail, shotCrossedWetTrail, shouldAddTrailPoint } from './trail';
 import { marginaliaEffects, type MarginaliaId } from '../content/marginalia';
-import { ENEMY_VISUAL_CONTRACT } from '../render/visual-contract';
+import { ENEMY_ATTACK_SOURCE, ENEMY_VISUAL_CONTRACT, isRegularEnemyAttack } from '../render/visual-contract';
 
 const PLAYER_SPEED = Math.round(320 * SCALE / TICK_RATE);
 const trailLifetime = (difficulty: Difficulty): number => Math.round((difficulty === 'echo' ? 4 : 3.2) * TICK_RATE);
@@ -154,7 +154,7 @@ export const copyState = (state: GameState): GameState => ({
   metrics: { ...state.metrics, recovery: { ...state.metrics.recovery }, wind: { ...state.metrics.wind }, rain: { ...state.metrics.rain }, heat: { ...state.metrics.heat }, ...(state.metrics.mirror ? { mirror: { ...state.metrics.mirror } } : {}), ...(state.metrics.original ? { original: { ...state.metrics.original, folioTicks: { ...state.metrics.original.folioTicks } } } : {}), enemyStats: Object.fromEntries(Object.entries(state.metrics.enemyStats).map(([kind, stats]) => [kind, { ...stats }])) as GameState['metrics']['enemyStats'], boss: { ...state.metrics.boss, phaseReached: [...state.metrics.boss.phaseReached], damageByAttack: { ...state.metrics.boss.damageByAttack } }, compiler: { ...state.metrics.compiler, phaseReached: [...state.metrics.compiler.phaseReached], attacks: { ...state.metrics.compiler.attacks }, damageByAttack: { ...state.metrics.compiler.damageByAttack } }, eel: { ...state.metrics.eel, phaseReached: [...state.metrics.eel.phaseReached], attacks: { ...state.metrics.eel.attacks }, damageByAttack: { ...state.metrics.eel.damageByAttack } }, advocate: { ...state.metrics.advocate, cooledHitsByPhase: [...state.metrics.advocate.cooledHitsByPhase], phaseReached: [...state.metrics.advocate.phaseReached], attacks: { ...state.metrics.advocate.attacks }, damageByAttack: { ...state.metrics.advocate.damageByAttack } }, apocrypha: { ...state.metrics.apocrypha, phaseReached: [...state.metrics.apocrypha.phaseReached], attacks: { ...state.metrics.apocrypha.attacks }, damageByAttack: { ...state.metrics.apocrypha.damageByAttack } }, editor: { ...state.metrics.editor, phaseReached: [...state.metrics.editor.phaseReached], attacks: { ...state.metrics.editor.attacks }, damageByAttack: { ...state.metrics.editor.damageByAttack } } }
 });
 
-const spawnEnemyBullet = (state: GameState, enemy: Point, angleOffset = 0, speedPx = 145, sourceAttack: Bullet['sourceAttack'] = 'enemy-volley'): boolean => {
+const spawnEnemyBullet = (state: GameState, enemy: Point & { kind?: string }, angleOffset = 0, speedPx = 145, sourceAttack?: Bullet['sourceAttack']): boolean => {
   if (state.bullets.filter((bullet) => bullet.kind === 'enemy').length >= stageDefinition(state.stageId).entityLimits.enemyBullets) {
     state.metrics.rejectedEnemyBullets += 1;
     return false;
@@ -165,7 +165,10 @@ const spawnEnemyBullet = (state: GameState, enemy: Point, angleOffset = 0, speed
   const dy = Math.sin(aim);
   const length = Math.max(1, Math.hypot(dx, dy));
   const speed = speedPx * SCALE / TICK_RATE;
-  state.bullets.push({ id: state.nextId++, x: enemy.x, y: enemy.y, vx: Math.round(dx / length * speed), vy: Math.round(dy / length * speed), radius: 8, kind: 'enemy', annotated: false, capturable: true, sourceAttack });
+  const regularSource = enemy.kind && enemy.kind in ENEMY_ATTACK_SOURCE
+    ? ENEMY_ATTACK_SOURCE[enemy.kind as EnemyKind]
+    : 'enemy-aimed';
+  state.bullets.push({ id: state.nextId++, x: enemy.x, y: enemy.y, vx: Math.round(dx / length * speed), vy: Math.round(dy / length * speed), radius: 8, kind: 'enemy', annotated: false, capturable: true, sourceAttack: sourceAttack ?? regularSource });
   state.metrics.enemyShots += 1;
   return true;
 };
@@ -177,7 +180,7 @@ const spawnIllusoryBullet = (state: GameState, enemy: Point, angleOffset: number
   }
   const aim = Math.atan2(state.player.y - enemy.y, state.player.x - enemy.x) + angleOffset;
   const speed = speedPx * SCALE / TICK_RATE;
-  state.bullets.push({ id: state.nextId++, x: enemy.x, y: enemy.y, vx: Math.round(Math.cos(aim) * speed), vy: Math.round(Math.sin(aim) * speed), radius: 9, kind: 'enemy', annotated: false, capturable: false, illusory: true });
+  state.bullets.push({ id: state.nextId++, x: enemy.x, y: enemy.y, vx: Math.round(Math.cos(aim) * speed), vy: Math.round(Math.sin(aim) * speed), radius: 9, kind: 'enemy', annotated: false, capturable: false, illusory: true, sourceAttack: 'enemy-decoy' });
   state.metrics.enemyShots += 1;
   state.metrics.mirror!.illusoryShots += 1;
   return true;
@@ -1651,7 +1654,7 @@ export const step = (previous: GameState, input: InputFrame, difficulty: Difficu
       }
       const recovery = DIFFICULTY_PRESSURE[difficulty].hazardRecovery;
       if (recovery === 'all') clearAllEnemyBullets = true;
-      else if (recovery === 'weak' && (bullet.sourceAttack === 'enemy-volley' || bullet.sourceAttack === undefined)) clearWeakEnemyBullets = true;
+      else if (recovery === 'weak' && isRegularEnemyAttack(bullet.sourceAttack)) clearWeakEnemyBullets = true;
       if (bullet.sourceAttack === 'boss-fan') state.metrics.boss.damageByAttack.fan += 1;
       else if (bullet.sourceAttack === 'boss-sweep') state.metrics.boss.damageByAttack.sweep += 1;
       else if (bullet.sourceAttack === 'compiler-gust') state.metrics.compiler.damageByAttack.gust += 1;
@@ -1682,7 +1685,7 @@ export const step = (previous: GameState, input: InputFrame, difficulty: Difficu
   state.bullets = clearAllEnemyBullets
     ? remaining.filter((bullet) => bullet.kind !== 'enemy')
     : clearWeakEnemyBullets
-    ? remaining.filter((bullet) => bullet.kind !== 'enemy' || (bullet.sourceAttack !== 'enemy-volley' && bullet.sourceAttack !== undefined))
+    ? remaining.filter((bullet) => bullet.kind !== 'enemy' || !isRegularEnemyAttack(bullet.sourceAttack))
     : remaining;
   state.enemies = state.enemies.filter((enemy) => {
     if (defeated.has(enemy.id)) return false;

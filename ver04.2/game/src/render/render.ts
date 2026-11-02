@@ -6,7 +6,7 @@ import { STAGE_05_MIRROR_BANDS, stageFiveFalseTrail } from '../content/stage-05'
 import { stageSixActiveRule, stageSixFolio } from '../content/stage-06';
 import { drawSprite, visuals } from './visual-assets';
 import { MARGINALIA, marginaliaOwnedSummary } from '../content/marginalia';
-import { combatCueAlpha, COMBAT_VISUAL_CONTRACT, ENEMY_VISUAL_CONTRACT } from './visual-contract';
+import { combatCueAlpha, COMBAT_VISUAL_CONTRACT, ENEMY_VISUAL_CONTRACT, hazardSilhouette } from './visual-contract';
 
 const path = (ctx: CanvasRenderingContext2D, points: Point[]): void => {
   if (points.length === 0) return;
@@ -22,6 +22,36 @@ const diamond = (ctx: CanvasRenderingContext2D, x: number, y: number, radius: nu
   ctx.lineTo(x - radius, y);
   ctx.lineTo(x, y - radius);
   ctx.closePath();
+};
+
+const drawHazardGlyph = (ctx: CanvasRenderingContext2D, x: number, y: number, radius: number, vx: number, vy: number, silhouette: ReturnType<typeof hazardSilhouette>, capturable: boolean): void => {
+  const angle = Math.atan2(vy, vx);
+  ctx.save();
+  ctx.translate(x, y); ctx.rotate(angle);
+  ctx.strokeStyle = capturable ? '#ffd1b3' : '#f4a2ff';
+  ctx.fillStyle = 'rgba(26, 8, 20, .86)';
+  ctx.lineWidth = capturable ? 2.5 : 2;
+  if (!capturable) ctx.setLineDash([4, 4]);
+  ctx.beginPath();
+  if (silhouette === 'aimed') {
+    ctx.moveTo(radius + 5, 0); ctx.lineTo(-radius - 2, radius * .72); ctx.lineTo(-radius * .45, 0); ctx.lineTo(-radius - 2, -radius * .72);
+  } else if (silhouette === 'spread') {
+    ctx.moveTo(0, -radius - 4); ctx.lineTo(radius + 4, 0); ctx.lineTo(0, radius + 4); ctx.lineTo(-radius - 4, 0); ctx.closePath();
+  } else if (silhouette === 'control') {
+    ctx.rect(-radius - 2, -radius - 2, radius * 2 + 4, radius * 2 + 4);
+  } else {
+    ctx.moveTo(radius + 8, 0); ctx.lineTo(-radius, radius * .48); ctx.lineTo(-radius * .62, 0); ctx.lineTo(-radius, -radius * .48); ctx.closePath();
+  }
+  ctx.fill(); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.lineWidth = silhouette === 'sniper' ? 3 : 2;
+  ctx.beginPath();
+  const tail = silhouette === 'sniper' ? radius + 18 : silhouette === 'control' ? radius + 10 : radius + 7;
+  ctx.moveTo(-radius, 0); ctx.lineTo(-tail, 0);
+  if (silhouette === 'spread') { ctx.moveTo(-radius * .65, -radius * .7); ctx.lineTo(-tail + 3, -radius - 5); ctx.moveTo(-radius * .65, radius * .7); ctx.lineTo(-tail + 3, radius + 5); }
+  if (silhouette === 'control') { ctx.moveTo(-tail, -5); ctx.lineTo(-tail, 5); }
+  ctx.stroke();
+  ctx.restore();
 };
 
 const combatHalo = (
@@ -384,12 +414,7 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
       else if (bullet.illusory) {
         ctx.strokeStyle = '#ef8cff'; ctx.lineWidth = 2; ctx.setLineDash([4, 5]);
         diamond(ctx, x, y, bullet.radius + 4); ctx.stroke(); ctx.setLineDash([]);
-      } else {
-        ctx.strokeStyle = '#ff826f'; ctx.fillStyle = 'rgba(26, 8, 20, .82)'; ctx.lineWidth = 3;
-        ctx.beginPath(); ctx.arc(x, y, bullet.radius + 3, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-        ctx.strokeStyle = '#ffd1b3'; ctx.lineWidth = 1;
-        ctx.beginPath(); ctx.arc(x, y, Math.max(2, bullet.radius - 3), 0, Math.PI * 2); ctx.stroke();
-      }
+      } else drawHazardGlyph(ctx, x, y, bullet.radius, bullet.vx, bullet.vy, hazardSilhouette(bullet.sourceAttack), bullet.capturable);
     } else if (bullet.kind === 'return') {
       if (bullet.cooledEmber) {
         ctx.save(); ctx.shadowColor = '#75ffff'; ctx.shadowBlur = 24;

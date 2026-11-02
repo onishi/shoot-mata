@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { combatCueAlpha, COMBAT_VISUAL_CONTRACT, ENEMY_VISUAL_CONTRACT } from '../src/render/visual-contract';
+import { combatCueAlpha, COMBAT_VISUAL_CONTRACT, ENEMY_ATTACK_SOURCE, ENEMY_VISUAL_CONTRACT, hazardSilhouette, isRegularEnemyAttack } from '../src/render/visual-contract';
 import { createInitialState, step } from '../src/simulation/game';
 
 describe('visual and collision contract', () => {
@@ -33,5 +33,22 @@ describe('visual and collision contract', () => {
     expect(new Set(samples).size).toBe(1);
     expect(samples[0]).toBeGreaterThanOrEqual(0.85);
     expect(combatCueAlpha(0, false)).not.toBe(combatCueAlpha(9, false));
+  });
+
+  it('assigns all 24 enemies to four predictive silhouettes without changing recovery semantics', () => {
+    const sources = Object.values(ENEMY_ATTACK_SOURCE);
+    expect(sources).toHaveLength(24);
+    expect(new Set(sources.map(hazardSilhouette))).toEqual(new Set(['aimed', 'spread', 'control', 'sniper']));
+    for (const source of sources) expect(isRegularEnemyAttack(source), source).toBe(true);
+  });
+
+  it('maps every boss attack to the shared predictive vocabulary', () => {
+    const bossSources = [
+      'boss-fan', 'boss-sweep', 'compiler-gust', 'compiler-lance', 'compiler-storm',
+      'eel-drizzle', 'eel-wake', 'eel-deluge', 'advocate-ember', 'advocate-gavel', 'advocate-verdict',
+      'twins-testimony', 'twins-cross-exam', 'twins-verdict', 'editor-erasure', 'editor-wind',
+      'editor-rain', 'editor-heat', 'editor-mirror', 'editor-signature'
+    ] as const;
+    expect(new Set(bossSources.map(hazardSilhouette))).toEqual(new Set(['aimed', 'spread', 'control', 'sniper']));
   });
 });
