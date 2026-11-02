@@ -90,13 +90,42 @@ async function playRoom(page: Page, room: number): Promise<void> {
   await expectState(page, 'won');
 }
 
+async function expectCanvasContained(page: Page, viewport: { width: number; height: number }): Promise<void> {
+  const box = await page.locator('#game').boundingBox();
+  expect(box).not.toBeNull();
+  expect(box!.x).toBeGreaterThanOrEqual(0);
+  expect(box!.y).toBeGreaterThanOrEqual(0);
+  expect(box!.x + box!.width).toBeLessThanOrEqual(viewport.width);
+  expect(box!.y + box!.height).toBeLessThanOrEqual(viewport.height);
+  expect(box!.width / box!.height).toBeCloseTo(16 / 9, 2);
+}
+
+async function sampleFrameIntervals(page: Page, frameCount = 120): Promise<readonly number[]> {
+  return page.evaluate((count) => new Promise<number[]>((resolve) => {
+    const intervals: number[] = [];
+    let previous = performance.now();
+    const sample = (now: number): void => {
+      intervals.push(now - previous);
+      previous = now;
+      if (intervals.length >= count) resolve(intervals.slice(1));
+      else requestAnimationFrame(sample);
+    };
+    requestAnimationFrame(sample);
+  }), frameCount);
+}
+
+function percentile(values: readonly number[], fraction: number): number {
+  const sorted = [...values].sort((a, b) => a - b);
+  return sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * fraction))]!;
+}
+
 test.beforeEach(async ({ page }) => {
   await page.goto('/');
   await page.evaluate(() => localStorage.clear());
   await page.reload();
 });
 
-test('keyboard flow completes all available rooms and persists clean room progress', async ({ page }) => {
+test('keyboard flow completes all available rooms and persists clean room progress', async ({ page }, testInfo) => {
   const errors: string[] = [];
   page.on('console', (message) => {
     if (message.type() === 'error') errors.push(message.text());
@@ -119,6 +148,7 @@ test('keyboard flow completes all available rooms and persists clean room progre
   await page.keyboard.press('Escape');
   await expectState(page, 'playing');
 
+  const scoreStartedAt = performance.now();
   for (let room = 1; room <= solutions.length; room += 1) {
     if (room === 5) {
       await playPhrase(page, solutions[4]![0]!);
@@ -227,6 +257,14 @@ test('keyboard flow completes all available rooms and persists clean room progre
       await expectState(page, 'playing');
     }
   }
+  const scoreDurationMs = performance.now() - scoreStartedAt;
+  const nominalActions = solutions.flat(2).length;
+  await testInfo.attach('score-throughput.json', {
+    body: JSON.stringify({ rooms: solutions.length, nominalActions, scoreDurationMs }, null, 2),
+    contentType: 'application/json',
+  });
+  console.info(`M4 throughput: ${solutions.length} rooms, ${nominalActions} nominal actions, ${scoreDurationMs.toFixed(1)} ms`);
+  expect(scoreDurationMs).toBeLessThan(20_000);
   await page.locator('#game').screenshot({ path: '../docs/evidence/m3-e2e-score-complete.png' });
   await expect(page.locator('#game')).toHaveAttribute('data-unlocked-room', '12');
 
@@ -265,24 +303,64 @@ test('settings survive reload and both required viewports contain every game sta
   ]) {
     await page.setViewportSize(viewport);
     await page.reload();
-    const canvas = page.locator('#game');
-    const box = await canvas.boundingBox();
-    expect(box).not.toBeNull();
-    expect(box!.x).toBeGreaterThanOrEqual(0);
-    expect(box!.y).toBeGreaterThanOrEqual(0);
-    expect(box!.x + box!.width).toBeLessThanOrEqual(viewport.width);
-    expect(box!.y + box!.height).toBeLessThanOrEqual(viewport.height);
-    expect(box!.width / box!.height).toBeCloseTo(16 / 9, 2);
-    await page.screenshot({ path: `../docs/evidence/m2-viewport-title-${viewport.name}.png` });
+    await expectCanvasContained(page, viewport);
+    await page.screenshot({ path: `../docs/evidence/m4-viewport-title-${viewport.name}.png` });
 
+    await page.keyboard.press('KeyS');
+    await expectState(page, 'settings');
+    await expectCanvasContained(page, viewport);
+    await page.screenshot({ path: `../docs/evidence/m4-viewport-settings-${viewport.name}.png` });
+    await page.keyboard.press('Enter');
+    await expectState(page, 'title');
     await page.keyboard.press('Enter');
     await expectState(page, 'playing');
+    await expectCanvasContained(page, viewport);
+    await page.screenshot({ path: `../docs/evidence/m4-viewport-playing-${viewport.name}.png` });
     await page.keyboard.press('KeyH');
     await expectState(page, 'hint');
-    await page.screenshot({ path: `../docs/evidence/m2-viewport-hint-${viewport.name}.png` });
+    await expectCanvasContained(page, viewport);
+    await page.screenshot({ path: `../docs/evidence/m4-viewport-hint-${viewport.name}.png` });
     await page.keyboard.press('Escape');
     await page.keyboard.press('Escape');
     await expectState(page, 'paused');
-    await page.screenshot({ path: `../docs/evidence/m2-viewport-paused-${viewport.name}.png` });
+    await expectCanvasContained(page, viewport);
+    await page.screenshot({ path: `../docs/evidence/m4-viewport-paused-${viewport.name}.png` });
+    await page.keyboard.press('Escape');
+    await playRoom(page, 1);
+    await expectCanvasContained(page, viewport);
+    await page.screenshot({ path: `../docs/evidence/m4-viewport-won-${viewport.name}.png` });
+
+    await page.evaluate(() => localStorage.removeItem('chorus-shift:v1'));
   }
+});
+
+test('densest room sustains the frame-time budget', async ({ page }, testInfo) => {
+  await page.evaluate(() => localStorage.setItem('chorus-shift:v1', JSON.stringify({
+    version: 1,
+    highestUnlockedRoom: 11,
+    completedRooms: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+    hintsSeen: [],
+    settings: { volume: 0, reducedMotion: false },
+  })));
+  await page.reload();
+  await page.keyboard.press('Enter');
+  await expect(page.locator('#game')).toHaveAttribute('data-room', '12');
+  await playPhrase(page, solutions[11]![0]!);
+  await playPhrase(page, solutions[11]![1]!);
+  await playPhrase(page, solutions[11]![2]!.slice(0, 7));
+  await expect(page.locator('#game')).toHaveAttribute('data-tracks', '2');
+
+  const intervals = await sampleFrameIntervals(page);
+  const p50Ms = percentile(intervals, 0.5);
+  const p95Ms = percentile(intervals, 0.95);
+  const maxMs = Math.max(...intervals);
+  const slowFrameRatio = intervals.filter((duration) => duration > 34).length / intervals.length;
+  await testInfo.attach('frame-performance.json', {
+    body: JSON.stringify({ samples: intervals.length, p50Ms, p95Ms, maxMs, slowFrameRatio }, null, 2),
+    contentType: 'application/json',
+  });
+  console.info(`M4 frames: ${intervals.length} samples, p50 ${p50Ms.toFixed(2)} ms, p95 ${p95Ms.toFixed(2)} ms, max ${maxMs.toFixed(2)} ms, slow ${(slowFrameRatio * 100).toFixed(2)}%`);
+
+  expect(p95Ms).toBeLessThan(25);
+  expect(slowFrameRatio).toBeLessThanOrEqual(0.05);
 });

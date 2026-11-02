@@ -435,7 +435,7 @@ function drawTitle(time: number): void {
   ctx.stroke();
   text(save.completedRooms.includes(titleRoomIndex) ? 'ENTER  この部屋を再演' : 'ENTER  調律を始める', 640, 609, 18, '#f7e8bc', 'center', 650);
   text('← → 部屋選択    S 設定', 640, 663, 13, '#6f9090', 'center', 600);
-  text('turn-based temporal puzzle · twelve-room score in progress', 640, 690, 12, '#58787a', 'center', 500);
+  text('turn-based temporal puzzle · twelve-room score', 640, 690, 12, '#58787a', 'center', 500);
 }
 
 function drawSettings(time: number): void {
