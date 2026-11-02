@@ -4,6 +4,7 @@ import {
   FINAL_CADENCE,
   HELD_NOTE,
   LONG_TONE,
+  MIRROR_ENTRY,
   ensemblePositions,
   keyOf,
   playAction,
@@ -79,6 +80,17 @@ const rooms: readonly RoomEntry[] = [
       ['音盤の一枚は始点そのものです。', '動かない8拍も、ひとつの有効なフレーズになります。'],
       ['左の音盤への道は8拍より短いため、', '着いた後に拍を保つ余裕があります。'],
       ['右の音盤は、いったん最上段へ上がってから回り込みます。', '三つのフレーズを8拍目に着地させてください。'],
+    ],
+  },
+  {
+    room: MIRROR_ENTRY,
+    name: 'MIRROR ENTRY',
+    objective: '反転床へ渡した譜面で、再演だけの進路を作る',
+    guidance: '菱形の床を越えた過去奏者は、次の拍から左右を反転します',
+    hints: [
+      ['反転するのは録音中ではなく、その奏者が再演されるときです。', '床へ入った拍そのものは、譜面どおりに進みます。'],
+      ['最初の奏者を右へ二拍進めると、', '再演では二拍目だけが左向きへ変わります。'],
+      ['反転した奏者を中央上の盤へ導き、', '左右の奏者を同じ四拍目に待ち合わせてください。'],
     ],
   },
 ];
@@ -338,7 +350,7 @@ function drawTitle(time: number): void {
   ctx.stroke();
   text(save.completedRooms.includes(titleRoomIndex) ? 'ENTER  この部屋を再演' : 'ENTER  調律を始める', 640, 609, 18, '#f7e8bc', 'center', 650);
   text('← → 部屋選択    S 設定', 640, 663, 13, '#6f9090', 'center', 600);
-  text('turn-based temporal puzzle · four-room score', 640, 690, 12, '#58787a', 'center', 500);
+  text('turn-based temporal puzzle · twelve-room score in progress', 640, 690, 12, '#58787a', 'center', 500);
 }
 
 function drawSettings(time: number): void {
@@ -400,17 +412,41 @@ function drawBoard(time: number): void {
 
   const beat = currentActions.length;
   const phrases = [...tracks, currentActions];
-  const points = ensemblePositions(room, phrases, beat);
+  const points = ensemblePositions(room, phrases, beat, tracks.length);
+  room.inversionFloors.forEach((floor) => drawInversionFloor(floor, time));
   room.doors.forEach((door) => drawDoorLink(door));
   room.doors.forEach((door) => drawDoor(door, points, time));
   room.plates.forEach((plate, index) => drawPlate(plate, points.some((point) => keyOf(point) === keyOf(plate)), time + index * 520));
 
   phrases.forEach((_track, index) => {
     const path: Point[] = [room.start];
-    for (let step = 1; step <= beat; step += 1) path.push(ensemblePositions(room, phrases, step)[index]!);
+    for (let step = 1; step <= beat; step += 1) path.push(ensemblePositions(room, phrases, step, tracks.length)[index]!);
     drawTrail(path, palette[index] ?? palette[0]!);
     drawPerformer(points[index]!, index, index === phrases.length - 1, time);
   });
+}
+
+function drawInversionFloor(point: Point, time: number): void {
+  const center = cellCenter(point);
+  const shimmer = 0.55 + Math.sin(time * 0.004) * 0.18;
+  ctx.save();
+  ctx.translate(center.x, center.y);
+  ctx.rotate(Math.PI / 4);
+  ctx.fillStyle = `rgba(122, 185, 201, ${shimmer * 0.28})`;
+  ctx.strokeStyle = `rgba(163, 228, 231, ${shimmer})`;
+  ctx.lineWidth = 2;
+  ctx.shadowColor = '#78cdd3';
+  ctx.shadowBlur = 12;
+  roundedRect(-22, -22, 44, 44, 7);
+  ctx.fill();
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+  ctx.beginPath();
+  ctx.moveTo(-12, 0); ctx.lineTo(12, 0);
+  ctx.moveTo(5, -7); ctx.lineTo(12, 0); ctx.lineTo(5, 7);
+  ctx.moveTo(-5, -7); ctx.lineTo(-12, 0); ctx.lineTo(-5, 7);
+  ctx.stroke();
+  ctx.restore();
 }
 
 function drawDoorLink(door: BeatDoor): void {

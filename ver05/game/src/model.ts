@@ -14,6 +14,7 @@ export type Room = Readonly<{
   walls: ReadonlySet<string>;
   plates: readonly Point[];
   doors: readonly BeatDoor[];
+  inversionFloors: readonly Point[];
 }>;
 
 export type TurnResult = Readonly<{
@@ -39,6 +40,7 @@ export const FIRST_CHORD: Room = {
   ]),
   plates: [{ x: 4, y: 1 }, { x: 1, y: 3 }, { x: 7, y: 3 }],
   doors: [],
+  inversionFloors: [],
 };
 
 export const HELD_NOTE: Room = {
@@ -53,6 +55,7 @@ export const HELD_NOTE: Room = {
   ]),
   plates: [{ x: 1, y: 3 }, { x: 4, y: 1 }, { x: 7, y: 5 }],
   doors: [{ point: { x: 4, y: 3 }, trigger: { x: 1, y: 3 } }],
+  inversionFloors: [],
 };
 
 /** The trigger voice arrives early and must sustain its note until a later voice reaches the door. */
@@ -69,6 +72,7 @@ export const LONG_TONE: Room = {
   ]),
   plates: [{ x: 2, y: 4 }, { x: 4, y: 1 }, { x: 7, y: 5 }],
   doors: [{ point: { x: 4, y: 2 }, trigger: { x: 2, y: 4 } }],
+  inversionFloors: [],
 };
 
 /** A timing room: one voice holds the origin while the last must take an eight-beat pocket route. */
@@ -85,6 +89,26 @@ export const FINAL_CADENCE: Room = {
   ]),
   plates: [{ x: 4, y: 5 }, { x: 1, y: 2 }, { x: 7, y: 2 }],
   doors: [],
+  inversionFloors: [],
+};
+
+/** The first room where a recorded voice diverges: after crossing glass, replayed left/right inputs invert. */
+export const MIRROR_ENTRY: Room = {
+  width: 9,
+  height: 7,
+  phraseLength: 8,
+  start: { x: 4, y: 5 },
+  walls: new Set([
+    '0,0', '1,0', '2,0', '3,0', '4,0', '5,0', '6,0', '7,0', '8,0',
+    '0,1', '1,1', '2,1', '6,1', '7,1', '8,1',
+    '0,2', '2,2', '6,2', '8,2',
+    '0,3', '8,3', '0,4', '1,4', '7,4', '8,4',
+    '0,5', '8,5',
+    '0,6', '1,6', '2,6', '3,6', '4,6', '5,6', '6,6', '7,6', '8,6',
+  ]),
+  plates: [{ x: 4, y: 3 }, { x: 1, y: 5 }, { x: 7, y: 5 }],
+  doors: [],
+  inversionFloors: [{ x: 5, y: 5 }],
 };
 
 export function keyOf(point: Point): string {
@@ -129,10 +153,20 @@ export function ensemblePositions(
   room: Room,
   phrases: readonly (readonly Action[])[],
   beat: number,
+  livePhraseIndex: number | null = null,
 ): Point[] {
   let points = phrases.map(() => room.start);
+  const inverted = phrases.map(() => false);
   for (let step = 0; step < beat; step += 1) {
-    const intents = points.map((point, index) => intendedMove(room, point, phrases[index]?.[step] ?? 'wait'));
+    const pointsBeforeStep = points;
+    const intents = points.map((point, index) => {
+      const recorded = phrases[index]?.[step] ?? 'wait';
+      const isReplay = index !== livePhraseIndex;
+      const action = isReplay && inverted[index]
+        ? recorded === 'left' ? 'right' : recorded === 'right' ? 'left' : recorded
+        : recorded;
+      return intendedMove(room, point, action);
+    });
     points = intents.map((intent, index) => {
       const door = room.doors.find((candidate) => keyOf(candidate.point) === keyOf(intent));
       if (!door) return intent;
@@ -140,6 +174,12 @@ export function ensemblePositions(
         (other, otherIndex) => otherIndex !== index && keyOf(other) === keyOf(door.trigger),
       );
       return openedByAnother ? intent : points[index]!;
+    });
+    points.forEach((point, index) => {
+      if (index === livePhraseIndex) return;
+      const enteredInversion = keyOf(point) !== keyOf(pointsBeforeStep[index]!)
+        && room.inversionFloors.some((floor) => keyOf(floor) === keyOf(point));
+      if (enteredInversion) inverted[index] = !inverted[index];
     });
   }
   return points;
@@ -154,7 +194,7 @@ export function playAction(
   const nextActions = [...currentActions, action];
   if (nextActions.length > room.phraseLength) throw new Error('phrase is already complete');
   const beat = nextActions.length;
-  const positions = ensemblePositions(room, [...tracks, nextActions], beat);
+  const positions = ensemblePositions(room, [...tracks, nextActions], beat, tracks.length);
   const current = positions.at(-1) ?? room.start;
   const echoes = positions.slice(0, -1);
   const won = occupiesAllPlates(room, [...echoes, current]);

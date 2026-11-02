@@ -31,6 +31,11 @@ const solutions: readonly (readonly (readonly Action[])[])[] = [
     ['left', 'left', 'left', 'up', 'up', 'up', 'wait', 'wait'],
     ['up', 'up', 'up', 'up', 'right', 'right', 'right', 'down'],
   ],
+  [
+    ['right', 'right', 'up', 'up', 'wait', 'wait', 'wait', 'wait'],
+    ['left', 'left', 'left', 'wait', 'wait', 'wait', 'wait', 'wait'],
+    ['right', 'right', 'right', 'wait', 'wait', 'wait', 'wait', 'wait'],
+  ],
 ];
 
 async function expectState(page: Page, state: string): Promise<void> {
@@ -56,7 +61,7 @@ test.beforeEach(async ({ page }) => {
   await page.reload();
 });
 
-test('keyboard flow completes all four rooms and persists clean room progress', async ({ page }) => {
+test('keyboard flow completes all available rooms and persists clean room progress', async ({ page }) => {
   const errors: string[] = [];
   page.on('console', (message) => {
     if (message.type() === 'error') errors.push(message.text());
@@ -80,26 +85,36 @@ test('keyboard flow completes all four rooms and persists clean room progress', 
   await expectState(page, 'playing');
 
   for (let room = 1; room <= solutions.length; room += 1) {
+    if (room === 5) {
+      await playPhrase(page, solutions[4]![0]!);
+      await expect(page.locator('#game')).toHaveAttribute('data-tracks', '1');
+      await playPhrase(page, ['left', 'left', 'left']);
+      await page.locator('#game').screenshot({ path: '../docs/evidence/m3-mirror-entry-replay.png' });
+      await playPhrase(page, solutions[4]![1]!.slice(3));
+      await playPhrase(page, solutions[4]![2]!);
+      await expectState(page, 'won');
+      break;
+    }
     await playRoom(page, room);
     if (room < solutions.length) {
       await page.keyboard.press('Enter');
       await expectState(page, 'playing');
     }
   }
-  await page.locator('#game').screenshot({ path: '../docs/evidence/m2-e2e-score-complete.png' });
-  await expect(page.locator('#game')).toHaveAttribute('data-unlocked-room', '4');
+  await page.locator('#game').screenshot({ path: '../docs/evidence/m3-e2e-mirror-entry-complete.png' });
+  await expect(page.locator('#game')).toHaveAttribute('data-unlocked-room', '5');
 
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('chorus-shift:v1') ?? 'null'));
-  expect(saved.highestUnlockedRoom).toBe(3);
-  expect(saved.completedRooms).toEqual([0, 1, 2, 3]);
+  expect(saved.highestUnlockedRoom).toBe(4);
+  expect(saved.completedRooms).toEqual([0, 1, 2, 3, 4]);
   expect(saved.hintsSeen).toEqual([0]);
 
   await page.reload();
   await expectState(page, 'title');
-  await expect(page.locator('#game')).toHaveAttribute('data-unlocked-room', '4');
+  await expect(page.locator('#game')).toHaveAttribute('data-unlocked-room', '5');
   await page.keyboard.press('Enter');
   await expectState(page, 'playing');
-  await expect(page.locator('#game')).toHaveAttribute('data-room', '4');
+  await expect(page.locator('#game')).toHaveAttribute('data-room', '5');
   await expect(page.locator('#game')).toHaveAttribute('data-beat', '0');
   await expect(page.locator('#game')).toHaveAttribute('data-tracks', '0');
   expect(errors).toEqual([]);

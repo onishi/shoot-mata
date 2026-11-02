@@ -4,6 +4,7 @@ import {
   FINAL_CADENCE,
   HELD_NOTE,
   LONG_TONE,
+  MIRROR_ENTRY,
   ensemblePositions,
   move,
   occupiesAllPlates,
@@ -147,6 +148,26 @@ describe('FINAL CADENCE full-measure alignment', () => {
 
   it('resolves its three distinct distances exactly on the eighth beat', () => {
     expect(runSolution(FINAL_CADENCE, [originPhrase, leftPhrase, pocketPhrase])).toEqual({ won: true, beat: 8 });
+  });
+});
+
+describe('MIRROR ENTRY replay inversion', () => {
+  const mirroredPhrase: Action[] = ['right', 'right', 'up', 'up', 'wait', 'wait', 'wait', 'wait'];
+  const leftPhrase: Action[] = ['left', 'left', 'left', 'wait', 'wait', 'wait', 'wait', 'wait'];
+  const rightPhrase: Action[] = ['right', 'right', 'right', 'wait', 'wait', 'wait', 'wait', 'wait'];
+
+  it('keeps the recorded path literal but inverts horizontal actions after glass on replay', () => {
+    expect(positionAfter(MIRROR_ENTRY, mirroredPhrase, 4)).toEqual({ x: 6, y: 3 });
+    expect(ensemblePositions(MIRROR_ENTRY, [mirroredPhrase], 4)).toEqual([{ x: 4, y: 3 }]);
+  });
+
+  it('does not invert the step that enters glass, only later horizontal steps', () => {
+    expect(ensemblePositions(MIRROR_ENTRY, [mirroredPhrase], 1)).toEqual([{ x: 5, y: 5 }]);
+    expect(ensemblePositions(MIRROR_ENTRY, [mirroredPhrase], 2)).toEqual([{ x: 4, y: 5 }]);
+  });
+
+  it('has a deterministic solution that depends on the first voice changing course', () => {
+    expect(runSolution(MIRROR_ENTRY, [mirroredPhrase, leftPhrase, rightPhrase])).toEqual({ won: true, beat: 4 });
   });
 });
 

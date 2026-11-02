@@ -15,6 +15,8 @@
 
 拍扉のある部屋では、各拍の全奏者の移動意図を先に算出する。壁と境界を解決後、対応する起動盤へ別奏者が同拍に到達する扉だけ移動を許可する。`ensemblePositions`が過去フレーズと現在フレーズを一括再計算するため、undo、reset、描画、勝利判定で扉状態が分岐しない。
 
+反転床は`Room.inversionFloors`でデータ化する。`ensemblePositions`は現在録音中のphrase indexを受け取り、過去奏者だけに反転状態を持たせる。過去奏者が床へ入った次のstepからleft/rightを交換し、同じ床へ入り直すと状態を再反転する。現在奏者は常に入力どおりに動くため、録音時と再演時の差が決定的に再現される。
+
 ## 決定性
 
 同じ部屋、過去フレーズ、現在入力なら常に同じ位置と結果になる。ランダム性は縦切りに入れない。将来の演出乱数も規則乱数から分離する。
@@ -31,4 +33,4 @@
 
 ## ブラウザ検証
 
-Playwrightからproduction previewを起動し、端末のGoogle Chromeを1 workerで操作する。規則を直接呼ばず、キーボードイベントとCanvasの`data-*`状態だけで4部屋の通し、保存、設定、ヒント、ポーズ、viewportを検査する。`npm run verify`は単体、型検査、buildの後にE2Eまで一括実行する。
+Playwrightからproduction previewを起動し、端末のGoogle Chromeを1 workerで操作する。規則を直接呼ばず、キーボードイベントとCanvasの`data-*`状態だけで5部屋の通し、保存、設定、ヒント、ポーズ、viewportを検査する。`npm run verify`は単体、型検査、buildの後にE2Eまで一括実行する。

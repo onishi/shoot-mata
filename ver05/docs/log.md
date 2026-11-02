@@ -57,3 +57,11 @@
 - 初回Chrome監査でfaviconの404を検出したため、作品色と三本の弧を使うdata URL faviconを追加し、console errorとpage errorを0件へ戻した。
 - 採取した7画面を目視し、キャンバスの切れ、overlayの重なり、主要状態の欠落がないことを確認した。640×800は判読可能だが縮小文字になるため、M4で最小実用解像度を再監査する。
 - `npm run verify`は単体19/19、型検査、production build、Google Chrome E2E 2/2に合格し、M2を完了した。詳細は`evidence/m2-browser-qa.md`。次はM3の章構成を固定し、第5室の反転床を縦切り実装する。
+
+## 2026-11-03 — M3 章構成とMIRROR ENTRY
+
+- 全12室をUNISON、INVERSION、CODAの3章へ配列した。既存4室に続き、二重反転、静寂帯、反転との複合、6拍、10拍、拍扉複合、全規則の終演へ進む構成とした。
+- 反転床を「録音中は通常移動し、再演時は床へ入った次の拍から左右入力だけが反転する」と定義した。`ensemblePositions`へ現在phrase indexと奏者別反転状態を加え、同じ入力から録音時と再演時の異なる軌跡を決定的に算出する。
+- 第5室MIRROR ENTRYを追加した。最初の`右、右、上、上`は録音時に右上へ進むが、再演では二拍目が左へ変わって中央上の盤へ着く。残る左右の奏者と4拍目に成立する。
+- 反転床を青いガラス菱形と双方向矢印で描き、3段階ヒント、5室進行、保存範囲を更新した。Chromeの反転途中画像と勝利画像を目視し、床、軌跡、奏者、HUDの欠けや重なりがないことを確認した。
+- 単体22/22、型検査、production build、Google Chrome E2E 2/2に合格した。E2Eは5室連続クリア、保存後の第5室先頭復帰、console/page error 0件を確認した。詳細は`evidence/m3-mirror-entry.md`。次は第6室GLASS RETURNで二重反転を実装する。
