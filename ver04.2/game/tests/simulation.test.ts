@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { px } from '../src/core/math';
-import { ADVOCATE_WALL_X_PX, apocryphaTwinPoint, createInitialState, eelSegmentPoint, step } from '../src/simulation/game';
+import { ADVOCATE_WALL_X_PX, SHORT_BOSS_MIN_PHASE_TICKS, apocryphaTwinPoint, createInitialState, eelSegmentPoint, step } from '../src/simulation/game';
 import { STAGE_01_BOSS_START_TICK, STAGE_01_SPAWNS } from '../src/content/stage-01';
 import { STAGE_02_BOSS_START_TICK, STAGE_02_SPAWNS } from '../src/content/stage-02';
 import { STAGE_03_BOSS_START_TICK, STAGE_03_SPAWNS } from '../src/content/stage-03';
@@ -200,6 +200,13 @@ describe('M1 deterministic playground', () => {
     state = step(state, {}).state;
     state.boss!.armor = 1;
     state.bullets = [{ id: 901, x: state.boss!.x, y: state.boss!.y, vx: 0, vy: 0, radius: 5, kind: 'return', annotated: true, capturable: false }];
+    const held = step(state, {});
+    expect(held.state.boss?.phase).toBe(1);
+    expect(held.state.boss?.armor).toBe(1);
+
+    state = held.state;
+    state.boss!.phaseStartedAt = state.tick - SHORT_BOSS_MIN_PHASE_TICKS;
+    state.bullets = [{ id: 902, x: state.boss!.x, y: state.boss!.y, vx: 0, vy: 0, radius: 5, kind: 'return', annotated: true, capturable: false }];
     const result = step(state, {});
     expect(result.state.boss?.phase).toBe(2);
     expect(result.state.boss?.armorLayers).toBe(2);

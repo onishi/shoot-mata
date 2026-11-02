@@ -21,36 +21,41 @@
         "verdict": 66
       },
       "damageByAttack": {
-        "testimony": 12,
-        "crossExam": 14,
-        "verdict": 11
+        "testimony": 11,
+        "crossExam": 13,
+        "verdict": 7
       }
     },
-    "hash": "1d33a4aaca0bb83a"
+    "hash": "101cef40d0e32231"
   },
   "stitch": {
-    "durationTicks": 2456,
+    "durationTicks": 4798,
     "phaseTicks": [
       0,
-      841,
-      1455
+      1200,
+      3280
     ],
-    "maxEnemyBullets": 115,
+    "phaseDurations": [
+      1200,
+      2080,
+      1518
+    ],
+    "maxEnemyBullets": 111,
     "apocrypha": {
       "syncBreaks": 3,
-      "syncBrokenTicks": 363,
-      "weakpointHits": 20,
-      "ordinaryHits": 106,
-      "swaps": 11,
+      "syncBrokenTicks": 915,
+      "weakpointHits": 53,
+      "ordinaryHits": 176,
+      "swaps": 20,
       "phaseReached": [
         true,
         true,
         true
       ],
       "attacks": {
-        "testimony": 7,
-        "crossExam": 5,
-        "verdict": 11
+        "testimony": 8,
+        "crossExam": 17,
+        "verdict": 16
       },
       "damageByAttack": {
         "testimony": 1,
@@ -58,14 +63,16 @@
         "verdict": 0
       }
     },
-    "hash": "357b92075dd39f62"
+    "hash": "611f3f1984c70f09"
   },
-  "replayHash": "357b92075dd39f62",
+  "replayHash": "611f3f1984c70f09",
   "gates": {
     "ordinaryFallbackDefeatsBoss": true,
     "stitchDefeatsBoss": true,
     "syncRouteAtLeastFiftyPercentFaster": true,
     "allPhasesReached": true,
+    "pacedThirtyToSixtySeconds": true,
+    "everyPhaseAtLeastEightSeconds": true,
     "sharedLoopBreaksSync": true,
     "weakpointRouteUsed": true,
     "mirrorExchangeUsed": true,

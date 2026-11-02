@@ -484,6 +484,15 @@ Object.assign(window, {
       app.game.boss.health = 1;
       app.game.bullets.push({ id: app.game.nextId++, x: app.game.boss.x, y: app.game.boss.y, vx: 0, vy: 0, radius: 10, kind: 'return', annotated: true, cooledEmber: true, capturable: false });
     } else if (app.game.boss) {
+      if (app.game.boss.kind === 'blank-bailiff' || app.game.boss.kind === 'crosswind-compiler'
+        || app.game.boss.kind === 'apocrypha-twins') {
+        const startTick = app.game.boss.kind === 'blank-bailiff' ? STAGE_01_BOSS_START_TICK
+          : app.game.boss.kind === 'crosswind-compiler' ? STAGE_02_BOSS_START_TICK : STAGE_05_BOSS_START_TICK;
+        app.game.tick = Math.max(app.game.tick, startTick + 30 * TICK_RATE);
+        app.game.boss.phase = 3;
+        app.game.boss.phaseStartedAt = app.game.tick - 15 * TICK_RATE;
+        app.game.boss.pacingSuccessBank = 0;
+      }
       app.game.boss.armorLayers = 0;
       app.game.boss.health = 1;
       app.game.bullets.push({ id: app.game.nextId++, x: app.game.boss.x, y: app.game.boss.y, vx: 0, vy: 0, radius: 5, kind: 'return', annotated: true, capturable: false });

@@ -31,13 +31,12 @@ export const STAGE_02_SPAWNS: StageEnemySpawn[] = [
   ...crossPair(13320, 400, 208), binder(13680, 350, 360), scribe(14040, 210), kite(14400, 540),
   ...crossPair(14760, 330, 209), kite(15120, 180), scribe(15480, 460),
   ...crossPair(15840, 390, 210), kite(16200, 520), scribe(16560, 250),
-  kite(16920, 150), ...crossPair(17280, 350, 211), scribe(17640, 500), kite(18000, 290),
-  ...crossPair(18360, 410, 212), kite(18720, 550), scribe(19080, 190),
-  ...crossPair(19440, 320, 213), kite(19800, 450), scribe(20160, 530),
-  kite(20520, 210), ...crossPair(20880, 380, 214), scribe(21240, 350)
+  kite(16920, 150)
 ].sort((a, b) => a.tick - b.tick || (a.lane ?? 0) - (b.lane ?? 0));
 
-export const STAGE_02_DURATION_TICKS = 180 * 120;
+// The final 36 seconds repeated already-mastered formations. v4.2 spends that
+// campaign budget on readable Compiler phases instead.
+export const STAGE_02_DURATION_TICKS = 144 * 120;
 export const STAGE_02_BOSS_START_TICK = STAGE_02_DURATION_TICKS;
 export const STAGE_02_ENTITY_LIMITS = { enemies: 64, enemyBullets: 512 } as const;
 export const STAGE_02_WIND_HALF_CYCLE_TICKS = 6 * 120;

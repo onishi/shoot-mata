@@ -7,6 +7,7 @@ import { stageSixActiveRule, stageSixFolio } from '../content/stage-06';
 import { drawSprite, visuals } from './visual-assets';
 import { MARGINALIA, marginaliaOwnedSummary } from '../content/marginalia';
 import { combatCueAlpha, COMBAT_VISUAL_CONTRACT, ENEMY_VISUAL_CONTRACT, hazardSilhouette } from './visual-contract';
+import { stageDefinition } from '../content/campaign';
 
 const path = (ctx: CanvasRenderingContext2D, points: Point[]): void => {
   if (points.length === 0) return;
@@ -507,7 +508,7 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
   ctx.fillText(`SCORE ${String(state.score).padStart(7, '0')}`, 1035, 33);
   ctx.fillStyle = '#8ea6bd';
   ctx.font = '600 14px system-ui, sans-serif';
-  const duration = state.stageId === 'stage-06' ? 270 : state.stageId === 'stage-05' ? 210 : state.stageId === 'stage-03' || state.stageId === 'stage-04' ? 195 : 180;
+  const duration = Math.round(stageDefinition(state.stageId).durationTicks / TICK_RATE);
   ctx.fillText(state.boss || state.metrics.boss.defeated ? 'BOSS' : `${Math.min(duration, Math.floor(state.tick / TICK_RATE)).toString().padStart(3, '0')} / ${duration}s`, 910, 32);
   for (let i = 0; i < 3; i += 1) {
     ctx.fillStyle = i < state.player.health ? '#a8f7ff' : '#283449';

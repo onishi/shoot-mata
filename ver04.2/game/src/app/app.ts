@@ -249,7 +249,9 @@ export const advance = (state: AppState, input: InputFrame = {}): { state: AppSt
   if (result.events.some((event) => event.type === 'boss-phase')) {
     const game = copyState(next.game);
     game.player.health = 3;
-    game.player.invulnerableUntil = Math.max(game.player.invulnerableUntil, game.tick + 1200);
+    const learningWindow = game.boss?.kind === 'blank-bailiff' || game.boss?.kind === 'crosswind-compiler'
+      || game.boss?.kind === 'apocrypha-twins' ? 15 * TICK_RATE : 10 * TICK_RATE;
+    game.player.invulnerableUntil = Math.max(game.player.invulnerableUntil, game.tick + learningWindow);
     next = { ...next, game };
   }
   if (next.game.player.health <= 0) next = { ...next, screen: 'continue' };

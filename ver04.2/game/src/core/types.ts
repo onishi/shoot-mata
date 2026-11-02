@@ -83,6 +83,7 @@ export interface BossState extends Point {
   revisionExposedUntil: number;
   signatureExposedUntil: number;
   editorRulesMask: number;
+  pacingSuccessBank: number;
 }
 export interface LoopCandidate {
   polygon: Point[];

@@ -24,14 +24,20 @@ const simulate = (pilotName: PilotName, replay?: InputFrame[]) => {
   const pilot = createPilot(pilotName);
   const frames: InputFrame[] = [];
   let maxEnemyBullets = 0;
+  const phaseTicks: Array<number | null> = [0, null, null];
   const limit = 240 * 120;
   for (let tick = 0; tick < limit && !state.metrics.boss.defeated; tick += 1) {
     const input = replay?.[tick] ?? pilot(state);
     frames.push(input);
     state = step(state, input).state;
     maxEnemyBullets = Math.max(maxEnemyBullets, state.bullets.filter((bullet) => bullet.kind === 'enemy').length);
+    if (phaseTicks[1] === null && state.metrics.boss.phaseReached[1]) phaseTicks[1] = state.tick - STAGE_01_BOSS_START_TICK;
+    if (phaseTicks[2] === null && state.metrics.boss.phaseReached[2]) phaseTicks[2] = state.tick - STAGE_01_BOSS_START_TICK;
   }
-  return { state, frames, maxEnemyBullets, duration: state.metrics.boss.defeatTick === null ? null : state.metrics.boss.defeatTick - STAGE_01_BOSS_START_TICK, hash: hashState(state) };
+  const duration = state.metrics.boss.defeatTick === null ? null : state.metrics.boss.defeatTick - STAGE_01_BOSS_START_TICK;
+  const phaseDurations = duration !== null && phaseTicks[1] !== null && phaseTicks[2] !== null
+    ? [phaseTicks[1], phaseTicks[2] - phaseTicks[1], duration - phaseTicks[2]] : [];
+  return { state, frames, maxEnemyBullets, phaseTicks, phaseDurations, duration, hash: hashState(state) };
 };
 
 describe('M2-02 BLANK BAILIFF evidence', () => {
@@ -44,6 +50,9 @@ describe('M2-02 BLANK BAILIFF evidence', () => {
       stitchDefeatsBoss: stitch.state.metrics.boss.defeated,
       routeAtLeastTwentyPercentFaster: stitch.duration !== null && baseline.duration !== null && stitch.duration <= baseline.duration * 0.8,
       allPhasesReached: stitch.state.metrics.boss.phaseReached.every(Boolean),
+      pacedThirtyToSixtySeconds: stitch.duration !== null && stitch.duration >= 30 * 120 && stitch.duration <= 60 * 120,
+      everyPhaseAtLeastEightSeconds: stitch.phaseDurations.length === 3 && stitch.phaseDurations.every((ticks) => ticks >= 8 * 120),
+      authoredCycleInEveryPhase: stitch.state.metrics.boss.fanWarnings >= 3 && stitch.state.metrics.boss.returnedHits >= 3,
       returnedFireUsed: stitch.state.metrics.boss.returnedHits > 0,
       allArmorTextsStripped: stitch.state.metrics.boss.armorLayersStripped === 3,
       fanTelegraphedAndErased: stitch.state.metrics.boss.fanWarnings > 0 && stitch.state.metrics.boss.fanErases > 0 && stitch.state.metrics.boss.trailPointsErased > 0,
@@ -55,14 +64,14 @@ describe('M2-02 BLANK BAILIFF evidence', () => {
     const report = {
       generatedAt: '2026-10-31', seed: 2402,
       baseline: { durationTicks: baseline.duration, maxEnemyBullets: baseline.maxEnemyBullets, metrics: baseline.state.metrics.boss, hash: baseline.hash },
-      stitch: { durationTicks: stitch.duration, maxEnemyBullets: stitch.maxEnemyBullets, metrics: stitch.state.metrics.boss, hash: stitch.hash },
+      stitch: { durationTicks: stitch.duration, phaseTicks: stitch.phaseTicks, phaseDurations: stitch.phaseDurations, maxEnemyBullets: stitch.maxEnemyBullets, metrics: stitch.state.metrics.boss, hash: stitch.hash },
       replayHash: replay.hash, gates
     };
     const evidenceDir = resolve(import.meta.dirname, '../../docs/evidence');
     mkdirSync(evidenceDir, { recursive: true });
     writeFileSync(resolve(evidenceDir, 'm2-02-blank-bailiff.json'), `${JSON.stringify(report, null, 2)}\n`);
     const gateRows = Object.entries(gates).map(([name, passed]) => `| ${name} | ${passed ? 'PASS' : 'FAIL'} |`).join('\n');
-    writeFileSync(resolve(evidenceDir, 'm2-02-blank-bailiff.md'), `# M2-02 BLANK BAILIFF Report\n\n- Baseline defeat: ${baseline.duration ?? 'not defeated'} ticks\n- Stitch defeat: ${stitch.duration ?? 'not defeated'} ticks\n- Stitch / replay hashes: ${stitch.hash}, ${replay.hash}\n- Max enemy bullets: ${stitch.maxEnemyBullets}\n- Returned hits: ${stitch.state.metrics.boss.returnedHits}\n- Armor texts stripped: ${stitch.state.metrics.boss.armorLayersStripped}\n- Damage by fan / sweep / volley: ${stitch.state.metrics.boss.damageByAttack.fan} / ${stitch.state.metrics.boss.damageByAttack.sweep} / ${stitch.state.metrics.boss.damageByAttack.volley}\n\n| Gate | Result |\n| --- | --- |\n${gateRows}\n`);
+    writeFileSync(resolve(evidenceDir, 'm2-02-blank-bailiff.md'), `# M2-02 BLANK BAILIFF Report\n\n- Baseline defeat: ${baseline.duration ?? 'not defeated'} ticks\n- Stitch defeat: ${stitch.duration ?? 'not defeated'} ticks\n- Phase 1 / 2 / 3 durations: ${stitch.phaseDurations.join(' / ')} ticks\n- Stitch / replay hashes: ${stitch.hash}, ${replay.hash}\n- Max enemy bullets: ${stitch.maxEnemyBullets}\n- Returned hits: ${stitch.state.metrics.boss.returnedHits}\n- Armor texts stripped: ${stitch.state.metrics.boss.armorLayersStripped}\n- Damage by fan / sweep / volley: ${stitch.state.metrics.boss.damageByAttack.fan} / ${stitch.state.metrics.boss.damageByAttack.sweep} / ${stitch.state.metrics.boss.damageByAttack.volley}\n\n| Gate | Result |\n| --- | --- |\n${gateRows}\n`);
 
     expect(gates).toEqual(Object.fromEntries(Object.keys(gates).map((gate) => [gate, true])));
   }, 120_000);

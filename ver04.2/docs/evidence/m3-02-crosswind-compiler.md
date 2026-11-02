@@ -1,13 +1,14 @@
 # M3-02 CROSSWIND COMPILER Report
 
 - Baseline defeat: 11367 ticks
-- Stitch defeat: 3252 ticks
-- Wind locks / locked ticks: 3 / 659
-- Weakpoint hits: 24
-- Gust / lance / storm attacks: 5 / 15 / 2
+- Stitch defeat: 3618 ticks
+- Phase 1 / 2 / 3 durations: 1022 / 1154 / 1442 ticks
+- Wind locks / locked ticks: 3 / 1424
+- Weakpoint hits: 73
+- Gust / lance / storm attacks: 6 / 9 / 6
 - Gust / lance / storm damage: 2 / 0 / 0
-- Max enemy bullets: 32
-- Stitch / replay hashes: a76d7b22312be425, a76d7b22312be425
+- Max enemy bullets: 31
+- Stitch / replay hashes: ddeb5d4b6c5aa442, ddeb5d4b6c5aa442
 
 | Gate | Result |
 | --- | --- |
@@ -15,6 +16,8 @@
 | stitchDefeatsBoss | PASS |
 | stitchAtLeastTwentyPercentFaster | PASS |
 | allPhasesReached | PASS |
+| pacedThirtyToSixtySeconds | PASS |
+| everyPhaseAtLeastEightSeconds | PASS |
 | vaneLockedInEveryPhase | PASS |
 | exposedSeamHit | PASS |
 | fallbackBodyRouteMeasured | PASS |

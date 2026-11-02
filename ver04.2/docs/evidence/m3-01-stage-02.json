@@ -1,35 +1,35 @@
 {
   "generatedAt": "2026-10-31",
-  "durationTicks": 21600,
-  "scheduledSpawns": 74,
+  "durationTicks": 17280,
+  "scheduledSpawns": 58,
   "seed": 3201,
-  "finalHash": "91976d45ea4ff223",
+  "finalHash": "5970966e27c55b56",
   "replayHashes": [
-    "91976d45ea4ff223",
-    "91976d45ea4ff223",
-    "91976d45ea4ff223"
+    "5970966e27c55b56",
+    "5970966e27c55b56",
+    "5970966e27c55b56"
   ],
   "maxEnemies": 8,
   "maxEnemyBullets": 26,
   "maxCombatGapTicks": 1,
   "stats": {
     "index-kite": {
-      "spawned": 27,
-      "attacks": 34,
-      "defeated": 9,
-      "exited": 18
+      "spawned": 23,
+      "attacks": 28,
+      "defeated": 8,
+      "exited": 15
     },
     "vane-scribe": {
-      "spawned": 17,
-      "attacks": 19,
-      "defeated": 12,
-      "exited": 5
+      "spawned": 13,
+      "attacks": 13,
+      "defeated": 9,
+      "exited": 4
     },
     "cross-reference-pair": {
-      "spawned": 28,
-      "attacks": 36,
-      "defeated": 20,
-      "exited": 8
+      "spawned": 20,
+      "attacks": 28,
+      "defeated": 14,
+      "exited": 6
     },
     "tab-binder": {
       "spawned": 2,
@@ -39,11 +39,11 @@
     }
   },
   "wind": {
-    "reversals": 29,
-    "playerDrift": 993600,
-    "trailDrift": 177125310,
-    "collatesLeft": 12,
-    "collatesRight": 16,
+    "reversals": 23,
+    "playerDrift": 794880,
+    "trailDrift": 142108830,
+    "collatesLeft": 9,
+    "collatesRight": 13,
     "collatesNearReversal": 12
   },
   "rejectedEnemies": 0,

@@ -32,12 +32,12 @@ export const STAGE_05_SPAWNS: StageEnemySpawn[] = [
   obelisk(16560, 500, 1), mote(16920, 180), witness(17280, 430), ram(17640, 540),
   mote(18000, 310), witness(18360, 190), ram(18720, 420), mote(19080, 550),
   obelisk(19440, 230, -1), witness(19800, 500), mote(20160, 180), ram(20520, 340),
-  witness(20880, 540), mote(21240, 270), ram(21600, 500), witness(21960, 190),
-  obelisk(22320, 480, 1), mote(22680, 300), ram(23040, 180), witness(23400, 500),
-  mote(23760, 220), ram(24120, 470), witness(24480, 330), mote(24840, 520)
+  witness(20880, 540), mote(21240, 270)
 ].sort((a, b) => a.tick - b.tick || (a.lane ?? 0) - (b.lane ?? 0));
 
-export const STAGE_05_DURATION_TICKS = 210 * 120;
+// Remove the last repeated mirror hearing so the longer Twins phases do not
+// inflate the full campaign.
+export const STAGE_05_DURATION_TICKS = 180 * 120;
 export const STAGE_05_BOSS_START_TICK = STAGE_05_DURATION_TICKS;
 export const STAGE_05_ENTITY_LIMITS = { enemies: 64, enemyBullets: 512 } as const;
 export const STAGE_05_MIRROR_BANDS = [

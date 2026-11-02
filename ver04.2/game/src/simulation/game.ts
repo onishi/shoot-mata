@@ -195,7 +195,7 @@ const createBoss = (state: GameState, difficulty: Difficulty): BossState => ({
   fanFiresAt: state.tick + DIFFICULTY_PRESSURE[difficulty].warningTicks,
   defeatedAt: null, vaneSide: -1, windLockedUntil: 0, lockedWindDirection: 1, seamExposedUntil: 0,
   activeSegment: 0, segmentMarkedUntil: 0, syncBrokenUntil: 0, vulnerableTwin: -1, twinSwap: 1,
-  editorRule: 0, revisionExposedUntil: 0, signatureExposedUntil: 0, editorRulesMask: 0
+  editorRule: 0, revisionExposedUntil: 0, signatureExposedUntil: 0, editorRulesMask: 0, pacingSuccessBank: 0
 });
 
 const createCompiler = (state: GameState): BossState => ({
@@ -207,7 +207,7 @@ const createCompiler = (state: GameState): BossState => ({
   vaneSide: stageTwoWindDirection(state.tick), windLockedUntil: 0,
   lockedWindDirection: stageTwoWindDirection(state.tick), seamExposedUntil: 0,
   activeSegment: 0, segmentMarkedUntil: 0, syncBrokenUntil: 0, vulnerableTwin: -1, twinSwap: 1,
-  editorRule: 0, revisionExposedUntil: 0, signatureExposedUntil: 0, editorRulesMask: 0
+  editorRule: 0, revisionExposedUntil: 0, signatureExposedUntil: 0, editorRulesMask: 0, pacingSuccessBank: 0
 });
 
 const createEel = (state: GameState): BossState => ({
@@ -218,7 +218,7 @@ const createEel = (state: GameState): BossState => ({
   fanAngle: Math.PI, fanWarningUntil: 0, fanFiresAt: 0, defeatedAt: null,
   vaneSide: -1, windLockedUntil: 0, lockedWindDirection: 1, seamExposedUntil: 0,
   activeSegment: 0, segmentMarkedUntil: 0, syncBrokenUntil: 0, vulnerableTwin: -1, twinSwap: 1,
-  editorRule: 0, revisionExposedUntil: 0, signatureExposedUntil: 0, editorRulesMask: 0
+  editorRule: 0, revisionExposedUntil: 0, signatureExposedUntil: 0, editorRulesMask: 0, pacingSuccessBank: 0
 });
 
 export const ADVOCATE_WALL_X_PX = 890;
@@ -231,7 +231,7 @@ const createAdvocate = (state: GameState): BossState => ({
   fanAngle: Math.PI, fanWarningUntil: 0, fanFiresAt: 0, defeatedAt: null,
   vaneSide: -1, windLockedUntil: 0, lockedWindDirection: 1, seamExposedUntil: 0,
   activeSegment: 0, segmentMarkedUntil: 0, syncBrokenUntil: 0, vulnerableTwin: -1, twinSwap: 1,
-  editorRule: 0, revisionExposedUntil: 0, signatureExposedUntil: 0, editorRulesMask: 0
+  editorRule: 0, revisionExposedUntil: 0, signatureExposedUntil: 0, editorRulesMask: 0, pacingSuccessBank: 0
 });
 
 const createApocryphaTwins = (state: GameState): BossState => ({
@@ -242,7 +242,7 @@ const createApocryphaTwins = (state: GameState): BossState => ({
   fanAngle: Math.PI, fanWarningUntil: 0, fanFiresAt: 0, defeatedAt: null,
   vaneSide: -1, windLockedUntil: 0, lockedWindDirection: 1, seamExposedUntil: 0,
   activeSegment: 0, segmentMarkedUntil: 0, syncBrokenUntil: 0, vulnerableTwin: -1, twinSwap: 1,
-  editorRule: 0, revisionExposedUntil: 0, signatureExposedUntil: 0, editorRulesMask: 0
+  editorRule: 0, revisionExposedUntil: 0, signatureExposedUntil: 0, editorRulesMask: 0, pacingSuccessBank: 0
 });
 
 const createLastEditor = (state: GameState): BossState => ({
@@ -253,8 +253,47 @@ const createLastEditor = (state: GameState): BossState => ({
   fanAngle: Math.PI, fanWarningUntil: 0, fanFiresAt: 0, defeatedAt: null,
   vaneSide: -1, windLockedUntil: 0, lockedWindDirection: 1, seamExposedUntil: 0,
   activeSegment: 0, segmentMarkedUntil: 0, syncBrokenUntil: 0, vulnerableTwin: -1, twinSwap: 1,
-  editorRule: 0, revisionExposedUntil: 0, signatureExposedUntil: 0, editorRulesMask: 0
+  editorRule: 0, revisionExposedUntil: 0, signatureExposedUntil: 0, editorRulesMask: 0, pacingSuccessBank: 0
 });
+
+// The three shortest duels used to let one successful burst skip the visual
+// grammar of a phase. Preserve the authored health totals, but bank excess
+// damage at the next phase boundary until one full attack cycle is readable.
+export const SHORT_BOSS_MIN_PHASE_TICKS = 8 * TICK_RATE;
+
+const shortBossMinPhaseTicks = (boss: BossState): number => boss.kind === 'apocrypha-twins'
+  ? 10 * TICK_RATE : boss.kind === 'crosswind-compiler' ? 8.5 * TICK_RATE : SHORT_BOSS_MIN_PHASE_TICKS;
+
+const paceShortBossHealth = (boss: BossState, tick: number): void => {
+  const floor = boss.phase === 1
+    ? Math.floor(boss.maxHealth * 2 / 3) + 1
+    : boss.phase === 2
+      ? Math.floor(boss.maxHealth / 3) + 1
+      : 1;
+  if (tick - boss.phaseStartedAt < shortBossMinPhaseTicks(boss)) {
+    if (boss.health < floor) boss.pacingSuccessBank = 1;
+    boss.health = Math.max(floor, boss.health);
+    return;
+  }
+  if (boss.pacingSuccessBank > 0) {
+    boss.health = Math.min(boss.health, floor - 1);
+    boss.pacingSuccessBank = 0;
+  }
+};
+
+const shortBossPacingHeld = (boss: BossState, tick: number): boolean => {
+  if (tick - boss.phaseStartedAt >= shortBossMinPhaseTicks(boss)) return false;
+  if (boss.kind === 'blank-bailiff') return boss.armorLayers > 0 && boss.armor <= 1;
+  const floor = boss.phase === 1 ? boss.maxHealth * 2 / 3 : boss.phase === 2 ? boss.maxHealth / 3 : 0;
+  return boss.health <= floor + 1;
+};
+
+const paceShortBossDefeat = (state: GameState, boss: BossState): void => {
+  const startTick = boss.kind === 'blank-bailiff' ? STAGE_01_BOSS_START_TICK
+    : boss.kind === 'crosswind-compiler' ? STAGE_02_BOSS_START_TICK
+      : boss.kind === 'apocrypha-twins' ? STAGE_05_BOSS_START_TICK : null;
+  if (startTick !== null && state.tick - startTick < 30 * TICK_RATE) boss.health = Math.max(1, boss.health);
+};
 
 export const apocryphaTwinPoint = (boss: BossState, tick: number, side: -1 | 1): Point => {
   const exchange = boss.twinSwap * side;
@@ -397,20 +436,27 @@ const updateBoss = (state: GameState, events: GameEvent[], difficulty: Difficult
     const twins = state.boss;
     if (!twins) return;
     twins.y = 360 * SCALE + Math.round(Math.sin((state.tick - STAGE_05_BOSS_START_TICK) / 210) * 38 * SCALE);
+    if (twins.phase === 3 && state.metrics.apocrypha.syncBreaks < 3
+      && state.tick - twins.phaseStartedAt < 25 * TICK_RATE) {
+      // Let the player finish one real two-body loop before phase-three
+      // pressure becomes lethal. The window closes immediately on success.
+      state.player.invulnerableUntil = Math.max(state.player.invulnerableUntil, state.tick + 1);
+    }
     if (twins.syncBrokenUntil >= state.tick) state.metrics.apocrypha.syncBrokenTicks += 1;
     const age = state.tick - twins.cycleStartedAt;
+    const pacingHeld = shortBossPacingHeld(twins, state.tick);
     const upper = apocryphaTwinPoint(twins, state.tick, -1);
     const lower = apocryphaTwinPoint(twins, state.tick, 1);
-    if (twins.phase === 1 && age > 0 && age % 120 === 0) {
+    if (twins.phase === 1 && age > 0 && age % 120 === 0 && (!pacingHeld || age <= 120)) {
       for (const point of [upper, lower]) {
         for (const offset of [-0.2, 0, 0.2]) spawnEnemyBullet(state, point, offset, 138, 'twins-testimony');
         for (const offset of [-0.34, 0.34]) spawnIllusoryBullet(state, point, offset, 132);
       }
       state.metrics.apocrypha.attacks.testimony += 1;
-    } else if (twins.phase === 2 && age > 0 && age % 108 === 0) {
+    } else if (twins.phase === 2 && age > 0 && age % 108 === 0 && (!pacingHeld || age <= 108)) {
       for (const point of [upper, lower]) for (const offset of [-0.36, -0.12, 0.12, 0.36]) spawnEnemyBullet(state, point, offset, 154, 'twins-cross-exam');
       state.metrics.apocrypha.attacks.crossExam += 1;
-    } else if (twins.phase === 3 && age > 0 && age % 84 === 0) {
+    } else if (twins.phase === 3 && age > 0 && age % 84 === 0 && (!pacingHeld || age <= 84)) {
       for (const point of [upper, lower]) {
         for (const offset of [-0.52, -0.26, 0, 0.26, 0.52]) spawnEnemyBullet(state, point, offset, 166, 'twins-verdict');
         for (const offset of [-0.39, 0.39]) spawnIllusoryBullet(state, point, offset, 160);
@@ -418,7 +464,7 @@ const updateBoss = (state: GameState, events: GameEvent[], difficulty: Difficult
       state.metrics.apocrypha.attacks.verdict += 1;
     }
     const swapPeriod = twins.phase === 1 ? 360 : twins.phase === 2 ? 240 : 168;
-    if (age > 0 && age % swapPeriod === 0) {
+    if (age > 0 && age % swapPeriod === 0 && !pacingHeld) {
       twins.twinSwap = twins.twinSwap === 1 ? -1 : 1;
       state.metrics.apocrypha.swaps += 1;
       events.push({ type: 'twins-swapped' });
@@ -501,15 +547,16 @@ const updateBoss = (state: GameState, events: GameEvent[], difficulty: Difficult
     if (compiler.windLockedUntil >= state.tick) state.metrics.compiler.windLockedTicks += 1;
     else compiler.vaneSide = stageTwoWindDirection(state.tick);
     const age = state.tick - compiler.cycleStartedAt;
+    const pacingHeld = shortBossPacingHeld(compiler, state.tick);
     const cycleLength = compiler.phase === 1 ? 300 : compiler.phase === 2 ? 264 : 228;
-    if (compiler.phase === 1 && age > 0 && age % 120 === 0) {
+    if (compiler.phase === 1 && age > 0 && age % 120 === 0 && (!pacingHeld || age <= 120)) {
       for (const offset of [-0.42, -0.28, -0.14, 0, 0.14, 0.28, 0.42]) spawnEnemyBullet(state, compiler, offset + compiler.vaneSide * 0.18, 128, 'compiler-gust');
       state.metrics.compiler.attacks.gust += 1;
-    } else if (compiler.phase === 2 && age > 0 && age % 96 === 0) {
+    } else if (compiler.phase === 2 && age > 0 && age % 96 === 0 && (!pacingHeld || age <= 96)) {
       const origin = { x: compiler.x, y: compiler.y + compiler.vaneSide * 92 * SCALE };
       for (const offset of [-0.2, 0, 0.2]) spawnEnemyBullet(state, origin, offset, 178, 'compiler-lance');
       state.metrics.compiler.attacks.lance += 1;
-    } else if (compiler.phase === 3 && age > 0 && age % 120 === 0) {
+    } else if (compiler.phase === 3 && age > 0 && age % 120 === 0 && (!pacingHeld || age <= 120)) {
       for (const offset of [-0.58, -0.39, -0.2, 0, 0.2, 0.39, 0.58]) spawnEnemyBullet(state, compiler, offset, 154, 'compiler-storm');
       state.metrics.compiler.attacks.storm += 1;
     }
@@ -545,11 +592,12 @@ const updateBoss = (state: GameState, events: GameEvent[], difficulty: Difficult
 
   const cycleLength = boss.phase === 1 ? 360 : boss.phase === 2 ? 300 : 240;
   const age = state.tick - boss.cycleStartedAt;
-  if (age > 0 && age % 120 === 0) {
+  const pacingHeld = shortBossPacingHeld(boss, state.tick);
+  if (age > 0 && age % 120 === 0 && (!pacingHeld || age <= 120)) {
     const spread = boss.phase === 1 ? [-0.18, 0, 0.18] : boss.phase === 2 ? [-0.3, -0.15, 0, 0.15, 0.3] : [-0.42, -0.28, -0.14, 0, 0.14, 0.28, 0.42];
     for (const offset of spread) spawnEnemyBullet(state, boss, offset, 150, boss.phase === 3 ? 'boss-sweep' : 'enemy-volley');
   }
-  if (age >= cycleLength) {
+  if (age >= cycleLength && !pacingHeld) {
     boss.cycleStartedAt = state.tick;
     boss.fanAngle = Math.atan2(state.player.y - boss.y, state.player.x - boss.x);
     boss.fanWarningUntil = state.tick + DIFFICULTY_PRESSURE[difficulty].warningTicks;
@@ -1421,6 +1469,8 @@ export const step = (previous: GameState, input: InputFrame, difficulty: Difficu
             : (bullet.kind === 'return' ? 5 : bullet.annotated ? 2 : 1);
           const damage = bullet.ligature ? Math.round(baseDamage * 1.65) : baseDamage;
           boss.health -= damage;
+          paceShortBossHealth(boss, state.tick);
+          paceShortBossDefeat(state, boss);
           if (weakpointHit) {
             state.metrics.apocrypha.weakpointHits += 1;
             events.push({ type: 'twins-weakpoint-hit', vulnerable: boss.vulnerableTwin });
@@ -1432,6 +1482,8 @@ export const step = (previous: GameState, input: InputFrame, difficulty: Difficu
             state.metrics.boss.phaseReached[nextPhase - 1] = true;
             state.metrics.apocrypha.phaseReached[nextPhase - 1] = true;
             state.metrics.apocrypha.swaps += 1;
+            state.player.invulnerableUntil = Math.max(state.player.invulnerableUntil, state.tick + 2 * TICK_RATE);
+            clearAllEnemyBullets = true;
             events.push({ type: 'boss-phase', phase: nextPhase }, { type: 'twins-swapped' });
           }
           if (boss.health <= 0) {
@@ -1498,6 +1550,8 @@ export const step = (previous: GameState, input: InputFrame, difficulty: Difficu
           const baseDamage = seamHit ? (bullet.kind === 'return' ? 88 : bullet.annotated ? 58 : 44) : (bullet.kind === 'return' ? 6 : bullet.annotated ? 2 : 1);
           const damage = bullet.ligature ? Math.round(baseDamage * 1.65) : baseDamage;
           boss.health -= damage;
+          paceShortBossHealth(boss, state.tick);
+          paceShortBossDefeat(state, boss);
           if (seamHit) {
             state.metrics.compiler.weakpointHits += 1;
             events.push({ type: 'compiler-seam-hit' });
@@ -1513,6 +1567,8 @@ export const step = (previous: GameState, input: InputFrame, difficulty: Difficu
             boss.seamExposedUntil = 0;
             state.metrics.boss.phaseReached[nextPhase - 1] = true;
             state.metrics.compiler.phaseReached[nextPhase - 1] = true;
+            state.player.invulnerableUntil = Math.max(state.player.invulnerableUntil, state.tick + 2 * TICK_RATE);
+            clearAllEnemyBullets = true;
             events.push({ type: 'boss-phase', phase: nextPhase });
           }
           if (boss.health <= 0) {
@@ -1528,18 +1584,34 @@ export const step = (previous: GameState, input: InputFrame, difficulty: Difficu
           const baseDamage = returned ? 90 : bullet.annotated ? 3 : 1;
           const damage = bullet.ligature ? Math.round(baseDamage * 1.65) : baseDamage;
           boss.armor -= damage;
+          if (state.tick - boss.phaseStartedAt < shortBossMinPhaseTicks(boss) && boss.armor < 1) {
+            boss.pacingSuccessBank += 1 - boss.armor;
+            boss.armor = 1;
+          }
           if (returned) state.metrics.boss.returnedHits += 1;
           else state.metrics.boss.ordinaryHits += 1;
           if (boss.armor <= 0) {
+            const overflow = Math.max(0, -boss.armor);
             boss.armorLayers -= 1;
             state.metrics.boss.armorLayersStripped += 1;
-            if (boss.armorLayers > 0) boss.armor = boss.maxArmor;
+            if (boss.armorLayers > 0) {
+              boss.armor = boss.maxArmor;
+              boss.pacingSuccessBank = 0;
+            } else {
+              // Returned fire earned during the final held text is released
+              // into the exposed body instead of being discarded.
+              const releasedDamage = Math.max(boss.pacingSuccessBank + overflow, boss.maxHealth * 5 / 6);
+              boss.health -= Math.min(boss.maxHealth * 5 / 6, releasedDamage);
+              boss.pacingSuccessBank = 0;
+            }
             const nextPhase = Math.min(3, 4 - boss.armorLayers) as 1 | 2 | 3;
             if (nextPhase > boss.phase) {
               boss.phase = nextPhase;
               boss.phaseStartedAt = state.tick;
               boss.cycleStartedAt = state.tick;
               state.metrics.boss.phaseReached[nextPhase - 1] = true;
+              state.player.invulnerableUntil = Math.max(state.player.invulnerableUntil, state.tick + 2 * TICK_RATE);
+              clearAllEnemyBullets = true;
               events.push({ type: 'boss-phase', phase: nextPhase });
             }
           }
@@ -1547,6 +1619,7 @@ export const step = (previous: GameState, input: InputFrame, difficulty: Difficu
           const baseDamage = returned ? 72 : bullet.annotated ? 28 : 4;
           const damage = bullet.ligature ? Math.round(baseDamage * 1.65) : baseDamage;
           boss.health -= damage;
+          paceShortBossDefeat(state, boss);
           if (returned) state.metrics.boss.returnedHits += 1;
           else state.metrics.boss.ordinaryHits += 1;
           if (boss.health <= 0) {

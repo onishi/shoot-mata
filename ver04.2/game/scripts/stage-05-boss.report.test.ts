@@ -26,8 +26,10 @@ const simulate = (pilotName: PilotName, replay?: InputFrame[]) => {
     if (phaseTicks[1] === null && state.metrics.apocrypha.phaseReached[1]) phaseTicks[1] = state.tick - STAGE_05_BOSS_START_TICK;
     if (phaseTicks[2] === null && state.metrics.apocrypha.phaseReached[2]) phaseTicks[2] = state.tick - STAGE_05_BOSS_START_TICK;
   }
-  return { state, frames, maxEnemyBullets, phaseTicks,
-    duration: state.metrics.boss.defeatTick === null ? null : state.metrics.boss.defeatTick - STAGE_05_BOSS_START_TICK,
+  const duration = state.metrics.boss.defeatTick === null ? null : state.metrics.boss.defeatTick - STAGE_05_BOSS_START_TICK;
+  const phaseDurations = duration !== null && phaseTicks[1] !== null && phaseTicks[2] !== null
+    ? [phaseTicks[1], phaseTicks[2] - phaseTicks[1], duration - phaseTicks[2]] : [];
+  return { state, frames, maxEnemyBullets, phaseTicks, phaseDurations, duration,
     hash: hashState(state) };
 };
 
@@ -40,6 +42,8 @@ describe('M3-17 APOCRYPHA TWINS evidence', () => {
       stitchDefeatsBoss: stitch.state.metrics.boss.defeated,
       syncRouteAtLeastFiftyPercentFaster: stitch.duration !== null && baseline.duration !== null && stitch.duration <= baseline.duration * 0.5,
       allPhasesReached: metrics.phaseReached.every(Boolean),
+      pacedThirtyToSixtySeconds: stitch.duration !== null && stitch.duration >= 30 * 120 && stitch.duration <= 60 * 120,
+      everyPhaseAtLeastEightSeconds: stitch.phaseDurations.length === 3 && stitch.phaseDurations.every((ticks) => ticks >= 8 * 120),
       sharedLoopBreaksSync: metrics.syncBreaks >= 3 && metrics.syncBrokenTicks > 0,
       weakpointRouteUsed: metrics.weakpointHits >= 20 && metrics.weakpointHits * 52 > metrics.ordinaryHits,
       mirrorExchangeUsed: metrics.swaps >= 3,
@@ -50,12 +54,12 @@ describe('M3-17 APOCRYPHA TWINS evidence', () => {
     };
     const report = { generatedAt: '2026-11-01', seed: 3517,
       baseline: { durationTicks: baseline.duration, maxEnemyBullets: baseline.maxEnemyBullets, apocrypha: baseline.state.metrics.apocrypha, hash: baseline.hash },
-      stitch: { durationTicks: stitch.duration, phaseTicks: stitch.phaseTicks, maxEnemyBullets: stitch.maxEnemyBullets, apocrypha: metrics, hash: stitch.hash },
+      stitch: { durationTicks: stitch.duration, phaseTicks: stitch.phaseTicks, phaseDurations: stitch.phaseDurations, maxEnemyBullets: stitch.maxEnemyBullets, apocrypha: metrics, hash: stitch.hash },
       replayHash: replay.hash, gates };
     const evidenceDir = resolve(import.meta.dirname, '../../docs/evidence'); mkdirSync(evidenceDir, { recursive: true });
     writeFileSync(resolve(evidenceDir, 'm3-17-apocrypha-twins.json'), `${JSON.stringify(report, null, 2)}\n`);
     const gateRows = Object.entries(gates).map(([name, passed]) => `| ${name} | ${passed ? 'PASS' : 'FAIL'} |`).join('\n');
-    writeFileSync(resolve(evidenceDir, 'm3-17-apocrypha-twins.md'), `# M3-17 APOCRYPHA TWINS Report\n\n- Baseline defeat: ${baseline.duration ?? 'not defeated'} ticks\n- Stitch defeat: ${stitch.duration ?? 'not defeated'} ticks\n- Phase 2 / 3 arrival: ${stitch.phaseTicks[1]} / ${stitch.phaseTicks[2]} ticks\n- Sync breaks / broken ticks: ${metrics.syncBreaks} / ${metrics.syncBrokenTicks}\n- Weakpoint / ordinary hits: ${metrics.weakpointHits} / ${metrics.ordinaryHits}\n- Position exchanges: ${metrics.swaps}\n- Testimony / cross-exam / verdict attacks: ${metrics.attacks.testimony} / ${metrics.attacks.crossExam} / ${metrics.attacks.verdict}\n- Max enemy bullets: ${stitch.maxEnemyBullets}\n- Stitch / replay hashes: ${stitch.hash}, ${replay.hash}\n\n| Gate | Result |\n| --- | --- |\n${gateRows}\n`);
+    writeFileSync(resolve(evidenceDir, 'm3-17-apocrypha-twins.md'), `# M3-17 APOCRYPHA TWINS Report\n\n- Baseline defeat: ${baseline.duration ?? 'not defeated'} ticks\n- Stitch defeat: ${stitch.duration ?? 'not defeated'} ticks\n- Phase 2 / 3 arrival: ${stitch.phaseTicks[1]} / ${stitch.phaseTicks[2]} ticks\n- Phase 1 / 2 / 3 durations: ${stitch.phaseDurations.join(' / ')} ticks\n- Sync breaks / broken ticks: ${metrics.syncBreaks} / ${metrics.syncBrokenTicks}\n- Weakpoint / ordinary hits: ${metrics.weakpointHits} / ${metrics.ordinaryHits}\n- Position exchanges: ${metrics.swaps}\n- Testimony / cross-exam / verdict attacks: ${metrics.attacks.testimony} / ${metrics.attacks.crossExam} / ${metrics.attacks.verdict}\n- Max enemy bullets: ${stitch.maxEnemyBullets}\n- Stitch / replay hashes: ${stitch.hash}, ${replay.hash}\n\n| Gate | Result |\n| --- | --- |\n${gateRows}\n`);
     expect(gates).toEqual(Object.fromEntries(Object.keys(gates).map((gate) => [gate, true])));
   }, 120_000);
 });

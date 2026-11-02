@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { STAGE_05_BOSS_START_TICK } from '../src/content/stage-05';
 
 type Screen = 'title' | 'guide' | 'stage-intro' | 'playing' | 'paused' | 'continue' | 'result' | 'marginalia' | 'ending' | 'campaign-result';
 type QaWindow = Window & {
@@ -313,7 +314,7 @@ test('campaign advances through Stage 6, restores its checkpoints and preserves 
   await scenario('boss-gate');
   state = await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_APP_STATE__()) as typeof state;
   expect(state).toMatchObject({ screen: 'playing', checkpointName: 'apocrypha-gate', game: { stageId: 'stage-05' } });
-  expect(state.game.tick).toBeGreaterThanOrEqual(25200);
+  expect(state.game.tick).toBeGreaterThanOrEqual(STAGE_05_BOSS_START_TICK);
   await page.keyboard.press('Escape');
   const stageFivePausedTick = (await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_APP_STATE__())).game.tick;
   await page.waitForTimeout(80);
@@ -414,7 +415,7 @@ test('campaign advances through Stage 6, restores its checkpoints and preserves 
   expect(await screen()).toBe('continue');
   await page.keyboard.press('Enter');
   state = await page.evaluate(() => (window as unknown as QaWindow).__PALIMPSEST_APP_STATE__()) as typeof state;
-  expect(state).toMatchObject({ screen: 'stage-intro', checkpointName: 'apocrypha-gate', continuesRemaining: 0, game: { stageId: 'stage-05', tick: 25200, player: { health: 3 }, gauge: 50 } });
+  expect(state).toMatchObject({ screen: 'stage-intro', checkpointName: 'apocrypha-gate', continuesRemaining: 0, game: { stageId: 'stage-05', tick: STAGE_05_BOSS_START_TICK, player: { health: 3 }, gauge: 50 } });
   await page.keyboard.press('Enter');
   await scenario('boss-defeat');
   await page.keyboard.press('Enter');
