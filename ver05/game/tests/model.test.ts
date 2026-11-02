@@ -1,5 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { FIRST_CHORD, move, occupiesAllPlates, playAction, positionAfter, type Action } from '../src/model';
+import {
+  FIRST_CHORD,
+  HELD_NOTE,
+  ensemblePositions,
+  move,
+  occupiesAllPlates,
+  playAction,
+  positionAfter,
+  type Action,
+} from '../src/model';
 
 const upPhrase: Action[] = ['up', 'up', 'up', 'up', 'wait', 'wait', 'wait', 'wait'];
 const leftPhrase: Action[] = ['up', 'up', 'left', 'left', 'left', 'wait', 'wait', 'wait'];
@@ -54,6 +63,45 @@ describe('FIRST CHORD rules', () => {
     let won = false;
     for (const action of rightPhrase) {
       const result = playAction(FIRST_CHORD, tracks, current, action);
+      current = result.currentActions;
+      won = result.won;
+      if (won) break;
+    }
+    expect(won).toBe(true);
+  });
+});
+
+describe('HELD NOTE beat door', () => {
+  const triggerPhrase: Action[] = ['left', 'left', 'left', 'up', 'up', 'wait', 'wait', 'wait'];
+  const doorPhrase: Action[] = ['up', 'up', 'up', 'up', 'up', 'up', 'up', 'wait'];
+  const rightPhrase: Action[] = ['right', 'right', 'right', 'wait', 'wait', 'wait', 'wait', 'wait'];
+
+  it('keeps a lone performer outside the closed door', () => {
+    expect(ensemblePositions(HELD_NOTE, [doorPhrase], 5)).toEqual([{ x: 4, y: 4 }]);
+  });
+
+  it('opens on the beat another performer reaches its trigger', () => {
+    expect(ensemblePositions(HELD_NOTE, [triggerPhrase, doorPhrase], 4)[1]).toEqual({ x: 4, y: 4 });
+    expect(ensemblePositions(HELD_NOTE, [triggerPhrase, doorPhrase], 5)).toEqual([
+      { x: 1, y: 3 },
+      { x: 4, y: 3 },
+    ]);
+  });
+
+  it('has a deterministic three-phrase solution through the beat door', () => {
+    let tracks: readonly (readonly Action[])[] = [];
+    for (const phrase of [triggerPhrase, doorPhrase]) {
+      let current: readonly Action[] = [];
+      for (const action of phrase) {
+        const result = playAction(HELD_NOTE, tracks, current, action);
+        tracks = result.tracks;
+        current = result.currentActions;
+      }
+    }
+    let current: readonly Action[] = [];
+    let won = false;
+    for (const action of rightPhrase) {
+      const result = playAction(HELD_NOTE, tracks, current, action);
       current = result.currentActions;
       won = result.won;
       if (won) break;

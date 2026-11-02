@@ -1,12 +1,14 @@
 import './style.css';
 import {
   FIRST_CHORD,
+  HELD_NOTE,
+  ensemblePositions,
   keyOf,
   playAction,
-  positionAfter,
-  replayPositions,
   type Action,
+  type BeatDoor,
   type Point,
+  type Room,
 } from './model';
 
 type Screen = 'title' | 'playing' | 'paused' | 'won';
@@ -17,7 +19,23 @@ if (!canvas || !live) throw new Error('game surface missing');
 const ctx = canvas.getContext('2d')!;
 if (!ctx) throw new Error('2d canvas unavailable');
 
-const room = FIRST_CHORD;
+type RoomEntry = Readonly<{ room: Room; name: string; objective: string; guidance: string }>;
+const rooms: readonly RoomEntry[] = [
+  {
+    room: FIRST_CHORD,
+    name: 'FIRST CHORD',
+    objective: '三人を同じ拍に、三枚の音盤へ',
+    guidance: '8拍を終えると、その動きが次のフレーズで再演されます',
+  },
+  {
+    room: HELD_NOTE,
+    name: 'HELD NOTE',
+    objective: '起動盤を保ち、別の奏者を拍扉の向こうへ',
+    guidance: '金の導線で結ばれた盤と扉は、同じ拍だけ応答します',
+  },
+];
+let roomIndex = 0;
+let room = rooms[roomIndex]!.room;
 const palette = ['#ff896f', '#65d7c5', '#f3ca68'];
 const dimPalette = ['#8d5148', '#397e77', '#927b43'];
 const actionGlyph: Record<Action, string> = { up: '↑', down: '↓', left: '←', right: '→', wait: '·' };
@@ -31,12 +49,14 @@ let messageUntil = 0;
 let lastTime = 0;
 let audio: AudioContext | null = null;
 
-function resetGame(): void {
+function beginRoom(index: number): void {
+  roomIndex = index;
+  room = rooms[roomIndex]!.room;
   tracks = [];
   currentActions = [];
   phraseNumber = 1;
   screen = 'playing';
-  announce('第1フレーズ。8拍を録音してください');
+  announce(`${rooms[roomIndex]!.name} — 第1フレーズ`);
   tone(220, 0.12, 0.04);
 }
 
@@ -84,11 +104,11 @@ window.addEventListener('keydown', (event) => {
 
   ensureAudio();
   if (screen === 'title' && event.key === 'Enter') {
-    resetGame();
+    beginRoom(0);
     return;
   }
   if (screen === 'won' && event.key === 'Enter') {
-    resetGame();
+    beginRoom(roomIndex + 1 < rooms.length ? roomIndex + 1 : 0);
     return;
   }
   if (event.key === 'Escape' && screen === 'playing') {
@@ -192,7 +212,7 @@ function drawTitle(time: number): void {
   ctx.strokeStyle = 'rgba(243, 202, 104, 0.55)';
   ctx.stroke();
   text('ENTER  調律を始める', 640, 602, 18, '#f7e8bc', 'center', 650);
-  text('turn-based temporal puzzle · v5 vertical slice', 640, 675, 13, '#58787a', 'center', 500);
+  text('turn-based temporal puzzle · two-room score', 640, 675, 13, '#58787a', 'center', 500);
 }
 
 const board = { x: 128, y: 112, cell: 68 };
@@ -231,16 +251,56 @@ function drawBoard(time: number): void {
   }
 
   const beat = currentActions.length;
-  const points = [...replayPositions(room, tracks, beat), positionAfter(room, currentActions)];
+  const phrases = [...tracks, currentActions];
+  const points = ensemblePositions(room, phrases, beat);
+  room.doors.forEach((door) => drawDoorLink(door));
+  room.doors.forEach((door) => drawDoor(door, points, time));
   room.plates.forEach((plate, index) => drawPlate(plate, points.some((point) => keyOf(point) === keyOf(plate)), time + index * 520));
 
-  tracks.forEach((track, index) => {
+  phrases.forEach((_track, index) => {
     const path: Point[] = [room.start];
-    for (let step = 1; step <= Math.max(beat, 1); step += 1) path.push(positionAfter(room, track, step));
+    for (let step = 1; step <= beat; step += 1) path.push(ensemblePositions(room, phrases, step)[index]!);
     drawTrail(path, palette[index] ?? palette[0]!);
-    drawPerformer(positionAfter(room, track, beat), index, false, time);
+    drawPerformer(points[index]!, index, index === phrases.length - 1, time);
   });
-  drawPerformer(positionAfter(room, currentActions), tracks.length, true, time);
+}
+
+function drawDoorLink(door: BeatDoor): void {
+  const from = cellCenter(door.trigger);
+  const to = cellCenter(door.point);
+  ctx.save();
+  ctx.strokeStyle = 'rgba(243, 202, 104, 0.3)';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([4, 7]);
+  ctx.beginPath();
+  ctx.moveTo(from.x, from.y);
+  ctx.lineTo(to.x, to.y);
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawDoor(door: BeatDoor, performers: readonly Point[], time: number): void {
+  const center = cellCenter(door.point);
+  const open = performers.some((point) => keyOf(point) === keyOf(door.trigger));
+  const spread = open ? 24 + Math.sin(time * 0.006) * 2 : 7;
+  ctx.save();
+  ctx.translate(center.x, center.y);
+  ctx.strokeStyle = open ? '#f3ca68' : '#b17655';
+  ctx.lineWidth = 5;
+  ctx.shadowColor = open ? '#f3ca68' : '#a14f43';
+  ctx.shadowBlur = open ? 14 : 5;
+  for (const direction of [-1, 1]) {
+    ctx.beginPath();
+    ctx.moveTo(direction * spread, -24);
+    ctx.lineTo(direction * spread, 24);
+    ctx.stroke();
+  }
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = open ? '#f3ca68' : '#d68a62';
+  ctx.beginPath();
+  ctx.arc(0, 0, 4, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
 }
 
 function drawPlate(point: Point, active: boolean, time: number): void {
@@ -318,8 +378,9 @@ function drawPerformer(point: Point, index: number, current: boolean, time: numb
 }
 
 function drawHud(time: number): void {
-  text('FIRST CHORD', 128, 58, 15, '#739a95', 'left', 700);
-  text('三人を同じ拍に、三枚の音盤へ', 128, 82, 22, '#eef1df', 'left', 550);
+  const entry = rooms[roomIndex]!;
+  text(`${String(roomIndex + 1).padStart(2, '0')}  ${entry.name}`, 128, 58, 15, '#739a95', 'left', 700);
+  text(entry.objective, 128, 82, 22, '#eef1df', 'left', 550);
 
   const panelX = 790;
   roundedRect(panelX, 112, 380, 476, 20);
@@ -367,7 +428,8 @@ function drawHud(time: number): void {
     ctx.strokeStyle = 'rgba(243, 202, 104, 0.28)'; ctx.stroke();
     text(message, 640, 645, 16, '#f0dfb2', 'center', 600);
   } else {
-    text(tracks.length < 2 ? '8拍を終えると、その動きが次のフレーズで再演されます' : '三人が別々の音盤へ乗る拍を探してください', 640, 645, 15, '#73928d', 'center', 500);
+    const guidance = tracks.length < 2 ? entry.guidance : '三人が別々の音盤へ乗る拍を探してください';
+    text(guidance, 640, 645, 15, '#73928d', 'center', 500);
   }
 }
 
@@ -392,7 +454,14 @@ function render(time: number): void {
     drawBoard(time);
     drawHud(time);
     if (screen === 'paused') drawOverlay('PAUSED', '譜面はこの拍で止まっています', 'ESC で再開');
-    if (screen === 'won') drawOverlay('CHORD FOUND', `第${phraseNumber}フレーズで三和音がひらきました`, 'ENTER でもう一度');
+    if (screen === 'won') {
+      const lastRoom = roomIndex === rooms.length - 1;
+      drawOverlay(
+        lastRoom ? 'SCORE COMPLETE' : 'CHORD FOUND',
+        `第${phraseNumber}フレーズで三和音がひらきました`,
+        lastRoom ? 'ENTER で最初から' : 'ENTER で次の部屋へ',
+      );
+    }
   }
   requestAnimationFrame(render);
 }
@@ -403,6 +472,7 @@ setInterval(() => {
   canvas.dataset.gameState = screen;
   canvas.dataset.beat = String(currentActions.length);
   canvas.dataset.tracks = String(tracks.length);
+  canvas.dataset.room = String(roomIndex + 1);
 }, 100);
 
 requestAnimationFrame(render);
