@@ -55,6 +55,38 @@ export const HELD_NOTE: Room = {
   doors: [{ point: { x: 4, y: 3 }, trigger: { x: 1, y: 3 } }],
 };
 
+/** The trigger voice arrives early and must sustain its note until a later voice reaches the door. */
+export const LONG_TONE: Room = {
+  width: 9,
+  height: 7,
+  phraseLength: 8,
+  start: { x: 4, y: 5 },
+  walls: new Set([
+    '0,0', '1,0', '2,0', '3,0', '4,0', '5,0', '6,0', '7,0', '8,0',
+    '0,1', '8,1', '0,2', '1,2', '2,2', '3,2', '5,2', '6,2', '7,2', '8,2',
+    '0,3', '8,3', '0,4', '8,4', '0,5', '8,5',
+    '0,6', '1,6', '2,6', '3,6', '4,6', '5,6', '6,6', '7,6', '8,6',
+  ]),
+  plates: [{ x: 2, y: 4 }, { x: 4, y: 1 }, { x: 7, y: 5 }],
+  doors: [{ point: { x: 4, y: 2 }, trigger: { x: 2, y: 4 } }],
+};
+
+/** A timing room: one voice holds the origin while the last must take an eight-beat pocket route. */
+export const FINAL_CADENCE: Room = {
+  width: 9,
+  height: 7,
+  phraseLength: 8,
+  start: { x: 4, y: 5 },
+  walls: new Set([
+    '0,0', '1,0', '2,0', '3,0', '4,0', '5,0', '6,0', '7,0', '8,0',
+    '0,1', '8,1', '0,2', '6,2', '8,2', '0,3', '7,3', '8,3',
+    '0,4', '8,4', '0,5', '8,5',
+    '0,6', '1,6', '2,6', '3,6', '4,6', '5,6', '6,6', '7,6', '8,6',
+  ]),
+  plates: [{ x: 4, y: 5 }, { x: 1, y: 2 }, { x: 7, y: 2 }],
+  doors: [],
+};
+
 export function keyOf(point: Point): string {
   return `${point.x},${point.y}`;
 }

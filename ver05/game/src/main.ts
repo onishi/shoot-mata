@@ -1,7 +1,9 @@
 import './style.css';
 import {
   FIRST_CHORD,
+  FINAL_CADENCE,
   HELD_NOTE,
+  LONG_TONE,
   ensemblePositions,
   keyOf,
   playAction,
@@ -32,6 +34,18 @@ const rooms: readonly RoomEntry[] = [
     name: 'HELD NOTE',
     objective: '起動盤を保ち、別の奏者を拍扉の向こうへ',
     guidance: '金の導線で結ばれた盤と扉は、同じ拍だけ応答します',
+  },
+  {
+    room: LONG_TONE,
+    name: 'LONG TONE',
+    objective: '先に音盤へ着き、その音を保って拍扉を開く',
+    guidance: '起動盤の奏者は、扉役が来るまでその場に留まれます',
+  },
+  {
+    room: FINAL_CADENCE,
+    name: 'FINAL CADENCE',
+    objective: '始点を一人に任せ、8拍目に三人を揃える',
+    guidance: '右の音盤は上側からだけ入れます。8拍すべてを使ってください',
   },
 ];
 let roomIndex = 0;
@@ -212,7 +226,7 @@ function drawTitle(time: number): void {
   ctx.strokeStyle = 'rgba(243, 202, 104, 0.55)';
   ctx.stroke();
   text('ENTER  調律を始める', 640, 602, 18, '#f7e8bc', 'center', 650);
-  text('turn-based temporal puzzle · two-room score', 640, 675, 13, '#58787a', 'center', 500);
+  text('turn-based temporal puzzle · four-room score', 640, 675, 13, '#58787a', 'center', 500);
 }
 
 const board = { x: 128, y: 112, cell: 68 };

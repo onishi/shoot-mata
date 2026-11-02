@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import {
   FIRST_CHORD,
+  FINAL_CADENCE,
   HELD_NOTE,
+  LONG_TONE,
   ensemblePositions,
   move,
   occupiesAllPlates,
@@ -109,3 +111,60 @@ describe('HELD NOTE beat door', () => {
     expect(won).toBe(true);
   });
 });
+
+describe('LONG TONE sustained trigger', () => {
+  const triggerPhrase: Action[] = ['left', 'left', 'up', 'wait', 'wait', 'wait', 'wait', 'wait'];
+  const doorPhrase: Action[] = ['up', 'up', 'wait', 'wait', 'wait', 'up', 'up', 'wait'];
+  const rightPhrase: Action[] = ['right', 'right', 'right', 'wait', 'wait', 'wait', 'wait', 'wait'];
+
+  it('does not remember an early trigger after its performer leaves', () => {
+    const leavesTrigger: Action[] = ['left', 'left', 'up', 'right', 'wait', 'wait', 'wait', 'wait'];
+    expect(ensemblePositions(LONG_TONE, [leavesTrigger, doorPhrase], 6)[1]).toEqual({ x: 4, y: 3 });
+  });
+
+  it('lets a later voice cross while the early voice sustains the trigger', () => {
+    expect(ensemblePositions(LONG_TONE, [triggerPhrase, doorPhrase], 5)[1]).toEqual({ x: 4, y: 3 });
+    expect(ensemblePositions(LONG_TONE, [triggerPhrase, doorPhrase], 6)).toEqual([
+      { x: 2, y: 4 },
+      { x: 4, y: 2 },
+    ]);
+  });
+
+  it('has a deterministic three-phrase solution with a sustained note', () => {
+    expect(runSolution(LONG_TONE, [triggerPhrase, doorPhrase, rightPhrase])).toEqual({ won: true, beat: 7 });
+  });
+});
+
+describe('FINAL CADENCE full-measure alignment', () => {
+  const originPhrase: Action[] = ['wait', 'wait', 'wait', 'wait', 'wait', 'wait', 'wait', 'wait'];
+  const leftPhrase: Action[] = ['left', 'left', 'left', 'up', 'up', 'up', 'wait', 'wait'];
+  const pocketPhrase: Action[] = ['up', 'up', 'up', 'up', 'right', 'right', 'right', 'down'];
+
+  it('makes the right plate reachable only by its upper pocket entrance', () => {
+    expect(positionAfter(FINAL_CADENCE, ['right', 'right', 'right', 'up', 'up', 'up'])).toEqual({ x: 7, y: 4 });
+    expect(positionAfter(FINAL_CADENCE, pocketPhrase)).toEqual({ x: 7, y: 2 });
+  });
+
+  it('resolves its three distinct distances exactly on the eighth beat', () => {
+    expect(runSolution(FINAL_CADENCE, [originPhrase, leftPhrase, pocketPhrase])).toEqual({ won: true, beat: 8 });
+  });
+});
+
+function runSolution(
+  room: Parameters<typeof playAction>[0],
+  phrases: readonly (readonly Action[])[],
+): { won: boolean; beat: number } {
+  let tracks: readonly (readonly Action[])[] = [];
+  let final = { won: false, beat: 0 };
+  for (const phrase of phrases) {
+    let current: readonly Action[] = [];
+    for (const [index, action] of phrase.entries()) {
+      const result = playAction(room, tracks, current, action);
+      tracks = result.tracks;
+      current = result.currentActions;
+      final = { won: result.won, beat: index + 1 };
+      if (result.won) return final;
+    }
+  }
+  return final;
+}
