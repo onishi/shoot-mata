@@ -57,6 +57,12 @@ jobs:
           RELEASE_COMMIT: ${{ github.sha }}
         run: npm ci && npm run build && npm run package:release && npm run verify:release
 
+      - name: Rebuild and inspect the preserved v4.1 route
+        working-directory: ver04.1/game
+        env:
+          RELEASE_COMMIT: ${{ github.sha }}
+        run: npm ci && npm run build && npm run package:release && npm run verify:release
+
       - name: Assemble and inspect the Pages artifact
         working-directory: ver04.2/game
         env:

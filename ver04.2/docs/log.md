@@ -9,6 +9,7 @@
 - release artifactをトップ、`/v4.2/`、`/v4.1/`、`/v4.0/`、v3系の9経路で再構成・検査した。Pages workflowをv4.2の完全検証、同artifact、公開後のcommit・MIME・旧版保持検査へ切り替えた。
 - 最初のPages candidate run `41397650817`は正式90周と各監査まで通過後、FIRST WAKE E2Eで失敗した。ブラウザの実時間frameがEnter入力と固定1400 tick再生の間へ入ると証跡境界がずれる競合だった。
 - 新規voyageで案内が有効になることを先に確認し、その後だけ既存の証跡seed 4203・tick 0へQA状態を固定するよう修復した。対象テスト5/5反復、型検査、全Chrome 27/27に合格。ゲーム規則・通常プレイ・30秒ゲートは変更していない。
+- 次のcandidate run `41400620602`は修復後のv4.2完全検証に合格したが、release組立でクリーン環境にv4.1 distがないことを検出した。ローカル検査が既存distへ暗黙依存していたため、workflowへv4.1のlocked install、build、package、artifact検査を追加した。
 - 公開完了はCIと実URL検査後に記録するため、この時点ではv4.1を公開版として維持する。
 
 ## 2026-11-02 — v4.2-05 ECHOとNORMALの学習余白

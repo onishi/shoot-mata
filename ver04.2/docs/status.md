@@ -49,6 +49,7 @@
 - 最新の全6通常戦・全6ボス代表形態を再目視し、自機、敵、弱点、危険記号、目的表示、HUDの欠けや背景への埋没がないことを確認した。
 - release artifactを再構成し、トップ、`/v4.2/`、保持した`/v4.1/`、`/v4.0/`、v3系の9経路検査に合格した。Pages workflowをv4.2の完全検証・artifact・公開後検査へ切り替えた。
 - 最初のPages candidate run `41397650817`は、実時間frameがEnter入力と固定fast-forwardの間へ入るFIRST WAKE E2Eの競合を検出した。新規voyageで案内が有効になることを実画面で確認後、既存の証跡seed・tick 0へ固定して採取するよう修復し、対象5/5反復、全Chrome 27/27、型検査に合格した。ゲーム規則と通常プレイは変更していない。
+- 次のcandidate run `41400620602`はv4.2完全検証に合格後、クリーン環境にv4.1 distがなくrelease組立を拒否した。ローカル既存distへの暗黙依存を除き、workflowでv3・v4.0に続いてv4.1もlocked sourceから再build・artifact検査してからv4.2へ収容するよう修復した。
 
 ## 未解決課題
 
