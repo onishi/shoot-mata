@@ -9,6 +9,7 @@ import {
   MIRROR_ENTRY,
   NEGATIVE_SPACE,
   REST_MARK,
+  SHIFTED_GATE,
   SHORT_MEASURE,
   ensemblePositions,
   move,
@@ -297,6 +298,31 @@ describe('LONG MEASURE variable phrase length', () => {
 
   it('has a deterministic three-phrase solution on beat ten', () => {
     expect(runSolution(LONG_MEASURE, [leftPhrase, upperPhrase, pocketPhrase])).toEqual({ won: true, beat: 10 });
+  });
+});
+
+describe('SHIFTED GATE compressed beat door', () => {
+  const triggerPhrase: Action[] = ['left', 'left', 'left', 'up', 'wait', 'wait'];
+  const doorPhrase: Action[] = ['up', 'wait', 'wait', 'up', 'up', 'up'];
+  const rightPhrase: Action[] = ['right', 'right', 'right', 'wait', 'wait', 'up'];
+
+  it('keeps the door closed before the trigger reaches its plate on beat four', () => {
+    expect(ensemblePositions(SHIFTED_GATE, [triggerPhrase, doorPhrase], 3)[1]).toEqual({ x: 4, y: 4 });
+    expect(ensemblePositions(SHIFTED_GATE, [triggerPhrase, doorPhrase], 4)).toEqual([
+      { x: 1, y: 4 },
+      { x: 4, y: 3 },
+    ]);
+  });
+
+  it('cannot recover inside the short measure when the crossing arrives one beat late', () => {
+    const lateDoorPhrase: Action[] = ['up', 'wait', 'wait', 'wait', 'up', 'up'];
+    expect(ensemblePositions(SHIFTED_GATE, [triggerPhrase, lateDoorPhrase], 4)[1]).toEqual({ x: 4, y: 4 });
+    expect(ensemblePositions(SHIFTED_GATE, [triggerPhrase, lateDoorPhrase], 6)[1]).toEqual({ x: 4, y: 2 });
+    expect(runSolution(SHIFTED_GATE, [triggerPhrase, lateDoorPhrase, rightPhrase]).won).toBe(false);
+  });
+
+  it('has a deterministic three-phrase solution on the sixth beat', () => {
+    expect(runSolution(SHIFTED_GATE, [triggerPhrase, doorPhrase, rightPhrase])).toEqual({ won: true, beat: 6 });
   });
 });
 

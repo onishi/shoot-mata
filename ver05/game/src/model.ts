@@ -211,6 +211,25 @@ export const LONG_MEASURE: Room = {
   silenceFloors: [],
 };
 
+/** A six-beat gate: the crossing voice must spend its two spare beats before the trigger arrives. */
+export const SHIFTED_GATE: Room = {
+  width: 9,
+  height: 7,
+  phraseLength: 6,
+  start: { x: 4, y: 5 },
+  walls: new Set([
+    '0,0', '1,0', '2,0', '3,0', '4,0', '5,0', '6,0', '7,0', '8,0',
+    '0,1', '8,1', '0,2', '8,2',
+    '0,3', '1,3', '2,3', '3,3', '5,3', '6,3', '7,3', '8,3',
+    '0,4', '8,4', '0,5', '8,5',
+    '0,6', '1,6', '2,6', '3,6', '4,6', '5,6', '6,6', '7,6', '8,6',
+  ]),
+  plates: [{ x: 1, y: 4 }, { x: 4, y: 1 }, { x: 7, y: 4 }],
+  doors: [{ point: { x: 4, y: 3 }, trigger: { x: 1, y: 4 } }],
+  inversionFloors: [],
+  silenceFloors: [],
+};
+
 export function keyOf(point: Point): string {
   return `${point.x},${point.y}`;
 }
