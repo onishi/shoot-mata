@@ -6,6 +6,7 @@ import {
   HELD_NOTE,
   LONG_TONE,
   MIRROR_ENTRY,
+  NEGATIVE_SPACE,
   REST_MARK,
   ensemblePositions,
   move,
@@ -214,6 +215,29 @@ describe('REST MARK replay silence', () => {
 
   it('has a deterministic solution that depends on the missing replay beat', () => {
     expect(runSolution(REST_MARK, [restPhrase, leftPhrase, rightPhrase])).toEqual({ won: true, beat: 4 });
+  });
+});
+
+describe('NEGATIVE SPACE combined replay transforms', () => {
+  const negativePhrase: Action[] = ['right', 'right', 'up', 'right', 'right', 'up', 'wait', 'wait'];
+  const leftPhrase: Action[] = ['left', 'left', 'left', 'wait', 'wait', 'wait', 'wait', 'wait'];
+  const rightPhrase: Action[] = ['right', 'right', 'right', 'wait', 'wait', 'wait', 'wait', 'wait'];
+
+  it('applies inversion before silence removes the next transformed input', () => {
+    expect(ensemblePositions(NEGATIVE_SPACE, [negativePhrase], 1)).toEqual([{ x: 5, y: 5 }]);
+    expect(ensemblePositions(NEGATIVE_SPACE, [negativePhrase], 2)).toEqual([{ x: 4, y: 5 }]);
+    expect(ensemblePositions(NEGATIVE_SPACE, [negativePhrase], 3)).toEqual([{ x: 4, y: 4 }]);
+    expect(ensemblePositions(NEGATIVE_SPACE, [negativePhrase], 4)).toEqual([{ x: 4, y: 4 }]);
+  });
+
+  it('keeps inversion active after the silent beat and sends replay left of its recorded route', () => {
+    expect(positionAfter(NEGATIVE_SPACE, negativePhrase, 6)).toEqual({ x: 7, y: 3 });
+    expect(ensemblePositions(NEGATIVE_SPACE, [negativePhrase], 5)).toEqual([{ x: 3, y: 4 }]);
+    expect(ensemblePositions(NEGATIVE_SPACE, [negativePhrase], 6)).toEqual([{ x: 3, y: 3 }]);
+  });
+
+  it('has a deterministic solution that requires both replay transformations', () => {
+    expect(runSolution(NEGATIVE_SPACE, [negativePhrase, leftPhrase, rightPhrase])).toEqual({ won: true, beat: 6 });
   });
 });
 

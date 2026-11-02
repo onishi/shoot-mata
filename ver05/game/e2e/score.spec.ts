@@ -46,6 +46,11 @@ const solutions: readonly (readonly (readonly Action[])[])[] = [
     ['left', 'left', 'left', 'wait', 'wait', 'wait', 'wait', 'wait'],
     ['right', 'right', 'right', 'wait', 'wait', 'wait', 'wait', 'wait'],
   ],
+  [
+    ['right', 'right', 'up', 'right', 'right', 'up', 'wait', 'wait'],
+    ['left', 'left', 'left', 'wait', 'wait', 'wait', 'wait', 'wait'],
+    ['right', 'right', 'right', 'wait', 'wait', 'wait', 'wait', 'wait'],
+  ],
 ];
 
 async function expectState(page: Page, state: string): Promise<void> {
@@ -127,6 +132,18 @@ test('keyboard flow completes all available rooms and persists clean room progre
       await playPhrase(page, solutions[6]![1]!.slice(3));
       await playPhrase(page, solutions[6]![2]!);
       await expectState(page, 'won');
+      await page.keyboard.press('Enter');
+      await expectState(page, 'playing');
+      continue;
+    }
+    if (room === 8) {
+      await playPhrase(page, solutions[7]![0]!);
+      await expect(page.locator('#game')).toHaveAttribute('data-tracks', '1');
+      await playPhrase(page, ['left', 'left', 'left', 'wait', 'wait']);
+      await page.locator('#game').screenshot({ path: '../docs/evidence/m3-negative-space-replay.png' });
+      await playPhrase(page, solutions[7]![1]!.slice(5));
+      await playPhrase(page, solutions[7]![2]!);
+      await expectState(page, 'won');
       break;
     }
     await playRoom(page, room);
@@ -135,20 +152,20 @@ test('keyboard flow completes all available rooms and persists clean room progre
       await expectState(page, 'playing');
     }
   }
-  await page.locator('#game').screenshot({ path: '../docs/evidence/m3-e2e-rest-mark-complete.png' });
-  await expect(page.locator('#game')).toHaveAttribute('data-unlocked-room', '7');
+  await page.locator('#game').screenshot({ path: '../docs/evidence/m3-e2e-negative-space-complete.png' });
+  await expect(page.locator('#game')).toHaveAttribute('data-unlocked-room', '8');
 
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('chorus-shift:v1') ?? 'null'));
-  expect(saved.highestUnlockedRoom).toBe(6);
-  expect(saved.completedRooms).toEqual([0, 1, 2, 3, 4, 5, 6]);
+  expect(saved.highestUnlockedRoom).toBe(7);
+  expect(saved.completedRooms).toEqual([0, 1, 2, 3, 4, 5, 6, 7]);
   expect(saved.hintsSeen).toEqual([0]);
 
   await page.reload();
   await expectState(page, 'title');
-  await expect(page.locator('#game')).toHaveAttribute('data-unlocked-room', '7');
+  await expect(page.locator('#game')).toHaveAttribute('data-unlocked-room', '8');
   await page.keyboard.press('Enter');
   await expectState(page, 'playing');
-  await expect(page.locator('#game')).toHaveAttribute('data-room', '7');
+  await expect(page.locator('#game')).toHaveAttribute('data-room', '8');
   await expect(page.locator('#game')).toHaveAttribute('data-beat', '0');
   await expect(page.locator('#game')).toHaveAttribute('data-tracks', '0');
   expect(errors).toEqual([]);

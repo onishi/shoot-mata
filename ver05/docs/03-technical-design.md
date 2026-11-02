@@ -19,6 +19,8 @@
 
 静寂帯は`Room.silenceFloors`でデータ化する。過去奏者が帯へ入ると奏者別のpending状態を立て、次のstepだけ入力を`wait`へ置換してpendingを解除する。置換された奏者は同じマスに残っても再度pendingにならないため、次の入力から譜面を続行できる。現在録音中の奏者にはpendingを立てない。
 
+反転と静寂が同じ再演へ作用する場合は、まず反転状態から左右入力を変換し、その後に静寂pendingがあれば一拍だけ`wait`へ置換する。静寂は反転状態を解除しない。この順序を第8室の拍ごとの単体テストで固定する。
+
 ## 決定性
 
 同じ部屋、過去フレーズ、現在入力なら常に同じ位置と結果になる。ランダム性は縦切りに入れない。将来の演出乱数も規則乱数から分離する。
@@ -35,4 +37,4 @@
 
 ## ブラウザ検証
 
-Playwrightからproduction previewを起動し、端末のGoogle Chromeを1 workerで操作する。規則を直接呼ばず、キーボードイベントとCanvasの`data-*`状態だけで7部屋の通し、保存、設定、ヒント、ポーズ、viewportを検査する。`npm run verify`は単体、型検査、buildの後にE2Eまで一括実行する。
+Playwrightからproduction previewを起動し、端末のGoogle Chromeを1 workerで操作する。規則を直接呼ばず、キーボードイベントとCanvasの`data-*`状態だけで8部屋の通し、保存、設定、ヒント、ポーズ、viewportを検査する。`npm run verify`は単体、型検査、buildの後にE2Eまで一括実行する。

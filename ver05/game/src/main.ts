@@ -6,6 +6,7 @@ import {
   HELD_NOTE,
   LONG_TONE,
   MIRROR_ENTRY,
+  NEGATIVE_SPACE,
   REST_MARK,
   ensemblePositions,
   keyOf,
@@ -117,7 +118,19 @@ const rooms: readonly RoomEntry[] = [
       ['静寂でずれた奏者を中央上の盤へ導き、', '左右の奏者を同じ四拍目に待ち合わせてください。'],
     ],
   },
+  {
+    room: NEGATIVE_SPACE,
+    name: 'NEGATIVE SPACE',
+    objective: '反転した譜面から一拍を消し、再演だけの余白へ',
+    guidance: 'ガラスで向きを変え、波紋で次の一拍を休符にします',
+    hints: [
+      ['反転と静寂は同じ再演へ続けて作用します。', '静寂が一拍を消しても、左右の反転はそのまま続きます。'],
+      ['まず右の反転床へ入り、反転した右入力で中央へ戻ります。', 'そこから上へ進むと静寂帯へ入れます。'],
+      ['静寂の次の右を休符にし、もう一度右を反転させて左へ。', '上の盤と左右の盤を六拍目に揃えてください。'],
+    ],
+  },
 ];
+const scoreRoomCount = 12;
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 let save = loadSave(localStorage, rooms.length, defaultSave(prefersReducedMotion));
 let titleRoomIndex = save.highestUnlockedRoom;
@@ -715,11 +728,12 @@ function render(time: number): void {
     if (screen === 'paused') drawOverlay('PAUSED', '譜面はこの拍で止まっています', 'ESC で再開');
     if (screen === 'hint') drawHint();
     if (screen === 'won') {
-      const lastRoom = roomIndex === rooms.length - 1;
+      const finalRoom = roomIndex === scoreRoomCount - 1;
+      const lastAvailableRoom = roomIndex === rooms.length - 1;
       drawOverlay(
-        lastRoom ? 'SCORE COMPLETE' : 'CHORD FOUND',
+        finalRoom ? 'SCORE COMPLETE' : lastAvailableRoom ? 'CHAPTER COMPLETE' : 'CHORD FOUND',
         `第${phraseNumber}フレーズで三和音がひらきました`,
-        lastRoom ? 'ENTER で最初から' : 'ENTER で次の部屋へ',
+        finalRoom || lastAvailableRoom ? 'ENTER で最初から' : 'ENTER で次の部屋へ',
       );
     }
   }
