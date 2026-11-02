@@ -6,6 +6,7 @@ import {
   HELD_NOTE,
   LONG_TONE,
   MIRROR_ENTRY,
+  REST_MARK,
   ensemblePositions,
   keyOf,
   playAction,
@@ -103,6 +104,17 @@ const rooms: readonly RoomEntry[] = [
       ['一枚目の床で反転した向きは、', '別の反転床へ入ると元へ戻ります。'],
       ['右へ渡った奏者は、反転した次の右入力で左へ戻れます。', 'そこから上へ進むと二枚目の床です。'],
       ['二枚目を越えた直後の右入力は、もう反転しません。', '上の盤と左右の盤を五拍目に揃えてください。'],
+    ],
+  },
+  {
+    room: REST_MARK,
+    name: 'REST MARK',
+    objective: '静寂帯へ渡した譜面から、再演の一拍だけを消す',
+    guidance: '波紋の帯へ入った過去奏者は、次の入力を一拍の待機に変えます',
+    hints: [
+      ['静寂帯は録音中の奏者を止めません。', '再演されたとき、帯へ入った次の入力だけが消えます。'],
+      ['上へ帯を渡り、続けて右へ二拍進む譜面は、', '再演では最初の右が待機になり、一マス手前へ着きます。'],
+      ['静寂でずれた奏者を中央上の盤へ導き、', '左右の奏者を同じ四拍目に待ち合わせてください。'],
     ],
   },
 ];
@@ -426,6 +438,7 @@ function drawBoard(time: number): void {
   const phrases = [...tracks, currentActions];
   const points = ensemblePositions(room, phrases, beat, tracks.length);
   room.inversionFloors.forEach((floor) => drawInversionFloor(floor, time));
+  room.silenceFloors.forEach((floor) => drawSilenceFloor(floor, time));
   room.doors.forEach((door) => drawDoorLink(door));
   room.doors.forEach((door) => drawDoor(door, points, time));
   room.plates.forEach((plate, index) => drawPlate(plate, points.some((point) => keyOf(point) === keyOf(plate)), time + index * 520));
@@ -436,6 +449,34 @@ function drawBoard(time: number): void {
     drawTrail(path, palette[index] ?? palette[0]!);
     drawPerformer(points[index]!, index, index === phrases.length - 1, time);
   });
+}
+
+function drawSilenceFloor(point: Point, time: number): void {
+  const center = cellCenter(point);
+  const hush = 0.52 + Math.sin(time * 0.003) * 0.12;
+  ctx.save();
+  ctx.translate(center.x, center.y);
+  ctx.fillStyle = `rgba(94, 112, 145, ${hush * 0.24})`;
+  ctx.strokeStyle = `rgba(178, 190, 221, ${hush})`;
+  ctx.lineWidth = 2;
+  ctx.shadowColor = '#8e9fc7';
+  ctx.shadowBlur = 10;
+  roundedRect(-25, -18, 50, 36, 18);
+  ctx.fill();
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+  for (let ring = 0; ring < 3; ring += 1) {
+    ctx.globalAlpha = 0.75 - ring * 0.2;
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 8 + ring * 7, 4 + ring * 4, 0, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+  ctx.fillStyle = '#d9e0f2';
+  ctx.beginPath();
+  ctx.arc(0, 0, 3, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
 }
 
 function drawInversionFloor(point: Point, time: number): void {

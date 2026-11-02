@@ -17,6 +17,8 @@
 
 反転床は`Room.inversionFloors`でデータ化する。`ensemblePositions`は現在録音中のphrase indexを受け取り、過去奏者だけに反転状態を持たせる。過去奏者が床へ入った次のstepからleft/rightを交換し、同じ床へ入り直すと状態を再反転する。現在奏者は常に入力どおりに動くため、録音時と再演時の差が決定的に再現される。
 
+静寂帯は`Room.silenceFloors`でデータ化する。過去奏者が帯へ入ると奏者別のpending状態を立て、次のstepだけ入力を`wait`へ置換してpendingを解除する。置換された奏者は同じマスに残っても再度pendingにならないため、次の入力から譜面を続行できる。現在録音中の奏者にはpendingを立てない。
+
 ## 決定性
 
 同じ部屋、過去フレーズ、現在入力なら常に同じ位置と結果になる。ランダム性は縦切りに入れない。将来の演出乱数も規則乱数から分離する。
@@ -33,4 +35,4 @@
 
 ## ブラウザ検証
 
-Playwrightからproduction previewを起動し、端末のGoogle Chromeを1 workerで操作する。規則を直接呼ばず、キーボードイベントとCanvasの`data-*`状態だけで6部屋の通し、保存、設定、ヒント、ポーズ、viewportを検査する。`npm run verify`は単体、型検査、buildの後にE2Eまで一括実行する。
+Playwrightからproduction previewを起動し、端末のGoogle Chromeを1 workerで操作する。規則を直接呼ばず、キーボードイベントとCanvasの`data-*`状態だけで7部屋の通し、保存、設定、ヒント、ポーズ、viewportを検査する。`npm run verify`は単体、型検査、buildの後にE2Eまで一括実行する。

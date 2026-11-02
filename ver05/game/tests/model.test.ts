@@ -6,6 +6,7 @@ import {
   HELD_NOTE,
   LONG_TONE,
   MIRROR_ENTRY,
+  REST_MARK,
   ensemblePositions,
   move,
   occupiesAllPlates,
@@ -191,6 +192,28 @@ describe('GLASS RETURN double inversion', () => {
 
   it('has a deterministic solution that restores horizontal direction before the chord', () => {
     expect(runSolution(GLASS_RETURN, [returnPhrase, leftPhrase, rightPhrase])).toEqual({ won: true, beat: 5 });
+  });
+});
+
+describe('REST MARK replay silence', () => {
+  const restPhrase: Action[] = ['up', 'right', 'right', 'up', 'wait', 'wait', 'wait', 'wait'];
+  const leftPhrase: Action[] = ['left', 'left', 'left', 'wait', 'wait', 'wait', 'wait', 'wait'];
+  const rightPhrase: Action[] = ['right', 'right', 'right', 'wait', 'wait', 'wait', 'wait', 'wait'];
+
+  it('keeps the recording literal but turns the input after entering silence into one rest on replay', () => {
+    expect(positionAfter(REST_MARK, restPhrase, 4)).toEqual({ x: 6, y: 3 });
+    expect(ensemblePositions(REST_MARK, [restPhrase], 1)).toEqual([{ x: 4, y: 4 }]);
+    expect(ensemblePositions(REST_MARK, [restPhrase], 2)).toEqual([{ x: 4, y: 4 }]);
+    expect(ensemblePositions(REST_MARK, [restPhrase], 3)).toEqual([{ x: 5, y: 4 }]);
+    expect(ensemblePositions(REST_MARK, [restPhrase], 4)).toEqual([{ x: 5, y: 3 }]);
+  });
+
+  it('mutes only one input rather than trapping the replay on the quiet floor', () => {
+    expect(ensemblePositions(REST_MARK, [restPhrase], 3)).not.toEqual([{ x: 4, y: 4 }]);
+  });
+
+  it('has a deterministic solution that depends on the missing replay beat', () => {
+    expect(runSolution(REST_MARK, [restPhrase, leftPhrase, rightPhrase])).toEqual({ won: true, beat: 4 });
   });
 });
 
