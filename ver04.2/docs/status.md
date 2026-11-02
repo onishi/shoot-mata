@@ -5,8 +5,8 @@
 ## 現在状態
 
 - 現在版: v4.2 (`ver04.2/`)
-- 公開版: v4.1（トップと`/v4.1/`）
-- 段階: 完成監査合格・release candidate公開待ち（v4.2-06）
+- 公開版: v4.2（トップと`/v4.2/`）
+- 段階: v4.2完成・公開済み
 - v4.1変更: なし
 
 ## 達成内容
@@ -50,13 +50,15 @@
 - release artifactを再構成し、トップ、`/v4.2/`、保持した`/v4.1/`、`/v4.0/`、v3系の9経路検査に合格した。Pages workflowをv4.2の完全検証・artifact・公開後検査へ切り替えた。
 - 最初のPages candidate run `41397650817`は、実時間frameがEnter入力と固定fast-forwardの間へ入るFIRST WAKE E2Eの競合を検出した。新規voyageで案内が有効になることを実画面で確認後、既存の証跡seed・tick 0へ固定して採取するよう修復し、対象5/5反復、全Chrome 27/27、型検査に合格した。ゲーム規則と通常プレイは変更していない。
 - 次のcandidate run `41400620602`はv4.2完全検証に合格後、クリーン環境にv4.1 distがなくrelease組立を拒否した。ローカル既存distへの暗黙依存を除き、workflowでv3・v4.0に続いてv4.1もlocked sourceから再build・artifact検査してからv4.2へ収容するよう修復した。
+- release commit `03ffd50c`をmainへpushし、GitHub Actions run `41403270718`に合格した。buildはv4.2完全検証、v3・v4.0・v4.1再構成、9経路artifact検査、uploadを完了し、deploy後の実URL検査にも合格した。
+- 開発環境から公開検査を独立再実行し、トップ、`/v4.2/`、`/v4.1/`、`/v4.0/`、v3〜v3.4の9経路、v4.2 commit metadata、旧版表示、JS/CSS MIMEを再度確認した。
 
 ## 未解決課題
 
-1. v4.2は未公開で、公開版は引き続きv4.1。release candidateのCI、Pages公開、実URL検査が残る。
+なし。v4.2の固定5改善、完成監査、公開、旧版保持確認は完了した。
 
 ## 次の最優先作業
 
-**v4.2-06: release candidateを公開し、実URLを確認する。**
+**完了。**
 
-監査済みrelease candidateをmainへpushし、GitHub Actionsの完全検証とPages deployを監視する。トップと`/v4.2/`のcommit、`/v4.1/`・`/v4.0/`・v3系固定URL、JS/CSS MIMEを独立再検査してから公開完了とする。
+ルートREADMEの停止条件を満たした。新しい版または追加要件がユーザーから明示されるまでは、v4.0、v4.1、v4.2を固定して保持する。

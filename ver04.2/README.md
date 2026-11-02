@@ -12,7 +12,7 @@
 - v4.2-04 短い3ボスの形態ペーシング: 完了
 - v4.2-05 ECHOとNORMALの学習余白: 完了
 - v4.2-06 完成監査・release artifact検査: 完了
-- GitHub Pages公開: release candidate準備完了・CI待ち
+- GitHub Pages公開: 完了（トップと`/v4.2/`）
 - 次の作業: `docs/status.md`の「次の最優先作業」を参照
 
 ## 原則
