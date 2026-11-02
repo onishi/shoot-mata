@@ -41,3 +41,11 @@
 - 破損JSON、別version、範囲外値、storage例外を含む5件を追加し、`npm run verify`は単体18/18、型検査、production buildに合格した。
 - Chromeで設定を75%・軽減ONへ変更して再読み込み後の復元、FIRST CHORDクリアによるHELD NOTE解除、解除済みFIRST CHORDの0拍・VOICEなし再訪を確認した。警告・エラーは0件だった。
 - 詳細は`evidence/m2-persistence-settings.md`に記録した。次は解法を直接明かさない段階式ヒントを実装する。
+
+## 2026-11-03 — M2 段階式ヒント
+
+- 4部屋へ3段階ずつのヒントを追加した。入力列は示さず、第1段階で規則、第2段階で奏者の役割、第3段階で同期させる焦点を伝える。
+- ゲーム中とポーズ中にHで開き、Hで次段階、EnterまたはEscapeで元の状態へ戻る。閲覧中も盤面を背後へ残し、考えていた配置を失わない。
+- 初回閲覧した部屋を既存の`hintsSeen`へ重複なく保存する`markHintSeen`と回帰テストを追加した。途中の譜面や表示段階は保存せず、再訪時に弱いヒントから読み直せる。
+- `npm run verify`は単体19/19、型検査、production buildに合格した。ChromeでHELD NOTEの3段階表示、ポーズ中の再表示とポーズへの復帰を目視した。
+- 詳細は`evidence/m2-progressive-hints.md`に記録した。次はChrome E2Eと複数viewport監査を自動化する。

@@ -94,3 +94,11 @@ export function completeRoom(save: SaveData, roomIndex: number, roomCount: numbe
 export function changeSettings(save: SaveData, settings: Settings): SaveData {
   return { ...save, settings };
 }
+
+export function markHintSeen(save: SaveData, roomIndex: number, roomCount: number): SaveData {
+  if (!Number.isInteger(roomIndex) || roomIndex < 0 || roomIndex >= roomCount) return save;
+  return {
+    ...save,
+    hintsSeen: [...new Set([...save.hintsSeen, roomIndex])].sort((a, b) => a - b),
+  };
+}

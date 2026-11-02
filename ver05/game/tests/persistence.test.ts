@@ -5,6 +5,7 @@ import {
   completeRoom,
   defaultSave,
   loadSave,
+  markHintSeen,
   parseSave,
   storeSave,
 } from '../src/persistence';
@@ -34,6 +35,13 @@ describe('versioned progress persistence', () => {
     expect(storeSave(storage, save)).toBe(true);
     expect(loadSave(storage, 4)).toEqual(save);
     expect(values.has(SAVE_KEY)).toBe(true);
+  });
+
+  it('records hint use once per valid room', () => {
+    const once = markHintSeen(defaultSave(), 2, 4);
+    expect(once.hintsSeen).toEqual([2]);
+    expect(markHintSeen(once, 2, 4).hintsSeen).toEqual([2]);
+    expect(markHintSeen(once, 4, 4)).toBe(once);
   });
 
   it('rejects corrupt, out-of-range, and old-version data', () => {

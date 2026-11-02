@@ -17,10 +17,11 @@ import {
   completeRoom,
   defaultSave,
   loadSave,
+  markHintSeen,
   storeSave,
 } from './persistence';
 
-type Screen = 'title' | 'settings' | 'playing' | 'paused' | 'won';
+type Screen = 'title' | 'settings' | 'playing' | 'paused' | 'hint' | 'won';
 
 const canvas = document.querySelector<HTMLCanvasElement>('#game')!;
 const live = document.querySelector<HTMLDivElement>('#live')!;
@@ -28,31 +29,57 @@ if (!canvas || !live) throw new Error('game surface missing');
 const ctx = canvas.getContext('2d')!;
 if (!ctx) throw new Error('2d canvas unavailable');
 
-type RoomEntry = Readonly<{ room: Room; name: string; objective: string; guidance: string }>;
+type RoomEntry = Readonly<{
+  room: Room;
+  name: string;
+  objective: string;
+  guidance: string;
+  hints: readonly (readonly string[])[];
+}>;
 const rooms: readonly RoomEntry[] = [
   {
     room: FIRST_CHORD,
     name: 'FIRST CHORD',
     objective: '三人を同じ拍に、三枚の音盤へ',
     guidance: '8拍を終えると、その動きが次のフレーズで再演されます',
+    hints: [
+      ['一人で全部の音盤を踏む必要はありません。', '録音した奏者は、次のフレーズでも同じ拍に動きます。'],
+      ['三方向の音盤は、始点からの距離が少しずつ違います。', '早く着く奏者には「待つ拍」を加えられます。'],
+      ['二人分の到着時刻を先に記録し、', '最後の奏者で三つの到着拍を合わせてください。'],
+    ],
   },
   {
     room: HELD_NOTE,
     name: 'HELD NOTE',
     objective: '起動盤を保ち、別の奏者を拍扉の向こうへ',
     guidance: '金の導線で結ばれた盤と扉は、同じ拍だけ応答します',
+    hints: [
+      ['扉を押し続けても開きません。', '別の奏者が金の導線の先へ乗る拍を作ります。'],
+      ['起動役と扉役を、同じ拍にそれぞれの場所へ到着させます。', '壁に当たる入力も、その場で一拍を刻みます。'],
+      ['扉を越えた奏者は、奥の音盤まであと二拍です。', '三人目の到着も、その拍へ揃えてください。'],
+    ],
   },
   {
     room: LONG_TONE,
     name: 'LONG TONE',
     objective: '先に音盤へ着き、その音を保って拍扉を開く',
     guidance: '起動盤の奏者は、扉役が来るまでその場に留まれます',
+    hints: [
+      ['起動役は、扉役と同時に到着しなくても構いません。', '盤の上に居続ける限り、音は保たれます。'],
+      ['左の起動盤には早く着けます。', '到着後の待機を録音し、遅い扉役を迎えてください。'],
+      ['扉役は中央で間を取り、起動音が続く拍に上へ進みます。', '右の音盤へ向かう役が最後の拍を揃えます。'],
+    ],
   },
   {
     room: FINAL_CADENCE,
     name: 'FINAL CADENCE',
     objective: '始点を一人に任せ、8拍目に三人を揃える',
     guidance: '右の音盤は上側からだけ入れます。8拍すべてを使ってください',
+    hints: [
+      ['音盤の一枚は始点そのものです。', '動かない8拍も、ひとつの有効なフレーズになります。'],
+      ['左の音盤への道は8拍より短いため、', '着いた後に拍を保つ余裕があります。'],
+      ['右の音盤は、いったん最上段へ上がってから回り込みます。', '三つのフレーズを8拍目に着地させてください。'],
+    ],
   },
 ];
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -73,6 +100,8 @@ let message = 'ENTER で調律を始める';
 let messageUntil = 0;
 let lastTime = 0;
 let audio: AudioContext | null = null;
+let hintLevel = 0;
+let hintReturn: 'playing' | 'paused' = 'playing';
 
 function beginRoom(index: number): void {
   roomIndex = index;
@@ -80,6 +109,7 @@ function beginRoom(index: number): void {
   tracks = [];
   currentActions = [];
   phraseNumber = 1;
+  hintLevel = 0;
   screen = 'playing';
   announce(`${rooms[roomIndex]!.name} — 第1フレーズ`);
   tone(220, 0.12, 0.04);
@@ -123,7 +153,7 @@ function actionFromKey(key: string): Action | null {
 
 window.addEventListener('keydown', (event) => {
   const action = actionFromKey(event.key);
-  if (action || ['Enter', 'Escape', 'Backspace'].includes(event.key) || event.key.toLowerCase() === 'r') {
+  if (action || ['Enter', 'Escape', 'Backspace'].includes(event.key) || ['r', 'h'].includes(event.key.toLowerCase())) {
     event.preventDefault();
   }
 
@@ -163,6 +193,28 @@ window.addEventListener('keydown', (event) => {
   }
   if (screen === 'won' && event.key === 'Enter') {
     beginRoom(roomIndex + 1 < rooms.length ? roomIndex + 1 : 0);
+    return;
+  }
+  if (screen === 'hint') {
+    if (event.key.toLowerCase() === 'h') {
+      const hints = rooms[roomIndex]!.hints;
+      hintLevel = (hintLevel + 1) % hints.length;
+      announce(`ヒント ${hintLevel + 1} / ${hints.length}: ${hints[hintLevel]!.join(' ')}`, 8000);
+      tone(240 + hintLevel * 40, 0.08, 0.018);
+    } else if (event.key === 'Escape' || event.key === 'Enter') {
+      screen = hintReturn;
+      announce(hintReturn === 'paused' ? '一時停止' : '調律を再開', 1000);
+    }
+    return;
+  }
+  if (event.key.toLowerCase() === 'h' && (screen === 'playing' || screen === 'paused')) {
+    hintReturn = screen;
+    screen = 'hint';
+    save = markHintSeen(save, roomIndex, rooms.length);
+    storeSave(localStorage, save);
+    const hints = rooms[roomIndex]!.hints;
+    announce(`ヒント ${hintLevel + 1} / ${hints.length}: ${hints[hintLevel]!.join(' ')}`, 8000);
+    tone(220, 0.1, 0.018);
     return;
   }
   if (event.key === 'Escape' && screen === 'playing') {
@@ -516,7 +568,9 @@ function drawHud(time: number): void {
   text('UNDO / RESTART', panelX + 32, 508, 11, '#66827f', 'left', 700);
   text('BACKSPACE / R', panelX + 348, 508, 14, '#d9e3d8', 'right', 550);
   text('PAUSE', panelX + 32, 536, 11, '#66827f', 'left', 700);
-  text('ESC', panelX + 348, 536, 14, '#d9e3d8', 'right', 550);
+  text('ESC', panelX + 190, 536, 14, '#d9e3d8', 'right', 550);
+  text('HINT', panelX + 222, 536, 11, '#66827f', 'left', 700);
+  text('H', panelX + 348, 536, 14, save.hintsSeen.includes(roomIndex) ? '#f3ca68' : '#d9e3d8', 'right', 650);
 
   if (performance.now() < messageUntil) {
     roundedRect(310, 622, 660, 46, 23);
@@ -542,6 +596,24 @@ function drawOverlay(title: string, body: string, action: string): void {
   text(action, 640, 431, 15, '#f4e4ba', 'center', 700);
 }
 
+function drawHint(): void {
+  const hints = rooms[roomIndex]!.hints;
+  const lines = hints[hintLevel]!;
+  ctx.fillStyle = 'rgba(2, 7, 11, 0.82)';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  roundedRect(330, 188, 620, 344, 24);
+  ctx.fillStyle = 'rgba(9, 27, 34, 0.98)'; ctx.fill();
+  ctx.strokeStyle = 'rgba(243, 202, 104, 0.5)'; ctx.lineWidth = 2; ctx.stroke();
+  text('LISTEN CLOSER', 640, 242, 14, '#769b94', 'center', 750);
+  text(`HINT ${hintLevel + 1} / ${hints.length}`, 640, 286, 31, '#f3ca68', 'center', 720);
+  lines.forEach((line, index) => text(line, 640, 354 + index * 38, 18, '#d5e1d6', 'center', 520));
+  for (let index = 0; index < hints.length; index += 1) {
+    ctx.fillStyle = index === hintLevel ? '#f3ca68' : 'rgba(126, 157, 149, 0.28)';
+    ctx.beginPath(); ctx.arc(620 + index * 20, 446, 5, 0, Math.PI * 2); ctx.fill();
+  }
+  text('H  次のヒント     ENTER / ESC  譜面へ戻る', 640, 490, 14, '#9fb7af', 'center', 600);
+}
+
 function render(time: number): void {
   lastTime = time;
   const visualTime = save.settings.reducedMotion ? 0 : time;
@@ -552,6 +624,7 @@ function render(time: number): void {
     drawBoard(visualTime);
     drawHud(visualTime);
     if (screen === 'paused') drawOverlay('PAUSED', '譜面はこの拍で止まっています', 'ESC で再開');
+    if (screen === 'hint') drawHint();
     if (screen === 'won') {
       const lastRoom = roomIndex === rooms.length - 1;
       drawOverlay(
@@ -573,6 +646,7 @@ setInterval(() => {
   canvas.dataset.room = String(roomIndex + 1);
   canvas.dataset.unlockedRoom = String(save.highestUnlockedRoom + 1);
   canvas.dataset.reducedMotion = String(save.settings.reducedMotion);
+  canvas.dataset.hint = screen === 'hint' ? String(hintLevel + 1) : '0';
 }, 100);
 
 requestAnimationFrame(render);
