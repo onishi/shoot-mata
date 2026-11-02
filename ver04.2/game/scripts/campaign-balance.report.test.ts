@@ -23,6 +23,7 @@ interface StageResult {
   continues: number;
   score: number;
   maximumHazards: number;
+  echoForecasts: number;
   mechanicSuccesses: number;
 }
 
@@ -85,6 +86,7 @@ const simulateCampaign = (difficulty: Difficulty, seed: number): CampaignResult 
         stage: state.game.stageId, playedTicks: stagePlayedTicks, bossTicks,
         damage: state.game.metrics.damage, continues: totalContinues - previousContinues, score: state.game.score,
         maximumHazards,
+        echoForecasts: state.game.metrics.echoForecasts,
         mechanicSuccesses: state.game.stageId === 'stage-01'
           ? state.game.metrics.boss.returnedHits + state.game.metrics.boss.armorLayersStripped
           : state.game.stageId === 'stage-02'
@@ -157,6 +159,7 @@ describe('M4-05 campaign balance evidence', () => {
         continueRate: selected.filter((run) => run.continues > 0).length / selected.length,
         maximumHazards: Math.max(...selected.flatMap((run) => run.stages.map((stage) => stage.maximumHazards))),
         warningTicks: DIFFICULTY_PRESSURE[difficulty].warningTicks,
+        echoForecasts: selected.reduce((sum, run) => sum + run.stages.reduce((stageSum, stage) => stageSum + stage.echoForecasts, 0), 0),
         mechanicSuccesses: selected.reduce((sum, run) => sum + run.stages.reduce((stageSum, stage) => stageSum + stage.mechanicSuccesses, 0), 0)
       };
     });
@@ -164,17 +167,17 @@ describe('M4-05 campaign balance evidence', () => {
       .reduce((counts, id) => counts.set(id, (counts.get(id) ?? 0) + 1), new Map<MarginaliaId, number>()));
     const evidenceDir = resolve(process.env.EVIDENCE_DIR ?? resolve(process.cwd(), '../docs/evidence'));
     mkdirSync(evidenceDir, { recursive: true });
-    writeFileSync(resolve(evidenceDir, 'm4-05-campaign-balance.json'), `${JSON.stringify({ generatedAt: '2026-11-01', seeds, summary, selectionCounts, runs }, null, 2)}\n`);
-    const rows = summary.map((row) => `| ${row.difficulty.toUpperCase()} | ${row.completed}/${runCount} | ${row.minimumMinutes} / ${row.medianMinutes} / ${row.maximumMinutes} | ${row.medianDamage} | ${row.totalContinues} (${Math.round(row.continueRate * 100)}%) | ${row.maximumHazards} | ${row.warningTicks} | ${row.mechanicSuccesses} |`).join('\n');
-    writeFileSync(resolve(evidenceDir, 'm4-05-campaign-balance.md'), `# M4-05 Campaign Balance\n\n- Runs: ${runCount} seeds per difficulty\n- Controller: current-screen campaign pilot; health zero, one continue per stage, midpoint/result MARGINALIA, and AppState transitions enforced\n- Duration gate: 15:00–25:00; formal 30-seed median target: 21:00–24:00\n\n| Difficulty | Complete | Minutes min / median / max | Median damage | Continues (rate) | Max hazards | Bailiff warning ticks | Mechanic successes |\n| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |\n${rows}\n\n## Marginalia selections\n\n${Object.entries(selectionCounts).sort().map(([id, count]) => `- ${id}: ${count}`).join('\n')}\n`);
+    writeFileSync(resolve(evidenceDir, 'm4-05-campaign-balance.json'), `${JSON.stringify({ generatedAt: '2026-11-02', seeds, summary, selectionCounts, runs }, null, 2)}\n`);
+    const rows = summary.map((row) => `| ${row.difficulty.toUpperCase()} | ${row.completed}/${runCount} | ${row.minimumMinutes} / ${row.medianMinutes} / ${row.maximumMinutes} | ${row.medianDamage} | ${row.totalContinues} (${Math.round(row.continueRate * 100)}%) | ${row.maximumHazards} | ${row.warningTicks} | ${row.echoForecasts} | ${row.mechanicSuccesses} |`).join('\n');
+    writeFileSync(resolve(evidenceDir, 'm4-05-campaign-balance.md'), `# M4-05 Campaign Balance\n\n- Runs: ${runCount} seeds per difficulty\n- Controller: current-screen campaign pilot; health zero, one continue per stage, midpoint/result MARGINALIA, and AppState transitions enforced\n- Duration gate: 15:00–25:00; formal 30-seed median target: 21:00–24:00\n\n| Difficulty | Complete | Minutes min / median / max | Median damage | Continues (rate) | Max hazards | Bailiff warning ticks | ECHO forecasts | Mechanic successes |\n| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |\n${rows}\n\n## Marginalia selections\n\n${Object.entries(selectionCounts).sort().map(([id, count]) => `- ${id}: ${count}`).join('\n')}\n`);
 
     expect(runs.every((run) => run.complete)).toBe(true);
     expect(runs.every((run) => run.minutes >= 15 && run.minutes <= maximumCampaignMinutes)).toBe(true);
     if (runs.length >= 12) expect(Object.keys(selectionCounts)).toHaveLength(12);
     if (runCount >= 30 && summary.length === 3) {
       const [echo, normal, proof] = summary;
-      expect(echo.medianDamage).toBeLessThanOrEqual(normal.medianDamage);
-      expect(normal.medianDamage).toBeLessThanOrEqual(proof.medianDamage);
+      expect(echo.medianDamage).toBeLessThan(normal.medianDamage);
+      expect(normal.medianDamage).toBeLessThan(proof.medianDamage);
       expect(proof.medianDamage - echo.medianDamage).toBeGreaterThanOrEqual(1);
       expect(echo.continueRate).toBeLessThanOrEqual(0.1);
       expect(normal.continueRate).toBeLessThanOrEqual(0.25);

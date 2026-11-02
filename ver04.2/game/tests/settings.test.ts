@@ -70,7 +70,8 @@ describe('M4 independent settings persistence', () => {
     const hit = createInitialState(404);
     hit.bullets = [{ id: hit.nextId++, x: hit.player.x, y: hit.player.y, vx: 0, vy: 0, radius: 8, kind: 'enemy', annotated: false, capturable: true }];
     const echoHit = step(hit, {}, 'echo').state;
-    expect(echoHit.player.invulnerableUntil - echoHit.tick).toBe(420);
+    expect(echoHit.player.invulnerableUntil - echoHit.tick).toBe(DIFFICULTY_PRESSURE.echo.forecastRecoveryTicks);
+    expect(echoHit.metrics.echoForecasts).toBe(1);
     expect(echoHit.bullets.filter((bullet) => bullet.kind === 'enemy')).toHaveLength(0);
 
     expect(DIFFICULTY_PRESSURE.echo.warningTicks).toBeGreaterThan(DIFFICULTY_PRESSURE.normal.warningTicks);
@@ -107,5 +108,30 @@ describe('M4 independent settings persistence', () => {
       sustainedProof = step(sustainedProof, {}, 'proof').state;
     }
     expect(sustainedProof.enemies[0].fireCooldown).toBeLessThan(sustainedNormal.enemies[0].fireCooldown);
+  });
+
+  it('limits ECHO forecast to the first pre-damage boundary in each stage', () => {
+    let echo = createInitialState(405, 'stage-01', 'echo');
+    const hazard = () => ({ id: echo.nextId++, x: echo.player.x, y: echo.player.y, vx: 0, vy: 0, radius: 8, kind: 'enemy' as const, annotated: false, capturable: true, sourceAttack: 'enemy-sniper' as const });
+    echo.bullets = [hazard()];
+    const forecast = step(echo, {}, 'echo');
+    echo = forecast.state;
+    expect(forecast.events).toContainEqual({ type: 'echo-forecast', source: 'enemy-sniper' });
+    expect(echo.metrics.damage).toBe(0);
+    expect(echo.metrics.echoForecasts).toBe(1);
+    expect(echo.echoForecast.available).toBe(false);
+    expect(echo.player.invulnerableUntil - echo.tick).toBe(DIFFICULTY_PRESSURE.echo.forecastRecoveryTicks);
+
+    echo.tick = echo.player.invulnerableUntil + 1;
+    echo.bullets = [hazard()];
+    echo = step(echo, {}, 'echo').state;
+    expect(echo.metrics.damage).toBe(1);
+    expect(echo.metrics.echoForecasts).toBe(1);
+
+    const normal = createInitialState(405, 'stage-01', 'normal');
+    normal.bullets = [{ id: normal.nextId++, x: normal.player.x, y: normal.player.y, vx: 0, vy: 0, radius: 8, kind: 'enemy', annotated: false, capturable: true, sourceAttack: 'enemy-sniper' }];
+    const normalHit = step(normal, {}, 'normal').state;
+    expect(normalHit.metrics.damage).toBe(1);
+    expect(normalHit.metrics.echoForecasts).toBe(0);
   });
 });

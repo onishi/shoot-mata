@@ -82,6 +82,7 @@ const cueRules: Record<Cue, { bus: Bus; gain: number; cooldown: number; max: num
 };
 
 export const cueForEvent = (event: GameEvent, stageId: StageId = 'stage-01'): { cue: Cue; rate: number } | null => {
+  if (event.type === 'echo-forecast') return { cue: 'warning', rate: 1.22 };
   if (event.type === 'recovery-primed') return { cue: 'candidate', rate: event.note === 'redaction' ? 0.88 : event.note === 'palinode' ? 1.04 : 1.16 };
   if (event.type === 'recovery-triggered') return { cue: event.note === 'palinode' ? 'retrace-end' : 'collate', rate: event.note === 'redaction' ? 0.82 : event.note === 'citation' ? 1.3 : event.note === 'afterword' ? 1.12 : 1 };
   if (event.type === 'wind-reversed') return { cue: event.direction < 0 ? 'wind-left' : 'wind-right', rate: 1 };

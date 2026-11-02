@@ -6,7 +6,7 @@
 - Longest no-combat gap: 1 ticks
 - Binding / hound / choir / palanquin: 57 / 6 / 39 / 20
 - Inherited / synthesis COLLATE: 62 / 16
-- Determinism hashes: 4cd976cd40a3b628, 4cd976cd40a3b628, 4cd976cd40a3b628, 4cd976cd40a3b628
+- Determinism hashes: 18bc24990db26b81, 18bc24990db26b81, 18bc24990db26b81, 18bc24990db26b81
 
 | Enemy | Spawned | Attacks | Defeated | Exited |
 | --- | ---: | ---: | ---: | ---: |

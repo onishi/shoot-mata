@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-01",
+  "generatedAt": "2026-11-02",
   "seeds": [
     4500,
     4501,
@@ -36,15 +36,16 @@
     {
       "difficulty": "echo",
       "completed": 30,
-      "minimumMinutes": 22.72,
-      "medianMinutes": 23.11,
-      "maximumMinutes": 24.38,
-      "medianDamage": 1,
+      "minimumMinutes": 22.54,
+      "medianMinutes": 23.12,
+      "maximumMinutes": 24.28,
+      "medianDamage": 0,
       "totalContinues": 0,
       "continueRate": 0,
       "maximumHazards": 118,
       "warningTicks": 120,
-      "mechanicSuccesses": 24115
+      "echoForecasts": 21,
+      "mechanicSuccesses": 24119
     },
     {
       "difficulty": "normal",
@@ -57,6 +58,7 @@
       "continueRate": 0,
       "maximumHazards": 118,
       "warningTicks": 90,
+      "echoForecasts": 0,
       "mechanicSuccesses": 22963
     },
     {
@@ -70,6 +72,7 @@
       "continueRate": 0,
       "maximumHazards": 115,
       "warningTicks": 60,
+      "echoForecasts": 0,
       "mechanicSuccesses": 22840
     }
   ],
@@ -94,7 +97,7 @@
       "complete": true,
       "playedTicks": 167563,
       "minutes": 23.27,
-      "damage": 1,
+      "damage": 0,
       "continues": 0,
       "selected": [
         "cross-reference",
@@ -119,6 +122,7 @@
           "continues": 0,
           "score": 36525,
           "maximumHazards": 79,
+          "echoForecasts": 0,
           "mechanicSuccesses": 16
         },
         {
@@ -129,16 +133,18 @@
           "continues": 0,
           "score": 70414,
           "maximumHazards": 27,
+          "echoForecasts": 0,
           "mechanicSuccesses": 83
         },
         {
           "stage": "stage-03",
           "playedTicks": 30662,
           "bossTicks": 7263,
-          "damage": 1,
+          "damage": 0,
           "continues": 0,
-          "score": 227435,
+          "score": 240239,
           "maximumHazards": 46,
+          "echoForecasts": 1,
           "mechanicSuccesses": 5
         },
         {
@@ -149,6 +155,7 @@
           "continues": 0,
           "score": 270513,
           "maximumHazards": 64,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -159,6 +166,7 @@
           "continues": 0,
           "score": 354949,
           "maximumHazards": 118,
+          "echoForecasts": 0,
           "mechanicSuccesses": 37
         },
         {
@@ -169,6 +177,7 @@
           "continues": 0,
           "score": 353624,
           "maximumHazards": 93,
+          "echoForecasts": 0,
           "mechanicSuccesses": 799
         }
       ],
@@ -217,6 +226,7 @@
           "continues": 0,
           "score": 39968,
           "maximumHazards": 79,
+          "echoForecasts": 0,
           "mechanicSuccesses": 14
         },
         {
@@ -227,6 +237,7 @@
           "continues": 0,
           "score": 65543,
           "maximumHazards": 33,
+          "echoForecasts": 0,
           "mechanicSuccesses": 44
         },
         {
@@ -237,6 +248,7 @@
           "continues": 0,
           "score": 85929,
           "maximumHazards": 49,
+          "echoForecasts": 0,
           "mechanicSuccesses": 6
         },
         {
@@ -247,6 +259,7 @@
           "continues": 0,
           "score": 174082,
           "maximumHazards": 45,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -257,6 +270,7 @@
           "continues": 0,
           "score": 72383,
           "maximumHazards": 58,
+          "echoForecasts": 0,
           "mechanicSuccesses": 50
         },
         {
@@ -267,6 +281,7 @@
           "continues": 0,
           "score": 268518,
           "maximumHazards": 95,
+          "echoForecasts": 0,
           "mechanicSuccesses": 450
         }
       ],
@@ -315,6 +330,7 @@
           "continues": 0,
           "score": 36225,
           "maximumHazards": 79,
+          "echoForecasts": 0,
           "mechanicSuccesses": 16
         },
         {
@@ -325,6 +341,7 @@
           "continues": 0,
           "score": 47925,
           "maximumHazards": 33,
+          "echoForecasts": 0,
           "mechanicSuccesses": 45
         },
         {
@@ -335,6 +352,7 @@
           "continues": 0,
           "score": 61929,
           "maximumHazards": 47,
+          "echoForecasts": 0,
           "mechanicSuccesses": 7
         },
         {
@@ -345,6 +363,7 @@
           "continues": 0,
           "score": 197467,
           "maximumHazards": 45,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -355,6 +374,7 @@
           "continues": 0,
           "score": 70155,
           "maximumHazards": 115,
+          "echoForecasts": 0,
           "mechanicSuccesses": 42
         },
         {
@@ -365,6 +385,7 @@
           "continues": 0,
           "score": 269844,
           "maximumHazards": 88,
+          "echoForecasts": 0,
           "mechanicSuccesses": 369
         }
       ],
@@ -413,6 +434,7 @@
           "continues": 0,
           "score": 39648,
           "maximumHazards": 71,
+          "echoForecasts": 0,
           "mechanicSuccesses": 19
         },
         {
@@ -423,6 +445,7 @@
           "continues": 0,
           "score": 54156,
           "maximumHazards": 27,
+          "echoForecasts": 0,
           "mechanicSuccesses": 83
         },
         {
@@ -433,6 +456,7 @@
           "continues": 0,
           "score": 88838,
           "maximumHazards": 49,
+          "echoForecasts": 0,
           "mechanicSuccesses": 3
         },
         {
@@ -443,6 +467,7 @@
           "continues": 0,
           "score": 156117,
           "maximumHazards": 64,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -453,6 +478,7 @@
           "continues": 0,
           "score": 369958,
           "maximumHazards": 118,
+          "echoForecasts": 0,
           "mechanicSuccesses": 37
         },
         {
@@ -463,6 +489,7 @@
           "continues": 0,
           "score": 369900,
           "maximumHazards": 96,
+          "echoForecasts": 0,
           "mechanicSuccesses": 1113
         }
       ],
@@ -486,7 +513,7 @@
       "complete": true,
       "playedTicks": 170319,
       "minutes": 23.66,
-      "damage": 2,
+      "damage": 0,
       "continues": 0,
       "selected": [
         "underline",
@@ -507,10 +534,11 @@
           "stage": "stage-01",
           "playedTicks": 25699,
           "bossTicks": 4100,
-          "damage": 1,
+          "damage": 0,
           "continues": 0,
-          "score": 34925,
+          "score": 38125,
           "maximumHazards": 79,
+          "echoForecasts": 1,
           "mechanicSuccesses": 16
         },
         {
@@ -521,6 +549,7 @@
           "continues": 0,
           "score": 59481,
           "maximumHazards": 33,
+          "echoForecasts": 0,
           "mechanicSuccesses": 45
         },
         {
@@ -531,6 +560,7 @@
           "continues": 0,
           "score": 69274,
           "maximumHazards": 47,
+          "echoForecasts": 0,
           "mechanicSuccesses": 7
         },
         {
@@ -541,16 +571,18 @@
           "continues": 0,
           "score": 200164,
           "maximumHazards": 46,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
           "stage": "stage-05",
           "playedTicks": 28830,
           "bossTicks": 7231,
-          "damage": 1,
+          "damage": 0,
           "continues": 0,
-          "score": 84245,
+          "score": 84945,
           "maximumHazards": 115,
+          "echoForecasts": 1,
           "mechanicSuccesses": 38
         },
         {
@@ -561,6 +593,7 @@
           "continues": 0,
           "score": 254234,
           "maximumHazards": 95,
+          "echoForecasts": 0,
           "mechanicSuccesses": 450
         }
       ],
@@ -609,6 +642,7 @@
           "continues": 0,
           "score": 36825,
           "maximumHazards": 79,
+          "echoForecasts": 0,
           "mechanicSuccesses": 16
         },
         {
@@ -619,6 +653,7 @@
           "continues": 0,
           "score": 45925,
           "maximumHazards": 33,
+          "echoForecasts": 0,
           "mechanicSuccesses": 45
         },
         {
@@ -629,6 +664,7 @@
           "continues": 0,
           "score": 65266,
           "maximumHazards": 46,
+          "echoForecasts": 0,
           "mechanicSuccesses": 7
         },
         {
@@ -639,6 +675,7 @@
           "continues": 0,
           "score": 200578,
           "maximumHazards": 45,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -649,6 +686,7 @@
           "continues": 0,
           "score": 70155,
           "maximumHazards": 115,
+          "echoForecasts": 0,
           "mechanicSuccesses": 42
         },
         {
@@ -659,6 +697,7 @@
           "continues": 0,
           "score": 262903,
           "maximumHazards": 88,
+          "echoForecasts": 0,
           "mechanicSuccesses": 570
         }
       ],
@@ -707,6 +746,7 @@
           "continues": 0,
           "score": 40867,
           "maximumHazards": 79,
+          "echoForecasts": 0,
           "mechanicSuccesses": 16
         },
         {
@@ -717,6 +757,7 @@
           "continues": 0,
           "score": 48556,
           "maximumHazards": 33,
+          "echoForecasts": 0,
           "mechanicSuccesses": 53
         },
         {
@@ -727,6 +768,7 @@
           "continues": 0,
           "score": 205367,
           "maximumHazards": 48,
+          "echoForecasts": 0,
           "mechanicSuccesses": 5
         },
         {
@@ -737,6 +779,7 @@
           "continues": 0,
           "score": 269751,
           "maximumHazards": 64,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -747,6 +790,7 @@
           "continues": 0,
           "score": 330266,
           "maximumHazards": 118,
+          "echoForecasts": 0,
           "mechanicSuccesses": 37
         },
         {
@@ -757,6 +801,7 @@
           "continues": 0,
           "score": 394595,
           "maximumHazards": 96,
+          "echoForecasts": 0,
           "mechanicSuccesses": 1113
         }
       ],
@@ -780,7 +825,7 @@
       "complete": true,
       "playedTicks": 168413,
       "minutes": 23.39,
-      "damage": 2,
+      "damage": 0,
       "continues": 0,
       "selected": [
         "gloss",
@@ -801,20 +846,22 @@
           "stage": "stage-01",
           "playedTicks": 25699,
           "bossTicks": 4100,
-          "damage": 1,
+          "damage": 0,
           "continues": 0,
-          "score": 44225,
+          "score": 43525,
           "maximumHazards": 79,
+          "echoForecasts": 1,
           "mechanicSuccesses": 16
         },
         {
           "stage": "stage-02",
           "playedTicks": 24170,
           "bossTicks": 6891,
-          "damage": 1,
+          "damage": 0,
           "continues": 0,
-          "score": 59325,
+          "score": 52325,
           "maximumHazards": 33,
+          "echoForecasts": 1,
           "mechanicSuccesses": 45
         },
         {
@@ -825,6 +872,7 @@
           "continues": 0,
           "score": 81759,
           "maximumHazards": 50,
+          "echoForecasts": 0,
           "mechanicSuccesses": 6
         },
         {
@@ -835,6 +883,7 @@
           "continues": 0,
           "score": 150042,
           "maximumHazards": 64,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -845,6 +894,7 @@
           "continues": 0,
           "score": 72383,
           "maximumHazards": 58,
+          "echoForecasts": 0,
           "mechanicSuccesses": 51
         },
         {
@@ -855,6 +905,7 @@
           "continues": 0,
           "score": 268348,
           "maximumHazards": 95,
+          "echoForecasts": 0,
           "mechanicSuccesses": 450
         }
       ],
@@ -878,7 +929,7 @@
       "complete": true,
       "playedTicks": 164481,
       "minutes": 22.84,
-      "damage": 3,
+      "damage": 2,
       "continues": 0,
       "selected": [
         "citation",
@@ -903,6 +954,7 @@
           "continues": 0,
           "score": 39925,
           "maximumHazards": 79,
+          "echoForecasts": 0,
           "mechanicSuccesses": 18
         },
         {
@@ -911,8 +963,9 @@
           "bossTicks": 6891,
           "damage": 1,
           "continues": 0,
-          "score": 50225,
+          "score": 51225,
           "maximumHazards": 33,
+          "echoForecasts": 1,
           "mechanicSuccesses": 45
         },
         {
@@ -923,6 +976,7 @@
           "continues": 0,
           "score": 62666,
           "maximumHazards": 46,
+          "echoForecasts": 0,
           "mechanicSuccesses": 7
         },
         {
@@ -933,16 +987,18 @@
           "continues": 0,
           "score": 191243,
           "maximumHazards": 45,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
           "stage": "stage-05",
           "playedTicks": 26268,
           "bossTicks": 4669,
-          "damage": 2,
+          "damage": 1,
           "continues": 0,
           "score": 68255,
           "maximumHazards": 115,
+          "echoForecasts": 1,
           "mechanicSuccesses": 42
         },
         {
@@ -953,6 +1009,7 @@
           "continues": 0,
           "score": 245989,
           "maximumHazards": 86,
+          "echoForecasts": 0,
           "mechanicSuccesses": 569
         }
       ],
@@ -976,7 +1033,7 @@
       "complete": true,
       "playedTicks": 166328,
       "minutes": 23.1,
-      "damage": 1,
+      "damage": 0,
       "continues": 0,
       "selected": [
         "footnote",
@@ -1001,6 +1058,7 @@
           "continues": 0,
           "score": 35825,
           "maximumHazards": 79,
+          "echoForecasts": 0,
           "mechanicSuccesses": 16
         },
         {
@@ -1011,6 +1069,7 @@
           "continues": 0,
           "score": 43531,
           "maximumHazards": 33,
+          "echoForecasts": 0,
           "mechanicSuccesses": 53
         },
         {
@@ -1021,6 +1080,7 @@
           "continues": 0,
           "score": 65680,
           "maximumHazards": 50,
+          "echoForecasts": 0,
           "mechanicSuccesses": 8
         },
         {
@@ -1031,16 +1091,18 @@
           "continues": 0,
           "score": 130451,
           "maximumHazards": 64,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
           "stage": "stage-05",
           "playedTicks": 27303,
           "bossTicks": 5704,
-          "damage": 1,
+          "damage": 0,
           "continues": 0,
-          "score": 237926,
+          "score": 222701,
           "maximumHazards": 118,
+          "echoForecasts": 1,
           "mechanicSuccesses": 37
         },
         {
@@ -1051,6 +1113,7 @@
           "continues": 0,
           "score": 351781,
           "maximumHazards": 93,
+          "echoForecasts": 0,
           "mechanicSuccesses": 799
         }
       ],
@@ -1072,9 +1135,9 @@
       "difficulty": "echo",
       "seed": 4510,
       "complete": true,
-      "playedTicks": 166316,
-      "minutes": 23.1,
-      "damage": 1,
+      "playedTicks": 166019,
+      "minutes": 23.06,
+      "damage": 0,
       "continues": 0,
       "selected": [
         "underline",
@@ -1099,6 +1162,7 @@
           "continues": 0,
           "score": 37125,
           "maximumHazards": 79,
+          "echoForecasts": 0,
           "mechanicSuccesses": 16
         },
         {
@@ -1109,6 +1173,7 @@
           "continues": 0,
           "score": 55443,
           "maximumHazards": 33,
+          "echoForecasts": 0,
           "mechanicSuccesses": 44
         },
         {
@@ -1119,16 +1184,18 @@
           "continues": 0,
           "score": 63314,
           "maximumHazards": 49,
+          "echoForecasts": 0,
           "mechanicSuccesses": 6
         },
         {
           "stage": "stage-04",
-          "playedTicks": 27505,
-          "bossTicks": 4106,
-          "damage": 1,
+          "playedTicks": 27208,
+          "bossTicks": 3809,
+          "damage": 0,
           "continues": 0,
-          "score": 141893,
-          "maximumHazards": 64,
+          "score": 162575,
+          "maximumHazards": 46,
+          "echoForecasts": 1,
           "mechanicSuccesses": 20
         },
         {
@@ -1139,6 +1206,7 @@
           "continues": 0,
           "score": 72383,
           "maximumHazards": 58,
+          "echoForecasts": 0,
           "mechanicSuccesses": 50
         },
         {
@@ -1149,6 +1217,7 @@
           "continues": 0,
           "score": 278732,
           "maximumHazards": 93,
+          "echoForecasts": 0,
           "mechanicSuccesses": 588
         }
       ],
@@ -1197,6 +1266,7 @@
           "continues": 0,
           "score": 41825,
           "maximumHazards": 79,
+          "echoForecasts": 0,
           "mechanicSuccesses": 16
         },
         {
@@ -1207,6 +1277,7 @@
           "continues": 0,
           "score": 46625,
           "maximumHazards": 33,
+          "echoForecasts": 0,
           "mechanicSuccesses": 45
         },
         {
@@ -1217,6 +1288,7 @@
           "continues": 0,
           "score": 66174,
           "maximumHazards": 47,
+          "echoForecasts": 0,
           "mechanicSuccesses": 7
         },
         {
@@ -1227,6 +1299,7 @@
           "continues": 0,
           "score": 210072,
           "maximumHazards": 53,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -1237,6 +1310,7 @@
           "continues": 0,
           "score": 68755,
           "maximumHazards": 115,
+          "echoForecasts": 0,
           "mechanicSuccesses": 42
         },
         {
@@ -1247,6 +1321,7 @@
           "continues": 0,
           "score": 238351,
           "maximumHazards": 95,
+          "echoForecasts": 0,
           "mechanicSuccesses": 572
         }
       ],
@@ -1268,9 +1343,9 @@
       "difficulty": "echo",
       "seed": 4512,
       "complete": true,
-      "playedTicks": 175508,
-      "minutes": 24.38,
-      "damage": 2,
+      "playedTicks": 174797,
+      "minutes": 24.28,
+      "damage": 0,
       "continues": 0,
       "selected": [
         "footnote",
@@ -1291,10 +1366,11 @@
           "stage": "stage-01",
           "playedTicks": 25699,
           "bossTicks": 4100,
-          "damage": 1,
+          "damage": 0,
           "continues": 0,
-          "score": 36525,
+          "score": 38825,
           "maximumHazards": 79,
+          "echoForecasts": 1,
           "mechanicSuccesses": 16
         },
         {
@@ -1305,17 +1381,19 @@
           "continues": 0,
           "score": 41646,
           "maximumHazards": 33,
+          "echoForecasts": 0,
           "mechanicSuccesses": 54
         },
         {
           "stage": "stage-03",
-          "playedTicks": 32354,
-          "bossTicks": 8955,
-          "damage": 1,
+          "playedTicks": 31643,
+          "bossTicks": 8244,
+          "damage": 0,
           "continues": 0,
-          "score": 82750,
-          "maximumHazards": 51,
-          "mechanicSuccesses": 3
+          "score": 137719,
+          "maximumHazards": 49,
+          "echoForecasts": 1,
+          "mechanicSuccesses": 4
         },
         {
           "stage": "stage-04",
@@ -1325,6 +1403,7 @@
           "continues": 0,
           "score": 182744,
           "maximumHazards": 58,
+          "echoForecasts": 0,
           "mechanicSuccesses": 18
         },
         {
@@ -1335,6 +1414,7 @@
           "continues": 0,
           "score": 217749,
           "maximumHazards": 113,
+          "echoForecasts": 0,
           "mechanicSuccesses": 36
         },
         {
@@ -1345,6 +1425,7 @@
           "continues": 0,
           "score": 376484,
           "maximumHazards": 96,
+          "echoForecasts": 0,
           "mechanicSuccesses": 1113
         }
       ],
@@ -1393,6 +1474,7 @@
           "continues": 0,
           "score": 44825,
           "maximumHazards": 79,
+          "echoForecasts": 0,
           "mechanicSuccesses": 16
         },
         {
@@ -1403,6 +1485,7 @@
           "continues": 0,
           "score": 58416,
           "maximumHazards": 33,
+          "echoForecasts": 0,
           "mechanicSuccesses": 84
         },
         {
@@ -1413,6 +1496,7 @@
           "continues": 0,
           "score": 72074,
           "maximumHazards": 47,
+          "echoForecasts": 0,
           "mechanicSuccesses": 7
         },
         {
@@ -1423,6 +1507,7 @@
           "continues": 0,
           "score": 195256,
           "maximumHazards": 45,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -1433,6 +1518,7 @@
           "continues": 0,
           "score": 86345,
           "maximumHazards": 115,
+          "echoForecasts": 0,
           "mechanicSuccesses": 38
         },
         {
@@ -1443,6 +1529,7 @@
           "continues": 0,
           "score": 265735,
           "maximumHazards": 93,
+          "echoForecasts": 0,
           "mechanicSuccesses": 485
         }
       ],
@@ -1464,9 +1551,9 @@
       "difficulty": "echo",
       "seed": 4514,
       "complete": true,
-      "playedTicks": 165118,
-      "minutes": 22.93,
-      "damage": 1,
+      "playedTicks": 166475,
+      "minutes": 23.12,
+      "damage": 0,
       "continues": 0,
       "selected": [
         "afterword",
@@ -1491,6 +1578,7 @@
           "continues": 0,
           "score": 42425,
           "maximumHazards": 79,
+          "echoForecasts": 0,
           "mechanicSuccesses": 16
         },
         {
@@ -1501,6 +1589,7 @@
           "continues": 0,
           "score": 52325,
           "maximumHazards": 33,
+          "echoForecasts": 0,
           "mechanicSuccesses": 45
         },
         {
@@ -1511,16 +1600,18 @@
           "continues": 0,
           "score": 68274,
           "maximumHazards": 47,
+          "echoForecasts": 0,
           "mechanicSuccesses": 7
         },
         {
           "stage": "stage-04",
-          "playedTicks": 27047,
-          "bossTicks": 3648,
-          "damage": 1,
+          "playedTicks": 28404,
+          "bossTicks": 5005,
+          "damage": 0,
           "continues": 0,
-          "score": 171390,
-          "maximumHazards": 53,
+          "score": 185725,
+          "maximumHazards": 61,
+          "echoForecasts": 1,
           "mechanicSuccesses": 20
         },
         {
@@ -1531,6 +1622,7 @@
           "continues": 0,
           "score": 67355,
           "maximumHazards": 115,
+          "echoForecasts": 0,
           "mechanicSuccesses": 42
         },
         {
@@ -1541,6 +1633,7 @@
           "continues": 0,
           "score": 269573,
           "maximumHazards": 88,
+          "echoForecasts": 0,
           "mechanicSuccesses": 570
         }
       ],
@@ -1589,6 +1682,7 @@
           "continues": 0,
           "score": 35168,
           "maximumHazards": 79,
+          "echoForecasts": 0,
           "mechanicSuccesses": 14
         },
         {
@@ -1599,6 +1693,7 @@
           "continues": 0,
           "score": 55982,
           "maximumHazards": 27,
+          "echoForecasts": 0,
           "mechanicSuccesses": 52
         },
         {
@@ -1609,6 +1704,7 @@
           "continues": 0,
           "score": 219967,
           "maximumHazards": 47,
+          "echoForecasts": 0,
           "mechanicSuccesses": 8
         },
         {
@@ -1619,6 +1715,7 @@
           "continues": 0,
           "score": 270907,
           "maximumHazards": 64,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -1629,6 +1726,7 @@
           "continues": 0,
           "score": 354557,
           "maximumHazards": 118,
+          "echoForecasts": 0,
           "mechanicSuccesses": 37
         },
         {
@@ -1639,6 +1737,7 @@
           "continues": 0,
           "score": 362437,
           "maximumHazards": 93,
+          "echoForecasts": 0,
           "mechanicSuccesses": 799
         }
       ],
@@ -1687,6 +1786,7 @@
           "continues": 0,
           "score": 37925,
           "maximumHazards": 79,
+          "echoForecasts": 0,
           "mechanicSuccesses": 16
         },
         {
@@ -1697,6 +1797,7 @@
           "continues": 0,
           "score": 67381,
           "maximumHazards": 33,
+          "echoForecasts": 0,
           "mechanicSuccesses": 45
         },
         {
@@ -1707,6 +1808,7 @@
           "continues": 0,
           "score": 101559,
           "maximumHazards": 50,
+          "echoForecasts": 0,
           "mechanicSuccesses": 6
         },
         {
@@ -1717,6 +1819,7 @@
           "continues": 0,
           "score": 198952,
           "maximumHazards": 45,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -1727,6 +1830,7 @@
           "continues": 0,
           "score": 75195,
           "maximumHazards": 59,
+          "echoForecasts": 0,
           "mechanicSuccesses": 60
         },
         {
@@ -1737,6 +1841,7 @@
           "continues": 0,
           "score": 272954,
           "maximumHazards": 93,
+          "echoForecasts": 0,
           "mechanicSuccesses": 588
         }
       ],
@@ -1785,6 +1890,7 @@
           "continues": 0,
           "score": 39825,
           "maximumHazards": 79,
+          "echoForecasts": 0,
           "mechanicSuccesses": 16
         },
         {
@@ -1795,6 +1901,7 @@
           "continues": 0,
           "score": 46625,
           "maximumHazards": 33,
+          "echoForecasts": 0,
           "mechanicSuccesses": 45
         },
         {
@@ -1805,6 +1912,7 @@
           "continues": 0,
           "score": 71874,
           "maximumHazards": 47,
+          "echoForecasts": 0,
           "mechanicSuccesses": 7
         },
         {
@@ -1815,6 +1923,7 @@
           "continues": 0,
           "score": 196315,
           "maximumHazards": 45,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -1825,6 +1934,7 @@
           "continues": 0,
           "score": 67355,
           "maximumHazards": 115,
+          "echoForecasts": 0,
           "mechanicSuccesses": 42
         },
         {
@@ -1835,6 +1945,7 @@
           "continues": 0,
           "score": 252837,
           "maximumHazards": 88,
+          "echoForecasts": 0,
           "mechanicSuccesses": 570
         }
       ],
@@ -1858,7 +1969,7 @@
       "complete": true,
       "playedTicks": 173802,
       "minutes": 24.14,
-      "damage": 1,
+      "damage": 0,
       "continues": 0,
       "selected": [
         "footnote",
@@ -1883,6 +1994,7 @@
           "continues": 0,
           "score": 35525,
           "maximumHazards": 79,
+          "echoForecasts": 0,
           "mechanicSuccesses": 16
         },
         {
@@ -1893,6 +2005,7 @@
           "continues": 0,
           "score": 60113,
           "maximumHazards": 27,
+          "echoForecasts": 0,
           "mechanicSuccesses": 44
         },
         {
@@ -1903,6 +2016,7 @@
           "continues": 0,
           "score": 71497,
           "maximumHazards": 48,
+          "echoForecasts": 0,
           "mechanicSuccesses": 5
         },
         {
@@ -1913,16 +2027,18 @@
           "continues": 0,
           "score": 162568,
           "maximumHazards": 64,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
           "stage": "stage-05",
           "playedTicks": 28111,
           "bossTicks": 6512,
-          "damage": 1,
+          "damage": 0,
           "continues": 0,
           "score": 69760,
           "maximumHazards": 60,
+          "echoForecasts": 1,
           "mechanicSuccesses": 72
         },
         {
@@ -1933,6 +2049,7 @@
           "continues": 0,
           "score": 252399,
           "maximumHazards": 92,
+          "echoForecasts": 0,
           "mechanicSuccesses": 746
         }
       ],
@@ -1981,6 +2098,7 @@
           "continues": 0,
           "score": 45502,
           "maximumHazards": 79,
+          "echoForecasts": 0,
           "mechanicSuccesses": 16
         },
         {
@@ -1991,6 +2109,7 @@
           "continues": 0,
           "score": 62343,
           "maximumHazards": 33,
+          "echoForecasts": 0,
           "mechanicSuccesses": 44
         },
         {
@@ -2001,6 +2120,7 @@
           "continues": 0,
           "score": 86711,
           "maximumHazards": 49,
+          "echoForecasts": 0,
           "mechanicSuccesses": 7
         },
         {
@@ -2011,6 +2131,7 @@
           "continues": 0,
           "score": 244054,
           "maximumHazards": 46,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -2021,6 +2142,7 @@
           "continues": 0,
           "score": 73797,
           "maximumHazards": 114,
+          "echoForecasts": 0,
           "mechanicSuccesses": 40
         },
         {
@@ -2031,6 +2153,7 @@
           "continues": 0,
           "score": 250974,
           "maximumHazards": 95,
+          "echoForecasts": 0,
           "mechanicSuccesses": 450
         }
       ],
@@ -2054,7 +2177,7 @@
       "complete": true,
       "playedTicks": 165020,
       "minutes": 22.92,
-      "damage": 1,
+      "damage": 0,
       "continues": 0,
       "selected": [
         "palinode",
@@ -2075,10 +2198,11 @@
           "stage": "stage-01",
           "playedTicks": 25699,
           "bossTicks": 4100,
-          "damage": 1,
+          "damage": 0,
           "continues": 0,
-          "score": 36325,
+          "score": 33925,
           "maximumHazards": 79,
+          "echoForecasts": 1,
           "mechanicSuccesses": 16
         },
         {
@@ -2089,6 +2213,7 @@
           "continues": 0,
           "score": 50925,
           "maximumHazards": 33,
+          "echoForecasts": 0,
           "mechanicSuccesses": 45
         },
         {
@@ -2099,6 +2224,7 @@
           "continues": 0,
           "score": 66168,
           "maximumHazards": 47,
+          "echoForecasts": 0,
           "mechanicSuccesses": 7
         },
         {
@@ -2109,6 +2235,7 @@
           "continues": 0,
           "score": 167331,
           "maximumHazards": 45,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -2119,6 +2246,7 @@
           "continues": 0,
           "score": 68055,
           "maximumHazards": 115,
+          "echoForecasts": 0,
           "mechanicSuccesses": 42
         },
         {
@@ -2129,6 +2257,7 @@
           "continues": 0,
           "score": 262178,
           "maximumHazards": 95,
+          "echoForecasts": 0,
           "mechanicSuccesses": 572
         }
       ],
@@ -2177,6 +2306,7 @@
           "continues": 0,
           "score": 42325,
           "maximumHazards": 79,
+          "echoForecasts": 0,
           "mechanicSuccesses": 16
         },
         {
@@ -2187,6 +2317,7 @@
           "continues": 0,
           "score": 58413,
           "maximumHazards": 27,
+          "echoForecasts": 0,
           "mechanicSuccesses": 44
         },
         {
@@ -2197,6 +2328,7 @@
           "continues": 0,
           "score": 117262,
           "maximumHazards": 39,
+          "echoForecasts": 0,
           "mechanicSuccesses": 8
         },
         {
@@ -2207,6 +2339,7 @@
           "continues": 0,
           "score": 217612,
           "maximumHazards": 64,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -2217,6 +2350,7 @@
           "continues": 0,
           "score": 368584,
           "maximumHazards": 69,
+          "echoForecasts": 0,
           "mechanicSuccesses": 75
         },
         {
@@ -2227,6 +2361,7 @@
           "continues": 0,
           "score": 363482,
           "maximumHazards": 93,
+          "echoForecasts": 0,
           "mechanicSuccesses": 799
         }
       ],
@@ -2250,7 +2385,7 @@
       "complete": true,
       "playedTicks": 166712,
       "minutes": 23.15,
-      "damage": 1,
+      "damage": 0,
       "continues": 0,
       "selected": [
         "rubric",
@@ -2271,10 +2406,11 @@
           "stage": "stage-01",
           "playedTicks": 25489,
           "bossTicks": 3890,
-          "damage": 1,
+          "damage": 0,
           "continues": 0,
-          "score": 35468,
+          "score": 34768,
           "maximumHazards": 79,
+          "echoForecasts": 1,
           "mechanicSuccesses": 14
         },
         {
@@ -2285,6 +2421,7 @@
           "continues": 0,
           "score": 43425,
           "maximumHazards": 33,
+          "echoForecasts": 0,
           "mechanicSuccesses": 45
         },
         {
@@ -2295,6 +2432,7 @@
           "continues": 0,
           "score": 71698,
           "maximumHazards": 30,
+          "echoForecasts": 0,
           "mechanicSuccesses": 6
         },
         {
@@ -2305,6 +2443,7 @@
           "continues": 0,
           "score": 198645,
           "maximumHazards": 64,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -2315,6 +2454,7 @@
           "continues": 0,
           "score": 71683,
           "maximumHazards": 58,
+          "echoForecasts": 0,
           "mechanicSuccesses": 50
         },
         {
@@ -2325,6 +2465,7 @@
           "continues": 0,
           "score": 242042,
           "maximumHazards": 95,
+          "echoForecasts": 0,
           "mechanicSuccesses": 450
         }
       ],
@@ -2348,7 +2489,7 @@
       "complete": true,
       "playedTicks": 164483,
       "minutes": 22.84,
-      "damage": 1,
+      "damage": 0,
       "continues": 0,
       "selected": [
         "redaction",
@@ -2369,10 +2510,11 @@
           "stage": "stage-01",
           "playedTicks": 25699,
           "bossTicks": 4100,
-          "damage": 1,
+          "damage": 0,
           "continues": 0,
-          "score": 37525,
+          "score": 36525,
           "maximumHazards": 79,
+          "echoForecasts": 1,
           "mechanicSuccesses": 16
         },
         {
@@ -2383,6 +2525,7 @@
           "continues": 0,
           "score": 46225,
           "maximumHazards": 33,
+          "echoForecasts": 0,
           "mechanicSuccesses": 45
         },
         {
@@ -2393,6 +2536,7 @@
           "continues": 0,
           "score": 64066,
           "maximumHazards": 46,
+          "echoForecasts": 0,
           "mechanicSuccesses": 7
         },
         {
@@ -2403,6 +2547,7 @@
           "continues": 0,
           "score": 163503,
           "maximumHazards": 45,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -2413,6 +2558,7 @@
           "continues": 0,
           "score": 66855,
           "maximumHazards": 115,
+          "echoForecasts": 0,
           "mechanicSuccesses": 42
         },
         {
@@ -2423,6 +2569,7 @@
           "continues": 0,
           "score": 267338,
           "maximumHazards": 88,
+          "echoForecasts": 0,
           "mechanicSuccesses": 570
         }
       ],
@@ -2444,8 +2591,8 @@
       "difficulty": "echo",
       "seed": 4524,
       "complete": true,
-      "playedTicks": 167386,
-      "minutes": 23.25,
+      "playedTicks": 168350,
+      "minutes": 23.38,
       "damage": 1,
       "continues": 0,
       "selected": [
@@ -2471,6 +2618,7 @@
           "continues": 0,
           "score": 40648,
           "maximumHazards": 71,
+          "echoForecasts": 0,
           "mechanicSuccesses": 19
         },
         {
@@ -2481,17 +2629,19 @@
           "continues": 0,
           "score": 48046,
           "maximumHazards": 33,
+          "echoForecasts": 0,
           "mechanicSuccesses": 54
         },
         {
           "stage": "stage-03",
-          "playedTicks": 30511,
-          "bossTicks": 7112,
+          "playedTicks": 31475,
+          "bossTicks": 8076,
           "damage": 1,
           "continues": 0,
-          "score": 97062,
-          "maximumHazards": 48,
-          "mechanicSuccesses": 5
+          "score": 97783,
+          "maximumHazards": 49,
+          "echoForecasts": 1,
+          "mechanicSuccesses": 4
         },
         {
           "stage": "stage-04",
@@ -2501,6 +2651,7 @@
           "continues": 0,
           "score": 189387,
           "maximumHazards": 64,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -2511,6 +2662,7 @@
           "continues": 0,
           "score": 361344,
           "maximumHazards": 118,
+          "echoForecasts": 0,
           "mechanicSuccesses": 37
         },
         {
@@ -2521,6 +2673,7 @@
           "continues": 0,
           "score": 352244,
           "maximumHazards": 93,
+          "echoForecasts": 0,
           "mechanicSuccesses": 799
         }
       ],
@@ -2569,6 +2722,7 @@
           "continues": 0,
           "score": 35668,
           "maximumHazards": 79,
+          "echoForecasts": 0,
           "mechanicSuccesses": 14
         },
         {
@@ -2579,6 +2733,7 @@
           "continues": 0,
           "score": 42514,
           "maximumHazards": 33,
+          "echoForecasts": 0,
           "mechanicSuccesses": 44
         },
         {
@@ -2589,6 +2744,7 @@
           "continues": 0,
           "score": 53251,
           "maximumHazards": 31,
+          "echoForecasts": 0,
           "mechanicSuccesses": 7
         },
         {
@@ -2599,6 +2755,7 @@
           "continues": 0,
           "score": 180243,
           "maximumHazards": 45,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -2609,6 +2766,7 @@
           "continues": 0,
           "score": 69583,
           "maximumHazards": 58,
+          "echoForecasts": 0,
           "mechanicSuccesses": 51
         },
         {
@@ -2619,6 +2777,7 @@
           "continues": 0,
           "score": 270626,
           "maximumHazards": 93,
+          "echoForecasts": 0,
           "mechanicSuccesses": 588
         }
       ],
@@ -2642,7 +2801,7 @@
       "complete": true,
       "playedTicks": 165020,
       "minutes": 22.92,
-      "damage": 2,
+      "damage": 0,
       "continues": 0,
       "selected": [
         "palinode",
@@ -2663,10 +2822,11 @@
           "stage": "stage-01",
           "playedTicks": 25699,
           "bossTicks": 4100,
-          "damage": 2,
+          "damage": 0,
           "continues": 0,
           "score": 37825,
           "maximumHazards": 79,
+          "echoForecasts": 1,
           "mechanicSuccesses": 16
         },
         {
@@ -2677,6 +2837,7 @@
           "continues": 0,
           "score": 49225,
           "maximumHazards": 33,
+          "echoForecasts": 0,
           "mechanicSuccesses": 45
         },
         {
@@ -2687,6 +2848,7 @@
           "continues": 0,
           "score": 61174,
           "maximumHazards": 47,
+          "echoForecasts": 0,
           "mechanicSuccesses": 7
         },
         {
@@ -2697,6 +2859,7 @@
           "continues": 0,
           "score": 226984,
           "maximumHazards": 45,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -2707,6 +2870,7 @@
           "continues": 0,
           "score": 70855,
           "maximumHazards": 115,
+          "echoForecasts": 0,
           "mechanicSuccesses": 42
         },
         {
@@ -2717,6 +2881,7 @@
           "continues": 0,
           "score": 247305,
           "maximumHazards": 90,
+          "echoForecasts": 0,
           "mechanicSuccesses": 570
         }
       ],
@@ -2738,9 +2903,9 @@
       "difficulty": "echo",
       "seed": 4527,
       "complete": true,
-      "playedTicks": 174003,
-      "minutes": 24.17,
-      "damage": 3,
+      "playedTicks": 173792,
+      "minutes": 24.14,
+      "damage": 0,
       "continues": 0,
       "selected": [
         "cross-reference",
@@ -2761,10 +2926,11 @@
           "stage": "stage-01",
           "playedTicks": 25699,
           "bossTicks": 4100,
-          "damage": 2,
+          "damage": 0,
           "continues": 0,
-          "score": 38825,
+          "score": 41025,
           "maximumHazards": 79,
+          "echoForecasts": 1,
           "mechanicSuccesses": 16
         },
         {
@@ -2775,17 +2941,19 @@
           "continues": 0,
           "score": 46322,
           "maximumHazards": 33,
+          "echoForecasts": 0,
           "mechanicSuccesses": 45
         },
         {
           "stage": "stage-03",
-          "playedTicks": 30511,
-          "bossTicks": 7112,
-          "damage": 1,
+          "playedTicks": 30300,
+          "bossTicks": 6901,
+          "damage": 0,
           "continues": 0,
-          "score": 93063,
+          "score": 97071,
           "maximumHazards": 48,
-          "mechanicSuccesses": 5
+          "echoForecasts": 1,
+          "mechanicSuccesses": 8
         },
         {
           "stage": "stage-04",
@@ -2795,6 +2963,7 @@
           "continues": 0,
           "score": 281773,
           "maximumHazards": 64,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -2805,6 +2974,7 @@
           "continues": 0,
           "score": 369311,
           "maximumHazards": 118,
+          "echoForecasts": 0,
           "mechanicSuccesses": 37
         },
         {
@@ -2815,6 +2985,7 @@
           "continues": 0,
           "score": 369708,
           "maximumHazards": 96,
+          "echoForecasts": 0,
           "mechanicSuccesses": 1113
         }
       ],
@@ -2836,9 +3007,9 @@
       "difficulty": "echo",
       "seed": 4528,
       "complete": true,
-      "playedTicks": 163971,
-      "minutes": 22.77,
-      "damage": 1,
+      "playedTicks": 162264,
+      "minutes": 22.54,
+      "damage": 0,
       "continues": 0,
       "selected": [
         "underline",
@@ -2863,6 +3034,7 @@
           "continues": 0,
           "score": 38625,
           "maximumHazards": 79,
+          "echoForecasts": 0,
           "mechanicSuccesses": 16
         },
         {
@@ -2873,17 +3045,19 @@
           "continues": 0,
           "score": 39311,
           "maximumHazards": 33,
+          "echoForecasts": 0,
           "mechanicSuccesses": 78
         },
         {
           "stage": "stage-03",
-          "playedTicks": 29623,
-          "bossTicks": 6224,
-          "damage": 1,
+          "playedTicks": 27916,
+          "bossTicks": 4517,
+          "damage": 0,
           "continues": 0,
-          "score": 58461,
-          "maximumHazards": 51,
-          "mechanicSuccesses": 4
+          "score": 58048,
+          "maximumHazards": 39,
+          "echoForecasts": 1,
+          "mechanicSuccesses": 5
         },
         {
           "stage": "stage-04",
@@ -2893,6 +3067,7 @@
           "continues": 0,
           "score": 194993,
           "maximumHazards": 53,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -2903,6 +3078,7 @@
           "continues": 0,
           "score": 74483,
           "maximumHazards": 58,
+          "echoForecasts": 0,
           "mechanicSuccesses": 51
         },
         {
@@ -2913,6 +3089,7 @@
           "continues": 0,
           "score": 275185,
           "maximumHazards": 93,
+          "echoForecasts": 0,
           "mechanicSuccesses": 588
         }
       ],
@@ -2961,6 +3138,7 @@
           "continues": 0,
           "score": 36125,
           "maximumHazards": 79,
+          "echoForecasts": 0,
           "mechanicSuccesses": 16
         },
         {
@@ -2971,6 +3149,7 @@
           "continues": 0,
           "score": 50425,
           "maximumHazards": 33,
+          "echoForecasts": 0,
           "mechanicSuccesses": 45
         },
         {
@@ -2981,6 +3160,7 @@
           "continues": 0,
           "score": 69674,
           "maximumHazards": 47,
+          "echoForecasts": 0,
           "mechanicSuccesses": 7
         },
         {
@@ -2991,6 +3171,7 @@
           "continues": 0,
           "score": 218608,
           "maximumHazards": 46,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -3001,6 +3182,7 @@
           "continues": 0,
           "score": 70855,
           "maximumHazards": 115,
+          "echoForecasts": 0,
           "mechanicSuccesses": 42
         },
         {
@@ -3011,6 +3193,7 @@
           "continues": 0,
           "score": 285034,
           "maximumHazards": 69,
+          "echoForecasts": 0,
           "mechanicSuccesses": 764
         }
       ],
@@ -3059,6 +3242,7 @@
           "continues": 0,
           "score": 39450,
           "maximumHazards": 77,
+          "echoForecasts": 0,
           "mechanicSuccesses": 19
         },
         {
@@ -3069,6 +3253,7 @@
           "continues": 0,
           "score": 47552,
           "maximumHazards": 38,
+          "echoForecasts": 0,
           "mechanicSuccesses": 83
         },
         {
@@ -3079,6 +3264,7 @@
           "continues": 0,
           "score": 77897,
           "maximumHazards": 48,
+          "echoForecasts": 0,
           "mechanicSuccesses": 5
         },
         {
@@ -3089,6 +3275,7 @@
           "continues": 0,
           "score": 163998,
           "maximumHazards": 64,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -3099,6 +3286,7 @@
           "continues": 0,
           "score": 71160,
           "maximumHazards": 60,
+          "echoForecasts": 0,
           "mechanicSuccesses": 72
         },
         {
@@ -3109,6 +3297,7 @@
           "continues": 0,
           "score": 334533,
           "maximumHazards": 99,
+          "echoForecasts": 0,
           "mechanicSuccesses": 1086
         }
       ],
@@ -3157,6 +3346,7 @@
           "continues": 0,
           "score": 37338,
           "maximumHazards": 77,
+          "echoForecasts": 0,
           "mechanicSuccesses": 18
         },
         {
@@ -3167,6 +3357,7 @@
           "continues": 0,
           "score": 55613,
           "maximumHazards": 34,
+          "echoForecasts": 0,
           "mechanicSuccesses": 79
         },
         {
@@ -3177,6 +3368,7 @@
           "continues": 0,
           "score": 60883,
           "maximumHazards": 49,
+          "echoForecasts": 0,
           "mechanicSuccesses": 7
         },
         {
@@ -3187,6 +3379,7 @@
           "continues": 0,
           "score": 121206,
           "maximumHazards": 45,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -3197,6 +3390,7 @@
           "continues": 0,
           "score": 88195,
           "maximumHazards": 80,
+          "echoForecasts": 0,
           "mechanicSuccesses": 36
         },
         {
@@ -3207,6 +3401,7 @@
           "continues": 0,
           "score": 311855,
           "maximumHazards": 112,
+          "echoForecasts": 0,
           "mechanicSuccesses": 480
         }
       ],
@@ -3255,6 +3450,7 @@
           "continues": 0,
           "score": 33750,
           "maximumHazards": 77,
+          "echoForecasts": 0,
           "mechanicSuccesses": 19
         },
         {
@@ -3265,6 +3461,7 @@
           "continues": 0,
           "score": 43774,
           "maximumHazards": 41,
+          "echoForecasts": 0,
           "mechanicSuccesses": 82
         },
         {
@@ -3275,6 +3472,7 @@
           "continues": 0,
           "score": 68641,
           "maximumHazards": 49,
+          "echoForecasts": 0,
           "mechanicSuccesses": 4
         },
         {
@@ -3285,6 +3483,7 @@
           "continues": 0,
           "score": 176531,
           "maximumHazards": 45,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -3295,6 +3494,7 @@
           "continues": 0,
           "score": 66638,
           "maximumHazards": 83,
+          "echoForecasts": 0,
           "mechanicSuccesses": 45
         },
         {
@@ -3305,6 +3505,7 @@
           "continues": 0,
           "score": 318917,
           "maximumHazards": 112,
+          "echoForecasts": 0,
           "mechanicSuccesses": 477
         }
       ],
@@ -3353,6 +3554,7 @@
           "continues": 0,
           "score": 39050,
           "maximumHazards": 77,
+          "echoForecasts": 0,
           "mechanicSuccesses": 19
         },
         {
@@ -3363,6 +3565,7 @@
           "continues": 0,
           "score": 55289,
           "maximumHazards": 39,
+          "echoForecasts": 0,
           "mechanicSuccesses": 83
         },
         {
@@ -3373,6 +3576,7 @@
           "continues": 0,
           "score": 60279,
           "maximumHazards": 50,
+          "echoForecasts": 0,
           "mechanicSuccesses": 8
         },
         {
@@ -3383,6 +3587,7 @@
           "continues": 0,
           "score": 159381,
           "maximumHazards": 64,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -3393,6 +3598,7 @@
           "continues": 0,
           "score": 66960,
           "maximumHazards": 60,
+          "echoForecasts": 0,
           "mechanicSuccesses": 72
         },
         {
@@ -3403,6 +3609,7 @@
           "continues": 0,
           "score": 306239,
           "maximumHazards": 106,
+          "echoForecasts": 0,
           "mechanicSuccesses": 597
         }
       ],
@@ -3451,6 +3658,7 @@
           "continues": 0,
           "score": 38350,
           "maximumHazards": 77,
+          "echoForecasts": 0,
           "mechanicSuccesses": 19
         },
         {
@@ -3461,6 +3669,7 @@
           "continues": 0,
           "score": 59374,
           "maximumHazards": 35,
+          "echoForecasts": 0,
           "mechanicSuccesses": 81
         },
         {
@@ -3471,6 +3680,7 @@
           "continues": 0,
           "score": 56377,
           "maximumHazards": 49,
+          "echoForecasts": 0,
           "mechanicSuccesses": 5
         },
         {
@@ -3481,6 +3691,7 @@
           "continues": 0,
           "score": 183882,
           "maximumHazards": 45,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -3491,6 +3702,7 @@
           "continues": 0,
           "score": 87667,
           "maximumHazards": 58,
+          "echoForecasts": 0,
           "mechanicSuccesses": 66
         },
         {
@@ -3501,6 +3713,7 @@
           "continues": 0,
           "score": 313709,
           "maximumHazards": 95,
+          "echoForecasts": 0,
           "mechanicSuccesses": 450
         }
       ],
@@ -3549,6 +3762,7 @@
           "continues": 0,
           "score": 37460,
           "maximumHazards": 77,
+          "echoForecasts": 0,
           "mechanicSuccesses": 19
         },
         {
@@ -3559,6 +3773,7 @@
           "continues": 0,
           "score": 46774,
           "maximumHazards": 36,
+          "echoForecasts": 0,
           "mechanicSuccesses": 82
         },
         {
@@ -3569,6 +3784,7 @@
           "continues": 0,
           "score": 59341,
           "maximumHazards": 49,
+          "echoForecasts": 0,
           "mechanicSuccesses": 4
         },
         {
@@ -3579,6 +3795,7 @@
           "continues": 0,
           "score": 116643,
           "maximumHazards": 45,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -3589,6 +3806,7 @@
           "continues": 0,
           "score": 67338,
           "maximumHazards": 83,
+          "echoForecasts": 0,
           "mechanicSuccesses": 45
         },
         {
@@ -3599,6 +3817,7 @@
           "continues": 0,
           "score": 325648,
           "maximumHazards": 111,
+          "echoForecasts": 0,
           "mechanicSuccesses": 477
         }
       ],
@@ -3647,6 +3866,7 @@
           "continues": 0,
           "score": 33850,
           "maximumHazards": 77,
+          "echoForecasts": 0,
           "mechanicSuccesses": 19
         },
         {
@@ -3657,6 +3877,7 @@
           "continues": 0,
           "score": 48561,
           "maximumHazards": 33,
+          "echoForecasts": 0,
           "mechanicSuccesses": 53
         },
         {
@@ -3667,6 +3888,7 @@
           "continues": 0,
           "score": 68589,
           "maximumHazards": 49,
+          "echoForecasts": 0,
           "mechanicSuccesses": 5
         },
         {
@@ -3677,6 +3899,7 @@
           "continues": 0,
           "score": 179979,
           "maximumHazards": 64,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -3687,6 +3910,7 @@
           "continues": 0,
           "score": 69060,
           "maximumHazards": 60,
+          "echoForecasts": 0,
           "mechanicSuccesses": 72
         },
         {
@@ -3697,6 +3921,7 @@
           "continues": 0,
           "score": 309385,
           "maximumHazards": 106,
+          "echoForecasts": 0,
           "mechanicSuccesses": 597
         }
       ],
@@ -3745,6 +3970,7 @@
           "continues": 0,
           "score": 40350,
           "maximumHazards": 77,
+          "echoForecasts": 0,
           "mechanicSuccesses": 19
         },
         {
@@ -3755,6 +3981,7 @@
           "continues": 0,
           "score": 49874,
           "maximumHazards": 36,
+          "echoForecasts": 0,
           "mechanicSuccesses": 82
         },
         {
@@ -3765,6 +3992,7 @@
           "continues": 0,
           "score": 60275,
           "maximumHazards": 51,
+          "echoForecasts": 0,
           "mechanicSuccesses": 4
         },
         {
@@ -3775,6 +4003,7 @@
           "continues": 0,
           "score": 157869,
           "maximumHazards": 45,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -3785,6 +4014,7 @@
           "continues": 0,
           "score": 82982,
           "maximumHazards": 54,
+          "echoForecasts": 0,
           "mechanicSuccesses": 58
         },
         {
@@ -3795,6 +4025,7 @@
           "continues": 0,
           "score": 293683,
           "maximumHazards": 112,
+          "echoForecasts": 0,
           "mechanicSuccesses": 480
         }
       ],
@@ -3843,6 +4074,7 @@
           "continues": 0,
           "score": 39050,
           "maximumHazards": 77,
+          "echoForecasts": 0,
           "mechanicSuccesses": 21
         },
         {
@@ -3853,6 +4085,7 @@
           "continues": 0,
           "score": 39874,
           "maximumHazards": 37,
+          "echoForecasts": 0,
           "mechanicSuccesses": 82
         },
         {
@@ -3863,6 +4096,7 @@
           "continues": 0,
           "score": 54041,
           "maximumHazards": 49,
+          "echoForecasts": 0,
           "mechanicSuccesses": 4
         },
         {
@@ -3873,6 +4107,7 @@
           "continues": 0,
           "score": 192226,
           "maximumHazards": 45,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -3883,6 +4118,7 @@
           "continues": 0,
           "score": 66738,
           "maximumHazards": 83,
+          "echoForecasts": 0,
           "mechanicSuccesses": 45
         },
         {
@@ -3893,6 +4129,7 @@
           "continues": 0,
           "score": 311366,
           "maximumHazards": 111,
+          "echoForecasts": 0,
           "mechanicSuccesses": 477
         }
       ],
@@ -3941,6 +4178,7 @@
           "continues": 0,
           "score": 39650,
           "maximumHazards": 77,
+          "echoForecasts": 0,
           "mechanicSuccesses": 19
         },
         {
@@ -3951,6 +4189,7 @@
           "continues": 0,
           "score": 42361,
           "maximumHazards": 36,
+          "echoForecasts": 0,
           "mechanicSuccesses": 53
         },
         {
@@ -3961,6 +4200,7 @@
           "continues": 0,
           "score": 55060,
           "maximumHazards": 36,
+          "echoForecasts": 0,
           "mechanicSuccesses": 10
         },
         {
@@ -3971,6 +4211,7 @@
           "continues": 0,
           "score": 173895,
           "maximumHazards": 64,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -3981,6 +4222,7 @@
           "continues": 0,
           "score": 68360,
           "maximumHazards": 60,
+          "echoForecasts": 0,
           "mechanicSuccesses": 72
         },
         {
@@ -3991,6 +4233,7 @@
           "continues": 0,
           "score": 356004,
           "maximumHazards": 99,
+          "echoForecasts": 0,
           "mechanicSuccesses": 1086
         }
       ],
@@ -4039,6 +4282,7 @@
           "continues": 0,
           "score": 35150,
           "maximumHazards": 77,
+          "echoForecasts": 0,
           "mechanicSuccesses": 19
         },
         {
@@ -4049,6 +4293,7 @@
           "continues": 0,
           "score": 49113,
           "maximumHazards": 37,
+          "echoForecasts": 0,
           "mechanicSuccesses": 79
         },
         {
@@ -4059,6 +4304,7 @@
           "continues": 0,
           "score": 56919,
           "maximumHazards": 49,
+          "echoForecasts": 0,
           "mechanicSuccesses": 4
         },
         {
@@ -4069,6 +4315,7 @@
           "continues": 0,
           "score": 104997,
           "maximumHazards": 64,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -4079,6 +4326,7 @@
           "continues": 0,
           "score": 80182,
           "maximumHazards": 54,
+          "echoForecasts": 0,
           "mechanicSuccesses": 58
         },
         {
@@ -4089,6 +4337,7 @@
           "continues": 0,
           "score": 319639,
           "maximumHazards": 95,
+          "echoForecasts": 0,
           "mechanicSuccesses": 450
         }
       ],
@@ -4137,6 +4386,7 @@
           "continues": 0,
           "score": 36950,
           "maximumHazards": 77,
+          "echoForecasts": 0,
           "mechanicSuccesses": 19
         },
         {
@@ -4147,6 +4397,7 @@
           "continues": 0,
           "score": 41474,
           "maximumHazards": 35,
+          "echoForecasts": 0,
           "mechanicSuccesses": 82
         },
         {
@@ -4157,6 +4408,7 @@
           "continues": 0,
           "score": 53682,
           "maximumHazards": 49,
+          "echoForecasts": 0,
           "mechanicSuccesses": 4
         },
         {
@@ -4167,6 +4419,7 @@
           "continues": 0,
           "score": 198019,
           "maximumHazards": 53,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -4177,6 +4430,7 @@
           "continues": 0,
           "score": 67338,
           "maximumHazards": 83,
+          "echoForecasts": 0,
           "mechanicSuccesses": 45
         },
         {
@@ -4187,6 +4441,7 @@
           "continues": 0,
           "score": 304511,
           "maximumHazards": 117,
+          "echoForecasts": 0,
           "mechanicSuccesses": 477
         }
       ],
@@ -4235,6 +4490,7 @@
           "continues": 0,
           "score": 40350,
           "maximumHazards": 77,
+          "echoForecasts": 0,
           "mechanicSuccesses": 19
         },
         {
@@ -4245,6 +4501,7 @@
           "continues": 0,
           "score": 44931,
           "maximumHazards": 38,
+          "echoForecasts": 0,
           "mechanicSuccesses": 53
         },
         {
@@ -4255,6 +4512,7 @@
           "continues": 0,
           "score": 65975,
           "maximumHazards": 48,
+          "echoForecasts": 0,
           "mechanicSuccesses": 4
         },
         {
@@ -4265,6 +4523,7 @@
           "continues": 0,
           "score": 140375,
           "maximumHazards": 54,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -4275,6 +4534,7 @@
           "continues": 0,
           "score": 77179,
           "maximumHazards": 117,
+          "echoForecasts": 0,
           "mechanicSuccesses": 31
         },
         {
@@ -4285,6 +4545,7 @@
           "continues": 0,
           "score": 286997,
           "maximumHazards": 106,
+          "echoForecasts": 0,
           "mechanicSuccesses": 597
         }
       ],
@@ -4333,6 +4594,7 @@
           "continues": 0,
           "score": 42750,
           "maximumHazards": 77,
+          "echoForecasts": 0,
           "mechanicSuccesses": 19
         },
         {
@@ -4343,6 +4605,7 @@
           "continues": 0,
           "score": 57509,
           "maximumHazards": 34,
+          "echoForecasts": 0,
           "mechanicSuccesses": 75
         },
         {
@@ -4353,6 +4616,7 @@
           "continues": 0,
           "score": 63879,
           "maximumHazards": 49,
+          "echoForecasts": 0,
           "mechanicSuccesses": 5
         },
         {
@@ -4363,6 +4627,7 @@
           "continues": 0,
           "score": 172781,
           "maximumHazards": 45,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -4373,6 +4638,7 @@
           "continues": 0,
           "score": 86267,
           "maximumHazards": 58,
+          "echoForecasts": 0,
           "mechanicSuccesses": 66
         },
         {
@@ -4383,6 +4649,7 @@
           "continues": 0,
           "score": 308161,
           "maximumHazards": 109,
+          "echoForecasts": 0,
           "mechanicSuccesses": 474
         }
       ],
@@ -4431,6 +4698,7 @@
           "continues": 0,
           "score": 40450,
           "maximumHazards": 77,
+          "echoForecasts": 0,
           "mechanicSuccesses": 19
         },
         {
@@ -4441,6 +4709,7 @@
           "continues": 0,
           "score": 40474,
           "maximumHazards": 40,
+          "echoForecasts": 0,
           "mechanicSuccesses": 82
         },
         {
@@ -4451,6 +4720,7 @@
           "continues": 0,
           "score": 60823,
           "maximumHazards": 47,
+          "echoForecasts": 0,
           "mechanicSuccesses": 4
         },
         {
@@ -4461,6 +4731,7 @@
           "continues": 0,
           "score": 191176,
           "maximumHazards": 61,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -4471,6 +4742,7 @@
           "continues": 0,
           "score": 65238,
           "maximumHazards": 83,
+          "echoForecasts": 0,
           "mechanicSuccesses": 45
         },
         {
@@ -4481,6 +4753,7 @@
           "continues": 0,
           "score": 322111,
           "maximumHazards": 111,
+          "echoForecasts": 0,
           "mechanicSuccesses": 477
         }
       ],
@@ -4529,6 +4802,7 @@
           "continues": 0,
           "score": 35721,
           "maximumHazards": 75,
+          "echoForecasts": 0,
           "mechanicSuccesses": 16
         },
         {
@@ -4539,6 +4813,7 @@
           "continues": 0,
           "score": 62713,
           "maximumHazards": 39,
+          "echoForecasts": 0,
           "mechanicSuccesses": 44
         },
         {
@@ -4549,6 +4824,7 @@
           "continues": 0,
           "score": 73581,
           "maximumHazards": 48,
+          "echoForecasts": 0,
           "mechanicSuccesses": 5
         },
         {
@@ -4559,6 +4835,7 @@
           "continues": 0,
           "score": 188089,
           "maximumHazards": 64,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -4569,6 +4846,7 @@
           "continues": 0,
           "score": 69060,
           "maximumHazards": 60,
+          "echoForecasts": 0,
           "mechanicSuccesses": 72
         },
         {
@@ -4579,6 +4857,7 @@
           "continues": 0,
           "score": 356392,
           "maximumHazards": 99,
+          "echoForecasts": 0,
           "mechanicSuccesses": 1086
         }
       ],
@@ -4627,6 +4906,7 @@
           "continues": 0,
           "score": 35150,
           "maximumHazards": 77,
+          "echoForecasts": 0,
           "mechanicSuccesses": 19
         },
         {
@@ -4637,6 +4917,7 @@
           "continues": 0,
           "score": 66423,
           "maximumHazards": 34,
+          "echoForecasts": 0,
           "mechanicSuccesses": 81
         },
         {
@@ -4647,6 +4928,7 @@
           "continues": 0,
           "score": 69057,
           "maximumHazards": 48,
+          "echoForecasts": 0,
           "mechanicSuccesses": 2
         },
         {
@@ -4657,6 +4939,7 @@
           "continues": 0,
           "score": 140229,
           "maximumHazards": 45,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -4667,6 +4950,7 @@
           "continues": 0,
           "score": 75158,
           "maximumHazards": 71,
+          "echoForecasts": 0,
           "mechanicSuccesses": 71
         },
         {
@@ -4677,6 +4961,7 @@
           "continues": 0,
           "score": 307904,
           "maximumHazards": 112,
+          "echoForecasts": 0,
           "mechanicSuccesses": 480
         }
       ],
@@ -4725,6 +5010,7 @@
           "continues": 0,
           "score": 42250,
           "maximumHazards": 77,
+          "echoForecasts": 0,
           "mechanicSuccesses": 19
         },
         {
@@ -4735,6 +5021,7 @@
           "continues": 0,
           "score": 47174,
           "maximumHazards": 35,
+          "echoForecasts": 0,
           "mechanicSuccesses": 82
         },
         {
@@ -4745,6 +5032,7 @@
           "continues": 0,
           "score": 68582,
           "maximumHazards": 49,
+          "echoForecasts": 0,
           "mechanicSuccesses": 4
         },
         {
@@ -4755,6 +5043,7 @@
           "continues": 0,
           "score": 164391,
           "maximumHazards": 45,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -4765,6 +5054,7 @@
           "continues": 0,
           "score": 66638,
           "maximumHazards": 83,
+          "echoForecasts": 0,
           "mechanicSuccesses": 45
         },
         {
@@ -4775,6 +5065,7 @@
           "continues": 0,
           "score": 295285,
           "maximumHazards": 112,
+          "echoForecasts": 0,
           "mechanicSuccesses": 477
         }
       ],
@@ -4823,6 +5114,7 @@
           "continues": 0,
           "score": 37050,
           "maximumHazards": 77,
+          "echoForecasts": 0,
           "mechanicSuccesses": 19
         },
         {
@@ -4833,6 +5125,7 @@
           "continues": 0,
           "score": 55548,
           "maximumHazards": 37,
+          "echoForecasts": 0,
           "mechanicSuccesses": 74
         },
         {
@@ -4843,6 +5136,7 @@
           "continues": 0,
           "score": 67181,
           "maximumHazards": 49,
+          "echoForecasts": 0,
           "mechanicSuccesses": 4
         },
         {
@@ -4853,6 +5147,7 @@
           "continues": 0,
           "score": 175842,
           "maximumHazards": 64,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -4863,6 +5158,7 @@
           "continues": 0,
           "score": 68449,
           "maximumHazards": 61,
+          "echoForecasts": 0,
           "mechanicSuccesses": 62
         },
         {
@@ -4873,6 +5169,7 @@
           "continues": 0,
           "score": 282164,
           "maximumHazards": 95,
+          "echoForecasts": 0,
           "mechanicSuccesses": 562
         }
       ],
@@ -4921,6 +5218,7 @@
           "continues": 0,
           "score": 43950,
           "maximumHazards": 77,
+          "echoForecasts": 0,
           "mechanicSuccesses": 19
         },
         {
@@ -4931,6 +5229,7 @@
           "continues": 0,
           "score": 56313,
           "maximumHazards": 35,
+          "echoForecasts": 0,
           "mechanicSuccesses": 79
         },
         {
@@ -4941,6 +5240,7 @@
           "continues": 0,
           "score": 72691,
           "maximumHazards": 50,
+          "echoForecasts": 0,
           "mechanicSuccesses": 3
         },
         {
@@ -4951,6 +5251,7 @@
           "continues": 0,
           "score": 146061,
           "maximumHazards": 45,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -4961,6 +5262,7 @@
           "continues": 0,
           "score": 78044,
           "maximumHazards": 103,
+          "echoForecasts": 0,
           "mechanicSuccesses": 39
         },
         {
@@ -4971,6 +5273,7 @@
           "continues": 0,
           "score": 294148,
           "maximumHazards": 112,
+          "echoForecasts": 0,
           "mechanicSuccesses": 480
         }
       ],
@@ -5019,6 +5322,7 @@
           "continues": 0,
           "score": 36620,
           "maximumHazards": 77,
+          "echoForecasts": 0,
           "mechanicSuccesses": 19
         },
         {
@@ -5029,6 +5333,7 @@
           "continues": 0,
           "score": 37774,
           "maximumHazards": 38,
+          "echoForecasts": 0,
           "mechanicSuccesses": 82
         },
         {
@@ -5039,6 +5344,7 @@
           "continues": 0,
           "score": 65741,
           "maximumHazards": 49,
+          "echoForecasts": 0,
           "mechanicSuccesses": 4
         },
         {
@@ -5049,6 +5355,7 @@
           "continues": 0,
           "score": 177117,
           "maximumHazards": 45,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -5059,6 +5366,7 @@
           "continues": 0,
           "score": 63838,
           "maximumHazards": 83,
+          "echoForecasts": 0,
           "mechanicSuccesses": 45
         },
         {
@@ -5069,6 +5377,7 @@
           "continues": 0,
           "score": 294626,
           "maximumHazards": 117,
+          "echoForecasts": 0,
           "mechanicSuccesses": 477
         }
       ],
@@ -5117,6 +5426,7 @@
           "continues": 0,
           "score": 37750,
           "maximumHazards": 77,
+          "echoForecasts": 0,
           "mechanicSuccesses": 19
         },
         {
@@ -5127,6 +5437,7 @@
           "continues": 0,
           "score": 42148,
           "maximumHazards": 37,
+          "echoForecasts": 0,
           "mechanicSuccesses": 74
         },
         {
@@ -5137,6 +5448,7 @@
           "continues": 0,
           "score": 59385,
           "maximumHazards": 41,
+          "echoForecasts": 0,
           "mechanicSuccesses": 6
         },
         {
@@ -5147,6 +5459,7 @@
           "continues": 0,
           "score": 186918,
           "maximumHazards": 64,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -5157,6 +5470,7 @@
           "continues": 0,
           "score": 349514,
           "maximumHazards": 118,
+          "echoForecasts": 0,
           "mechanicSuccesses": 37
         },
         {
@@ -5167,6 +5481,7 @@
           "continues": 0,
           "score": 396444,
           "maximumHazards": 99,
+          "echoForecasts": 0,
           "mechanicSuccesses": 1086
         }
       ],
@@ -5215,6 +5530,7 @@
           "continues": 0,
           "score": 34505,
           "maximumHazards": 69,
+          "echoForecasts": 0,
           "mechanicSuccesses": 21
         },
         {
@@ -5225,6 +5541,7 @@
           "continues": 0,
           "score": 49574,
           "maximumHazards": 34,
+          "echoForecasts": 0,
           "mechanicSuccesses": 82
         },
         {
@@ -5235,6 +5552,7 @@
           "continues": 0,
           "score": 60419,
           "maximumHazards": 49,
+          "echoForecasts": 0,
           "mechanicSuccesses": 4
         },
         {
@@ -5245,6 +5563,7 @@
           "continues": 0,
           "score": 140057,
           "maximumHazards": 45,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -5255,6 +5574,7 @@
           "continues": 0,
           "score": 80495,
           "maximumHazards": 80,
+          "echoForecasts": 0,
           "mechanicSuccesses": 36
         },
         {
@@ -5265,6 +5585,7 @@
           "continues": 0,
           "score": 322849,
           "maximumHazards": 95,
+          "echoForecasts": 0,
           "mechanicSuccesses": 450
         }
       ],
@@ -5313,6 +5634,7 @@
           "continues": 0,
           "score": 36750,
           "maximumHazards": 77,
+          "echoForecasts": 0,
           "mechanicSuccesses": 19
         },
         {
@@ -5323,6 +5645,7 @@
           "continues": 0,
           "score": 43574,
           "maximumHazards": 35,
+          "echoForecasts": 0,
           "mechanicSuccesses": 82
         },
         {
@@ -5333,6 +5656,7 @@
           "continues": 0,
           "score": 54741,
           "maximumHazards": 49,
+          "echoForecasts": 0,
           "mechanicSuccesses": 4
         },
         {
@@ -5343,6 +5667,7 @@
           "continues": 0,
           "score": 177357,
           "maximumHazards": 45,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -5353,6 +5678,7 @@
           "continues": 0,
           "score": 68138,
           "maximumHazards": 83,
+          "echoForecasts": 0,
           "mechanicSuccesses": 45
         },
         {
@@ -5363,6 +5689,7 @@
           "continues": 0,
           "score": 293748,
           "maximumHazards": 112,
+          "echoForecasts": 0,
           "mechanicSuccesses": 477
         }
       ],
@@ -5411,6 +5738,7 @@
           "continues": 0,
           "score": 34250,
           "maximumHazards": 77,
+          "echoForecasts": 0,
           "mechanicSuccesses": 19
         },
         {
@@ -5421,6 +5749,7 @@
           "continues": 0,
           "score": 42331,
           "maximumHazards": 37,
+          "echoForecasts": 0,
           "mechanicSuccesses": 53
         },
         {
@@ -5431,6 +5760,7 @@
           "continues": 0,
           "score": 64176,
           "maximumHazards": 50,
+          "echoForecasts": 0,
           "mechanicSuccesses": 8
         },
         {
@@ -5441,6 +5771,7 @@
           "continues": 0,
           "score": 168777,
           "maximumHazards": 64,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -5451,6 +5782,7 @@
           "continues": 0,
           "score": 70290,
           "maximumHazards": 60,
+          "echoForecasts": 0,
           "mechanicSuccesses": 72
         },
         {
@@ -5461,6 +5793,7 @@
           "continues": 0,
           "score": 414975,
           "maximumHazards": 99,
+          "echoForecasts": 0,
           "mechanicSuccesses": 1086
         }
       ],
@@ -5509,6 +5842,7 @@
           "continues": 0,
           "score": 34105,
           "maximumHazards": 69,
+          "echoForecasts": 0,
           "mechanicSuccesses": 21
         },
         {
@@ -5519,6 +5853,7 @@
           "continues": 0,
           "score": 36513,
           "maximumHazards": 37,
+          "echoForecasts": 0,
           "mechanicSuccesses": 79
         },
         {
@@ -5529,6 +5864,7 @@
           "continues": 0,
           "score": 54819,
           "maximumHazards": 49,
+          "echoForecasts": 0,
           "mechanicSuccesses": 4
         },
         {
@@ -5539,6 +5875,7 @@
           "continues": 0,
           "score": 166377,
           "maximumHazards": 45,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -5549,6 +5886,7 @@
           "continues": 0,
           "score": 79795,
           "maximumHazards": 80,
+          "echoForecasts": 0,
           "mechanicSuccesses": 36
         },
         {
@@ -5559,6 +5897,7 @@
           "continues": 0,
           "score": 290256,
           "maximumHazards": 95,
+          "echoForecasts": 0,
           "mechanicSuccesses": 450
         }
       ],
@@ -5607,6 +5946,7 @@
           "continues": 0,
           "score": 35150,
           "maximumHazards": 77,
+          "echoForecasts": 0,
           "mechanicSuccesses": 19
         },
         {
@@ -5617,6 +5957,7 @@
           "continues": 0,
           "score": 44374,
           "maximumHazards": 34,
+          "echoForecasts": 0,
           "mechanicSuccesses": 82
         },
         {
@@ -5627,6 +5968,7 @@
           "continues": 0,
           "score": 62141,
           "maximumHazards": 49,
+          "echoForecasts": 0,
           "mechanicSuccesses": 4
         },
         {
@@ -5637,6 +5979,7 @@
           "continues": 0,
           "score": 198720,
           "maximumHazards": 45,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -5647,6 +5990,7 @@
           "continues": 0,
           "score": 63838,
           "maximumHazards": 83,
+          "echoForecasts": 0,
           "mechanicSuccesses": 45
         },
         {
@@ -5657,6 +6001,7 @@
           "continues": 0,
           "score": 325435,
           "maximumHazards": 112,
+          "echoForecasts": 0,
           "mechanicSuccesses": 477
         }
       ],
@@ -5705,6 +6050,7 @@
           "continues": 0,
           "score": 38850,
           "maximumHazards": 77,
+          "echoForecasts": 0,
           "mechanicSuccesses": 19
         },
         {
@@ -5715,6 +6061,7 @@
           "continues": 0,
           "score": 44174,
           "maximumHazards": 37,
+          "echoForecasts": 0,
           "mechanicSuccesses": 82
         },
         {
@@ -5725,6 +6072,7 @@
           "continues": 0,
           "score": 63202,
           "maximumHazards": 41,
+          "echoForecasts": 0,
           "mechanicSuccesses": 6
         },
         {
@@ -5735,6 +6083,7 @@
           "continues": 0,
           "score": 174248,
           "maximumHazards": 64,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -5745,6 +6094,7 @@
           "continues": 0,
           "score": 71860,
           "maximumHazards": 60,
+          "echoForecasts": 0,
           "mechanicSuccesses": 72
         },
         {
@@ -5755,6 +6105,7 @@
           "continues": 0,
           "score": 301008,
           "maximumHazards": 106,
+          "echoForecasts": 0,
           "mechanicSuccesses": 597
         }
       ],
@@ -5803,6 +6154,7 @@
           "continues": 0,
           "score": 36850,
           "maximumHazards": 77,
+          "echoForecasts": 0,
           "mechanicSuccesses": 19
         },
         {
@@ -5813,6 +6165,7 @@
           "continues": 0,
           "score": 44321,
           "maximumHazards": 38,
+          "echoForecasts": 0,
           "mechanicSuccesses": 79
         },
         {
@@ -5823,6 +6176,7 @@
           "continues": 0,
           "score": 68919,
           "maximumHazards": 49,
+          "echoForecasts": 0,
           "mechanicSuccesses": 4
         },
         {
@@ -5833,6 +6187,7 @@
           "continues": 0,
           "score": 153659,
           "maximumHazards": 45,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -5843,6 +6198,7 @@
           "continues": 0,
           "score": 84695,
           "maximumHazards": 80,
+          "echoForecasts": 0,
           "mechanicSuccesses": 36
         },
         {
@@ -5853,6 +6209,7 @@
           "continues": 0,
           "score": 310359,
           "maximumHazards": 95,
+          "echoForecasts": 0,
           "mechanicSuccesses": 450
         }
       ],
@@ -5901,6 +6258,7 @@
           "continues": 0,
           "score": 39250,
           "maximumHazards": 77,
+          "echoForecasts": 0,
           "mechanicSuccesses": 19
         },
         {
@@ -5911,6 +6269,7 @@
           "continues": 0,
           "score": 51474,
           "maximumHazards": 37,
+          "echoForecasts": 0,
           "mechanicSuccesses": 82
         },
         {
@@ -5921,6 +6280,7 @@
           "continues": 0,
           "score": 57182,
           "maximumHazards": 49,
+          "echoForecasts": 0,
           "mechanicSuccesses": 4
         },
         {
@@ -5931,6 +6291,7 @@
           "continues": 0,
           "score": 180776,
           "maximumHazards": 53,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -5941,6 +6302,7 @@
           "continues": 0,
           "score": 64538,
           "maximumHazards": 83,
+          "echoForecasts": 0,
           "mechanicSuccesses": 45
         },
         {
@@ -5951,6 +6313,7 @@
           "continues": 0,
           "score": 307477,
           "maximumHazards": 110,
+          "echoForecasts": 0,
           "mechanicSuccesses": 477
         }
       ],
@@ -5999,6 +6362,7 @@
           "continues": 0,
           "score": 34726,
           "maximumHazards": 68,
+          "echoForecasts": 0,
           "mechanicSuccesses": 14
         },
         {
@@ -6009,6 +6373,7 @@
           "continues": 0,
           "score": 46552,
           "maximumHazards": 44,
+          "echoForecasts": 0,
           "mechanicSuccesses": 83
         },
         {
@@ -6019,6 +6384,7 @@
           "continues": 0,
           "score": 74197,
           "maximumHazards": 47,
+          "echoForecasts": 0,
           "mechanicSuccesses": 5
         },
         {
@@ -6029,6 +6395,7 @@
           "continues": 0,
           "score": 210549,
           "maximumHazards": 61,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -6039,6 +6406,7 @@
           "continues": 0,
           "score": 71556,
           "maximumHazards": 61,
+          "echoForecasts": 0,
           "mechanicSuccesses": 71
         },
         {
@@ -6049,6 +6417,7 @@
           "continues": 0,
           "score": 366823,
           "maximumHazards": 98,
+          "echoForecasts": 0,
           "mechanicSuccesses": 1085
         }
       ],
@@ -6097,6 +6466,7 @@
           "continues": 0,
           "score": 40408,
           "maximumHazards": 68,
+          "echoForecasts": 0,
           "mechanicSuccesses": 14
         },
         {
@@ -6107,6 +6477,7 @@
           "continues": 0,
           "score": 48521,
           "maximumHazards": 41,
+          "echoForecasts": 0,
           "mechanicSuccesses": 79
         },
         {
@@ -6117,6 +6488,7 @@
           "continues": 0,
           "score": 77519,
           "maximumHazards": 48,
+          "echoForecasts": 0,
           "mechanicSuccesses": 4
         },
         {
@@ -6127,6 +6499,7 @@
           "continues": 0,
           "score": 161559,
           "maximumHazards": 46,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -6137,6 +6510,7 @@
           "continues": 0,
           "score": 85395,
           "maximumHazards": 80,
+          "echoForecasts": 0,
           "mechanicSuccesses": 36
         },
         {
@@ -6147,6 +6521,7 @@
           "continues": 0,
           "score": 311696,
           "maximumHazards": 110,
+          "echoForecasts": 0,
           "mechanicSuccesses": 480
         }
       ],
@@ -6195,6 +6570,7 @@
           "continues": 0,
           "score": 37508,
           "maximumHazards": 68,
+          "echoForecasts": 0,
           "mechanicSuccesses": 14
         },
         {
@@ -6205,6 +6581,7 @@
           "continues": 0,
           "score": 42074,
           "maximumHazards": 44,
+          "echoForecasts": 0,
           "mechanicSuccesses": 82
         },
         {
@@ -6215,6 +6592,7 @@
           "continues": 0,
           "score": 60041,
           "maximumHazards": 47,
+          "echoForecasts": 0,
           "mechanicSuccesses": 4
         },
         {
@@ -6225,6 +6603,7 @@
           "continues": 0,
           "score": 153644,
           "maximumHazards": 46,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -6235,6 +6614,7 @@
           "continues": 0,
           "score": 68638,
           "maximumHazards": 84,
+          "echoForecasts": 0,
           "mechanicSuccesses": 45
         },
         {
@@ -6245,6 +6625,7 @@
           "continues": 0,
           "score": 317897,
           "maximumHazards": 109,
+          "echoForecasts": 0,
           "mechanicSuccesses": 476
         }
       ],
@@ -6293,6 +6674,7 @@
           "continues": 0,
           "score": 32608,
           "maximumHazards": 68,
+          "echoForecasts": 0,
           "mechanicSuccesses": 14
         },
         {
@@ -6303,6 +6685,7 @@
           "continues": 0,
           "score": 51781,
           "maximumHazards": 37,
+          "echoForecasts": 0,
           "mechanicSuccesses": 83
         },
         {
@@ -6313,6 +6696,7 @@
           "continues": 0,
           "score": 69459,
           "maximumHazards": 40,
+          "echoForecasts": 0,
           "mechanicSuccesses": 6
         },
         {
@@ -6323,6 +6707,7 @@
           "continues": 0,
           "score": 147313,
           "maximumHazards": 61,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -6333,6 +6718,7 @@
           "continues": 0,
           "score": 72256,
           "maximumHazards": 61,
+          "echoForecasts": 0,
           "mechanicSuccesses": 71
         },
         {
@@ -6343,6 +6729,7 @@
           "continues": 0,
           "score": 284399,
           "maximumHazards": 105,
+          "echoForecasts": 0,
           "mechanicSuccesses": 593
         }
       ],
@@ -6391,6 +6778,7 @@
           "continues": 0,
           "score": 34608,
           "maximumHazards": 68,
+          "echoForecasts": 0,
           "mechanicSuccesses": 14
         },
         {
@@ -6401,6 +6789,7 @@
           "continues": 0,
           "score": 55574,
           "maximumHazards": 39,
+          "echoForecasts": 0,
           "mechanicSuccesses": 81
         },
         {
@@ -6411,6 +6800,7 @@
           "continues": 0,
           "score": 55823,
           "maximumHazards": 46,
+          "echoForecasts": 0,
           "mechanicSuccesses": 4
         },
         {
@@ -6421,6 +6811,7 @@
           "continues": 0,
           "score": 175872,
           "maximumHazards": 46,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -6431,6 +6822,7 @@
           "continues": 0,
           "score": 85467,
           "maximumHazards": 58,
+          "echoForecasts": 0,
           "mechanicSuccesses": 66
         },
         {
@@ -6441,6 +6833,7 @@
           "continues": 0,
           "score": 296779,
           "maximumHazards": 96,
+          "echoForecasts": 0,
           "mechanicSuccesses": 447
         }
       ],
@@ -6489,6 +6882,7 @@
           "continues": 0,
           "score": 35308,
           "maximumHazards": 68,
+          "echoForecasts": 0,
           "mechanicSuccesses": 14
         },
         {
@@ -6499,6 +6893,7 @@
           "continues": 0,
           "score": 45674,
           "maximumHazards": 43,
+          "echoForecasts": 0,
           "mechanicSuccesses": 82
         },
         {
@@ -6509,6 +6904,7 @@
           "continues": 0,
           "score": 59241,
           "maximumHazards": 47,
+          "echoForecasts": 0,
           "mechanicSuccesses": 4
         },
         {
@@ -6519,6 +6915,7 @@
           "continues": 0,
           "score": 212469,
           "maximumHazards": 46,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -6529,6 +6926,7 @@
           "continues": 0,
           "score": 65838,
           "maximumHazards": 84,
+          "echoForecasts": 0,
           "mechanicSuccesses": 45
         },
         {
@@ -6539,6 +6937,7 @@
           "continues": 0,
           "score": 324204,
           "maximumHazards": 109,
+          "echoForecasts": 0,
           "mechanicSuccesses": 476
         }
       ],
@@ -6587,6 +6986,7 @@
           "continues": 0,
           "score": 35640,
           "maximumHazards": 73,
+          "echoForecasts": 0,
           "mechanicSuccesses": 17
         },
         {
@@ -6597,6 +6997,7 @@
           "continues": 0,
           "score": 46761,
           "maximumHazards": 43,
+          "echoForecasts": 0,
           "mechanicSuccesses": 53
         },
         {
@@ -6607,6 +7008,7 @@
           "continues": 0,
           "score": 61843,
           "maximumHazards": 48,
+          "echoForecasts": 0,
           "mechanicSuccesses": 4
         },
         {
@@ -6617,6 +7019,7 @@
           "continues": 0,
           "score": 147270,
           "maximumHazards": 61,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -6627,6 +7030,7 @@
           "continues": 0,
           "score": 73656,
           "maximumHazards": 61,
+          "echoForecasts": 0,
           "mechanicSuccesses": 71
         },
         {
@@ -6637,6 +7041,7 @@
           "continues": 0,
           "score": 284664,
           "maximumHazards": 105,
+          "echoForecasts": 0,
           "mechanicSuccesses": 593
         }
       ],
@@ -6685,6 +7090,7 @@
           "continues": 0,
           "score": 38108,
           "maximumHazards": 68,
+          "echoForecasts": 0,
           "mechanicSuccesses": 14
         },
         {
@@ -6695,6 +7101,7 @@
           "continues": 0,
           "score": 41774,
           "maximumHazards": 42,
+          "echoForecasts": 0,
           "mechanicSuccesses": 82
         },
         {
@@ -6705,6 +7112,7 @@
           "continues": 0,
           "score": 60857,
           "maximumHazards": 48,
+          "echoForecasts": 0,
           "mechanicSuccesses": 2
         },
         {
@@ -6715,6 +7123,7 @@
           "continues": 0,
           "score": 101561,
           "maximumHazards": 46,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -6725,6 +7134,7 @@
           "continues": 0,
           "score": 76995,
           "maximumHazards": 80,
+          "echoForecasts": 0,
           "mechanicSuccesses": 36
         },
         {
@@ -6735,6 +7145,7 @@
           "continues": 0,
           "score": 306601,
           "maximumHazards": 96,
+          "echoForecasts": 0,
           "mechanicSuccesses": 447
         }
       ],
@@ -6783,6 +7194,7 @@
           "continues": 0,
           "score": 35508,
           "maximumHazards": 68,
+          "echoForecasts": 0,
           "mechanicSuccesses": 15
         },
         {
@@ -6793,6 +7205,7 @@
           "continues": 0,
           "score": 45174,
           "maximumHazards": 43,
+          "echoForecasts": 0,
           "mechanicSuccesses": 82
         },
         {
@@ -6803,6 +7216,7 @@
           "continues": 0,
           "score": 53241,
           "maximumHazards": 47,
+          "echoForecasts": 0,
           "mechanicSuccesses": 4
         },
         {
@@ -6813,6 +7227,7 @@
           "continues": 0,
           "score": 166760,
           "maximumHazards": 46,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -6823,6 +7238,7 @@
           "continues": 0,
           "score": 65238,
           "maximumHazards": 84,
+          "echoForecasts": 0,
           "mechanicSuccesses": 45
         },
         {
@@ -6833,6 +7249,7 @@
           "continues": 0,
           "score": 332178,
           "maximumHazards": 110,
+          "echoForecasts": 0,
           "mechanicSuccesses": 476
         }
       ],
@@ -6881,6 +7298,7 @@
           "continues": 0,
           "score": 37740,
           "maximumHazards": 73,
+          "echoForecasts": 0,
           "mechanicSuccesses": 17
         },
         {
@@ -6891,6 +7309,7 @@
           "continues": 0,
           "score": 41016,
           "maximumHazards": 43,
+          "echoForecasts": 0,
           "mechanicSuccesses": 53
         },
         {
@@ -6901,6 +7320,7 @@
           "continues": 0,
           "score": 53264,
           "maximumHazards": 37,
+          "echoForecasts": 0,
           "mechanicSuccesses": 10
         },
         {
@@ -6911,6 +7331,7 @@
           "continues": 0,
           "score": 144342,
           "maximumHazards": 61,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -6921,6 +7342,7 @@
           "continues": 0,
           "score": 72256,
           "maximumHazards": 61,
+          "echoForecasts": 0,
           "mechanicSuccesses": 71
         },
         {
@@ -6931,6 +7353,7 @@
           "continues": 0,
           "score": 377790,
           "maximumHazards": 98,
+          "echoForecasts": 0,
           "mechanicSuccesses": 1085
         }
       ],
@@ -6979,6 +7402,7 @@
           "continues": 0,
           "score": 35108,
           "maximumHazards": 68,
+          "echoForecasts": 0,
           "mechanicSuccesses": 14
         },
         {
@@ -6989,6 +7413,7 @@
           "continues": 0,
           "score": 50913,
           "maximumHazards": 34,
+          "echoForecasts": 0,
           "mechanicSuccesses": 79
         },
         {
@@ -6999,6 +7424,7 @@
           "continues": 0,
           "score": 56132,
           "maximumHazards": 48,
+          "echoForecasts": 0,
           "mechanicSuccesses": 2
         },
         {
@@ -7009,6 +7435,7 @@
           "continues": 0,
           "score": 89955,
           "maximumHazards": 51,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -7019,6 +7446,7 @@
           "continues": 0,
           "score": 79795,
           "maximumHazards": 80,
+          "echoForecasts": 0,
           "mechanicSuccesses": 36
         },
         {
@@ -7029,6 +7457,7 @@
           "continues": 0,
           "score": 307516,
           "maximumHazards": 96,
+          "echoForecasts": 0,
           "mechanicSuccesses": 447
         }
       ],
@@ -7077,6 +7506,7 @@
           "continues": 0,
           "score": 37608,
           "maximumHazards": 68,
+          "echoForecasts": 0,
           "mechanicSuccesses": 14
         },
         {
@@ -7087,6 +7517,7 @@
           "continues": 0,
           "score": 43952,
           "maximumHazards": 39,
+          "echoForecasts": 0,
           "mechanicSuccesses": 82
         },
         {
@@ -7097,6 +7528,7 @@
           "continues": 0,
           "score": 60041,
           "maximumHazards": 47,
+          "echoForecasts": 0,
           "mechanicSuccesses": 4
         },
         {
@@ -7107,6 +7539,7 @@
           "continues": 0,
           "score": 174451,
           "maximumHazards": 46,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -7117,6 +7550,7 @@
           "continues": 0,
           "score": 65838,
           "maximumHazards": 84,
+          "echoForecasts": 0,
           "mechanicSuccesses": 45
         },
         {
@@ -7127,6 +7561,7 @@
           "continues": 0,
           "score": 314943,
           "maximumHazards": 115,
+          "echoForecasts": 0,
           "mechanicSuccesses": 476
         }
       ],
@@ -7175,6 +7610,7 @@
           "continues": 0,
           "score": 37040,
           "maximumHazards": 73,
+          "echoForecasts": 0,
           "mechanicSuccesses": 17
         },
         {
@@ -7185,6 +7621,7 @@
           "continues": 0,
           "score": 46631,
           "maximumHazards": 44,
+          "echoForecasts": 0,
           "mechanicSuccesses": 53
         },
         {
@@ -7195,6 +7632,7 @@
           "continues": 0,
           "score": 81049,
           "maximumHazards": 48,
+          "echoForecasts": 0,
           "mechanicSuccesses": 4
         },
         {
@@ -7205,6 +7643,7 @@
           "continues": 0,
           "score": 175027,
           "maximumHazards": 53,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -7215,6 +7654,7 @@
           "continues": 0,
           "score": 71806,
           "maximumHazards": 110,
+          "echoForecasts": 0,
           "mechanicSuccesses": 39
         },
         {
@@ -7225,6 +7665,7 @@
           "continues": 0,
           "score": 299520,
           "maximumHazards": 105,
+          "echoForecasts": 0,
           "mechanicSuccesses": 593
         }
       ],
@@ -7273,6 +7714,7 @@
           "continues": 0,
           "score": 42608,
           "maximumHazards": 68,
+          "echoForecasts": 0,
           "mechanicSuccesses": 14
         },
         {
@@ -7283,6 +7725,7 @@
           "continues": 0,
           "score": 57040,
           "maximumHazards": 47,
+          "echoForecasts": 0,
           "mechanicSuccesses": 75
         },
         {
@@ -7293,6 +7736,7 @@
           "continues": 0,
           "score": 56523,
           "maximumHazards": 46,
+          "echoForecasts": 0,
           "mechanicSuccesses": 4
         },
         {
@@ -7303,6 +7747,7 @@
           "continues": 0,
           "score": 132752,
           "maximumHazards": 46,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -7313,6 +7758,7 @@
           "continues": 0,
           "score": 87567,
           "maximumHazards": 58,
+          "echoForecasts": 0,
           "mechanicSuccesses": 66
         },
         {
@@ -7323,6 +7769,7 @@
           "continues": 0,
           "score": 303009,
           "maximumHazards": 110,
+          "echoForecasts": 0,
           "mechanicSuccesses": 609
         }
       ],
@@ -7371,6 +7818,7 @@
           "continues": 0,
           "score": 36308,
           "maximumHazards": 68,
+          "echoForecasts": 0,
           "mechanicSuccesses": 14
         },
         {
@@ -7381,6 +7829,7 @@
           "continues": 0,
           "score": 41774,
           "maximumHazards": 49,
+          "echoForecasts": 0,
           "mechanicSuccesses": 82
         },
         {
@@ -7391,6 +7840,7 @@
           "continues": 0,
           "score": 59979,
           "maximumHazards": 49,
+          "echoForecasts": 0,
           "mechanicSuccesses": 5
         },
         {
@@ -7401,6 +7851,7 @@
           "continues": 0,
           "score": 190983,
           "maximumHazards": 46,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -7411,6 +7862,7 @@
           "continues": 0,
           "score": 68638,
           "maximumHazards": 84,
+          "echoForecasts": 0,
           "mechanicSuccesses": 45
         },
         {
@@ -7421,6 +7873,7 @@
           "continues": 0,
           "score": 311582,
           "maximumHazards": 108,
+          "echoForecasts": 0,
           "mechanicSuccesses": 476
         }
       ],
@@ -7469,6 +7922,7 @@
           "continues": 0,
           "score": 33308,
           "maximumHazards": 68,
+          "echoForecasts": 0,
           "mechanicSuccesses": 14
         },
         {
@@ -7479,6 +7933,7 @@
           "continues": 0,
           "score": 53113,
           "maximumHazards": 45,
+          "echoForecasts": 0,
           "mechanicSuccesses": 44
         },
         {
@@ -7489,6 +7944,7 @@
           "continues": 0,
           "score": 65561,
           "maximumHazards": 47,
+          "echoForecasts": 0,
           "mechanicSuccesses": 5
         },
         {
@@ -7499,6 +7955,7 @@
           "continues": 0,
           "score": 185469,
           "maximumHazards": 61,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -7509,6 +7966,7 @@
           "continues": 0,
           "score": 72956,
           "maximumHazards": 61,
+          "echoForecasts": 0,
           "mechanicSuccesses": 71
         },
         {
@@ -7519,6 +7977,7 @@
           "continues": 0,
           "score": 369231,
           "maximumHazards": 98,
+          "echoForecasts": 0,
           "mechanicSuccesses": 1085
         }
       ],
@@ -7567,6 +8026,7 @@
           "continues": 0,
           "score": 38408,
           "maximumHazards": 68,
+          "echoForecasts": 0,
           "mechanicSuccesses": 14
         },
         {
@@ -7577,6 +8037,7 @@
           "continues": 0,
           "score": 58137,
           "maximumHazards": 44,
+          "echoForecasts": 0,
           "mechanicSuccesses": 81
         },
         {
@@ -7587,6 +8048,7 @@
           "continues": 0,
           "score": 87604,
           "maximumHazards": 47,
+          "echoForecasts": 0,
           "mechanicSuccesses": 5
         },
         {
@@ -7597,6 +8059,7 @@
           "continues": 0,
           "score": 147007,
           "maximumHazards": 51,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -7607,6 +8070,7 @@
           "continues": 0,
           "score": 75271,
           "maximumHazards": 99,
+          "echoForecasts": 0,
           "mechanicSuccesses": 37
         },
         {
@@ -7617,6 +8081,7 @@
           "continues": 0,
           "score": 299428,
           "maximumHazards": 110,
+          "echoForecasts": 0,
           "mechanicSuccesses": 480
         }
       ],
@@ -7665,6 +8130,7 @@
           "continues": 0,
           "score": 39008,
           "maximumHazards": 68,
+          "echoForecasts": 0,
           "mechanicSuccesses": 14
         },
         {
@@ -7675,6 +8141,7 @@
           "continues": 0,
           "score": 43674,
           "maximumHazards": 43,
+          "echoForecasts": 0,
           "mechanicSuccesses": 82
         },
         {
@@ -7685,6 +8152,7 @@
           "continues": 0,
           "score": 62141,
           "maximumHazards": 47,
+          "echoForecasts": 0,
           "mechanicSuccesses": 4
         },
         {
@@ -7695,6 +8163,7 @@
           "continues": 0,
           "score": 140098,
           "maximumHazards": 46,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -7705,6 +8174,7 @@
           "continues": 0,
           "score": 65838,
           "maximumHazards": 84,
+          "echoForecasts": 0,
           "mechanicSuccesses": 45
         },
         {
@@ -7715,6 +8185,7 @@
           "continues": 0,
           "score": 306623,
           "maximumHazards": 110,
+          "echoForecasts": 0,
           "mechanicSuccesses": 476
         }
       ],
@@ -7763,6 +8234,7 @@
           "continues": 0,
           "score": 38630,
           "maximumHazards": 73,
+          "echoForecasts": 0,
           "mechanicSuccesses": 17
         },
         {
@@ -7773,6 +8245,7 @@
           "continues": 0,
           "score": 43748,
           "maximumHazards": 43,
+          "echoForecasts": 0,
           "mechanicSuccesses": 74
         },
         {
@@ -7783,6 +8256,7 @@
           "continues": 0,
           "score": 63993,
           "maximumHazards": 37,
+          "echoForecasts": 0,
           "mechanicSuccesses": 10
         },
         {
@@ -7793,6 +8267,7 @@
           "continues": 0,
           "score": 121616,
           "maximumHazards": 61,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -7803,6 +8278,7 @@
           "continues": 0,
           "score": 71249,
           "maximumHazards": 60,
+          "echoForecasts": 0,
           "mechanicSuccesses": 62
         },
         {
@@ -7813,6 +8289,7 @@
           "continues": 0,
           "score": 309198,
           "maximumHazards": 95,
+          "echoForecasts": 0,
           "mechanicSuccesses": 561
         }
       ],
@@ -7861,6 +8338,7 @@
           "continues": 0,
           "score": 41708,
           "maximumHazards": 68,
+          "echoForecasts": 0,
           "mechanicSuccesses": 14
         },
         {
@@ -7871,6 +8349,7 @@
           "continues": 0,
           "score": 55913,
           "maximumHazards": 37,
+          "echoForecasts": 0,
           "mechanicSuccesses": 79
         },
         {
@@ -7881,6 +8360,7 @@
           "continues": 0,
           "score": 73319,
           "maximumHazards": 48,
+          "echoForecasts": 0,
           "mechanicSuccesses": 4
         },
         {
@@ -7891,6 +8371,7 @@
           "continues": 0,
           "score": 131506,
           "maximumHazards": 46,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -7901,6 +8382,7 @@
           "continues": 0,
           "score": 75944,
           "maximumHazards": 100,
+          "echoForecasts": 0,
           "mechanicSuccesses": 39
         },
         {
@@ -7911,6 +8393,7 @@
           "continues": 0,
           "score": 313682,
           "maximumHazards": 110,
+          "echoForecasts": 0,
           "mechanicSuccesses": 480
         }
       ],
@@ -7959,6 +8442,7 @@
           "continues": 0,
           "score": 35669,
           "maximumHazards": 68,
+          "echoForecasts": 0,
           "mechanicSuccesses": 14
         },
         {
@@ -7969,6 +8453,7 @@
           "continues": 0,
           "score": 44774,
           "maximumHazards": 40,
+          "echoForecasts": 0,
           "mechanicSuccesses": 82
         },
         {
@@ -7979,6 +8464,7 @@
           "continues": 0,
           "score": 63541,
           "maximumHazards": 47,
+          "echoForecasts": 0,
           "mechanicSuccesses": 4
         },
         {
@@ -7989,6 +8475,7 @@
           "continues": 0,
           "score": 206885,
           "maximumHazards": 51,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -7999,6 +8486,7 @@
           "continues": 0,
           "score": 67238,
           "maximumHazards": 84,
+          "echoForecasts": 0,
           "mechanicSuccesses": 45
         },
         {
@@ -8009,6 +8497,7 @@
           "continues": 0,
           "score": 334913,
           "maximumHazards": 115,
+          "echoForecasts": 0,
           "mechanicSuccesses": 476
         }
       ],
@@ -8057,6 +8546,7 @@
           "continues": 0,
           "score": 34608,
           "maximumHazards": 68,
+          "echoForecasts": 0,
           "mechanicSuccesses": 14
         },
         {
@@ -8067,6 +8557,7 @@
           "continues": 0,
           "score": 46432,
           "maximumHazards": 43,
+          "echoForecasts": 0,
           "mechanicSuccesses": 74
         },
         {
@@ -8077,6 +8568,7 @@
           "continues": 0,
           "score": 68181,
           "maximumHazards": 40,
+          "echoForecasts": 0,
           "mechanicSuccesses": 6
         },
         {
@@ -8087,6 +8579,7 @@
           "continues": 0,
           "score": 166850,
           "maximumHazards": 61,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -8097,6 +8590,7 @@
           "continues": 0,
           "score": 343018,
           "maximumHazards": 113,
+          "echoForecasts": 0,
           "mechanicSuccesses": 37
         },
         {
@@ -8107,6 +8601,7 @@
           "continues": 0,
           "score": 411683,
           "maximumHazards": 98,
+          "echoForecasts": 0,
           "mechanicSuccesses": 1085
         }
       ],
@@ -8155,6 +8650,7 @@
           "continues": 0,
           "score": 37425,
           "maximumHazards": 66,
+          "echoForecasts": 0,
           "mechanicSuccesses": 18
         },
         {
@@ -8165,6 +8661,7 @@
           "continues": 0,
           "score": 37974,
           "maximumHazards": 45,
+          "echoForecasts": 0,
           "mechanicSuccesses": 82
         },
         {
@@ -8175,6 +8672,7 @@
           "continues": 0,
           "score": 61675,
           "maximumHazards": 48,
+          "echoForecasts": 0,
           "mechanicSuccesses": 4
         },
         {
@@ -8185,6 +8683,7 @@
           "continues": 0,
           "score": 120564,
           "maximumHazards": 46,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -8195,6 +8694,7 @@
           "continues": 0,
           "score": 82595,
           "maximumHazards": 80,
+          "echoForecasts": 0,
           "mechanicSuccesses": 36
         },
         {
@@ -8205,6 +8705,7 @@
           "continues": 0,
           "score": 309686,
           "maximumHazards": 96,
+          "echoForecasts": 0,
           "mechanicSuccesses": 447
         }
       ],
@@ -8253,6 +8754,7 @@
           "continues": 0,
           "score": 35308,
           "maximumHazards": 68,
+          "echoForecasts": 0,
           "mechanicSuccesses": 14
         },
         {
@@ -8263,6 +8765,7 @@
           "continues": 0,
           "score": 41474,
           "maximumHazards": 42,
+          "echoForecasts": 0,
           "mechanicSuccesses": 82
         },
         {
@@ -8273,6 +8776,7 @@
           "continues": 0,
           "score": 59641,
           "maximumHazards": 47,
+          "echoForecasts": 0,
           "mechanicSuccesses": 4
         },
         {
@@ -8283,6 +8787,7 @@
           "continues": 0,
           "score": 160138,
           "maximumHazards": 46,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -8293,6 +8798,7 @@
           "continues": 0,
           "score": 62438,
           "maximumHazards": 84,
+          "echoForecasts": 0,
           "mechanicSuccesses": 45
         },
         {
@@ -8303,6 +8809,7 @@
           "continues": 0,
           "score": 295767,
           "maximumHazards": 108,
+          "echoForecasts": 0,
           "mechanicSuccesses": 476
         }
       ],
@@ -8351,6 +8858,7 @@
           "continues": 0,
           "score": 34908,
           "maximumHazards": 68,
+          "echoForecasts": 0,
           "mechanicSuccesses": 14
         },
         {
@@ -8361,6 +8869,7 @@
           "continues": 0,
           "score": 44131,
           "maximumHazards": 45,
+          "echoForecasts": 0,
           "mechanicSuccesses": 53
         },
         {
@@ -8371,6 +8880,7 @@
           "continues": 0,
           "score": 68802,
           "maximumHazards": 40,
+          "echoForecasts": 0,
           "mechanicSuccesses": 6
         },
         {
@@ -8381,6 +8891,7 @@
           "continues": 0,
           "score": 117594,
           "maximumHazards": 61,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -8391,6 +8902,7 @@
           "continues": 0,
           "score": 73441,
           "maximumHazards": 61,
+          "echoForecasts": 0,
           "mechanicSuccesses": 71
         },
         {
@@ -8401,6 +8913,7 @@
           "continues": 0,
           "score": 402133,
           "maximumHazards": 98,
+          "echoForecasts": 0,
           "mechanicSuccesses": 1085
         }
       ],
@@ -8449,6 +8962,7 @@
           "continues": 0,
           "score": 34625,
           "maximumHazards": 66,
+          "echoForecasts": 0,
           "mechanicSuccesses": 18
         },
         {
@@ -8459,6 +8973,7 @@
           "continues": 0,
           "score": 41021,
           "maximumHazards": 45,
+          "echoForecasts": 0,
           "mechanicSuccesses": 79
         },
         {
@@ -8469,6 +8984,7 @@
           "continues": 0,
           "score": 58175,
           "maximumHazards": 48,
+          "echoForecasts": 0,
           "mechanicSuccesses": 4
         },
         {
@@ -8479,6 +8995,7 @@
           "continues": 0,
           "score": 102177,
           "maximumHazards": 46,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -8489,6 +9006,7 @@
           "continues": 0,
           "score": 80495,
           "maximumHazards": 80,
+          "echoForecasts": 0,
           "mechanicSuccesses": 36
         },
         {
@@ -8499,6 +9017,7 @@
           "continues": 0,
           "score": 277591,
           "maximumHazards": 110,
+          "echoForecasts": 0,
           "mechanicSuccesses": 480
         }
       ],
@@ -8547,6 +9066,7 @@
           "continues": 0,
           "score": 35108,
           "maximumHazards": 68,
+          "echoForecasts": 0,
           "mechanicSuccesses": 14
         },
         {
@@ -8557,6 +9077,7 @@
           "continues": 0,
           "score": 42550,
           "maximumHazards": 46,
+          "echoForecasts": 0,
           "mechanicSuccesses": 82
         },
         {
@@ -8567,6 +9088,7 @@
           "continues": 0,
           "score": 64310,
           "maximumHazards": 47,
+          "echoForecasts": 0,
           "mechanicSuccesses": 4
         },
         {
@@ -8577,6 +9099,7 @@
           "continues": 0,
           "score": 140965,
           "maximumHazards": 46,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -8587,6 +9110,7 @@
           "continues": 0,
           "score": 65138,
           "maximumHazards": 84,
+          "echoForecasts": 0,
           "mechanicSuccesses": 45
         },
         {
@@ -8597,6 +9121,7 @@
           "continues": 0,
           "score": 306323,
           "maximumHazards": 109,
+          "echoForecasts": 0,
           "mechanicSuccesses": 476
         }
       ],
@@ -8645,6 +9170,7 @@
           "continues": 0,
           "score": 31608,
           "maximumHazards": 68,
+          "echoForecasts": 0,
           "mechanicSuccesses": 14
         },
         {
@@ -8655,6 +9181,7 @@
           "continues": 0,
           "score": 43574,
           "maximumHazards": 47,
+          "echoForecasts": 0,
           "mechanicSuccesses": 82
         },
         {
@@ -8665,6 +9192,7 @@
           "continues": 0,
           "score": 69336,
           "maximumHazards": 50,
+          "echoForecasts": 0,
           "mechanicSuccesses": 6
         },
         {
@@ -8675,6 +9203,7 @@
           "continues": 0,
           "score": 169716,
           "maximumHazards": 61,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -8685,6 +9214,7 @@
           "continues": 0,
           "score": 72256,
           "maximumHazards": 61,
+          "echoForecasts": 0,
           "mechanicSuccesses": 71
         },
         {
@@ -8695,6 +9225,7 @@
           "continues": 0,
           "score": 280304,
           "maximumHazards": 105,
+          "echoForecasts": 0,
           "mechanicSuccesses": 593
         }
       ],
@@ -8743,6 +9274,7 @@
           "continues": 0,
           "score": 37108,
           "maximumHazards": 68,
+          "echoForecasts": 0,
           "mechanicSuccesses": 14
         },
         {
@@ -8753,6 +9285,7 @@
           "continues": 0,
           "score": 40021,
           "maximumHazards": 46,
+          "echoForecasts": 0,
           "mechanicSuccesses": 79
         },
         {
@@ -8763,6 +9296,7 @@
           "continues": 0,
           "score": 56319,
           "maximumHazards": 48,
+          "echoForecasts": 0,
           "mechanicSuccesses": 4
         },
         {
@@ -8773,6 +9307,7 @@
           "continues": 0,
           "score": 107147,
           "maximumHazards": 46,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -8783,6 +9318,7 @@
           "continues": 0,
           "score": 81195,
           "maximumHazards": 80,
+          "echoForecasts": 0,
           "mechanicSuccesses": 36
         },
         {
@@ -8793,6 +9329,7 @@
           "continues": 0,
           "score": 317182,
           "maximumHazards": 96,
+          "echoForecasts": 0,
           "mechanicSuccesses": 447
         }
       ],
@@ -8841,6 +9378,7 @@
           "continues": 0,
           "score": 40539,
           "maximumHazards": 68,
+          "echoForecasts": 0,
           "mechanicSuccesses": 14
         },
         {
@@ -8851,6 +9389,7 @@
           "continues": 0,
           "score": 46674,
           "maximumHazards": 39,
+          "echoForecasts": 0,
           "mechanicSuccesses": 82
         },
         {
@@ -8861,6 +9400,7 @@
           "continues": 0,
           "score": 65947,
           "maximumHazards": 48,
+          "echoForecasts": 0,
           "mechanicSuccesses": 4
         },
         {
@@ -8871,6 +9411,7 @@
           "continues": 0,
           "score": 127788,
           "maximumHazards": 46,
+          "echoForecasts": 0,
           "mechanicSuccesses": 20
         },
         {
@@ -8881,6 +9422,7 @@
           "continues": 0,
           "score": 64438,
           "maximumHazards": 84,
+          "echoForecasts": 0,
           "mechanicSuccesses": 45
         },
         {
@@ -8891,6 +9433,7 @@
           "continues": 0,
           "score": 315134,
           "maximumHazards": 109,
+          "echoForecasts": 0,
           "mechanicSuccesses": 476
         }
       ],

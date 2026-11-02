@@ -6,7 +6,7 @@
 - Longest no-combat gap: 170 ticks
 - False trail peak / false annotations / loop exclusions: 127 / 104 / 20790
 - Illusory shots: 132
-- Determinism hashes: d0c357b6e8d7d555, d0c357b6e8d7d555, d0c357b6e8d7d555, d0c357b6e8d7d555
+- Determinism hashes: ab6ade4c4f5c02a4, ab6ade4c4f5c02a4, ab6ade4c4f5c02a4, ab6ade4c4f5c02a4
 
 | Enemy | Spawned | Attacks | Defeated | Exited |
 | --- | ---: | ---: | ---: | ---: |

@@ -3,7 +3,7 @@
 - Baseline defeat: 9614 ticks
 - Stitch defeat: 3796 ticks
 - Phase 1 / 2 / 3 durations: 1654 / 968 / 1174 ticks
-- Stitch / replay hashes: 6fd4ced10129e3b1, 6fd4ced10129e3b1
+- Stitch / replay hashes: 10a75cf307232b93, 10a75cf307232b93
 - Max enemy bullets: 40
 - Returned hits: 16
 - Armor texts stripped: 3

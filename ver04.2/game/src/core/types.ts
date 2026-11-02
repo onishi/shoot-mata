@@ -112,6 +112,7 @@ export type GameEvent =
   | { type: 'retrace-denied' }
   | { type: 'recovery-primed'; note: 'redaction' | 'palinode' | 'afterword' }
   | { type: 'recovery-triggered'; note: 'redaction' | 'citation' | 'palinode' | 'afterword'; amount: number }
+  | { type: 'echo-forecast'; source: AttackSource | null }
   | { type: 'damage' }
   | { type: 'enemy-defeated' }
   | { type: 'boss-spawned' }
@@ -285,6 +286,7 @@ export interface Metrics {
     afterwordPrimes: number;
     afterwordProtectedTicks: number;
   };
+  echoForecasts: number;
 }
 export interface RecoveryState {
   active: 'redaction' | 'citation' | 'palinode' | 'afterword' | null;
@@ -318,6 +320,7 @@ export interface GameState {
   annotationChain: number;
   errataReadyAt: number;
   lastDamageTick: number;
+  echoForecast: { available: boolean; feedbackUntil: number; source: AttackSource | null };
   recovery: RecoveryState;
   metrics: Metrics;
 }

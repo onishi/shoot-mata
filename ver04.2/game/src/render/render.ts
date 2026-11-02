@@ -477,6 +477,21 @@ export const render = (ctx: CanvasRenderingContext2D, state: GameState, paused: 
     '#8ff6ff', state.tick, reducedFlash
   );
   drawSprite(ctx, 'player', playerX, playerY, 74, 54, playerAlpha);
+  if (state.echoForecast.feedbackUntil >= state.tick) {
+    const progress = 1 - (state.echoForecast.feedbackUntil - state.tick) / (2 * TICK_RATE);
+    ctx.save();
+    ctx.strokeStyle = '#8ff6ff';
+    ctx.fillStyle = '#d9fbff';
+    ctx.globalAlpha = reducedFlash ? 0.9 : 0.58 + Math.sin(progress * Math.PI) * 0.32;
+    ctx.lineWidth = 4;
+    ctx.setLineDash([14, 7]);
+    ctx.beginPath(); ctx.arc(playerX, playerY, 52 + progress * 24, 0, Math.PI * 2); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.font = '700 13px system-ui, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('ECHO FORECAST  ·  EVADE', playerX, playerY - 68);
+    ctx.restore();
+  }
   if (state.recovery.feedbackUntil >= state.tick) {
     ctx.save();
     ctx.strokeStyle = '#f4c36a';

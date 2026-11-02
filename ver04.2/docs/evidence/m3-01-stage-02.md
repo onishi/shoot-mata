@@ -6,7 +6,7 @@
 - Longest no-combat gap: 1 ticks
 - Wind reversals: 23
 - COLLATE left / right / near reversal: 9 / 13 / 12
-- Determinism hashes: 5970966e27c55b56, 5970966e27c55b56, 5970966e27c55b56, 5970966e27c55b56
+- Determinism hashes: 46691409485e1b77, 46691409485e1b77, 46691409485e1b77, 46691409485e1b77
 
 | Enemy | Spawned | Attacks | Defeated | Exited |
 | --- | ---: | ---: | ---: | ---: |

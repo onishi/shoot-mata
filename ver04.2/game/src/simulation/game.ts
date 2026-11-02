@@ -17,9 +17,9 @@ const PLAYER_RADIUS = 13;
 export const PLAYGROUND_DURATION_TICKS = STAGE_01_DURATION_TICKS;
 
 export const DIFFICULTY_PRESSURE = {
-  echo: { initialCooldown: 1.18, cooldownStep: 7, warningTicks: 120, invulnerabilityTicks: 420, collateInvulnerabilityTicks: 1800, hazardRecovery: 'all', aimSpread: 1 },
-  normal: { initialCooldown: 1, cooldownStep: 5, warningTicks: 90, invulnerabilityTicks: 240, collateInvulnerabilityTicks: 1800, hazardRecovery: 'weak', aimSpread: 1 },
-  proof: { initialCooldown: 0.82, cooldownStep: 4, warningTicks: 60, invulnerabilityTicks: 240, collateInvulnerabilityTicks: 1200, hazardRecovery: 'weak', aimSpread: 1.16 }
+  echo: { initialCooldown: 1.18, cooldownStep: 7, warningTicks: 120, invulnerabilityTicks: 420, collateInvulnerabilityTicks: 1800, hazardRecovery: 'all', aimSpread: 1, forecastRecoveryTicks: 120 },
+  normal: { initialCooldown: 1, cooldownStep: 5, warningTicks: 90, invulnerabilityTicks: 240, collateInvulnerabilityTicks: 1800, hazardRecovery: 'weak', aimSpread: 1, forecastRecoveryTicks: 0 },
+  proof: { initialCooldown: 0.82, cooldownStep: 4, warningTicks: 60, invulnerabilityTicks: 240, collateInvulnerabilityTicks: 1200, hazardRecovery: 'weak', aimSpread: 1.16, forecastRecoveryTicks: 0 }
 } as const satisfies Record<Difficulty, {
   initialCooldown: number;
   cooldownStep: number;
@@ -28,6 +28,7 @@ export const DIFFICULTY_PRESSURE = {
   collateInvulnerabilityTicks: number;
   hazardRecovery: 'all' | 'weak' | 'none';
   aimSpread: number;
+  forecastRecoveryTicks: number;
 }>;
 
 const nextRandom = (state: GameState): number => {
@@ -112,6 +113,7 @@ export const createInitialState = (seed = 1, stageId: StageId = 'stage-01', diff
   annotationChain: 0,
   errataReadyAt: 0,
   lastDamageTick: -100000,
+  echoForecast: { available: true, feedbackUntil: 0, source: null },
   recovery: { active: null, redactionProgress: 0, redactionReadyUntil: 0, citationProgress: 0, palinodeProgress: 0, palinodeReady: false, afterwordProgress: 0, afterwordReady: false, afterwordReadyUntil: 0, afterwordRecoveryUntil: 0, feedbackUntil: 0 },
   metrics: { candidates: 0, loops: 0, emptyLoops: 0, missedCollates: 0, captured: 0, annotatedShots: 0, retraces: 0, damage: 0, enemiesDefeated: 0, haulersDefeated: 0, firstHaulerDefeatTick: null, enemyShots: 0, enemyStats: emptyEnemyStats(), rejectedEnemies: 0, rejectedEnemyBullets: 0,
     wind: { reversals: 0, playerDrift: 0, trailDrift: 0, collatesLeft: 0, collatesRight: 0, collatesNearReversal: 0 },
@@ -123,7 +125,8 @@ export const createInitialState = (seed = 1, stageId: StageId = 'stage-01', diff
     advocate: { embersThrown: 0, embersCooled: 0, cooledHits: 0, cooledHitsByPhase: [0, 0, 0], wallBlocks: 0, wallActiveTicks: 0, phaseReached: [false, false, false], attacks: { ember: 0, gavel: 0, verdict: 0 }, damageByAttack: { ember: 0, gavel: 0, verdict: 0 } },
     apocrypha: { syncBreaks: 0, syncBrokenTicks: 0, weakpointHits: 0, ordinaryHits: 0, swaps: 0, phaseReached: [false, false, false], attacks: { testimony: 0, crossExam: 0, verdict: 0 }, damageByAttack: { testimony: 0, crossExam: 0, verdict: 0 } },
     editor: { rulesRewritten: 0, revisionExposedTicks: 0, revisionHits: 0, ordinaryHits: 0, signatureInkSpawned: 0, signatureClosures: 0, signatureExposedTicks: 0, phaseReached: [false, false, false], attacks: { erasure: 0, wind: 0, rain: 0, heat: 0, mirror: 0, signature: 0 }, damageByAttack: { erasure: 0, wind: 0, rain: 0, heat: 0, mirror: 0, signature: 0 } },
-    recovery: { redactionTriggers: 0, redactionBulletsCleared: 0, redactionBlocks: 0, citationLances: 0, palinodePrimes: 0, palinodeClosures: 0, afterwordPrimes: 0, afterwordProtectedTicks: 0 } }
+    recovery: { redactionTriggers: 0, redactionBulletsCleared: 0, redactionBlocks: 0, citationLances: 0, palinodePrimes: 0, palinodeClosures: 0, afterwordPrimes: 0, afterwordProtectedTicks: 0 },
+    echoForecasts: 0 }
   };
   if (stageId === 'stage-05' || stageId === 'stage-06') state.metrics.mirror = { falseTrailPeak: 0, falseAnnotations: 0, falseLoopRejections: 0, illusoryShots: 0, moteEchoes: 0, ramCharges: 0, witnessMixes: 0, obeliskReflections: 0 };
   else for (const kind of ['mirror-mote', 'quotation-ram', 'false-witness', 'silver-obelisk'] as const) delete state.metrics.enemyStats[kind];
@@ -150,6 +153,7 @@ export const copyState = (state: GameState): GameState => ({
   enemies: state.enemies.map((enemy) => ({ ...enemy })),
   boss: state.boss ? { ...state.boss } : null,
   retrace: state.retrace ? { index: state.retrace.index, points: state.retrace.points.map((point) => ({ ...point })) } : null,
+  echoForecast: { ...state.echoForecast },
   recovery: { ...state.recovery },
   metrics: { ...state.metrics, recovery: { ...state.metrics.recovery }, wind: { ...state.metrics.wind }, rain: { ...state.metrics.rain }, heat: { ...state.metrics.heat }, ...(state.metrics.mirror ? { mirror: { ...state.metrics.mirror } } : {}), ...(state.metrics.original ? { original: { ...state.metrics.original, folioTicks: { ...state.metrics.original.folioTicks } } } : {}), enemyStats: Object.fromEntries(Object.entries(state.metrics.enemyStats).map(([kind, stats]) => [kind, { ...stats }])) as GameState['metrics']['enemyStats'], boss: { ...state.metrics.boss, phaseReached: [...state.metrics.boss.phaseReached], damageByAttack: { ...state.metrics.boss.damageByAttack } }, compiler: { ...state.metrics.compiler, phaseReached: [...state.metrics.compiler.phaseReached], attacks: { ...state.metrics.compiler.attacks }, damageByAttack: { ...state.metrics.compiler.damageByAttack } }, eel: { ...state.metrics.eel, phaseReached: [...state.metrics.eel.phaseReached], attacks: { ...state.metrics.eel.attacks }, damageByAttack: { ...state.metrics.eel.damageByAttack } }, advocate: { ...state.metrics.advocate, cooledHitsByPhase: [...state.metrics.advocate.cooledHitsByPhase], phaseReached: [...state.metrics.advocate.phaseReached], attacks: { ...state.metrics.advocate.attacks }, damageByAttack: { ...state.metrics.advocate.damageByAttack } }, apocrypha: { ...state.metrics.apocrypha, phaseReached: [...state.metrics.apocrypha.phaseReached], attacks: { ...state.metrics.apocrypha.attacks }, damageByAttack: { ...state.metrics.apocrypha.damageByAttack } }, editor: { ...state.metrics.editor, phaseReached: [...state.metrics.editor.phaseReached], attacks: { ...state.metrics.editor.attacks }, damageByAttack: { ...state.metrics.editor.damageByAttack } } }
 });
@@ -1692,7 +1696,17 @@ export const step = (previous: GameState, input: InputFrame, difficulty: Difficu
       }
     } else if (!bullet.illusory && !state.retrace && state.player.invulnerableUntil < state.tick
       && distanceSq(bullet, state.player) <= ((bullet.radius + PLAYER_RADIUS) * SCALE) ** 2) {
-      if (effects.redaction && state.recovery.redactionReadyUntil >= state.tick) {
+      if (difficulty === 'echo' && state.echoForecast.available) {
+        // The first dangerous boundary is forecast before it becomes damage.
+        // Only this hazard is consumed; enemy timing and the field stay intact.
+        state.echoForecast.available = false;
+        state.echoForecast.feedbackUntil = state.tick + 2 * TICK_RATE;
+        state.echoForecast.source = bullet.sourceAttack ?? null;
+        state.player.invulnerableUntil = state.tick + DIFFICULTY_PRESSURE.echo.forecastRecoveryTicks;
+        state.metrics.echoForecasts += 1;
+        consumed = true;
+        events.push({ type: 'echo-forecast', source: bullet.sourceAttack ?? null });
+      } else if (effects.redaction && state.recovery.redactionReadyUntil >= state.tick) {
         state.recovery.redactionReadyUntil = 0;
         state.metrics.recovery.redactionBlocks += 1;
         state.recovery.feedbackUntil = state.tick + TICK_RATE;

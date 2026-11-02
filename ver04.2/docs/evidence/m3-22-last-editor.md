@@ -7,7 +7,7 @@
 - Signature ink / closures: 80 / 2
 - Erasure / wind / rain / heat / mirror / signature attacks: 15 / 13 / 21 / 17 / 17 / 10
 - Max enemy bullets: 108
-- Stitch / replay hashes: 26ea2cdedcaf3de3, 26ea2cdedcaf3de3
+- Stitch / replay hashes: d6829cd70fa1acc7, d6829cd70fa1acc7
 
 | Gate | Result |
 | --- | --- |

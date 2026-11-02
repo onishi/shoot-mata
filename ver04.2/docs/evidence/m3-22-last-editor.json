@@ -34,7 +34,7 @@
         "signature": 0
       }
     },
-    "hash": "38a5a0a94c92a763"
+    "hash": "9741e0df003fc234"
   },
   "stitch": {
     "durationTicks": 11722,
@@ -74,9 +74,9 @@
         "signature": 0
       }
     },
-    "hash": "26ea2cdedcaf3de3"
+    "hash": "d6829cd70fa1acc7"
   },
-  "replayHash": "26ea2cdedcaf3de3",
+  "replayHash": "d6829cd70fa1acc7",
   "gates": {
     "ordinaryFallbackDefeatsBoss": true,
     "stitchDefeatsBoss": true,

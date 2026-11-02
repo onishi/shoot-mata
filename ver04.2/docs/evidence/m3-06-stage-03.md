@@ -6,7 +6,7 @@
 - Longest no-combat gap: 1 ticks
 - Wet points / peak: 2894 / 118
 - Wet annotated shots / damage: 203 / 1710
-- Determinism hashes: d413f55385e4e806, d413f55385e4e806, d413f55385e4e806, d413f55385e4e806
+- Determinism hashes: 90c4663e6c268253, 90c4663e6c268253, 90c4663e6c268253, 90c4663e6c268253
 
 | Enemy | Spawned | Attacks | Defeated | Exited |
 | --- | ---: | ---: | ---: | ---: |

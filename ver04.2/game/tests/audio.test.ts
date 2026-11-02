@@ -10,6 +10,7 @@ describe('Stage 1 audio event map', () => {
     expect(cueForEvent({ type: 'retrace-started' })?.cue).toBe('retrace-start');
     expect(cueForEvent({ type: 'retrace-ended' })?.cue).toBe('retrace-end');
     expect(cueForEvent({ type: 'damage' })?.cue).toBe('damage');
+    expect(cueForEvent({ type: 'echo-forecast', source: 'enemy-sniper' })).toEqual({ cue: 'warning', rate: 1.22 });
   });
 
   it('expresses capture count with three chord registers instead of extra voices', () => {
