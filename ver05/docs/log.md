@@ -33,3 +33,11 @@
 - 4部屋メタデータと連続遷移を画面へ接続し、タイトル表記をfour-room scoreへ更新した。
 - `npm run verify`は単体13/13、型検査、production buildに合格した。Chromeでタイトルから4室を固定解法により連続クリアし、LONG TONEの6拍目の開扉とFINAL CADENCEの8拍目のSCORE COMPLETEを目視した。コンソール警告・エラーはなかった。
 - 詳細は`evidence/m2-four-room-score.md`に記録した。次は到達部屋と設定のversion付き保存を実装する。
+
+## 2026-11-03 — M2 進行保存と設定
+
+- `chorus-shift:v1`へ到達可能な最大部屋、完了部屋、ヒント閲覧用領域、音量、動きの軽減を保存する純粋な永続化層を追加した。途中の拍、譜面、VOICEは意図的に保存しない。
+- タイトルへ解除済み部屋の左右選択を、設定画面へ音量25%刻みと動きの軽減を追加した。初回はOSの動き軽減設定を尊重し、その後は保存済み設定を使う。
+- 破損JSON、別version、範囲外値、storage例外を含む5件を追加し、`npm run verify`は単体18/18、型検査、production buildに合格した。
+- Chromeで設定を75%・軽減ONへ変更して再読み込み後の復元、FIRST CHORDクリアによるHELD NOTE解除、解除済みFIRST CHORDの0拍・VOICEなし再訪を確認した。警告・エラーは0件だった。
+- 詳細は`evidence/m2-persistence-settings.md`に記録した。次は解法を直接明かさない段階式ヒントを実装する。

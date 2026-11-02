@@ -12,8 +12,15 @@ import {
   type Point,
   type Room,
 } from './model';
+import {
+  changeSettings,
+  completeRoom,
+  defaultSave,
+  loadSave,
+  storeSave,
+} from './persistence';
 
-type Screen = 'title' | 'playing' | 'paused' | 'won';
+type Screen = 'title' | 'settings' | 'playing' | 'paused' | 'won';
 
 const canvas = document.querySelector<HTMLCanvasElement>('#game')!;
 const live = document.querySelector<HTMLDivElement>('#live')!;
@@ -48,7 +55,11 @@ const rooms: readonly RoomEntry[] = [
     guidance: '右の音盤は上側からだけ入れます。8拍すべてを使ってください',
   },
 ];
-let roomIndex = 0;
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+let save = loadSave(localStorage, rooms.length, defaultSave(prefersReducedMotion));
+let titleRoomIndex = save.highestUnlockedRoom;
+let settingsRow = 0;
+let roomIndex = titleRoomIndex;
 let room = rooms[roomIndex]!.room;
 const palette = ['#ff896f', '#65d7c5', '#f3ca68'];
 const dimPalette = ['#8d5148', '#397e77', '#927b43'];
@@ -86,14 +97,14 @@ function ensureAudio(): void {
 }
 
 function tone(frequency: number, duration = 0.07, volume = 0.025, delay = 0): void {
-  if (!audio) return;
+  if (!audio || save.settings.volume === 0) return;
   const start = audio.currentTime + delay;
   const oscillator = audio.createOscillator();
   const gain = audio.createGain();
   oscillator.type = 'sine';
   oscillator.frequency.setValueAtTime(frequency, start);
   gain.gain.setValueAtTime(0.0001, start);
-  gain.gain.exponentialRampToValueAtTime(volume, start + 0.01);
+  gain.gain.exponentialRampToValueAtTime(volume * save.settings.volume, start + 0.01);
   gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
   oscillator.connect(gain).connect(audio.destination);
   oscillator.start(start);
@@ -117,8 +128,37 @@ window.addEventListener('keydown', (event) => {
   }
 
   ensureAudio();
-  if (screen === 'title' && event.key === 'Enter') {
-    beginRoom(0);
+  if (screen === 'title') {
+    if (event.key === 'ArrowLeft' || event.key.toLowerCase() === 'a') {
+      titleRoomIndex = Math.max(0, titleRoomIndex - 1);
+      announce(`${titleRoomIndex + 1} — ${rooms[titleRoomIndex]!.name}`, 1000);
+      tone(220, 0.05, 0.018);
+      return;
+    }
+    if (event.key === 'ArrowRight' || event.key.toLowerCase() === 'd') {
+      titleRoomIndex = Math.min(save.highestUnlockedRoom, titleRoomIndex + 1);
+      announce(`${titleRoomIndex + 1} — ${rooms[titleRoomIndex]!.name}`, 1000);
+      tone(277, 0.05, 0.018);
+      return;
+    }
+    if (event.key.toLowerCase() === 's') {
+      screen = 'settings';
+      announce('設定');
+      return;
+    }
+    if (event.key === 'Enter') beginRoom(titleRoomIndex);
+    return;
+  }
+  if (screen === 'settings') {
+    if (event.key === 'Escape' || event.key === 'Enter') {
+      screen = 'title';
+      announce('設定を保存しました');
+      return;
+    }
+    if (event.key === 'ArrowUp' || event.key.toLowerCase() === 'w') settingsRow = Math.max(0, settingsRow - 1);
+    if (event.key === 'ArrowDown' || event.key.toLowerCase() === 's') settingsRow = Math.min(1, settingsRow + 1);
+    if (event.key === 'ArrowLeft' || event.key.toLowerCase() === 'a') updateSetting(-1);
+    if (event.key === 'ArrowRight' || event.key.toLowerCase() === 'd') updateSetting(1);
     return;
   }
   if (screen === 'won' && event.key === 'Enter') {
@@ -160,6 +200,9 @@ window.addEventListener('keydown', (event) => {
 
   if (result.won) {
     screen = 'won';
+    save = completeRoom(save, roomIndex, rooms.length);
+    titleRoomIndex = save.highestUnlockedRoom;
+    storeSave(localStorage, save);
     announce('三和音がひらいた', 8000);
     [262, 330, 392, 523].forEach((frequency, index) => tone(frequency, 0.6, 0.035, index * 0.1));
   } else if (result.phraseCommitted) {
@@ -168,6 +211,19 @@ window.addEventListener('keydown', (event) => {
     tone(palette.length > tracks.length ? 330 : 392, 0.18, 0.035);
   }
 });
+
+function updateSetting(direction: -1 | 1): void {
+  if (settingsRow === 0) {
+    const volume = Math.max(0, Math.min(1, Math.round((save.settings.volume + direction * 0.25) * 4) / 4));
+    save = changeSettings(save, { ...save.settings, volume });
+    if (volume > 0) tone(330, 0.07, 0.03);
+    announce(`音量 ${Math.round(volume * 100)}%`, 900);
+  } else {
+    save = changeSettings(save, { ...save.settings, reducedMotion: direction > 0 });
+    announce(save.settings.reducedMotion ? '動きの軽減 オン' : '動きの軽減 オフ', 900);
+  }
+  storeSave(localStorage, save);
+}
 
 function roundedRect(x: number, y: number, width: number, height: number, radius: number): void {
   ctx.beginPath();
@@ -219,14 +275,40 @@ function drawTitle(time: number): void {
   ctx.restore();
   text('CHORUS', 640, 386, 68, '#f3ead2', 'center', 260);
   text('SHIFT', 640, 448, 68, '#f3ca68', 'center', 720);
-  text('過去の8手と、同じ拍を奏でる', 640, 520, 20, '#9ec4bd', 'center', 450);
-  roundedRect(500, 575, 280, 54, 27);
+  text('過去の8手と、同じ拍を奏でる', 640, 505, 20, '#9ec4bd', 'center', 450);
+  const selected = rooms[titleRoomIndex]!;
+  const selection = `${titleRoomIndex + 1} / ${rooms.length}  ${selected.name}`;
+  text(`◀  ${selection}  ▶`, 640, 550, 15, '#d6c994', 'center', 650);
+  roundedRect(500, 582, 280, 54, 27);
   ctx.fillStyle = 'rgba(243, 202, 104, 0.12)';
   ctx.fill();
   ctx.strokeStyle = 'rgba(243, 202, 104, 0.55)';
   ctx.stroke();
-  text('ENTER  調律を始める', 640, 602, 18, '#f7e8bc', 'center', 650);
-  text('turn-based temporal puzzle · four-room score', 640, 675, 13, '#58787a', 'center', 500);
+  text(save.completedRooms.includes(titleRoomIndex) ? 'ENTER  この部屋を再演' : 'ENTER  調律を始める', 640, 609, 18, '#f7e8bc', 'center', 650);
+  text('← → 部屋選択    S 設定', 640, 663, 13, '#6f9090', 'center', 600);
+  text('turn-based temporal puzzle · four-room score', 640, 690, 12, '#58787a', 'center', 500);
+}
+
+function drawSettings(time: number): void {
+  drawBackdrop(time);
+  text('SETTINGS', 640, 130, 42, '#f3ca68', 'center', 720);
+  text('変更はこの端末へ自動保存されます', 640, 180, 15, '#7fa49e', 'center', 500);
+  const entries = [
+    { label: 'MASTER VOLUME', value: `${Math.round(save.settings.volume * 100)}%` },
+    { label: 'REDUCED MOTION', value: save.settings.reducedMotion ? 'ON' : 'OFF' },
+  ];
+  entries.forEach((entry, index) => {
+    const y = 260 + index * 100;
+    roundedRect(370, y, 540, 72, 18);
+    ctx.fillStyle = index === settingsRow ? 'rgba(243, 202, 104, 0.13)' : 'rgba(8, 24, 31, 0.82)';
+    ctx.fill();
+    ctx.strokeStyle = index === settingsRow ? 'rgba(243, 202, 104, 0.62)' : 'rgba(109, 151, 142, 0.22)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    text(entry.label, 405, y + 36, 14, index === settingsRow ? '#f2dfac' : '#89a49e', 'left', 700);
+    text(`◀   ${entry.value}   ▶`, 875, y + 36, 17, '#e8eee0', 'right', 700);
+  });
+  text('↑ ↓ 項目    ← → 変更    ENTER / ESC 戻る', 640, 515, 15, '#91ada6', 'center', 550);
 }
 
 const board = { x: 128, y: 112, cell: 68 };
@@ -462,11 +544,13 @@ function drawOverlay(title: string, body: string, action: string): void {
 
 function render(time: number): void {
   lastTime = time;
-  if (screen === 'title') drawTitle(time);
+  const visualTime = save.settings.reducedMotion ? 0 : time;
+  if (screen === 'title') drawTitle(visualTime);
+  else if (screen === 'settings') drawSettings(visualTime);
   else {
-    drawBackdrop(time);
-    drawBoard(time);
-    drawHud(time);
+    drawBackdrop(visualTime);
+    drawBoard(visualTime);
+    drawHud(visualTime);
     if (screen === 'paused') drawOverlay('PAUSED', '譜面はこの拍で止まっています', 'ESC で再開');
     if (screen === 'won') {
       const lastRoom = roomIndex === rooms.length - 1;
@@ -487,6 +571,8 @@ setInterval(() => {
   canvas.dataset.beat = String(currentActions.length);
   canvas.dataset.tracks = String(tracks.length);
   canvas.dataset.room = String(roomIndex + 1);
+  canvas.dataset.unlockedRoom = String(save.highestUnlockedRoom + 1);
+  canvas.dataset.reducedMotion = String(save.settings.reducedMotion);
 }, 100);
 
 requestAnimationFrame(render);
