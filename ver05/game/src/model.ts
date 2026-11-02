@@ -193,6 +193,24 @@ export const SHORT_MEASURE: Room = {
   silenceFloors: [],
 };
 
+/** An expanded measure: every route splits its spare time into two held-note intervals. */
+export const LONG_MEASURE: Room = {
+  width: 9,
+  height: 7,
+  phraseLength: 10,
+  start: { x: 4, y: 5 },
+  walls: new Set([
+    '0,0', '1,0', '2,0', '3,0', '4,0', '5,0', '6,0', '7,0', '8,0',
+    '0,1', '8,1', '0,2', '6,2', '8,2', '0,3', '7,3', '8,3',
+    '0,4', '8,4', '0,5', '8,5',
+    '0,6', '1,6', '2,6', '3,6', '4,6', '5,6', '6,6', '7,6', '8,6',
+  ]),
+  plates: [{ x: 1, y: 2 }, { x: 4, y: 1 }, { x: 7, y: 2 }],
+  doors: [],
+  inversionFloors: [],
+  silenceFloors: [],
+};
+
 export function keyOf(point: Point): string {
   return `${point.x},${point.y}`;
 }

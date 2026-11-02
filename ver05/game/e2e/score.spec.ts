@@ -56,6 +56,11 @@ const solutions: readonly (readonly (readonly Action[])[])[] = [
     ['up', 'up', 'up', 'up', 'wait', 'wait'],
     ['right', 'right', 'right', 'up', 'up', 'up'],
   ],
+  [
+    ['wait', 'wait', 'left', 'left', 'left', 'up', 'wait', 'up', 'up', 'wait'],
+    ['up', 'up', 'wait', 'wait', 'up', 'up', 'wait', 'wait', 'wait', 'wait'],
+    ['up', 'up', 'wait', 'up', 'up', 'right', 'right', 'wait', 'right', 'down'],
+  ],
 ];
 
 async function expectState(page: Page, state: string): Promise<void> {
@@ -164,6 +169,20 @@ test('keyboard flow completes all available rooms and persists clean room progre
       await page.locator('#game').screenshot({ path: '../docs/evidence/m3-short-measure-beat-5.png' });
       await playPhrase(page, solutions[8]![2]!.slice(5));
       await expectState(page, 'won');
+      await page.keyboard.press('Enter');
+      await expectState(page, 'playing');
+      continue;
+    }
+    if (room === 10) {
+      await playPhrase(page, solutions[9]![0]!);
+      await expect(page.locator('#game')).toHaveAttribute('data-tracks', '1');
+      await playPhrase(page, solutions[9]![1]!);
+      await expect(page.locator('#game')).toHaveAttribute('data-tracks', '2');
+      await playPhrase(page, solutions[9]![2]!.slice(0, 9));
+      await expect(page.locator('#game')).toHaveAttribute('data-beat', '9');
+      await page.locator('#game').screenshot({ path: '../docs/evidence/m3-long-measure-beat-9.png' });
+      await playPhrase(page, solutions[9]![2]!.slice(9));
+      await expectState(page, 'won');
       break;
     }
     await playRoom(page, room);
@@ -172,20 +191,20 @@ test('keyboard flow completes all available rooms and persists clean room progre
       await expectState(page, 'playing');
     }
   }
-  await page.locator('#game').screenshot({ path: '../docs/evidence/m3-e2e-short-measure-complete.png' });
-  await expect(page.locator('#game')).toHaveAttribute('data-unlocked-room', '9');
+  await page.locator('#game').screenshot({ path: '../docs/evidence/m3-e2e-long-measure-complete.png' });
+  await expect(page.locator('#game')).toHaveAttribute('data-unlocked-room', '10');
 
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('chorus-shift:v1') ?? 'null'));
-  expect(saved.highestUnlockedRoom).toBe(8);
-  expect(saved.completedRooms).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8]);
+  expect(saved.highestUnlockedRoom).toBe(9);
+  expect(saved.completedRooms).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
   expect(saved.hintsSeen).toEqual([0]);
 
   await page.reload();
   await expectState(page, 'title');
-  await expect(page.locator('#game')).toHaveAttribute('data-unlocked-room', '9');
+  await expect(page.locator('#game')).toHaveAttribute('data-unlocked-room', '10');
   await page.keyboard.press('Enter');
   await expectState(page, 'playing');
-  await expect(page.locator('#game')).toHaveAttribute('data-room', '9');
+  await expect(page.locator('#game')).toHaveAttribute('data-room', '10');
   await expect(page.locator('#game')).toHaveAttribute('data-beat', '0');
   await expect(page.locator('#game')).toHaveAttribute('data-tracks', '0');
   expect(errors).toEqual([]);

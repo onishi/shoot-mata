@@ -4,6 +4,7 @@ import {
   FINAL_CADENCE,
   GLASS_RETURN,
   HELD_NOTE,
+  LONG_MEASURE,
   LONG_TONE,
   MIRROR_ENTRY,
   NEGATIVE_SPACE,
@@ -139,6 +140,17 @@ const rooms: readonly RoomEntry[] = [
       ['この部屋では六拍目がフレーズの終端です。', '八拍のつもりで待つと、譜面は先に記憶されます。'],
       ['左と上の音盤には、一拍だけ音を保つ余裕があります。', '右上の音盤へ向かう役には余白がありません。'],
       ['左は横を先に、上は縦に、右上は縦横を三拍ずつ。', '三人を六拍目に着地させてください。'],
+    ],
+  },
+  {
+    room: LONG_MEASURE,
+    name: 'LONG MEASURE',
+    objective: '10拍の長い小節へ、二つの保持区間を織り込む',
+    guidance: 'この部屋のフレーズは10拍です。移動の間にも音を保てます',
+    hints: [
+      ['十拍を最後にまとめて待つ必要はありません。', '一つのフレーズを、移動と複数の保持区間に分けられます。'],
+      ['左と上の奏者は、道の途中と到着後に音を保てます。', '右の奏者は上側から入るポケットを目指します。'],
+      ['右は上へ進む途中と、最上段を横切る途中で一拍ずつ保持。', '最後の下入力を十拍目に置いてください。'],
     ],
   },
 ];
@@ -653,8 +665,9 @@ function drawHud(time: number): void {
 
   text(`PHRASE ${phraseNumber}`, panelX + 32, 151, 14, palette[Math.min(tracks.length, 2)]!, 'left', 750);
   text(`${currentActions.length} / ${room.phraseLength} BEATS`, panelX + 348, 151, 14, '#91aaa5', 'right', 650);
+  const beatSpacing = room.phraseLength > 1 ? Math.min(43, 300 / (room.phraseLength - 1)) : 0;
   for (let i = 0; i < room.phraseLength; i += 1) {
-    const cx = panelX + 40 + i * 43;
+    const cx = panelX + 40 + i * beatSpacing;
     ctx.fillStyle = i < currentActions.length ? palette[Math.min(tracks.length, 2)]! : 'rgba(129, 158, 150, 0.16)';
     ctx.beginPath();
     ctx.arc(cx, 188, i === currentActions.length ? 7 + Math.sin(time * 0.006) : 6, 0, Math.PI * 2);

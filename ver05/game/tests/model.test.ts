@@ -4,6 +4,7 @@ import {
   FINAL_CADENCE,
   GLASS_RETURN,
   HELD_NOTE,
+  LONG_MEASURE,
   LONG_TONE,
   MIRROR_ENTRY,
   NEGATIVE_SPACE,
@@ -266,6 +267,36 @@ describe('SHORT MEASURE variable phrase length', () => {
 
   it('has a deterministic three-phrase solution on beat six', () => {
     expect(runSolution(SHORT_MEASURE, [leftPhrase, upperPhrase, rightPhrase])).toEqual({ won: true, beat: 6 });
+  });
+});
+
+describe('LONG MEASURE variable phrase length', () => {
+  const leftPhrase: Action[] = ['wait', 'wait', 'left', 'left', 'left', 'up', 'wait', 'up', 'up', 'wait'];
+  const upperPhrase: Action[] = ['up', 'up', 'wait', 'wait', 'up', 'up', 'wait', 'wait', 'wait', 'wait'];
+  const pocketPhrase: Action[] = ['up', 'up', 'wait', 'up', 'up', 'right', 'right', 'wait', 'right', 'down'];
+
+  it('keeps the phrase live through beat nine and commits on beat ten', () => {
+    let tracks: readonly (readonly Action[])[] = [];
+    let current: readonly Action[] = [];
+    let result = playAction(LONG_MEASURE, tracks, current, leftPhrase[0]!);
+    for (const action of leftPhrase.slice(1)) {
+      tracks = result.tracks;
+      current = result.currentActions;
+      result = playAction(LONG_MEASURE, tracks, current, action);
+    }
+    expect(result.phraseCommitted).toBe(true);
+    expect(result.beat).toBe(0);
+    expect(result.tracks).toEqual([leftPhrase]);
+  });
+
+  it('uses separated holds before the pocket route lands on its final beat', () => {
+    expect(positionAfter(LONG_MEASURE, pocketPhrase, 8)).toEqual({ x: 6, y: 1 });
+    expect(positionAfter(LONG_MEASURE, pocketPhrase, 9)).toEqual({ x: 7, y: 1 });
+    expect(positionAfter(LONG_MEASURE, pocketPhrase)).toEqual({ x: 7, y: 2 });
+  });
+
+  it('has a deterministic three-phrase solution on beat ten', () => {
+    expect(runSolution(LONG_MEASURE, [leftPhrase, upperPhrase, pocketPhrase])).toEqual({ won: true, beat: 10 });
   });
 });
 
