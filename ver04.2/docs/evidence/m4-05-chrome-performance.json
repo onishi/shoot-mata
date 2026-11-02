@@ -1,0 +1,36 @@
+{
+  "generatedAt": "2026-11-01",
+  "scenario": "Stage 6 synthesis and THE LAST EDITOR entry on Chrome, fixed Stitch replay",
+  "frameSamples": 1200,
+  "schedulerOutliers": 9,
+  "rawFrameMaximumMs": 2112.9000000953674,
+  "frame": {
+    "averageMs": 0.06883333325386047,
+    "p95Ms": 0.10000002384185791,
+    "maxMs": 2.100000023841858
+  },
+  "inputToPaintMs": 0.3999999761581421,
+  "longTaskCount": 0,
+  "longestTaskMs": 0,
+  "heapSamples": [
+    2143800,
+    2246492,
+    2235048,
+    2218184,
+    2225460,
+    2191272,
+    2196132,
+    2195888,
+    2196308,
+    2232216
+  ],
+  "heapGrowthRatio": 0.04124265323257766,
+  "gates": {
+    "frameAverage": true,
+    "frameP95": true,
+    "frameMaximum": true,
+    "noLongTasks": true,
+    "inputToPaint": true,
+    "heapGrowth": true
+  }
+}

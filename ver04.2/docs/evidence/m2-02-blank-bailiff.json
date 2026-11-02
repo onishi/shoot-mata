@@ -1,0 +1,69 @@
+{
+  "generatedAt": "2026-10-31",
+  "seed": 2402,
+  "baseline": {
+    "durationTicks": 12114,
+    "maxEnemyBullets": 82,
+    "metrics": {
+      "spawned": true,
+      "defeated": true,
+      "defeatTick": 33714,
+      "phaseReached": [
+        true,
+        true,
+        true
+      ],
+      "fanWarnings": 43,
+      "fanErases": 43,
+      "trailPointsErased": 1974,
+      "returnedHits": 0,
+      "ordinaryHits": 1200,
+      "armorLayersStripped": 3,
+      "damageByAttack": {
+        "fan": 16,
+        "sweep": 13,
+        "volley": 7
+      }
+    },
+    "hash": "e11656a62849d5ee"
+  },
+  "stitch": {
+    "durationTicks": 3961,
+    "maxEnemyBullets": 81,
+    "metrics": {
+      "spawned": true,
+      "defeated": true,
+      "defeatTick": 25561,
+      "phaseReached": [
+        true,
+        true,
+        true
+      ],
+      "fanWarnings": 14,
+      "fanErases": 14,
+      "trailPointsErased": 832,
+      "returnedHits": 15,
+      "ordinaryHits": 307,
+      "armorLayersStripped": 3,
+      "damageByAttack": {
+        "fan": 1,
+        "sweep": 0,
+        "volley": 0
+      }
+    },
+    "hash": "6aab5c4ab3d93e9d"
+  },
+  "replayHash": "6aab5c4ab3d93e9d",
+  "gates": {
+    "baselineDefeatsBoss": true,
+    "stitchDefeatsBoss": true,
+    "routeAtLeastTwentyPercentFaster": true,
+    "allPhasesReached": true,
+    "returnedFireUsed": true,
+    "allArmorTextsStripped": true,
+    "fanTelegraphedAndErased": true,
+    "attackDamageMeasured": true,
+    "bulletLimit": true,
+    "deterministicReplay": true
+  }
+}

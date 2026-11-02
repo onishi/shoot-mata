@@ -1,5 +1,15 @@
 # v4.2 Log
 
+## 2026-11-02 — v4.2-01 独立土台とMARGINALIA比較
+
+- v4.1を変更せず`ver04.2/game`へ独立複製し、v4.2版表示、保存・設定キー、port 4185、release metadata、トップ・`/v4.2/`と旧版保持経路を分離した。
+- MARGINALIAカードへbenefit、cost、repeat rule、owned countを明記し、画面上部へ現在所持中の全構成を追加した。AFTERWORDを含む長文は幅実測で2行まで折り返す。
+- 12候補×3位置×midpoint/result×3解像度の216組合せをChrome Canvasの実描画幅で検査し、欠け・カード外描画0件。3解像度の画像を目視した。
+- `stage-06-boss`がphase 3まで進めていたQA不備を修復し、phase 1の実状態を返すようにした。phase 1 / 2 / 3は撮影直前にphase番号、固有弱点・攻撃状態をassertする。
+- 初回Chrome検証では修復後のQAシナリオが旧audio auditのinteraction cueを発火せず、phase 2のrule assertも周期計算と1つずれた。phase状態を変えずinteraction cueを監査し、phase 2周期を実挙動へ合わせて再検証した。
+- `npm run verify`に合格。単体80/80、自動プレイ14/14、正式90/90周、simulation平均0.032ms、Chrome平均0.069ms・long task 0・heap増加4.12%、素材・独自性・音量監査、production build、Chrome E2E 25/25を確認した。
+- 正式90周は時間中央値23.37 / 23.47 / 23.57分、最大24.59 / 24.73 / 24.37分、被弾中央値1 / 1 / 3、全難易度コンティニュー0。release artifactの9経路検査にも合格した。
+
 ## 2026-11-02 — baseline再評価と改善方針固定
 
 - v4.1を変更しない一時コピーでautoplay 14/14、simulation性能、seed 4700〜4702の3難易度9周、production build、Chrome E2E 24/24を再実行した。

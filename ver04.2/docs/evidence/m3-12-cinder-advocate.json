@@ -1,0 +1,88 @@
+{
+  "generatedAt": "2026-11-01",
+  "seed": 3412,
+  "baseline": {
+    "durationTicks": 19901,
+    "maxEnemyBullets": 74,
+    "advocate": {
+      "embersThrown": 63,
+      "embersCooled": 0,
+      "cooledHits": 0,
+      "cooledHitsByPhase": [
+        0,
+        0,
+        0
+      ],
+      "wallBlocks": 1980,
+      "wallActiveTicks": 19902,
+      "phaseReached": [
+        true,
+        true,
+        true
+      ],
+      "attacks": {
+        "ember": 63,
+        "gavel": 55,
+        "verdict": 73
+      },
+      "damageByAttack": {
+        "ember": 13,
+        "gavel": 18,
+        "verdict": 13
+      }
+    },
+    "hash": "a29a53c143dbf475"
+  },
+  "stitch": {
+    "durationTicks": 5301,
+    "phaseTicks": [
+      0,
+      1862,
+      4270
+    ],
+    "maxEnemyBullets": 56,
+    "advocate": {
+      "embersThrown": 15,
+      "embersCooled": 10,
+      "cooledHits": 9,
+      "cooledHitsByPhase": [
+        3,
+        3,
+        3
+      ],
+      "wallBlocks": 381,
+      "wallActiveTicks": 5302,
+      "phaseReached": [
+        true,
+        true,
+        true
+      ],
+      "attacks": {
+        "ember": 15,
+        "gavel": 20,
+        "verdict": 11
+      },
+      "damageByAttack": {
+        "ember": 0,
+        "gavel": 0,
+        "verdict": 0
+      }
+    },
+    "hash": "8864e4071273e986"
+  },
+  "replayHash": "8864e4071273e986",
+  "gates": {
+    "ordinaryFallbackDefeatsBoss": true,
+    "stitchDefeatsBoss": true,
+    "cooledRouteAtLeastSeventyPercentFaster": true,
+    "allPhasesReached": true,
+    "cooledDecisionInEveryPhase": true,
+    "encounterRunsThirtyToSixtySeconds": true,
+    "cooledRouteDominatesDamage": true,
+    "wallNeverDrops": true,
+    "allAttacksEmitted": true,
+    "attackDamageMeasured": true,
+    "bulletLimit": true,
+    "deterministicReplay": true
+  }
+}

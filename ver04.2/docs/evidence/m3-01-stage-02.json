@@ -1,0 +1,65 @@
+{
+  "generatedAt": "2026-10-31",
+  "durationTicks": 21600,
+  "scheduledSpawns": 74,
+  "seed": 3201,
+  "finalHash": "91976d45ea4ff223",
+  "replayHashes": [
+    "91976d45ea4ff223",
+    "91976d45ea4ff223",
+    "91976d45ea4ff223"
+  ],
+  "maxEnemies": 8,
+  "maxEnemyBullets": 26,
+  "maxCombatGapTicks": 1,
+  "stats": {
+    "index-kite": {
+      "spawned": 27,
+      "attacks": 34,
+      "defeated": 9,
+      "exited": 18
+    },
+    "vane-scribe": {
+      "spawned": 17,
+      "attacks": 19,
+      "defeated": 12,
+      "exited": 5
+    },
+    "cross-reference-pair": {
+      "spawned": 28,
+      "attacks": 36,
+      "defeated": 20,
+      "exited": 8
+    },
+    "tab-binder": {
+      "spawned": 2,
+      "attacks": 2,
+      "defeated": 2,
+      "exited": 0
+    }
+  },
+  "wind": {
+    "reversals": 29,
+    "playerDrift": 993600,
+    "trailDrift": 177125310,
+    "collatesLeft": 12,
+    "collatesRight": 16,
+    "collatesNearReversal": 12
+  },
+  "rejectedEnemies": 0,
+  "rejectedEnemyBullets": 0,
+  "gates": {
+    "allKindsSpawned": true,
+    "allKindsAttacked": true,
+    "allKindsDefeated": true,
+    "allSpawnsAccounted": true,
+    "bothWindDirectionsCollated": true,
+    "reversalWindowCollated": true,
+    "allReversalsObserved": true,
+    "noUnintendedFourSecondGap": true,
+    "enemyLimit": true,
+    "bulletLimit": true,
+    "deterministicReplay": true,
+    "stageDrained": true
+  }
+}

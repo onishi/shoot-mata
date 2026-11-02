@@ -1,0 +1,94 @@
+{
+  "generatedAt": "2026-11-01",
+  "seed": 3622,
+  "baseline": {
+    "durationTicks": 15033,
+    "maxEnemyBullets": 128,
+    "editor": {
+      "rulesRewritten": 0,
+      "revisionExposedTicks": 0,
+      "revisionHits": 304,
+      "ordinaryHits": 1188,
+      "signatureInkSpawned": 80,
+      "signatureClosures": 1,
+      "signatureExposedTicks": 960,
+      "phaseReached": [
+        true,
+        true,
+        true
+      ],
+      "attacks": {
+        "erasure": 19,
+        "wind": 17,
+        "rain": 23,
+        "heat": 20,
+        "mirror": 20,
+        "signature": 10
+      },
+      "damageByAttack": {
+        "erasure": 6,
+        "wind": 1,
+        "rain": 2,
+        "heat": 0,
+        "mirror": 3,
+        "signature": 0
+      }
+    },
+    "hash": "f18647aa7817c80a"
+  },
+  "stitch": {
+    "durationTicks": 11722,
+    "phaseTicks": [
+      0,
+      758,
+      8721
+    ],
+    "maxEnemyBullets": 108,
+    "editor": {
+      "rulesRewritten": 5,
+      "revisionExposedTicks": 6149,
+      "revisionHits": 817,
+      "ordinaryHits": 216,
+      "signatureInkSpawned": 80,
+      "signatureClosures": 2,
+      "signatureExposedTicks": 1920,
+      "phaseReached": [
+        true,
+        true,
+        true
+      ],
+      "attacks": {
+        "erasure": 15,
+        "wind": 13,
+        "rain": 21,
+        "heat": 17,
+        "mirror": 17,
+        "signature": 10
+      },
+      "damageByAttack": {
+        "erasure": 0,
+        "wind": 1,
+        "rain": 0,
+        "heat": 0,
+        "mirror": 0,
+        "signature": 0
+      }
+    },
+    "hash": "8ba8750eea939d25"
+  },
+  "replayHash": "8ba8750eea939d25",
+  "gates": {
+    "ordinaryFallbackDefeatsBoss": true,
+    "stitchDefeatsBoss": true,
+    "finalBossRunsSeventyTwoToOneHundredThirtyTwoSeconds": true,
+    "authoredRouteAtLeastTwentyPercentFaster": true,
+    "allPhasesReached": true,
+    "inheritedRulesRewritten": true,
+    "exposedRouteUsed": true,
+    "allFiveRulesAttack": true,
+    "signatureInkEmitted": true,
+    "signatureClosed": true,
+    "bulletLimit": true,
+    "deterministicReplay": true
+  }
+}

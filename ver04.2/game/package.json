@@ -1,0 +1,31 @@
+{
+  "name": "palimpsest-wake-v4-2",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run tests",
+    "autoplay": "vitest run scripts/stage-01.report.test.ts scripts/stage-01-boss.report.test.ts scripts/stage-02.report.test.ts scripts/stage-02-boss.report.test.ts scripts/stage-03.report.test.ts scripts/stage-03-boss.report.test.ts scripts/stage-04.report.test.ts scripts/stage-04-boss.report.test.ts scripts/stage-05.report.test.ts scripts/stage-05-boss.report.test.ts scripts/stage-06.report.test.ts scripts/stage-06-boss.report.test.ts scripts/marginalia.report.test.ts scripts/marginalia-counterfactual.report.test.ts",
+    "performance": "vitest run scripts/performance.report.test.ts",
+    "balance": "vitest run scripts/campaign-balance.report.test.ts",
+    "audit:assets": "node scripts/audit-assets.mjs",
+    "audit:originality": "node scripts/audit-originality.mjs",
+    "generate:audio": "node scripts/generate-audio.mjs",
+    "audit:audio": "node scripts/audit-audio.mjs",
+    "build": "npm run typecheck && vite build",
+    "package:release": "node scripts/package-release.mjs",
+    "verify:release": "node scripts/verify-release.mjs",
+    "verify:deployment": "node scripts/verify-deployment.mjs",
+    "test:e2e": "playwright test --workers=1",
+    "verify": "npm run test && npm run autoplay && npm run performance && npm run balance && npm run audit:originality && npm run audit:assets && npm run audit:audio && npm run build && npm run test:e2e"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56.1",
+    "@types/node": "^26.6.5",
+    "typescript": "^5.9.3",
+    "vite": "^7.1.12",
+    "vitest": "^4.0.6"
+  }
+}

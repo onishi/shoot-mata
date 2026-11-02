@@ -1,0 +1,364 @@
+{
+  "schemaVersion": 1,
+  "assets": [
+    {
+      "id": "stage-01-erased-harbor-far-v1", "kind": "background-raster", "path": "public/assets/stage-01/erased-harbor-far-v1.png",
+      "stage": "Stage 1: The Erased Harbor", "usage": "opaque far parallax layer", "version": 1, "status": "final", "createdBy": "image-generation",
+      "sourcePrompt": "Stage 1 The Erased Harbor: vast airborne manuscript harbor with torn ivory piers, hollow ship hulls, binding cables, archive towers and eraser-dust islands in a night-indigo sky; polished hand-painted 2D game background; calm dark play band; ivory moonlight, ultramarine shadow and amber beacons; background only, original design, no text or watermark.",
+      "generatedAt": "2026-10-31", "editHistory": ["Built-in image generation output copied without pixel edits; runtime crops to 1280x720 cover."], "dimensions": "1672x941 RGB", "license": "project-original"
+    },
+    {
+      "id": "stage-01-erased-harbor-mid-v1", "kind": "background-raster", "path": "public/assets/stage-01/erased-harbor-mid-v1.png",
+      "stage": "Stage 1: The Erased Harbor", "usage": "transparent middle parallax structures", "version": 1, "status": "final", "createdBy": "image-generation",
+      "sourcePrompt": "Transparent middle-distance Stage 1 structures: broken airborne piers, stitched bridges, hollow manuscript-ship ribs and amber route beacons; hand-painted paper fiber and graphite wear; structures at top and bottom with an open play center; original environment only, no text or watermark.",
+      "generatedAt": "2026-10-31", "editHistory": ["Built-in image generation output copied without pixel edits; alpha preserved."], "dimensions": "1983x793 RGBA", "license": "project-original"
+    },
+    {
+      "id": "stage-01-erased-harbor-fore-v1", "kind": "background-raster", "path": "public/assets/stage-01/erased-harbor-fore-v1.png",
+      "stage": "Stage 1: The Erased Harbor", "usage": "transparent foreground fragments and cables", "version": 1, "status": "final", "createdBy": "image-generation",
+      "sourcePrompt": "Transparent close foreground fragments for Stage 1: torn pier edges, braided binding cables, drifting eraser crumbs and graphite-black hull shards; sparse framing at corners and edges, unobstructed center; crisp paper texture; original design, no text or watermark.",
+      "generatedAt": "2026-10-31", "editHistory": ["Built-in image generation output copied without pixel edits; alpha preserved."], "dimensions": "1983x793 RGBA", "license": "project-original"
+    },
+    {
+      "id": "stage-01-sprites-v1", "kind": "sprite-atlas-raster", "path": "public/assets/stage-01/stage-01-sprites-v1.png",
+      "stage": "Stage 1: The Erased Harbor", "usage": "TRACE SKIFF, four normal enemies, BLANK BAILIFF and returned-fire shard", "version": 1, "status": "final", "createdBy": "image-generation",
+      "sourcePrompt": "Transparent production sprite atlas containing seven original side-view game sprites: two-wing TRACE SKIFF, hooked ERASER MITE, open-bracket BRACKET GULL, pointed MARGIN SKIFF, stitched FOLIO HAULER with amber rear weak point, folding-fan BLANK BAILIFF with three seal ribs and exposed cyan core, and a returned-fire shard; paper fiber, ivory, graphite, cyan, coral and amber; no labels, grid, overlap, text or watermark.",
+      "generatedAt": "2026-10-31", "editHistory": ["Built-in image generation output copied without pixel edits.", "Runtime source rectangles documented in src/render/visual-assets.ts; alpha preserved."], "dimensions": "1774x887 RGBA", "license": "project-original"
+    },
+    {
+      "id": "stage-01-canvas-effects-v1", "kind": "procedural-visual", "path": "src/render/render.ts",
+      "stage": "Stage 1: The Erased Harbor", "usage": "three-layer wake, scanned COLLATE candidate, hollow enemy fire, return fire, boss telegraph and marginal HUD", "version": 1, "status": "final", "createdBy": "procedural",
+      "sourcePrompt": "none; authored Canvas compositing from docs/02-art-and-audio-direction.md sections 1, 2 and 5", "generatedAt": "2026-10-31",
+      "editHistory": ["Replaced M1 primitive combat rendering with layered glow, inner line, scan fill, double-ring hazards and atlas-backed return shards."], "dimensions": "1280x720 logical canvas", "license": "project-original"
+    },
+    {
+      "id": "stage-01-ambient-v1", "kind": "audio-stem", "path": "public/assets/audio/stage-01/harbor-ambient-v1.wav",
+      "stage": "Stage 1: The Erased Harbor", "usage": "looping environment stem: hollow wind and resonant harbor hull", "version": 1, "status": "final", "createdBy": "procedural",
+      "sourcePrompt": "scripts/generate-audio.mjs deterministic synthesis; hollow air, paper-grain breath and low single-note hull resonance", "generatedAt": "2026-10-31",
+      "editHistory": ["Synthesized at 44.1 kHz stereo PCM16 and normalized for the Stage 1 environment bus."], "dimensions": "16.0s stereo 44.1kHz PCM16", "license": "project-original"
+    },
+    {
+      "id": "stage-01-pulse-v1", "kind": "audio-stem", "path": "public/assets/audio/stage-01/harbor-pulse-v1.wav",
+      "stage": "Stage 1: The Erased Harbor", "usage": "looping density stem: irregular wooden proofing-machine clicks", "version": 1, "status": "final", "createdBy": "procedural",
+      "sourcePrompt": "scripts/generate-audio.mjs deterministic synthesis; wooden clicks with nonrepeating stereo placement and sparse paper-machine pulse", "generatedAt": "2026-10-31",
+      "editHistory": ["Synthesized at 44.1 kHz stereo PCM16; runtime gain follows enemy and projectile density."], "dimensions": "16.0s stereo 44.1kHz PCM16", "license": "project-original"
+    },
+    {
+      "id": "stage-01-crisis-v1", "kind": "audio-stem", "path": "public/assets/audio/stage-01/harbor-crisis-v1.wav",
+      "stage": "Stage 1: The Erased Harbor", "usage": "looping danger stem: single-note bowed harmonic string", "version": 1, "status": "final", "createdBy": "procedural",
+      "sourcePrompt": "scripts/generate-audio.mjs deterministic synthesis; long single-note string harmonics and restrained graphite bow grain", "generatedAt": "2026-10-31",
+      "editHistory": ["Synthesized at 44.1 kHz stereo PCM16; runtime gain follows BLANK BAILIFF phase."], "dimensions": "16.0s stereo 44.1kHz PCM16", "license": "project-original"
+    },
+    {
+      "id": "stage-01-effects-v1", "kind": "audio-effect-set", "path": "public/assets/audio/stage-01/shot-v1.wav",
+      "stage": "Stage 1: The Erased Harbor", "usage": "shot, annotation, candidate, COLLATE success/failure, RETRACE start/end, damage, warning and UI cues", "version": 1, "status": "final", "createdBy": "procedural",
+      "sourcePrompt": "scripts/generate-audio.mjs deterministic synthesis; eleven distinct immediate proofing, paper-light and wooden UI gestures", "generatedAt": "2026-10-31",
+      "editHistory": ["Synthesized as eleven 44.1 kHz stereo PCM16 files; all files and worst-case mix inspected by scripts/audit-audio.mjs."], "dimensions": "11 files, 0.12s to 0.72s, stereo 44.1kHz PCM16", "license": "project-original"
+    },
+    {
+      "id": "stage-02-crosswind-index-far-v1", "kind": "background-raster", "path": "public/assets/stage-02/crosswind-index-far-v1.png",
+      "stage": "Stage 2: The Crosswind Index", "usage": "opaque far parallax layer with suspended index towers and cloud strata", "version": 1, "status": "final", "createdBy": "image-generation",
+      "sourcePrompt": "Wide 16:9 far background for The Crosswind Index: distant vertical index towers suspended in pale clouds, abstract binding spines and blank tabs, strong alternating crosswinds, hand-painted paper-fiber and graphite science-fantasy architecture; blue-green, chalk white and muted ochre; sparse playfield, no characters, UI, text, logos or watermark.",
+      "generatedAt": "2026-10-31", "editHistory": ["Built-in image generation output copied without pixel edits; runtime crops to 1280x720 cover."], "dimensions": "1672x941 RGB", "license": "project-original"
+    },
+    {
+      "id": "stage-02-crosswind-index-mid-v1", "kind": "background-raster", "path": "public/assets/stage-02/crosswind-index-mid-v1.png",
+      "stage": "Stage 2: The Crosswind Index", "usage": "transparent middle parallax towers, vanes, index tabs and cloud ribbons", "version": 1, "status": "final", "createdBy": "image-generation",
+      "sourcePrompt": "Transparent wide middle layer of open-frame index towers, rotating wind vanes, blank tabs and lateral cloud ribbons; structures kept at top and bottom around an open gameplay center; hand-painted teal, chalk-white and ochre manuscript machinery; no characters, UI, text, logos or watermark.",
+      "generatedAt": "2026-10-31", "editHistory": ["Built-in image generation output copied without pixel edits; alpha preserved."], "dimensions": "1672x941 RGBA", "license": "project-original"
+    },
+    {
+      "id": "stage-02-crosswind-index-fore-v1", "kind": "background-raster", "path": "public/assets/stage-02/crosswind-index-fore-v1.png",
+      "stage": "Stage 2: The Crosswind Index", "usage": "transparent foreground wind-torn tabs, binding rails and paper fibers", "version": 1, "status": "final", "createdBy": "image-generation",
+      "sourcePrompt": "Transparent sparse foreground of wind-torn index tabs, binding rails and paper fibers swept horizontally; strong cropped silhouettes at extreme edges with the center open; dark teal, chalk white and ochre; no characters, UI, text, logos or watermark.",
+      "generatedAt": "2026-10-31", "editHistory": ["Built-in image generation output copied without pixel edits; alpha preserved."], "dimensions": "1672x941 RGBA", "license": "project-original"
+    },
+    {
+      "id": "stage-02-sprites-v1", "kind": "sprite-atlas-raster", "path": "public/assets/stage-02/stage-02-sprites-v1.png",
+      "stage": "Stage 2: The Crosswind Index", "usage": "Index Kite, Vane Scribe, Cross-Reference Pair, Tab Binder, CROSSWIND COMPILER and exposed seam target", "version": 1, "status": "final", "createdBy": "image-generation",
+      "sourcePrompt": "Transparent two-row production atlas containing six isolated original side-view manuscript machines: swept Index Kite, five-vane fixed Vane Scribe, linked Cross-Reference Pair, seven-port Tab Binder, asymmetric windmill CROSSWIND COMPILER, and separate double-ring seam target; graphite, oxidized teal, paper fiber, chalk-white edges and pale-gold weak point; no labels, scenery, grid, text or watermark.",
+      "generatedAt": "2026-10-31", "editHistory": ["Built-in image generation output copied without pixel edits.", "Runtime source rectangles documented in src/render/visual-assets.ts; alpha preserved."], "dimensions": "1774x887 RGBA", "license": "project-original"
+    },
+    {
+      "id": "stage-02-canvas-effects-v1", "kind": "procedural-visual", "path": "src/render/render.ts",
+      "stage": "Stage 2: The Crosswind Index", "usage": "directional wind fibers, gold wind-lock state, exposed seam glow, atlas-backed enemies and three-layer parallax", "version": 1, "status": "final", "createdBy": "procedural",
+      "sourcePrompt": "none; authored Canvas compositing from docs/02-art-and-audio-direction.md sections 1, 3 and 4",
+      "generatedAt": "2026-10-31", "editHistory": ["Removed all Stage 2 preview primitives and connected final backgrounds and sprites.", "Wind fibers reverse every six seconds and turn gold while Compiler wind lock is active; exposed seam uses a separate double-ring atlas frame."], "dimensions": "1280x720 logical canvas", "license": "project-original"
+    },
+    {
+      "id": "stage-02-ambient-v1", "kind": "audio-stem", "path": "public/assets/audio/stage-02/crosswind-ambient-v1.wav",
+      "stage": "Stage 2: The Crosswind Index", "usage": "looping environment stem: alternating lateral wind and paper-fiber air", "version": 1, "status": "final", "createdBy": "procedural",
+      "sourcePrompt": "scripts/generate-audio.mjs deterministic synthesis; stereo crosswind sweeps, paper-fiber hiss and low suspended-tower air", "generatedAt": "2026-10-31",
+      "editHistory": ["Synthesized at 44.1 kHz stereo PCM16; environment bus remains independent from music and SE."], "dimensions": "16.0s stereo 44.1kHz PCM16", "license": "project-original"
+    },
+    {
+      "id": "stage-02-pulse-v1", "kind": "audio-stem", "path": "public/assets/audio/stage-02/crosswind-pulse-v1.wav",
+      "stage": "Stage 2: The Crosswind Index", "usage": "looping density stem: vane rotation in a three-against-four polyrhythm", "version": 1, "status": "final", "createdBy": "procedural",
+      "sourcePrompt": "scripts/generate-audio.mjs deterministic synthesis; dry vane clicks, indexing teeth and rotating stereo placement", "generatedAt": "2026-10-31",
+      "editHistory": ["Synthesized at 44.1 kHz stereo PCM16; runtime gain follows enemy and projectile density."], "dimensions": "16.0s stereo 44.1kHz PCM16", "license": "project-original"
+    },
+    {
+      "id": "stage-02-crisis-v1", "kind": "audio-stem", "path": "public/assets/audio/stage-02/crosswind-crisis-v1.wav",
+      "stage": "Stage 2: The Crosswind Index", "usage": "looping danger stem: rotating Compiler harmonics and ratchet grain", "version": 1, "status": "final", "createdBy": "procedural",
+      "sourcePrompt": "scripts/generate-audio.mjs deterministic synthesis; rotating low harmonics, vane ratchet and phase pressure", "generatedAt": "2026-10-31",
+      "editHistory": ["Synthesized at 44.1 kHz stereo PCM16; runtime gain follows CROSSWIND COMPILER phase."], "dimensions": "16.0s stereo 44.1kHz PCM16", "license": "project-original"
+    },
+    {
+      "id": "stage-02-effects-v1", "kind": "audio-effect-set", "path": "public/assets/audio/stage-02/crosswind-left-v1.wav",
+      "stage": "Stage 2: The Crosswind Index", "usage": "left/right reversal, wind lock, seam exposure, seam hit and Compiler phase cues", "version": 1, "status": "final", "createdBy": "procedural",
+      "sourcePrompt": "scripts/generate-audio.mjs deterministic synthesis; directional air, locking vane, exposed binding resonance and Compiler machinery", "generatedAt": "2026-10-31",
+      "editHistory": ["Synthesized as six 44.1 kHz stereo PCM16 files; connected to simulation events and inspected in the worst-case Stage 2 mix."], "dimensions": "6 files, 0.20s to 0.86s, stereo 44.1kHz PCM16", "license": "project-original"
+    },
+    {
+      "id": "stage-03-rain-margin-far-v1", "kind": "background-raster", "path": "public/assets/stage-03/rain-margin-far-v1.png",
+      "stage": "Stage 3: The Rain Margin", "usage": "opaque far parallax layer with rain gutters, vertical gardens and reflected water terraces", "version": 1, "status": "final", "createdBy": "image-generation",
+      "sourcePrompt": "Stage 3 The Rain Margin: original airborne rain-annotated gallery of colossal gutters, reed-brush columns, hanging vertical gardens, basins and manuscript architecture in an indigo storm; polished hand-painted 2D background with a calm dark central play band; moss green, silver and cyan reflection; no characters, text or watermark.",
+      "generatedAt": "2026-10-31", "editHistory": ["Built-in image generation output copied without pixel edits; runtime crops to 1280x720 cover."], "dimensions": "1672x941 RGB", "license": "project-original"
+    },
+    {
+      "id": "stage-03-rain-margin-mid-v1", "kind": "background-raster", "path": "public/assets/stage-03/rain-margin-mid-v1.png",
+      "stage": "Stage 3: The Rain Margin", "usage": "transparent middle parallax gutters, reed trellises, vertical gardens, basins and waterfall ribbons", "version": 1, "status": "final", "createdBy": "image-generation",
+      "sourcePrompt": "Transparent wide middle layer for The Rain Margin: open rain gutters, reed-brush trellises, hanging gardens, suspended basins and narrow waterfalls arranged at the top and bottom around an open gameplay center; hand-painted wet graphite, indigo and moss-green science-fantasy forms; no characters, text or watermark.",
+      "generatedAt": "2026-10-31", "editHistory": ["Built-in image generation output copied without pixel edits; alpha preserved."], "dimensions": "1672x941 RGBA", "license": "project-original"
+    },
+    {
+      "id": "stage-03-rain-margin-fore-v1", "kind": "background-raster", "path": "public/assets/stage-03/rain-margin-fore-v1.png",
+      "stage": "Stage 3: The Rain Margin", "usage": "transparent foreground gutter mouths, wet reed cables, leaves, rain chains and droplets", "version": 1, "status": "final", "createdBy": "image-generation",
+      "sourcePrompt": "Transparent sparse foreground for The Rain Margin: cropped black-indigo gutter mouths, braided wet reed cables, glossy leaves, silver rain chains and hanging droplets at extreme corners and edges with an unobstructed center; no characters, UI, text or watermark.",
+      "generatedAt": "2026-10-31", "editHistory": ["Built-in image generation output copied without pixel edits; alpha preserved."], "dimensions": "1672x941 RGBA", "license": "project-original"
+    },
+    {
+      "id": "stage-03-sprites-v1", "kind": "sprite-atlas-raster", "path": "public/assets/stage-03/stage-03-sprites-v1.png",
+      "stage": "Stage 3: The Rain Margin", "usage": "Drip Scribe, Gutter Frog, Basin Bell, Reed Needle, LACUNA EEL head, ordinary segment and double-outlined wet-mark segment", "version": 1, "status": "final", "createdBy": "image-generation",
+      "sourcePrompt": "Transparent two-row production atlas with seven original rain-gallery creatures: diamond Drip Scribe with three nozzles, spring-legged Gutter Frog, bowl-and-bell Basin Bell, spear-shaped Reed Needle, serpentine LACUNA EEL head, armored body segment and a separate double-outlined droplet-notched wet-seal segment; wet graphite, moss green, indigo, silver, cyan and pale gold; no labels, scenery, grid, text or watermark.",
+      "generatedAt": "2026-10-31", "editHistory": ["Built-in image generation output copied without pixel edits.", "Runtime source rectangles documented in src/render/visual-assets.ts; alpha preserved."], "dimensions": "1774x887 RGBA", "license": "project-original"
+    },
+    {
+      "id": "stage-03-canvas-effects-v1", "kind": "procedural-visual", "path": "src/render/render.ts",
+      "stage": "Stage 3: The Rain Margin", "usage": "silver rain, mint wet-wake overlay, double-line wet annotation, sequential wet seal, atlas-backed enemies and three-layer parallax", "version": 1, "status": "final", "createdBy": "procedural",
+      "sourcePrompt": "none; authored Canvas compositing from docs/02-art-and-audio-direction.md sections 1, 3, 4 and 5",
+      "generatedAt": "2026-10-31", "editHistory": ["Removed all Stage 3 preview enemy primitives and gradient backdrop, then connected final backgrounds and sprites.", "Wet annotated fire uses a second rail and diamond droplet; the active eel segment uses a dashed contour and the wet seal swaps to a double-outlined droplet-notched atlas frame."],
+      "dimensions": "1280x720 logical canvas", "license": "project-original"
+    },
+    {
+      "id": "stage-03-ambient-v1", "kind": "audio-stem", "path": "public/assets/audio/stage-03/rain-ambient-v1.wav",
+      "stage": "Stage 3: The Rain Margin", "usage": "looping environment stem: dense rain beads, silver hiss and low basin water", "version": 1, "status": "final", "createdBy": "procedural",
+      "sourcePrompt": "scripts/generate-audio.mjs deterministic synthesis; spatial rain density, discrete gutter droplets and low water resonance", "generatedAt": "2026-11-01",
+      "editHistory": ["Synthesized at 44.1 kHz stereo PCM16; environment bus remains independent from music and SE."], "dimensions": "16.0s stereo 44.1kHz PCM16", "license": "project-original"
+    },
+    {
+      "id": "stage-03-pulse-v1", "kind": "audio-stem", "path": "public/assets/audio/stage-03/rain-pulse-v1.wav",
+      "stage": "Stage 3: The Rain Margin", "usage": "looping density stem: rain beads, gutter drops and submerged pulse", "version": 1, "status": "final", "createdBy": "procedural",
+      "sourcePrompt": "scripts/generate-audio.mjs deterministic synthesis; four-bead rain rhythm, periodic gutter resonance and wet stereo motion", "generatedAt": "2026-11-01",
+      "editHistory": ["Synthesized at 44.1 kHz stereo PCM16; runtime gain follows enemy and projectile density."], "dimensions": "16.0s stereo 44.1kHz PCM16", "license": "project-original"
+    },
+    {
+      "id": "stage-03-crisis-v1", "kind": "audio-stem", "path": "public/assets/audio/stage-03/rain-crisis-v1.wav",
+      "stage": "Stage 3: The Rain Margin", "usage": "looping danger stem: LACUNA EEL sub-water harmonics and rushing grain", "version": 1, "status": "final", "createdBy": "procedural",
+      "sourcePrompt": "scripts/generate-audio.mjs deterministic synthesis; low eel-like harmonic motion, submerged pressure and restrained water rush", "generatedAt": "2026-11-01",
+      "editHistory": ["Synthesized at 44.1 kHz stereo PCM16; runtime gain follows LACUNA EEL phase."], "dimensions": "16.0s stereo 44.1kHz PCM16", "license": "project-original"
+    },
+    {
+      "id": "stage-03-effects-v1", "kind": "audio-effect-set", "path": "public/assets/audio/stage-03/rain-wet-v1.wav",
+      "stage": "Stage 3: The Rain Margin", "usage": "rain wetting, Basin Bell surge, wet annotation, Eel segment mark/hit and phase cues", "version": 1, "status": "final", "createdBy": "procedural",
+      "sourcePrompt": "scripts/generate-audio.mjs deterministic synthesis; rain bead contact, gutter surge, wet ink rail, sealing resonance and low Eel phase pressure", "generatedAt": "2026-11-01",
+      "editHistory": ["Synthesized as six 44.1 kHz stereo PCM16 files; connected to simulation events and inspected in the worst-case Stage 3 mix."], "dimensions": "6 files, 0.22s to 0.90s, stereo 44.1kHz PCM16", "license": "project-original"
+    },
+    {
+      "id": "stage-04-burnt-footnote-far-v1", "kind": "background-raster", "path": "public/assets/stage-04/burnt-footnote-far-v1.png",
+      "stage": "Stage 4: The Burnt Footnote", "usage": "opaque far parallax layer with charred manuscript cliffs, type furnaces and a dark central play band",
+      "version": 1, "status": "final", "createdBy": "image-generation",
+      "sourcePrompt": "Wide 16:9 far background for The Burnt Footnote: airborne type foundry of charred manuscript cross-sections, suspended metal furnaces and blackened paper cliffs, sparse dark central gameplay band, charcoal, ember orange and restrained cyan; no characters, UI, text or watermark.",
+      "generatedAt": "2026-11-01", "editHistory": ["Built-in image generation output copied without pixel edits; runtime crops to 1280x720 cover."],
+      "dimensions": "1672x941 RGB", "license": "project-original"
+    },
+    {
+      "id": "stage-04-burnt-footnote-mid-v1", "kind": "background-raster", "path": "public/assets/stage-04/burnt-footnote-mid-v1.png",
+      "stage": "Stage 4: The Burnt Footnote", "usage": "transparent middle parallax furnaces, hanging footnote slabs, type blocks and ash conveyors",
+      "version": 1, "status": "final", "createdBy": "image-generation",
+      "sourcePrompt": "Transparent wide middle layer of open-frame type furnaces, hanging charred footnote slabs, giant movable type blocks, ash conveyors and broken rails arranged around an open center; charcoal, orange and cyan; no characters, UI, text or watermark.",
+      "generatedAt": "2026-11-01", "editHistory": ["Built-in image generation output copied without pixel edits; alpha preserved."],
+      "dimensions": "1672x941 RGBA", "license": "project-original"
+    },
+    {
+      "id": "stage-04-burnt-footnote-fore-v1", "kind": "background-raster", "path": "public/assets/stage-04/burnt-footnote-fore-v1.png",
+      "stage": "Stage 4: The Burnt Footnote", "usage": "transparent foreground type rails, curled burnt paper, ash and cooling pipes",
+      "version": 1, "status": "final", "createdBy": "image-generation",
+      "sourcePrompt": "Transparent sparse foreground of cracked type-metal rails, curled charred paper edges, falling ash, cooling pipes and press jaws confined to the outer edges; center and HUD bands clear; no characters, UI, text or watermark.",
+      "generatedAt": "2026-11-01", "editHistory": ["Built-in image generation output copied without pixel edits; alpha preserved."],
+      "dimensions": "1672x941 RGBA", "license": "project-original"
+    },
+    {
+      "id": "stage-04-sprites-v2", "kind": "sprite-atlas-raster", "path": "public/assets/stage-04/stage-04-sprites-v2.png",
+      "stage": "Stage 4: The Burnt Footnote", "usage": "Ash Comma, Kiln Censor, Ember Courier, Char Press, CINDER ADVOCATE, heat wall, ember and cooled countershot",
+      "version": 2, "status": "final", "createdBy": "image-generation",
+      "sourcePrompt": "Transparent two-row production atlas of eight original burnt-foundry sprites: curled Ash Comma, rooted Kiln Censor, cyan-core Ember Courier, two-platen Char Press, asymmetric CINDER ADVOCATE, diagonal-slashed heat wall, hollow ember and cyan double-outlined cooled shard; no labels, scenery, grid, text or watermark.",
+      "generatedAt": "2026-11-01", "editHistory": ["Built-in image generation output used as the source.", "A built-in background-extraction pass removed the brown backdrop while preserving sprite placement and alpha glow.", "Runtime source rectangles documented in src/render/visual-assets.ts."],
+      "dimensions": "1536x1024 RGBA", "license": "project-original"
+    },
+    {
+      "id": "stage-04-canvas-effects-v1", "kind": "procedural-visual", "path": "src/render/render.ts",
+      "stage": "Stage 4: The Burnt Footnote", "usage": "heat distortion, falling-depth parallax, moving cooling shadow, cooled wake and atlas-backed heat interactions",
+      "version": 1, "status": "final", "createdBy": "procedural",
+      "sourcePrompt": "none; authored Canvas compositing from docs/02-art-and-audio-direction.md sections 1, 3, 4 and 5",
+      "generatedAt": "2026-11-01", "editHistory": ["Replaced the Stage 4 preview gradient and primitive enemy and boss geometry with three-layer backgrounds and atlas sprites.", "Heat wall, ember and cooled countershot use distinct atlas silhouettes while heat waves and cooling shadow remain simulation-synchronized procedural effects."],
+      "dimensions": "1280x720 logical canvas", "license": "project-original"
+    },
+    {
+      "id": "stage-04-ambient-v1", "kind": "audio-stem", "path": "public/assets/audio/stage-04/furnace-ambient-v1.wav",
+      "stage": "Stage 4: The Burnt Footnote", "usage": "looping environment stem: furnace low-frequency bed, hot draft and drifting ash", "version": 1, "status": "final", "createdBy": "procedural",
+      "sourcePrompt": "scripts/generate-audio.mjs deterministic synthesis; low furnace fundamentals, spatial hot-air grain and sparse ash ticks", "generatedAt": "2026-11-01",
+      "editHistory": ["Synthesized at 44.1 kHz stereo PCM16; environment bus remains independent from music and SE."], "dimensions": "16.0s stereo 44.1kHz PCM16", "license": "project-original"
+    },
+    {
+      "id": "stage-04-pulse-v1", "kind": "audio-stem", "path": "public/assets/audio/stage-04/furnace-pulse-v1.wav",
+      "stage": "Stage 4: The Burnt Footnote", "usage": "looping density stem: metal type impacts, press weight and foundry rail resonance", "version": 1, "status": "final", "createdBy": "procedural",
+      "sourcePrompt": "scripts/generate-audio.mjs deterministic synthesis; dry movable-type strikes, four-beat press impact and resonant metal rail", "generatedAt": "2026-11-01",
+      "editHistory": ["Synthesized at 44.1 kHz stereo PCM16; runtime gain follows enemy and projectile density."], "dimensions": "16.0s stereo 44.1kHz PCM16", "license": "project-original"
+    },
+    {
+      "id": "stage-04-crisis-v1", "kind": "audio-stem", "path": "public/assets/audio/stage-04/furnace-crisis-v1.wav",
+      "stage": "Stage 4: The Burnt Footnote", "usage": "looping danger stem: CINDER ADVOCATE hearing pressure and metal scrape", "version": 1, "status": "final", "createdBy": "procedural",
+      "sourcePrompt": "scripts/generate-audio.mjs deterministic synthesis; low judicial harmonics, furnace pressure swell and restrained metal scrape", "generatedAt": "2026-11-01",
+      "editHistory": ["Synthesized at 44.1 kHz stereo PCM16; runtime gain follows CINDER ADVOCATE phase."], "dimensions": "16.0s stereo 44.1kHz PCM16", "license": "project-original"
+    },
+    {
+      "id": "stage-04-effects-v1", "kind": "audio-effect-set", "path": "public/assets/audio/stage-04/heat-wave-v1.wav",
+      "stage": "Stage 4: The Burnt Footnote", "usage": "heat wave, cooling-field COLLATE, Courier conversion, ember cooling, heat-wall impact and Advocate phase cues", "version": 1, "status": "final", "createdBy": "procedural",
+      "sourcePrompt": "scripts/generate-audio.mjs deterministic synthesis; sweeping heat, cyan cooling rise, type-metal conversion, quenched ember, blocked wall impact and Advocate hearing pressure", "generatedAt": "2026-11-01",
+      "editHistory": ["Synthesized as six 44.1 kHz stereo PCM16 files; connected to simulation events and inspected in the worst-case Stage 4 mix."], "dimensions": "6 files, 0.25s to 0.90s, stereo 44.1kHz PCM16", "license": "project-original"
+    },
+    {
+      "id": "stage-05-mirror-chamber-far-v1", "kind": "background-raster", "path": "public/assets/stage-05/mirror-chamber-far-v1.png",
+      "stage": "Stage 5: The Mirror Chamber", "usage": "opaque far parallax layer with suspended mirror tribunal architecture and reflected corridors",
+      "version": 1, "status": "final", "createdBy": "image-generation",
+      "sourcePrompt": "Wide Stage 5 Mirror Chamber far background: floating silver-black mirror slabs, fractured manuscript vaults, doubled archways, witness galleries and reflected corridors; hand-painted paper, graphite, silver leaf and dark glass; calm dark central play band; violet, pearl and sparse magenta; no characters, UI, text or watermark.",
+      "generatedAt": "2026-11-01", "editHistory": ["Built-in image generation output copied without pixel edits; runtime crops to 1280x720 cover."],
+      "dimensions": "1672x941 RGB", "license": "project-original"
+    },
+    {
+      "id": "stage-05-mirror-chamber-mid-v1", "kind": "background-raster", "path": "public/assets/stage-05/mirror-chamber-mid-v1.png",
+      "stage": "Stage 5: The Mirror Chamber", "usage": "transparent middle parallax mirror gates, testimony tablets, witness balconies and glass chains",
+      "version": 1, "status": "final", "createdBy": "image-generation",
+      "sourcePrompt": "Transparent wide middle layer of open-frame silver mirror gates, fractured blank testimony tablets, paired witness balconies, hanging dark-glass chains and reflected corridor fragments; top and bottom framing with an open gameplay center; no characters, UI, text or watermark.",
+      "generatedAt": "2026-11-01", "editHistory": ["Built-in image generation output copied without pixel edits; alpha preserved."],
+      "dimensions": "1672x941 RGBA", "license": "project-original"
+    },
+    {
+      "id": "stage-05-mirror-chamber-fore-v1", "kind": "background-raster", "path": "public/assets/stage-05/mirror-chamber-fore-v1.png",
+      "stage": "Stage 5: The Mirror Chamber", "usage": "transparent foreground glass shards, manuscript edges, mirror chains and frame corners",
+      "version": 1, "status": "final", "createdBy": "image-generation",
+      "sourcePrompt": "Transparent sparse foreground of cropped silvered dark-glass shards, torn graphite manuscript edges, thin mirror chains, cracked frame corners and pearl dust at extreme edges around an open center; no characters, UI, text or watermark.",
+      "generatedAt": "2026-11-01", "editHistory": ["Built-in image generation output copied without pixel edits; alpha preserved."],
+      "dimensions": "1672x941 RGBA", "license": "project-original"
+    },
+    {
+      "id": "stage-05-sprites-v1", "kind": "sprite-atlas-raster", "path": "public/assets/stage-05/stage-05-sprites-v1.png",
+      "stage": "Stage 5: The Mirror Chamber", "usage": "Mirror Mote, Quotation Ram, False Witness, Silver Obelisk and normal/exposed APOCRYPHA TWIN",
+      "version": 1, "status": "final", "createdBy": "image-generation",
+      "sourcePrompt": "Transparent two-row production atlas containing six isolated original mirror-manuscript machines: faceted Mirror Mote, quotation-hook Quotation Ram, hollow-mask False Witness, braced Silver Obelisk, normal APOCRYPHA TWIN and open-core gold-notched exposed twin; graphite, violet glass, silver, pearl and sparse magenta; no scenery, labels, grid, text or watermark.",
+      "generatedAt": "2026-11-01", "editHistory": ["Built-in image generation output copied without pixel edits.", "Runtime source rectangles documented in src/render/visual-assets.ts; alpha preserved."],
+      "dimensions": "1536x1024 RGBA", "license": "project-original"
+    },
+    {
+      "id": "stage-05-canvas-effects-v1", "kind": "procedural-visual", "path": "src/render/render.ts",
+      "stage": "Stage 5: The Mirror Chamber", "usage": "simulation-synchronized mirror bands, real and false wakes, real and illusory rounds, shared sync and exposed-twin seal",
+      "version": 1, "status": "final", "createdBy": "procedural",
+      "sourcePrompt": "none; authored Canvas compositing from docs/02-art-and-audio-direction.md Stage 5 direction and M3-16 through M3-19 measured mechanics",
+      "generatedAt": "2026-11-01", "editHistory": ["Replaced labeled preview bands with silver gradient panes, notched anchors and reflected seams.", "Connected final raster enemies and twins while retaining simulation-synchronized magenta dashed false wakes, hollow illusory rounds, broken shared sync and gold open-core weakpoint cues."],
+      "dimensions": "1280x720 logical canvas", "license": "project-original"
+    },
+    {
+      "id": "stage-05-ambient-v1", "kind": "audio-stem", "path": "public/assets/audio/stage-05/mirror-ambient-v1.wav",
+      "stage": "Stage 5: The Mirror Chamber", "usage": "looping environment stem: dark glass resonance, silver sheen and moving reflected tone", "version": 1, "status": "final", "createdBy": "procedural",
+      "sourcePrompt": "scripts/generate-audio.mjs deterministic synthesis; paired glass fundamentals, spatial silver grain and slow reflected motion", "generatedAt": "2026-11-01",
+      "editHistory": ["Synthesized at 44.1 kHz stereo PCM16; environment bus remains independent from music and SE."], "dimensions": "16.0s stereo 44.1kHz PCM16", "license": "project-original"
+    },
+    {
+      "id": "stage-05-pulse-v1", "kind": "audio-stem", "path": "public/assets/audio/stage-05/mirror-pulse-v1.wav",
+      "stage": "Stage 5: The Mirror Chamber", "usage": "looping density stem: paired statement-and-answer strikes with chamber resonance", "version": 1, "status": "final", "createdBy": "procedural",
+      "sourcePrompt": "scripts/generate-audio.mjs deterministic synthesis; offset witness statements, reflected answer pulse and restrained glass chamber body", "generatedAt": "2026-11-01",
+      "editHistory": ["Synthesized at 44.1 kHz stereo PCM16; runtime gain follows enemy and projectile density."], "dimensions": "16.0s stereo 44.1kHz PCM16", "license": "project-original"
+    },
+    {
+      "id": "stage-05-crisis-v1", "kind": "audio-stem", "path": "public/assets/audio/stage-05/mirror-crisis-v1.wav",
+      "stage": "Stage 5: The Mirror Chamber", "usage": "looping danger stem: APOCRYPHA TWINS exchanging low harmonics and fractured glass pressure", "version": 1, "status": "final", "createdBy": "procedural",
+      "sourcePrompt": "scripts/generate-audio.mjs deterministic synthesis; opposed twin fundamentals, lateral exchange and restrained fracture grain", "generatedAt": "2026-11-01",
+      "editHistory": ["Synthesized at 44.1 kHz stereo PCM16; runtime gain follows APOCRYPHA TWINS phase."], "dimensions": "16.0s stereo 44.1kHz PCM16", "license": "project-original"
+    },
+    {
+      "id": "stage-05-effects-v1", "kind": "audio-effect-set", "path": "public/assets/audio/stage-05/mirror-reflect-v1.wav",
+      "stage": "Stage 5: The Mirror Chamber", "usage": "mirror-band reflection, false annotation and volley, Twins sync break, weakpoint hit and phase cues", "version": 1, "status": "final", "createdBy": "procedural",
+      "sourcePrompt": "scripts/generate-audio.mjs deterministic synthesis; glass traversal, doubled writing, hollow false rounds, split sync resonance, gold weakpoint strike and exchanged twin pressure", "generatedAt": "2026-11-01",
+      "editHistory": ["Synthesized as six 44.1 kHz stereo PCM16 files; connected to simulation events and inspected in the worst-case Stage 5 mix."], "dimensions": "6 files, 0.22s to 0.92s, stereo 44.1kHz PCM16", "license": "project-original"
+    },
+    {
+      "id": "stage-06-original-dawn-far-v1", "kind": "background-raster", "path": "public/assets/stage-06/original-dawn-far-v1.png",
+      "stage": "Stage 6: Dawn of the Original", "usage": "opaque far parallax where five restored routes converge on the original binding core at dawn",
+      "version": 1, "status": "final", "createdBy": "image-generation",
+      "sourcePrompt": "Wide Stage 6 Dawn of the Original far background: original airborne manuscript cosmos at pre-dawn, five restored routes converging toward one colossal distant binding core; wind towers, rain galleries, charred type foundries and mirror arches recomposed into one architecture; dark central gameplay band; night navy opening to pale multicolor dawn; no characters, UI, text or watermark.",
+      "generatedAt": "2026-11-01", "editHistory": ["Built-in image generation output copied without pixel edits; runtime crops to 1280x720 cover."],
+      "dimensions": "1672x940 RGB", "license": "project-original"
+    },
+    {
+      "id": "stage-06-original-dawn-mid-v1", "kind": "background-raster", "path": "public/assets/stage-06/original-dawn-mid-v1.png",
+      "stage": "Stage 6: Dawn of the Original", "usage": "transparent middle parallax binding ribs, folio frames and restored-route structures",
+      "version": 1, "status": "final", "createdBy": "image-generation",
+      "sourcePrompt": "Transparent wide middle layer for Dawn of the Original: curved binding ribs, floating blank folio frames, wind-vane spars, rain gutters, charred type braces and fractured mirror ligatures unified by pale-gold stitching; sparse top and bottom clusters with a fully open gameplay center; no characters, UI, text or watermark.",
+      "generatedAt": "2026-11-01", "editHistory": ["Built-in image generation output copied without pixel edits; alpha preserved."],
+      "dimensions": "1672x941 RGBA", "license": "project-original"
+    },
+    {
+      "id": "stage-06-original-dawn-fore-v1", "kind": "background-raster", "path": "public/assets/stage-06/original-dawn-fore-v1.png",
+      "stage": "Stage 6: Dawn of the Original", "usage": "transparent sparse foreground binding, paper, type and mirror fragments at the outer edges",
+      "version": 1, "status": "final", "createdBy": "image-generation",
+      "sourcePrompt": "Transparent sparse foreground for Dawn of the Original: cropped dark binding ribs, luminous stitch cords, torn blank paper corners, rain beads, cooled type shards, mirror splinters and gold paper-fiber motes only at extreme edges; open center and HUD bands; no characters, UI, text or watermark.",
+      "generatedAt": "2026-11-01", "editHistory": ["Built-in image generation output copied without pixel edits; alpha preserved."],
+      "dimensions": "1672x941 RGBA", "license": "project-original"
+    },
+    {
+      "id": "stage-06-sprites-v1", "kind": "sprite-atlas-raster", "path": "public/assets/stage-06/stage-06-sprites-v1.png",
+      "stage": "Stage 6: Dawn of the Original", "usage": "Binding Wasp, Revision Hound, Null Choir, Archive Palanquin, closed/open LAST EDITOR, signature round and accepted signature core",
+      "version": 1, "status": "final", "createdBy": "image-generation",
+      "sourcePrompt": "Transparent two-row production atlas with eight isolated original final-stage manuscript machines: thread-wing Binding Wasp, wedge Revision Hound, three-reed Null Choir, armored Archive Palanquin, matched closed/open THE LAST EDITOR variants, hollow eight-point signature ink round and luminous accepted signature core; graphite, paper, dark glass, silver and restrained five-rule accents; no scenery, labels, grid, text or watermark.",
+      "generatedAt": "2026-11-01", "editHistory": ["Built-in image generation output copied without pixel edits.", "Runtime source rectangles documented in src/render/visual-assets.ts; alpha preserved."],
+      "dimensions": "1774x887 RGBA", "license": "project-original"
+    },
+    {
+      "id": "stage-06-canvas-effects-v1", "kind": "procedural-visual", "path": "src/render/render.ts",
+      "stage": "Stage 6: Dawn of the Original", "usage": "five folio light states, inherited rules, atlas-backed enemies and Editor, revision seal and giant signature closure",
+      "version": 1, "status": "final", "createdBy": "procedural",
+      "sourcePrompt": "none; authored Canvas compositing from docs/02-art-and-audio-direction.md Stage 6 direction and M3-21 through M3-24 measured mechanics",
+      "generatedAt": "2026-11-01", "editHistory": ["Replaced the Stage 6 flat preview wash and geometric enemy and boss primitives with three-layer backgrounds and final atlas sprites.", "Retained simulation-synchronized wind, rain, heat and mirror cues as translucent environmental light; revision-open, signature rounds and accepted core use distinct silhouettes and dashed seals."],
+      "dimensions": "1280x720 logical canvas", "license": "project-original"
+    },
+    {
+      "id": "stage-06-ambient-v1", "kind": "audio-stem", "path": "public/assets/audio/stage-06/original-ambient-v1.wav",
+      "stage": "Stage 6: Dawn of the Original", "usage": "five-route ambient reconstruction and dawn resonance",
+      "version": 1, "status": "final", "createdBy": "procedural",
+      "sourcePrompt": "scripts/generate-audio.mjs deterministic synthesis; five changing fundamentals, paper grain, route-colored overtones and continuous dawn body", "generatedAt": "2026-11-01",
+      "editHistory": ["Synthesized as 16-second loopable 44.1 kHz stereo PCM16; inspected by scripts/audit-audio.mjs."], "dimensions": "16s stereo 44.1kHz PCM16", "license": "project-original"
+    },
+    {
+      "id": "stage-06-pulse-v1", "kind": "audio-stem", "path": "public/assets/audio/stage-06/original-pulse-v1.wav",
+      "stage": "Stage 6: Dawn of the Original", "usage": "continuous stitch rhythm with five-folio turns",
+      "version": 1, "status": "final", "createdBy": "procedural",
+      "sourcePrompt": "scripts/generate-audio.mjs deterministic synthesis; stitched pulse, folio-turn impact and a shared harmonic rail across all routes", "generatedAt": "2026-11-01",
+      "editHistory": ["Synthesized as 16-second loopable 44.1 kHz stereo PCM16; inspected by scripts/audit-audio.mjs."], "dimensions": "16s stereo 44.1kHz PCM16", "license": "project-original"
+    },
+    {
+      "id": "stage-06-crisis-v1", "kind": "audio-stem", "path": "public/assets/audio/stage-06/original-crisis-v1.wav",
+      "stage": "Stage 6: Dawn of the Original", "usage": "THE LAST EDITOR crisis pressure and resolved rule harmony",
+      "version": 1, "status": "final", "createdBy": "procedural",
+      "sourcePrompt": "scripts/generate-audio.mjs deterministic synthesis; low editorial fundamentals, five-rule harmonic grain and restrained final pressure", "generatedAt": "2026-11-01",
+      "editHistory": ["Synthesized as 16-second loopable 44.1 kHz stereo PCM16; inspected by scripts/audit-audio.mjs."], "dimensions": "16s stereo 44.1kHz PCM16", "license": "project-original"
+    },
+    {
+      "id": "stage-06-effects-v1", "kind": "audio-effect-set", "path": "public/assets/audio/stage-06/folio-shift-v1.wav",
+      "stage": "Stage 6: Dawn of the Original", "usage": "folio change, Binding link, Choir hole, rule rewrite, signature closure and Editor phase feedback",
+      "version": 1, "status": "final", "createdBy": "procedural",
+      "sourcePrompt": "scripts/generate-audio.mjs deterministic synthesis; turning folio sweep, stitched binding rise, absent choir cadence, five-register rewrite, giant signature closure and Editor phase pressure", "generatedAt": "2026-11-01",
+      "editHistory": ["Synthesized as six 44.1 kHz stereo PCM16 files; all files and worst-case mix inspected by scripts/audit-audio.mjs."], "dimensions": "6 files, 0.48s to 1.04s, stereo 44.1kHz PCM16", "license": "project-original"
+    }
+  ]
+}
