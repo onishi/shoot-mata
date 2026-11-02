@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  CHORUS_SHIFT,
   FIRST_CHORD,
   FINAL_CADENCE,
   GLASS_RETURN,
@@ -323,6 +324,30 @@ describe('SHIFTED GATE compressed beat door', () => {
 
   it('has a deterministic three-phrase solution on the sixth beat', () => {
     expect(runSolution(SHIFTED_GATE, [triggerPhrase, doorPhrase, rightPhrase])).toEqual({ won: true, beat: 6 });
+  });
+});
+
+describe('CHORUS SHIFT finale', () => {
+  const transformedTrigger: Action[] = ['right', 'right', 'up', 'right', 'right', 'up', 'up', 'wait'];
+  const crossingPhrase: Action[] = ['up', 'wait', 'wait', 'wait', 'wait', 'wait', 'up', 'up'];
+  const sustainedPhrase: Action[] = ['right', 'right', 'right', 'wait', 'wait', 'wait', 'wait', 'wait'];
+
+  it('sends the recorded trigger route to a different destination through glass and silence', () => {
+    expect(positionAfter(CHORUS_SHIFT, transformedTrigger)).toEqual({ x: 7, y: 2 });
+    expect(ensemblePositions(CHORUS_SHIFT, [transformedTrigger], 6)).toEqual([{ x: 3, y: 3 }]);
+    expect(ensemblePositions(CHORUS_SHIFT, [transformedTrigger], 7)).toEqual([{ x: 3, y: 2 }]);
+  });
+
+  it('opens the final door only when the transformed replay reaches its trigger', () => {
+    expect(ensemblePositions(CHORUS_SHIFT, [transformedTrigger, crossingPhrase], 6)[1]).toEqual({ x: 4, y: 4 });
+    expect(ensemblePositions(CHORUS_SHIFT, [transformedTrigger, crossingPhrase], 7)).toEqual([
+      { x: 3, y: 2 },
+      { x: 4, y: 3 },
+    ]);
+  });
+
+  it('completes the score on beat eight by assigning one role to each voice', () => {
+    expect(runSolution(CHORUS_SHIFT, [transformedTrigger, crossingPhrase, sustainedPhrase])).toEqual({ won: true, beat: 8 });
   });
 });
 
