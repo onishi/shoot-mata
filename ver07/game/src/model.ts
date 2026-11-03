@@ -163,6 +163,30 @@ export const levels: readonly Level[] = [
     ),
     echoFloor: new Set(["3,1"]),
   },
+  {
+    file: "FILE 06",
+    name: "FINAL AUDIT",
+    objective: "File two copies. Delay the upper route so both seals strike on beat seven.",
+    winBody: "Every copy agrees. The night archive can finally close.",
+    width: 12,
+    height: 7,
+    start: { x: 1, y: 3 },
+    plates: [{ x: 5, y: 1 }, { x: 6, y: 5 }],
+    gate: { x: 8, y: 3 },
+    letter: { x: 9, y: 3 },
+    exit: { x: 10, y: 3 },
+    plateMode: "transit",
+    floor: floor(
+      "            ",
+      " ......     ",
+      " .          ",
+      " .......... ",
+      " .          ",
+      " .......    ",
+      "            ",
+    ),
+    echoFloor: new Set(["3,1"]),
+  },
 ] as const;
 
 // Kept as a named export for small consumers that only need the introductory room.
@@ -283,8 +307,8 @@ export function start(state: GameState, levelIndex = 0): GameState {
 
 export function continueAfterWin(state: GameState): GameState {
   if (state.screen !== "won") return state;
-  const nextLevel = (state.levelIndex + 1) % levels.length;
-  return createGame("playing", nextLevel);
+  if (state.levelIndex === levels.length - 1) return createGame("title");
+  return createGame("playing", state.levelIndex + 1);
 }
 
 export function restart(state: GameState): GameState {

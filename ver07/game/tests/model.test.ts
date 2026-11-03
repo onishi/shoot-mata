@@ -216,4 +216,37 @@ describe("PALIMPSEST POST model", () => {
     expect(state.hasLetter).toBe(true);
     expect(state.screen).toBe("won");
   });
+
+  it("combines copy paper, a delayed upper echo, and a second echo in FINAL AUDIT", () => {
+    let state = createGame("playing", 5);
+    for (const action of ["up", "up", "right", "right", "right", "wait", "right", "right"] as const) {
+      state = move(state, action);
+    }
+    expect(state.player).toEqual({ x: 2, y: 1 });
+    state = commit(state);
+
+    for (const action of ["down", "down", "right", "right", "right", "right", "right", "right"] as const) {
+      state = move(state, action);
+    }
+    state = commit(state);
+    expect(state.ghosts).toHaveLength(2);
+
+    for (let step = 0; step < 6; step += 1) state = move(state, "right");
+    expect(isGateOpen(state)).toBe(false);
+    expect(state.player).toEqual({ x: 7, y: 3 });
+    state = move(state, "right");
+    expect(state.ghosts.map((ghost) => ghost.position)).toEqual([{ x: 5, y: 1 }, { x: 6, y: 5 }]);
+    expect(isGateOpen(state)).toBe(true);
+    expect(state.player).toEqual({ x: 8, y: 3 });
+
+    state = move(move(state, "right"), "right");
+    expect(state.hasLetter).toBe(true);
+    expect(state.screen).toBe("won");
+  });
+
+  it("returns to the file desk after the final audit ending", () => {
+    const state = continueAfterWin(createGame("won", 5));
+    expect(state.screen).toBe("title");
+    expect(state.levelIndex).toBe(0);
+  });
 });

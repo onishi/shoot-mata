@@ -150,3 +150,44 @@ test("a filed echo crosses copy paper that blocks the original", async ({ page }
   await expect(canvasFor(page)).toHaveAttribute("aria-label", /AUTHORIZED COPY delivered/);
   expect(errors).toEqual([]);
 });
+
+test("the final audit synchronizes two copies and closes the archive", async ({ page }) => {
+  const errors: string[] = [];
+  page.on("console", (message) => {
+    if (message.type() === "error" || message.type() === "warning") errors.push(message.text());
+  });
+  page.on("pageerror", (error) => errors.push(error.message));
+
+  await page.evaluate(() => localStorage.setItem("palimpsest-post-v1", JSON.stringify({
+    unlockedLevel: 5,
+    volume: 0,
+    highContrast: false,
+    reduceMotion: true,
+  })));
+  await page.reload();
+  await expect(canvasFor(page)).toHaveAttribute("aria-label", /Selected FINAL AUDIT, file 6 of 6 unlocked/);
+  await page.keyboard.press("Enter");
+
+  for (const key of ["ArrowUp", "ArrowUp", "ArrowRight", "ArrowRight", "ArrowRight", "Space", "ArrowRight", "ArrowRight"]) {
+    await page.keyboard.press(key);
+  }
+  await page.keyboard.press("Enter");
+  for (const key of ["ArrowDown", "ArrowDown", "ArrowRight", "ArrowRight", "ArrowRight", "ArrowRight", "ArrowRight", "ArrowRight"]) {
+    await page.keyboard.press(key);
+  }
+  await page.keyboard.press("Enter");
+  await press(page, "ArrowRight", 7);
+  await expect(canvasFor(page)).toHaveAttribute("data-gate", "open");
+  await page.waitForTimeout(400);
+  await page.screenshot({ path: "../docs/evidence/m3-final-audit-synchronized.png" });
+  await press(page, "ArrowRight", 2);
+  await expectScreen(page, "won");
+  await expect(canvasFor(page)).toHaveAttribute("aria-label", /Night archive complete/);
+  await page.waitForTimeout(100);
+  await page.screenshot({ path: "../docs/evidence/m3-final-audit-complete.png" });
+
+  await page.keyboard.press("Enter");
+  await expectScreen(page, "title");
+  await expect(canvasFor(page)).toHaveAttribute("aria-label", /Selected FINAL AUDIT, file 6 of 6 unlocked/);
+  expect(errors).toEqual([]);
+});

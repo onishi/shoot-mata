@@ -98,7 +98,9 @@ function updateAria() {
       ? `Settings. Volume ${preferences.volume} percent. High contrast ${preferences.highContrast ? "on" : "off"}. Reduced motion ${preferences.reduceMotion ? "on" : "off"}.`
       : `PALIMPSEST POST title. Selected ${levels[titleLevel].name}, file ${titleLevel + 1} of ${preferences.unlockedLevel + 1} unlocked. Press Enter to begin or S for settings.`,
     paused: `${room.name} paused. Press Escape to resume or R to restart.`,
-    won: `${room.name} delivered. Press Enter to ${state.levelIndex < levels.length - 1 ? "open the next file" : "replay from file one"}.`,
+    won: state.levelIndex < levels.length - 1
+      ? `${room.name} delivered. Press Enter to open the next file.`
+      : `${room.name} delivered. Night archive complete. Press Enter to return to the file desk.`,
     playing: `${room.name}. Turn ${state.turn}. ${state.hasLetter ? "Letter collected." : "Letter waiting."} ${isGateOpen(state) ? "Censorship gate open." : "Censorship gate closed."} ${state.ghosts.length} echoes filed. Current recording ${state.currentRecording.length} steps.`,
   };
   canvas.setAttribute("aria-label", descriptions[state.screen]);
@@ -408,8 +410,9 @@ function render(time: number) {
     if (state.screen === "paused") overlay("SHIFT SUSPENDED", "The archive will wait exactly where you left it.", "ESC  RESUME   ·   R  RESTART");
     if (state.screen === "won") {
       const room = selectedLevel();
-      const instruction = state.levelIndex < levels.length - 1 ? "ENTER  OPEN NEXT FILE" : "ENTER  REPLAY FROM FILE 01";
-      overlay("LETTER DELIVERED", room.winBody, instruction, "#55c6b4");
+      const finalFile = state.levelIndex === levels.length - 1;
+      const instruction = finalFile ? "ENTER  RETURN TO FILE DESK" : "ENTER  OPEN NEXT FILE";
+      overlay(finalFile ? "ARCHIVE COMPLETE" : "LETTER DELIVERED", room.winBody, instruction, "#55c6b4");
     }
   }
   if (flash > 0) {
@@ -456,7 +459,9 @@ window.addEventListener("keydown", (event) => {
   } else if (state.screen === "title" && event.code === "Enter") {
     state = start(state, titleLevel); announce(`${selectedLevel().name} started. Move to record steps, then press Enter to file an echo and rewind.`);
   } else if (state.screen === "won" && event.code === "Enter") {
-    state = continueAfterWin(state); announce(`${selectedLevel().name} opened.`);
+    const completedArchive = state.levelIndex === levels.length - 1;
+    state = continueAfterWin(state);
+    announce(completedArchive ? "Night archive complete. Returned to the file desk." : `${selectedLevel().name} opened.`);
   } else if (event.code === "KeyR" && state.screen !== "title") {
     state = restart(state); announce(`${selectedLevel().name} restarted.`);
   } else if (event.code === "Escape") {
