@@ -17,6 +17,10 @@
 - 同時胞子24、波紋6を上限とする
 - 外部runtime requestを不要にする
 
+## 製品設定
+
+音量、高コントラスト、モーション軽減を`ripplekeep:v6:settings`へ保存する。読込時はJSONの構造、型、音量範囲を検証し、不正値は削除して既定値へ戻す。保存APIが利用不能でもゲームを止めない。
+
 ## 今後
 
-M2でPlaywrightの実Chrome入力、viewport境界、localStorage設定、入力ラッチを追加する。
+M2でPlaywrightの実Chrome入力、viewport境界、入力ラッチを追加する。

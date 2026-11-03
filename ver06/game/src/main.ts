@@ -1,7 +1,8 @@
 import "./style.css";
 import { MAX_CHARGES, STAGES, WORLD, type GameState, type StageId, createGame, emitRipple, tick } from "./model";
+import { loadSettings, saveSettings, type Settings } from "./settings";
 
-type Screen = "title" | "playing" | "paused" | "won" | "lost";
+type Screen = "title" | "playing" | "paused" | "won" | "lost" | "settings";
 
 function required<T extends Element>(selector: string): T {
   const element = document.querySelector<T>(selector);
@@ -13,11 +14,19 @@ const canvas = required<HTMLCanvasElement>("#game");
 const live = required<HTMLParagraphElement>("#live");
 const screenState = required<HTMLSpanElement>("#screen-state");
 const controls = required<HTMLSpanElement>("#controls");
+const settingsPanel = required<HTMLElement>("#settings");
+const volumeInput = required<HTMLInputElement>("#volume");
+const volumeValue = required<HTMLOutputElement>("#volume-value");
+const highContrastInput = required<HTMLInputElement>("#high-contrast");
+const reducedMotionInput = required<HTMLInputElement>("#reduced-motion");
+const closeSettingsButton = required<HTMLButtonElement>("#close-settings");
+const saveState = required<HTMLParagraphElement>("#save-state");
 const context = canvas.getContext("2d");
 if (!context) throw new Error("Canvas 2D is unavailable");
 const ctx: CanvasRenderingContext2D = context;
 
 let screen: Screen = "title";
+let returnScreen: "title" | "paused" = "title";
 let currentStageId: StageId = "first-rain";
 let game = createGame(currentStageId);
 let previous = performance.now();
@@ -27,6 +36,7 @@ let audio: AudioContext | null = null;
 let lastHealth = game.health;
 let lastScore = game.score;
 let lastCharges = game.charges;
+let settings = loadSettings(localStorage);
 
 const TAU = Math.PI * 2;
 const palette = {
@@ -46,7 +56,41 @@ function announce(message: string): void {
   requestAnimationFrame(() => { live.textContent = message; });
 }
 
+function applySettings(): void {
+  volumeInput.value = String(settings.volume);
+  volumeValue.value = `${settings.volume}%`;
+  highContrastInput.checked = settings.highContrast;
+  reducedMotionInput.checked = settings.reducedMotion;
+  document.body.classList.toggle("high-contrast", settings.highContrast);
+}
+
+function persistSettings(next: Settings): void {
+  settings = next;
+  applySettings();
+  const saved = saveSettings(localStorage, settings);
+  saveState.textContent = saved ? "Saved on this device." : "Storage unavailable. Settings remain for this session.";
+}
+
+function openSettings(): void {
+  if (screen !== "title" && screen !== "paused") return;
+  returnScreen = screen;
+  screen = "settings";
+  settingsPanel.hidden = false;
+  applySettings();
+  volumeInput.focus();
+  announce("Settings opened. Sound volume, high contrast, and reduce motion are available.");
+}
+
+function closeSettings(): void {
+  if (screen !== "settings") return;
+  screen = returnScreen;
+  settingsPanel.hidden = true;
+  canvas.focus();
+  announce(returnScreen === "title" ? "Settings closed. Press Enter to begin." : "Settings closed. Press Escape to resume.");
+}
+
 function tone(frequency: number, duration: number, type: OscillatorType = "sine", volume = 0.04): void {
+  if (settings.volume === 0) return;
   audio ??= new AudioContext();
   if (audio.state === "suspended") void audio.resume();
   const oscillator = audio.createOscillator();
@@ -54,7 +98,7 @@ function tone(frequency: number, duration: number, type: OscillatorType = "sine"
   oscillator.type = type;
   oscillator.frequency.setValueAtTime(frequency, audio.currentTime);
   oscillator.frequency.exponentialRampToValueAtTime(frequency * 1.35, audio.currentTime + duration);
-  gain.gain.setValueAtTime(volume, audio.currentTime);
+  gain.gain.setValueAtTime(volume * settings.volume / 70, audio.currentTime);
   gain.gain.exponentialRampToValueAtTime(0.0001, audio.currentTime + duration);
   oscillator.connect(gain).connect(audio.destination);
   oscillator.start();
@@ -80,7 +124,8 @@ function updateStatus(): void {
   screenState.textContent = screen.toUpperCase();
   controls.textContent = screen === "playing"
     ? `Bloom ${game.health}/3 · Ripples ${game.charges}/3 · ${Math.max(0, Math.ceil(stage.duration - game.time))}s`
-    : screen === "title" ? "Enter: begin · Arrows/WASD: glide · Space: ripple" : "Enter: retry · R: restart";
+    : screen === "title" ? "Enter: begin · S: settings · Arrows/WASD: glide · Space: ripple"
+      : screen === "settings" ? "Adjust settings · Esc/S: return" : "Enter: retry · R: restart";
   canvas.setAttribute("aria-label", screen === "playing"
     ? `RIPPLEKEEP. ${stage.name}. Bloom ${game.health} of 3. ${game.charges} ripples. ${Math.max(0, Math.ceil(stage.duration - game.time))} seconds remain. ${game.motes.length} spores approaching.`
     : `RIPPLEKEEP. ${screen}.`);
@@ -362,23 +407,25 @@ function drawTitle(time: number): void {
   ctx.strokeStyle = "rgba(145, 217, 198, 0.55)";
   ctx.stroke();
   text("ENTER  BEGIN FIRST RAIN", WORLD.cx, 585, 15, palette.mint, "center", 800);
-  text("ARROWS / WASD  glide     SPACE  ripple     ESC  pause", WORLD.cx, 670, 14, "#8caea8", "center", 600);
+  text("ARROWS / WASD  glide     SPACE  ripple     ESC  pause     S  settings", WORLD.cx, 670, 14, "#8caea8", "center", 600);
 }
 
 function render(time: number): void {
-  if (screen === "title") {
-    drawTitle(time);
+  const displayTime = settings.reducedMotion ? 0 : time;
+  const visibleScreen = screen === "settings" ? returnScreen : screen;
+  if (visibleScreen === "title") {
+    drawTitle(displayTime);
     updateStatus();
     return;
   }
-  drawBackdrop(time);
-  drawPond(time);
-  drawMotes(game, time);
+  drawBackdrop(displayTime);
+  drawPond(displayTime);
+  drawMotes(game, displayTime);
   drawRipples(game);
-  drawBloom(game.health, time);
+  drawBloom(game.health, displayTime);
   drawPlayer(game);
   drawHud(game);
-  if (screen === "paused") overlay("WATER HELD", "The pond waits without advancing.", "ESC  RETURN");
+  if (visibleScreen === "paused") overlay("WATER HELD", "The pond waits without advancing.", "ESC  RETURN · S  SETTINGS");
   if (screen === "won") {
     const action = game.stageId === "first-rain" ? "ENTER  FOLLOW THE SHORE"
       : game.stageId === "shore-call" ? "ENTER  READ THE CURRENT"
@@ -434,8 +481,20 @@ function frame(now: number): void {
 
 window.addEventListener("keydown", (event) => {
   const key = event.key.toLowerCase();
+  if (screen === "settings") {
+    if (key === "escape" || key === "s") {
+      event.preventDefault();
+      closeSettings();
+    }
+    return;
+  }
   if (["arrowup", "arrowdown", "arrowleft", "arrowright", " "].includes(key)) event.preventDefault();
   if (event.repeat && (key === " " || key === "enter" || key === "escape" || key === "r")) return;
+  if (key === "s" && (screen === "title" || screen === "paused")) {
+    event.preventDefault();
+    openSettings();
+    return;
+  }
   if (key === "enter" && (screen === "title" || screen === "won" || screen === "lost")) {
     const nextStage = screen === "title" ? "first-rain"
       : screen === "won" && currentStageId === "first-rain" ? "shore-call"
@@ -470,6 +529,19 @@ window.addEventListener("keydown", (event) => {
 window.addEventListener("keyup", (event) => keys.delete(event.key.toLowerCase()));
 window.addEventListener("blur", () => keys.clear());
 canvas.addEventListener("pointerdown", () => canvas.focus());
+
+volumeInput.addEventListener("input", () => {
+  persistSettings({ ...settings, volume: Number(volumeInput.value) });
+});
+highContrastInput.addEventListener("change", () => {
+  persistSettings({ ...settings, highContrast: highContrastInput.checked });
+});
+reducedMotionInput.addEventListener("change", () => {
+  persistSettings({ ...settings, reducedMotion: reducedMotionInput.checked });
+});
+closeSettingsButton.addEventListener("click", closeSettings);
+
+applySettings();
 
 requestAnimationFrame((now) => {
   previous = now;

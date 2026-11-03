@@ -20,6 +20,7 @@ body {
 }
 
 main {
+  position: relative;
   display: grid;
   place-items: center;
   padding: 14px;
@@ -36,6 +37,47 @@ canvas {
 }
 
 canvas:focus-visible { box-shadow: 0 0 0 3px #d8eaa7, 0 26px 80px rgba(0, 0, 0, 0.52); }
+
+body.high-contrast canvas {
+  filter: contrast(1.2) saturate(1.12);
+  border-color: rgba(235, 255, 246, 0.72);
+}
+
+.settings {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(1, 8, 12, 0.78);
+  backdrop-filter: blur(8px);
+  z-index: 2;
+}
+
+.settings[hidden] { display: none; }
+
+.settings-card {
+  width: min(520px, calc(100vw - 40px));
+  padding: 34px 38px 30px;
+  border: 1px solid rgba(186, 235, 220, 0.38);
+  border-radius: 22px;
+  background: #092631;
+  box-shadow: 0 24px 90px rgba(0, 0, 0, 0.62);
+}
+
+.eyebrow { margin: 0 0 5px; color: #d8b86a; font-size: 12px; font-weight: 800; letter-spacing: 0.16em; }
+.settings h1 { margin: 0 0 28px; color: #f1edc6; font-size: 40px; letter-spacing: 0.04em; }
+.setting-row, .toggle-row { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+.setting-row { color: #d9f2e6; font-weight: 700; }
+.setting-row output { color: #91d9c6; font-variant-numeric: tabular-nums; }
+#volume { width: 100%; margin: 12px 0 28px; accent-color: #91d9c6; }
+.toggle-row { padding: 15px 0; border-top: 1px solid rgba(186, 235, 220, 0.14); cursor: pointer; }
+.toggle-row span { display: grid; gap: 4px; }
+.toggle-row strong { color: #eefaf3; }
+.toggle-row small { color: #9dbbb4; }
+.toggle-row input { width: 22px; height: 22px; accent-color: #91d9c6; }
+#close-settings { width: 100%; margin-top: 24px; padding: 15px; border: 1px solid rgba(145, 217, 198, 0.55); border-radius: 24px; background: rgba(145, 217, 198, 0.1); color: #b8eadb; font: inherit; font-weight: 800; cursor: pointer; }
+#close-settings:focus-visible, .settings input:focus-visible { outline: 3px solid #f1dfa4; outline-offset: 3px; }
+.save-state { margin: 14px 0 0; color: #86aaa2; font-size: 12px; text-align: center; }
 
 .sr-only {
   position: absolute;
@@ -67,5 +109,5 @@ canvas:focus-visible { box-shadow: 0 0 0 3px #d8eaa7, 0 26px 80px rgba(0, 0, 0, 
 }
 
 @media (prefers-reduced-motion: reduce) {
-  canvas { scroll-behavior: auto; }
+  *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; animation: none !important; }
 }
