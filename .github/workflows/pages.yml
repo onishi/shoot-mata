@@ -1,14 +1,14 @@
-name: Verify and deploy CHORUS SHIFT v5.0
+name: Verify and deploy CHORUS SHIFT v5.1
 
 on:
   push:
     branches: [main]
     paths:
-      - "ver05/game/**"
+      - "ver05.1/game/**"
       - ".github/workflows/pages.yml"
   pull_request:
     paths:
-      - "ver05/game/**"
+      - "ver05.1/game/**"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
 
@@ -31,22 +31,22 @@ jobs:
           node-version: 24.22.1
           cache: npm
           cache-dependency-path: |
-            ver05/game/package-lock.json
+            ver05.1/game/package-lock.json
             ver04.2/game/package-lock.json
 
       - name: Install the pinned npm version
         run: npm install --global npm@11.19.1
 
       - name: Install the locked dependency tree
-        working-directory: ver05/game
+        working-directory: ver05.1/game
         run: npm ci
 
       - name: Install the pinned Chrome runtime
-        working-directory: ver05/game
+        working-directory: ver05.1/game
         run: npx playwright install --with-deps chromium
 
-      - name: Verify the v5.0 release candidate
-        working-directory: ver05/game
+      - name: Verify the v5.1 release candidate
+        working-directory: ver05.1/game
         run: npm run verify
 
       - name: Build the preserved v3 routes
@@ -71,8 +71,8 @@ jobs:
           RELEASE_COMMIT: ${{ github.sha }}
         run: npm ci && npm run build && npm run package:release && npm run verify:release
 
-      - name: Assemble and inspect the v5.0 Pages artifact
-        working-directory: ver05/game
+      - name: Assemble and inspect the v5.1 Pages artifact
+        working-directory: ver05.1/game
         env:
           RELEASE_COMMIT: ${{ github.sha }}
         run: npm run package:release && npm run verify:release && npm run test:release
@@ -80,11 +80,11 @@ jobs:
       - uses: actions/configure-pages@v6
         if: github.event_name != 'pull_request'
 
-      - name: Upload verified v5.0 with preserved v4 and v3 routes
+      - name: Upload verified v5.1 with preserved v4 and v3 routes
         if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v5
         with:
-          path: ver05/game/dist
+          path: ver05.1/game/dist
 
   deploy:
     environment:
@@ -101,4 +101,4 @@ jobs:
         uses: actions/deploy-pages@v5
 
       - name: Verify the live release and preserved routes
-        run: node ver05/game/scripts/verify-deployment.mjs "${{ steps.deployment.outputs.page_url }}" "${{ github.sha }}"
+        run: node ver05.1/game/scripts/verify-deployment.mjs "${{ steps.deployment.outputs.page_url }}" "${{ github.sha }}"

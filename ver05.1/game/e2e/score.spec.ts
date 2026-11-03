@@ -1,0 +1,416 @@
+import { expect, test, type Page } from '@playwright/test';
+
+type Action = 'up' | 'down' | 'left' | 'right' | 'wait';
+
+const keyForAction: Record<Action, string> = {
+  up: 'ArrowUp',
+  down: 'ArrowDown',
+  left: 'ArrowLeft',
+  right: 'ArrowRight',
+  wait: 'Space',
+};
+
+const solutions: readonly (readonly (readonly Action[])[])[] = [
+  [
+    ['up', 'up', 'up', 'up', 'wait', 'wait', 'wait', 'wait'],
+    ['up', 'up', 'left', 'left', 'left', 'wait', 'wait', 'wait'],
+    ['up', 'up', 'right', 'right', 'right', 'wait', 'wait', 'wait'],
+  ],
+  [
+    ['left', 'left', 'left', 'up', 'up', 'wait', 'wait', 'wait'],
+    ['up', 'up', 'up', 'up', 'up', 'up', 'up', 'wait'],
+    ['right', 'right', 'right', 'wait', 'wait', 'wait', 'wait', 'wait'],
+  ],
+  [
+    ['left', 'left', 'up', 'wait', 'wait', 'wait', 'wait', 'wait'],
+    ['up', 'up', 'wait', 'wait', 'wait', 'up', 'up', 'wait'],
+    ['right', 'right', 'right', 'wait', 'wait', 'wait', 'wait', 'wait'],
+  ],
+  [
+    ['wait', 'wait', 'wait', 'wait', 'wait', 'wait', 'wait', 'wait'],
+    ['left', 'left', 'left', 'up', 'up', 'up', 'wait', 'wait'],
+    ['up', 'up', 'up', 'up', 'right', 'right', 'right', 'down'],
+  ],
+  [
+    ['right', 'right', 'up', 'up', 'wait', 'wait', 'wait', 'wait'],
+    ['left', 'left', 'left', 'wait', 'wait', 'wait', 'wait', 'wait'],
+    ['right', 'right', 'right', 'wait', 'wait', 'wait', 'wait', 'wait'],
+  ],
+  [
+    ['right', 'right', 'up', 'right', 'up', 'wait', 'wait', 'wait'],
+    ['left', 'left', 'left', 'wait', 'wait', 'wait', 'wait', 'wait'],
+    ['right', 'right', 'right', 'wait', 'wait', 'wait', 'wait', 'wait'],
+  ],
+  [
+    ['up', 'right', 'right', 'up', 'wait', 'wait', 'wait', 'wait'],
+    ['left', 'left', 'left', 'wait', 'wait', 'wait', 'wait', 'wait'],
+    ['right', 'right', 'right', 'wait', 'wait', 'wait', 'wait', 'wait'],
+  ],
+  [
+    ['right', 'right', 'up', 'right', 'right', 'up', 'wait', 'wait'],
+    ['left', 'left', 'left', 'wait', 'wait', 'wait', 'wait', 'wait'],
+    ['right', 'right', 'right', 'wait', 'wait', 'wait', 'wait', 'wait'],
+  ],
+  [
+    ['left', 'left', 'left', 'up', 'up', 'wait'],
+    ['up', 'up', 'up', 'up', 'wait', 'wait'],
+    ['right', 'right', 'right', 'up', 'up', 'up'],
+  ],
+  [
+    ['wait', 'wait', 'left', 'left', 'left', 'up', 'wait', 'up', 'up', 'wait'],
+    ['up', 'up', 'wait', 'wait', 'up', 'up', 'wait', 'wait', 'wait', 'wait'],
+    ['up', 'up', 'wait', 'up', 'up', 'right', 'right', 'wait', 'right', 'down'],
+  ],
+  [
+    ['left', 'left', 'left', 'up', 'wait', 'wait'],
+    ['up', 'wait', 'wait', 'up', 'up', 'up'],
+    ['right', 'right', 'right', 'wait', 'wait', 'up'],
+  ],
+  [
+    ['right', 'right', 'up', 'right', 'right', 'up', 'up', 'wait'],
+    ['up', 'wait', 'wait', 'wait', 'wait', 'wait', 'up', 'up'],
+    ['right', 'right', 'right', 'wait', 'wait', 'wait', 'wait', 'wait'],
+  ],
+];
+
+async function expectState(page: Page, state: string): Promise<void> {
+  await expect(page.locator('#game')).toHaveAttribute('data-game-state', state);
+}
+
+async function playPhrase(page: Page, actions: readonly Action[]): Promise<void> {
+  for (const action of actions) await page.keyboard.press(keyForAction[action]);
+}
+
+async function playRoom(page: Page, room: number): Promise<void> {
+  await expect(page.locator('#game')).toHaveAttribute('data-room', String(room));
+  for (const phrase of solutions[room - 1]!) {
+    await playPhrase(page, phrase);
+    if ((await page.locator('#game').getAttribute('data-game-state')) === 'won') break;
+  }
+  await expectState(page, 'won');
+}
+
+async function expectCanvasContained(page: Page, viewport: { width: number; height: number }): Promise<void> {
+  const box = await page.locator('#game').boundingBox();
+  expect(box).not.toBeNull();
+  expect(box!.x).toBeGreaterThanOrEqual(0);
+  expect(box!.y).toBeGreaterThanOrEqual(0);
+  expect(box!.x + box!.width).toBeLessThanOrEqual(viewport.width);
+  expect(box!.y + box!.height).toBeLessThanOrEqual(viewport.height);
+  expect(box!.width / box!.height).toBeCloseTo(16 / 9, 2);
+}
+
+async function sampleFrameIntervals(page: Page, frameCount = 120): Promise<readonly number[]> {
+  return page.evaluate((count) => new Promise<number[]>((resolve) => {
+    const intervals: number[] = [];
+    let previous = performance.now();
+    const sample = (now: number): void => {
+      intervals.push(now - previous);
+      previous = now;
+      if (intervals.length >= count) resolve(intervals.slice(1));
+      else requestAnimationFrame(sample);
+    };
+    requestAnimationFrame(sample);
+  }), frameCount);
+}
+
+function percentile(values: readonly number[], fraction: number): number {
+  const sorted = [...values].sort((a, b) => a - b);
+  return sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * fraction))]!;
+}
+
+test.beforeEach(async ({ page }) => {
+  await page.goto('/');
+  await page.evaluate(() => localStorage.clear());
+  await page.reload();
+});
+
+test('first recording explains replay and shift-r restarts the whole room', async ({ page }) => {
+  const canvas = page.locator('#game');
+  await page.keyboard.press('Enter');
+  await playPhrase(page, solutions[0]![0]!);
+
+  await expect(canvas).toHaveAttribute('data-tracks', '1');
+  await expect(page.locator('#live')).toContainText('VOICE 1が次の入力と同時再演します');
+  await canvas.screenshot({ path: '../docs/evidence/v5.1-replay-onboarding.png' });
+
+  await playPhrase(page, ['left', 'left']);
+  await expect(canvas).toHaveAttribute('data-beat', '2');
+  await page.keyboard.press('Shift+KeyR');
+
+  await expect(canvas).toHaveAttribute('data-tracks', '0');
+  await expect(canvas).toHaveAttribute('data-beat', '0');
+  await expect(page.locator('#live')).toContainText('録音した声を消しました');
+  await expect(page.locator('#compact-controls')).toContainText('SHIFT+R 部屋再開');
+});
+
+test('focus, screen-reader state, key rollover, and compact text remain accessible', async ({ page }) => {
+  const canvas = page.locator('#game');
+  await expect(canvas).toBeFocused();
+  await expect(canvas).toHaveAttribute('aria-label', /タイトル.*FIRST CHORD/);
+  await expect(page.locator('#screen-summary')).toContainText('Enterで調律');
+
+  await page.keyboard.press('Enter');
+  await expectState(page, 'playing');
+  await expect(canvas).toHaveAttribute('aria-label', /演奏中.*拍 0 \/ 8/);
+
+  await page.keyboard.down('ArrowUp');
+  await page.waitForTimeout(450);
+  await page.keyboard.down('ArrowRight');
+  await page.waitForTimeout(150);
+  await expect(canvas).toHaveAttribute('data-beat', '1');
+  await page.keyboard.up('ArrowRight');
+  await page.keyboard.up('ArrowUp');
+  await page.keyboard.press('ArrowRight');
+  await expect(canvas).toHaveAttribute('data-beat', '2');
+  await expect(page.locator('#live')).toContainText('拍 2 / 8');
+
+  await page.setViewportSize({ width: 640, height: 800 });
+  await expect(page.locator('#compact-status')).toBeVisible();
+  await expect(page.locator('#compact-status')).toContainText('FIRST CHORD');
+  const fontSize = await page.locator('#compact-detail').evaluate((element) => Number.parseFloat(getComputedStyle(element).fontSize));
+  expect(fontSize).toBeGreaterThanOrEqual(14);
+  await expectCanvasContained(page, { width: 640, height: 800 });
+});
+
+test('keyboard flow completes all available rooms and persists clean room progress', async ({ page }, testInfo) => {
+  const errors: string[] = [];
+  page.on('console', (message) => {
+    if (message.type() === 'error') errors.push(message.text());
+  });
+  page.on('pageerror', (error) => errors.push(error.message));
+
+  await expectState(page, 'title');
+  await page.keyboard.press('Enter');
+  await expectState(page, 'playing');
+
+  await page.keyboard.press('Escape');
+  await expectState(page, 'paused');
+  await page.keyboard.press('KeyH');
+  await expectState(page, 'hint');
+  await expect(page.locator('#game')).toHaveAttribute('data-hint', '1');
+  await page.keyboard.press('KeyH');
+  await expect(page.locator('#game')).toHaveAttribute('data-hint', '2');
+  await page.keyboard.press('Escape');
+  await expectState(page, 'paused');
+  await page.keyboard.press('Escape');
+  await expectState(page, 'playing');
+
+  const scoreStartedAt = performance.now();
+  for (let room = 1; room <= solutions.length; room += 1) {
+    if (room === 5) {
+      await playPhrase(page, solutions[4]![0]!);
+      await expect(page.locator('#game')).toHaveAttribute('data-tracks', '1');
+      await playPhrase(page, ['left', 'left', 'left']);
+      await page.locator('#game').screenshot({ path: '../docs/evidence/m3-mirror-entry-replay.png' });
+      await playPhrase(page, solutions[4]![1]!.slice(3));
+      await playPhrase(page, solutions[4]![2]!);
+      await expectState(page, 'won');
+      await page.keyboard.press('Enter');
+      await expectState(page, 'playing');
+      continue;
+    }
+    if (room === 6) {
+      await playPhrase(page, solutions[5]![0]!);
+      await expect(page.locator('#game')).toHaveAttribute('data-tracks', '1');
+      await playPhrase(page, ['left', 'left', 'left', 'wait']);
+      await page.locator('#game').screenshot({ path: '../docs/evidence/m3-glass-return-replay.png' });
+      await playPhrase(page, solutions[5]![1]!.slice(4));
+      await playPhrase(page, solutions[5]![2]!);
+      await expectState(page, 'won');
+      await page.keyboard.press('Enter');
+      await expectState(page, 'playing');
+      continue;
+    }
+    if (room === 7) {
+      await playPhrase(page, solutions[6]![0]!);
+      await expect(page.locator('#game')).toHaveAttribute('data-tracks', '1');
+      await playPhrase(page, ['left', 'left', 'left']);
+      await page.locator('#game').screenshot({ path: '../docs/evidence/m3-rest-mark-replay.png' });
+      await playPhrase(page, solutions[6]![1]!.slice(3));
+      await playPhrase(page, solutions[6]![2]!);
+      await expectState(page, 'won');
+      await page.keyboard.press('Enter');
+      await expectState(page, 'playing');
+      continue;
+    }
+    if (room === 8) {
+      await playPhrase(page, solutions[7]![0]!);
+      await expect(page.locator('#game')).toHaveAttribute('data-tracks', '1');
+      await playPhrase(page, ['left', 'left', 'left', 'wait', 'wait']);
+      await page.locator('#game').screenshot({ path: '../docs/evidence/m3-negative-space-replay.png' });
+      await playPhrase(page, solutions[7]![1]!.slice(5));
+      await playPhrase(page, solutions[7]![2]!);
+      await expectState(page, 'won');
+      await page.keyboard.press('Enter');
+      await expectState(page, 'playing');
+      continue;
+    }
+    if (room === 9) {
+      await playPhrase(page, solutions[8]![0]!);
+      await expect(page.locator('#game')).toHaveAttribute('data-tracks', '1');
+      await expect(page.locator('#game')).toHaveAttribute('data-beat', '0');
+      await playPhrase(page, solutions[8]![1]!);
+      await expect(page.locator('#game')).toHaveAttribute('data-tracks', '2');
+      await playPhrase(page, solutions[8]![2]!.slice(0, 5));
+      await expect(page.locator('#game')).toHaveAttribute('data-beat', '5');
+      await page.locator('#game').screenshot({ path: '../docs/evidence/m3-short-measure-beat-5.png' });
+      await playPhrase(page, solutions[8]![2]!.slice(5));
+      await expectState(page, 'won');
+      await page.keyboard.press('Enter');
+      await expectState(page, 'playing');
+      continue;
+    }
+    if (room === 10) {
+      await playPhrase(page, solutions[9]![0]!);
+      await expect(page.locator('#game')).toHaveAttribute('data-tracks', '1');
+      await playPhrase(page, solutions[9]![1]!);
+      await expect(page.locator('#game')).toHaveAttribute('data-tracks', '2');
+      await playPhrase(page, solutions[9]![2]!.slice(0, 9));
+      await expect(page.locator('#game')).toHaveAttribute('data-beat', '9');
+      await page.locator('#game').screenshot({ path: '../docs/evidence/m3-long-measure-beat-9.png' });
+      await playPhrase(page, solutions[9]![2]!.slice(9));
+      await expectState(page, 'won');
+      await page.keyboard.press('Enter');
+      await expectState(page, 'playing');
+      continue;
+    }
+    if (room === 11) {
+      await playPhrase(page, solutions[10]![0]!);
+      await expect(page.locator('#game')).toHaveAttribute('data-tracks', '1');
+      await playPhrase(page, solutions[10]![1]!.slice(0, 4));
+      await expect(page.locator('#game')).toHaveAttribute('data-beat', '4');
+      await page.locator('#game').screenshot({ path: '../docs/evidence/m3-shifted-gate-open.png' });
+      await playPhrase(page, solutions[10]![1]!.slice(4));
+      await playPhrase(page, solutions[10]![2]!);
+      await expectState(page, 'won');
+      await page.keyboard.press('Enter');
+      await expectState(page, 'playing');
+      continue;
+    }
+    if (room === 12) {
+      await playPhrase(page, solutions[11]![0]!);
+      await expect(page.locator('#game')).toHaveAttribute('data-tracks', '1');
+      await playPhrase(page, solutions[11]![1]!.slice(0, 7));
+      await expect(page.locator('#game')).toHaveAttribute('data-beat', '7');
+      await page.locator('#game').screenshot({ path: '../docs/evidence/m3-chorus-shift-open.png' });
+      await playPhrase(page, solutions[11]![1]!.slice(7));
+      await playPhrase(page, solutions[11]![2]!);
+      await expectState(page, 'won');
+      break;
+    }
+    await playRoom(page, room);
+    if (room < solutions.length) {
+      await page.keyboard.press('Enter');
+      await expectState(page, 'playing');
+    }
+  }
+  const scoreDurationMs = performance.now() - scoreStartedAt;
+  const nominalActions = solutions.flat(2).length;
+  await testInfo.attach('score-throughput.json', {
+    body: JSON.stringify({ rooms: solutions.length, nominalActions, scoreDurationMs }, null, 2),
+    contentType: 'application/json',
+  });
+  console.info(`M4 throughput: ${solutions.length} rooms, ${nominalActions} nominal actions, ${scoreDurationMs.toFixed(1)} ms`);
+  expect(scoreDurationMs).toBeLessThan(20_000);
+  await page.locator('#game').screenshot({ path: '../docs/evidence/m3-e2e-score-complete.png' });
+  await expect(page.locator('#game')).toHaveAttribute('data-unlocked-room', '12');
+
+  const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('chorus-shift:v1') ?? 'null'));
+  expect(saved.highestUnlockedRoom).toBe(11);
+  expect(saved.completedRooms).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
+  expect(saved.hintsSeen).toEqual([0]);
+
+  await page.reload();
+  await expectState(page, 'title');
+  await expect(page.locator('#game')).toHaveAttribute('data-unlocked-room', '12');
+  await expect(page.locator('#game')).toHaveAttribute('data-selected-complete', 'true');
+  await page.locator('#game').screenshot({ path: '../docs/evidence/v5.1-completed-room-marker.png' });
+  await page.keyboard.press('Enter');
+  await expectState(page, 'playing');
+  await expect(page.locator('#game')).toHaveAttribute('data-room', '12');
+  await expect(page.locator('#game')).toHaveAttribute('data-beat', '0');
+  await expect(page.locator('#game')).toHaveAttribute('data-tracks', '0');
+  expect(errors).toEqual([]);
+});
+
+test('settings survive reload and both required viewports contain every game state', async ({ page }) => {
+  await page.keyboard.press('KeyS');
+  await expectState(page, 'settings');
+  await page.keyboard.press('ArrowRight');
+  await page.keyboard.press('ArrowDown');
+  await page.keyboard.press('ArrowRight');
+  await expect(page.locator('#game')).toHaveAttribute('data-reduced-motion', 'true');
+  await page.keyboard.press('Enter');
+  await page.reload();
+
+  const settings = await page.evaluate(() => JSON.parse(localStorage.getItem('chorus-shift:v1') ?? 'null').settings);
+  expect(settings).toEqual({ volume: 0.75, reducedMotion: true });
+
+  for (const viewport of [
+    { width: 1280, height: 720, name: '1280x720' },
+    { width: 640, height: 800, name: '640x800' },
+  ]) {
+    await page.setViewportSize(viewport);
+    await page.reload();
+    await expectCanvasContained(page, viewport);
+    await page.screenshot({ path: `../docs/evidence/m4-viewport-title-${viewport.name}.png` });
+
+    await page.keyboard.press('KeyS');
+    await expectState(page, 'settings');
+    await expectCanvasContained(page, viewport);
+    await page.screenshot({ path: `../docs/evidence/m4-viewport-settings-${viewport.name}.png` });
+    await page.keyboard.press('Enter');
+    await expectState(page, 'title');
+    await page.keyboard.press('Enter');
+    await expectState(page, 'playing');
+    await expectCanvasContained(page, viewport);
+    await page.screenshot({ path: `../docs/evidence/m4-viewport-playing-${viewport.name}.png` });
+    await page.keyboard.press('KeyH');
+    await expectState(page, 'hint');
+    await expectCanvasContained(page, viewport);
+    await page.screenshot({ path: `../docs/evidence/m4-viewport-hint-${viewport.name}.png` });
+    await page.keyboard.press('Escape');
+    await page.keyboard.press('Escape');
+    await expectState(page, 'paused');
+    await expectCanvasContained(page, viewport);
+    await page.screenshot({ path: `../docs/evidence/m4-viewport-paused-${viewport.name}.png` });
+    await page.keyboard.press('Escape');
+    await playRoom(page, 1);
+    await expectCanvasContained(page, viewport);
+    await page.screenshot({ path: `../docs/evidence/m4-viewport-won-${viewport.name}.png` });
+
+    await page.evaluate(() => localStorage.removeItem('chorus-shift:v1'));
+  }
+});
+
+test('densest room sustains the frame-time budget', async ({ page }, testInfo) => {
+  await page.evaluate(() => localStorage.setItem('chorus-shift:v1', JSON.stringify({
+    version: 1,
+    highestUnlockedRoom: 11,
+    completedRooms: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+    hintsSeen: [],
+    settings: { volume: 0, reducedMotion: false },
+  })));
+  await page.reload();
+  await page.keyboard.press('Enter');
+  await expect(page.locator('#game')).toHaveAttribute('data-room', '12');
+  await playPhrase(page, solutions[11]![0]!);
+  await playPhrase(page, solutions[11]![1]!);
+  await playPhrase(page, solutions[11]![2]!.slice(0, 7));
+  await expect(page.locator('#game')).toHaveAttribute('data-tracks', '2');
+
+  const intervals = await sampleFrameIntervals(page);
+  const p50Ms = percentile(intervals, 0.5);
+  const p95Ms = percentile(intervals, 0.95);
+  const maxMs = Math.max(...intervals);
+  const slowFrameRatio = intervals.filter((duration) => duration > 34).length / intervals.length;
+  await testInfo.attach('frame-performance.json', {
+    body: JSON.stringify({ samples: intervals.length, p50Ms, p95Ms, maxMs, slowFrameRatio }, null, 2),
+    contentType: 'application/json',
+  });
+  console.info(`M4 frames: ${intervals.length} samples, p50 ${p50Ms.toFixed(2)} ms, p95 ${p95Ms.toFixed(2)} ms, max ${maxMs.toFixed(2)} ms, slow ${(slowFrameRatio * 100).toFixed(2)}%`);
+
+  expect(p95Ms).toBeLessThan(25);
+  expect(slowFrameRatio).toBeLessThanOrEqual(0.05);
+});
