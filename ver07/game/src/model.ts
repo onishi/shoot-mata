@@ -1,5 +1,6 @@
 export type Point = { x: number; y: number };
 export type Direction = "up" | "down" | "left" | "right";
+export type Action = Direction | "wait";
 export type Screen = "title" | "playing" | "paused" | "won";
 
 export type Level = {
@@ -14,6 +15,7 @@ export type Level = {
   gate: Point;
   letter: Point;
   exit: Point;
+  plateMode: "hold" | "transit";
   floor: ReadonlySet<string>;
 };
 
@@ -22,12 +24,13 @@ export type GameState = {
   levelIndex: number;
   player: Point;
   ghost: Point | null;
-  currentRecording: Direction[];
-  committedRecording: Direction[];
+  currentRecording: Action[];
+  committedRecording: Action[];
   ghostStep: number;
+  gatePulse: boolean;
   hasLetter: boolean;
   turn: number;
-  lastEvent: "none" | "move" | "blocked" | "commit" | "seal" | "won";
+  lastEvent: "none" | "move" | "wait" | "blocked" | "commit" | "seal" | "won";
 };
 
 const floor = (...rows: string[]) => new Set(rows.flatMap((row, y) =>
@@ -47,6 +50,7 @@ export const levels: readonly Level[] = [
     gate: { x: 5, y: 3 },
     letter: { x: 7, y: 3 },
     exit: { x: 9, y: 3 },
+    plateMode: "hold",
     floor: floor(
       "           ",
       "           ",
@@ -69,6 +73,7 @@ export const levels: readonly Level[] = [
     gate: { x: 7, y: 3 },
     letter: { x: 8, y: 3 },
     exit: { x: 9, y: 3 },
+    plateMode: "transit",
     floor: floor(
       "           ",
       " ......    ",
@@ -77,6 +82,29 @@ export const levels: readonly Level[] = [
       "           ",
       "           ",
       "           ",
+    ),
+  },
+  {
+    file: "FILE 03",
+    name: "MISSING MINUTE",
+    objective: "A blank beat still counts. Add SPACE so the passing echo meets the gate.",
+    winBody: "The missing minute was filed exactly where it belonged.",
+    width: 12,
+    height: 7,
+    start: { x: 1, y: 3 },
+    plate: { x: 5, y: 1 },
+    gate: { x: 8, y: 3 },
+    letter: { x: 9, y: 3 },
+    exit: { x: 10, y: 3 },
+    plateMode: "transit",
+    floor: floor(
+      "            ",
+      " ......     ",
+      " .          ",
+      " .......... ",
+      "            ",
+      "            ",
+      "            ",
     ),
   },
 ] as const;
@@ -109,6 +137,7 @@ export function createGame(screen: Screen = "title", levelIndex = 0): GameState 
     currentRecording: [],
     committedRecording: [],
     ghostStep: 0,
+    gatePulse: false,
     hasLetter: false,
     turn: 0,
     lastEvent: "none",
@@ -116,30 +145,38 @@ export function createGame(screen: Screen = "title", levelIndex = 0): GameState 
 }
 
 export function isGateOpen(state: GameState): boolean {
-  return same(state.ghost, getLevel(state).plate);
+  const selected = getLevel(state);
+  if (selected.plateMode === "transit") return state.gatePulse;
+  return same(state.ghost, selected.plate);
 }
 
-function tryStep(from: Point, direction: Direction, gateOpen: boolean, selected: Level): Point {
-  const d = delta[direction];
+function tryStep(from: Point, action: Action, gateOpen: boolean, selected: Level): Point {
+  if (action === "wait") return copyPoint(from);
+  const d = delta[action];
   const next = { x: from.x + d.x, y: from.y + d.y };
   if (!selected.floor.has(`${next.x},${next.y}`)) return copyPoint(from);
   if (same(next, selected.gate) && !gateOpen) return copyPoint(from);
   return next;
 }
 
-export function move(state: GameState, direction: Direction): GameState {
+export function move(state: GameState, action: Action): GameState {
   if (state.screen !== "playing") return state;
   const selected = getLevel(state);
 
   let ghost = state.ghost ? copyPoint(state.ghost) : null;
+  const previousGhost = state.ghost ? copyPoint(state.ghost) : null;
   let ghostStep = state.ghostStep;
   if (ghost && ghostStep < state.committedRecording.length) {
     ghost = tryStep(ghost, state.committedRecording[ghostStep], isGateOpen({ ...state, ghost }), selected);
     ghostStep += 1;
   }
 
-  const gateOpen = same(ghost, selected.plate);
-  const player = tryStep(state.player, direction, gateOpen, selected);
+  const gatePulse = selected.plateMode === "transit"
+    && same(ghost, selected.plate)
+    && !same(previousGhost, selected.plate)
+    && ghostStep < state.committedRecording.length;
+  const gateOpen = isGateOpen({ ...state, ghost, ghostStep, gatePulse });
+  const player = tryStep(state.player, action, gateOpen, selected);
   const moved = !same(player, state.player);
   const hasLetter = state.hasLetter || same(player, selected.letter);
   const won = hasLetter && same(player, selected.exit);
@@ -150,10 +187,11 @@ export function move(state: GameState, direction: Direction): GameState {
     player,
     ghost,
     ghostStep,
-    currentRecording: [...state.currentRecording, direction],
+    gatePulse,
+    currentRecording: [...state.currentRecording, action],
     hasLetter,
     turn: state.turn + 1,
-    lastEvent: won ? "won" : !state.hasLetter && hasLetter ? "seal" : moved ? "move" : "blocked",
+    lastEvent: won ? "won" : !state.hasLetter && hasLetter ? "seal" : action === "wait" ? "wait" : moved ? "move" : "blocked",
   };
 }
 
@@ -167,6 +205,7 @@ export function commit(state: GameState): GameState {
     currentRecording: [],
     committedRecording: [...state.currentRecording],
     ghostStep: 0,
+    gatePulse: false,
     hasLetter: false,
     turn: 0,
     lastEvent: "commit",

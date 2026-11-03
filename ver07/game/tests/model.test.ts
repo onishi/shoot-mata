@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { commit, continueAfterWin, createGame, isGateOpen, move, start } from "../src/model";
+import { commit, continueAfterWin, createGame, isGateOpen, move, start, type Action } from "../src/model";
 
 describe("PALIMPSEST POST model", () => {
   it("starts from the title at the intake desk", () => {
@@ -70,6 +70,18 @@ describe("PALIMPSEST POST model", () => {
     expect(state.hasLetter).toBe(true);
   });
 
+  it("does not let a finished echo hold a transit seal", () => {
+    let state = createGame("playing", 1);
+    for (const action of ["up", "up", "right", "right", "right", "right"] as const) {
+      state = move(state, action);
+    }
+    state = commit(state);
+    for (let i = 0; i < 6; i += 1) state = move(state, "right");
+    expect(state.ghost).toEqual({ x: 5, y: 1 });
+    expect(isGateOpen(state)).toBe(false);
+    expect(state.player).toEqual({ x: 6, y: 3 });
+  });
+
   it("requires matching the moving echo's arrival turn in MOVING DEADLINE", () => {
     let state = createGame("playing", 1);
     for (const direction of ["up", "up", "right", "right", "right", "right", "right"] as const) {
@@ -80,5 +92,52 @@ describe("PALIMPSEST POST model", () => {
     expect(state.player).toEqual({ x: 9, y: 3 });
     expect(state.hasLetter).toBe(true);
     expect(state.screen).toBe("won");
+  });
+
+  it("continues into MISSING MINUTE and solves it with one recorded wait", () => {
+    let state = continueAfterWin(createGame("won", 1));
+    expect(state.levelIndex).toBe(2);
+    for (const action of ["up", "up", "right", "right", "right", "wait", "right", "right"] as const) {
+      state = move(state, action);
+    }
+    state = commit(state);
+    for (let i = 0; i < 9; i += 1) state = move(state, "right");
+    expect(state.player).toEqual({ x: 10, y: 3 });
+    expect(state.hasLetter).toBe(true);
+    expect(state.screen).toBe("won");
+  });
+
+  it("has no clean short solution to MISSING MINUTE and requires a wait in every shortest clean solution", () => {
+    const alphabet: readonly Action[] = ["up", "right", "wait"];
+    const recordings = (length: number): Action[][] => {
+      let routes: Action[][] = [[]];
+      for (let step = 0; step < length; step += 1) {
+        routes = routes.flatMap((route) => alphabet.map((action) => [...route, action]));
+      }
+      return routes;
+    };
+    const clean = (route: Action[]) => {
+      let state = createGame("playing", 2);
+      for (const action of route) {
+        const before = state.player;
+        state = move(state, action);
+        if (action !== "wait" && state.player.x === before.x && state.player.y === before.y) return null;
+      }
+      return commit(state);
+    };
+    const winsWith = (route: Action[]) => {
+      let state = clean(route);
+      if (!state) return false;
+      for (let i = 0; i < 9; i += 1) state = move(state, "right");
+      return state.screen === "won";
+    };
+
+    expect(recordings(7).filter(winsWith)).toHaveLength(0);
+    const shortest = recordings(8).filter(winsWith);
+    expect(shortest.length).toBeGreaterThan(0);
+    expect(shortest.every((route) => route.includes("wait"))).toBe(true);
+    expect(shortest.some((route) => route.filter((action) => action === "wait").length === 1)).toBe(true);
+    const routesWithExtraWait = shortest.filter((route) => route.filter((action) => action === "wait").length > 1);
+    expect(routesWithExtraWait.every((route) => route.at(-1) === "wait")).toBe(true);
   });
 });

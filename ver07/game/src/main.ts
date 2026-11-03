@@ -10,6 +10,7 @@ import {
   restart,
   start,
   togglePause,
+  type Action,
   type Direction,
   type GameState,
   type Point,
@@ -63,6 +64,7 @@ function tone(frequency: number, duration: number, gain = 0.04, offset = 0) {
 function playEvent(previous: GameState, next: GameState) {
   if (next.lastEvent === previous.lastEvent && next === previous) return;
   if (next.lastEvent === "move") tone(180 + (next.turn % 3) * 18, 0.07, 0.025);
+  if (next.lastEvent === "wait") tone(145, 0.11, 0.018);
   if (next.lastEvent === "blocked") { tone(92, 0.12, 0.035); bump = 1; }
   if (next.lastEvent === "commit") {
     tone(260, 0.22, 0.045);
@@ -280,12 +282,13 @@ function drawFooter() {
   roundedRect(46, 458, 868, 48, 5); ctx.fill();
   ctx.fillStyle = "#d8cba9";
   ctx.font = "13px Georgia"; ctx.textAlign = "left"; ctx.letterSpacing = "1px";
-  ctx.fillText("ARROWS / WASD   MOVE", 68, 488);
+  ctx.fillText("ARROWS / WASD   MOVE", 62, 488);
   ctx.fillStyle = "#49bba9";
-  ctx.fillText("ENTER   FILE ECHO + REWIND", 302, 488);
+  ctx.fillText("SPACE   WAIT", 278, 488);
+  ctx.fillText("ENTER   FILE ECHO + REWIND", 410, 488);
   ctx.fillStyle = "#9da9ab";
-  ctx.fillText("ESC   PAUSE", 624, 488);
-  ctx.fillText("R   RESTART", 778, 488);
+  ctx.fillText("ESC   PAUSE", 710, 488);
+  ctx.fillText("R   RESTART", 820, 488);
 }
 
 function drawGame(time: number) {
@@ -355,6 +358,7 @@ const directions: Record<string, Direction | undefined> = {
 
 window.addEventListener("keydown", (event) => {
   const direction = directions[event.code];
+  const action: Action | undefined = direction ?? (event.code === "Space" ? "wait" : undefined);
   if (direction || ["Enter", "Escape", "Space", "KeyR"].includes(event.code)) event.preventDefault();
   const previous = state;
   if (state.screen === "title" && event.code === "Enter") {
@@ -368,8 +372,9 @@ window.addEventListener("keydown", (event) => {
   } else if (state.screen === "playing" && event.code === "Enter") {
     state = commit(state);
     if (state !== previous) announce(`Echo filed with ${state.committedRecording.length} steps. Returned to intake.`);
-  } else if (state.screen === "playing" && direction) {
-    state = move(state, direction);
+  } else if (state.screen === "playing" && action) {
+    state = move(state, action);
+    if (state.lastEvent === "wait") announce("One blank beat recorded.");
     if (state.lastEvent === "blocked") announce("Route blocked.");
     if (state.lastEvent === "seal") announce("Sealed letter collected.");
     if (state.lastEvent === "won") announce(`Letter delivered. ${selectedLevel().name} complete.`);
