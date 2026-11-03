@@ -35,7 +35,7 @@
 
 ## 配信
 
-`npm run build`で静的ファイルを生成する。v5公開経路は完成監査まで既存Pages workflowへ接続しない。
+`npm run build`で静的ファイルを生成する。`npm run audit:release`はv5をトップと`/v5/`へ複製し、直前release artifactから`/v4.2/`〜`/v3/`を保持して、release metadata、自己完結性、payload、キャッシュなしChrome起動を監査する。Pages workflowはlocked installから全検証と旧経路再構築を行い、公開後に10経路、commit metadata、JavaScript/CSSのMIMEを外部確認する。
 
 ## ブラウザ検証
 

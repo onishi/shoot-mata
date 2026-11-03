@@ -131,3 +131,11 @@
 - 移動キーを全て離すまで次の移動を受けないラッチにより、OSリピートと二方向重複を一拍へ固定した。狭い縦長画面には14〜16pxの状態・画面固有操作パネルを追加した。
 - `npm run verify`は単体43/43、型検査、production build、Google Chrome E2E 4/4に合格した。全12室282入力は5,456.9ms、高密度描画はp95 16.80ms、34ms超0%だった。
 - 640×800の演奏・設定画面を目視し、フォーカスリング、状態パネル、Canvasが欠けず、操作説明が画面ごとに切り替わることを確認した。詳細は`evidence/m4-accessibility.md`。次はrelease artifact監査を行う。
+
+## 2026-11-03 — M4 release artifact監査
+
+- v5.0をトップと`/v5/`へ配置し、直前release artifactから`/v4.2/`〜`/v3/`の8経路を保持する決定的なpackage処理を追加した。release metadataと`.nojekyll`も同時生成する。
+- artifact静的検査で10経路、タイトル、metadata、第三者素材通知、asset directory、1 MB payload上限、外部runtime URL不在を固定した。v5 payloadは35,677 bytesだった。
+- cacheとservice workerを無効化したGoogle Chromeでトップと`/v5/`を別contextから起動した。未知versionと範囲外値を含む保存は初期状態へ戻り、両経路で演奏開始、外部request 0、request failure 0、console/page error 0だった。
+- Pages workflowをv5へ切り替え、locked install、単体43/43、型検査、build、Chrome E2E 4/4、旧経路再構築、release Chrome検査、公開後10経路・commit・MIME確認を必須にした。
+- 全回帰では12室282入力を5,371.4ms、高密度119 frameをp95 16.70ms・34ms超0%で完了した。詳細は`evidence/m4-release-artifact.md`。M4自動監査を完了し、初見・聴感・実支援技術の人間評価を残すrelease candidateとした。

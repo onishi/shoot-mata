@@ -5,7 +5,7 @@
 ## 現在状態
 
 - 現在版: v5.0 (`ver05/`)
-- 段階: M3完了、M4通し性能・主要画面・アクセシビリティ監査完了
+- 段階: M4自動監査完了、v5.0 release candidate
 - 公開: 未公開
 - 過去版変更: なし
 
@@ -72,13 +72,16 @@
 - Canvasの初期・ポインタ後フォーカスと可視リング、画面・部屋・拍・録音声・奏者・音盤座標の動的説明、入力ごとのlive通知を追加した。
 - OSキーリピートと方向キー重複を一拍だけに抑える入力ラッチを追加した。450ms長押しと二方向重複、その後の正常入力をChromeで固定した。
 - 640×800へ14〜16pxの状態・操作パネルを追加し、Canvas内の縮小文字だけに依存しない表示へした。単体43/43、型検査、build、Chrome E2E 4/4に合格。詳細は`evidence/m4-accessibility.md`。
+- release artifactをトップと`/v5/`へ組み立て、`/v4.2/`〜`/v3/`の8固定経路を保持した。v5 payloadは35,677 bytesで、第三者runtime・外部URL・外部素材を含まない。
+- Chromeのcacheとservice workerを無効化し、トップと`/v5/`を空キャッシュから起動した。未知version・範囲外値を含む旧保存は初期状態へ戻り、両経路とも演奏開始、request failure 0件、console/page error 0件だった。
+- Pages workflowをv5のlocked install、全検証、旧経路再構築、artifact再監査、公開後10経路・MIME・commit検査へ更新した。詳細は`evidence/m4-release-artifact.md`。
 
 ## 未解決課題
 
 - 初見理解と音の聴感は機械検証だけでは未評価。
 - 実スクリーンリーダーでの聴取順序と冗長さは、人間による支援技術実機評価が必要。
-- M4の初見実プレイ時間、音量バランス、release artifact監査は未実施。
+- 初見実プレイ時間と音量バランスは人間の評価を未実施。
 
 ## 次の最優先作業
 
-M4 release artifact監査を行い、production buildの自己完結性、キャッシュなし起動、保存移行、第三者素材不使用、配信設定を検査する。
+未公開release candidateを人間の初見プレイヤー1名で通し、理解停止点、所要時間、音量バランスを記録する。公開はmainの未送信コミット群を一括送信してよい状態か確認してから行う。
