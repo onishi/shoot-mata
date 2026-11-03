@@ -148,3 +148,8 @@
 - `npm run verify`は単体43/43、型検査、production build、Chrome E2E 5/5に合格。12室282入力は5,320.6ms、高密度119 frameはp95 16.70ms・34ms超0%。
 - `npm run audit:release`は10経路、v5 payload 36,122 bytes、外部runtime URLなし、Chrome E2E 1/1に合格した。Pages workflowをv5.1へ接続した。詳細は`evidence/v5.1-first-session.md`。
 - 次は人間の初見プレイヤー1名で、再演説明後の理解停止点、Shift+Rの発見性、所要時間、音量バランスを評価する。
+
+## 2026-11-03 — v6への移行
+
+- v5.1は自動完成ゲートと自己批評改善を完了し、残作業が人間による実感評価だけになった。追加の機械的調整より新作の価値が高いと判断した。
+- v5.1をrelease candidateとして変更停止し、コード、素材、固有名詞、世界観、数値、画面構成、ゲームシステムを継承しない`ver06/`へ移行した。

@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#071b25" />
+    <meta name="description" content="RIPPLEKEEP — defend a moonlit bloom with expanding ripples." />
+    <title>RIPPLEKEEP</title>
+  </head>
+  <body>
+    <main>
+      <canvas id="game" width="1280" height="720" tabindex="0" aria-label="RIPPLEKEEP game canvas"></canvas>
+      <p id="live" class="sr-only" aria-live="polite"></p>
+      <section class="narrow-status" aria-hidden="true">
+        <span id="screen-state">TITLE</span>
+        <span id="controls">Enter: begin · Arrows/WASD: glide · Space: ripple</span>
+      </section>
+    </main>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
