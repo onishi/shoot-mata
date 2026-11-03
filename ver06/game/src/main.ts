@@ -211,14 +211,31 @@ function drawMotes(state: GameState, time: number): void {
     ctx.save();
     ctx.translate(mote.x, mote.y);
     ctx.rotate(angle);
+    if (!mote.touched && mote.drift === "swift") {
+      ctx.strokeStyle = "rgba(255, 174, 116, 0.48)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(-8, 0);
+      ctx.lineTo(-31, 0);
+      ctx.stroke();
+    }
+    if (!mote.touched && mote.drift === "deep") {
+      ctx.strokeStyle = "rgba(177, 152, 235, 0.58)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(0, 0, 14 + Math.sin(time * 0.004 + mote.id) * 2, 0, TAU);
+      ctx.stroke();
+    }
     ctx.shadowColor = palette.coral;
     ctx.shadowBlur = mote.touched ? 5 : 15;
-    ctx.fillStyle = mote.touched ? "#9ad8c4" : palette.coral;
+    ctx.fillStyle = mote.touched ? "#9ad8c4" : mote.drift === "deep" ? "#b198eb" : mote.drift === "swift" ? "#ffae74" : palette.coral;
     const wobble = Math.sin(time * 0.008 + mote.id) * 2;
     ctx.beginPath();
-    ctx.moveTo(10 + wobble, 0);
-    ctx.quadraticCurveTo(0, -8, -9, 0);
-    ctx.quadraticCurveTo(0, 8, 10 + wobble, 0);
+    const length = mote.drift === "swift" ? 14 : mote.drift === "deep" ? 8 : 10;
+    const height = mote.drift === "deep" ? 10 : 8;
+    ctx.moveTo(length + wobble, 0);
+    ctx.quadraticCurveTo(0, -height, -9, 0);
+    ctx.quadraticCurveTo(0, height, length + wobble, 0);
     ctx.fill();
     ctx.fillStyle = palette.moon;
     ctx.beginPath();
@@ -268,7 +285,7 @@ function drawHud(state: GameState): void {
   ctx.strokeStyle = "rgba(164, 221, 207, 0.18)";
   ctx.stroke();
   text(stage.name, 66, 62, 14, palette.gold, "left", 800);
-  text(stage.instruction, 66, 91, stage.id === "shore-call" ? 18 : 20, palette.pale, "left", 650);
+  text(stage.instruction, 66, 91, stage.id === "first-rain" ? 20 : 17, palette.pale, "left", 650);
   text(`${Math.max(0, Math.ceil(stage.duration - state.time))}s`, 446, 78, 30, palette.moon, "right", 750);
 
   roundRect(894, 34, 344, 92, 16);
@@ -289,7 +306,12 @@ function drawHud(state: GameState): void {
 
   text("ARROWS / WASD  glide", 52, 684, 14, "#9dbbb4", "left", 650);
   text("SPACE  cast ripple", 274, 684, 14, palette.mint, "left", 650);
-  text(state.stageId === "shore-call" ? "Follow the pale shore ring to gather dew" : "Shorewater restores spent ripples", 1228, 684, 14, state.stageId === "shore-call" ? palette.mint : "#9dbbb4", "right", 550);
+  const footer = state.stageId === "shore-call"
+    ? "Follow the pale shore ring to gather dew"
+    : state.stageId === "split-current"
+      ? "Bright swift · violet deep: save a ripple for later"
+      : "Shorewater restores spent ripples";
+  text(footer, 1228, 684, 14, state.stageId === "first-rain" ? "#9dbbb4" : palette.mint, "right", 550);
 
   if (state.charges < MAX_CHARGES && Math.hypot(state.player.x - WORLD.cx, state.player.y - WORLD.cy) >= 232) {
     const progress = Math.min(1, state.recharge / 0.85);
@@ -357,7 +379,12 @@ function render(time: number): void {
   drawPlayer(game);
   drawHud(game);
   if (screen === "paused") overlay("WATER HELD", "The pond waits without advancing.", "ESC  RETURN");
-  if (screen === "won") overlay(`${STAGES[game.stageId].name} HELD`, `${game.score} spores returned to the dark water.`, game.stageId === "first-rain" ? "ENTER  FOLLOW THE SHORE" : "ENTER  PLAY AGAIN", palette.mint);
+  if (screen === "won") {
+    const action = game.stageId === "first-rain" ? "ENTER  FOLLOW THE SHORE"
+      : game.stageId === "shore-call" ? "ENTER  READ THE CURRENT"
+        : "ENTER  PLAY AGAIN";
+    overlay(`${STAGES[game.stageId].name} HELD`, `${game.score} spores returned to the dark water.`, action, palette.mint);
+  }
   if (screen === "lost") overlay("THE BLOOM FOLDS", "Place the ripple where its edge will meet the next spore.", "ENTER  TRY AGAIN", palette.coral);
   updateStatus();
 }
@@ -391,7 +418,10 @@ function frame(now: number): void {
     lastCharges = game.charges;
     if (game.mode === "won") {
       screen = "won";
-      announce(game.stageId === "first-rain" ? "First Rain held. Press Enter to follow the shore." : "Shore Call held. Press Enter to play again.");
+      const next = game.stageId === "first-rain" ? "Press Enter to follow the shore."
+        : game.stageId === "shore-call" ? "Press Enter to read the split current."
+          : "All three waters held. Press Enter to play this stage again.";
+      announce(`${STAGES[game.stageId].name} held. ${next}`);
       [392, 494, 659].forEach((frequency, index) => setTimeout(() => tone(frequency, 0.32, "sine", 0.025), index * 130));
     } else if (game.mode === "lost") {
       screen = "lost";
@@ -407,7 +437,11 @@ window.addEventListener("keydown", (event) => {
   if (["arrowup", "arrowdown", "arrowleft", "arrowright", " "].includes(key)) event.preventDefault();
   if (event.repeat && (key === " " || key === "enter" || key === "escape" || key === "r")) return;
   if (key === "enter" && (screen === "title" || screen === "won" || screen === "lost")) {
-    startGame(screen === "title" ? "first-rain" : screen === "won" && currentStageId === "first-rain" ? "shore-call" : currentStageId);
+    const nextStage = screen === "title" ? "first-rain"
+      : screen === "won" && currentStageId === "first-rain" ? "shore-call"
+        : screen === "won" && currentStageId === "shore-call" ? "split-current"
+          : currentStageId;
+    startGame(nextStage);
     return;
   }
   if (key === "escape" && (screen === "playing" || screen === "paused")) {

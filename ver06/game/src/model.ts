@@ -1,9 +1,11 @@
 export type Mode = "playing" | "won" | "lost";
-export type StageId = "first-rain" | "shore-call";
+export type StageId = "first-rain" | "shore-call" | "split-current";
 export type Vec = { x: number; y: number };
 export type Input = { x: number; y: number };
 
-type Spawn = { at: number; angle: number; speed: number };
+export type Drift = "steady" | "swift" | "deep";
+
+type Spawn = { at: number; angle: number; speed: number; radius?: number; drift?: Drift };
 
 export type StageDefinition = {
   id: StageId;
@@ -18,6 +20,7 @@ export type Mote = Vec & {
   vx: number;
   vy: number;
   touched: boolean;
+  drift: Drift;
   deflectedBy: number[];
 };
 
@@ -65,6 +68,15 @@ const SHORE_CALL_SPAWNS = [
   { at: 13.8, angle: 2.53, speed: 86 }
 ] as const;
 
+const SPLIT_CURRENT_SPAWNS = [
+  { at: 0.6, angle: -2.78, speed: 132, drift: "swift" },
+  { at: 0.6, angle: -2.36, speed: 132, drift: "swift" },
+  { at: 0.6, angle: -1.94, speed: 132, drift: "swift" },
+  { at: 0.6, angle: -0.34, speed: 50, radius: 500, drift: "deep" },
+  { at: 0.6, angle: 0, speed: 50, radius: 500, drift: "deep" },
+  { at: 0.6, angle: 0.34, speed: 50, radius: 500, drift: "deep" }
+] as const;
+
 export const STAGES: Record<StageId, StageDefinition> = {
   "first-rain": {
     id: "first-rain",
@@ -79,6 +91,13 @@ export const STAGES: Record<StageId, StageDefinition> = {
     instruction: "Return to the shore for dew",
     duration: 22,
     spawns: SHORE_CALL_SPAWNS
+  },
+  "split-current": {
+    id: "split-current",
+    name: "SPLIT CURRENT",
+    instruction: "Swift spores arrive before deep drifters",
+    duration: 12,
+    spawns: SPLIT_CURRENT_SPAWNS
   }
 };
 
@@ -113,7 +132,7 @@ function clampPlayer(player: Vec): Vec {
 }
 
 function spawnMote(state: GameState, spawn: Spawn): Mote {
-  const radius = WORLD.pondRadius + 34;
+  const radius = spawn.radius ?? WORLD.pondRadius + 34;
   const x = WORLD.cx + Math.cos(spawn.angle) * radius;
   const y = WORLD.cy + Math.sin(spawn.angle) * radius;
   return {
@@ -123,6 +142,7 @@ function spawnMote(state: GameState, spawn: Spawn): Mote {
     vx: -Math.cos(spawn.angle) * spawn.speed,
     vy: -Math.sin(spawn.angle) * spawn.speed,
     touched: false,
+    drift: spawn.drift ?? "steady",
     deflectedBy: []
   };
 }

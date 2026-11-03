@@ -75,3 +75,31 @@ describe("SHORE CALL model", () => {
     expect(state.score).toBe(10);
   });
 });
+
+describe("SPLIT CURRENT model", () => {
+  it("loses when all three ripples are spent on the swift group", () => {
+    let pulses = 0;
+    const state = simulate(STAGES["split-current"].duration + 1, (current) => {
+      const pulse = current.time >= 1.15 && pulses < 3;
+      if (pulse) pulses += 1;
+      return { input: { x: 0, y: 0 }, pulse };
+    }, "split-current");
+    expect(state.mode).toBe("lost");
+    expect(state.score).toBe(3);
+    expect(state.charges).toBe(0);
+  });
+
+  it("can be held by separating the swift and deep groups in time", () => {
+    const fired = new Set<number>();
+    const pulseTimes = [1.15, 6.15];
+    const state = simulate(STAGES["split-current"].duration + 1, (current) => {
+      const index = pulseTimes.findIndex((time, i) => current.time >= time && !fired.has(i));
+      if (index >= 0) fired.add(index);
+      return { input: { x: 0, y: 0 }, pulse: index >= 0 };
+    }, "split-current");
+    expect(state.mode).toBe("won");
+    expect(state.health).toBe(3);
+    expect(state.score).toBe(6);
+    expect(state.charges).toBe(1);
+  });
+});
