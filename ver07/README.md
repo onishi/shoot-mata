@@ -6,7 +6,8 @@
 
 - M0 企画比較・独立性確認: 完了
 - M1 コアループ縦切り: 完了
-- M2 段階導入: 3/3面、進行保存、面選択、設定を実装。自動Chrome E2Eが残る
+- M2 段階導入: 完了。3/3面、進行保存、面選択、設定、自動Chrome E2Eを実装
+- M3 本編拡張: 未着手
 - 「DEAD LETTER」から第3面「MISSING MINUTE」まで連続プレイ可能
 - 矢印/WASDで1マス移動、Spaceで1手待機、Enterで現在の行動列を残務影として確定して入口へ戻る
 - 第1面では残務影が感圧印を保持し、第2・第3面では移動中の影が印を横切る一瞬だけ検閲扉が開く
@@ -22,7 +23,7 @@ npm install
 npm run dev
 ```
 
-検証は`npm run verify`で単体テスト、型検査、production buildをまとめて実行する。現在は単体15/15、型検査、production buildに合格している。Google Chrome実入力で3面の連続プレイに加え、設定と進行の再読み込み後保持、到達済み面の選択を確認済み。
+検証は`npm run verify`で単体テスト、型検査、production build、Google Chrome E2Eをまとめて実行する。現在は単体15/15、型検査、production build、Chrome E2E 2/2に合格している。E2Eは初期タイトル、設定の再読み込み後保持、第1面クリア、第2面解放と選択を固定している。
 
 ## 独立性
 
