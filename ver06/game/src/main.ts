@@ -425,7 +425,8 @@ function drawHud(state: GameState): void {
   ctx.strokeStyle = "rgba(164, 221, 207, 0.18)";
   ctx.stroke();
   text(stage.name, 66, 62, 14, palette.gold, "left", 800);
-  text(stage.instruction, 66, 91, stage.id === "first-rain" ? 20 : 17, palette.pale, "left", 650);
+  const instructionSize = stage.id === "first-rain" ? 20 : stage.id === "dew-crossing" ? 15 : 17;
+  text(stage.instruction, 66, 91, instructionSize, palette.pale, "left", 650);
   text(`${Math.max(0, Math.ceil(stage.duration - state.time))}s`, 446, 78, 30, palette.moon, "right", 750);
 
   roundRect(894, 34, 344, 92, 16);
@@ -456,6 +457,8 @@ function drawHud(state: GameState): void {
           ? "Heavy shells resist one wave · overlap two cast positions"
           : state.stageId === "moonwake"
             ? "Short wakes fade quickly · follow the flower's dotted course"
+            : state.stageId === "dew-crossing"
+              ? "Four wakes need four casts · cross to the pale shore for dew"
         : "Shorewater restores spent ripples";
   text(footer, 1228, 684, 14, state.stageId === "first-rain" ? "#9dbbb4" : palette.mint, "right", 550);
 
@@ -535,7 +538,8 @@ function render(time: number): void {
         : game.stageId === "split-current" ? "ENTER  CROSS THE REEDS"
           : game.stageId === "reed-gate" ? "ENTER  FIND RESONANCE"
             : game.stageId === "resonant-pool" ? "ENTER  FOLLOW THE MOONWAKE"
-              : "ENTER  PLAY AGAIN";
+              : game.stageId === "moonwake" ? "ENTER  CROSS FOR DEW"
+                : "ENTER  PLAY AGAIN";
     overlay(`${STAGES[game.stageId].name} HELD`, `${game.score} spores returned to the dark water.`, action, palette.mint);
   }
   if (screen === "lost") overlay("THE BLOOM FOLDS", "Place the ripple where its edge will meet the next spore.", "ENTER  TRY AGAIN", palette.coral);
@@ -576,7 +580,8 @@ function frame(now: number): void {
           : game.stageId === "split-current" ? "Press Enter to cross the reed gate."
             : game.stageId === "reed-gate" ? "Press Enter to find the resonant pool."
               : game.stageId === "resonant-pool" ? "Press Enter to follow the moonwake."
-                : "All six waters held. Press Enter to play this stage again.";
+                : game.stageId === "moonwake" ? "Press Enter to cross for dew."
+                  : "All seven waters held. Press Enter to play this stage again.";
       announce(`${STAGES[game.stageId].name} held. ${next}`);
       [392, 494, 659].forEach((frequency, index) => setTimeout(() => tone(frequency, 0.32, "sine", 0.025), index * 130));
     } else if (game.mode === "lost") {
@@ -611,6 +616,7 @@ window.addEventListener("keydown", (event) => {
           : screen === "won" && currentStageId === "split-current" ? "reed-gate"
             : screen === "won" && currentStageId === "reed-gate" ? "resonant-pool"
               : screen === "won" && currentStageId === "resonant-pool" ? "moonwake"
+              : screen === "won" && currentStageId === "moonwake" ? "dew-crossing"
           : currentStageId;
     startGame(nextStage);
     return;

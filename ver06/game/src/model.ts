@@ -1,5 +1,5 @@
 export type Mode = "playing" | "won" | "lost";
-export type StageId = "first-rain" | "shore-call" | "split-current" | "reed-gate" | "resonant-pool" | "moonwake";
+export type StageId = "first-rain" | "shore-call" | "split-current" | "reed-gate" | "resonant-pool" | "moonwake" | "dew-crossing";
 export type Vec = { x: number; y: number };
 export type Input = { x: number; y: number };
 
@@ -108,6 +108,18 @@ const MOONWAKE_SPAWNS = [
   { at: 9.65, angle: 2.52, speed: 84, targetTime: 15.0 }
 ] as const;
 
+const DEW_CROSSING_SPAWNS = [
+  { at: 0.55, angle: -2.52, speed: 78, targetTime: 3.0, drift: "swift" },
+  { at: 0.55, angle: 2.52, speed: 78, targetTime: 3.0, drift: "swift" },
+  { at: 4.65, angle: -0.5, speed: 80, targetTime: 8.0 },
+  { at: 4.65, angle: 0.5, speed: 80, targetTime: 8.0 },
+  { at: 9.55, angle: -2.5, speed: 82, targetTime: 13.0 },
+  { at: 9.55, angle: 2.5, speed: 82, targetTime: 13.0 },
+  { at: 14.55, angle: -0.5, speed: 84, targetTime: 18.0 },
+  { at: 14.55, angle: -0.38, speed: 84, targetTime: 18.0 },
+  { at: 14.55, angle: 0.5, speed: 84, targetTime: 18.0 }
+] as const;
+
 export const STAGES: Record<StageId, StageDefinition> = {
   "first-rain": {
     id: "first-rain",
@@ -154,6 +166,15 @@ export const STAGES: Record<StageId, StageDefinition> = {
     spawns: MOONWAKE_SPAWNS,
     movingBloom: true,
     rippleRange: 132
+  },
+  "dew-crossing": {
+    id: "dew-crossing",
+    name: "DEW CROSSING",
+    instruction: "Read the next wake, then cross for dew",
+    duration: 20,
+    spawns: DEW_CROSSING_SPAWNS,
+    movingBloom: true,
+    rippleRange: 148
   }
 };
 

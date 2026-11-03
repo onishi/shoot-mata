@@ -195,3 +195,48 @@ describe("MOONWAKE model", () => {
     expect(state.score).toBe(6);
   });
 });
+
+describe("DEW CROSSING model", () => {
+  const pulseTimes = [2.0, 7.0, 11.0, 16.0];
+
+  it("cannot hold all four wakes with the initial three ripples", () => {
+    const fired = new Set<number>();
+    const state = simulate(STAGES["dew-crossing"].duration + 1, (current) => {
+      const index = pulseTimes.findIndex((time, i) => current.time >= time && !fired.has(i));
+      if (index >= 0) fired.add(index);
+      const dx = current.bloom.x - current.player.x;
+      const dy = current.bloom.y + 58 - current.player.y;
+      return {
+        input: { x: Math.abs(dx) > 8 ? Math.sign(dx) : 0, y: Math.abs(dy) > 8 ? Math.sign(dy) : 0 },
+        pulse: index >= 0
+      };
+    }, "dew-crossing");
+    expect(state.mode).toBe("lost");
+    expect(state.charges).toBe(0);
+    expect(state.score).toBe(6);
+  });
+
+  it("can leave for dew after the second wake and return for the last two", () => {
+    const fired = new Set<number>();
+    const state = simulate(STAGES["dew-crossing"].duration + 1, (current) => {
+      const index = pulseTimes.findIndex((time, i) => current.time >= time && !fired.has(i));
+      if (index >= 0) fired.add(index);
+      const time = current.time;
+      const input = time < 0.85 ? { x: 1, y: 0 }
+        : time >= 5.5 && time < 7.0 ? { x: -1, y: 0 }
+          : time >= 7.1 && time < 8.7 ? { x: -1, y: 1 }
+            : time >= 8.7 && time < 9.4 ? { x: 1, y: -1 }
+              : time >= 9.4 && time < 9.65 ? { x: 0, y: -1 }
+              : time >= 12.5 && time < 13.9 ? { x: 1, y: 0 }
+                : { x: 0, y: 0 };
+      return {
+        input,
+        pulse: index >= 0
+      };
+    }, "dew-crossing");
+    expect(state.mode).toBe("won");
+    expect(state.health).toBe(3);
+    expect(state.score).toBe(9);
+    expect(state.charges).toBe(0);
+  });
+});

@@ -126,6 +126,50 @@ async function holdMoonwake(page: Page): Promise<void> {
   await expect(canvasFor(page)).toHaveAttribute("data-score", "6");
 }
 
+async function holdDewCrossing(page: Page): Promise<void> {
+  await page.keyboard.press("Enter");
+  await expectState(page, "playing", "dew-crossing");
+  await page.keyboard.down("ArrowRight");
+  await advance(page, 850);
+  await page.keyboard.up("ArrowRight");
+  await advance(page, 1_150);
+  await page.keyboard.press("Space");
+  await advance(page, 3_500);
+  await page.keyboard.down("ArrowLeft");
+  await advance(page, 1_500);
+  await page.keyboard.up("ArrowLeft");
+  await page.keyboard.press("Space");
+  await advance(page, 100);
+  await page.keyboard.down("ArrowLeft");
+  await page.keyboard.down("ArrowDown");
+  await advance(page, 1_600);
+  await page.keyboard.up("ArrowLeft");
+  await page.keyboard.up("ArrowDown");
+  await page.keyboard.down("ArrowRight");
+  await page.keyboard.down("ArrowUp");
+  await advance(page, 700);
+  await page.keyboard.up("ArrowRight");
+  await page.keyboard.up("ArrowUp");
+  await page.keyboard.down("ArrowUp");
+  await advance(page, 250);
+  await page.keyboard.up("ArrowUp");
+  await advance(page, 1_350);
+  await page.keyboard.press("Space");
+  await advance(page, 1_500);
+  await page.keyboard.down("ArrowRight");
+  await advance(page, 1_400);
+  await page.keyboard.up("ArrowRight");
+  await advance(page, 2_100);
+  await page.keyboard.press("Space");
+  await advance(page, 500);
+  await page.screenshot({ path: "../docs/evidence/m3-dew-crossing-playing.png" });
+  await advance(page, 3_600);
+  await expectState(page, "won", "dew-crossing");
+  await expect(canvasFor(page)).toHaveAttribute("data-health", "3");
+  await expect(canvasFor(page)).toHaveAttribute("data-score", "9");
+  await expect(canvasFor(page)).toHaveAttribute("data-charges", "0");
+}
+
 async function expectContained(page: Page, selector: string, viewport: { width: number; height: number }): Promise<void> {
   const box = await page.locator(selector).boundingBox();
   expect(box).not.toBeNull();
@@ -142,7 +186,7 @@ test.beforeEach(async ({ page }) => {
   await page.reload();
 });
 
-test("keyboard campaign covers pause, representative loss, and all six wins", async ({ page }) => {
+test("keyboard campaign covers pause, representative loss, and all seven wins", async ({ page }) => {
   const errors: string[] = [];
   page.on("console", (message) => {
     if (message.type() === "error" || message.type() === "warning") errors.push(message.text());
@@ -168,8 +212,9 @@ test("keyboard campaign covers pause, representative loss, and all six wins", as
   await holdReedGate(page);
   await holdResonantPool(page);
   await holdMoonwake(page);
+  await holdDewCrossing(page);
 
-  await page.screenshot({ path: "../docs/evidence/m3-moonwake-complete.png" });
+  await page.screenshot({ path: "../docs/evidence/m3-dew-crossing-complete.png" });
   expect(errors).toEqual([]);
 });
 
