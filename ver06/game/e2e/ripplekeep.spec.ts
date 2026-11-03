@@ -63,6 +63,26 @@ async function holdSplitCurrent(page: Page): Promise<void> {
   await expect(canvasFor(page)).toHaveAttribute("data-charges", "1");
 }
 
+async function holdReedGate(page: Page): Promise<void> {
+  await page.keyboard.press("Enter");
+  await expectState(page, "playing", "reed-gate");
+  await page.keyboard.down("ArrowRight");
+  await page.keyboard.down("ArrowUp");
+  await advance(page, 1_200);
+  await page.keyboard.up("ArrowRight");
+  await page.keyboard.up("ArrowUp");
+  await advance(page, 800);
+  await page.keyboard.press("Space");
+  await advance(page, 600);
+  await page.screenshot({ path: "../docs/evidence/m3-reed-gate-playing.png" });
+  await advance(page, 4_600);
+  await page.keyboard.press("Space");
+  await advance(page, 6_900);
+  await expectState(page, "won", "reed-gate");
+  await expect(canvasFor(page)).toHaveAttribute("data-health", "3");
+  await expect(canvasFor(page)).toHaveAttribute("data-score", "6");
+}
+
 async function expectContained(page: Page, selector: string, viewport: { width: number; height: number }): Promise<void> {
   const box = await page.locator(selector).boundingBox();
   expect(box).not.toBeNull();
@@ -79,7 +99,7 @@ test.beforeEach(async ({ page }) => {
   await page.reload();
 });
 
-test("keyboard campaign covers pause, representative loss, and all three wins", async ({ page }) => {
+test("keyboard campaign covers pause, representative loss, and all four wins", async ({ page }) => {
   const errors: string[] = [];
   page.on("console", (message) => {
     if (message.type() === "error" || message.type() === "warning") errors.push(message.text());
@@ -102,8 +122,9 @@ test("keyboard campaign covers pause, representative loss, and all three wins", 
   await holdFirstRain(page);
   await holdShoreCall(page);
   await holdSplitCurrent(page);
+  await holdReedGate(page);
 
-  await page.screenshot({ path: "../docs/evidence/m2-e2e-campaign-complete.png" });
+  await page.screenshot({ path: "../docs/evidence/m3-reed-gate-complete.png" });
   expect(errors).toEqual([]);
 });
 

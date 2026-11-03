@@ -1,5 +1,5 @@
 import "./style.css";
-import { MAX_CHARGES, STAGES, WORLD, type GameState, type StageId, createGame, emitRipple, tick } from "./model";
+import { MAX_CHARGES, REED_BELT, STAGES, WORLD, type GameState, type StageId, createGame, emitRipple, tick } from "./model";
 import { loadSettings, saveSettings, type Settings } from "./settings";
 
 type Screen = "title" | "playing" | "paused" | "won" | "lost" | "settings";
@@ -332,6 +332,39 @@ function drawRipples(state: GameState): void {
   }
 }
 
+function drawReeds(time: number): void {
+  ctx.save();
+  ctx.lineCap = "round";
+  for (let index = 0; index < 15; index += 1) {
+    const t = index / 14;
+    const angle = REED_BELT.startAngle + (REED_BELT.endAngle - REED_BELT.startAngle) * t;
+    const rootX = WORLD.cx + Math.cos(angle) * REED_BELT.radius;
+    const rootY = WORLD.cy + Math.sin(angle) * REED_BELT.radius;
+    const sway = settings.reducedMotion ? 0 : Math.sin(time * 0.0015 + index * 0.7) * 4;
+    const height = 34 + (index % 4) * 7;
+    const nx = Math.cos(angle);
+    const ny = Math.sin(angle);
+    ctx.strokeStyle = index % 2 === 0 ? "#8ca66c" : "#628b68";
+    ctx.lineWidth = 5;
+    ctx.beginPath();
+    ctx.moveTo(rootX - nx * 7, rootY - ny * 7);
+    ctx.quadraticCurveTo(rootX + sway, rootY - height * 0.55, rootX + sway * 1.4, rootY - height);
+    ctx.stroke();
+    ctx.fillStyle = "rgba(187, 207, 126, 0.82)";
+    ctx.beginPath();
+    ctx.ellipse(rootX + sway * 1.4, rootY - height - 4, 3.5, 9, -0.18 + sway * 0.015, 0, TAU);
+    ctx.fill();
+  }
+  ctx.strokeStyle = "rgba(210, 230, 151, 0.32)";
+  ctx.lineWidth = 3;
+  ctx.setLineDash([4, 9]);
+  ctx.beginPath();
+  ctx.arc(WORLD.cx, WORLD.cy, REED_BELT.radius, REED_BELT.startAngle, REED_BELT.endAngle);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.restore();
+}
+
 function drawHud(state: GameState): void {
   const stage = STAGES[state.stageId];
   roundRect(42, 34, 430, 92, 16);
@@ -365,7 +398,9 @@ function drawHud(state: GameState): void {
     ? "Follow the pale shore ring to gather dew"
     : state.stageId === "split-current"
       ? "Bright swift · violet deep: save a ripple for later"
-      : "Shorewater restores spent ripples";
+      : state.stageId === "reed-gate"
+        ? "Reeds break waves · glide beyond them before casting"
+        : "Shorewater restores spent ripples";
   text(footer, 1228, 684, 14, state.stageId === "first-rain" ? "#9dbbb4" : palette.mint, "right", 550);
 
   if (state.charges < MAX_CHARGES && Math.hypot(state.player.x - WORLD.cx, state.player.y - WORLD.cy) >= 232) {
@@ -432,6 +467,7 @@ function render(time: number): void {
   drawPond(displayTime);
   drawMotes(game, displayTime);
   drawRipples(game);
+  if (STAGES[game.stageId].reeds) drawReeds(displayTime);
   drawBloom(game.health, displayTime);
   drawPlayer(game);
   drawHud(game);
@@ -439,7 +475,8 @@ function render(time: number): void {
   if (screen === "won") {
     const action = game.stageId === "first-rain" ? "ENTER  FOLLOW THE SHORE"
       : game.stageId === "shore-call" ? "ENTER  READ THE CURRENT"
-        : "ENTER  PLAY AGAIN";
+        : game.stageId === "split-current" ? "ENTER  CROSS THE REEDS"
+          : "ENTER  PLAY AGAIN";
     overlay(`${STAGES[game.stageId].name} HELD`, `${game.score} spores returned to the dark water.`, action, palette.mint);
   }
   if (screen === "lost") overlay("THE BLOOM FOLDS", "Place the ripple where its edge will meet the next spore.", "ENTER  TRY AGAIN", palette.coral);
@@ -477,7 +514,8 @@ function frame(now: number): void {
       screen = "won";
       const next = game.stageId === "first-rain" ? "Press Enter to follow the shore."
         : game.stageId === "shore-call" ? "Press Enter to read the split current."
-          : "All three waters held. Press Enter to play this stage again.";
+          : game.stageId === "split-current" ? "Press Enter to cross the reed gate."
+            : "All four waters held. Press Enter to play this stage again.";
       announce(`${STAGES[game.stageId].name} held. ${next}`);
       [392, 494, 659].forEach((frequency, index) => setTimeout(() => tone(frequency, 0.32, "sine", 0.025), index * 130));
     } else if (game.mode === "lost") {
@@ -509,6 +547,7 @@ window.addEventListener("keydown", (event) => {
     const nextStage = screen === "title" ? "first-rain"
       : screen === "won" && currentStageId === "first-rain" ? "shore-call"
         : screen === "won" && currentStageId === "shore-call" ? "split-current"
+          : screen === "won" && currentStageId === "split-current" ? "reed-gate"
           : currentStageId;
     startGame(nextStage);
     return;

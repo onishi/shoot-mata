@@ -1,5 +1,5 @@
 export type Mode = "playing" | "won" | "lost";
-export type StageId = "first-rain" | "shore-call" | "split-current";
+export type StageId = "first-rain" | "shore-call" | "split-current" | "reed-gate";
 export type Vec = { x: number; y: number };
 export type Input = { x: number; y: number };
 
@@ -13,6 +13,7 @@ export type StageDefinition = {
   instruction: string;
   duration: number;
   spawns: readonly Spawn[];
+  reeds?: boolean;
 };
 
 export type Mote = Vec & {
@@ -42,6 +43,7 @@ export type GameState = {
 };
 
 export const WORLD = { width: 1280, height: 720, cx: 640, cy: 382, pondRadius: 272 } as const;
+export const REED_BELT = { radius: 132, startAngle: -0.68, endAngle: 0.68 } as const;
 export const STAGE_DURATION = 18;
 export const MAX_CHARGES = 3;
 const SHORE_RADIUS = 232;
@@ -77,6 +79,15 @@ const SPLIT_CURRENT_SPAWNS = [
   { at: 0.6, angle: 0.34, speed: 50, radius: 500, drift: "deep" }
 ] as const;
 
+const REED_GATE_SPAWNS = [
+  { at: 0.7, angle: -0.34, speed: 72 },
+  { at: 0.7, angle: 0, speed: 72 },
+  { at: 0.7, angle: 0.34, speed: 72 },
+  { at: 6.0, angle: -0.28, speed: 78 },
+  { at: 6.0, angle: 0, speed: 78 },
+  { at: 6.0, angle: 0.28, speed: 78 }
+] as const;
+
 export const STAGES: Record<StageId, StageDefinition> = {
   "first-rain": {
     id: "first-rain",
@@ -98,6 +109,14 @@ export const STAGES: Record<StageId, StageDefinition> = {
     instruction: "Swift spores arrive before deep drifters",
     duration: 12,
     spawns: SPLIT_CURRENT_SPAWNS
+  },
+  "reed-gate": {
+    id: "reed-gate",
+    name: "REED GATE",
+    instruction: "Cross the reeds before casting",
+    duration: 14,
+    spawns: REED_GATE_SPAWNS,
+    reeds: true
   }
 };
 
@@ -145,6 +164,34 @@ function spawnMote(state: GameState, spawn: Spawn): Mote {
     drift: spawn.drift ?? "steady",
     deflectedBy: []
   };
+}
+
+function angleWithin(angle: number, start: number, end: number): boolean {
+  const normalized = Math.atan2(Math.sin(angle), Math.cos(angle));
+  return normalized >= start && normalized <= end;
+}
+
+/** Returns true when the segment from a ripple origin to a mote crosses the reed arc. */
+export function reedsBlock(ripple: Vec, target: Vec): boolean {
+  const ox = ripple.x - WORLD.cx;
+  const oy = ripple.y - WORLD.cy;
+  const tx = target.x - WORLD.cx;
+  const ty = target.y - WORLD.cy;
+  const dx = tx - ox;
+  const dy = ty - oy;
+  const a = dx * dx + dy * dy;
+  const b = 2 * (ox * dx + oy * dy);
+  const c = ox * ox + oy * oy - REED_BELT.radius * REED_BELT.radius;
+  const discriminant = b * b - 4 * a * c;
+  if (a === 0 || discriminant < 0) return false;
+  const root = Math.sqrt(discriminant);
+  for (const t of [(-b - root) / (2 * a), (-b + root) / (2 * a)]) {
+    if (t <= 0 || t >= 1) continue;
+    const x = ox + dx * t;
+    const y = oy + dy * t;
+    if (angleWithin(Math.atan2(y, x), REED_BELT.startAngle, REED_BELT.endAngle)) return true;
+  }
+  return false;
 }
 
 export function emitRipple(state: GameState): GameState {
@@ -203,6 +250,7 @@ export function tick(state: GameState, input: Input, dt: number): GameState {
     mote.y += mote.vy * dt;
     for (const ripple of ripples) {
       if (mote.deflectedBy.includes(ripple.id)) continue;
+      if (stage.reeds && reedsBlock(ripple, mote)) continue;
       const dx = mote.x - ripple.x;
       const dy = mote.y - ripple.y;
       const d = Math.hypot(dx, dy) || 1;

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { MAX_CHARGES, STAGES, STAGE_DURATION, WORLD, createGame, emitRipple, simulate, tick } from "../src/model";
+import { MAX_CHARGES, STAGES, STAGE_DURATION, WORLD, createGame, emitRipple, reedsBlock, simulate, tick } from "../src/model";
 
 describe("FIRST RAIN model", () => {
   it("spawns deterministic inward motes", () => {
@@ -101,5 +101,38 @@ describe("SPLIT CURRENT model", () => {
     expect(state.health).toBe(3);
     expect(state.score).toBe(6);
     expect(state.charges).toBe(1);
+  });
+});
+
+describe("REED GATE model", () => {
+  it("blocks a center ripple but not a ripple cast beyond the reed belt", () => {
+    expect(reedsBlock({ x: WORLD.cx, y: WORLD.cy }, { x: WORLD.cx + 240, y: WORLD.cy })).toBe(true);
+    expect(reedsBlock({ x: WORLD.cx + 170, y: WORLD.cy }, { x: WORLD.cx + 240, y: WORLD.cy })).toBe(false);
+  });
+
+  it("cannot be held by casting from the center side of the reeds", () => {
+    const fired = new Set<number>();
+    const pulseTimes = [2.0, 7.2];
+    const state = simulate(STAGES["reed-gate"].duration + 1, (current) => {
+      const index = pulseTimes.findIndex((time, i) => current.time >= time && !fired.has(i));
+      if (index >= 0) fired.add(index);
+      return { input: { x: 0, y: 0 }, pulse: index >= 0 };
+    }, "reed-gate");
+    expect(state.mode).toBe("lost");
+    expect(state.score).toBe(0);
+  });
+
+  it("can be held by crossing the reeds and casting from their far side", () => {
+    const fired = new Set<number>();
+    const pulseTimes = [2.0, 7.2];
+    const state = simulate(STAGES["reed-gate"].duration + 1, (current) => {
+      const index = pulseTimes.findIndex((time, i) => current.time >= time && !fired.has(i));
+      if (index >= 0) fired.add(index);
+      const crossing = current.time < 1.2;
+      return { input: crossing ? { x: 1, y: -0.5 } : { x: 0, y: 0 }, pulse: index >= 0 };
+    }, "reed-gate");
+    expect(state.mode).toBe("won");
+    expect(state.health).toBe(3);
+    expect(state.score).toBe(6);
   });
 });
