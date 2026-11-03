@@ -17,6 +17,7 @@ export type Level = {
   exit: Point;
   plateMode: "hold" | "transit";
   floor: ReadonlySet<string>;
+  echoFloor: ReadonlySet<string>;
 };
 
 export type GameState = {
@@ -64,6 +65,7 @@ export const levels: readonly Level[] = [
       "           ",
       "           ",
     ),
+    echoFloor: new Set(),
   },
   {
     file: "FILE 02",
@@ -87,6 +89,7 @@ export const levels: readonly Level[] = [
       "           ",
       "           ",
     ),
+    echoFloor: new Set(),
   },
   {
     file: "FILE 03",
@@ -110,6 +113,7 @@ export const levels: readonly Level[] = [
       "            ",
       "            ",
     ),
+    echoFloor: new Set(),
   },
   {
     file: "FILE 04",
@@ -133,6 +137,31 @@ export const levels: readonly Level[] = [
       " .......    ",
       "            ",
     ),
+    echoFloor: new Set(),
+  },
+  {
+    file: "FILE 05",
+    name: "AUTHORIZED COPY",
+    objective: "Originals cannot cross blue copy paper. File the blocked route anyway.",
+    winBody: "The duplicate reached the desk the original could not.",
+    width: 12,
+    height: 7,
+    start: { x: 1, y: 3 },
+    plates: [{ x: 6, y: 1 }],
+    gate: { x: 8, y: 3 },
+    letter: { x: 9, y: 3 },
+    exit: { x: 10, y: 3 },
+    plateMode: "transit",
+    floor: floor(
+      "            ",
+      " ......     ",
+      " .          ",
+      " .......... ",
+      "            ",
+      "            ",
+      "            ",
+    ),
+    echoFloor: new Set(["3,1"]),
   },
 ] as const;
 
@@ -175,11 +204,12 @@ export function isGateOpen(state: GameState): boolean {
   )));
 }
 
-function tryStep(from: Point, action: Action, gateOpen: boolean, selected: Level): Point {
+function tryStep(from: Point, action: Action, gateOpen: boolean, selected: Level, echo: boolean): Point {
   if (action === "wait") return copyPoint(from);
   const d = delta[action];
   const next = { x: from.x + d.x, y: from.y + d.y };
   if (!selected.floor.has(`${next.x},${next.y}`)) return copyPoint(from);
+  if (!echo && selected.echoFloor.has(`${next.x},${next.y}`)) return copyPoint(from);
   if (same(next, selected.gate) && !gateOpen) return copyPoint(from);
   return next;
 }
@@ -192,7 +222,7 @@ export function move(state: GameState, action: Action): GameState {
   const ghosts = state.ghosts.map((source) => {
     const previous = copyPoint(source.position);
     const position = source.step < source.recording.length
-      ? tryStep(previous, source.recording[source.step], gateWasOpen, selected)
+      ? tryStep(previous, source.recording[source.step], gateWasOpen, selected, true)
       : previous;
     const step = Math.min(source.recording.length, source.step + 1);
     const pulses = selected.plates.map((plate) => selected.plateMode === "transit"
@@ -202,7 +232,7 @@ export function move(state: GameState, action: Action): GameState {
     return { ...source, position, step, pulses };
   });
   const gateOpen = isGateOpen({ ...state, ghosts });
-  const player = tryStep(state.player, action, gateOpen, selected);
+  const player = tryStep(state.player, action, gateOpen, selected, false);
   const moved = !same(player, state.player);
   const hasLetter = state.hasLetter || same(player, selected.letter);
   const won = hasLetter && same(player, selected.exit);

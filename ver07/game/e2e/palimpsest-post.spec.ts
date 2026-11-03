@@ -116,3 +116,37 @@ test("two filed echoes synchronize CARBON COPIES and complete the file", async (
   await page.screenshot({ path: "../docs/evidence/m3-carbon-copies-won.png" });
   expect(errors).toEqual([]);
 });
+
+test("a filed echo crosses copy paper that blocks the original", async ({ page }) => {
+  const errors: string[] = [];
+  page.on("console", (message) => {
+    if (message.type() === "error" || message.type() === "warning") errors.push(message.text());
+  });
+  page.on("pageerror", (error) => errors.push(error.message));
+
+  await page.evaluate(() => localStorage.setItem("palimpsest-post-v1", JSON.stringify({
+    unlockedLevel: 4,
+    volume: 0,
+    highContrast: false,
+    reduceMotion: true,
+  })));
+  await page.reload();
+  await expect(canvasFor(page)).toHaveAttribute("aria-label", /Selected AUTHORIZED COPY, file 5 of 5 unlocked/);
+  await page.keyboard.press("Enter");
+  for (const key of ["ArrowUp", "ArrowUp", "ArrowRight", "ArrowRight", "ArrowRight", "ArrowRight", "ArrowRight", "ArrowRight"]) {
+    await page.keyboard.press(key);
+  }
+  await page.keyboard.press("Enter");
+  await press(page, "ArrowRight", 4);
+  await expect(canvasFor(page)).toHaveAttribute("aria-label", /Turn 4/);
+  await page.waitForTimeout(400);
+  await page.screenshot({ path: "../docs/evidence/m3-authorized-copy-crossing.png" });
+  await press(page, "ArrowRight", 3);
+  await expect(canvasFor(page)).toHaveAttribute("data-gate", "open");
+  await page.waitForTimeout(100);
+  await page.screenshot({ path: "../docs/evidence/m3-authorized-copy-open.png" });
+  await press(page, "ArrowRight", 2);
+  await expectScreen(page, "won");
+  await expect(canvasFor(page)).toHaveAttribute("aria-label", /AUTHORIZED COPY delivered/);
+  expect(errors).toEqual([]);
+});

@@ -221,6 +221,22 @@ function drawFloor() {
     ctx.fillStyle = "rgba(38, 46, 56, .10)";
     ctx.fillRect(p.x + 10, p.y + 16, tile - 20, 1);
     ctx.fillRect(p.x + 10, p.y + 31, tile - 25, 1);
+    if (selectedLevel().echoFloor.has(key)) {
+      ctx.fillStyle = preferences.highContrast ? "rgba(45, 220, 205, .42)" : "rgba(50, 189, 176, .28)";
+      roundedRect(p.x + 3, p.y + 3, tile - 6, tile - 6, 3);
+      ctx.fill();
+      ctx.strokeStyle = "#43c7b5";
+      ctx.lineWidth = 2;
+      ctx.setLineDash([5, 4]);
+      roundedRect(p.x + 8, p.y + 8, tile - 16, tile - 16, 3);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = "#176b67";
+      ctx.font = "700 10px Georgia";
+      ctx.textAlign = "center";
+      ctx.letterSpacing = "1px";
+      ctx.fillText("COPY", p.x + tile / 2, p.y + tile / 2 + 4);
+    }
   }
 }
 

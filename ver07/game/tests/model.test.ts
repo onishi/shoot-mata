@@ -185,4 +185,35 @@ describe("PALIMPSEST POST model", () => {
     expect(state.hasLetter).toBe(true);
     expect(state.screen).toBe("won");
   });
+
+  it("records an attempted step when the original is rejected by copy paper", () => {
+    let state = createGame("playing", 4);
+    for (const action of ["up", "up", "right"] as const) state = move(state, action);
+    expect(state.player).toEqual({ x: 2, y: 1 });
+
+    state = move(state, "right");
+    expect(state.player).toEqual({ x: 2, y: 1 });
+    expect(state.lastEvent).toBe("blocked");
+    expect(state.currentRecording).toEqual(["up", "up", "right", "right"]);
+  });
+
+  it("lets an echo cross copy paper and open AUTHORIZED COPY on the matching beat", () => {
+    let state = createGame("playing", 4);
+    for (const action of ["up", "up", "right", "right", "right", "right", "right", "right"] as const) {
+      state = move(state, action);
+    }
+    state = commit(state);
+
+    for (let step = 0; step < 4; step += 1) state = move(state, "right");
+    expect(state.ghosts[0].position).toEqual({ x: 3, y: 1 });
+    expect(state.player).toEqual({ x: 5, y: 3 });
+    for (let step = 0; step < 3; step += 1) state = move(state, "right");
+    expect(isGateOpen(state)).toBe(true);
+    expect(state.ghosts[0].position).toEqual({ x: 6, y: 1 });
+    expect(state.player).toEqual({ x: 8, y: 3 });
+
+    state = move(move(state, "right"), "right");
+    expect(state.hasLetter).toBe(true);
+    expect(state.screen).toBe("won");
+  });
 });
