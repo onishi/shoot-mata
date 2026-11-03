@@ -1,5 +1,5 @@
 import "./style.css";
-import { MAX_CHARGES, STAGE_DURATION, WORLD, type GameState, createGame, emitRipple, tick } from "./model";
+import { MAX_CHARGES, STAGES, WORLD, type GameState, type StageId, createGame, emitRipple, tick } from "./model";
 
 type Screen = "title" | "playing" | "paused" | "won" | "lost";
 
@@ -18,13 +18,15 @@ if (!context) throw new Error("Canvas 2D is unavailable");
 const ctx: CanvasRenderingContext2D = context;
 
 let screen: Screen = "title";
-let game = createGame();
+let currentStageId: StageId = "first-rain";
+let game = createGame(currentStageId);
 let previous = performance.now();
 let accumulator = 0;
 const keys = new Set<string>();
 let audio: AudioContext | null = null;
 let lastHealth = game.health;
 let lastScore = game.score;
+let lastCharges = game.charges;
 
 const TAU = Math.PI * 2;
 const palette = {
@@ -59,24 +61,28 @@ function tone(frequency: number, duration: number, type: OscillatorType = "sine"
   oscillator.stop(audio.currentTime + duration);
 }
 
-function startGame(): void {
-  game = createGame();
+function startGame(stageId: StageId = currentStageId): void {
+  currentStageId = stageId;
+  game = createGame(stageId);
   screen = "playing";
   lastHealth = game.health;
   lastScore = game.score;
+  lastCharges = game.charges;
   accumulator = 0;
-  announce("First Rain. Protect the moonbloom for eighteen seconds.");
+  const stage = STAGES[stageId];
+  announce(`${stage.name}. ${stage.instruction}. Hold for ${stage.duration} seconds.`);
   canvas.focus();
   tone(330, 0.18, "sine", 0.025);
 }
 
 function updateStatus(): void {
+  const stage = STAGES[game.stageId];
   screenState.textContent = screen.toUpperCase();
   controls.textContent = screen === "playing"
-    ? `Bloom ${game.health}/3 · Ripples ${game.charges}/3 · ${Math.max(0, Math.ceil(STAGE_DURATION - game.time))}s`
+    ? `Bloom ${game.health}/3 · Ripples ${game.charges}/3 · ${Math.max(0, Math.ceil(stage.duration - game.time))}s`
     : screen === "title" ? "Enter: begin · Arrows/WASD: glide · Space: ripple" : "Enter: retry · R: restart";
   canvas.setAttribute("aria-label", screen === "playing"
-    ? `RIPPLEKEEP. First Rain. Bloom ${game.health} of 3. ${game.charges} ripples. ${Math.max(0, Math.ceil(STAGE_DURATION - game.time))} seconds remain. ${game.motes.length} spores approaching.`
+    ? `RIPPLEKEEP. ${stage.name}. Bloom ${game.health} of 3. ${game.charges} ripples. ${Math.max(0, Math.ceil(stage.duration - game.time))} seconds remain. ${game.motes.length} spores approaching.`
     : `RIPPLEKEEP. ${screen}.`);
 }
 
@@ -128,6 +134,12 @@ function drawPond(time: number): void {
   ctx.fill();
   ctx.strokeStyle = "rgba(178, 226, 205, 0.22)";
   ctx.lineWidth = 2;
+  ctx.stroke();
+
+  ctx.strokeStyle = "rgba(145, 217, 198, 0.13)";
+  ctx.lineWidth = 12;
+  ctx.beginPath();
+  ctx.arc(0, 0, 238, 0, TAU);
   ctx.stroke();
 
   for (let i = 0; i < 5; i += 1) {
@@ -249,14 +261,15 @@ function drawRipples(state: GameState): void {
 }
 
 function drawHud(state: GameState): void {
-  roundRect(42, 34, 344, 92, 16);
+  const stage = STAGES[state.stageId];
+  roundRect(42, 34, 430, 92, 16);
   ctx.fillStyle = "rgba(3, 16, 23, 0.78)";
   ctx.fill();
   ctx.strokeStyle = "rgba(164, 221, 207, 0.18)";
   ctx.stroke();
-  text("FIRST RAIN", 66, 62, 14, palette.gold, "left", 800);
-  text("Protect the moonbloom", 66, 91, 22, palette.pale, "left", 650);
-  text(`${Math.max(0, Math.ceil(STAGE_DURATION - state.time))}s`, 352, 78, 30, palette.moon, "right", 750);
+  text(stage.name, 66, 62, 14, palette.gold, "left", 800);
+  text(stage.instruction, 66, 91, stage.id === "shore-call" ? 18 : 20, palette.pale, "left", 650);
+  text(`${Math.max(0, Math.ceil(stage.duration - state.time))}s`, 446, 78, 30, palette.moon, "right", 750);
 
   roundRect(894, 34, 344, 92, 16);
   ctx.fillStyle = "rgba(3, 16, 23, 0.78)";
@@ -276,7 +289,7 @@ function drawHud(state: GameState): void {
 
   text("ARROWS / WASD  glide", 52, 684, 14, "#9dbbb4", "left", 650);
   text("SPACE  cast ripple", 274, 684, 14, palette.mint, "left", 650);
-  text("Shorewater restores spent ripples", 1228, 684, 14, "#9dbbb4", "right", 550);
+  text(state.stageId === "shore-call" ? "Follow the pale shore ring to gather dew" : "Shorewater restores spent ripples", 1228, 684, 14, state.stageId === "shore-call" ? palette.mint : "#9dbbb4", "right", 550);
 
   if (state.charges < MAX_CHARGES && Math.hypot(state.player.x - WORLD.cx, state.player.y - WORLD.cy) >= 232) {
     const progress = Math.min(1, state.recharge / 0.85);
@@ -344,7 +357,7 @@ function render(time: number): void {
   drawPlayer(game);
   drawHud(game);
   if (screen === "paused") overlay("WATER HELD", "The pond waits without advancing.", "ESC  RETURN");
-  if (screen === "won") overlay("FIRST RAIN HELD", `${game.score} spores returned to the dark water.`, "ENTER  PLAY AGAIN", palette.mint);
+  if (screen === "won") overlay(`${STAGES[game.stageId].name} HELD`, `${game.score} spores returned to the dark water.`, game.stageId === "first-rain" ? "ENTER  FOLLOW THE SHORE" : "ENTER  PLAY AGAIN", palette.mint);
   if (screen === "lost") overlay("THE BLOOM FOLDS", "Place the ripple where its edge will meet the next spore.", "ENTER  TRY AGAIN", palette.coral);
   updateStatus();
 }
@@ -371,9 +384,14 @@ function frame(now: number): void {
       lastScore = game.score;
       tone(520, 0.12, "sine", 0.025);
     }
+    if (game.charges > lastCharges) {
+      tone(720, 0.18, "sine", 0.025);
+      announce(`Dew gathered. ${game.charges} ripples ready.`);
+    }
+    lastCharges = game.charges;
     if (game.mode === "won") {
       screen = "won";
-      announce("First Rain held. Press Enter to play again.");
+      announce(game.stageId === "first-rain" ? "First Rain held. Press Enter to follow the shore." : "Shore Call held. Press Enter to play again.");
       [392, 494, 659].forEach((frequency, index) => setTimeout(() => tone(frequency, 0.32, "sine", 0.025), index * 130));
     } else if (game.mode === "lost") {
       screen = "lost";
@@ -389,7 +407,7 @@ window.addEventListener("keydown", (event) => {
   if (["arrowup", "arrowdown", "arrowleft", "arrowright", " "].includes(key)) event.preventDefault();
   if (event.repeat && (key === " " || key === "enter" || key === "escape" || key === "r")) return;
   if (key === "enter" && (screen === "title" || screen === "won" || screen === "lost")) {
-    startGame();
+    startGame(screen === "title" ? "first-rain" : screen === "won" && currentStageId === "first-rain" ? "shore-call" : currentStageId);
     return;
   }
   if (key === "escape" && (screen === "playing" || screen === "paused")) {

@@ -1,6 +1,17 @@
 export type Mode = "playing" | "won" | "lost";
+export type StageId = "first-rain" | "shore-call";
 export type Vec = { x: number; y: number };
 export type Input = { x: number; y: number };
+
+type Spawn = { at: number; angle: number; speed: number };
+
+export type StageDefinition = {
+  id: StageId;
+  name: string;
+  instruction: string;
+  duration: number;
+  spawns: readonly Spawn[];
+};
 
 export type Mote = Vec & {
   id: number;
@@ -13,6 +24,7 @@ export type Mote = Vec & {
 export type Ripple = Vec & { id: number; radius: number; age: number };
 
 export type GameState = {
+  stageId: StageId;
   mode: Mode;
   time: number;
   health: number;
@@ -31,7 +43,7 @@ export const STAGE_DURATION = 18;
 export const MAX_CHARGES = 3;
 const SHORE_RADIUS = 232;
 
-const SPAWNS = [
+const FIRST_RAIN_SPAWNS = [
   { at: 0.6, angle: -2.55, speed: 70 },
   { at: 2.15, angle: -0.62, speed: 76 },
   { at: 4.7, angle: 2.78, speed: 73 },
@@ -40,8 +52,39 @@ const SPAWNS = [
   { at: 13.1, angle: 1.86, speed: 86 }
 ] as const;
 
-export function createGame(): GameState {
+const SHORE_CALL_SPAWNS = [
+  { at: 0.6, angle: -2.7, speed: 74 },
+  { at: 0.6, angle: 0.44, speed: 74 },
+  { at: 5.0, angle: -0.8, speed: 78 },
+  { at: 5.0, angle: 2.34, speed: 78 },
+  { at: 9.4, angle: -1.58, speed: 82 },
+  { at: 9.4, angle: 1.56, speed: 82 },
+  { at: 13.8, angle: -2.18, speed: 86 },
+  { at: 13.8, angle: -0.61, speed: 86 },
+  { at: 13.8, angle: 0.96, speed: 86 },
+  { at: 13.8, angle: 2.53, speed: 86 }
+] as const;
+
+export const STAGES: Record<StageId, StageDefinition> = {
+  "first-rain": {
+    id: "first-rain",
+    name: "FIRST RAIN",
+    instruction: "Protect the moonbloom",
+    duration: STAGE_DURATION,
+    spawns: FIRST_RAIN_SPAWNS
+  },
+  "shore-call": {
+    id: "shore-call",
+    name: "SHORE CALL",
+    instruction: "Return to the shore for dew",
+    duration: 22,
+    spawns: SHORE_CALL_SPAWNS
+  }
+};
+
+export function createGame(stageId: StageId = "first-rain"): GameState {
   return {
+    stageId,
     mode: "playing",
     time: 0,
     health: 3,
@@ -69,8 +112,7 @@ function clampPlayer(player: Vec): Vec {
   return { x: WORLD.cx + (dx / d) * limit, y: WORLD.cy + (dy / d) * limit };
 }
 
-function spawnMote(state: GameState, index: number): Mote {
-  const spawn = SPAWNS[index];
+function spawnMote(state: GameState, spawn: Spawn): Mote {
   const radius = WORLD.pondRadius + 34;
   const x = WORLD.cx + Math.cos(spawn.angle) * radius;
   const y = WORLD.cy + Math.sin(spawn.angle) * radius;
@@ -98,6 +140,7 @@ export function emitRipple(state: GameState): GameState {
 
 export function tick(state: GameState, input: Input, dt: number): GameState {
   if (state.mode !== "playing") return state;
+  const stage = STAGES[state.stageId];
   const length = Math.hypot(input.x, input.y) || 1;
   const speed = 188;
   const player = clampPlayer({
@@ -121,8 +164,8 @@ export function tick(state: GameState, input: Input, dt: number): GameState {
   let nextId = state.nextId;
   const motes = state.motes.map((mote) => ({ ...mote, deflectedBy: [...mote.deflectedBy] }));
   const nextTime = state.time + dt;
-  while (spawned < SPAWNS.length && SPAWNS[spawned].at <= nextTime) {
-    const mote = spawnMote({ ...state, nextId }, spawned);
+  while (spawned < stage.spawns.length && stage.spawns[spawned].at <= nextTime) {
+    const mote = spawnMote({ ...state, nextId }, stage.spawns[spawned]);
     motes.push(mote);
     nextId += 1;
     spawned += 1;
@@ -161,12 +204,16 @@ export function tick(state: GameState, input: Input, dt: number): GameState {
   }
 
   const time = nextTime;
-  const mode: Mode = health <= 0 ? "lost" : time >= STAGE_DURATION ? "won" : "playing";
+  const mode: Mode = health <= 0 ? "lost" : time >= stage.duration ? "won" : "playing";
   return { ...state, mode, time, health: Math.max(0, health), charges, recharge, score, player, motes: survivors, ripples, spawned, nextId };
 }
 
-export function simulate(seconds: number, strategy: (state: GameState) => { input: Input; pulse: boolean }): GameState {
-  let state = createGame();
+export function simulate(
+  seconds: number,
+  strategy: (state: GameState) => { input: Input; pulse: boolean },
+  stageId: StageId = "first-rain"
+): GameState {
+  let state = createGame(stageId);
   const steps = Math.ceil(seconds * 60);
   for (let i = 0; i < steps && state.mode === "playing"; i += 1) {
     const action = strategy(state);

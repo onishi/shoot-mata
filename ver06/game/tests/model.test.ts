@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { MAX_CHARGES, STAGE_DURATION, WORLD, createGame, emitRipple, simulate, tick } from "../src/model";
+import { MAX_CHARGES, STAGES, STAGE_DURATION, WORLD, createGame, emitRipple, simulate, tick } from "../src/model";
 
 describe("FIRST RAIN model", () => {
   it("spawns deterministic inward motes", () => {
@@ -44,5 +44,34 @@ describe("FIRST RAIN model", () => {
     expect(state.mode).toBe("won");
     expect(state.health).toBeGreaterThan(0);
     expect(state.score).toBeGreaterThanOrEqual(3);
+  });
+});
+
+describe("SHORE CALL model", () => {
+  it("cannot be held with the initial three ripples", () => {
+    const fired = new Set<number>();
+    const pulseTimes = [2.2, 6.6, 11.0, 15.4];
+    const state = simulate(STAGES["shore-call"].duration + 1, (current) => {
+      const index = pulseTimes.findIndex((time, i) => current.time >= time && !fired.has(i));
+      if (index >= 0) fired.add(index);
+      return { input: { x: 0, y: 0 }, pulse: index >= 0 };
+    }, "shore-call");
+    expect(state.mode).toBe("lost");
+    expect(state.charges).toBe(0);
+  });
+
+  it("can be held by gathering dew at the shore", () => {
+    const fired = new Set<number>();
+    const pulseTimes = [2.2, 6.6, 11.0, 15.4];
+    const state = simulate(STAGES["shore-call"].duration + 1, (current) => {
+      const index = pulseTimes.findIndex((time, i) => current.time >= time && !fired.has(i));
+      if (index >= 0) fired.add(index);
+      const gathering = current.time >= 2.25 && current.time < 4.5;
+      const returning = current.time >= 4.5 && current.time < 5.9;
+      return { input: gathering ? { x: 0, y: 1 } : returning ? { x: 0, y: -1 } : { x: 0, y: 0 }, pulse: index >= 0 };
+    }, "shore-call");
+    expect(state.mode).toBe("won");
+    expect(state.health).toBe(3);
+    expect(state.score).toBe(10);
   });
 });
