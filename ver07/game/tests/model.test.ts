@@ -20,7 +20,8 @@ describe("PALIMPSEST POST model", () => {
     let state = createGame("playing");
     state = move(move(state, "right"), "right");
     state = commit(state);
-    expect(state.ghost).toEqual({ x: 1, y: 3 });
+    expect(state.ghosts).toHaveLength(1);
+    expect(state.ghosts[0].position).toEqual({ x: 1, y: 3 });
 
     state = move(state, "right");
     expect(isGateOpen(state)).toBe(false);
@@ -77,7 +78,7 @@ describe("PALIMPSEST POST model", () => {
     }
     state = commit(state);
     for (let i = 0; i < 6; i += 1) state = move(state, "right");
-    expect(state.ghost).toEqual({ x: 5, y: 1 });
+    expect(state.ghosts[0].position).toEqual({ x: 5, y: 1 });
     expect(isGateOpen(state)).toBe(false);
     expect(state.player).toEqual({ x: 6, y: 3 });
   });
@@ -139,5 +140,49 @@ describe("PALIMPSEST POST model", () => {
     expect(shortest.some((route) => route.filter((action) => action === "wait").length === 1)).toBe(true);
     const routesWithExtraWait = shortest.filter((route) => route.filter((action) => action === "wait").length > 1);
     expect(routesWithExtraWait.every((route) => route.at(-1) === "wait")).toBe(true);
+  });
+
+  it("keeps earlier recordings and rewinds every echo when another is filed", () => {
+    let state = createGame("playing", 3);
+    for (const action of ["up", "up", "right", "right", "wait", "wait", "right", "right"] as const) {
+      state = move(state, action);
+    }
+    state = commit(state);
+    for (const action of ["down", "down", "right", "right", "right", "right", "right", "right"] as const) {
+      state = move(state, action);
+    }
+    expect(state.ghosts[0].step).toBe(8);
+
+    state = commit(state);
+    expect(state.ghosts).toHaveLength(2);
+    expect(state.ghosts.map((ghost) => ghost.step)).toEqual([0, 0]);
+    expect(state.ghosts.map((ghost) => ghost.position)).toEqual([{ x: 1, y: 3 }, { x: 1, y: 3 }]);
+  });
+
+  it("requires two echoes to strike both CARBON COPIES seals on the same beat", () => {
+    let oneEcho = createGame("playing", 3);
+    for (const action of ["up", "up", "right", "right", "wait", "wait", "right", "right"] as const) {
+      oneEcho = move(oneEcho, action);
+    }
+    oneEcho = commit(oneEcho);
+    for (let step = 0; step < 7; step += 1) oneEcho = move(oneEcho, "right");
+    expect(isGateOpen(oneEcho)).toBe(false);
+    expect(oneEcho.player).toEqual({ x: 7, y: 3 });
+
+    let state = createGame("playing", 3);
+    for (const action of ["up", "up", "right", "right", "wait", "wait", "right", "right"] as const) {
+      state = move(state, action);
+    }
+    state = commit(state);
+    for (const action of ["down", "down", "right", "right", "right", "right", "right", "right"] as const) {
+      state = move(state, action);
+    }
+    state = commit(state);
+    for (let step = 0; step < 7; step += 1) state = move(state, "right");
+    expect(isGateOpen(state)).toBe(true);
+    expect(state.player).toEqual({ x: 8, y: 3 });
+    state = move(move(state, "right"), "right");
+    expect(state.hasLetter).toBe(true);
+    expect(state.screen).toBe("won");
   });
 });

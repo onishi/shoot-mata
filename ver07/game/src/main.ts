@@ -99,7 +99,7 @@ function updateAria() {
       : `PALIMPSEST POST title. Selected ${levels[titleLevel].name}, file ${titleLevel + 1} of ${preferences.unlockedLevel + 1} unlocked. Press Enter to begin or S for settings.`,
     paused: `${room.name} paused. Press Escape to resume or R to restart.`,
     won: `${room.name} delivered. Press Enter to ${state.levelIndex < levels.length - 1 ? "open the next file" : "replay from file one"}.`,
-    playing: `${room.name}. Turn ${state.turn}. ${state.hasLetter ? "Letter collected." : "Letter waiting."} ${isGateOpen(state) ? "Censorship gate open." : "Censorship gate closed."} Current recording ${state.currentRecording.length} steps.`,
+    playing: `${room.name}. Turn ${state.turn}. ${state.hasLetter ? "Letter collected." : "Letter waiting."} ${isGateOpen(state) ? "Censorship gate open." : "Censorship gate closed."} ${state.ghosts.length} echoes filed. Current recording ${state.currentRecording.length} steps.`,
   };
   canvas.setAttribute("aria-label", descriptions[state.screen]);
   canvas.dataset.screen = state.screen;
@@ -224,15 +224,15 @@ function drawFloor() {
   }
 }
 
-function drawPlate(open: boolean, time: number) {
-  const p = pointToPixel(selectedLevel().plate);
+function drawPlate(plate: Point, active: boolean, time: number) {
+  const p = pointToPixel(plate);
   const cx = p.x + tile / 2;
   const cy = p.y + tile / 2;
-  ctx.strokeStyle = open ? "#39b7a4" : "#a44743";
-  ctx.lineWidth = open ? 4 : 3;
-  ctx.beginPath(); ctx.arc(cx, cy, 18 + (open ? Math.sin(time * .006) : 0), 0, Math.PI * 2); ctx.stroke();
+  ctx.strokeStyle = active ? "#39b7a4" : "#a44743";
+  ctx.lineWidth = active ? 4 : 3;
+  ctx.beginPath(); ctx.arc(cx, cy, 18 + (active ? Math.sin(time * .006) : 0), 0, Math.PI * 2); ctx.stroke();
   ctx.beginPath(); ctx.arc(cx, cy, 9, 0, Math.PI * 2); ctx.stroke();
-  ctx.fillStyle = open ? "rgba(50,189,167,.22)" : "rgba(164,71,67,.14)";
+  ctx.fillStyle = active ? "rgba(50,189,167,.22)" : "rgba(164,71,67,.14)";
   ctx.beginPath(); ctx.arc(cx, cy, 22, 0, Math.PI * 2); ctx.fill();
 }
 
@@ -315,8 +315,8 @@ function drawHeader() {
   ctx.textAlign = "right";
   ctx.fillStyle = "#e6d8b7";
   ctx.fillText(`CURRENT SHIFT  ${state.currentRecording.length} STEPS`, 900, 57);
-  ctx.fillStyle = state.committedRecording.length ? "#55c6b4" : "#77878d";
-  ctx.fillText(state.committedRecording.length ? `ECHO FILED  ${state.committedRecording.length} STEPS` : "NO ECHO FILED", 900, 82);
+  ctx.fillStyle = state.ghosts.length ? "#55c6b4" : "#77878d";
+  ctx.fillText(state.ghosts.length ? `ECHOES FILED  ${state.ghosts.length}` : "NO ECHO FILED", 900, 82);
 }
 
 function drawFooter() {
@@ -339,16 +339,24 @@ function drawGame(time: number) {
   drawFloor();
   const open = isGateOpen(state);
   if (open) {
-    const a = pointToPixel(selectedLevel().plate); const b = pointToPixel(selectedLevel().gate);
+    const b = pointToPixel(selectedLevel().gate);
     ctx.strokeStyle = "rgba(56,192,173,.55)"; ctx.lineWidth = 2; ctx.setLineDash([4, 5]);
-    ctx.beginPath(); ctx.moveTo(a.x + tile / 2, a.y + tile / 2); ctx.lineTo(b.x + tile / 2, b.y + tile / 2); ctx.stroke();
+    for (const plate of selectedLevel().plates) {
+      const a = pointToPixel(plate);
+      ctx.beginPath(); ctx.moveTo(a.x + tile / 2, a.y + tile / 2); ctx.lineTo(b.x + tile / 2, b.y + tile / 2); ctx.stroke();
+    }
     ctx.setLineDash([]);
   }
-  drawPlate(open, time);
+  for (const [plateIndex, plate] of selectedLevel().plates.entries()) {
+    const active = state.ghosts.some((ghost) => selectedLevel().plateMode === "transit"
+      ? ghost.pulses[plateIndex]
+      : ghost.position.x === plate.x && ghost.position.y === plate.y);
+    drawPlate(plate, active, time);
+  }
   drawGate(open);
   drawLetter();
   drawExit();
-  if (state.ghost) drawClerk(state.ghost, true, time);
+  for (const ghost of state.ghosts) drawClerk(ghost.position, true, time);
   drawClerk(state.player, false, time);
   if (state.hasLetter) {
     const p = pointToPixel(state.player);
@@ -439,7 +447,7 @@ window.addEventListener("keydown", (event) => {
     state = togglePause(state); announce(state.screen === "paused" ? "Paused." : "Resumed.");
   } else if (state.screen === "playing" && event.code === "Enter") {
     state = commit(state);
-    if (state !== previous) announce(`Echo filed with ${state.committedRecording.length} steps. Returned to intake.`);
+    if (state !== previous) announce(`Echo ${state.ghosts.length} filed. Returned to intake. All echoes will replay together.`);
   } else if (state.screen === "playing" && action) {
     state = move(state, action);
     if (state.lastEvent === "wait") announce("One blank beat recorded.");

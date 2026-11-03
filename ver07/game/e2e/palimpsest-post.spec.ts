@@ -80,3 +80,39 @@ test("clearing the first file unlocks and preserves the second file", async ({ p
   await expect(canvasFor(page)).toHaveAttribute("aria-label", /MOVING DEADLINE\. Turn 0/);
   expect(errors).toEqual([]);
 });
+
+test("two filed echoes synchronize CARBON COPIES and complete the file", async ({ page }) => {
+  const errors: string[] = [];
+  page.on("console", (message) => {
+    if (message.type() === "error" || message.type() === "warning") errors.push(message.text());
+  });
+  page.on("pageerror", (error) => errors.push(error.message));
+
+  await page.evaluate(() => localStorage.setItem("palimpsest-post-v1", JSON.stringify({
+    unlockedLevel: 3,
+    volume: 0,
+    highContrast: false,
+    reduceMotion: true,
+  })));
+  await page.reload();
+  await expect(canvasFor(page)).toHaveAttribute("aria-label", /Selected CARBON COPIES, file 4 of 4 unlocked/);
+  await page.keyboard.press("Enter");
+
+  for (const key of ["ArrowUp", "ArrowUp", "ArrowRight", "ArrowRight", "Space", "Space", "ArrowRight", "ArrowRight"]) {
+    await page.keyboard.press(key);
+  }
+  await page.keyboard.press("Enter");
+  for (const key of ["ArrowDown", "ArrowDown", "ArrowRight", "ArrowRight", "ArrowRight", "ArrowRight", "ArrowRight", "ArrowRight"]) {
+    await page.keyboard.press(key);
+  }
+  await page.keyboard.press("Enter");
+  await expect(canvasFor(page)).toHaveAttribute("aria-label", /2 echoes filed/);
+  await press(page, "ArrowRight", 7);
+  await expect(canvasFor(page)).toHaveAttribute("data-gate", "open");
+  await page.screenshot({ path: "../docs/evidence/m3-carbon-copies-synchronized.png" });
+  await press(page, "ArrowRight", 2);
+  await expectScreen(page, "won");
+  await expect(canvasFor(page)).toHaveAttribute("aria-label", /CARBON COPIES delivered/);
+  await page.screenshot({ path: "../docs/evidence/m3-carbon-copies-won.png" });
+  expect(errors).toEqual([]);
+});

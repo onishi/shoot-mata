@@ -14,7 +14,7 @@ describe("PALIMPSEST POST preferences", () => {
       volume: 63,
       highContrast: true,
       reduceMotion: true,
-    }))).toEqual({ unlockedLevel: 2, volume: 75, highContrast: true, reduceMotion: true });
+    }))).toEqual({ unlockedLevel: 3, volume: 75, highContrast: true, reduceMotion: true });
   });
 
   it("recovers when browser storage access fails", () => {
