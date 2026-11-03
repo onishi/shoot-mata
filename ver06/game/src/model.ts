@@ -1,5 +1,5 @@
 export type Mode = "playing" | "won" | "lost";
-export type StageId = "first-rain" | "shore-call" | "split-current" | "reed-gate" | "resonant-pool" | "moonwake" | "dew-crossing";
+export type StageId = "first-rain" | "shore-call" | "split-current" | "reed-gate" | "resonant-pool" | "moonwake" | "dew-crossing" | "echo-tide";
 export type Vec = { x: number; y: number };
 export type Input = { x: number; y: number };
 
@@ -51,6 +51,7 @@ export const WORLD = { width: 1280, height: 720, cx: 640, cy: 382, pondRadius: 2
 export const REED_BELT = { radius: 132, startAngle: -0.68, endAngle: 0.68 } as const;
 export const STAGE_DURATION = 18;
 export const MAX_CHARGES = 3;
+export const RUNTIME_BUDGET = { motes: 24, ripples: 6 } as const;
 const SHORE_RADIUS = 232;
 
 const FIRST_RAIN_SPAWNS = [
@@ -120,6 +121,14 @@ const DEW_CROSSING_SPAWNS = [
   { at: 14.55, angle: 0.5, speed: 84, targetTime: 18.0 }
 ] as const;
 
+const ECHO_TIDE_SPAWNS = [
+  { at: 0.55, angle: -2.5, speed: 78, targetTime: 3.0, drift: "swift" },
+  { at: 0.55, angle: 2.5, speed: 78, targetTime: 3.0, drift: "swift" },
+  { at: 6.0, angle: -0.28, speed: 72, targetTime: 10.0, drift: "heavy" },
+  { at: 6.0, angle: 0, speed: 72, targetTime: 10.0, drift: "heavy" },
+  { at: 6.0, angle: 0.28, speed: 72, targetTime: 10.0, drift: "heavy" }
+] as const;
+
 export const STAGES: Record<StageId, StageDefinition> = {
   "first-rain": {
     id: "first-rain",
@@ -165,7 +174,7 @@ export const STAGES: Record<StageId, StageDefinition> = {
     duration: 16,
     spawns: MOONWAKE_SPAWNS,
     movingBloom: true,
-    rippleRange: 132
+    rippleRange: 140
   },
   "dew-crossing": {
     id: "dew-crossing",
@@ -175,6 +184,16 @@ export const STAGES: Record<StageId, StageDefinition> = {
     spawns: DEW_CROSSING_SPAWNS,
     movingBloom: true,
     rippleRange: 148
+  },
+  "echo-tide": {
+    id: "echo-tide",
+    name: "ECHO TIDE",
+    instruction: "Meet the swift wake, then echo twice ahead",
+    duration: 13,
+    spawns: ECHO_TIDE_SPAWNS,
+    resonance: true,
+    movingBloom: true,
+    rippleRange: 260
   }
 };
 

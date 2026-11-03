@@ -170,6 +170,33 @@ async function holdDewCrossing(page: Page): Promise<void> {
   await expect(canvasFor(page)).toHaveAttribute("data-charges", "0");
 }
 
+async function holdEchoTide(page: Page): Promise<void> {
+  await page.keyboard.press("Enter");
+  await expectState(page, "playing", "echo-tide");
+  await page.keyboard.down("ArrowRight");
+  await advance(page, 850);
+  await page.keyboard.up("ArrowRight");
+  await advance(page, 1_150);
+  await page.keyboard.press("Space");
+  await advance(page, 3_500);
+  await page.keyboard.down("ArrowLeft");
+  await advance(page, 1_700);
+  await page.keyboard.up("ArrowLeft");
+  await advance(page, 800);
+  await page.keyboard.press("Space");
+  await page.keyboard.down("ArrowRight");
+  await advance(page, 370);
+  await page.keyboard.up("ArrowRight");
+  await page.keyboard.press("Space");
+  await advance(page, 330);
+  await page.screenshot({ path: "../docs/evidence/m3-echo-tide-playing.png" });
+  await advance(page, 4_300);
+  await expectState(page, "won", "echo-tide");
+  await expect(canvasFor(page)).toHaveAttribute("data-health", "3");
+  await expect(canvasFor(page)).toHaveAttribute("data-score", "5");
+  await expect(canvasFor(page)).toHaveAttribute("data-charges", "0");
+}
+
 async function expectContained(page: Page, selector: string, viewport: { width: number; height: number }): Promise<void> {
   const box = await page.locator(selector).boundingBox();
   expect(box).not.toBeNull();
@@ -186,7 +213,7 @@ test.beforeEach(async ({ page }) => {
   await page.reload();
 });
 
-test("keyboard campaign covers pause, representative loss, and all seven wins", async ({ page }) => {
+test("keyboard campaign covers pause, representative loss, all eight wins, and the ending", async ({ page }) => {
   const errors: string[] = [];
   page.on("console", (message) => {
     if (message.type() === "error" || message.type() === "warning") errors.push(message.text());
@@ -196,6 +223,8 @@ test("keyboard campaign covers pause, representative loss, and all seven wins", 
   await expectState(page, "title", "first-rain");
   await page.keyboard.press("Enter");
   await expectState(page, "playing", "first-rain");
+  await expect(canvasFor(page)).toBeFocused();
+  await expect(canvasFor(page)).toHaveAttribute("aria-label", /FIRST RAIN.*Bloom 3 of 3.*3 ripples.*seconds remain/);
   await page.keyboard.press("Escape");
   await expectState(page, "paused", "first-rain");
   await advance(page, 2_000);
@@ -213,14 +242,21 @@ test("keyboard campaign covers pause, representative loss, and all seven wins", 
   await holdResonantPool(page);
   await holdMoonwake(page);
   await holdDewCrossing(page);
+  await holdEchoTide(page);
 
-  await page.screenshot({ path: "../docs/evidence/m3-dew-crossing-complete.png" });
+  await page.screenshot({ path: "../docs/evidence/m3-echo-tide-complete.png" });
+  await page.keyboard.press("Enter");
+  await expectState(page, "ending", "echo-tide");
+  await expect(canvasFor(page)).toHaveAttribute("aria-label", /All eight waters held.*Press Enter to begin again/);
+  await page.screenshot({ path: "../docs/evidence/m3-ending.png" });
   expect(errors).toEqual([]);
 });
 
 test("settings persist through reload using keyboard controls", async ({ page }) => {
   await page.keyboard.press("KeyS");
   await expectState(page, "settings");
+  await expect(page.locator("#settings")).toHaveAttribute("role", "dialog");
+  await expect(page.locator("#settings")).toHaveAttribute("aria-modal", "true");
   await expect(page.locator("#volume")).toBeFocused();
   for (let index = 0; index < 4; index += 1) await page.keyboard.press("ArrowLeft");
   await page.keyboard.press("Tab");

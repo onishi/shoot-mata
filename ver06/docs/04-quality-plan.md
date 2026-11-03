@@ -41,3 +41,15 @@
 - Google Chrome E2Eを5面連続勝利へ拡張した。プレイ中と結果画面を目視し、重い胞子の点線殻、2波紋の中心差、重なり領域、HUDに欠けや重なりがないことを確認した。証拠は`docs/evidence/m3-resonant-pool.md`に記録する。
 - MOONWAKEは開始位置に留まる3波紋では敗北し、花の航路を追う3波紋では耐久3・6排除で勝利する。Google Chrome E2Eを6面連続勝利へ拡張し、航路、未来位置、短い波紋、結果overlayに欠けや重なりがないことを目視した。証拠は`docs/evidence/m3-moonwake.md`に記録する。
 - DEW CROSSINGは花へ追従するだけでは初期3波紋を使い切って敗北し、第2群後に岸へ寄って1回補充する経路では耐久3・9排除で勝利する。Google Chrome E2Eを7面連続勝利へ拡張し、目的文の時間表示への重なりを初回目視で発見して修正した。証拠は`docs/evidence/m3-dew-crossing.md`に記録する。
+- ECHO TIDEは前半と後半へ1波紋ずつ使うだけでは重い3体を動かせず敗北し、前半1波紋と後半2地点の重なりへ配分すると耐久3・5排除で勝利する。
+- Google Chrome E2Eを8面通しと終演まで拡張した。プレイ中、勝利、終演を1280×720で目視し、HUD、航路、重なり波紋、重い胞子、終演文言に欠けや重なりがないことを確認した。証拠は`docs/evidence/m3-echo-tide.md`に記録する。
+- 単体29/29、型検査、production build、Google Chrome E2E 3/3に合格し、M3ゲートを完了した。
+
+## M4監査
+
+- Google Chrome実入力で、代表敗北、ポーズ、全8面勝利、終演までを1本のキャンペーンとして通した。
+- 全面の定義が胞子24・波紋6の上限内であることを単体テストで固定した。24胞子・6波紋の最悪同時数を3,600回更新する性能検査は1秒未満で完了する。
+- Canvasの動的な読み上げ名に面名、耐久、波紋残量、残り秒数、接近数を含め、終演にも完了と再開操作を含めた。設定overlayへdialogとmodalの意味を付与し、Chrome E2Eでフォーカスと属性を検査した。
+- 1280×720と640×800でタイトル、設定、プレイ、ポーズの境界と16:9比率を再検査した。高コントラスト、モーション軽減、音量保存も回帰なし。
+- `npm run release`で外部runtime requestを持たないproduction artifact、配布手順、ファイルサイズ、SHA-256 manifestを`release/ripplekeep-v6.0/`へ生成した。
+- `npm run verify`は単体29/29、型検査、production build、Google Chrome E2E 3/3に合格した。M4ゲートを完了した。

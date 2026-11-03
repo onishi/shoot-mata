@@ -79,3 +79,19 @@
 - Chrome E2Eを7面連続勝利へ拡張した。初回証拠画像で目的文が残り時間へ重なる問題を発見し、文言を短縮してこの面だけ15pxへ縮小した。
 - 修正後のプレイ中と結果画面を目視し、航路、岸、最終群、HUD、結果overlayに欠けや重なりがなく、console error / warningが0件であることを確認した。
 - `npm run verify`は単体25/25、型検査、production build、Google Chrome E2E 3/3に合格した。次は既出規則を選択的に再構成する第8面と終演を設計する。
+
+## 2026-11-04 — M3 ECHO TIDEと終演
+
+- 最終第8面ECHO TIDEへ、移動する月花、高速群、重い胞子の共鳴を再構成した。補充と葦は加えず、前半1回・後半2回という初期波紋の配分を最終判断にした。
+- 前半と後半へ1波紋ずつ放つだけでは重い3体が動かず敗北し、2.0秒に高速2体、8.0秒・8.37秒に異なる位置から重い3体へ重ねると耐久3・5排除で勝利することを2件の規則テストで固定した。
+- 最終勝利後に8本の波紋と夜明けを描く「THE POND REMEMBERS」の終演を追加し、EnterでFIRST RAINから再開できるようにした。
+- Google Chrome E2Eを全8面と終演へ拡張した。プレイ中、勝利、終演の証拠画像を目視し、HUD、航路、波紋、胞子、文言、ボタンに欠けや重なりがなく、console error / warningが0件であることを確認した。
+- 単体27/27、型検査、production build、Google Chrome E2E 3/3に合格した。M3を完了し、次はM4の通し・性能・アクセシビリティ・release artifact監査へ進む。
+
+## 2026-11-04 — M4 release監査
+
+- Google Chrome実入力で代表敗北、ポーズ、全8面勝利、終演を通し、設定保存と両viewportを含むE2E 3件を完走した。
+- 胞子24・波紋6の同時数上限を定数化し、全ステージ定義が上限内であることと、最悪同時数を3,600回更新して1秒未満で完了することを単体テストへ追加した。
+- Canvasの動的な読み上げ名をE2Eで検査し、終演へ完了内容と再開操作を追加した。設定overlayにdialogとmodalの意味を付与し、開始後のCanvasフォーカスも固定した。
+- `npm run release`を追加し、production build、配布用README、各ファイルのサイズとSHA-256を持つmanifestを`release/ripplekeep-v6.0/`へ生成した。
+- `npm run verify`は単体29/29、型検査、production build、Google Chrome E2E 3/3に合格した。M4を完了し、機械的な完成条件をすべて達成した。

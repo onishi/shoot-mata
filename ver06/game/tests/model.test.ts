@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { MAX_CHARGES, STAGES, STAGE_DURATION, WORLD, createGame, emitRipple, reedsBlock, simulate, tick } from "../src/model";
+import { MAX_CHARGES, RUNTIME_BUDGET, STAGES, STAGE_DURATION, WORLD, createGame, emitRipple, reedsBlock, simulate, tick } from "../src/model";
 
 describe("FIRST RAIN model", () => {
   it("spawns deterministic inward motes", () => {
@@ -238,5 +238,91 @@ describe("DEW CROSSING model", () => {
     expect(state.health).toBe(3);
     expect(state.score).toBe(9);
     expect(state.charges).toBe(0);
+  });
+});
+
+describe("ECHO TIDE model", () => {
+  it("cannot move the final heavy spores with a single wake", () => {
+    const fired = new Set<number>();
+    const pulseTimes = [2.0, 7.4];
+    const state = simulate(STAGES["echo-tide"].duration + 1, (current) => {
+      const index = pulseTimes.findIndex((time, i) => current.time >= time && !fired.has(i));
+      if (index >= 0) fired.add(index);
+      const dx = current.bloom.x - current.player.x;
+      const dy = current.bloom.y + 58 - current.player.y;
+      return {
+        input: { x: Math.abs(dx) > 8 ? Math.sign(dx) : 0, y: Math.abs(dy) > 8 ? Math.sign(dy) : 0 },
+        pulse: index >= 0
+      };
+    }, "echo-tide");
+    expect(state.mode).toBe("lost");
+    expect(state.score).toBe(2);
+  });
+
+  it("can hold the final wake by overlapping two cast positions", () => {
+    const fired = new Set<number>();
+    const pulseTimes = [2.0, 8.0, 8.37];
+    const state = simulate(STAGES["echo-tide"].duration + 1, (current) => {
+      const index = pulseTimes.findIndex((time, i) => current.time >= time && !fired.has(i));
+      if (index >= 0) fired.add(index);
+      const time = current.time;
+      return {
+        input: time < 0.85 ? { x: 1, y: 0 }
+          : time >= 5.5 && time < 7.2 ? { x: -1, y: 0 }
+            : time >= 8.0 && time < 8.37 ? { x: 1, y: 0 }
+              : { x: 0, y: 0 },
+        pulse: index >= 0
+      };
+    }, "echo-tide");
+    expect(state.mode).toBe("won");
+    expect(state.health).toBe(3);
+    expect(state.score).toBe(5);
+    expect(state.charges).toBe(0);
+  });
+});
+
+describe("runtime budgets", () => {
+  it("keeps every authored stage below the entity ceilings", () => {
+    expect(MAX_CHARGES).toBeLessThanOrEqual(RUNTIME_BUDGET.ripples);
+    for (const stage of Object.values(STAGES)) {
+      expect(stage.spawns.length, stage.name).toBeLessThanOrEqual(RUNTIME_BUDGET.motes);
+    }
+  });
+
+  it("updates a sustained worst-case entity set within the frame budget", () => {
+    const stressed = {
+      ...createGame(),
+      time: 1,
+      spawned: STAGES["first-rain"].spawns.length,
+      nextId: 100,
+      motes: Array.from({ length: RUNTIME_BUDGET.motes }, (_, index) => {
+        const angle = (index / RUNTIME_BUDGET.motes) * Math.PI * 2;
+        return {
+          id: index + 1,
+          x: WORLD.cx + Math.cos(angle) * 190,
+          y: WORLD.cy + Math.sin(angle) * 190,
+          vx: -Math.cos(angle) * 70,
+          vy: -Math.sin(angle) * 70,
+          touched: false,
+          drift: "steady" as const,
+          deflectedBy: [],
+          target: { x: WORLD.cx, y: WORLD.cy }
+        };
+      }),
+      ripples: Array.from({ length: RUNTIME_BUDGET.ripples }, (_, index) => ({
+        id: 50 + index,
+        x: WORLD.cx + (index - 2.5) * 18,
+        y: WORLD.cy + 76,
+        radius: 80 + index * 18,
+        age: 0.25
+      }))
+    };
+    const started = performance.now();
+    let checksum = 0;
+    for (let frame = 0; frame < 3_600; frame += 1) {
+      checksum += tick(stressed, { x: 0, y: 0 }, 1 / 60).motes.length;
+    }
+    expect(checksum).toBeGreaterThan(0);
+    expect(performance.now() - started).toBeLessThan(1_000);
   });
 });

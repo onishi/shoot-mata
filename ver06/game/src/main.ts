@@ -2,7 +2,7 @@ import "./style.css";
 import { MAX_CHARGES, REED_BELT, STAGES, WORLD, bloomPosition, type GameState, type StageId, createGame, emitRipple, tick } from "./model";
 import { loadSettings, saveSettings, type Settings } from "./settings";
 
-type Screen = "title" | "playing" | "paused" | "won" | "lost" | "settings";
+type Screen = "title" | "playing" | "paused" | "won" | "lost" | "settings" | "ending";
 
 function required<T extends Element>(selector: string): T {
   const element = document.querySelector<T>(selector);
@@ -135,10 +135,13 @@ function updateStatus(): void {
       : screen === "settings" ? "Adjust settings · Esc/S: return"
         : screen === "paused" ? "Escape: resume · S: settings · R: restart"
           : screen === "won" ? "Enter: continue · R: replay"
+            : screen === "ending" ? "Enter: begin again"
             : "Enter: retry · R: restart";
   canvas.setAttribute("aria-label", screen === "playing"
     ? `RIPPLEKEEP. ${stage.name}. Bloom ${game.health} of 3. ${game.charges} ripples. ${Math.max(0, Math.ceil(stage.duration - game.time))} seconds remain. ${game.motes.length} spores approaching.`
-    : `RIPPLEKEEP. ${screen}.`);
+    : screen === "ending"
+      ? "RIPPLEKEEP. The pond remembers. All eight waters held. Press Enter to begin again."
+      : `RIPPLEKEEP. ${screen}.`);
 }
 
 function roundRect(x: number, y: number, width: number, height: number, radius: number): void {
@@ -425,7 +428,7 @@ function drawHud(state: GameState): void {
   ctx.strokeStyle = "rgba(164, 221, 207, 0.18)";
   ctx.stroke();
   text(stage.name, 66, 62, 14, palette.gold, "left", 800);
-  const instructionSize = stage.id === "first-rain" ? 20 : stage.id === "dew-crossing" ? 15 : 17;
+  const instructionSize = stage.id === "first-rain" ? 20 : stage.id === "dew-crossing" || stage.id === "echo-tide" ? 15 : 17;
   text(stage.instruction, 66, 91, instructionSize, palette.pale, "left", 650);
   text(`${Math.max(0, Math.ceil(stage.duration - state.time))}s`, 446, 78, 30, palette.moon, "right", 750);
 
@@ -459,6 +462,8 @@ function drawHud(state: GameState): void {
             ? "Short wakes fade quickly · follow the flower's dotted course"
             : state.stageId === "dew-crossing"
               ? "Four wakes need four casts · cross to the pale shore for dew"
+              : state.stageId === "echo-tide"
+                ? "One swift wake · two overlapping echoes for the heavy shells"
         : "Shorewater restores spent ripples";
   text(footer, 1228, 684, 14, state.stageId === "first-rain" ? "#9dbbb4" : palette.mint, "right", 550);
 
@@ -514,11 +519,44 @@ function drawTitle(time: number): void {
   text("ARROWS / WASD  glide     SPACE  ripple     ESC  pause     S  settings", WORLD.cx, 670, 14, "#8caea8", "center", 600);
 }
 
+function drawEnding(time: number): void {
+  drawBackdrop(time);
+  drawPond(time);
+  const dawn = ctx.createLinearGradient(0, 0, 0, canvas.height);
+  dawn.addColorStop(0, "rgba(222, 177, 111, 0.2)");
+  dawn.addColorStop(0.5, "rgba(145, 217, 198, 0.06)");
+  dawn.addColorStop(1, "rgba(3, 16, 23, 0)");
+  ctx.fillStyle = dawn;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  drawBloom(3, time, { x: WORLD.cx, y: WORLD.cy });
+  for (let i = 0; i < 8; i += 1) {
+    ctx.strokeStyle = `rgba(216, 238, 196, ${0.26 - i * 0.022})`;
+    ctx.lineWidth = Math.max(0.8, 2.4 - i * 0.18);
+    ctx.beginPath();
+    ctx.arc(WORLD.cx, WORLD.cy, 56 + i * 27, 0.18 + i * 0.22, Math.PI * 1.72 + i * 0.12);
+    ctx.stroke();
+  }
+  text("THE POND REMEMBERS", WORLD.cx, 174, 52, palette.moon, "center", 850);
+  text("EIGHT WATERS HELD", WORLD.cx, 225, 14, palette.gold, "center", 800);
+  text("Every circle fades. The moonbloom carries its echo into dawn.", WORLD.cx, 506, 19, palette.pale, "center", 500);
+  roundRect(496, 556, 288, 58, 29);
+  ctx.fillStyle = "rgba(145, 217, 198, 0.12)";
+  ctx.fill();
+  ctx.strokeStyle = "rgba(145, 217, 198, 0.55)";
+  ctx.stroke();
+  text("ENTER  BEGIN AGAIN", WORLD.cx, 585, 15, palette.mint, "center", 800);
+}
+
 function render(time: number): void {
   const displayTime = settings.reducedMotion ? 0 : time;
   const visibleScreen = screen === "settings" ? returnScreen : screen;
   if (visibleScreen === "title") {
     drawTitle(displayTime);
+    updateStatus();
+    return;
+  }
+  if (visibleScreen === "ending") {
+    drawEnding(displayTime);
     updateStatus();
     return;
   }
@@ -539,7 +577,8 @@ function render(time: number): void {
           : game.stageId === "reed-gate" ? "ENTER  FIND RESONANCE"
             : game.stageId === "resonant-pool" ? "ENTER  FOLLOW THE MOONWAKE"
               : game.stageId === "moonwake" ? "ENTER  CROSS FOR DEW"
-                : "ENTER  PLAY AGAIN";
+                : game.stageId === "dew-crossing" ? "ENTER  FOLLOW THE ECHO TIDE"
+                  : "ENTER  RELEASE THE DAWN";
     overlay(`${STAGES[game.stageId].name} HELD`, `${game.score} spores returned to the dark water.`, action, palette.mint);
   }
   if (screen === "lost") overlay("THE BLOOM FOLDS", "Place the ripple where its edge will meet the next spore.", "ENTER  TRY AGAIN", palette.coral);
@@ -581,7 +620,8 @@ function frame(now: number): void {
             : game.stageId === "reed-gate" ? "Press Enter to find the resonant pool."
               : game.stageId === "resonant-pool" ? "Press Enter to follow the moonwake."
                 : game.stageId === "moonwake" ? "Press Enter to cross for dew."
-                  : "All seven waters held. Press Enter to play this stage again.";
+                    : game.stageId === "dew-crossing" ? "Press Enter to follow the echo tide."
+                      : "All eight waters held. Press Enter to release the dawn.";
       announce(`${STAGES[game.stageId].name} held. ${next}`);
       [392, 494, 659].forEach((frequency, index) => setTimeout(() => tone(frequency, 0.32, "sine", 0.025), index * 130));
     } else if (game.mode === "lost") {
@@ -609,6 +649,15 @@ window.addEventListener("keydown", (event) => {
     openSettings();
     return;
   }
+  if (key === "enter" && screen === "ending") {
+    startGame("first-rain");
+    return;
+  }
+  if (key === "enter" && screen === "won" && currentStageId === "echo-tide") {
+    screen = "ending";
+    announce("All eight waters held. The pond remembers. Press Enter to begin again.");
+    return;
+  }
   if (key === "enter" && (screen === "title" || screen === "won" || screen === "lost")) {
     const nextStage = screen === "title" ? "first-rain"
       : screen === "won" && currentStageId === "first-rain" ? "shore-call"
@@ -617,6 +666,7 @@ window.addEventListener("keydown", (event) => {
             : screen === "won" && currentStageId === "reed-gate" ? "resonant-pool"
               : screen === "won" && currentStageId === "resonant-pool" ? "moonwake"
               : screen === "won" && currentStageId === "moonwake" ? "dew-crossing"
+                : screen === "won" && currentStageId === "dew-crossing" ? "echo-tide"
           : currentStageId;
     startGame(nextStage);
     return;

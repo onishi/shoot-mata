@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#071b25" />
+    <meta name="description" content="RIPPLEKEEP — defend a moonlit bloom with expanding ripples." />
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <title>RIPPLEKEEP</title>
+    <script type="module" crossorigin src="./assets/index-CA76ITXt.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-CMZ5E0Lc.css">
+  </head>
+  <body>
+    <main>
+      <canvas id="game" width="1280" height="720" tabindex="0" aria-label="RIPPLEKEEP game canvas"></canvas>
+      <section id="settings" class="settings" role="dialog" aria-modal="true" aria-labelledby="settings-title" hidden>
+        <div class="settings-card">
+          <p class="eyebrow">POND CONDITIONS</p>
+          <h1 id="settings-title">SETTINGS</h1>
+          <label class="setting-row" for="volume">
+            <span>Sound volume</span>
+            <output id="volume-value" for="volume">70%</output>
+          </label>
+          <input id="volume" type="range" min="0" max="100" step="10" value="70" />
+          <label class="toggle-row" for="high-contrast">
+            <span><strong>High contrast</strong><small>Strengthen edges and separation</small></span>
+            <input id="high-contrast" type="checkbox" />
+          </label>
+          <label class="toggle-row" for="reduced-motion">
+            <span><strong>Reduce motion</strong><small>Hold decorative movement still</small></span>
+            <input id="reduced-motion" type="checkbox" />
+          </label>
+          <button id="close-settings" type="button">ESC / S&nbsp;&nbsp;RETURN</button>
+          <p id="save-state" class="save-state" aria-live="polite">Changes save on this device.</p>
+        </div>
+      </section>
+      <p id="live" class="sr-only" aria-live="polite"></p>
+      <section class="narrow-status" aria-hidden="true">
+        <span id="screen-state">TITLE</span>
+        <span id="controls">Enter: begin · Arrows/WASD: glide · Space: ripple</span>
+      </section>
+    </main>
+  </body>
+</html>

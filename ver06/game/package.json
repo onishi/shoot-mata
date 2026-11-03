@@ -9,6 +9,8 @@
     "test:e2e": "playwright test --workers=1",
     "typecheck": "tsc --noEmit",
     "build": "npm run typecheck && vite build",
+    "package": "node scripts/package-release.mjs",
+    "release": "npm run build && npm run package",
     "verify": "npm run test && npm run build && npm run test:e2e"
   },
   "devDependencies": {

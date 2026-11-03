@@ -1,0 +1,26 @@
+{
+  "product": "RIPPLEKEEP",
+  "version": "6.0",
+  "files": {
+    "assets/index-CA76ITXt.js": {
+      "bytes": 23796,
+      "sha256": "d557ed0ca4929377899e42cd988aa462166503592a20bca1376ae7908b6386b2"
+    },
+    "assets/index-CMZ5E0Lc.css": {
+      "bytes": 2842,
+      "sha256": "d29e280323f4cc8e7445504c30eaaaf97ac057a04f0277412b5ff8a08409ab3c"
+    },
+    "favicon.svg": {
+      "bytes": 335,
+      "sha256": "b825d7560dcd308271cb9dd14eb93cb1f209571fa835522e82ff77660ad7eca5"
+    },
+    "index.html": {
+      "bytes": 2186,
+      "sha256": "c1cee73f583e7513b11133a4efd7868902010b69bf62c0b1798f81146a08ec52"
+    },
+    "README.txt": {
+      "bytes": 144,
+      "sha256": "37f36f42c8b1524fe03c7428fa8f7ac3bb550d684003c0260bb3e2727f4424d0"
+    }
+  }
+}
