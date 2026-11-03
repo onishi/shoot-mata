@@ -1,9 +1,9 @@
 export type Mode = "playing" | "won" | "lost";
-export type StageId = "first-rain" | "shore-call" | "split-current" | "reed-gate";
+export type StageId = "first-rain" | "shore-call" | "split-current" | "reed-gate" | "resonant-pool";
 export type Vec = { x: number; y: number };
 export type Input = { x: number; y: number };
 
-export type Drift = "steady" | "swift" | "deep";
+export type Drift = "steady" | "swift" | "deep" | "heavy";
 
 type Spawn = { at: number; angle: number; speed: number; radius?: number; drift?: Drift };
 
@@ -14,6 +14,7 @@ export type StageDefinition = {
   duration: number;
   spawns: readonly Spawn[];
   reeds?: boolean;
+  resonance?: boolean;
 };
 
 export type Mote = Vec & {
@@ -88,6 +89,12 @@ const REED_GATE_SPAWNS = [
   { at: 6.0, angle: 0.28, speed: 78 }
 ] as const;
 
+const RESONANT_POOL_SPAWNS = [
+  { at: 0.15, angle: -1.92, speed: 22, radius: 118, drift: "heavy" },
+  { at: 0.15, angle: -1.57, speed: 22, radius: 118, drift: "heavy" },
+  { at: 0.15, angle: -1.22, speed: 22, radius: 118, drift: "heavy" }
+] as const;
+
 export const STAGES: Record<StageId, StageDefinition> = {
   "first-rain": {
     id: "first-rain",
@@ -117,6 +124,14 @@ export const STAGES: Record<StageId, StageDefinition> = {
     duration: 14,
     spawns: REED_GATE_SPAWNS,
     reeds: true
+  },
+  "resonant-pool": {
+    id: "resonant-pool",
+    name: "RESONANT POOL",
+    instruction: "Overlap two ripples to move heavy spores",
+    duration: 8,
+    spawns: RESONANT_POOL_SPAWNS,
+    resonance: true
   }
 };
 
@@ -248,13 +263,29 @@ export function tick(state: GameState, input: Input, dt: number): GameState {
   for (const mote of motes) {
     mote.x += mote.vx * dt;
     mote.y += mote.vy * dt;
-    for (const ripple of ripples) {
-      if (mote.deflectedBy.includes(ripple.id)) continue;
-      if (stage.reeds && reedsBlock(ripple, mote)) continue;
-      const dx = mote.x - ripple.x;
-      const dy = mote.y - ripple.y;
-      const d = Math.hypot(dx, dy) || 1;
-      if (Math.abs(d - ripple.radius) <= 12) {
+    const reachingRipples = ripples.filter((ripple) => {
+      if (mote.deflectedBy.includes(ripple.id)) return false;
+      if (stage.reeds && reedsBlock(ripple, mote)) return false;
+      const d = Math.hypot(mote.x - ripple.x, mote.y - ripple.y);
+      return mote.drift === "heavy" ? d <= ripple.radius : Math.abs(d - ripple.radius) <= 12;
+    });
+    if (mote.drift === "heavy") {
+      if (stage.resonance && reachingRipples.length >= 2) {
+        const origin = reachingRipples.slice(0, 2).reduce((sum, ripple) => ({ x: sum.x + ripple.x / 2, y: sum.y + ripple.y / 2 }), { x: 0, y: 0 });
+        const dx = mote.x - origin.x;
+        const dy = mote.y - origin.y;
+        const d = Math.hypot(dx, dy) || 1;
+        mote.deflectedBy.push(...reachingRipples.map((ripple) => ripple.id));
+        mote.touched = true;
+        mote.vx = (dx / d) * 238;
+        mote.vy = (dy / d) * 238;
+      }
+    } else {
+      const ripple = reachingRipples[0];
+      if (ripple) {
+        const dx = mote.x - ripple.x;
+        const dy = mote.y - ripple.y;
+        const d = Math.hypot(dx, dy) || 1;
         mote.deflectedBy.push(ripple.id);
         mote.touched = true;
         mote.vx = (dx / d) * 238;

@@ -136,3 +136,29 @@ describe("REED GATE model", () => {
     expect(state.score).toBe(6);
   });
 });
+
+describe("RESONANT POOL model", () => {
+  it("leaves heavy spores unmoved when only one ripple reaches them", () => {
+    let fired = false;
+    const state = simulate(STAGES["resonant-pool"].duration + 1, (current) => {
+      const pulse = current.time >= 0.05 && !fired;
+      if (pulse) fired = true;
+      return { input: { x: 0, y: 0 }, pulse };
+    }, "resonant-pool");
+    expect(state.mode).toBe("lost");
+    expect(state.score).toBe(0);
+  });
+
+  it("deflects heavy spores where ripples from two positions overlap", () => {
+    const fired = new Set<number>();
+    const pulseTimes = [0.05, 0.42];
+    const state = simulate(STAGES["resonant-pool"].duration + 1, (current) => {
+      const index = pulseTimes.findIndex((time, i) => current.time >= time && !fired.has(i));
+      if (index >= 0) fired.add(index);
+      return { input: current.time >= 0.05 && current.time < 0.42 ? { x: 1, y: 0 } : { x: 0, y: 0 }, pulse: index >= 0 };
+    }, "resonant-pool");
+    expect(state.mode).toBe("won");
+    expect(state.health).toBe(3);
+    expect(state.score).toBe(3);
+  });
+});

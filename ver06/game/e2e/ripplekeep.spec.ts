@@ -83,6 +83,23 @@ async function holdReedGate(page: Page): Promise<void> {
   await expect(canvasFor(page)).toHaveAttribute("data-score", "6");
 }
 
+async function holdResonantPool(page: Page): Promise<void> {
+  await page.keyboard.press("Enter");
+  await expectState(page, "playing", "resonant-pool");
+  await advance(page, 50);
+  await page.keyboard.press("Space");
+  await page.keyboard.down("ArrowRight");
+  await advance(page, 370);
+  await page.keyboard.up("ArrowRight");
+  await page.keyboard.press("Space");
+  await advance(page, 420);
+  await page.screenshot({ path: "../docs/evidence/m3-resonant-pool-playing.png" });
+  await advance(page, 7_280);
+  await expectState(page, "won", "resonant-pool");
+  await expect(canvasFor(page)).toHaveAttribute("data-health", "3");
+  await expect(canvasFor(page)).toHaveAttribute("data-score", "3");
+}
+
 async function expectContained(page: Page, selector: string, viewport: { width: number; height: number }): Promise<void> {
   const box = await page.locator(selector).boundingBox();
   expect(box).not.toBeNull();
@@ -99,7 +116,7 @@ test.beforeEach(async ({ page }) => {
   await page.reload();
 });
 
-test("keyboard campaign covers pause, representative loss, and all four wins", async ({ page }) => {
+test("keyboard campaign covers pause, representative loss, and all five wins", async ({ page }) => {
   const errors: string[] = [];
   page.on("console", (message) => {
     if (message.type() === "error" || message.type() === "warning") errors.push(message.text());
@@ -123,8 +140,9 @@ test("keyboard campaign covers pause, representative loss, and all four wins", a
   await holdShoreCall(page);
   await holdSplitCurrent(page);
   await holdReedGate(page);
+  await holdResonantPool(page);
 
-  await page.screenshot({ path: "../docs/evidence/m3-reed-gate-complete.png" });
+  await page.screenshot({ path: "../docs/evidence/m3-resonant-pool-complete.png" });
   expect(errors).toEqual([]);
 });
 

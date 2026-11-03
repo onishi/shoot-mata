@@ -281,13 +281,22 @@ function drawMotes(state: GameState, time: number): void {
       ctx.arc(0, 0, 14 + Math.sin(time * 0.004 + mote.id) * 2, 0, TAU);
       ctx.stroke();
     }
+    if (!mote.touched && mote.drift === "heavy") {
+      ctx.strokeStyle = "rgba(245, 203, 119, 0.82)";
+      ctx.lineWidth = 3;
+      ctx.setLineDash([3, 4]);
+      ctx.beginPath();
+      ctx.arc(0, 0, 16 + Math.sin(time * 0.003 + mote.id) * 1.5, 0, TAU);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
     ctx.shadowColor = palette.coral;
     ctx.shadowBlur = mote.touched ? 5 : 15;
-    ctx.fillStyle = mote.touched ? "#9ad8c4" : mote.drift === "deep" ? "#b198eb" : mote.drift === "swift" ? "#ffae74" : palette.coral;
+    ctx.fillStyle = mote.touched ? "#9ad8c4" : mote.drift === "heavy" ? "#d7a65e" : mote.drift === "deep" ? "#b198eb" : mote.drift === "swift" ? "#ffae74" : palette.coral;
     const wobble = Math.sin(time * 0.008 + mote.id) * 2;
     ctx.beginPath();
-    const length = mote.drift === "swift" ? 14 : mote.drift === "deep" ? 8 : 10;
-    const height = mote.drift === "deep" ? 10 : 8;
+    const length = mote.drift === "swift" ? 14 : mote.drift === "deep" ? 8 : mote.drift === "heavy" ? 12 : 10;
+    const height = mote.drift === "deep" ? 10 : mote.drift === "heavy" ? 12 : 8;
     ctx.moveTo(length + wobble, 0);
     ctx.quadraticCurveTo(0, -height, -9, 0);
     ctx.quadraticCurveTo(0, height, length + wobble, 0);
@@ -312,6 +321,18 @@ function drawMotes(state: GameState, time: number): void {
 }
 
 function drawRipples(state: GameState): void {
+  if (STAGES[state.stageId].resonance) {
+    ctx.save();
+    ctx.globalCompositeOperation = "screen";
+    for (const ripple of state.ripples) {
+      const alpha = Math.max(0, 1 - ripple.radius / 350);
+      ctx.fillStyle = `rgba(90, 173, 166, ${alpha * 0.1})`;
+      ctx.beginPath();
+      ctx.arc(ripple.x, ripple.y, ripple.radius, 0, TAU);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
   for (const ripple of state.ripples) {
     const alpha = Math.max(0, 1 - ripple.radius / 360);
     ctx.save();
@@ -400,6 +421,8 @@ function drawHud(state: GameState): void {
       ? "Bright swift · violet deep: save a ripple for later"
       : state.stageId === "reed-gate"
         ? "Reeds break waves · glide beyond them before casting"
+        : state.stageId === "resonant-pool"
+          ? "Heavy shells resist one wave · overlap two cast positions"
         : "Shorewater restores spent ripples";
   text(footer, 1228, 684, 14, state.stageId === "first-rain" ? "#9dbbb4" : palette.mint, "right", 550);
 
@@ -476,7 +499,8 @@ function render(time: number): void {
     const action = game.stageId === "first-rain" ? "ENTER  FOLLOW THE SHORE"
       : game.stageId === "shore-call" ? "ENTER  READ THE CURRENT"
         : game.stageId === "split-current" ? "ENTER  CROSS THE REEDS"
-          : "ENTER  PLAY AGAIN";
+          : game.stageId === "reed-gate" ? "ENTER  FIND RESONANCE"
+            : "ENTER  PLAY AGAIN";
     overlay(`${STAGES[game.stageId].name} HELD`, `${game.score} spores returned to the dark water.`, action, palette.mint);
   }
   if (screen === "lost") overlay("THE BLOOM FOLDS", "Place the ripple where its edge will meet the next spore.", "ENTER  TRY AGAIN", palette.coral);
@@ -515,7 +539,8 @@ function frame(now: number): void {
       const next = game.stageId === "first-rain" ? "Press Enter to follow the shore."
         : game.stageId === "shore-call" ? "Press Enter to read the split current."
           : game.stageId === "split-current" ? "Press Enter to cross the reed gate."
-            : "All four waters held. Press Enter to play this stage again.";
+            : game.stageId === "reed-gate" ? "Press Enter to find the resonant pool."
+              : "All five waters held. Press Enter to play this stage again.";
       announce(`${STAGES[game.stageId].name} held. ${next}`);
       [392, 494, 659].forEach((frequency, index) => setTimeout(() => tone(frequency, 0.32, "sine", 0.025), index * 130));
     } else if (game.mode === "lost") {
@@ -548,6 +573,7 @@ window.addEventListener("keydown", (event) => {
       : screen === "won" && currentStageId === "first-rain" ? "shore-call"
         : screen === "won" && currentStageId === "shore-call" ? "split-current"
           : screen === "won" && currentStageId === "split-current" ? "reed-gate"
+            : screen === "won" && currentStageId === "reed-gate" ? "resonant-pool"
           : currentStageId;
     startGame(nextStage);
     return;
