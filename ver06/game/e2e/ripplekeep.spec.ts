@@ -100,6 +100,32 @@ async function holdResonantPool(page: Page): Promise<void> {
   await expect(canvasFor(page)).toHaveAttribute("data-score", "3");
 }
 
+async function holdMoonwake(page: Page): Promise<void> {
+  await page.keyboard.press("Enter");
+  await expectState(page, "playing", "moonwake");
+  await page.keyboard.down("ArrowRight");
+  await advance(page, 850);
+  await page.keyboard.up("ArrowRight");
+  await advance(page, 1_150);
+  await page.keyboard.press("Space");
+  await advance(page, 3_820);
+  await page.keyboard.down("ArrowLeft");
+  await advance(page, 1_480);
+  await page.keyboard.up("ArrowLeft");
+  await page.keyboard.press("Space");
+  await advance(page, 4_550);
+  await page.keyboard.down("ArrowRight");
+  await advance(page, 1_150);
+  await page.keyboard.up("ArrowRight");
+  await page.keyboard.press("Space");
+  await advance(page, 350);
+  await page.screenshot({ path: "../docs/evidence/m3-moonwake-playing.png" });
+  await advance(page, 2_650);
+  await expectState(page, "won", "moonwake");
+  await expect(canvasFor(page)).toHaveAttribute("data-health", "3");
+  await expect(canvasFor(page)).toHaveAttribute("data-score", "6");
+}
+
 async function expectContained(page: Page, selector: string, viewport: { width: number; height: number }): Promise<void> {
   const box = await page.locator(selector).boundingBox();
   expect(box).not.toBeNull();
@@ -116,7 +142,7 @@ test.beforeEach(async ({ page }) => {
   await page.reload();
 });
 
-test("keyboard campaign covers pause, representative loss, and all five wins", async ({ page }) => {
+test("keyboard campaign covers pause, representative loss, and all six wins", async ({ page }) => {
   const errors: string[] = [];
   page.on("console", (message) => {
     if (message.type() === "error" || message.type() === "warning") errors.push(message.text());
@@ -141,8 +167,9 @@ test("keyboard campaign covers pause, representative loss, and all five wins", a
   await holdSplitCurrent(page);
   await holdReedGate(page);
   await holdResonantPool(page);
+  await holdMoonwake(page);
 
-  await page.screenshot({ path: "../docs/evidence/m3-resonant-pool-complete.png" });
+  await page.screenshot({ path: "../docs/evidence/m3-moonwake-complete.png" });
   expect(errors).toEqual([]);
 });
 

@@ -162,3 +162,36 @@ describe("RESONANT POOL model", () => {
     expect(state.score).toBe(3);
   });
 });
+
+describe("MOONWAKE model", () => {
+  it("cannot be held by casting from the quiet center", () => {
+    const fired = new Set<number>();
+    const pulseTimes = [2.0, 7.3, 13.0];
+    const state = simulate(STAGES.moonwake.duration + 1, (current) => {
+      const index = pulseTimes.findIndex((time, i) => current.time >= time && !fired.has(i));
+      if (index >= 0) fired.add(index);
+      return { input: { x: 0, y: 0 }, pulse: index >= 0 };
+    }, "moonwake");
+    expect(state.mode).toBe("lost");
+    expect(state.score).toBeLessThan(6);
+  });
+
+  it("can be held by casting ahead along the bloom's wake", () => {
+    const fired = new Set<number>();
+    const pulseTimes = [2.0, 7.3, 13.0];
+    const state = simulate(STAGES.moonwake.duration + 1, (current) => {
+      const index = pulseTimes.findIndex((time, i) => current.time >= time && !fired.has(i));
+      if (index >= 0) fired.add(index);
+      const dx = current.bloom.x - current.player.x;
+      const dy = current.bloom.y + 58 - current.player.y;
+      const input = {
+        x: Math.abs(dx) > 8 ? Math.sign(dx) : 0,
+        y: Math.abs(dy) > 8 ? Math.sign(dy) : 0
+      };
+      return { input, pulse: index >= 0 };
+    }, "moonwake");
+    expect(state.mode).toBe("won");
+    expect(state.health).toBe(3);
+    expect(state.score).toBe(6);
+  });
+});

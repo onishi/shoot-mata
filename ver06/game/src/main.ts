@@ -1,5 +1,5 @@
 import "./style.css";
-import { MAX_CHARGES, REED_BELT, STAGES, WORLD, type GameState, type StageId, createGame, emitRipple, tick } from "./model";
+import { MAX_CHARGES, REED_BELT, STAGES, WORLD, bloomPosition, type GameState, type StageId, createGame, emitRipple, tick } from "./model";
 import { loadSettings, saveSettings, type Settings } from "./settings";
 
 type Screen = "title" | "playing" | "paused" | "won" | "lost" | "settings";
@@ -208,9 +208,9 @@ function drawPond(time: number): void {
   ctx.restore();
 }
 
-function drawBloom(health: number, time: number): void {
+function drawBloom(health: number, time: number, position: { x: number; y: number } = { x: WORLD.cx, y: WORLD.cy }): void {
   ctx.save();
-  ctx.translate(WORLD.cx, WORLD.cy);
+  ctx.translate(position.x, position.y);
   const pulse = 1 + Math.sin(time * 0.0032) * 0.035;
   ctx.scale(pulse, pulse);
   ctx.shadowColor = health > 0 ? palette.moon : palette.coral;
@@ -313,11 +313,41 @@ function drawMotes(state: GameState, time: number): void {
       ctx.setLineDash([3, 8]);
       ctx.beginPath();
       ctx.moveTo(mote.x, mote.y);
-      ctx.lineTo(WORLD.cx, WORLD.cy);
+      ctx.lineTo(mote.target.x, mote.target.y);
       ctx.stroke();
       ctx.setLineDash([]);
+      if (STAGES[state.stageId].movingBloom) {
+        ctx.fillStyle = "rgba(255, 174, 116, 0.34)";
+        ctx.beginPath();
+        ctx.arc(mote.target.x, mote.target.y, 4, 0, TAU);
+        ctx.fill();
+      }
     }
   }
+}
+
+function drawMoonwake(state: GameState): void {
+  ctx.save();
+  ctx.strokeStyle = "rgba(216, 238, 196, 0.26)";
+  ctx.lineWidth = 2;
+  ctx.setLineDash([5, 9]);
+  ctx.beginPath();
+  for (let step = 0; step <= 48; step += 1) {
+    const point = bloomPosition(state.stageId, step * 0.25);
+    if (step === 0) ctx.moveTo(point.x, point.y);
+    else ctx.lineTo(point.x, point.y);
+  }
+  ctx.stroke();
+  ctx.setLineDash([]);
+  for (const seconds of [1.5, 3]) {
+    const point = bloomPosition(state.stageId, state.time + seconds);
+    ctx.strokeStyle = `rgba(216, 238, 196, ${0.28 - seconds * 0.045})`;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.arc(point.x, point.y, 12, 0, TAU);
+    ctx.stroke();
+  }
+  ctx.restore();
 }
 
 function drawRipples(state: GameState): void {
@@ -334,7 +364,8 @@ function drawRipples(state: GameState): void {
     ctx.restore();
   }
   for (const ripple of state.ripples) {
-    const alpha = Math.max(0, 1 - ripple.radius / 360);
+    const range = STAGES[state.stageId].rippleRange ?? 340;
+    const alpha = Math.max(0, 1 - ripple.radius / (range + 20));
     ctx.save();
     ctx.translate(ripple.x, ripple.y);
     ctx.strokeStyle = `rgba(180, 239, 220, ${alpha * 0.9})`;
@@ -423,6 +454,8 @@ function drawHud(state: GameState): void {
         ? "Reeds break waves · glide beyond them before casting"
         : state.stageId === "resonant-pool"
           ? "Heavy shells resist one wave · overlap two cast positions"
+          : state.stageId === "moonwake"
+            ? "Short wakes fade quickly · follow the flower's dotted course"
         : "Shorewater restores spent ripples";
   text(footer, 1228, 684, 14, state.stageId === "first-rain" ? "#9dbbb4" : palette.mint, "right", 550);
 
@@ -488,10 +521,11 @@ function render(time: number): void {
   }
   drawBackdrop(displayTime);
   drawPond(displayTime);
+  if (STAGES[game.stageId].movingBloom) drawMoonwake(game);
   drawMotes(game, displayTime);
   drawRipples(game);
   if (STAGES[game.stageId].reeds) drawReeds(displayTime);
-  drawBloom(game.health, displayTime);
+  drawBloom(game.health, displayTime, game.bloom);
   drawPlayer(game);
   drawHud(game);
   if (visibleScreen === "paused") overlay("WATER HELD", "The pond waits without advancing.", "ESC  RETURN · S  SETTINGS");
@@ -500,7 +534,8 @@ function render(time: number): void {
       : game.stageId === "shore-call" ? "ENTER  READ THE CURRENT"
         : game.stageId === "split-current" ? "ENTER  CROSS THE REEDS"
           : game.stageId === "reed-gate" ? "ENTER  FIND RESONANCE"
-            : "ENTER  PLAY AGAIN";
+            : game.stageId === "resonant-pool" ? "ENTER  FOLLOW THE MOONWAKE"
+              : "ENTER  PLAY AGAIN";
     overlay(`${STAGES[game.stageId].name} HELD`, `${game.score} spores returned to the dark water.`, action, palette.mint);
   }
   if (screen === "lost") overlay("THE BLOOM FOLDS", "Place the ripple where its edge will meet the next spore.", "ENTER  TRY AGAIN", palette.coral);
@@ -540,7 +575,8 @@ function frame(now: number): void {
         : game.stageId === "shore-call" ? "Press Enter to read the split current."
           : game.stageId === "split-current" ? "Press Enter to cross the reed gate."
             : game.stageId === "reed-gate" ? "Press Enter to find the resonant pool."
-              : "All five waters held. Press Enter to play this stage again.";
+              : game.stageId === "resonant-pool" ? "Press Enter to follow the moonwake."
+                : "All six waters held. Press Enter to play this stage again.";
       announce(`${STAGES[game.stageId].name} held. ${next}`);
       [392, 494, 659].forEach((frequency, index) => setTimeout(() => tone(frequency, 0.32, "sine", 0.025), index * 130));
     } else if (game.mode === "lost") {
@@ -574,6 +610,7 @@ window.addEventListener("keydown", (event) => {
         : screen === "won" && currentStageId === "shore-call" ? "split-current"
           : screen === "won" && currentStageId === "split-current" ? "reed-gate"
             : screen === "won" && currentStageId === "reed-gate" ? "resonant-pool"
+              : screen === "won" && currentStageId === "resonant-pool" ? "moonwake"
           : currentStageId;
     startGame(nextStage);
     return;

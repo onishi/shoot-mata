@@ -1,11 +1,11 @@
 export type Mode = "playing" | "won" | "lost";
-export type StageId = "first-rain" | "shore-call" | "split-current" | "reed-gate" | "resonant-pool";
+export type StageId = "first-rain" | "shore-call" | "split-current" | "reed-gate" | "resonant-pool" | "moonwake";
 export type Vec = { x: number; y: number };
 export type Input = { x: number; y: number };
 
 export type Drift = "steady" | "swift" | "deep" | "heavy";
 
-type Spawn = { at: number; angle: number; speed: number; radius?: number; drift?: Drift };
+type Spawn = { at: number; angle: number; speed: number; radius?: number; drift?: Drift; targetTime?: number };
 
 export type StageDefinition = {
   id: StageId;
@@ -15,6 +15,8 @@ export type StageDefinition = {
   spawns: readonly Spawn[];
   reeds?: boolean;
   resonance?: boolean;
+  movingBloom?: boolean;
+  rippleRange?: number;
 };
 
 export type Mote = Vec & {
@@ -24,6 +26,7 @@ export type Mote = Vec & {
   touched: boolean;
   drift: Drift;
   deflectedBy: number[];
+  target: Vec;
 };
 
 export type Ripple = Vec & { id: number; radius: number; age: number };
@@ -37,6 +40,7 @@ export type GameState = {
   recharge: number;
   score: number;
   player: Vec;
+  bloom: Vec;
   motes: Mote[];
   ripples: Ripple[];
   spawned: number;
@@ -95,6 +99,15 @@ const RESONANT_POOL_SPAWNS = [
   { at: 0.15, angle: -1.22, speed: 22, radius: 118, drift: "heavy" }
 ] as const;
 
+const MOONWAKE_SPAWNS = [
+  { at: 0.55, angle: -2.5, speed: 78, targetTime: 3.0, drift: "swift" },
+  { at: 0.55, angle: 2.5, speed: 78, targetTime: 3.0, drift: "swift" },
+  { at: 5.0, angle: -0.52, speed: 82, targetTime: 9.0 },
+  { at: 5.0, angle: 0.52, speed: 82, targetTime: 9.0 },
+  { at: 9.65, angle: -2.52, speed: 84, targetTime: 15.0 },
+  { at: 9.65, angle: 2.52, speed: 84, targetTime: 15.0 }
+] as const;
+
 export const STAGES: Record<StageId, StageDefinition> = {
   "first-rain": {
     id: "first-rain",
@@ -132,8 +145,25 @@ export const STAGES: Record<StageId, StageDefinition> = {
     duration: 8,
     spawns: RESONANT_POOL_SPAWNS,
     resonance: true
+  },
+  moonwake: {
+    id: "moonwake",
+    name: "MOONWAKE",
+    instruction: "Guard where the drifting bloom will arrive",
+    duration: 16,
+    spawns: MOONWAKE_SPAWNS,
+    movingBloom: true,
+    rippleRange: 132
   }
 };
+
+export function bloomPosition(stageId: StageId, time: number): Vec {
+  if (!STAGES[stageId].movingBloom) return { x: WORLD.cx, y: WORLD.cy };
+  return {
+    x: WORLD.cx + Math.sin((time / 12) * Math.PI * 2) * 190,
+    y: WORLD.cy + Math.sin((time / 6) * Math.PI * 2) * 18
+  };
+}
 
 export function createGame(stageId: StageId = "first-rain"): GameState {
   return {
@@ -145,6 +175,7 @@ export function createGame(stageId: StageId = "first-rain"): GameState {
     recharge: 0,
     score: 0,
     player: { x: WORLD.cx, y: WORLD.cy + 76 },
+    bloom: bloomPosition(stageId, 0),
     motes: [],
     ripples: [],
     spawned: 0,
@@ -152,7 +183,7 @@ export function createGame(stageId: StageId = "first-rain"): GameState {
   };
 }
 
-function distance(x: number, y: number, cx = WORLD.cx, cy = WORLD.cy): number {
+function distance(x: number, y: number, cx: number = WORLD.cx, cy: number = WORLD.cy): number {
   return Math.hypot(x - cx, y - cy);
 }
 
@@ -165,19 +196,25 @@ function clampPlayer(player: Vec): Vec {
   return { x: WORLD.cx + (dx / d) * limit, y: WORLD.cy + (dy / d) * limit };
 }
 
-function spawnMote(state: GameState, spawn: Spawn): Mote {
+function spawnMote(state: GameState, stage: StageDefinition, spawn: Spawn): Mote {
   const radius = spawn.radius ?? WORLD.pondRadius + 34;
   const x = WORLD.cx + Math.cos(spawn.angle) * radius;
   const y = WORLD.cy + Math.sin(spawn.angle) * radius;
+  const target = bloomPosition(stage.id, spawn.targetTime ?? spawn.at);
+  const dx = target.x - x;
+  const dy = target.y - y;
+  const length = Math.hypot(dx, dy) || 1;
+  const speed = spawn.targetTime ? length / Math.max(0.1, spawn.targetTime - spawn.at) : spawn.speed;
   return {
     id: state.nextId,
     x,
     y,
-    vx: -Math.cos(spawn.angle) * spawn.speed,
-    vy: -Math.sin(spawn.angle) * spawn.speed,
+    vx: (dx / length) * speed,
+    vy: (dy / length) * speed,
     touched: false,
     drift: spawn.drift ?? "steady",
-    deflectedBy: []
+    deflectedBy: [],
+    target
   };
 }
 
@@ -246,8 +283,9 @@ export function tick(state: GameState, input: Input, dt: number): GameState {
   let nextId = state.nextId;
   const motes = state.motes.map((mote) => ({ ...mote, deflectedBy: [...mote.deflectedBy] }));
   const nextTime = state.time + dt;
+  const bloom = bloomPosition(state.stageId, nextTime);
   while (spawned < stage.spawns.length && stage.spawns[spawned].at <= nextTime) {
-    const mote = spawnMote({ ...state, nextId }, stage.spawns[spawned]);
+    const mote = spawnMote({ ...state, nextId }, stage, stage.spawns[spawned]);
     motes.push(mote);
     nextId += 1;
     spawned += 1;
@@ -255,7 +293,7 @@ export function tick(state: GameState, input: Input, dt: number): GameState {
 
   const ripples = state.ripples
     .map((ripple) => ({ ...ripple, radius: ripple.radius + 318 * dt, age: ripple.age + dt }))
-    .filter((ripple) => ripple.radius < 330);
+    .filter((ripple) => ripple.radius < (stage.rippleRange ?? 330));
 
   let health = state.health;
   let score = state.score;
@@ -292,8 +330,9 @@ export function tick(state: GameState, input: Input, dt: number): GameState {
         mote.vy = (dy / d) * 238;
       }
     }
+    const bloomDistance = distance(mote.x, mote.y, bloom.x, bloom.y);
     const centerDistance = distance(mote.x, mote.y);
-    if (centerDistance <= 34) {
+    if (bloomDistance <= 34) {
       health -= 1;
     } else if (mote.touched && centerDistance > WORLD.pondRadius + 44) {
       score += 1;
@@ -304,7 +343,7 @@ export function tick(state: GameState, input: Input, dt: number): GameState {
 
   const time = nextTime;
   const mode: Mode = health <= 0 ? "lost" : time >= stage.duration ? "won" : "playing";
-  return { ...state, mode, time, health: Math.max(0, health), charges, recharge, score, player, motes: survivors, ripples, spawned, nextId };
+  return { ...state, mode, time, health: Math.max(0, health), charges, recharge, score, player, bloom, motes: survivors, ripples, spawned, nextId };
 }
 
 export function simulate(
