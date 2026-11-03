@@ -1,10 +1,13 @@
 import "./style.css";
 import {
   commit,
+  continueAfterWin,
   createGame,
+  getLevel,
   isGateOpen,
-  level,
+  levels,
   move,
+  restart,
   start,
   togglePause,
   type Direction,
@@ -33,6 +36,10 @@ const boardY = 112;
 
 function pointToPixel(point: Point) {
   return { x: boardX + point.x * tile, y: boardY + point.y * tile };
+}
+
+function selectedLevel() {
+  return getLevel(state);
 }
 
 function roundedRect(x: number, y: number, width: number, height: number, radius: number) {
@@ -77,11 +84,12 @@ function announce(message: string) {
 }
 
 function updateAria() {
+  const room = selectedLevel();
   const descriptions: Record<GameState["screen"], string> = {
     title: "PALIMPSEST POST title. Press Enter to begin.",
-    paused: "DEAD LETTER paused. Press Escape to resume or R to restart.",
-    won: "DEAD LETTER delivered. Press Enter to replay.",
-    playing: `DEAD LETTER. Turn ${state.turn}. ${state.hasLetter ? "Letter collected." : "Letter waiting."} ${isGateOpen(state) ? "Censorship gate open." : "Censorship gate closed."} Current recording ${state.currentRecording.length} steps.`,
+    paused: `${room.name} paused. Press Escape to resume or R to restart.`,
+    won: `${room.name} delivered. Press Enter to ${state.levelIndex < levels.length - 1 ? "open the next file" : "replay from file one"}.`,
+    playing: `${room.name}. Turn ${state.turn}. ${state.hasLetter ? "Letter collected." : "Letter waiting."} ${isGateOpen(state) ? "Censorship gate open." : "Censorship gate closed."} Current recording ${state.currentRecording.length} steps.`,
   };
   canvas.setAttribute("aria-label", descriptions[state.screen]);
   canvas.dataset.screen = state.screen;
@@ -158,7 +166,7 @@ function drawFloor() {
   ctx.fillStyle = "rgba(4, 8, 15, .50)";
   roundedRect(178, 128, 604, 272, 12);
   ctx.fill();
-  for (const key of level.floor) {
+  for (const key of selectedLevel().floor) {
     const [x, y] = key.split(",").map(Number);
     const p = pointToPixel({ x, y });
     ctx.fillStyle = (x + y) % 2 ? "#d9d0b9" : "#e3dbc5";
@@ -173,7 +181,7 @@ function drawFloor() {
 }
 
 function drawPlate(open: boolean, time: number) {
-  const p = pointToPixel(level.plate);
+  const p = pointToPixel(selectedLevel().plate);
   const cx = p.x + tile / 2;
   const cy = p.y + tile / 2;
   ctx.strokeStyle = open ? "#39b7a4" : "#a44743";
@@ -185,7 +193,7 @@ function drawPlate(open: boolean, time: number) {
 }
 
 function drawGate(open: boolean) {
-  const p = pointToPixel(level.gate);
+  const p = pointToPixel(selectedLevel().gate);
   const x = p.x + tile / 2;
   ctx.strokeStyle = open ? "rgba(57,183,164,.38)" : "#913d3e";
   ctx.lineWidth = 5;
@@ -200,7 +208,7 @@ function drawGate(open: boolean) {
 
 function drawLetter() {
   if (state.hasLetter) return;
-  const p = pointToPixel(level.letter);
+  const p = pointToPixel(selectedLevel().letter);
   ctx.save();
   ctx.translate(p.x + tile / 2, p.y + tile / 2);
   ctx.rotate(-0.09);
@@ -213,7 +221,7 @@ function drawLetter() {
 }
 
 function drawExit() {
-  const p = pointToPixel(level.exit);
+  const p = pointToPixel(selectedLevel().exit);
   ctx.fillStyle = "rgba(12, 17, 28, .75)";
   roundedRect(p.x + 10, p.y + 15, tile - 20, 16, 4);
   ctx.fill();
@@ -247,18 +255,19 @@ function drawClerk(point: Point, ghost: boolean, time: number) {
 }
 
 function drawHeader() {
+  const room = selectedLevel();
   ctx.fillStyle = "#e6d8b7";
   ctx.font = "700 13px Georgia";
   ctx.letterSpacing = "4px";
   ctx.textAlign = "left";
-  ctx.fillText("FILE 01", 60, 55);
+  ctx.fillText(room.file, 60, 55);
   ctx.font = "700 28px Georgia";
   ctx.letterSpacing = "1px";
-  ctx.fillText("DEAD LETTER", 60, 88);
+  ctx.fillText(room.name, 60, 88);
   ctx.fillStyle = "#aeb8ba";
   ctx.font = "13px Georgia";
   ctx.letterSpacing = ".5px";
-  ctx.fillText("Leave an echo on the red seal. Carry the letter to the outbox.", 60, 112);
+  ctx.fillText(room.objective, 60, 112);
   ctx.textAlign = "right";
   ctx.fillStyle = "#e6d8b7";
   ctx.fillText(`CURRENT SHIFT  ${state.currentRecording.length} STEPS`, 900, 57);
@@ -285,7 +294,7 @@ function drawGame(time: number) {
   drawFloor();
   const open = isGateOpen(state);
   if (open) {
-    const a = pointToPixel(level.plate); const b = pointToPixel(level.gate);
+    const a = pointToPixel(selectedLevel().plate); const b = pointToPixel(selectedLevel().gate);
     ctx.strokeStyle = "rgba(56,192,173,.55)"; ctx.lineWidth = 2; ctx.setLineDash([4, 5]);
     ctx.beginPath(); ctx.moveTo(a.x + tile / 2, a.y + tile / 2); ctx.lineTo(b.x + tile / 2, b.y + tile / 2); ctx.stroke();
     ctx.setLineDash([]);
@@ -324,7 +333,11 @@ function render(time: number) {
   else {
     drawGame(time);
     if (state.screen === "paused") overlay("SHIFT SUSPENDED", "The archive will wait exactly where you left it.", "ESC  RESUME   ·   R  RESTART");
-    if (state.screen === "won") overlay("LETTER DELIVERED", "Your past shift held the line. The record is complete.", "ENTER  REPLAY DEAD LETTER", "#55c6b4");
+    if (state.screen === "won") {
+      const room = selectedLevel();
+      const instruction = state.levelIndex < levels.length - 1 ? "ENTER  OPEN NEXT FILE" : "ENTER  REPLAY FROM FILE 01";
+      overlay("LETTER DELIVERED", room.winBody, instruction, "#55c6b4");
+    }
   }
   if (flash > 0) {
     ctx.fillStyle = `rgba(70, 210, 190, ${flash * .16})`;
@@ -347,9 +360,9 @@ window.addEventListener("keydown", (event) => {
   if (state.screen === "title" && event.code === "Enter") {
     state = start(state); announce("Shift started. Move to record steps, then press Enter to file an echo and rewind.");
   } else if (state.screen === "won" && event.code === "Enter") {
-    state = createGame("playing"); announce("DEAD LETTER restarted.");
+    state = continueAfterWin(state); announce(`${selectedLevel().name} opened.`);
   } else if (event.code === "KeyR" && state.screen !== "title") {
-    state = createGame("playing"); announce("Room restarted.");
+    state = restart(state); announce(`${selectedLevel().name} restarted.`);
   } else if (event.code === "Escape") {
     state = togglePause(state); announce(state.screen === "paused" ? "Paused." : "Resumed.");
   } else if (state.screen === "playing" && event.code === "Enter") {
@@ -359,7 +372,7 @@ window.addEventListener("keydown", (event) => {
     state = move(state, direction);
     if (state.lastEvent === "blocked") announce("Route blocked.");
     if (state.lastEvent === "seal") announce("Sealed letter collected.");
-    if (state.lastEvent === "won") announce("Letter delivered. DEAD LETTER complete.");
+    if (state.lastEvent === "won") announce(`Letter delivered. ${selectedLevel().name} complete.`);
   }
   playEvent(previous, state);
   updateAria();

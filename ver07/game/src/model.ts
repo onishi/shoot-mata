@@ -2,8 +2,24 @@ export type Point = { x: number; y: number };
 export type Direction = "up" | "down" | "left" | "right";
 export type Screen = "title" | "playing" | "paused" | "won";
 
+export type Level = {
+  file: string;
+  name: string;
+  objective: string;
+  winBody: string;
+  width: number;
+  height: number;
+  start: Point;
+  plate: Point;
+  gate: Point;
+  letter: Point;
+  exit: Point;
+  floor: ReadonlySet<string>;
+};
+
 export type GameState = {
   screen: Screen;
+  levelIndex: number;
   player: Point;
   ghost: Point | null;
   currentRecording: Direction[];
@@ -14,20 +30,59 @@ export type GameState = {
   lastEvent: "none" | "move" | "blocked" | "commit" | "seal" | "won";
 };
 
-export const level = {
-  width: 11,
-  height: 7,
-  start: { x: 1, y: 3 },
-  plate: { x: 3, y: 3 },
-  gate: { x: 5, y: 3 },
-  letter: { x: 7, y: 3 },
-  exit: { x: 9, y: 3 },
-  floor: new Set([
-    "1,3", "2,3", "3,3", "4,3", "5,3", "6,3", "7,3", "8,3", "9,3",
-    "1,2", "2,2", "3,2", "4,2", "6,2", "7,2", "8,2", "9,2",
-    "1,4", "2,4", "3,4", "4,4", "6,4", "7,4", "8,4", "9,4",
-  ]),
-} as const;
+const floor = (...rows: string[]) => new Set(rows.flatMap((row, y) =>
+  [...row].flatMap((cell, x) => cell === "." ? [`${x},${y}`] : []),
+));
+
+export const levels: readonly Level[] = [
+  {
+    file: "FILE 01",
+    name: "DEAD LETTER",
+    objective: "Leave an echo on the red seal. Carry the letter to the outbox.",
+    winBody: "Your past shift held the line. The record is complete.",
+    width: 11,
+    height: 7,
+    start: { x: 1, y: 3 },
+    plate: { x: 3, y: 3 },
+    gate: { x: 5, y: 3 },
+    letter: { x: 7, y: 3 },
+    exit: { x: 9, y: 3 },
+    floor: floor(
+      "           ",
+      "           ",
+      " .... .... ",
+      " ......... ",
+      " .... .... ",
+      "           ",
+      "           ",
+    ),
+  },
+  {
+    file: "FILE 02",
+    name: "MOVING DEADLINE",
+    objective: "The red seal will not hold. Reach the gate on the same beat.",
+    winBody: "One passing moment was enough. The deadline is met.",
+    width: 11,
+    height: 7,
+    start: { x: 1, y: 3 },
+    plate: { x: 5, y: 1 },
+    gate: { x: 7, y: 3 },
+    letter: { x: 8, y: 3 },
+    exit: { x: 9, y: 3 },
+    floor: floor(
+      "           ",
+      " ......    ",
+      " .         ",
+      " ......... ",
+      "           ",
+      "           ",
+      "           ",
+    ),
+  },
+] as const;
+
+// Kept as a named export for small consumers that only need the introductory room.
+export const level = levels[0];
 
 const same = (a: Point | null, b: Point) => a !== null && a.x === b.x && a.y === b.y;
 
@@ -40,10 +95,16 @@ const delta: Record<Direction, Point> = {
 
 const copyPoint = (point: Point): Point => ({ ...point });
 
-export function createGame(screen: Screen = "title"): GameState {
+export function getLevel(state: Pick<GameState, "levelIndex">): Level {
+  return levels[state.levelIndex] ?? levels[0];
+}
+
+export function createGame(screen: Screen = "title", levelIndex = 0): GameState {
+  const selected = levels[levelIndex] ?? levels[0];
   return {
     screen,
-    player: copyPoint(level.start),
+    levelIndex: levels.indexOf(selected),
+    player: copyPoint(selected.start),
     ghost: null,
     currentRecording: [],
     committedRecording: [],
@@ -55,32 +116,33 @@ export function createGame(screen: Screen = "title"): GameState {
 }
 
 export function isGateOpen(state: GameState): boolean {
-  return same(state.ghost, level.plate);
+  return same(state.ghost, getLevel(state).plate);
 }
 
-function tryStep(from: Point, direction: Direction, gateOpen: boolean): Point {
+function tryStep(from: Point, direction: Direction, gateOpen: boolean, selected: Level): Point {
   const d = delta[direction];
   const next = { x: from.x + d.x, y: from.y + d.y };
-  if (!level.floor.has(`${next.x},${next.y}`)) return copyPoint(from);
-  if (same(next, level.gate) && !gateOpen) return copyPoint(from);
+  if (!selected.floor.has(`${next.x},${next.y}`)) return copyPoint(from);
+  if (same(next, selected.gate) && !gateOpen) return copyPoint(from);
   return next;
 }
 
 export function move(state: GameState, direction: Direction): GameState {
   if (state.screen !== "playing") return state;
+  const selected = getLevel(state);
 
   let ghost = state.ghost ? copyPoint(state.ghost) : null;
   let ghostStep = state.ghostStep;
   if (ghost && ghostStep < state.committedRecording.length) {
-    ghost = tryStep(ghost, state.committedRecording[ghostStep], isGateOpen({ ...state, ghost }));
+    ghost = tryStep(ghost, state.committedRecording[ghostStep], isGateOpen({ ...state, ghost }), selected);
     ghostStep += 1;
   }
 
-  const gateOpen = same(ghost, level.plate);
-  const player = tryStep(state.player, direction, gateOpen);
+  const gateOpen = same(ghost, selected.plate);
+  const player = tryStep(state.player, direction, gateOpen, selected);
   const moved = !same(player, state.player);
-  const hasLetter = state.hasLetter || same(player, level.letter);
-  const won = hasLetter && same(player, level.exit);
+  const hasLetter = state.hasLetter || same(player, selected.letter);
+  const won = hasLetter && same(player, selected.exit);
 
   return {
     ...state,
@@ -97,10 +159,11 @@ export function move(state: GameState, direction: Direction): GameState {
 
 export function commit(state: GameState): GameState {
   if (state.screen !== "playing" || state.currentRecording.length === 0) return state;
+  const selected = getLevel(state);
   return {
     ...state,
-    player: copyPoint(level.start),
-    ghost: copyPoint(level.start),
+    player: copyPoint(selected.start),
+    ghost: copyPoint(selected.start),
     currentRecording: [],
     committedRecording: [...state.currentRecording],
     ghostStep: 0,
@@ -113,6 +176,16 @@ export function commit(state: GameState): GameState {
 export function start(state: GameState): GameState {
   if (state.screen !== "title") return state;
   return createGame("playing");
+}
+
+export function continueAfterWin(state: GameState): GameState {
+  if (state.screen !== "won") return state;
+  const nextLevel = (state.levelIndex + 1) % levels.length;
+  return createGame("playing", nextLevel);
+}
+
+export function restart(state: GameState): GameState {
+  return createGame("playing", state.levelIndex);
 }
 
 export function togglePause(state: GameState): GameState {

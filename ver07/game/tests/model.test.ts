@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { commit, createGame, isGateOpen, move, start } from "../src/model";
+import { commit, continueAfterWin, createGame, isGateOpen, move, start } from "../src/model";
 
 describe("PALIMPSEST POST model", () => {
   it("starts from the title at the intake desk", () => {
@@ -45,6 +45,40 @@ describe("PALIMPSEST POST model", () => {
     for (let i = 0; i < 8; i += 1) state = move(state, "right");
     expect(state.hasLetter).toBe(true);
     expect(state.player).toEqual({ x: 9, y: 3 });
+    expect(state.screen).toBe("won");
+  });
+
+  it("continues from DEAD LETTER into MOVING DEADLINE", () => {
+    let state = createGame("won");
+    state = continueAfterWin(state);
+    expect(state.screen).toBe("playing");
+    expect(state.levelIndex).toBe(1);
+    expect(state.player).toEqual({ x: 1, y: 3 });
+  });
+
+  it("closes the second gate again after the moving echo leaves its seal", () => {
+    let state = createGame("playing", 1);
+    for (const direction of ["up", "up", "right", "right", "right", "right", "right"] as const) {
+      state = move(state, direction);
+    }
+    state = commit(state);
+    for (let i = 0; i < 6; i += 1) state = move(state, "right");
+    expect(isGateOpen(state)).toBe(true);
+    expect(state.player).toEqual({ x: 7, y: 3 });
+    state = move(state, "right");
+    expect(isGateOpen(state)).toBe(false);
+    expect(state.hasLetter).toBe(true);
+  });
+
+  it("requires matching the moving echo's arrival turn in MOVING DEADLINE", () => {
+    let state = createGame("playing", 1);
+    for (const direction of ["up", "up", "right", "right", "right", "right", "right"] as const) {
+      state = move(state, direction);
+    }
+    state = commit(state);
+    for (let i = 0; i < 8; i += 1) state = move(state, "right");
+    expect(state.player).toEqual({ x: 9, y: 3 });
+    expect(state.hasLetter).toBe(true);
     expect(state.screen).toBe("won");
   });
 });
