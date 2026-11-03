@@ -28,4 +28,6 @@
 - SPLIT CURRENTは3波紋の即時連打では敗北し、1.15秒と6.15秒へ分ける固定戦略では耐久3・6排除・残量1で勝利する。
 - Chrome実入力でFIRST RAINから3面を連続クリアし、高速群の尾、低速群の輪、HUD、最終結果に欠けや重なりがないことを確認した。console error / warningは0件だった。
 - 音量、高コントラスト、モーション軽減をキーボード操作し、リロード後の復元をChromeで確認した。破損値と保存不能は単体テストで安全な継続を固定した。
-- 未達: 自動Chrome E2E、複数viewport。
+- PlaywrightのGoogle Chrome E2E 3件で、ポーズ、FIRST RAINの無操作敗北、3面連続勝利、設定保存、1280×720と640×800の境界を実入力から固定した。
+- console error / warning 0件。初回E2Eでfavicon 404、目視で狭幅ポーズ時の誤った操作案内を発見し、修正後に回帰検査を加えた。
+- M2ゲートは完了。証拠は`docs/evidence/m2-browser-e2e.md`に記録する。

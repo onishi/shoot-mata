@@ -121,11 +121,21 @@ function startGame(stageId: StageId = currentStageId): void {
 
 function updateStatus(): void {
   const stage = STAGES[game.stageId];
+  canvas.dataset.gameState = screen;
+  canvas.dataset.stage = game.stageId;
+  canvas.dataset.health = String(game.health);
+  canvas.dataset.charges = String(game.charges);
+  canvas.dataset.score = String(game.score);
+  canvas.dataset.highContrast = String(settings.highContrast);
+  canvas.dataset.reducedMotion = String(settings.reducedMotion);
   screenState.textContent = screen.toUpperCase();
   controls.textContent = screen === "playing"
     ? `Bloom ${game.health}/3 · Ripples ${game.charges}/3 · ${Math.max(0, Math.ceil(stage.duration - game.time))}s`
     : screen === "title" ? "Enter: begin · S: settings · Arrows/WASD: glide · Space: ripple"
-      : screen === "settings" ? "Adjust settings · Esc/S: return" : "Enter: retry · R: restart";
+      : screen === "settings" ? "Adjust settings · Esc/S: return"
+        : screen === "paused" ? "Escape: resume · S: settings · R: restart"
+          : screen === "won" ? "Enter: continue · R: replay"
+            : "Enter: retry · R: restart";
   canvas.setAttribute("aria-label", screen === "playing"
     ? `RIPPLEKEEP. ${stage.name}. Bloom ${game.health} of 3. ${game.charges} ripples. ${Math.max(0, Math.ceil(stage.duration - game.time))} seconds remain. ${game.motes.length} spores approaching.`
     : `RIPPLEKEEP. ${screen}.`);
