@@ -15,6 +15,7 @@ import {
   type GameState,
   type Point,
 } from "./model";
+import { loadPreferences, savePreferences, type Preferences } from "./preferences";
 
 const canvasElement = document.querySelector<HTMLCanvasElement>("#game");
 const liveElement = document.querySelector<HTMLParagraphElement>("#live");
@@ -26,6 +27,10 @@ if (!context) throw new Error("Canvas 2D unavailable");
 
 const ctx = context;
 let state = createGame();
+let preferences: Preferences = loadPreferences(localStorage);
+let titleLevel = Math.min(preferences.unlockedLevel, levels.length - 1);
+let titlePanel: "files" | "settings" = "files";
+let settingIndex = 0;
 let audio: AudioContext | null = null;
 let flash = 0;
 let bump = 0;
@@ -49,12 +54,13 @@ function roundedRect(x: number, y: number, width: number, height: number, radius
 }
 
 function tone(frequency: number, duration: number, gain = 0.04, offset = 0) {
+  if (preferences.volume === 0) return;
   audio ??= new AudioContext();
   const oscillator = audio.createOscillator();
   const volume = audio.createGain();
   oscillator.type = "triangle";
   oscillator.frequency.setValueAtTime(frequency, audio.currentTime + offset);
-  volume.gain.setValueAtTime(gain, audio.currentTime + offset);
+  volume.gain.setValueAtTime(gain * preferences.volume / 100, audio.currentTime + offset);
   volume.gain.exponentialRampToValueAtTime(0.0001, audio.currentTime + offset + duration);
   oscillator.connect(volume).connect(audio.destination);
   oscillator.start(audio.currentTime + offset);
@@ -88,7 +94,9 @@ function announce(message: string) {
 function updateAria() {
   const room = selectedLevel();
   const descriptions: Record<GameState["screen"], string> = {
-    title: "PALIMPSEST POST title. Press Enter to begin.",
+    title: titlePanel === "settings"
+      ? `Settings. Volume ${preferences.volume} percent. High contrast ${preferences.highContrast ? "on" : "off"}. Reduced motion ${preferences.reduceMotion ? "on" : "off"}.`
+      : `PALIMPSEST POST title. Selected ${levels[titleLevel].name}, file ${titleLevel + 1} of ${preferences.unlockedLevel + 1} unlocked. Press Enter to begin or S for settings.`,
     paused: `${room.name} paused. Press Escape to resume or R to restart.`,
     won: `${room.name} delivered. Press Enter to ${state.levelIndex < levels.length - 1 ? "open the next file" : "replay from file one"}.`,
     playing: `${room.name}. Turn ${state.turn}. ${state.hasLetter ? "Letter collected." : "Letter waiting."} ${isGateOpen(state) ? "Censorship gate open." : "Censorship gate closed."} Current recording ${state.currentRecording.length} steps.`,
@@ -101,7 +109,7 @@ function updateAria() {
 }
 
 function drawPaperNoise(time: number) {
-  ctx.fillStyle = "#10192b";
+  ctx.fillStyle = preferences.highContrast ? "#02050b" : "#10192b";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   const gradient = ctx.createRadialGradient(470, 250, 40, 480, 270, 520);
   gradient.addColorStop(0, "rgba(70, 92, 117, .20)");
@@ -153,15 +161,49 @@ function drawTitle(time: number) {
   ctx.font = "700 12px Georgia";
   ctx.fillText("ENTER", 0, 72);
   ctx.restore();
-  ctx.fillStyle = "#dfcfaa";
+  ctx.fillStyle = preferences.highContrast ? "#fff2bd" : "#dfcfaa";
   ctx.textAlign = "center";
-  ctx.font = "16px Georgia";
+  ctx.font = "15px Georgia";
   ctx.letterSpacing = "2px";
-  ctx.fillText("PRESS ENTER TO CLOCK IN", 480, 414 + Math.sin(time * 0.004) * 2);
+  ctx.fillText(`FILE ${String(titleLevel + 1).padStart(2, "0")}  ·  ${levels[titleLevel].name}`, 480, 404);
+  ctx.fillStyle = "#54c7b4";
+  ctx.font = "13px Georgia";
+  ctx.fillText("← / →  SELECT FILE    ENTER  CLOCK IN", 480, 430 + Math.sin(time * 0.004) * 2);
   ctx.fillStyle = "rgba(223,207,170,.55)";
   ctx.font = "12px Georgia";
   ctx.letterSpacing = "1px";
-  ctx.fillText("KEYBOARD · SOUND RECOMMENDED", 480, 447);
+  ctx.fillText(`${preferences.unlockedLevel + 1} OF ${levels.length} FILES OPEN    ·    S  SETTINGS`, 480, 458);
+}
+
+function drawSettings() {
+  drawPaperNoise(0);
+  ctx.fillStyle = "rgba(5, 8, 15, .72)"; ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = "rgba(19, 28, 45, .98)";
+  roundedRect(205, 72, 550, 396, 8); ctx.fill();
+  ctx.strokeStyle = "rgba(215,198,158,.38)"; ctx.lineWidth = 1; ctx.stroke();
+  ctx.fillStyle = "#e5d7b7"; ctx.textAlign = "center";
+  ctx.font = "700 13px Georgia"; ctx.letterSpacing = "5px"; ctx.fillText("NIGHT RECORDS DIVISION", 480, 116);
+  ctx.font = "700 34px Georgia"; ctx.letterSpacing = "1px"; ctx.fillText("SHIFT SETTINGS", 480, 164);
+  ctx.fillStyle = "#aeb9ba"; ctx.font = "15px Georgia"; ctx.letterSpacing = "0px";
+  ctx.fillText("Stored automatically in this browser.", 480, 194);
+  const rows = [
+    ["DESK BELL VOLUME", `${preferences.volume}%`],
+    ["HIGH CONTRAST INK", preferences.highContrast ? "ON" : "OFF"],
+    ["REDUCED MOTION", preferences.reduceMotion ? "ON" : "OFF"],
+  ];
+  rows.forEach(([label, value], index) => {
+    const y = 253 + index * 48;
+    if (index === settingIndex) {
+      ctx.fillStyle = "rgba(76, 198, 180, .16)";
+      roundedRect(285, y - 25, 390, 36, 3); ctx.fill();
+    }
+    ctx.fillStyle = index === settingIndex ? "#66d9c6" : "#c9bea4";
+    ctx.textAlign = "left"; ctx.font = "13px Georgia"; ctx.letterSpacing = "1px";
+    ctx.fillText(label, 310, y);
+    ctx.textAlign = "right"; ctx.fillText(value, 650, y);
+  });
+  ctx.fillStyle = "#d7c8a6"; ctx.textAlign = "center"; ctx.font = "13px Georgia"; ctx.letterSpacing = "1px";
+  ctx.fillText("↑ / ↓  SELECT    ← / →  CHANGE    ESC  CLOSE", 480, 424);
 }
 
 function drawFloor() {
@@ -332,9 +374,13 @@ function render(time: number) {
   lastTime = time;
   flash = Math.max(0, flash - delta * .0035);
   bump = Math.max(0, bump - delta * .01);
-  if (state.screen === "title") drawTitle(time);
+  const visualTime = preferences.reduceMotion ? 0 : time;
+  if (state.screen === "title") {
+    if (titlePanel === "settings") drawSettings();
+    else drawTitle(visualTime);
+  }
   else {
-    drawGame(time);
+    drawGame(visualTime);
     if (state.screen === "paused") overlay("SHIFT SUSPENDED", "The archive will wait exactly where you left it.", "ESC  RESUME   ·   R  RESTART");
     if (state.screen === "won") {
       const room = selectedLevel();
@@ -359,10 +405,32 @@ const directions: Record<string, Direction | undefined> = {
 window.addEventListener("keydown", (event) => {
   const direction = directions[event.code];
   const action: Action | undefined = direction ?? (event.code === "Space" ? "wait" : undefined);
-  if (direction || ["Enter", "Escape", "Space", "KeyR"].includes(event.code)) event.preventDefault();
+  if (direction || ["Enter", "Escape", "Space", "KeyR", "KeyS"].includes(event.code)) event.preventDefault();
   const previous = state;
-  if (state.screen === "title" && event.code === "Enter") {
-    state = start(state); announce("Shift started. Move to record steps, then press Enter to file an echo and rewind.");
+  if (state.screen === "title" && titlePanel === "settings") {
+    if (event.code === "Escape" || event.code === "KeyS") {
+      titlePanel = "files"; announce("Settings closed.");
+    } else if (event.code === "ArrowUp" || event.code === "KeyW") {
+      settingIndex = (settingIndex + 2) % 3;
+    } else if (event.code === "ArrowDown") {
+      settingIndex = (settingIndex + 1) % 3;
+    } else if (["ArrowLeft", "KeyA", "ArrowRight", "KeyD", "Enter", "Space"].includes(event.code)) {
+      if (settingIndex === 0) {
+        const amount = event.code === "ArrowLeft" || event.code === "KeyA" ? -25 : 25;
+        preferences.volume = Math.max(0, Math.min(100, preferences.volume + amount));
+      } else if (settingIndex === 1) preferences.highContrast = !preferences.highContrast;
+      else preferences.reduceMotion = !preferences.reduceMotion;
+      savePreferences(localStorage, preferences);
+      announce(`${settingIndex === 0 ? `Volume ${preferences.volume} percent` : settingIndex === 1 ? `High contrast ${preferences.highContrast ? "on" : "off"}` : `Reduced motion ${preferences.reduceMotion ? "on" : "off"}`}.`);
+    }
+  } else if (state.screen === "title" && event.code === "KeyS") {
+    titlePanel = "settings"; announce("Settings opened. Use up and down to select, left and right to change.");
+  } else if (state.screen === "title" && (event.code === "ArrowLeft" || event.code === "KeyA")) {
+    titleLevel = Math.max(0, titleLevel - 1); announce(`${levels[titleLevel].name} selected.`);
+  } else if (state.screen === "title" && (event.code === "ArrowRight" || event.code === "KeyD")) {
+    titleLevel = Math.min(preferences.unlockedLevel, titleLevel + 1); announce(`${levels[titleLevel].name} selected.`);
+  } else if (state.screen === "title" && event.code === "Enter") {
+    state = start(state, titleLevel); announce(`${selectedLevel().name} started. Move to record steps, then press Enter to file an echo and rewind.`);
   } else if (state.screen === "won" && event.code === "Enter") {
     state = continueAfterWin(state); announce(`${selectedLevel().name} opened.`);
   } else if (event.code === "KeyR" && state.screen !== "title") {
@@ -377,7 +445,14 @@ window.addEventListener("keydown", (event) => {
     if (state.lastEvent === "wait") announce("One blank beat recorded.");
     if (state.lastEvent === "blocked") announce("Route blocked.");
     if (state.lastEvent === "seal") announce("Sealed letter collected.");
-    if (state.lastEvent === "won") announce(`Letter delivered. ${selectedLevel().name} complete.`);
+    if (state.lastEvent === "won") {
+      const newlyUnlocked = Math.min(levels.length - 1, state.levelIndex + 1);
+      if (newlyUnlocked > preferences.unlockedLevel) {
+        preferences.unlockedLevel = newlyUnlocked;
+        savePreferences(localStorage, preferences);
+      }
+      announce(`Letter delivered. ${selectedLevel().name} complete.${newlyUnlocked > state.levelIndex ? ` File ${newlyUnlocked + 1} unlocked.` : ""}`);
+    }
   }
   playEvent(previous, state);
   updateAria();

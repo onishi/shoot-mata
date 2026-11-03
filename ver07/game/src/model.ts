@@ -212,9 +212,9 @@ export function commit(state: GameState): GameState {
   };
 }
 
-export function start(state: GameState): GameState {
+export function start(state: GameState, levelIndex = 0): GameState {
   if (state.screen !== "title") return state;
-  return createGame("playing");
+  return createGame("playing", levelIndex);
 }
 
 export function continueAfterWin(state: GameState): GameState {
