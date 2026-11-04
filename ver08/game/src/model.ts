@@ -1,0 +1,179 @@
+export const WIDTH = 20;
+export const HEIGHT = 14;
+export const WIN_PERCENT = 62;
+
+export type Screen = "title" | "playing" | "paused" | "won" | "lost";
+export type Direction = "up" | "down" | "left" | "right";
+export interface Point { x: number; y: number }
+export interface Moth extends Point { dx: -1 | 1; dy: -1 | 1 }
+export interface GameState {
+  screen: Screen;
+  player: Point;
+  anchor: Point;
+  cloth: boolean[];
+  trail: Point[];
+  moths: Moth[];
+  spools: number;
+  repaired: number;
+  tick: number;
+  lastEvent: "none" | "move" | "stitch" | "claim" | "cut" | "blocked" | "win";
+}
+
+const keyOf = ({ x, y }: Point) => y * WIDTH + x;
+const pointOf = (index: number): Point => ({ x: index % WIDTH, y: Math.floor(index / WIDTH) });
+const same = (a: Point, b: Point) => a.x === b.x && a.y === b.y;
+const inside = ({ x, y }: Point) => x >= 0 && x < WIDTH && y >= 0 && y < HEIGHT;
+
+function initialCloth(): boolean[] {
+  return Array.from({ length: WIDTH * HEIGHT }, (_, index) => {
+    const { x, y } = pointOf(index);
+    return x === 0 || y === 0 || x === WIDTH - 1 || y === HEIGHT - 1;
+  });
+}
+
+function repairedPercent(cloth: readonly boolean[]): number {
+  return Math.floor((cloth.filter(Boolean).length / cloth.length) * 100);
+}
+
+export function createGame(): GameState {
+  const cloth = initialCloth();
+  return {
+    screen: "title",
+    player: { x: 0, y: 7 },
+    anchor: { x: 0, y: 7 },
+    cloth,
+    trail: [],
+    moths: [{ x: 13, y: 6, dx: -1, dy: 1 }],
+    spools: 3,
+    repaired: repairedPercent(cloth),
+    tick: 0,
+    lastEvent: "none",
+  };
+}
+
+export function start(state: GameState): GameState {
+  return state.screen === "title" ? { ...createGame(), screen: "playing" } : state;
+}
+
+export function restart(): GameState {
+  return { ...createGame(), screen: "playing" };
+}
+
+export function togglePause(state: GameState): GameState {
+  if (state.screen === "playing") return { ...state, screen: "paused" };
+  if (state.screen === "paused") return { ...state, screen: "playing" };
+  return state;
+}
+
+function nextPoint(from: Point, direction: Direction): Point {
+  const delta: Record<Direction, Point> = {
+    up: { x: 0, y: -1 }, down: { x: 0, y: 1 }, left: { x: -1, y: 0 }, right: { x: 1, y: 0 },
+  };
+  return { x: from.x + delta[direction].x, y: from.y + delta[direction].y };
+}
+
+function claimEnclosed(state: GameState, boundary: readonly Point[]): { cloth: boolean[]; repaired: number } {
+  const cloth = [...state.cloth];
+  boundary.forEach((point) => { cloth[keyOf(point)] = true; });
+  const visited = new Set<number>();
+  const components: number[][] = [];
+  for (let index = 0; index < cloth.length; index += 1) {
+    if (cloth[index] || visited.has(index)) continue;
+    const component: number[] = [];
+    const queue = [index];
+    visited.add(index);
+    while (queue.length > 0) {
+      const current = queue.shift()!;
+      component.push(current);
+      const point = pointOf(current);
+      for (const direction of ["up", "down", "left", "right"] as const) {
+        const neighbor = nextPoint(point, direction);
+        const key = keyOf(neighbor);
+        if (inside(neighbor) && !cloth[key] && !visited.has(key)) {
+          visited.add(key); queue.push(key);
+        }
+      }
+    }
+    components.push(component);
+  }
+  const occupied = new Set(state.moths.map(keyOf));
+  let claimedAny = false;
+  components.forEach((component) => {
+    if (!component.some((cell) => occupied.has(cell))) {
+      component.forEach((cell) => { cloth[cell] = true; });
+      claimedAny = true;
+    }
+  });
+  if (!claimedAny && components.length > 1) {
+    const smallest = [...components].sort((a, b) => a.length - b.length)[0];
+    smallest.forEach((cell) => { cloth[cell] = true; });
+  }
+  return { cloth, repaired: repairedPercent(cloth) };
+}
+
+export function movePlayer(state: GameState, direction: Direction, stitching: boolean): GameState {
+  if (state.screen !== "playing") return state;
+  const next = nextPoint(state.player, direction);
+  if (!inside(next)) return { ...state, lastEvent: "blocked" };
+  const onCloth = state.cloth[keyOf(next)];
+  const drawing = state.trail.length > 0;
+  if (!onCloth && !drawing && !stitching) return { ...state, lastEvent: "blocked" };
+  if (drawing && state.trail.some((point) => same(point, next))) return { ...state, lastEvent: "blocked" };
+  if (!drawing && onCloth) return { ...state, player: next, anchor: next, lastEvent: "move" };
+  if (!onCloth) {
+    const extended = { ...state, player: next, trail: [...state.trail, next], lastEvent: "stitch" as const };
+    return state.moths.some((moth) => same(moth, next)) ? cutTrail(extended) : extended;
+  }
+  if (drawing) {
+    const claimed = claimEnclosed(state, state.trail);
+    const won = claimed.repaired >= WIN_PERCENT;
+    return {
+      ...state,
+      player: next,
+      anchor: next,
+      trail: [],
+      cloth: claimed.cloth,
+      repaired: claimed.repaired,
+      screen: won ? "won" : "playing",
+      lastEvent: won ? "win" : "claim",
+    };
+  }
+  return state;
+}
+
+function cutTrail(state: GameState): GameState {
+  const spools = state.spools - 1;
+  return {
+    ...state,
+    player: state.anchor,
+    trail: [],
+    spools,
+    screen: spools <= 0 ? "lost" : "playing",
+    lastEvent: "cut",
+  };
+}
+
+export function advanceMoths(state: GameState): GameState {
+  if (state.screen !== "playing") return state;
+  const trailKeys = new Set(state.trail.map(keyOf));
+  let hit = false;
+  const moths = state.moths.map((moth): Moth => {
+    let dx = moth.dx;
+    let dy = moth.dy;
+    let candidate = { x: moth.x + dx, y: moth.y + dy };
+    const blockedX = !inside({ x: candidate.x, y: moth.y }) || state.cloth[keyOf({ x: candidate.x, y: moth.y })];
+    const blockedY = !inside({ x: moth.x, y: candidate.y }) || state.cloth[keyOf({ x: moth.x, y: candidate.y })];
+    if (blockedX) dx = dx === 1 ? -1 : 1;
+    if (blockedY) dy = dy === 1 ? -1 : 1;
+    candidate = { x: moth.x + dx, y: moth.y + dy };
+    if (state.cloth[keyOf(candidate)]) candidate = { x: moth.x, y: moth.y };
+    if (trailKeys.has(keyOf(candidate))) hit = true;
+    return { ...candidate, dx, dy };
+  });
+  const advanced = { ...state, moths, tick: state.tick + 1 };
+  return hit ? cutTrail(advanced) : advanced;
+}
+
+export function withScenario(state: GameState, patch: Partial<GameState>): GameState {
+  return { ...state, ...patch };
+}
