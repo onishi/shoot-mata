@@ -8,6 +8,7 @@
 - M1 コアループ縦切り: 完了
 - M2 段階導入: 完了。3/3面、進行保存、面選択、設定、自動Chrome E2Eを実装
 - M3 本編拡張: 完了。全6面、複数残務影、影専用の複写床、終演を実装
+- M4 最終監査: 完了。全6面通し、2画面幅、性能、アクセシビリティ、配布物を監査
 - 「DEAD LETTER」から最終面「FINAL AUDIT」と`ARCHIVE COMPLETE`まで連続プレイ可能
 - 矢印/WASDで1マス移動、Spaceで1手待機、Enterで現在の行動列を残務影として確定して入口へ戻る
 - 第1面では残務影が感圧印を保持し、第2・第3面では移動中の影が印を横切る一瞬だけ検閲扉が開く
@@ -26,7 +27,9 @@ npm install
 npm run dev
 ```
 
-検証は`npm run verify`で単体テスト、型検査、production build、Google Chrome E2Eをまとめて実行する。現在は単体21/21、型検査、production build、Chrome E2E 5/5に合格している。E2Eは初期タイトル、設定の再読み込み後保持、第1面クリア、第2面解放と選択、第4面の二影同期、第5面の複写床通過、第6面の複合同期と終演を固定している。
+検証は`npm run verify`で単体テスト、型検査、production build、Google Chrome E2Eをまとめて実行する。現在は単体21/21、型検査、production build、Chrome E2E 7/7に合格している。E2Eは初期タイトル、設定の再読み込み後保持、個別の主要規則、保存注入なしの全6面通し、1280×720と640×800、ポーズ、代表的な描画間隔を固定している。
+
+`npm run release`はproduction buildを`release/palimpsest-post-v7.0/`へまとめ、ファイルサイズとSHA-256を記録したmanifestを作り、全ファイルと`index.html`の参照先を再検証する。
 
 ## 独立性
 

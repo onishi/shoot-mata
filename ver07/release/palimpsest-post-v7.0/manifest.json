@@ -1,0 +1,26 @@
+{
+  "product": "PALIMPSEST POST",
+  "version": "7.0",
+  "files": {
+    "assets/index-BkEU9reV.js": {
+      "bytes": 19447,
+      "sha256": "ee624bdf9ad3005143b5e6561f1608db280b294a5b621584ea80e86384456306"
+    },
+    "assets/index-C9j9u7Ny.css": {
+      "bytes": 892,
+      "sha256": "9b51cea0b02d6c9864e723418a7cbb691fb4f588b2ca2474d033f0c32c9724b5"
+    },
+    "favicon.svg": {
+      "bytes": 355,
+      "sha256": "77cff826466c578ceb94f81811d4d3d1f50ba85cb0299168575b0728142c66ce"
+    },
+    "index.html": {
+      "bytes": 829,
+      "sha256": "88ccfd15077f0ddfccc381627073ce26609830ac00726b554ab148bfaba8fb8c"
+    },
+    "README.txt": {
+      "bytes": 257,
+      "sha256": "ff66ec0833010b1c7836be89cc9d6ef3c45361e27b6028508c58fd6e6e5624f0"
+    }
+  }
+}

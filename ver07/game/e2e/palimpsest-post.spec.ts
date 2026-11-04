@@ -20,6 +20,26 @@ async function clearDeadLetter(page: Page): Promise<void> {
   await expect(canvasFor(page)).toHaveAttribute("aria-label", /DEAD LETTER delivered/);
 }
 
+async function record(page: Page, actions: string[]): Promise<void> {
+  for (const action of actions) await page.keyboard.press(action);
+  await page.keyboard.press("Enter");
+}
+
+async function deliver(page: Page, rightSteps: number): Promise<void> {
+  await press(page, "ArrowRight", rightSteps);
+  await expectScreen(page, "won");
+  await page.keyboard.press("Enter");
+}
+
+async function expectContained(page: Page, selector: string, viewport: { width: number; height: number }): Promise<void> {
+  const bounds = await page.locator(selector).boundingBox();
+  expect(bounds).not.toBeNull();
+  expect(bounds!.x).toBeGreaterThanOrEqual(0);
+  expect(bounds!.y).toBeGreaterThanOrEqual(0);
+  expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(viewport.width);
+  expect(bounds!.y + bounds!.height).toBeLessThanOrEqual(viewport.height);
+}
+
 test.beforeEach(async ({ page }) => {
   await page.goto("/");
   await page.evaluate(() => localStorage.clear());
@@ -190,4 +210,89 @@ test("the final audit synchronizes two copies and closes the archive", async ({ 
   await expectScreen(page, "title");
   await expect(canvasFor(page)).toHaveAttribute("aria-label", /Selected FINAL AUDIT, file 6 of 6 unlocked/);
   expect(errors).toEqual([]);
+});
+
+test("a fresh archive can clear all six files without injected progress", async ({ page }) => {
+  const errors: string[] = [];
+  page.on("console", (message) => {
+    if (message.type() === "error" || message.type() === "warning") errors.push(message.text());
+  });
+  page.on("pageerror", (error) => errors.push(error.message));
+
+  await page.keyboard.press("Enter");
+
+  await record(page, ["ArrowRight", "ArrowRight"]);
+  await deliver(page, 8);
+  await expect(canvasFor(page)).toHaveAttribute("aria-label", /MOVING DEADLINE/);
+
+  await record(page, ["ArrowUp", "ArrowUp", ...Array(5).fill("ArrowRight")]);
+  await deliver(page, 8);
+  await expect(canvasFor(page)).toHaveAttribute("aria-label", /MISSING MINUTE/);
+
+  await record(page, ["ArrowUp", "ArrowUp", "Space", ...Array(5).fill("ArrowRight")]);
+  await deliver(page, 9);
+  await expect(canvasFor(page)).toHaveAttribute("aria-label", /CARBON COPIES/);
+
+  await record(page, ["ArrowUp", "ArrowUp", "ArrowRight", "ArrowRight", "Space", "Space", "ArrowRight", "ArrowRight"]);
+  await record(page, ["ArrowDown", "ArrowDown", ...Array(6).fill("ArrowRight")]);
+  await deliver(page, 9);
+  await expect(canvasFor(page)).toHaveAttribute("aria-label", /AUTHORIZED COPY/);
+
+  await record(page, ["ArrowUp", "ArrowUp", ...Array(6).fill("ArrowRight")]);
+  await deliver(page, 9);
+  await expect(canvasFor(page)).toHaveAttribute("aria-label", /FINAL AUDIT/);
+
+  await record(page, ["ArrowUp", "ArrowUp", "ArrowRight", "ArrowRight", "ArrowRight", "Space", "ArrowRight", "ArrowRight"]);
+  await record(page, ["ArrowDown", "ArrowDown", ...Array(6).fill("ArrowRight")]);
+  await press(page, "ArrowRight", 9);
+  await expectScreen(page, "won");
+  await expect(canvasFor(page)).toHaveAttribute("aria-label", /Night archive complete/);
+  await page.screenshot({ path: "../docs/evidence/m4-complete-through.png" });
+
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem("palimpsest-post-v1") ?? "null"))).toMatchObject({ unlockedLevel: 5 });
+  expect(errors).toEqual([]);
+});
+
+test("required viewports, keyboard states, and representative frame pacing pass", async ({ page }) => {
+  for (const viewport of [
+    { width: 1280, height: 720, name: "1280x720" },
+    { width: 640, height: 800, name: "640x800" },
+  ]) {
+    await page.setViewportSize(viewport);
+    await page.reload();
+    await expectContained(page, "#game", viewport);
+    const canvasBounds = await canvasFor(page).boundingBox();
+    expect(canvasBounds!.width / canvasBounds!.height).toBeCloseTo(16 / 9, 2);
+    await page.screenshot({ path: `../docs/evidence/m4-title-${viewport.name}.png` });
+
+    await page.keyboard.press("KeyS");
+    await expect(canvasFor(page)).toBeFocused();
+    await expect(canvasFor(page)).toHaveAttribute("aria-label", /Settings\. Volume 75 percent/);
+    await expectContained(page, "#game", viewport);
+    await page.screenshot({ path: `../docs/evidence/m4-settings-${viewport.name}.png` });
+    await page.keyboard.press("Escape");
+    await page.keyboard.press("Enter");
+    await expect(canvasFor(page)).toHaveAttribute("aria-label", /DEAD LETTER\. Turn 0/);
+    await page.keyboard.press("Escape");
+    await expectScreen(page, "paused");
+    await expect(canvasFor(page)).toHaveAttribute("aria-label", /paused\. Press Escape to resume or R to restart/);
+    await page.screenshot({ path: `../docs/evidence/m4-paused-${viewport.name}.png` });
+  }
+
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await page.reload();
+  const frameIntervals = await page.evaluate(() => new Promise<number[]>((resolve) => {
+    const intervals: number[] = [];
+    let previous = performance.now();
+    const sample = (now: number) => {
+      intervals.push(now - previous);
+      previous = now;
+      if (intervals.length === 120) resolve(intervals.slice(5));
+      else requestAnimationFrame(sample);
+    };
+    requestAnimationFrame(sample);
+  }));
+  const ordered = [...frameIntervals].sort((left, right) => left - right);
+  const p95 = ordered[Math.floor(ordered.length * 0.95)];
+  expect(p95).toBeLessThan(35);
 });

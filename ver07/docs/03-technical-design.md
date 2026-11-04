@@ -21,6 +21,10 @@
 - 60fps描画、規則更新は入力時だけ
 - 外部runtime requestなし
 
+## 配布
+
+`npm run release`は型検査済みproduction buildを`release/palimpsest-post-v7.0/`へ再生成する。配布ディレクトリには起動説明と、各ファイルのbyte数・SHA-256を持つmanifestを同梱する。独立した完全性検査でmanifest、実ファイル、`index.html`のローカル参照先を照合し、不完全なartifactを成功扱いにしない。
+
 ## アクセシビリティ
 
 キーボード完結、ポーズ、即時再開、色以外の形状差、Canvasの動的な読み上げ名をM1から実装する。M2で音量、高コントラスト、モーション軽減、進行保存、タイトル面選択、設定状態を含む動的な読み上げ名を追加した。
