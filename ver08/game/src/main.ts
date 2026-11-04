@@ -1,10 +1,12 @@
 import "./style.css";
 import {
   HEIGHT,
+  LEVELS,
   WIDTH,
-  WIN_PERCENT,
   advanceMoths,
+  continueAfterWin,
   createGame,
+  levelFor,
   movePlayer,
   restart,
   start,
@@ -13,12 +15,18 @@ import {
   type GameState,
   type Point,
 } from "./model";
+import { loadPreferences, savePreferences, type Preferences } from "./preferences";
 
 const canvas = document.querySelector<HTMLCanvasElement>("#game")!;
 const live = document.querySelector<HTMLParagraphElement>("#live")!;
 const ctx = canvas.getContext("2d")!;
 
 let state = createGame();
+let preferences: Preferences = loadPreferences(localStorage, {
+  volume: 0.75,
+  reducedMotion: matchMedia("(prefers-reduced-motion: reduce)").matches,
+});
+let settingsOpen = false;
 let audio: AudioContext | null = null;
 let lastMothStep = performance.now();
 let pulse = 0;
@@ -34,13 +42,14 @@ function announce(message: string) {
 }
 
 function tone(frequency: number, duration: number, type: OscillatorType = "sine", gain = 0.05) {
+  if (preferences.volume === 0) return;
   audio ??= new AudioContext();
   if (audio.state === "suspended") void audio.resume();
   const oscillator = audio.createOscillator();
   const volume = audio.createGain();
   oscillator.type = type;
   oscillator.frequency.setValueAtTime(frequency, audio.currentTime);
-  volume.gain.setValueAtTime(gain, audio.currentTime);
+  volume.gain.setValueAtTime(gain * preferences.volume, audio.currentTime);
   volume.gain.exponentialRampToValueAtTime(0.0001, audio.currentTime + duration);
   oscillator.connect(volume).connect(audio.destination);
   oscillator.start();
@@ -70,6 +79,7 @@ function roundedRect(x: number, y: number, width: number, height: number, radius
 }
 
 function drawBackdrop(time: number) {
+  const motionTime = preferences.reducedMotion ? 0 : time;
   const gradient = ctx.createRadialGradient(480, 235, 20, 480, 270, 570);
   gradient.addColorStop(0, "#242851");
   gradient.addColorStop(0.52, "#0b0e25");
@@ -79,7 +89,7 @@ function drawBackdrop(time: number) {
   ctx.globalAlpha = 0.22;
   for (let index = 0; index < 46; index += 1) {
     const x = (index * 197 + 71) % 960;
-    const y = (index * 89 + Math.sin(time / 1700 + index) * 5 + 30) % 500;
+    const y = (index * 89 + Math.sin(motionTime / 1700 + index) * 5 + 30) % 500;
     ctx.fillStyle = index % 5 === 0 ? "#f6d78c" : "#8297c7";
     ctx.fillRect(x, y, index % 7 === 0 ? 2 : 1, index % 7 === 0 ? 2 : 1);
   }
@@ -104,7 +114,7 @@ function drawTitle(time: number) {
   ctx.font = "18px Georgia";
   ctx.letterSpacing = "1px";
   ctx.fillText("Leave the safe selvage. Stitch the torn dark closed.", 480, 290);
-  const shimmer = 0.65 + Math.sin(time / 420) * 0.22;
+  const shimmer = preferences.reducedMotion ? 0.8 : 0.65 + Math.sin(time / 420) * 0.22;
   ctx.fillStyle = `rgba(242, 213, 138, ${shimmer})`;
   ctx.font = "700 15px Georgia";
   ctx.letterSpacing = "2px";
@@ -112,7 +122,7 @@ function drawTitle(time: number) {
   ctx.fillStyle = "#77849e";
   ctx.font = "12px Georgia";
   ctx.letterSpacing = "1.5px";
-  ctx.fillText("ARROWS / WASD  MOVE     HOLD SPACE  STITCH", 480, 419);
+  ctx.fillText("ARROWS / WASD  MOVE     HOLD SPACE  STITCH     O  OPTIONS", 480, 419);
 }
 
 function drawFrame() {
@@ -132,6 +142,7 @@ function drawFrame() {
 }
 
 function drawCell(x: number, y: number, time: number) {
+  const motionTime = preferences.reducedMotion ? 0 : time;
   const index = y * WIDTH + x;
   const px = board.x + x * board.cell;
   const py = board.y + y * board.cell;
@@ -145,12 +156,12 @@ function drawCell(x: number, y: number, time: number) {
     ctx.beginPath(); ctx.moveTo(px, py + 23); ctx.lineTo(px + board.cell, py + 23); ctx.stroke();
     if ((x * 13 + y * 17) % 11 === 0) {
       ctx.fillStyle = "#e9d291";
-      ctx.globalAlpha = 0.5 + Math.sin(time / 500 + index) * 0.18;
+      ctx.globalAlpha = preferences.reducedMotion ? 0.58 : 0.5 + Math.sin(motionTime / 500 + index) * 0.18;
       ctx.beginPath(); ctx.arc(px + 16, py + 15, 1.5, 0, Math.PI * 2); ctx.fill();
       ctx.globalAlpha = 1;
     }
   } else {
-    const drift = Math.sin(time / 900 + x * 0.5 + y * 0.7) * 5;
+    const drift = Math.sin(motionTime / 900 + x * 0.5 + y * 0.7) * 5;
     const gradient = ctx.createLinearGradient(px + drift, py, px + board.cell, py + board.cell);
     gradient.addColorStop(0, "#080b20"); gradient.addColorStop(1, "#161638");
     ctx.fillStyle = gradient;
@@ -182,7 +193,7 @@ function drawMoths(time: number) {
     const p = pixel(moth);
     const cx = p.x + 15.5;
     const cy = p.y + 15.5;
-    const flap = Math.sin(time / 95) * 4;
+    const flap = preferences.reducedMotion ? 0 : Math.sin(time / 95) * 4;
     ctx.save();
     ctx.translate(cx, cy);
     ctx.rotate(Math.atan2(moth.dy, moth.dx) + Math.PI / 2);
@@ -206,13 +217,14 @@ function drawPlayer(time: number) {
   ctx.translate(cx, cy);
   ctx.shadowColor = "#ffe4a1"; ctx.shadowBlur = state.trail.length > 0 ? 16 : 8;
   ctx.fillStyle = "#f0c96e";
-  ctx.rotate(Math.PI / 4 + Math.sin(time / 240) * 0.04);
+  ctx.rotate(Math.PI / 4 + (preferences.reducedMotion ? 0 : Math.sin(time / 240) * 0.04));
   ctx.fillRect(-7, -7, 14, 14);
   ctx.fillStyle = "#4a3150"; ctx.fillRect(-3, -3, 6, 6);
   ctx.restore();
 }
 
 function drawHud() {
+  const level = levelFor(state);
   ctx.textAlign = "left";
   ctx.fillStyle = "#c59a57";
   ctx.font = "11px Georgia"; ctx.letterSpacing = "2px";
@@ -223,10 +235,14 @@ function drawHud() {
   ctx.fillStyle = "#697793";
   ctx.fillRect(42, 172, 92, 4);
   ctx.fillStyle = "#dbb565";
-  ctx.fillRect(42, 172, Math.min(92, 92 * state.repaired / WIN_PERCENT), 4);
+  ctx.fillRect(42, 172, Math.min(92, 92 * state.repaired / level.goal), 4);
   ctx.fillStyle = "#8d9ab3";
   ctx.font = "10px Georgia"; ctx.letterSpacing = "1px";
-  ctx.fillText(`GOAL ${WIN_PERCENT}%`, 42, 192);
+  ctx.fillText(`GOAL ${level.goal}%`, 42, 192);
+
+  ctx.fillStyle = "#c59a57";
+  ctx.font = "10px Georgia"; ctx.letterSpacing = "1.4px";
+  ctx.fillText(`PANEL ${state.levelIndex + 1} / ${LEVELS.length}`, 42, 215);
 
   ctx.fillStyle = "#c59a57";
   ctx.font = "11px Georgia"; ctx.letterSpacing = "2px";
@@ -252,7 +268,7 @@ function drawFooter() {
   ctx.textAlign = "center";
   ctx.fillStyle = "#8794aa";
   ctx.font = "10px Georgia"; ctx.letterSpacing = "1.2px";
-  ctx.fillText("ARROWS / WASD  MOVE     HOLD SPACE  STITCH     ESC  PAUSE     R  RESTART", 480, 518);
+  ctx.fillText("ARROWS / WASD  MOVE   SPACE  STITCH   ESC  PAUSE   O  OPTIONS   R  RESTART", 480, 518);
 }
 
 function drawOverlay(title: string, body: string, action: string) {
@@ -270,6 +286,42 @@ function drawOverlay(title: string, body: string, action: string) {
   ctx.fillText(action, 480, 333);
 }
 
+function drawSettings(time: number) {
+  if (state.screen === "title") drawBackdrop(time); else drawGame(time);
+  ctx.fillStyle = "rgba(3, 4, 12, .9)";
+  ctx.fillRect(230, 74, 500, 392);
+  ctx.strokeStyle = "#9d7542";
+  ctx.lineWidth = 2;
+  roundedRect(230, 74, 500, 392, 8);
+  ctx.stroke();
+  ctx.textAlign = "center";
+  ctx.fillStyle = "#f2d58a";
+  ctx.font = "700 32px Georgia";
+  ctx.letterSpacing = "5px";
+  ctx.fillText("LOOM OPTIONS", 480, 138);
+  ctx.fillStyle = "#c59a57";
+  ctx.font = "11px Georgia";
+  ctx.letterSpacing = "2px";
+  ctx.fillText("SOUND VOLUME", 480, 203);
+  ctx.fillStyle = "#f4dda1";
+  ctx.font = "700 28px Georgia";
+  ctx.letterSpacing = "1px";
+  ctx.fillText(`${Math.round(preferences.volume * 100)}%`, 480, 243);
+  ctx.fillStyle = "#7f8da7";
+  ctx.font = "11px Georgia";
+  ctx.fillText("LEFT / RIGHT TO ADJUST", 480, 270);
+  ctx.fillStyle = "#c59a57";
+  ctx.letterSpacing = "2px";
+  ctx.fillText("REDUCED MOTION", 480, 326);
+  ctx.fillStyle = preferences.reducedMotion ? "#f4dda1" : "#8d9ab3";
+  ctx.font = "700 21px Georgia";
+  ctx.fillText(preferences.reducedMotion ? "ON" : "OFF", 480, 360);
+  ctx.fillStyle = "#7f8da7";
+  ctx.font = "11px Georgia";
+  ctx.letterSpacing = "1px";
+  ctx.fillText("M TO TOGGLE     ESC / O TO RETURN", 480, 417);
+}
+
 function drawGame(time: number) {
   drawBackdrop(time);
   drawFrame();
@@ -280,9 +332,17 @@ function drawGame(time: number) {
   drawHud();
   drawFooter();
   if (state.screen === "paused") drawOverlay("LOOM AT REST", "The loose thread is held in time.", "ESC TO RESUME");
-  if (state.screen === "won") drawOverlay("NIGHT MENDED", `${state.repaired}% of the sky holds its weave.`, "ENTER TO WEAVE AGAIN");
+  if (state.screen === "won") {
+    const finalPanel = state.levelIndex === LEVELS.length - 1;
+    const nextPanel = LEVELS[state.levelIndex + 1];
+    drawOverlay(
+      finalPanel ? "SAMPLER MENDED" : "PANEL MENDED",
+      finalPanel ? "All three panels hold against the unravellers." : `The next panel waits: ${nextPanel.name}.`,
+      finalPanel ? "ENTER TO WEAVE FROM PANEL I" : `ENTER FOR PANEL ${state.levelIndex + 2}`,
+    );
+  }
   if (state.screen === "lost") drawOverlay("THREAD UNDONE", "The unraveller found every spool.", "ENTER TO RETRY");
-  if (pulse > 0) {
+  if (pulse > 0 && !preferences.reducedMotion) {
     ctx.fillStyle = `rgba(244, 216, 151, ${pulse * 0.16})`;
     ctx.fillRect(0, 0, 960, 540);
     pulse = Math.max(0, pulse - 0.035);
@@ -290,14 +350,26 @@ function drawGame(time: number) {
 }
 
 function updateAria() {
-  const description = state.screen === "title"
+  const description = settingsOpen
+    ? `Options. Sound volume ${Math.round(preferences.volume * 100)} percent. Reduced motion ${preferences.reducedMotion ? "on" : "off"}.`
+    : state.screen === "title"
     ? "DUSKLOOM title. Press Enter to begin."
-    : `${state.screen}. ${state.repaired} percent repaired. ${state.spools} spools. ${state.trail.length} exposed thread cells.`;
+    : `${state.screen}. Panel ${state.levelIndex + 1} of ${LEVELS.length}, ${levelFor(state).name}. ${state.repaired} percent repaired. ${state.spools} spools. ${state.trail.length} exposed thread cells.`;
   canvas.setAttribute("aria-label", description);
-  canvas.dataset.screen = state.screen;
+  canvas.dataset.screen = settingsOpen ? "settings" : state.screen;
   canvas.dataset.repaired = String(state.repaired);
   canvas.dataset.spools = String(state.spools);
   canvas.dataset.trail = String(state.trail.length);
+  canvas.dataset.level = String(state.levelIndex + 1);
+  canvas.dataset.moths = String(state.moths.length);
+  canvas.dataset.volume = String(Math.round(preferences.volume * 100));
+  canvas.dataset.reducedMotion = String(preferences.reducedMotion);
+}
+
+function closeSettings() {
+  settingsOpen = false;
+  lastMothStep = performance.now();
+  announce(state.screen === "title" ? "Options closed. Press Enter to begin." : "Options closed.");
 }
 
 const directions: Record<string, Direction | undefined> = {
@@ -306,14 +378,37 @@ const directions: Record<string, Direction | undefined> = {
 
 window.addEventListener("keydown", (event) => {
   const direction = directions[event.code];
-  if (direction || ["Enter", "Escape", "Space", "KeyR"].includes(event.code)) event.preventDefault();
+  if (direction || ["Enter", "Escape", "Space", "KeyM", "KeyO", "KeyR"].includes(event.code)) event.preventDefault();
   const previous = state;
-  if (state.screen === "title" && event.code === "Enter") {
+  if (settingsOpen) {
+    if (event.code === "ArrowLeft" || event.code === "ArrowRight") {
+      const delta = event.code === "ArrowRight" ? 0.25 : -0.25;
+      preferences = { ...preferences, volume: Math.max(0, Math.min(1, preferences.volume + delta)) };
+      savePreferences(localStorage, preferences);
+      announce(`Sound volume ${Math.round(preferences.volume * 100)} percent.`);
+      if (preferences.volume > 0) tone(330, 0.08, "sine", 0.04);
+    } else if (event.code === "KeyM") {
+      preferences = { ...preferences, reducedMotion: !preferences.reducedMotion };
+      if (preferences.reducedMotion) pulse = 0;
+      savePreferences(localStorage, preferences);
+      announce(`Reduced motion ${preferences.reducedMotion ? "on" : "off"}.`);
+    } else if (event.code === "Escape" || event.code === "KeyO") closeSettings();
+  } else if (event.code === "KeyO" && ["title", "playing", "paused"].includes(state.screen)) {
+    settingsOpen = true;
+    announce("Options opened. Use left and right for sound volume, M for reduced motion, Escape to return.");
+  } else if (state.screen === "title" && event.code === "Enter") {
     state = start(state); lastMothStep = performance.now(); announce("Loom started. Hold Space and move away from the repaired edge to stitch.");
   } else if ((state.screen === "won" || state.screen === "lost") && event.code === "Enter") {
-    state = restart(); lastMothStep = performance.now(); announce("Fresh loom started.");
+    if (state.screen === "won") {
+      state = continueAfterWin(state);
+      announce(`Panel ${state.levelIndex + 1}, ${levelFor(state).name}. ${state.moths.length} unravellers are moving.`);
+    } else {
+      state = restart(state);
+      announce(`Panel ${state.levelIndex + 1} restarted.`);
+    }
+    lastMothStep = performance.now();
   } else if (event.code === "KeyR" && state.screen !== "title") {
-    state = restart(); lastMothStep = performance.now(); announce("Loom restarted.");
+    state = restart(state); lastMothStep = performance.now(); announce(`Panel ${state.levelIndex + 1} restarted.`);
   } else if (event.code === "Escape") {
     state = togglePause(state); announce(state.screen === "paused" ? "Paused." : "Resumed.");
     if (state.screen === "playing") lastMothStep = performance.now();
@@ -333,7 +428,7 @@ window.addEventListener("keyup", (event) => { if (event.code === "Space") presse
 window.addEventListener("blur", () => { pressedSpace = false; });
 
 function frame(time: number) {
-  if (state.screen === "playing" && time - lastMothStep >= 360) {
+  if (!settingsOpen && state.screen === "playing" && time - lastMothStep >= 360) {
     const previous = state;
     state = advanceMoths(state);
     lastMothStep = time;
@@ -343,7 +438,9 @@ function frame(time: number) {
       updateAria();
     }
   }
-  if (state.screen === "title") drawTitle(time); else drawGame(time);
+  if (settingsOpen) drawSettings(time);
+  else if (state.screen === "title") drawTitle(time);
+  else drawGame(time);
   requestAnimationFrame(frame);
 }
 

@@ -1,6 +1,49 @@
 export const WIDTH = 20;
 export const HEIGHT = 14;
-export const WIN_PERCENT = 62;
+
+export interface LevelDefinition {
+  id: string;
+  name: string;
+  goal: number;
+  player: Point;
+  moths: readonly Moth[];
+  clothPatches?: readonly ClothPatch[];
+}
+
+export interface ClothPatch {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+export const LEVELS: readonly LevelDefinition[] = [
+  {
+    id: "first-light",
+    name: "FIRST LIGHT",
+    goal: 62,
+    player: { x: 0, y: 7 },
+    moths: [{ x: 13, y: 6, dx: -1, dy: 1 }],
+  },
+  {
+    id: "crossed-shuttles",
+    name: "CROSSED SHUTTLES",
+    goal: 64,
+    player: { x: 0, y: 7 },
+    moths: [
+      { x: 14, y: 4, dx: -1, dy: 1 },
+      { x: 6, y: 9, dx: 1, dy: -1 },
+    ],
+  },
+  {
+    id: "looms-eye",
+    name: "LOOM'S EYE",
+    goal: 68,
+    player: { x: 0, y: 7 },
+    moths: [{ x: 14, y: 3, dx: -1, dy: 1 }],
+    clothPatches: [{ x: 8, y: 5, width: 4, height: 4 }],
+  },
+];
 
 export type Screen = "title" | "playing" | "paused" | "won" | "lost";
 export type Direction = "up" | "down" | "left" | "right";
@@ -8,6 +51,7 @@ export interface Point { x: number; y: number }
 export interface Moth extends Point { dx: -1 | 1; dy: -1 | 1 }
 export interface GameState {
   screen: Screen;
+  levelIndex: number;
   player: Point;
   anchor: Point;
   cloth: boolean[];
@@ -24,10 +68,14 @@ const pointOf = (index: number): Point => ({ x: index % WIDTH, y: Math.floor(ind
 const same = (a: Point, b: Point) => a.x === b.x && a.y === b.y;
 const inside = ({ x, y }: Point) => x >= 0 && x < WIDTH && y >= 0 && y < HEIGHT;
 
-function initialCloth(): boolean[] {
+function initialCloth(level: LevelDefinition): boolean[] {
   return Array.from({ length: WIDTH * HEIGHT }, (_, index) => {
     const { x, y } = pointOf(index);
-    return x === 0 || y === 0 || x === WIDTH - 1 || y === HEIGHT - 1;
+    const selvage = x === 0 || y === 0 || x === WIDTH - 1 || y === HEIGHT - 1;
+    const patch = level.clothPatches?.some((area) => (
+      x >= area.x && x < area.x + area.width && y >= area.y && y < area.y + area.height
+    ));
+    return selvage || patch === true;
   });
 }
 
@@ -35,15 +83,22 @@ function repairedPercent(cloth: readonly boolean[]): number {
   return Math.floor((cloth.filter(Boolean).length / cloth.length) * 100);
 }
 
-export function createGame(): GameState {
-  const cloth = initialCloth();
+export function levelFor(state: Pick<GameState, "levelIndex">): LevelDefinition {
+  return LEVELS[state.levelIndex] ?? LEVELS[0];
+}
+
+export function createGame(levelIndex = 0): GameState {
+  const safeLevelIndex = Math.max(0, Math.min(levelIndex, LEVELS.length - 1));
+  const level = LEVELS[safeLevelIndex];
+  const cloth = initialCloth(level);
   return {
     screen: "title",
-    player: { x: 0, y: 7 },
-    anchor: { x: 0, y: 7 },
+    levelIndex: safeLevelIndex,
+    player: { ...level.player },
+    anchor: { ...level.player },
     cloth,
     trail: [],
-    moths: [{ x: 13, y: 6, dx: -1, dy: 1 }],
+    moths: level.moths.map((moth) => ({ ...moth })),
     spools: 3,
     repaired: repairedPercent(cloth),
     tick: 0,
@@ -52,11 +107,17 @@ export function createGame(): GameState {
 }
 
 export function start(state: GameState): GameState {
-  return state.screen === "title" ? { ...createGame(), screen: "playing" } : state;
+  return state.screen === "title" ? { ...createGame(0), screen: "playing" } : state;
 }
 
-export function restart(): GameState {
-  return { ...createGame(), screen: "playing" };
+export function restart(state?: Pick<GameState, "levelIndex">): GameState {
+  return { ...createGame(state?.levelIndex ?? 0), screen: "playing" };
+}
+
+export function continueAfterWin(state: GameState): GameState {
+  if (state.screen !== "won") return state;
+  const nextLevel = state.levelIndex + 1;
+  return { ...createGame(nextLevel < LEVELS.length ? nextLevel : 0), screen: "playing" };
 }
 
 export function togglePause(state: GameState): GameState {
@@ -97,17 +158,11 @@ function claimEnclosed(state: GameState, boundary: readonly Point[]): { cloth: b
     components.push(component);
   }
   const occupied = new Set(state.moths.map(keyOf));
-  let claimedAny = false;
   components.forEach((component) => {
     if (!component.some((cell) => occupied.has(cell))) {
       component.forEach((cell) => { cloth[cell] = true; });
-      claimedAny = true;
     }
   });
-  if (!claimedAny && components.length > 1) {
-    const smallest = [...components].sort((a, b) => a.length - b.length)[0];
-    smallest.forEach((cell) => { cloth[cell] = true; });
-  }
   return { cloth, repaired: repairedPercent(cloth) };
 }
 
@@ -126,7 +181,7 @@ export function movePlayer(state: GameState, direction: Direction, stitching: bo
   }
   if (drawing) {
     const claimed = claimEnclosed(state, state.trail);
-    const won = claimed.repaired >= WIN_PERCENT;
+    const won = claimed.repaired >= levelFor(state).goal;
     return {
       ...state,
       player: next,

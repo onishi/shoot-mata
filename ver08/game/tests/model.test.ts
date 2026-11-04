@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { advanceMoths, createGame, movePlayer, restart, start, togglePause, withScenario, WIDTH } from "../src/model";
+import { LEVELS, advanceMoths, continueAfterWin, createGame, levelFor, movePlayer, restart, start, togglePause, withScenario, WIDTH } from "../src/model";
 
 describe("DUSKLOOM model", () => {
   it("starts at the left selvage and can pause", () => {
@@ -66,8 +66,71 @@ describe("DUSKLOOM model", () => {
       moths: [{ x: 3, y: 6, dx: -1, dy: 1 }],
     });
     expect(advanceMoths(doomed).screen).toBe("lost");
-    const fresh = restart();
+    const fresh = restart(doomed);
     expect(fresh.screen).toBe("playing");
     expect(fresh.spools).toBe(3);
+  });
+
+  it("loads the second panel from data with two crossing moths", () => {
+    const firstWon = withScenario(start(createGame()), { screen: "won" });
+    const second = continueAfterWin(firstWon);
+    expect(second.levelIndex).toBe(1);
+    expect(levelFor(second)).toEqual(LEVELS[1]);
+    expect(second.moths).toEqual(LEVELS[1].moths);
+    expect(second.moths).toHaveLength(2);
+    expect(second.moths.map(({ dx, dy }) => ({ dx, dy }))).toEqual([
+      { dx: -1, dy: 1 },
+      { dx: 1, dy: -1 },
+    ]);
+  });
+
+  it("loads the third panel with a repaired inner island", () => {
+    const third = restart(createGame(2));
+    expect(levelFor(third)).toEqual(LEVELS[2]);
+    expect(third.repaired).toBe(28);
+    for (let y = 5; y <= 8; y += 1) {
+      for (let x = 8; x <= 11; x += 1) expect(third.cloth[y * WIDTH + x]).toBe(true);
+    }
+    expect(third.cloth[7 * WIDTH + 7]).toBe(false);
+    expect(third.cloth[7 * WIDTH + 12]).toBe(false);
+  });
+
+  it("uses the inner island as a safe anchor on the way across the third panel", () => {
+    let state = restart(createGame(2));
+    for (let x = 0; x < 8; x += 1) state = movePlayer(state, "right", true);
+    expect(state.player).toEqual({ x: 8, y: 7 });
+    expect(state.trail).toEqual([]);
+    expect(state.lastEvent).toBe("claim");
+    expect(state.screen).toBe("playing");
+
+    for (let x = 8; x < 11; x += 1) state = movePlayer(state, "right", false);
+    for (let x = 11; x < WIDTH - 1; x += 1) state = movePlayer(state, "right", true);
+    expect(state.player).toEqual({ x: 19, y: 7 });
+    expect(state.repaired).toBe(64);
+    expect(state.screen).toBe("playing");
+
+    state = movePlayer(state, "up", false);
+    state = movePlayer(state, "up", false);
+    for (let x = 19; x > 11; x -= 1) state = movePlayer(state, "left", true);
+    expect(state.player).toEqual({ x: 11, y: 5 });
+    expect(state.repaired).toBeGreaterThanOrEqual(LEVELS[2].goal);
+    expect(state.screen).toBe("won");
+  });
+
+  it("keeps both occupied regions dark when a seam divides the two moths", () => {
+    let state = restart(createGame(1));
+    for (let x = 0; x < WIDTH - 1; x += 1) state = movePlayer(state, "right", true);
+    expect(state.lastEvent).toBe("claim");
+    expect(state.repaired).toBe(29);
+    expect(state.moths.every((moth) => !state.cloth[moth.y * WIDTH + moth.x])).toBe(true);
+  });
+
+  it("restarts the current panel and loops to panel one after the sampler", () => {
+    const second = restart(createGame(1));
+    expect(restart(second).levelIndex).toBe(1);
+    const third = continueAfterWin(withScenario(second, { screen: "won" }));
+    expect(third.levelIndex).toBe(2);
+    const completed = withScenario(third, { screen: "won" });
+    expect(continueAfterWin(completed).levelIndex).toBe(0);
   });
 });

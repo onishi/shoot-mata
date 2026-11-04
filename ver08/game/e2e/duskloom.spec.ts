@@ -21,6 +21,38 @@ test.beforeEach(async ({ page }) => {
   await expect(canvasFor(page)).toBeFocused();
 });
 
+test("keyboard options persist sound and reduced motion across reload", async ({ page }) => {
+  const errors: string[] = [];
+  page.on("console", (message) => {
+    if (message.type() === "error" || message.type() === "warning") errors.push(message.text());
+  });
+  page.on("pageerror", (error) => errors.push(error.message));
+
+  await page.keyboard.press("KeyO");
+  await expectScreen(page, "settings");
+  await expect(canvasFor(page)).toHaveAttribute("data-volume", "75");
+  await page.keyboard.press("ArrowLeft");
+  await page.keyboard.press("KeyM");
+  await expect(canvasFor(page)).toHaveAttribute("data-volume", "50");
+  await expect(canvasFor(page)).toHaveAttribute("data-reduced-motion", "true");
+  await page.screenshot({ path: "../docs/evidence/m2-options.png" });
+  await page.keyboard.press("Escape");
+  await expectScreen(page, "title");
+
+  await page.reload();
+  await expect(canvasFor(page)).toBeFocused();
+  await expect(canvasFor(page)).toHaveAttribute("data-volume", "50");
+  await expect(canvasFor(page)).toHaveAttribute("data-reduced-motion", "true");
+  await page.keyboard.press("Enter");
+  await expectScreen(page, "playing");
+  await page.keyboard.press("KeyO");
+  await expectScreen(page, "settings");
+  await page.waitForTimeout(400);
+  await page.keyboard.press("Escape");
+  await expectScreen(page, "playing");
+  expect(errors).toEqual([]);
+});
+
 test("title, exposed thread, repair, victory, and pause are visible in Chrome", async ({ page }) => {
   const errors: string[] = [];
   page.on("console", (message) => {
@@ -48,11 +80,37 @@ test("title, exposed thread, repair, victory, and pause are visible in Chrome", 
   await page.screenshot({ path: "../docs/evidence/m1-night-mended.png" });
   await page.keyboard.press("Enter");
   await expectScreen(page, "playing");
+  await expect(canvasFor(page)).toHaveAttribute("data-level", "2");
+  await expect(canvasFor(page)).toHaveAttribute("data-moths", "2");
+  await page.screenshot({ path: "../docs/evidence/m2-crossed-shuttles.png" });
+
+  await stitch(page, "ArrowRight", 19);
+  await press(page, "ArrowUp", 2);
+  await stitch(page, "ArrowLeft", 19);
+  await press(page, "ArrowDown", 6);
+  await stitch(page, "ArrowRight", 19);
+  await press(page, "ArrowUp", 9);
+  await stitch(page, "ArrowLeft", 19);
+  await expectScreen(page, "won");
+  await page.keyboard.press("Enter");
+  await expectScreen(page, "playing");
+  await expect(canvasFor(page)).toHaveAttribute("data-level", "3");
+  await expect(canvasFor(page)).toHaveAttribute("data-moths", "1");
+  await expect(canvasFor(page)).toHaveAttribute("data-repaired", "28");
+  await page.screenshot({ path: "../docs/evidence/m2-looms-eye.png" });
   await page.keyboard.press("Escape");
   await expectScreen(page, "paused");
-  await page.screenshot({ path: "../docs/evidence/m1-paused.png" });
   await page.keyboard.press("Escape");
   await expectScreen(page, "playing");
+
+  await stitch(page, "ArrowRight", 8);
+  await press(page, "ArrowRight", 3);
+  await stitch(page, "ArrowRight", 8);
+  await expect(canvasFor(page)).toHaveAttribute("data-repaired", "64");
+  await press(page, "ArrowUp", 2);
+  await stitch(page, "ArrowLeft", 8);
+  await expectScreen(page, "won");
+  await page.screenshot({ path: "../docs/evidence/m2-three-panel-complete.png" });
   expect(errors).toEqual([]);
 });
 
