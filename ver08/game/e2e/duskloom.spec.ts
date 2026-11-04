@@ -1,0 +1,83 @@
+import { expect, test, type Page } from "@playwright/test";
+
+const canvasFor = (page: Page) => page.locator("#game");
+
+async function expectScreen(page: Page, screen: string): Promise<void> {
+  await expect(canvasFor(page)).toHaveAttribute("data-screen", screen);
+}
+
+async function press(page: Page, key: string, count = 1): Promise<void> {
+  for (let index = 0; index < count; index += 1) await page.keyboard.press(key);
+}
+
+async function stitch(page: Page, key: string, count: number): Promise<void> {
+  await page.keyboard.down("Space");
+  await press(page, key, count);
+  await page.keyboard.up("Space");
+}
+
+test.beforeEach(async ({ page }) => {
+  await page.goto("/");
+  await expect(canvasFor(page)).toBeFocused();
+});
+
+test("title, exposed thread, repair, victory, and pause are visible in Chrome", async ({ page }) => {
+  const errors: string[] = [];
+  page.on("console", (message) => {
+    if (message.type() === "error" || message.type() === "warning") errors.push(message.text());
+  });
+  page.on("pageerror", (error) => errors.push(error.message));
+
+  await expectScreen(page, "title");
+  await page.screenshot({ path: "../docs/evidence/m1-title.png" });
+  await page.keyboard.press("Enter");
+  await expectScreen(page, "playing");
+
+  await stitch(page, "ArrowRight", 8);
+  await expect(canvasFor(page)).toHaveAttribute("data-trail", "8");
+  await page.screenshot({ path: "../docs/evidence/m1-thread-exposed.png" });
+  await page.keyboard.press("KeyR");
+  await stitch(page, "ArrowRight", 19);
+  await expect(canvasFor(page)).toHaveAttribute("data-trail", "0");
+  await expect(canvasFor(page)).toHaveAttribute("data-repaired", "61");
+  await page.screenshot({ path: "../docs/evidence/m1-area-repaired.png" });
+
+  await press(page, "ArrowUp", 2);
+  await stitch(page, "ArrowLeft", 19);
+  await expectScreen(page, "won");
+  await page.screenshot({ path: "../docs/evidence/m1-night-mended.png" });
+  await page.keyboard.press("Enter");
+  await expectScreen(page, "playing");
+  await page.keyboard.press("Escape");
+  await expectScreen(page, "paused");
+  await page.screenshot({ path: "../docs/evidence/m1-paused.png" });
+  await page.keyboard.press("Escape");
+  await expectScreen(page, "playing");
+  expect(errors).toEqual([]);
+});
+
+test("the unraveller cuts exposed thread and can exhaust every spool", async ({ page }) => {
+  const errors: string[] = [];
+  page.on("console", (message) => {
+    if (message.type() === "error" || message.type() === "warning") errors.push(message.text());
+  });
+  page.on("pageerror", (error) => errors.push(error.message));
+
+  await page.keyboard.press("Enter");
+  await stitch(page, "ArrowRight", 11);
+  await expect(canvasFor(page)).toHaveAttribute("data-trail", "11");
+  await page.waitForTimeout(380);
+  await stitch(page, "ArrowRight", 1);
+  await expect(canvasFor(page)).toHaveAttribute("data-spools", "2");
+
+  await stitch(page, "ArrowRight", 12);
+  await expect(canvasFor(page)).toHaveAttribute("data-spools", "1");
+  await stitch(page, "ArrowRight", 12);
+  await expectScreen(page, "lost");
+  await expect(canvasFor(page)).toHaveAttribute("data-spools", "0");
+  await page.screenshot({ path: "../docs/evidence/m1-thread-undone.png" });
+  await page.keyboard.press("Enter");
+  await expectScreen(page, "playing");
+  await expect(canvasFor(page)).toHaveAttribute("data-spools", "3");
+  expect(errors).toEqual([]);
+});

@@ -239,10 +239,11 @@ function drawHud() {
   }
   ctx.fillStyle = state.trail.length > 0 ? "#fff0bd" : "#78859f";
   ctx.font = "700 11px Georgia"; ctx.letterSpacing = "1.5px";
-  ctx.fillText(state.trail.length > 0 ? "THREAD EXPOSED" : "ON SAFE CLOTH", 42, 333);
+  ctx.fillText(state.trail.length > 0 ? "THREAD" : "SAFE", 42, 333);
+  ctx.fillText(state.trail.length > 0 ? "EXPOSED" : "SELVAGE", 42, 350);
   ctx.fillStyle = "#77839c";
   ctx.font = "10px Georgia"; ctx.letterSpacing = ".5px";
-  ctx.fillText(state.trail.length > 0 ? `${state.trail.length} CELLS LOOSE` : "HOLD SPACE TO LEAVE", 42, 353);
+  ctx.fillText(state.trail.length > 0 ? `${state.trail.length} CELLS LOOSE` : "SPACE + MOVE", 42, 371);
 }
 
 function drawFooter() {
@@ -308,13 +309,14 @@ window.addEventListener("keydown", (event) => {
   if (direction || ["Enter", "Escape", "Space", "KeyR"].includes(event.code)) event.preventDefault();
   const previous = state;
   if (state.screen === "title" && event.code === "Enter") {
-    state = start(state); announce("Loom started. Hold Space and move away from the repaired edge to stitch.");
+    state = start(state); lastMothStep = performance.now(); announce("Loom started. Hold Space and move away from the repaired edge to stitch.");
   } else if ((state.screen === "won" || state.screen === "lost") && event.code === "Enter") {
-    state = restart(); announce("Fresh loom started.");
+    state = restart(); lastMothStep = performance.now(); announce("Fresh loom started.");
   } else if (event.code === "KeyR" && state.screen !== "title") {
-    state = restart(); announce("Loom restarted.");
+    state = restart(); lastMothStep = performance.now(); announce("Loom restarted.");
   } else if (event.code === "Escape") {
     state = togglePause(state); announce(state.screen === "paused" ? "Paused." : "Resumed.");
+    if (state.screen === "playing") lastMothStep = performance.now();
   } else if (state.screen === "playing" && direction) {
     state = movePlayer(state, direction, event.shiftKey || event.getModifierState("Alt") || pressedSpace);
     if (state.lastEvent === "claim") announce(`${state.repaired} percent repaired.`);
