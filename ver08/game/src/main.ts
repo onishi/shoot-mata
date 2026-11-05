@@ -6,6 +6,7 @@ import {
   advanceMoths,
   continueAfterWin,
   createGame,
+  flashNeedleFor,
   levelFor,
   movePlayer,
   restart,
@@ -204,6 +205,33 @@ function drawTrail() {
   ctx.stroke();
 }
 
+function drawFlashNeedle(time: number) {
+  const needle = flashNeedleFor(state);
+  if (!needle || needle.phase === "dormant") return;
+  const x = board.x + needle.column * board.cell;
+  const active = needle.phase === "active";
+  ctx.save();
+  ctx.fillStyle = active ? "rgba(255, 220, 125, .2)" : "rgba(114, 201, 224, .12)";
+  ctx.fillRect(x, board.y, board.cell, HEIGHT * board.cell);
+  ctx.strokeStyle = active ? "#fff1a8" : "#75c9df";
+  ctx.lineWidth = active ? 3 : 1.5;
+  ctx.setLineDash(active ? [] : [5, 5]);
+  ctx.strokeRect(x + 2, board.y + 2, board.cell - 4, HEIGHT * board.cell - 4);
+  ctx.setLineDash([]);
+  if (active) {
+    ctx.shadowColor = "#fff1a8";
+    ctx.shadowBlur = 15;
+    ctx.beginPath();
+    const sway = preferences.reducedMotion ? 0 : Math.sin(time / 32) * 3;
+    ctx.moveTo(x + 16, board.y);
+    for (let y = 0; y <= HEIGHT * board.cell; y += 24) {
+      ctx.lineTo(x + 16 + (y / 24 % 2 === 0 ? -7 : 7) + sway, board.y + y);
+    }
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
 function drawMoths(time: number) {
   for (const moth of state.moths) {
     const p = pixel(moth);
@@ -241,6 +269,7 @@ function drawPlayer(time: number) {
 
 function drawHud() {
   const level = levelFor(state);
+  const needle = flashNeedleFor(state);
   ctx.textAlign = "left";
   ctx.fillStyle = "#c59a57";
   ctx.font = "11px Georgia"; ctx.letterSpacing = "2px";
@@ -276,6 +305,11 @@ function drawHud() {
   ctx.fillStyle = "#77839c";
   ctx.font = "10px Georgia"; ctx.letterSpacing = ".5px";
   ctx.fillText(state.trail.length > 0 ? `${state.trail.length} CELLS LOOSE` : "SPACE + MOVE", 42, 371);
+  if (needle && needle.phase !== "dormant") {
+    ctx.fillStyle = needle.phase === "active" ? "#fff1a8" : "#75c9df";
+    ctx.font = "700 9px Georgia"; ctx.letterSpacing = ".8px";
+    ctx.fillText(needle.phase === "active" ? "NEEDLE STRIKES" : `NEEDLE IN ${needle.ticksUntilStrike}`, 42, 400);
+  }
 }
 
 function drawFooter() {
@@ -343,6 +377,7 @@ function drawGame(time: number) {
   drawFrame();
   for (let y = 0; y < HEIGHT; y += 1) for (let x = 0; x < WIDTH; x += 1) drawCell(x, y, time);
   drawTrail();
+  drawFlashNeedle(time);
   drawMoths(time);
   drawPlayer(time);
   drawHud();
@@ -353,7 +388,7 @@ function drawGame(time: number) {
     const nextPanel = LEVELS[state.levelIndex + 1];
     drawOverlay(
       finalPanel ? "SAMPLER MENDED" : "PANEL MENDED",
-      finalPanel ? "All three panels hold against the unravellers." : `The next panel waits: ${nextPanel.name}.`,
+      finalPanel ? `All ${LEVELS.length} panels hold against the unravellers.` : `The next panel waits: ${nextPanel.name}.`,
       finalPanel ? "ENTER TO RETURN TO THE ATELIER" : `ENTER FOR PANEL ${state.levelIndex + 2}`,
     );
   }
@@ -366,13 +401,17 @@ function drawGame(time: number) {
 }
 
 function updateAria() {
+  const needle = flashNeedleFor(state);
+  const needleDescription = needle?.phase === "warning"
+    ? ` Flash needle warns at column ${needle.column + 1}, striking in ${needle.ticksUntilStrike} ticks.`
+    : needle?.phase === "active" ? ` Flash needle active at column ${needle.column + 1}.` : "";
   const description = settingsOpen
     ? `Options. Sound volume ${Math.round(preferences.volume * 100)} percent. Reduced motion ${preferences.reducedMotion ? "on" : "off"}.`
     : state.screen === "title"
     ? progress.highestUnlocked > 0
       ? `DUSKLOOM title. ${progress.completed ? "Sampler complete. " : ""}${titleChoice === "continue" ? `Continue at panel ${progress.highestUnlocked + 1} selected.` : "Start at panel one selected."} Use up and down to choose, then Enter.`
       : "DUSKLOOM title. Press Enter to begin."
-    : `${state.screen}. Panel ${state.levelIndex + 1} of ${LEVELS.length}, ${levelFor(state).name}. ${state.repaired} percent repaired. ${state.spools} spools. ${state.trail.length} exposed thread cells.`;
+    : `${state.screen}. Panel ${state.levelIndex + 1} of ${LEVELS.length}, ${levelFor(state).name}. ${state.repaired} percent repaired. ${state.spools} spools. ${state.trail.length} exposed thread cells.${needleDescription}`;
   canvas.setAttribute("aria-label", description);
   canvas.dataset.screen = settingsOpen ? "settings" : state.screen;
   canvas.dataset.repaired = String(state.repaired);
@@ -380,6 +419,8 @@ function updateAria() {
   canvas.dataset.trail = String(state.trail.length);
   canvas.dataset.level = String(state.levelIndex + 1);
   canvas.dataset.moths = String(state.moths.length);
+  canvas.dataset.hazard = needle?.phase ?? "none";
+  canvas.dataset.hazardColumn = needle ? String(needle.column + 1) : "0";
   canvas.dataset.volume = String(Math.round(preferences.volume * 100));
   canvas.dataset.reducedMotion = String(preferences.reducedMotion);
   canvas.dataset.highestUnlocked = String(progress.highestUnlocked + 1);
@@ -464,13 +505,21 @@ window.addEventListener("blur", () => { pressedSpace = false; });
 function frame(time: number) {
   if (!settingsOpen && state.screen === "playing" && time - lastMothStep >= 360) {
     const previous = state;
+    const previousNeedle = flashNeedleFor(previous);
     state = advanceMoths(state);
+    const needle = flashNeedleFor(state);
     lastMothStep = time;
+    if (needle?.phase === "warning" && previousNeedle?.phase !== "warning") {
+      tone(660, 0.1, "triangle", 0.035);
+      announce(`Flash needle warning. Column ${needle.column + 1}, strike in ${needle.ticksUntilStrike} ticks.`);
+    } else if (needle?.phase === "active" && previousNeedle?.phase !== "active") {
+      tone(1180, 0.14, "sawtooth", 0.045);
+    }
     if (state.lastEvent === "cut" && previous.spools !== state.spools) {
       announce(state.screen === "lost" ? "All spools lost." : `Thread cut. ${state.spools} spools remain.`);
       playEvent(previous, state);
-      updateAria();
     }
+    updateAria();
   }
   if (settingsOpen) drawSettings(time);
   else if (state.screen === "title") drawTitle(time);

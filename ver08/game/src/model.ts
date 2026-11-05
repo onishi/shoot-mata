@@ -8,6 +8,7 @@ export interface LevelDefinition {
   player: Point;
   moths: readonly Moth[];
   clothPatches?: readonly ClothPatch[];
+  flashNeedle?: FlashNeedleDefinition;
 }
 
 export interface ClothPatch {
@@ -15,6 +16,18 @@ export interface ClothPatch {
   y: number;
   width: number;
   height: number;
+}
+
+export interface FlashNeedleDefinition {
+  columns: readonly number[];
+  cycleTicks: number;
+  warningTicks: number;
+}
+
+export interface FlashNeedleState {
+  column: number;
+  phase: "dormant" | "warning" | "active";
+  ticksUntilStrike: number;
 }
 
 export const LEVELS: readonly LevelDefinition[] = [
@@ -42,6 +55,14 @@ export const LEVELS: readonly LevelDefinition[] = [
     player: { x: 0, y: 7 },
     moths: [{ x: 14, y: 3, dx: -1, dy: 1 }],
     clothPatches: [{ x: 8, y: 5, width: 4, height: 4 }],
+  },
+  {
+    id: "flash-needle",
+    name: "FLASH NEEDLE",
+    goal: 66,
+    player: { x: 0, y: 7 },
+    moths: [{ x: 14, y: 3, dx: -1, dy: 1 }],
+    flashNeedle: { columns: [5, 14], cycleTicks: 10, warningTicks: 3 },
   },
 ];
 
@@ -85,6 +106,20 @@ function repairedPercent(cloth: readonly boolean[]): number {
 
 export function levelFor(state: Pick<GameState, "levelIndex">): LevelDefinition {
   return LEVELS[state.levelIndex] ?? LEVELS[0];
+}
+
+export function flashNeedleFor(state: Pick<GameState, "levelIndex" | "tick">): FlashNeedleState | null {
+  const definition = levelFor(state).flashNeedle;
+  if (!definition || definition.columns.length === 0) return null;
+  const phaseTick = state.tick % definition.cycleTicks;
+  const strikeTick = definition.cycleTicks - 1;
+  const warningStart = strikeTick - definition.warningTicks;
+  const columnIndex = Math.floor(state.tick / definition.cycleTicks) % definition.columns.length;
+  return {
+    column: definition.columns[columnIndex],
+    phase: phaseTick === strikeTick ? "active" : phaseTick >= warningStart ? "warning" : "dormant",
+    ticksUntilStrike: (strikeTick - phaseTick + definition.cycleTicks) % definition.cycleTicks,
+  };
 }
 
 export function createGame(levelIndex = 0): GameState {
@@ -179,7 +214,9 @@ export function movePlayer(state: GameState, direction: Direction, stitching: bo
   if (!drawing && onCloth) return { ...state, player: next, anchor: next, lastEvent: "move" };
   if (!onCloth) {
     const extended = { ...state, player: next, trail: [...state.trail, next], lastEvent: "stitch" as const };
-    return state.moths.some((moth) => same(moth, next)) ? cutTrail(extended) : extended;
+    const flashNeedle = flashNeedleFor(state);
+    const struck = flashNeedle?.phase === "active" && flashNeedle.column === next.x;
+    return state.moths.some((moth) => same(moth, next)) || struck ? cutTrail(extended) : extended;
   }
   if (drawing) {
     const claimed = claimEnclosed(state, state.trail);
@@ -228,6 +265,8 @@ export function advanceMoths(state: GameState): GameState {
     return { ...candidate, dx, dy };
   });
   const advanced = { ...state, moths, tick: state.tick + 1 };
+  const flashNeedle = flashNeedleFor(advanced);
+  if (flashNeedle?.phase === "active" && state.trail.some((point) => point.x === flashNeedle.column)) hit = true;
   return hit ? cutTrail(advanced) : advanced;
 }
 

@@ -80,7 +80,7 @@ test("campaign progress offers continue or panel one and recovers from damaged s
   await expect(canvasFor(page)).toHaveAttribute("data-title-choice", "new");
 });
 
-test("title, exposed thread, repair, victory, and pause are visible in Chrome", async ({ page }) => {
+test("title, exposed thread, four-panel campaign, victory, and pause are visible in Chrome", async ({ page }) => {
   const errors: string[] = [];
   page.on("console", (message) => {
     if (message.type() === "error" || message.type() === "warning") errors.push(message.text());
@@ -138,6 +138,15 @@ test("title, exposed thread, repair, victory, and pause are visible in Chrome", 
   await stitch(page, "ArrowLeft", 8);
   await expectScreen(page, "won");
   await page.screenshot({ path: "../docs/evidence/m2-three-panel-complete.png" });
+  await expect(canvasFor(page)).toHaveAttribute("data-campaign-complete", "false");
+  await page.keyboard.press("Enter");
+  await expect(canvasFor(page)).toHaveAttribute("data-level", "4");
+  await expect(canvasFor(page)).toHaveAttribute("data-hazard", "dormant");
+  await stitch(page, "ArrowRight", 19);
+  await press(page, "ArrowUp", 2);
+  await stitch(page, "ArrowLeft", 19);
+  await expectScreen(page, "won");
+  await page.screenshot({ path: "../docs/evidence/m3-four-panel-complete.png" });
   await expect(canvasFor(page)).toHaveAttribute("data-campaign-complete", "true");
   await page.keyboard.press("Enter");
   await expectScreen(page, "title");
@@ -146,8 +155,23 @@ test("title, exposed thread, repair, victory, and pause are visible in Chrome", 
   await page.reload();
   await expect(canvasFor(page)).toHaveAttribute("data-campaign-complete", "true");
   await page.keyboard.press("Enter");
-  await expect(canvasFor(page)).toHaveAttribute("data-level", "3");
+  await expect(canvasFor(page)).toHaveAttribute("data-level", "4");
   expect(errors).toEqual([]);
+});
+
+test("the fourth panel telegraphs its flash needle before burning thread", async ({ page }) => {
+  await page.evaluate(() => localStorage.setItem("duskloom.progress.v1", JSON.stringify({ highestUnlocked: 3, completed: false })));
+  await page.reload();
+  await expect(canvasFor(page)).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(canvasFor(page)).toHaveAttribute("data-level", "4");
+  await expect(canvasFor(page)).toHaveAttribute("data-hazard", "warning", { timeout: 4000 });
+  await expect(canvasFor(page)).toHaveAttribute("data-hazard-column", "6");
+  await stitch(page, "ArrowRight", 5);
+  await page.screenshot({ path: "../docs/evidence/m3-flash-needle-warning.png" });
+  await expect(canvasFor(page)).toHaveAttribute("data-hazard", "active", { timeout: 2000 });
+  await expect(canvasFor(page)).toHaveAttribute("data-spools", "2");
+  await page.screenshot({ path: "../docs/evidence/m3-flash-needle-strike.png" });
 });
 
 test("the unraveller cuts exposed thread and can exhaust every spool", async ({ page }) => {

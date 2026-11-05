@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { LEVELS, advanceMoths, continueAfterWin, createGame, levelFor, movePlayer, restart, start, togglePause, withScenario, WIDTH } from "../src/model";
+import { LEVELS, advanceMoths, continueAfterWin, createGame, flashNeedleFor, levelFor, movePlayer, restart, start, togglePause, withScenario, WIDTH } from "../src/model";
 
 describe("DUSKLOOM model", () => {
   it("starts at the left selvage and can pause", () => {
@@ -132,12 +132,61 @@ describe("DUSKLOOM model", () => {
     expect(state.moths.every((moth) => !state.cloth[moth.y * WIDTH + moth.x])).toBe(true);
   });
 
+  it("warns before the flash needle burns loose thread in its marked column", () => {
+    let state = restart(createGame(3));
+    state = withScenario(state, {
+      tick: 6,
+      trail: [{ x: 4, y: 7 }, { x: 5, y: 7 }, { x: 6, y: 7 }],
+      player: { x: 6, y: 7 },
+      moths: [{ x: 14, y: 3, dx: 1, dy: 1 }],
+    });
+    expect(flashNeedleFor(state)).toEqual({ column: 5, phase: "warning", ticksUntilStrike: 3 });
+    state = advanceMoths(advanceMoths(state));
+    expect(flashNeedleFor(state)?.phase).toBe("warning");
+    const struck = advanceMoths(state);
+    expect(flashNeedleFor(struck)?.phase).toBe("active");
+    expect(struck.lastEvent).toBe("cut");
+    expect(struck.spools).toBe(2);
+    expect(struck.player).toEqual(struck.anchor);
+  });
+
+  it("allows loose thread outside the flash needle column to survive a strike", () => {
+    const state = withScenario(restart(createGame(3)), {
+      tick: 8,
+      trail: [{ x: 1, y: 7 }, { x: 2, y: 7 }],
+      player: { x: 2, y: 7 },
+      moths: [{ x: 14, y: 3, dx: 1, dy: 1 }],
+    });
+    const advanced = advanceMoths(state);
+    expect(flashNeedleFor(advanced)).toMatchObject({ column: 5, phase: "active" });
+    expect(advanced.spools).toBe(3);
+    expect(advanced.trail).toHaveLength(2);
+  });
+
+  it("cuts thread extended into a column while the flash needle is active", () => {
+    const state = withScenario(restart(createGame(3)), {
+      tick: 9,
+      trail: [
+        { x: 1, y: 7 }, { x: 2, y: 7 }, { x: 3, y: 7 }, { x: 4, y: 7 },
+      ],
+      player: { x: 4, y: 7 },
+      moths: [{ x: 14, y: 3, dx: 1, dy: 1 }],
+    });
+    const struck = movePlayer(state, "right", true);
+    expect(struck.lastEvent).toBe("cut");
+    expect(struck.spools).toBe(2);
+    expect(struck.trail).toEqual([]);
+  });
+
   it("restarts the current panel and returns to the title after the sampler", () => {
     const second = restart(createGame(1));
     expect(restart(second).levelIndex).toBe(1);
     const third = continueAfterWin(withScenario(second, { screen: "won" }));
     expect(third.levelIndex).toBe(2);
-    const completed = withScenario(third, { screen: "won" });
+    const fourth = continueAfterWin(withScenario(third, { screen: "won" }));
+    expect(fourth.levelIndex).toBe(3);
+    expect(flashNeedleFor(fourth)).toMatchObject({ column: 5, phase: "dormant" });
+    const completed = withScenario(fourth, { screen: "won" });
     const returned = continueAfterWin(completed);
     expect(returned.levelIndex).toBe(0);
     expect(returned.screen).toBe("title");
