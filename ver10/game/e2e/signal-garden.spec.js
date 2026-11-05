@@ -33,6 +33,7 @@ test("keyboard route opens all flowers, loops, and reaches the receiver", async 
   await canvas.press("Space");
   await expect.poll(async () => (await state(page)).phase, { timeout: 15_000 }).toBe("gardenWon");
   expect((await state(page)).blooms).toEqual({ moon: true, rain: true, bell: true });
+  await expect.poll(async () => page.evaluate(() => JSON.parse(localStorage.getItem("signal-garden:v10:progress")))).toEqual({ version: 1, latestGarden: 1 });
   await page.screenshot({ path: "../docs/evidence/m1-won.png" });
 
   await canvas.press("Enter");
@@ -116,4 +117,23 @@ test("sound and reduced motion settings persist and corrupt saves recover", asyn
   await expect(page.locator("#volume")).toHaveText("SOUND 100%");
   await expect(page.locator("#motion")).toHaveAttribute("aria-pressed", "false");
   await expect.poll(async () => (await state(page))?.settings).toEqual({ version: 1, volume: 1, reducedMotion: false });
+});
+
+test("latest unlocked garden resumes after reload and corrupt progress recovers", async ({ page }) => {
+  await page.goto("/");
+  await page.evaluate(() => localStorage.setItem("signal-garden:v10:progress", JSON.stringify({ version: 1, latestGarden: 2 })));
+  await page.reload();
+  const canvas = page.locator("canvas");
+  await expect(canvas).toHaveAttribute("aria-label", /Garden 3 ready/i);
+  await page.screenshot({ path: "../docs/evidence/m2-progress-resume.png" });
+  await canvas.press("Enter");
+  await expect.poll(async () => (await state(page))?.garden).toBe(2);
+  expect((await state(page)).node).toBe("root");
+  expect((await state(page)).lives).toBe(3);
+
+  await page.evaluate(() => localStorage.setItem("signal-garden:v10:progress", JSON.stringify({ version: 8, latestGarden: 2 })));
+  await page.reload();
+  await expect(canvas).toHaveAttribute("aria-label", /Garden 1 ready/i);
+  await canvas.press("Enter");
+  await expect.poll(async () => (await state(page))?.garden).toBe(0);
 });

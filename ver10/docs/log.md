@@ -37,3 +37,10 @@
 - `preferences.js`へ版固有localStorageの読み書きと厳格なschema検証を分離した。不正JSON、対応外version、範囲外値、storage拒否は既定値へ復旧する。
 - 初回E2Eでは再読み込み直後のテスト用snapshotを描画前に読む競合を検出した。描画完了をpollするようテストを修正し、全検証を再実行した。
 - 単体19/19、構文検査、production build、Chrome E2E 4/4に合格した。設定保持と破損復旧をChromeで確認し、`m2-settings-reduced-motion.png`を目視して欠け、重なり、状態判別の問題がないことを確認した。
+
+## 2026-11-05 — M2 進行保存
+
+- 庭園完了時に到達済みの最新庭園だけを`signal-garden:v10:progress`へ保存し、再読み込み後のタイトルからその庭園の先頭へ再開するようにした。途中の拍、経路、開花、ライフは意図的に保存対象外とした。
+- `progress.js`へversion付きschema、単調な庭園解放、localStorage入出力を分離した。不正JSON、将来version、範囲外・非整数値、storage拒否は第1庭園へ復旧する。
+- 初回E2Eでは再読み込み直後のテスト用snapshotが未生成の1フレームを読み、保存再開テストだけが失敗した。snapshot生成をpollして競合を除き、再実行で合格した。
+- 単体24/24、構文検査、production build、Chrome E2E 5/5に合格した。`m2-progress-resume.png`を1280×720で目視し、最新庭園名と再開先が明瞭で欠けや重なりがないことを確認した。M2を完了した。

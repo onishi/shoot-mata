@@ -22,6 +22,18 @@ test("new game starts on the title with safe deterministic defaults", () => {
   assert.equal(state.lives, 3);
 });
 
+test("a saved garden starts from its beginning while invalid progress falls back safely", () => {
+  const resumed = createGame(2);
+  assert.equal(resumed.phase, "title");
+  assert.equal(resumed.garden, 2);
+  startGame(resumed);
+  assert.equal(resumed.garden, 2);
+  assert.equal(resumed.node, "root");
+  assert.equal(resumed.lives, 3);
+  assert.deepEqual(resumed.blooms, { moon: false, rain: false, bell: false });
+  assert.equal(createGame(99).garden, 0);
+});
+
 test("selection wraps and space only toggles while playing", () => {
   const state = createGame();
   assert.equal(toggleSelectedSwitch(state), false);

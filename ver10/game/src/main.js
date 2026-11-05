@@ -15,14 +15,16 @@ import {
   toggleSelectedSwitch,
 } from "./model.js";
 import { loadSettings, nextVolume, saveSettings } from "./preferences.js";
+import { loadProgress, saveProgress, unlockGarden } from "./progress.js";
 
 const canvas = document.querySelector("#game");
 const ctx = canvas.getContext("2d");
 const live = document.querySelector("#live");
 const volumeButton = document.querySelector("#volume");
 const motionButton = document.querySelector("#motion");
-let state = createGame();
 let settings = loadSettings(localStorage);
+let progress = loadProgress(localStorage);
+let state = createGame(progress.latestGarden);
 let lastTime = performance.now();
 let accumulator = 0;
 let audioContext = null;
@@ -123,7 +125,7 @@ function changeMotion() {
 
 function updateAccessibleName() {
   if (state.phase === "title") {
-    canvas.setAttribute("aria-label", "SIGNAL GARDEN title. Press Enter to begin.");
+    canvas.setAttribute("aria-label", `SIGNAL GARDEN title. Garden ${state.garden + 1} ready. Press Enter to begin.`);
     return;
   }
   const flowers = Object.values(state.blooms).filter(Boolean).length;
@@ -373,7 +375,8 @@ function render(time) {
   if (state.phase === "title") {
     ctx.strokeStyle = "#547863"; ctx.lineWidth = 8; ctx.beginPath(); ctx.moveTo(180, 410); ctx.bezierCurveTo(400, 280, 770, 520, 1100, 310); ctx.stroke();
     flower(350, 342, COLORS.moon, true); flower(650, 416, COLORS.rain, true); flower(920, 390, COLORS.bell, true, 5);
-    panel("SIGNAL GARDEN", "STAY AHEAD OF THE LIGHT", ["A seed flows one branch every beat.", "Select a branch with ← →, switch its destination with SPACE.", "Open all three flowers, then send the seed to the receiver."], "PRESS ENTER TO CULTIVATE");
+    const resume = state.garden > 0 ? `Latest garden: ${GARDENS[state.garden].name}.` : "Open all three flowers, then send the seed to the receiver.";
+    panel("SIGNAL GARDEN", "STAY AHEAD OF THE LIGHT", ["A seed flows one branch every beat.", "Select a branch with ← →, switch its destination with SPACE.", resume], state.garden > 0 ? `PRESS ENTER TO RESUME GARDEN ${state.garden + 1}` : "PRESS ENTER TO CULTIVATE");
   } else {
     drawEdges(visualTime);
     for (const id of Object.keys(nodes())) drawNode(id, visualTime);
@@ -385,7 +388,7 @@ function render(time) {
     if (state.phase === "won") panel("FULL CHORUS", "THREE FLOWERS / ONE SIGNAL", ["The seed reached the receiver with every color.", `Route completed in ${state.steps} beats.`], "PRESS ENTER TO GROW AGAIN");
     if (state.phase === "lost") panel("ROOTS QUIET", "THE SIGNAL SPENT ITS LAST LIFE", ["Blight and an unripe receiver both break the route.", "Switch branches before the seed arrives."], "PRESS ENTER OR R TO TRY AGAIN");
   }
-  window.__SIGNAL_GARDEN__ = { ...snapshot(state), settings: { ...settings } };
+  window.__SIGNAL_GARDEN__ = { ...snapshot(state), settings: { ...settings }, progress: { ...progress } };
   requestAnimationFrame(loop);
 }
 
@@ -402,7 +405,10 @@ function loop(time) {
       sound(result);
       if (result.type === "bloom") announce(`${result.bloom} flower opened.`);
       if (result.type === "strike") announce(`Route failed: ${result.reason}. ${state.lives} lives remain.`);
-      if (result.type === "gardenWon") announce("First garden complete. Press Enter for the sleeping crown garden.");
+      if (result.type === "gardenWon") {
+        progress = saveProgress(localStorage, unlockGarden(progress, state.garden + 1));
+        announce(`Garden ${state.garden + 1} complete. Garden ${state.garden + 2} unlocked.`);
+      }
       if (result.type === "won") announce("All three flowers open. Signal received. You won.");
       if (state.node === "root") { pulseFrom = "root"; pulseTo = "fork"; accumulator = 0; }
       else { pulseFrom = state.node; pulseTo = getNextNode(state) ?? state.node; }

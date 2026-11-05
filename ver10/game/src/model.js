@@ -56,12 +56,17 @@ function gardenState(garden, phase = "playing") {
   };
 }
 
-export function createGame() {
-  return gardenState(0, "title");
+export function createGame(garden = 0) {
+  const safeGarden = Number.isInteger(garden) && garden >= 0 && garden < GARDENS.length ? garden : 0;
+  return gardenState(safeGarden, "title");
 }
 
 export function startGame(state) {
-  if (state.phase === "title" || state.phase === "won") {
+  if (state.phase === "title") {
+    Object.assign(state, gardenState(state.garden));
+    return true;
+  }
+  if (state.phase === "won") {
     Object.assign(state, gardenState(0));
     return true;
   }
