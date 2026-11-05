@@ -1,0 +1,26 @@
+{
+  "product": "DUSKLOOM",
+  "version": "8.0",
+  "files": {
+    "assets/index-CeV5xYUh.js": {
+      "bytes": 21612,
+      "sha256": "0f46d71aaa8aac43188a71ecc1210d7e8983ae93a74e6ab0971493b38e093db6"
+    },
+    "assets/index-HeB7D627.css": {
+      "bytes": 789,
+      "sha256": "4fd726b5a736ad6d1b229cd2231b6507f6e9ee80502ccedfa31413be2937964f"
+    },
+    "favicon.svg": {
+      "bytes": 448,
+      "sha256": "7abb69ccd826c07641025b337265a26fb9e4bef1e50b42821883a7b14b7fb84a"
+    },
+    "index.html": {
+      "bytes": 709,
+      "sha256": "0ce6aac69dac473f9cfe7907caf185611e0a8296957fad84c9c5798bf1aaa44c"
+    },
+    "README.txt": {
+      "bytes": 267,
+      "sha256": "085996d228140394394c73f3934350a916f167ffc88775973de82555a70874d7"
+    }
+  }
+}

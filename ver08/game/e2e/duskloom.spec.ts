@@ -16,6 +16,15 @@ async function stitch(page: Page, key: string, count: number): Promise<void> {
   await page.keyboard.up("Space");
 }
 
+async function expectContained(page: Page, selector: string, viewport: { width: number; height: number }): Promise<void> {
+  const bounds = await page.locator(selector).boundingBox();
+  expect(bounds).not.toBeNull();
+  expect(bounds!.x).toBeGreaterThanOrEqual(0);
+  expect(bounds!.y).toBeGreaterThanOrEqual(0);
+  expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(viewport.width);
+  expect(bounds!.y + bounds!.height).toBeLessThanOrEqual(viewport.height);
+}
+
 test.beforeEach(async ({ page }) => {
   await page.goto("/");
   await expect(canvasFor(page)).toBeFocused();
@@ -261,4 +270,51 @@ test("the unraveller cuts exposed thread and can exhaust every spool", async ({ 
   await expectScreen(page, "playing");
   await expect(canvasFor(page)).toHaveAttribute("data-spools", "3");
   expect(errors).toEqual([]);
+});
+
+test("required viewports, keyboard states, accessible names, and frame pacing pass", async ({ page }) => {
+  for (const viewport of [
+    { width: 1280, height: 720, name: "1280x720" },
+    { width: 640, height: 800, name: "640x800" },
+  ]) {
+    await page.setViewportSize(viewport);
+    await page.reload();
+    await expect(canvasFor(page)).toBeFocused();
+    await expectContained(page, "#game", viewport);
+    const canvasBounds = await canvasFor(page).boundingBox();
+    expect(canvasBounds!.width / canvasBounds!.height).toBeCloseTo(16 / 9, 2);
+    await expect(canvasFor(page)).toHaveAttribute("aria-label", /DUSKLOOM title/);
+    await page.screenshot({ path: `../docs/evidence/m4-title-${viewport.name}.png` });
+
+    await page.keyboard.press("KeyO");
+    await expectScreen(page, "settings");
+    await expect(canvasFor(page)).toBeFocused();
+    await expect(canvasFor(page)).toHaveAttribute("aria-label", /Options\. Sound volume 75 percent/);
+    await expectContained(page, "#game", viewport);
+    await page.screenshot({ path: `../docs/evidence/m4-options-${viewport.name}.png` });
+    await page.keyboard.press("Escape");
+    await page.keyboard.press("Enter");
+    await expect(canvasFor(page)).toHaveAttribute("aria-label", /playing\. Panel 1 of 6, FIRST LIGHT/);
+    await page.keyboard.press("Escape");
+    await expectScreen(page, "paused");
+    await expect(canvasFor(page)).toHaveAttribute("aria-label", /paused\. Panel 1 of 6/);
+    await page.screenshot({ path: `../docs/evidence/m4-paused-${viewport.name}.png` });
+  }
+
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await page.reload();
+  const frameIntervals = await page.evaluate(() => new Promise<number[]>((resolve) => {
+    const intervals: number[] = [];
+    let previous = performance.now();
+    const sample = (now: number) => {
+      intervals.push(now - previous);
+      previous = now;
+      if (intervals.length === 120) resolve(intervals.slice(5));
+      else requestAnimationFrame(sample);
+    };
+    requestAnimationFrame(sample);
+  }));
+  const ordered = [...frameIntervals].sort((left, right) => left - right);
+  const p95 = ordered[Math.floor(ordered.length * 0.95)];
+  expect(p95).toBeLessThan(35);
 });
