@@ -5,6 +5,7 @@
 - buildless ES modules + Viteによる配布build
 - `src/model.js`: データ駆動の室、純粋な規則状態、入力、固定tick、照明、衝突、勝敗
 - `src/main.js`: Canvas描画、キー入力、固定step、Web Audio、ARIA
+- `src/preferences.js`: 設定と到達室の検証、localStorage読み書き、安全な復旧
 - `tests/model.test.js`: Node標準テストによる規則回帰
 - `e2e/candlewick.spec.js`: Google Chromeへの実キー入力と主要画面検証
 
@@ -15,6 +16,10 @@
 ## 状態
 
 `title | playing | paused | won | lost`を持つ。プレイ状態は室index、プレイヤー座標、番人座標と巡回方向、灯油、強灯要求、回収済み星種、燐ごとの残光tick、残火、tickから成る。室データは壁、開始位置、番人、星種、出口、鏡、燐を持つ。
+
+## 永続化
+
+version付きJSONへ最大到達室、音量、画面揺れ、明滅軽減を保存する。形状、型、列挙値、室範囲を全件検証し、一つでも不正なら安全な初期値へ戻す。storageの読み書き例外はゲーム進行を止めない。
 
 ## 照明
 

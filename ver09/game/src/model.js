@@ -118,7 +118,7 @@ export function retryGame(state = createGame()) {
 export function advanceRoom(state) {
   if (state.phase !== 'won') return state;
   const nextIndex = state.levelIndex + 1;
-  return nextIndex < LEVELS.length ? roomState(nextIndex, 'playing') : createGame();
+  return nextIndex < LEVELS.length ? roomState(nextIndex, 'playing') : createGame(state.levelIndex);
 }
 
 export function isBright(state) {

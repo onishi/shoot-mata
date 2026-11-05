@@ -23,6 +23,7 @@ import {
   tickGame,
   togglePause
 } from './model.js';
+import { loadPreferences, savePreferences } from './preferences.js';
 
 const canvas = document.querySelector('#game');
 const ctx = canvas.getContext('2d');
@@ -46,8 +47,16 @@ const COLORS = {
 let game = createGame();
 let audioContext = null;
 let lastAnnounced = '';
+let preferences = loadPreferences(window.localStorage, LEVELS.length);
+let selectedLevel = preferences.maxUnlockedLevel;
+let settingsOpen = false;
+let settingsIndex = 0;
+let shakeUntil = 0;
+
+game = createGame(selectedLevel);
 
 function tone(frequency, duration = 0.08, type = 'sine', gain = 0.035, delay = 0) {
+  if (preferences.volume === 0) return;
   try {
     audioContext ??= new AudioContext();
     const oscillator = audioContext.createOscillator();
@@ -55,7 +64,7 @@ function tone(frequency, duration = 0.08, type = 'sine', gain = 0.035, delay = 0
     oscillator.type = type;
     oscillator.frequency.value = frequency;
     volume.gain.setValueAtTime(0, audioContext.currentTime + delay);
-    volume.gain.linearRampToValueAtTime(gain, audioContext.currentTime + delay + 0.01);
+    volume.gain.linearRampToValueAtTime(gain * preferences.volume, audioContext.currentTime + delay + 0.01);
     volume.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + delay + duration);
     oscillator.connect(volume).connect(audioContext.destination);
     oscillator.start(audioContext.currentTime + delay);
@@ -87,6 +96,7 @@ function react(previous, next) {
     tone(784, 0.18, 'triangle', 0.035, 0.16);
   }
   if (next.event === 'hit') tone(96, 0.3, 'sawtooth', 0.045);
+  if (next.event === 'hit' && preferences.screenShake) shakeUntil = performance.now() + 220;
   if (next.event === 'won') {
     tone(392, 0.3, 'triangle');
     tone(587, 0.5, 'triangle', 0.04, 0.12);
@@ -96,13 +106,23 @@ function react(previous, next) {
 function commit(next) {
   const previous = game;
   game = next;
+  if (previous.phase !== 'won' && game.phase === 'won' && game.levelIndex + 1 < LEVELS.length) {
+    persistPreferences({ maxUnlockedLevel: Math.max(preferences.maxUnlockedLevel, game.levelIndex + 1) });
+  }
   react(previous, game);
   syncAccessibility();
 }
 
+function persistPreferences(patch = {}) {
+  preferences = { ...preferences, ...patch };
+  savePreferences(window.localStorage, preferences);
+}
+
 function syncAccessibility() {
   const phaseText = {
-    title: 'CANDLEWICK title. Press Enter to begin.',
+    title: settingsOpen
+      ? `CANDLEWICK settings. ${['Volume', 'Screen shake', 'Reduce flashes'][settingsIndex]} selected. Use arrows to change, Escape to close.`
+      : `CANDLEWICK title. Room ${selectedLevel + 1} of ${preferences.maxUnlockedLevel + 1} selected. Press Enter to begin or S for settings.`,
     paused: 'CANDLEWICK paused. Press Escape to resume.',
     won: game.levelIndex + 1 < LEVELS.length
       ? `Room restored. Press Enter to enter room ${game.levelIndex + 2}, or R to retry.`
@@ -123,6 +143,12 @@ function syncAccessibility() {
   canvas.dataset.mirror = activeMirrorBeams(game).length > 0 ? 'active' : 'idle';
   canvas.dataset.phosphor = String(activePhosphors(game).length);
   canvas.dataset.afterglow = String(Math.max(0, ...activePhosphors(game).map((tile) => tile.charge)));
+  canvas.dataset.settings = settingsOpen ? 'open' : 'closed';
+  canvas.dataset.selectedLevel = String(selectedLevel + 1);
+  canvas.dataset.unlockedLevel = String(preferences.maxUnlockedLevel + 1);
+  canvas.dataset.volume = String(preferences.volume);
+  canvas.dataset.shake = preferences.screenShake ? 'on' : 'off';
+  canvas.dataset.flashes = preferences.reduceFlashes ? 'reduced' : 'full';
 }
 
 function pathRoundedRect(x, y, width, height, radius) {
@@ -178,8 +204,39 @@ function drawTitle(now) {
   ctx.restore();
   text('C A N D L E W I C K', 640, 384, 42, COLORS.paper, 'center', 700);
   text('THE BRIGHTER YOU BURN, THE CLOSER IT COMES', 640, 434, 15, COLORS.smoke, 'center', 600);
-  text('PRESS ENTER', 640, 522, 20, COLORS.wax, 'center', 700);
+  text(`ROOM ${selectedLevel + 1}  ·  ${LEVELS[selectedLevel].name}`, 640, 500, 15, COLORS.mint, 'center', 700);
+  text('← → SELECT     ENTER BEGIN     S SETTINGS', 640, 542, 16, COLORS.wax, 'center', 700);
   text('ARROWS / WASD  MOVE     HOLD SPACE  REVEAL     ESC  PAUSE', 640, 654, 13, '#81778f', 'center');
+}
+
+function drawSettings() {
+  ctx.fillStyle = 'rgba(5,6,11,0.88)';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  pathRoundedRect(390, 150, 500, 420, 22);
+  ctx.fillStyle = '#151321';
+  ctx.fill();
+  ctx.strokeStyle = COLORS.wax;
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  text('LANTERN SETTINGS', 640, 205, 28, COLORS.wax, 'center', 800);
+  const rows = [
+    ['VOLUME', `${Math.round(preferences.volume * 100)}%`],
+    ['SCREEN SHAKE', preferences.screenShake ? 'ON' : 'OFF'],
+    ['REDUCE FLASHES', preferences.reduceFlashes ? 'ON' : 'OFF']
+  ];
+  rows.forEach(([label, value], index) => {
+    const y = 285 + index * 72;
+    if (index === settingsIndex) {
+      pathRoundedRect(440, y - 27, 400, 54, 12);
+      ctx.fillStyle = 'rgba(139,224,191,0.11)';
+      ctx.fill();
+      ctx.strokeStyle = COLORS.mint;
+      ctx.stroke();
+    }
+    text(label, 470, y, 15, index === settingsIndex ? COLORS.mint : COLORS.paper, 'left', 700);
+    text(`‹  ${value}  ›`, 810, y, 15, COLORS.wax, 'right', 700);
+  });
+  text('↑ ↓ SELECT     ← → CHANGE     ESC CLOSE', 640, 520, 13, COLORS.smoke, 'center', 700);
 }
 
 function cellCenter(point) {
@@ -500,17 +557,24 @@ function drawOverlay(title, subtitle, accent = COLORS.wax) {
 }
 
 function render(now) {
-  drawBackground(now);
+  const visualNow = preferences.reduceFlashes ? 0 : now;
+  ctx.save();
+  if (preferences.screenShake && now < shakeUntil) {
+    const strength = (shakeUntil - now) / 220;
+    ctx.translate(Math.sin(now * 0.19) * 7 * strength, Math.cos(now * 0.23) * 5 * strength);
+  }
+  drawBackground(visualNow);
   if (game.phase === 'title') {
-    drawTitle(now);
+    drawTitle(visualNow);
+    if (settingsOpen) drawSettings();
   } else {
-    drawFloor(now);
-    drawMirrors(now);
-    drawPhosphors(now);
-    game.seeds.forEach((seed) => drawSeed(seed, now));
-    drawExit(now);
-    drawWarden(now);
-    drawPlayer(now);
+    drawFloor(visualNow);
+    drawMirrors(visualNow);
+    drawPhosphors(visualNow);
+    game.seeds.forEach((seed) => drawSeed(seed, visualNow));
+    drawExit(visualNow);
+    drawWarden(visualNow);
+    drawPlayer(visualNow);
     drawHud();
     if (game.phase === 'paused') drawOverlay('FLAME HELD', 'The room waits in the dark.', COLORS.wax);
     if (game.phase === 'won') {
@@ -523,6 +587,7 @@ function render(now) {
     }
     if (game.phase === 'lost') drawOverlay('LAST EMBER OUT', 'The ash keeps this room—for now.', COLORS.ember);
   }
+  ctx.restore();
   requestAnimationFrame(render);
 }
 
@@ -534,12 +599,58 @@ const directions = new Map([
 ]);
 
 window.addEventListener('keydown', (event) => {
-  if (directions.has(event.code) || ['Space', 'Enter', 'Escape', 'KeyR'].includes(event.code)) event.preventDefault();
+  if (directions.has(event.code) || ['Space', 'Enter', 'Escape', 'KeyR', 'KeyS'].includes(event.code)) event.preventDefault();
   if (event.repeat && event.code !== 'Space') return;
 
+  if (settingsOpen) {
+    if (event.code === 'Escape' || event.code === 'KeyS') {
+      settingsOpen = false;
+      syncAccessibility();
+      return;
+    }
+    if (event.code === 'ArrowUp' || event.code === 'KeyW') settingsIndex = (settingsIndex + 2) % 3;
+    if (event.code === 'ArrowDown') settingsIndex = (settingsIndex + 1) % 3;
+    if (['ArrowLeft', 'KeyA', 'ArrowRight', 'KeyD'].includes(event.code)) {
+      if (settingsIndex === 0) {
+        const volumes = [0, 0.5, 1];
+        const offset = event.code === 'ArrowLeft' || event.code === 'KeyA' ? 2 : 1;
+        persistPreferences({ volume: volumes[(volumes.indexOf(preferences.volume) + offset) % volumes.length] });
+      }
+      if (settingsIndex === 1) persistPreferences({ screenShake: !preferences.screenShake });
+      if (settingsIndex === 2) persistPreferences({ reduceFlashes: !preferences.reduceFlashes });
+    }
+    syncAccessibility();
+    return;
+  }
+
+  if (game.phase === 'title' && event.code === 'KeyS') {
+    settingsOpen = true;
+    settingsIndex = 0;
+    syncAccessibility();
+    canvas.focus();
+    return;
+  }
+
+  if (game.phase === 'title' && ['ArrowLeft', 'KeyA', 'ArrowRight', 'KeyD'].includes(event.code)) {
+    const direction = event.code === 'ArrowLeft' || event.code === 'KeyA' ? -1 : 1;
+    selectedLevel = Math.max(0, Math.min(preferences.maxUnlockedLevel, selectedLevel + direction));
+    game = createGame(selectedLevel);
+    syncAccessibility();
+    return;
+  }
+
   if (event.code === 'Enter') {
-    if (game.phase === 'title') commit(startGame(game));
-    else if (game.phase === 'won') commit(advanceRoom(game));
+    if (game.phase === 'title') commit(startGame(game, selectedLevel));
+    else if (game.phase === 'won') {
+      const completedLevel = game.levelIndex;
+      const next = advanceRoom(game);
+      if (completedLevel + 1 < LEVELS.length) {
+        selectedLevel = completedLevel + 1;
+      } else {
+        selectedLevel = completedLevel;
+      }
+      commit(next);
+    }
     canvas.focus();
     return;
   }

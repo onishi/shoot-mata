@@ -43,6 +43,34 @@ test('title, reveal, gather, dim, and pause are keyboard complete', async ({ pag
   expect(problems).toEqual([]);
 });
 
+test('settings and unlocked room survive reload while corrupt saves recover', async ({ page }) => {
+  const problems = watchConsole(page);
+  await page.goto('/');
+  const canvas = page.locator('#game');
+
+  await page.keyboard.press('KeyS');
+  await expect(canvas).toHaveAttribute('data-settings', 'open');
+  await page.keyboard.press('ArrowRight');
+  await page.keyboard.press('ArrowDown');
+  await page.keyboard.press('ArrowRight');
+  await page.keyboard.press('ArrowDown');
+  await page.keyboard.press('ArrowRight');
+  await expect(canvas).toHaveAttribute('data-volume', '1');
+  await expect(canvas).toHaveAttribute('data-shake', 'off');
+  await expect(canvas).toHaveAttribute('data-flashes', 'reduced');
+  await page.screenshot({ path: '../docs/evidence/m2-settings.png' });
+  await page.reload();
+  await expect(canvas).toHaveAttribute('data-volume', '1');
+  await expect(canvas).toHaveAttribute('data-shake', 'off');
+  await expect(canvas).toHaveAttribute('data-flashes', 'reduced');
+
+  await page.evaluate(() => localStorage.setItem('candlewick-v9-save', '{broken'));
+  await page.reload();
+  await expect(canvas).toHaveAttribute('data-volume', '0.5');
+  await expect(canvas).toHaveAttribute('data-unlocked-level', '1');
+  expect(problems).toEqual([]);
+});
+
 test('all three seeds open the gate and finish the room', async ({ page }) => {
   const problems = watchConsole(page);
   await page.goto('/');
@@ -75,6 +103,12 @@ test('all three rooms are completable and their light rules are visible', async 
   await page.keyboard.press('Enter');
   await expect(canvas).toHaveAttribute('data-level', '2');
   await expect(canvas).toHaveAttribute('data-phase', 'playing');
+  await page.reload();
+  await expect(canvas).toHaveAttribute('data-phase', 'title');
+  await expect(canvas).toHaveAttribute('data-selected-level', '2');
+  await expect(canvas).toHaveAttribute('data-unlocked-level', '2');
+  await page.keyboard.press('Enter');
+  await expect(canvas).toHaveAttribute('data-level', '2');
   await expect(canvas).toHaveAttribute('data-mirror', 'idle');
   await page.keyboard.down('Space');
   await expect(canvas).toHaveAttribute('data-mirror', 'active');
@@ -104,7 +138,10 @@ test('all three rooms are completable and their light rules are visible', async 
 
   await page.keyboard.press('Enter');
   await expect(canvas).toHaveAttribute('data-phase', 'title');
-  await expect(canvas).toHaveAttribute('data-level', '1');
+  await expect(canvas).toHaveAttribute('data-level', '3');
+  await expect(canvas).toHaveAttribute('data-unlocked-level', '3');
+  await page.keyboard.press('ArrowLeft');
+  await expect(canvas).toHaveAttribute('data-selected-level', '2');
   expect(problems).toEqual([]);
 });
 

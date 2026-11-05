@@ -24,6 +24,7 @@ import {
   tickGame,
   togglePause
 } from '../src/model.js';
+import { DEFAULT_PREFERENCES, SAVE_KEY, loadPreferences, savePreferences } from '../src/preferences.js';
 
 test('starts, pauses, resumes, and retries the room', () => {
   let game = startGame(createGame());
@@ -165,5 +166,27 @@ test('finishing the available third room returns to the title', () => {
   let game = forceState(startGame(createGame(), 2), { phase: 'won' });
   game = advanceRoom(game);
   assert.equal(game.phase, 'title');
-  assert.equal(game.levelIndex, 0);
+  assert.equal(game.levelIndex, 2);
+});
+
+test('preferences round-trip progress and accessibility settings', () => {
+  const values = new Map();
+  const storage = {
+    getItem: (key) => values.get(key) ?? null,
+    setItem: (key, value) => values.set(key, value)
+  };
+  const preferences = { maxUnlockedLevel: 2, volume: 1, screenShake: false, reduceFlashes: true };
+  assert.equal(savePreferences(storage, preferences), true);
+  assert.deepEqual(loadPreferences(storage, LEVELS.length), preferences);
+  assert.match(values.get(SAVE_KEY), /\"version\":1/);
+});
+
+test('missing, malformed, out-of-range, and blocked saves use safe defaults', () => {
+  const from = (value) => loadPreferences({ getItem: () => value }, LEVELS.length);
+  assert.deepEqual(from(null), DEFAULT_PREFERENCES);
+  assert.deepEqual(from('{bad json'), DEFAULT_PREFERENCES);
+  assert.deepEqual(from('[]'), DEFAULT_PREFERENCES);
+  assert.deepEqual(from(JSON.stringify({ version: 1, maxUnlockedLevel: 99, volume: 2, screenShake: 'yes', reduceFlashes: false })), DEFAULT_PREFERENCES);
+  assert.deepEqual(loadPreferences({ getItem: () => { throw new Error('blocked'); } }, LEVELS.length), DEFAULT_PREFERENCES);
+  assert.equal(savePreferences({ setItem: () => { throw new Error('blocked'); } }, DEFAULT_PREFERENCES), false);
 });
