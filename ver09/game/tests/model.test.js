@@ -216,11 +216,36 @@ test('borrowed glow trades fuel recovery and afterglow for dusk pursuit', () => 
   assert.equal(game.fuel, MAX_FUEL);
 });
 
-test('finishing the available fifth room returns to the title', () => {
+test('winning borrowed glow advances to the reflected dawn finale', () => {
   let game = forceState(startGame(createGame(), 4), { phase: 'won' });
   game = advanceRoom(game);
+  assert.equal(game.phase, 'playing');
+  assert.equal(game.levelIndex, 5);
+  assert.equal(LEVELS[5].name, 'REFRACTED DAWN');
+  assert.equal(game.wardens.length, 2);
+  assert.equal(LEVELS[5].mirrors.length, 1);
+});
+
+test('the finale prism reveals the upper route while twin wardens trade pursuit', () => {
+  let game = startGame(createGame(), 5);
+  const reflectedSeed = LEVELS[5].seeds[0];
+  assert.equal(isPointLit(game, reflectedSeed), false);
+  assert.equal(wardenIsHunting(game, game.wardens[0]), false);
+  assert.equal(wardenIsHunting(game, game.wardens[1]), true);
+
+  game = setBright(game, true);
+  assert.equal(activeMirrorBeams(game).length, 1);
+  assert.deepEqual(activeMirrorBeams(game)[0].cells.at(-1), { x: 4, y: 1 });
+  assert.equal(isPointLit(game, reflectedSeed), true);
+  assert.equal(wardenIsHunting(game, game.wardens[0]), true);
+  assert.equal(wardenIsHunting(game, game.wardens[1]), false);
+});
+
+test('finishing the sixth room returns to the title', () => {
+  let game = forceState(startGame(createGame(), 5), { phase: 'won' });
+  game = advanceRoom(game);
   assert.equal(game.phase, 'title');
-  assert.equal(game.levelIndex, 4);
+  assert.equal(game.levelIndex, 5);
 });
 
 test('preferences round-trip progress and accessibility settings', () => {

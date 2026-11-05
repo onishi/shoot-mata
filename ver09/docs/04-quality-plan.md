@@ -63,3 +63,10 @@
 - Chrome E2E 5/5で5室を状態注入なしに通し、第5室では強灯で燐を蓄光している間は宵番人が巡回し、消灯後は残光を維持したまま灯油が24へ回復し、宵番人が実際に追跡移動することを確認した。
 - `m3-borrowed-glow-bright.png`、`m3-borrowed-glow-dim.png`、`m3-five-rooms-kindled.png`を1280×720で目視し、強灯／通常灯、LISTENING／HUNTING、燐の残光、HUD、完了overlayを判読できた。文字欠けや重なりはない。
 - console error / warningは0件だった。開発サーバーの`NO_COLOR`警告はページconsoleへ入らず、ゲーム動作へ影響しない。
+
+## M3 第6室・終演結果
+
+- 単体22/22で第6室への進行、鏡の反射終点と遠方星種の点灯、通常灯／強灯による二体の追跡交代、最終室後のタイトル復帰を固定した。
+- Chrome E2E 5/5で保存注入なしに全6室を通し、第6室では鏡の点灯、二体の追跡交代、灯りを2回切り替える攻略、全星種回収、終演、全6室の保存を確認した。
+- `m3-refracted-dawn-dim.png`、`m3-refracted-dawn-prism.png`、`m3-six-rooms-kindled.png`を1280×720で目視した。初回確認で右HUDのPRISMとTWIN VIGILが重なる欠陥を発見し、情報行を縦積みに修正した。再撮影後は鏡、反射線、二体の方向、追跡役、HUD、終演文を判読でき、文字欠けや重なりはない。
+- console error / warningは0件だった。M3の全6室と終演が揃ったため、次はM4の通し、性能、アクセシビリティ、配布監査へ進む。

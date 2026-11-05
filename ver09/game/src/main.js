@@ -127,7 +127,7 @@ function syncAccessibility() {
     paused: 'CANDLEWICK paused. Press Escape to resume.',
     won: game.levelIndex + 1 < LEVELS.length
       ? `Room restored. Press Enter to enter room ${game.levelIndex + 2}, or R to retry.`
-      : 'All available rooms restored. Press Enter to return to the title or R to retry.',
+      : `All ${LEVELS.length} rooms kindled. Press Enter to return to the title or R to retry.`,
     lost: 'All embers lost. Press R to retry.',
     playing: `${isBright(game) ? 'Bright lamp' : 'Dim lamp'}, ${game.wardens.filter((entry) => wardenIsHunting(game, entry)).map((entry) => entry.huntsWhen === 'dim' ? 'dusk warden' : 'flame warden').join(' and ')} pursuing. ${collectedCount(game)} of 3 star-seeds, ${game.lives} embers, oil ${game.fuel} of ${MAX_FUEL}.`
   };
@@ -552,18 +552,21 @@ function drawHud() {
   text('TO REVEAL', 1092, 412, 13, COLORS.paper, 'left', 700);
   text('RELEASE', 1092, 452, 13, COLORS.smoke, 'left', 700);
   text('TO HIDE', 1092, 474, 13, COLORS.paper, 'left', 700);
+  let detailY = 510;
   if (level.mirrors.length > 0) {
-    text('PRISM', 1092, 520, 12, COLORS.mint, 'left', 700);
-    text(activeMirrorBeams(game).length > 0 ? 'BEAM TURNED' : 'LIGHT THE GLASS', 1092, 542, 12, COLORS.paper, 'left', 700);
+    text('PRISM', 1092, detailY, 12, COLORS.mint, 'left', 700);
+    text(activeMirrorBeams(game).length > 0 ? 'BEAM TURNED' : 'LIGHT THE GLASS', 1092, detailY + 22, 12, COLORS.paper, 'left', 700);
+    detailY += 52;
   }
   if (level.phosphors.length > 0) {
     const glow = Math.max(0, ...activePhosphors(game).map((tile) => tile.charge));
-    text('PHOSPHOR', 1092, 520, 12, COLORS.mint, 'left', 700);
-    text(glow > 0 ? `AFTERGLOW ${Math.ceil(glow / 8)}` : 'PAINT WITH LIGHT', 1092, 542, 12, COLORS.paper, 'left', 700);
+    text('PHOSPHOR', 1092, detailY, 12, COLORS.mint, 'left', 700);
+    text(glow > 0 ? `AFTERGLOW ${Math.ceil(glow / 8)}` : 'PAINT WITH LIGHT', 1092, detailY + 22, 12, COLORS.paper, 'left', 700);
+    detailY += 52;
   }
   if (game.wardens.length > 1) {
-    text('TWIN VIGIL', 1092, 520, 12, '#78d9e4', 'left', 700);
-    text(isBright(game) ? 'FLAME WAKES' : 'DUSK WAKES', 1092, 542, 12, COLORS.paper, 'left', 700);
+    text('TWIN VIGIL', 1092, detailY, 12, '#78d9e4', 'left', 700);
+    text(isBright(game) ? 'FLAME WAKES' : 'DUSK WAKES', 1092, detailY + 22, 12, COLORS.paper, 'left', 700);
   }
   text('ESC PAUSE  ·  R RETRY', 640, 650, 13, '#81778f', 'center');
 }
@@ -611,8 +614,8 @@ function render(now) {
     if (game.phase === 'won') {
       const finalRoom = game.levelIndex + 1 === LEVELS.length;
       drawOverlay(
-        finalRoom ? `${LEVELS.length} ROOMS KINDLED` : 'GLASSHOUSE WAKES',
-        finalRoom ? 'The walls remember where your flame has been.' : 'Three small stars answer the dawn.',
+        finalRoom ? 'DAWN THROUGH GLASS' : 'GLASSHOUSE WAKES',
+        finalRoom ? `All ${LEVELS.length} rooms remember the path of your flame.` : 'Three small stars answer the dawn.',
         COLORS.mint
       );
     }

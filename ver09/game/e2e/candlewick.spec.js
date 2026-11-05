@@ -90,7 +90,7 @@ test('all three seeds open the gate and finish the room', async ({ page }) => {
   expect(problems).toEqual([]);
 });
 
-test('all five rooms are completable and their light rules are visible', async ({ page }) => {
+test('all six rooms are completable and their light rules are visible', async ({ page }) => {
   const problems = watchConsole(page);
   await page.goto('/');
   const canvas = page.locator('#game');
@@ -177,15 +177,46 @@ test('all five rooms are completable and their light rules are visible', async (
   await page.keyboard.up('Space');
   await expect(canvas).toHaveAttribute('data-seeds', '3');
   await expect(canvas).toHaveAttribute('data-phase', 'won');
-  await expect(canvas).toHaveAttribute('aria-label', /All available rooms restored/i);
+  await expect(canvas).toHaveAttribute('aria-label', /Room restored/i);
   await page.screenshot({ path: '../docs/evidence/m3-five-rooms-kindled.png' });
 
   await page.keyboard.press('Enter');
+  await expect(canvas).toHaveAttribute('data-level', '6');
+  await expect(canvas).toHaveAttribute('data-wardens', '2');
+  await expect(canvas).toHaveAttribute('data-mirror', 'idle');
+  await expect(canvas).toHaveAttribute('data-hunting', 'dim');
+  await page.screenshot({ path: '../docs/evidence/m3-refracted-dawn-dim.png' });
+
+  await page.keyboard.down('Space');
+  await expect(canvas).toHaveAttribute('data-mirror', 'active');
+  await expect(canvas).toHaveAttribute('data-hunting', 'bright');
+  await page.screenshot({ path: '../docs/evidence/m3-refracted-dawn-prism.png' });
+  await pressPath(page, 'UUURRRUUU');
+  await expect(canvas).toHaveAttribute('data-seeds', '1');
+
+  await page.keyboard.up('Space');
+  await expect(canvas).toHaveAttribute('data-hunting', 'dim');
+  await pressPath(page, 'RRRRDDD');
+  await page.keyboard.down('Space');
+  await pressPath(page, 'D');
+  await expect(canvas).toHaveAttribute('data-seeds', '2');
+
+  await page.keyboard.up('Space');
+  await pressPath(page, 'RRRUUU');
+  await page.keyboard.down('Space');
+  await pressPath(page, 'RRURU');
+  await page.keyboard.up('Space');
+  await expect(canvas).toHaveAttribute('data-seeds', '3');
+  await expect(canvas).toHaveAttribute('data-phase', 'won');
+  await expect(canvas).toHaveAttribute('aria-label', /All 6 rooms kindled/i);
+  await page.screenshot({ path: '../docs/evidence/m3-six-rooms-kindled.png' });
+
+  await page.keyboard.press('Enter');
   await expect(canvas).toHaveAttribute('data-phase', 'title');
-  await expect(canvas).toHaveAttribute('data-level', '5');
-  await expect(canvas).toHaveAttribute('data-unlocked-level', '5');
+  await expect(canvas).toHaveAttribute('data-level', '6');
+  await expect(canvas).toHaveAttribute('data-unlocked-level', '6');
   await page.keyboard.press('ArrowLeft');
-  await expect(canvas).toHaveAttribute('data-selected-level', '4');
+  await expect(canvas).toHaveAttribute('data-selected-level', '5');
   expect(problems).toEqual([]);
 });
 

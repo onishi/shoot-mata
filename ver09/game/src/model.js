@@ -101,6 +101,24 @@ export const LEVELS = Object.freeze([
       '9,4', '9,5', '9,6', '9,7', '9,8',
       '12,1', '12,2', '12,3', '12,4', '12,5'
     ])
+  }),
+  Object.freeze({
+    name: 'REFRACTED DAWN',
+    playerStart: point(1, 8),
+    wardens: Object.freeze([
+      warden(13, 8, -1, 0, 'bright'),
+      warden(13, 1, -1, 0, 'dim')
+    ]),
+    exit: point(14, 1),
+    seeds: Object.freeze([point(4, 2), point(8, 6), point(13, 2)]),
+    mirrors: Object.freeze([mirror(4, 7, 0, -1, 6)]),
+    phosphors: Object.freeze([]),
+    walls: Object.freeze([
+      '3,1', '3,2', '3,3', '3,4',
+      '6,4', '6,5', '6,6', '6,7', '6,8',
+      '9,1', '9,2', '9,3', '9,4', '9,5',
+      '12,4', '12,5', '12,6', '12,7', '12,8'
+    ])
   })
 ]);
 
