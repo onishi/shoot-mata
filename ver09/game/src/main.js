@@ -3,8 +3,10 @@ import {
   COLS,
   LEVELS,
   MAX_FUEL,
+  PHOSPHOR_TICKS,
   ROWS,
   activeMirrorBeams,
+  activePhosphors,
   advanceRoom,
   collectedCount,
   createGame,
@@ -119,6 +121,8 @@ function syncAccessibility() {
   canvas.dataset.event = game.event;
   canvas.dataset.level = String(game.levelIndex + 1);
   canvas.dataset.mirror = activeMirrorBeams(game).length > 0 ? 'active' : 'idle';
+  canvas.dataset.phosphor = String(activePhosphors(game).length);
+  canvas.dataset.afterglow = String(Math.max(0, ...activePhosphors(game).map((tile) => tile.charge)));
 }
 
 function pathRoundedRect(x, y, width, height, radius) {
@@ -274,6 +278,35 @@ function drawMirrors(now) {
     ctx.closePath();
     ctx.fill();
     ctx.stroke();
+    ctx.restore();
+  }
+}
+
+function drawPhosphors(now) {
+  for (const tile of game.phosphors) {
+    const visible = isPointLit(game, tile) || tile.charge > 0;
+    if (!visible) continue;
+    const center = cellCenter(tile);
+    const charged = tile.charge > 0;
+    const strength = tile.charge / PHOSPHOR_TICKS;
+    ctx.save();
+    ctx.translate(center.x, center.y);
+    ctx.strokeStyle = charged ? `rgba(139,224,191,${0.5 + strength * 0.5})` : '#665d70';
+    ctx.fillStyle = charged ? `rgba(139,224,191,${0.12 + strength * 0.22})` : 'rgba(102,93,112,0.12)';
+    ctx.shadowColor = COLORS.mint;
+    ctx.shadowBlur = charged ? 10 + strength * 16 : 0;
+    ctx.lineWidth = 2;
+    ctx.rotate(Math.PI / 4);
+    ctx.fillRect(-11, -11, 22, 22);
+    ctx.strokeRect(-11, -11, 22, 22);
+    ctx.rotate(-Math.PI / 4);
+    if (charged) {
+      ctx.globalAlpha = 0.35 + Math.sin(now / 260 + tile.x + tile.y) * 0.12;
+      ctx.fillStyle = COLORS.flame;
+      ctx.beginPath();
+      ctx.arc(0, 0, 3, 0, Math.PI * 2);
+      ctx.fill();
+    }
     ctx.restore();
   }
 }
@@ -439,6 +472,11 @@ function drawHud() {
     text('PRISM', 1092, 520, 12, COLORS.mint, 'left', 700);
     text(activeMirrorBeams(game).length > 0 ? 'BEAM TURNED' : 'LIGHT THE GLASS', 1092, 542, 12, COLORS.paper, 'left', 700);
   }
+  if (level.phosphors.length > 0) {
+    const glow = Math.max(0, ...activePhosphors(game).map((tile) => tile.charge));
+    text('PHOSPHOR', 1092, 520, 12, COLORS.mint, 'left', 700);
+    text(glow > 0 ? `AFTERGLOW ${Math.ceil(glow / 8)}` : 'PAINT WITH LIGHT', 1092, 542, 12, COLORS.paper, 'left', 700);
+  }
   text('ESC PAUSE  ·  R RETRY', 640, 650, 13, '#81778f', 'center');
 }
 
@@ -468,6 +506,7 @@ function render(now) {
   } else {
     drawFloor(now);
     drawMirrors(now);
+    drawPhosphors(now);
     game.seeds.forEach((seed) => drawSeed(seed, now));
     drawExit(now);
     drawWarden(now);
@@ -477,8 +516,8 @@ function render(now) {
     if (game.phase === 'won') {
       const finalRoom = game.levelIndex + 1 === LEVELS.length;
       drawOverlay(
-        finalRoom ? 'TWO ROOMS KINDLED' : 'GLASSHOUSE WAKES',
-        finalRoom ? 'The prism carries dawn around the stone.' : 'Three small stars answer the dawn.',
+        finalRoom ? 'THREE ROOMS KINDLED' : 'GLASSHOUSE WAKES',
+        finalRoom ? 'The walls remember where your flame has been.' : 'Three small stars answer the dawn.',
         COLORS.mint
       );
     }

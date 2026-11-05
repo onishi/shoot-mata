@@ -1,6 +1,7 @@
 export const COLS = 16;
 export const ROWS = 10;
 export const MAX_FUEL = 24;
+export const PHOSPHOR_TICKS = 20;
 
 const point = (x, y) => Object.freeze({ x, y });
 const mirror = (x, y, dx, dy, length) => Object.freeze({ x, y, dx, dy, length });
@@ -14,6 +15,7 @@ export const LEVELS = Object.freeze([
     exit: point(14, 1),
     seeds: Object.freeze([point(4, 7), point(8, 3), point(12, 2)]),
     mirrors: Object.freeze([]),
+    phosphors: Object.freeze([]),
     walls: Object.freeze([
       '3,2', '4,2', '5,2',
       '6,2', '6,3', '6,5', '6,6', '6,7',
@@ -31,12 +33,34 @@ export const LEVELS = Object.freeze([
     exit: point(14, 1),
     seeds: Object.freeze([point(5, 2), point(9, 4), point(12, 2)]),
     mirrors: Object.freeze([mirror(5, 7, 0, -1, 6)]),
+    phosphors: Object.freeze([]),
     walls: Object.freeze([
       '2,3', '3,3', '4,3',
       '7,1', '7,2', '7,3',
       '7,5', '7,6', '7,7',
       '9,6', '10,6', '11,6', '12,6',
       '11,3', '12,3', '13,3'
+    ])
+  }),
+  Object.freeze({
+    name: 'AFTERGLOW GALLERY',
+    playerStart: point(1, 8),
+    wardenStart: point(13, 8),
+    patrol: point(-1, 0),
+    exit: point(14, 1),
+    seeds: Object.freeze([point(4, 2), point(8, 7), point(13, 4)]),
+    mirrors: Object.freeze([]),
+    phosphors: Object.freeze([
+      point(2, 7), point(3, 6), point(4, 5), point(4, 4), point(4, 3),
+      point(5, 7), point(6, 7), point(7, 7), point(8, 7),
+      point(8, 6), point(8, 5), point(8, 4), point(8, 3), point(8, 2), point(9, 2),
+      point(11, 2), point(12, 2), point(13, 3)
+    ]),
+    walls: Object.freeze([
+      '2,4', '3,4',
+      '6,1', '6,2', '6,3', '6,4', '6,5', '6,6',
+      '10,3', '10,4', '10,5', '10,6', '10,7', '10,8',
+      '12,5', '13,5', '14,5'
     ])
   })
 ]);
@@ -73,6 +97,7 @@ function roomState(levelIndex, phase = 'title') {
     fuel: MAX_FUEL,
     brightRequested: false,
     seeds: level.seeds.map((seed) => ({ ...copyPoint(seed), collected: false })),
+    phosphors: level.phosphors.map((tile) => ({ ...copyPoint(tile), charge: 0 })),
     lives: 3,
     event: phase === 'title' ? 'ready' : 'start'
   };
@@ -133,10 +158,15 @@ export function activeMirrorBeams(state) {
   });
 }
 
+export function activePhosphors(state) {
+  return state.phosphors?.filter((tile) => tile.charge > 0) ?? [];
+}
+
 export function isPointLit(state, pointValue) {
   const radius = isBright(state) ? 5.4 : 2.35;
   if (directLightDistance(state, pointValue) <= radius) return true;
-  return activeMirrorBeams(state).some((beam) => beam.cells.some((cell) => samePoint(cell, pointValue)));
+  if (activeMirrorBeams(state).some((beam) => beam.cells.some((cell) => samePoint(cell, pointValue)))) return true;
+  return activePhosphors(state).some((tile) => Math.hypot(pointValue.x - tile.x, pointValue.y - tile.y) <= 1.45);
 }
 
 export function setBright(state, requested) {
@@ -235,6 +265,13 @@ export function tickGame(state) {
     brightRequested,
     event: fuel === 0 && wasBright ? 'empty' : 'tick'
   };
+
+  next.phosphors = next.phosphors.map((tile) => ({
+    ...tile,
+    charge: wasBright && directLightDistance(state, tile) <= 5.4
+      ? PHOSPHOR_TICKS
+      : Math.max(0, tile.charge - 1)
+  }));
 
   if (next.tick % 4 === 0) {
     if (wasBright) {

@@ -62,7 +62,7 @@ test('all three seeds open the gate and finish the room', async ({ page }) => {
   expect(problems).toEqual([]);
 });
 
-test('the first room leads to the prism room and both rooms are completable', async ({ page }) => {
+test('all three rooms are completable and their light rules are visible', async ({ page }) => {
   const problems = watchConsole(page);
   await page.goto('/');
   const canvas = page.locator('#game');
@@ -84,8 +84,23 @@ test('the first room leads to the prism room and both rooms are completable', as
   await page.keyboard.up('Space');
   await expect(canvas).toHaveAttribute('data-seeds', '3');
   await expect(canvas).toHaveAttribute('data-phase', 'won');
+
+  await page.keyboard.press('Enter');
+  await expect(canvas).toHaveAttribute('data-level', '3');
+  await page.keyboard.down('Space');
+  await expect.poll(async () => Number(await canvas.getAttribute('data-phosphor'))).toBeGreaterThan(0);
+  await page.keyboard.up('Space');
+  await expect(canvas).toHaveAttribute('data-light', 'dim');
+  await expect.poll(async () => Number(await canvas.getAttribute('data-afterglow'))).toBeGreaterThan(0);
+  await page.screenshot({ path: '../docs/evidence/m2-phosphor-afterglow.png' });
+
+  await page.keyboard.down('Space');
+  await pressPath(page, 'UUUUUURRRDDDDDRRRRUUUUURRRRRDDUUUR');
+  await page.keyboard.up('Space');
+  await expect(canvas).toHaveAttribute('data-seeds', '3');
+  await expect(canvas).toHaveAttribute('data-phase', 'won');
   await expect(canvas).toHaveAttribute('aria-label', /All available rooms restored/i);
-  await page.screenshot({ path: '../docs/evidence/m2-two-rooms-kindled.png' });
+  await page.screenshot({ path: '../docs/evidence/m2-three-rooms-kindled.png' });
 
   await page.keyboard.press('Enter');
   await expect(canvas).toHaveAttribute('data-phase', 'title');

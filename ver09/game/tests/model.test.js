@@ -4,9 +4,11 @@ import {
   EXIT,
   LEVELS,
   MAX_FUEL,
+  PHOSPHOR_TICKS,
   PLAYER_START,
   WARDEN_START,
   activeMirrorBeams,
+  activePhosphors,
   advanceRoom,
   collectedCount,
   createGame,
@@ -136,8 +138,31 @@ test('the second-room prism turns bright light toward a distant seed', () => {
   assert.equal(isPointLit(game, distantSeed), false);
 });
 
-test('finishing the available second room returns to the title', () => {
+test('winning the second room advances to the phosphor room', () => {
   let game = forceState(startGame(createGame(), 1), { phase: 'won' });
+  game = advanceRoom(game);
+  assert.equal(game.phase, 'playing');
+  assert.equal(game.levelIndex, 2);
+  assert.equal(LEVELS[2].name, 'AFTERGLOW GALLERY');
+  assert.equal(game.phosphors.length, LEVELS[2].phosphors.length);
+});
+
+test('phosphor tiles preserve a fading pool of light after the lamp dims', () => {
+  let game = setBright(startGame(createGame(), 2), true);
+  game = tickGame(game);
+  assert.ok(activePhosphors(game).length > 0);
+  assert.equal(Math.max(...activePhosphors(game).map((tile) => tile.charge)), PHOSPHOR_TICKS);
+
+  const rememberedPoint = { x: 4, y: 6 };
+  game = setBright(game, false);
+  assert.equal(isPointLit(game, rememberedPoint), true);
+  for (let index = 0; index < PHOSPHOR_TICKS; index += 1) game = tickGame(game);
+  assert.equal(activePhosphors(game).length, 0);
+  assert.equal(isPointLit(game, rememberedPoint), false);
+});
+
+test('finishing the available third room returns to the title', () => {
+  let game = forceState(startGame(createGame(), 2), { phase: 'won' });
   game = advanceRoom(game);
   assert.equal(game.phase, 'title');
   assert.equal(game.levelIndex, 0);
