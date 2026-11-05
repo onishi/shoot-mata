@@ -136,7 +136,7 @@ function drawTitle(time: number) {
     ctx.fillStyle = progress.completed ? "#c59a57" : "#77849e";
     ctx.font = "11px Georgia";
     ctx.letterSpacing = "1.4px";
-    ctx.fillText(progress.completed ? "SAMPLER COMPLETE — ALL PANELS MENDED" : "UP / DOWN TO CHOOSE     ENTER TO BEGIN", 480, 426);
+    ctx.fillText(progress.completed ? "NIGHT REWOVEN — ALL PANELS MENDED" : "UP / DOWN TO CHOOSE     ENTER TO BEGIN", 480, 426);
   } else {
     ctx.fillStyle = `rgba(242, 213, 138, ${shimmer})`;
     ctx.fillText("PRESS ENTER TO THREAD THE LOOM", 480, 365);
@@ -418,8 +418,8 @@ function drawGame(time: number) {
     const finalPanel = state.levelIndex === LEVELS.length - 1;
     const nextPanel = LEVELS[state.levelIndex + 1];
     drawOverlay(
-      finalPanel ? "SAMPLER MENDED" : "PANEL MENDED",
-      finalPanel ? `All ${LEVELS.length} panels hold against the unravellers.` : `The next panel waits: ${nextPanel.name}.`,
+      finalPanel ? "NIGHT REWOVEN" : "PANEL MENDED",
+      finalPanel ? `All ${LEVELS.length} panels hold. Dawn reaches the atelier.` : `The next panel waits: ${nextPanel.name}.`,
       finalPanel ? "ENTER TO RETURN TO THE ATELIER" : `ENTER FOR PANEL ${state.levelIndex + 2}`,
     );
   }
@@ -441,7 +441,7 @@ function updateAria() {
     ? `Options. Sound volume ${Math.round(preferences.volume * 100)} percent. Reduced motion ${preferences.reducedMotion ? "on" : "off"}.`
     : state.screen === "title"
     ? progress.highestUnlocked > 0
-      ? `DUSKLOOM title. ${progress.completed ? "Sampler complete. " : ""}${titleChoice === "continue" ? `Continue at panel ${progress.highestUnlocked + 1} selected.` : "Start at panel one selected."} Use up and down to choose, then Enter.`
+      ? `DUSKLOOM title. ${progress.completed ? "Night rewoven. " : ""}${titleChoice === "continue" ? `Continue at panel ${progress.highestUnlocked + 1} selected.` : "Start at panel one selected."} Use up and down to choose, then Enter.`
       : "DUSKLOOM title. Press Enter to begin."
     : `${state.screen}. Panel ${state.levelIndex + 1} of ${LEVELS.length}, ${levelFor(state).name}. ${state.repaired} percent repaired. ${state.spools} spools. ${state.trail.length} exposed thread cells.${needleDescription}${hasGrain ? " Marked grain cells accept stitches only in the arrow direction." : ""}`;
   canvas.setAttribute("aria-label", description);
@@ -503,7 +503,7 @@ window.addEventListener("keydown", (event) => {
       state = continueAfterWin(state);
       if (state.screen === "title") {
         titleChoice = "continue";
-        announce("Sampler complete. Returned to the atelier.");
+        announce("Night rewoven. Returned to the atelier.");
       } else {
         announce(`Panel ${state.levelIndex + 1}, ${levelFor(state).name}. ${state.moths.length} unravellers are moving.`);
       }
@@ -524,7 +524,7 @@ window.addEventListener("keydown", (event) => {
     if (state.lastEvent === "win") {
       progress = recordWin(progress, state.levelIndex, LEVELS.length);
       saveProgress(localStorage, progress, LEVELS.length);
-      announce(state.levelIndex === LEVELS.length - 1 ? "Sampler complete. Press Enter to return to the atelier." : "Night mended. Press Enter for the next panel.");
+      announce(state.levelIndex === LEVELS.length - 1 ? "Night rewoven. Press Enter to return to the atelier." : "Night mended. Press Enter for the next panel.");
     }
   }
   playEvent(previous, state);

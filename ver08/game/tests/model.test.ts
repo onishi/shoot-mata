@@ -202,6 +202,39 @@ describe("DUSKLOOM model", () => {
     expect(state.screen).toBe("won");
   });
 
+  it("combines the inner island, directional grain, and flash needle in the final panel", () => {
+    let state = restart(createGame(5));
+    expect(levelFor(state).name).toBe("DAWN SAMPLER");
+    expect(state.repaired).toBe(28);
+    expect(grainAt(levelFor(state), { x: 9, y: 2 })?.axis).toBe("vertical");
+    expect(flashNeedleFor(state)).toMatchObject({ column: 5, phase: "dormant" });
+
+    state = movePlayer(state, "down", true);
+    const refused = movePlayer(state, "left", true);
+    expect(refused.lastEvent).toBe("grain");
+    expect(refused.player).toEqual({ x: 9, y: 1 });
+  });
+
+  it("uses the island to divide the final repair into a grain route and a timed route", () => {
+    let state = restart(createGame(5));
+    for (let y = 0; y < 5; y += 1) state = movePlayer(state, "down", true);
+    expect(state.player).toEqual({ x: 9, y: 5 });
+    expect(state.trail).toEqual([]);
+
+    for (let y = 5; y < 8; y += 1) state = movePlayer(state, "down", false);
+    for (let y = 8; y < 13; y += 1) state = movePlayer(state, "down", true);
+    expect(state.player).toEqual({ x: 9, y: 13 });
+    expect(state.repaired).toBeGreaterThan(60);
+    expect(state.screen).toBe("playing");
+
+    for (let y = 13; y > 7; y -= 1) state = movePlayer(state, "up", false);
+    state = movePlayer(state, "left", false);
+    for (let x = 8; x > 0; x -= 1) state = movePlayer(state, "left", true);
+    expect(state.player).toEqual({ x: 0, y: 7 });
+    expect(state.repaired).toBeGreaterThanOrEqual(LEVELS[5].goal);
+    expect(state.screen).toBe("won");
+  });
+
   it("restarts the current panel and returns to the title after the sampler", () => {
     const second = restart(createGame(1));
     expect(restart(second).levelIndex).toBe(1);
@@ -215,7 +248,12 @@ describe("DUSKLOOM model", () => {
     expect(fifth.levelIndex).toBe(4);
     expect(grainAt(levelFor(fifth), { x: 9, y: 1 })?.axis).toBe("vertical");
     const returned = continueAfterWin(withScenario(fifth, { screen: "won" }));
-    expect(returned.levelIndex).toBe(0);
-    expect(returned.screen).toBe("title");
+    expect(returned.levelIndex).toBe(5);
+    expect(levelFor(returned).name).toBe("DAWN SAMPLER");
+    expect(flashNeedleFor(returned)).toMatchObject({ column: 5, phase: "dormant" });
+    expect(grainAt(levelFor(returned), { x: 9, y: 1 })?.axis).toBe("vertical");
+    const archive = continueAfterWin(withScenario(returned, { screen: "won" }));
+    expect(archive.levelIndex).toBe(0);
+    expect(archive.screen).toBe("title");
   });
 });

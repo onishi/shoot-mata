@@ -77,6 +77,16 @@ export const LEVELS: readonly LevelDefinition[] = [
     moths: [{ x: 13, y: 5, dx: -1, dy: 1 }],
     grainPatches: [{ x: 8, y: 1, width: 3, height: 12, axis: "vertical" }],
   },
+  {
+    id: "dawn-sampler",
+    name: "DAWN SAMPLER",
+    goal: 74,
+    player: { x: 9, y: 0 },
+    moths: [{ x: 4, y: 9, dx: 1, dy: -1 }],
+    clothPatches: [{ x: 8, y: 5, width: 4, height: 4 }],
+    flashNeedle: { columns: [5, 14], cycleTicks: 10, warningTicks: 3 },
+    grainPatches: [{ x: 8, y: 1, width: 3, height: 4, axis: "vertical" }],
+  },
 ];
 
 export type Screen = "title" | "playing" | "paused" | "won" | "lost";

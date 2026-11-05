@@ -28,7 +28,7 @@
 
 ## 面データ
 
-`LEVELS`へ面名、目標修復率、織り子の開始位置、ほどき蛾の初期位置と斜め方向、任意の初期修復矩形`clothPatches`、任意の周期ハザード`flashNeedle`、任意の方向制約領域`grainPatches`を定義する。`GameState.levelIndex`から現在の定義を参照し、再挑戦は同じ面、勝利後は次の面、最終面勝利後はタイトルへ戻る。「CROSSED SHUTTLES」は速度を変えず逆向きに進む二体の位置と軌道を読む判断を、「LOOM'S EYE」は4×4の内側安全島を中継点として使う経路選択を、「FLASH NEEDLE」は3tickの列予告から安全な確定時刻を読む判断を、「WARP GATE」は縫える軸を読む判断を導入する。
+`LEVELS`へ面名、目標修復率、織り子の開始位置、ほどき蛾の初期位置と斜め方向、任意の初期修復矩形`clothPatches`、任意の周期ハザード`flashNeedle`、任意の方向制約領域`grainPatches`を定義する。`GameState.levelIndex`から現在の定義を参照し、再挑戦は同じ面、勝利後は次の面、最終面勝利後はタイトルへ戻る。「CROSSED SHUTTLES」は速度を変えず逆向きに進む二体の位置と軌道を読む判断を、「LOOM'S EYE」は4×4の内側安全島を中継点として使う経路選択を、「FLASH NEEDLE」は3tickの列予告から安全な確定時刻を読む判断を、「WARP GATE」は縫える軸を読む判断を導入する。「DAWN SAMPLER」は同じデータ要素を併用し、新しい分岐コードなしで安全島、木目、稲妻を統合する。
 
 `flashNeedleFor`は現在tickを周期内phaseへ変換し、`dormant`、`warning`、`active`、対象列、落雷までのtickを返す。落雷tickでは、その列に露出糸が1セルでもあれば通常の切断処理を使う。落雷中に同じ列へ新しく糸を出した場合も即時切断する。描画とARIAは同じ導出値を参照するため、表示と規則がずれない。
 
