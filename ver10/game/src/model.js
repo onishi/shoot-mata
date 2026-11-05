@@ -1,11 +1,14 @@
 export const SWITCHES = ["fork", "graft", "crown"];
 export const FLOW_MS = 800;
+export const SLOW_FLOW_MS = 1100;
+export const QUICK_FLOW_MS = 520;
 
 export const GARDENS = [
   { id: "one", name: "FIRST LIGHT", delayedSwitch: null, delayBeats: 0, syncedSwitches: [] },
   { id: "two", name: "SLEEPING CROWN", delayedSwitch: 2, delayBeats: 2, syncedSwitches: [] },
   { id: "three", name: "TURNING ROOT", delayedSwitch: 2, delayBeats: 2, syncedSwitches: [] },
   { id: "four", name: "TWIN CURRENT", delayedSwitch: null, delayBeats: 0, syncedSwitches: [0, 1], initialSwitches: [0, 0, 0] },
+  { id: "five", name: "QUICKENING VINE", delayedSwitch: null, delayBeats: 0, syncedSwitches: [], initialFlowMs: SLOW_FLOW_MS },
 ];
 
 const FIRST_LIGHT_NODES = {
@@ -52,9 +55,26 @@ const TWIN_CURRENT_NODES = {
   returnC: { x: 205, y: 650, next: ["fork"] },
 };
 
+const QUICKENING_VINE_NODES = {
+  root: { x: 85, y: 365, next: ["fork"] },
+  fork: { x: 230, y: 365, next: ["moon", "rain"], switchIndex: 0 },
+  moon: { x: 385, y: 195, next: ["quicken"], bloom: "moon" },
+  rain: { x: 385, y: 535, next: ["quicken"], bloom: "rain" },
+  quicken: { x: 545, y: 365, next: ["graft"], flowMs: QUICK_FLOW_MS, tempo: "quick" },
+  graft: { x: 685, y: 365, next: ["bell", "blight"], switchIndex: 1 },
+  bell: { x: 830, y: 195, next: ["crown"], bloom: "bell" },
+  blight: { x: 830, y: 535, hazard: true },
+  crown: { x: 975, y: 365, next: ["receiver", "returnA"], switchIndex: 2 },
+  receiver: { x: 1150, y: 195, receiver: true },
+  returnA: { x: 1125, y: 565, next: ["calm"] },
+  calm: { x: 785, y: 625, next: ["returnB"], flowMs: SLOW_FLOW_MS, tempo: "slow" },
+  returnB: { x: 235, y: 625, next: ["fork"] },
+};
+
 export function getGardenNodes(garden) {
   if (garden === 2) return TURNING_ROOT_NODES;
   if (garden === 3) return TWIN_CURRENT_NODES;
+  if (garden === 4) return QUICKENING_VINE_NODES;
   return FIRST_LIGHT_NODES;
 }
 
@@ -70,6 +90,7 @@ function gardenState(garden, phase = "playing") {
     blooms: { moon: false, rain: false, bell: false },
     lives: 3,
     steps: 0,
+    flowMs: GARDENS[garden]?.initialFlowMs ?? FLOW_MS,
     selectedSwitch: 0,
     lastEvent: "",
   };
@@ -167,6 +188,7 @@ function strike(state, reason) {
   state.blooms = { moon: false, rain: false, bell: false };
   state.switches = [...(GARDENS[state.garden].initialSwitches ?? [0, 1, 0])];
   state.pendingSwitches = [null, null, null];
+  state.flowMs = GARDENS[state.garden]?.initialFlowMs ?? FLOW_MS;
 }
 
 function advancePendingSwitches(state) {
@@ -194,6 +216,11 @@ export function advance(state) {
   const committed = advancePendingSwitches(state);
 
   const node = getGardenNodes(state.garden)[destination];
+  if (node.flowMs && node.flowMs !== state.flowMs) {
+    state.flowMs = node.flowMs;
+    state.lastEvent = `tempo:${node.tempo}`;
+    return { type: "tempo", tempo: node.tempo, flowMs: node.flowMs, from, to: destination, committed };
+  }
   if (node.bloom && !state.blooms[node.bloom]) {
     state.blooms[node.bloom] = true;
     state.lastEvent = `bloom:${node.bloom}`;
@@ -227,6 +254,7 @@ export function snapshot(state) {
     blooms: { ...state.blooms },
     lives: state.lives,
     steps: state.steps,
+    flowMs: state.flowMs,
     selectedSwitch: state.selectedSwitch,
     next: getNextNode(state),
   };

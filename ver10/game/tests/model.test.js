@@ -214,6 +214,36 @@ test("planned twin-current route switches the linked pair between fork and graft
   advanceTo(state, "receiver");
 
   assert.deepEqual(state.blooms, { moon: true, rain: true, bell: true });
+  assert.equal(state.phase, "gardenWon");
+});
+
+test("garden five changes beat length only at its visible tempo gates", () => {
+  const state = createGame(4); startGame(state);
+  assert.equal(state.flowMs, 1100);
+  state.switches[1] = 0;
+  state.switches[2] = 1;
+  advanceTo(state, "moon");
+  assert.equal(state.flowMs, 1100);
+  const quickened = advance(state);
+  assert.equal(quickened.type, "tempo");
+  assert.equal(quickened.tempo, "quick");
+  assert.equal(state.flowMs, 520);
+  advanceTo(state, "calm");
+  assert.equal(state.flowMs, 1100);
+  assert.equal(state.lastEvent, "tempo:slow");
+});
+
+test("planned quickening-vine route prepares each lap during the calm current", () => {
+  const state = createGame(4); startGame(state);
+  state.switches[1] = 0;
+  state.switches[2] = 1;
+  advanceTo(state, "calm");
+  assert.deepEqual(state.blooms, { moon: true, rain: false, bell: true });
+
+  state.switches[0] = 1;
+  state.switches[2] = 0;
+  advanceTo(state, "receiver");
+  assert.deepEqual(state.blooms, { moon: true, rain: true, bell: true });
   assert.equal(state.phase, "won");
 });
 

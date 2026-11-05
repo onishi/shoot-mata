@@ -1,6 +1,5 @@
 import "./style.css";
 import {
-  FLOW_MS,
   GARDENS,
   SWITCHES,
   advance,
@@ -55,6 +54,8 @@ const DISPLAY_NAMES = {
   blight: "BLIGHT",
   receiver: "RECEIVER",
   returnA: "RETURN ROOT",
+  quicken: "QUICKEN",
+  calm: "CALM",
 };
 
 function nodes() {
@@ -99,6 +100,9 @@ function sound(event) {
     tone(392, 0.35); tone(494, 0.35, "sine", 0.03, 0.1); tone(659, 0.5, "sine", 0.03, 0.2);
   } else if (event.type === "move") {
     tone(185, 0.045, "triangle", 0.018);
+  } else if (event.type === "tempo") {
+    const notes = event.tempo === "quick" ? [294, 440] : [330, 220];
+    tone(notes[0], 0.14, "triangle", 0.03); tone(notes[1], 0.2, "sine", 0.03, 0.08);
   }
 }
 
@@ -137,7 +141,8 @@ function updateAccessibleName() {
   const pending = state.pendingSwitches[state.selectedSwitch];
   const wait = pending ? ` Route change in ${pending.remaining} beats.` : "";
   const link = syncedSwitches().includes(state.selectedSwitch) ? " Fork and graft are linked." : "";
-  canvas.setAttribute("aria-label", `Garden ${state.garden + 1}. ${state.phase}. Seed at ${state.node}. ${flowers} of 3 flowers open. ${state.lives} lives. ${selected} switch selected.${link}${wait}`);
+  const tempo = state.garden === 4 ? ` ${state.flowMs === GARDENS[4].initialFlowMs ? "Slow" : "Quick"} current.` : "";
+  canvas.setAttribute("aria-label", `Garden ${state.garden + 1}. ${state.phase}. Seed at ${state.node}. ${flowers} of 3 flowers open. ${state.lives} lives.${tempo} ${selected} switch selected.${link}${wait}`);
 }
 
 function handleKey(event) {
@@ -313,6 +318,17 @@ function drawNode(id, time) {
     ctx.beginPath(); ctx.arc(node.x, node.y, 18, 0, Math.PI * 2); ctx.stroke();
     return;
   }
+  if (node.tempo) {
+    const quick = node.tempo === "quick";
+    ctx.strokeStyle = quick ? COLORS.bell : COLORS.rain;
+    ctx.lineWidth = 4;
+    ctx.beginPath(); ctx.arc(node.x, node.y, 24, 0, Math.PI * 2); ctx.stroke();
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(node.x, node.y, quick ? 14 : 32, 0, Math.PI * 2); ctx.stroke();
+    ctx.fillStyle = quick ? COLORS.bell : COLORS.rain;
+    ctx.beginPath(); ctx.arc(node.x, node.y, 6, 0, Math.PI * 2); ctx.fill();
+    return;
+  }
   const switchIndex = node.switchIndex;
   const selectedGroup = syncedSwitches().includes(state.selectedSwitch) ? syncedSwitches() : [state.selectedSwitch];
   const selected = selectedGroup.includes(switchIndex);
@@ -367,7 +383,7 @@ function label(text, x, y, color = COLORS.muted, align = "center", size = 14) {
 }
 
 function drawHud() {
-  label(`SIGNAL GARDEN / ${["ONE", "TWO", "THREE", "FOUR"][state.garden]}`, 44, 48, COLORS.ink, "left", 15);
+  label(`SIGNAL GARDEN / ${["ONE", "TWO", "THREE", "FOUR", "FIVE"][state.garden]}`, 44, 48, COLORS.ink, "left", 15);
   label(`LIVES  ${"● ".repeat(state.lives)}${"○ ".repeat(3 - state.lives)}`, 1236, 48, COLORS.ink, "right", 14);
   const bloomCount = Object.values(state.blooms).filter(Boolean).length;
   label(`FLOWERS  ${bloomCount} / 3`, 1236, 74, bloomCount === 3 ? COLORS.lime : COLORS.muted, "right", 13);
@@ -378,6 +394,11 @@ function drawHud() {
   label("BLIGHT", nodes().blight.x, nodes().blight.y + 40, COLORS.danger, "center", 12);
   label("RECEIVER", nodes().receiver.x, nodes().receiver.y - 48, COLORS.muted, "center", 12);
   label("RETURN ROOT", nodes().returnA.x, Math.min(670, nodes().returnA.y + 48), COLORS.muted, "center", 11);
+  if (state.garden === 4) {
+    label("QUICKEN", nodes().quicken.x, nodes().quicken.y - 42, COLORS.bell, "center", 11);
+    label("CALM", nodes().calm.x, nodes().calm.y + 42, COLORS.rain, "center", 11);
+    label(`${state.flowMs === GARDENS[4].initialFlowMs ? "SLOW CURRENT" : "QUICK CURRENT"}  ${state.flowMs}ms / BEAT`, 1236, 100, state.flowMs === GARDENS[4].initialFlowMs ? COLORS.rain : COLORS.bell, "right", 12);
+  }
   const selectedId = SWITCHES[state.selectedSwitch];
   const destination = getNextNode(state, selectedId);
   const pending = state.pendingSwitches[state.selectedSwitch];
@@ -400,6 +421,7 @@ function drawHud() {
   if (shownDestination === "receiver" && bloomCount < 3) label("RECEIVER NEEDS THREE FLOWERS", 44, 106, COLORS.danger, "left", 12);
   if ((state.garden === 1 || state.garden === 2) && state.selectedSwitch === 2 && !pending) label("SLEEPING CROWN CHANGES TWO BEATS LATER", 44, 106, "#caa8e8", "left", 12);
   if (syncedSwitches().includes(state.selectedSwitch) && !linkedBlight) label("FORK AND GRAFT TURN TOGETHER", 44, 106, COLORS.rain, "left", 12);
+  if (state.garden === 4 && state.flowMs === GARDENS[4].initialFlowMs) label("SET THE ROUTE BEFORE QUICKEN", 44, 106, COLORS.rain, "left", 12);
 }
 
 function panel(title, subtitle, lines, footer) {
@@ -422,12 +444,13 @@ function render(time) {
   } else {
     drawEdges(visualTime);
     for (const id of Object.keys(nodes())) drawNode(id, visualTime);
-    if (state.phase === "playing" || state.phase === "paused") drawPulse(accumulator / FLOW_MS);
+    if (state.phase === "playing" || state.phase === "paused") drawPulse(accumulator / state.flowMs);
     drawHud();
     if (state.phase === "paused") panel("GARDEN HELD", "TIME IS ROOTED", ["Inspect the reserved bright branches.", "Space changes the selected branch after resuming."], "PRESS ENTER OR ESC TO RESUME");
     if (state.phase === "gardenWon" && state.garden === 0) panel("FIRST LIGHT ROOTED", "A DEEPER GARDEN STIRS", ["The next crown sleeps before it turns.", "Its dotted route becomes active two beats after SPACE."], "PRESS ENTER FOR GARDEN TWO");
     if (state.phase === "gardenWon" && state.garden === 1) panel("SLEEPING CROWN ROOTED", "THE CURRENT TURNS AROUND", ["The receiver now waits before the flower circuit.", "Reserve the sleeping crown before the signal arrives."], "PRESS ENTER FOR GARDEN THREE");
     if (state.phase === "gardenWon" && state.garden === 2) panel("TURNING ROOT COMPLETE", "TWO BRANCHES SHARE ONE PULSE", ["Fork and graft now turn together.", "Pass the fork, then restore the graft before the seed arrives."], "PRESS ENTER FOR GARDEN FOUR");
+    if (state.phase === "gardenWon" && state.garden === 3) panel("TWIN CURRENT ROOTED", "THE VINE QUICKENS AHEAD", ["The gold gate shortens every following beat.", "Set distant branches while the current is still calm."], "PRESS ENTER FOR GARDEN FIVE");
     if (state.phase === "won") panel("FULL CHORUS", "THREE FLOWERS / ONE SIGNAL", ["The seed reached the receiver with every color.", `Route completed in ${state.steps} beats.`], "PRESS ENTER TO GROW AGAIN");
     if (state.phase === "lost") panel("ROOTS QUIET", "THE SIGNAL SPENT ITS LAST LIFE", ["Blight and an unripe receiver both break the route.", "Switch branches before the seed arrives."], "PRESS ENTER OR R TO TRY AGAIN");
   }
@@ -440,13 +463,14 @@ function loop(time) {
   lastTime = time;
   if (state.phase === "playing") {
     accumulator += delta;
-    if (accumulator >= FLOW_MS) {
-      accumulator -= FLOW_MS;
+    if (accumulator >= state.flowMs) {
+      accumulator -= state.flowMs;
       pulseFrom = state.node;
       pulseTo = getNextNode(state) ?? state.node;
       const result = advance(state);
       sound(result);
       if (result.type === "bloom") announce(`${result.bloom} flower opened.`);
+      if (result.type === "tempo") announce(result.tempo === "quick" ? "Current quickened. Beats are shorter." : "Current calmed. Beats are longer.");
       if (result.type === "strike") announce(`Route failed: ${result.reason}. ${state.lives} lives remain.`);
       if (result.type === "gardenWon") {
         progress = saveProgress(localStorage, unlockGarden(progress, state.garden + 1));

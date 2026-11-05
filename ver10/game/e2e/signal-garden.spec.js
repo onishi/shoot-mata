@@ -9,7 +9,7 @@ async function waitForNode(page, node, timeout = 12_000) {
 }
 
 test("keyboard route opens all flowers, loops, and reaches the receiver", async ({ page }) => {
-  test.setTimeout(75_000);
+  test.setTimeout(95_000);
   const messages = [];
   page.on("console", (message) => { if (["error", "warning"].includes(message.type())) messages.push(message.text()); });
   await page.goto("/");
@@ -87,9 +87,28 @@ test("keyboard route opens all flowers, loops, and reaches the receiver", async 
   await canvas.press("Space");
   await canvas.press("ArrowLeft");
   await canvas.press("Space");
-  await expect.poll(async () => (await state(page)).phase, { timeout: 15_000 }).toBe("won");
-  await expect.poll(async () => page.evaluate(() => JSON.parse(localStorage.getItem("signal-garden:v10:progress")))).toEqual({ version: 1, latestGarden: 3 });
+  await expect.poll(async () => (await state(page)).phase, { timeout: 15_000 }).toBe("gardenWon");
+  await expect.poll(async () => page.evaluate(() => JSON.parse(localStorage.getItem("signal-garden:v10:progress")))).toEqual({ version: 1, latestGarden: 4 });
   await page.screenshot({ path: "../docs/evidence/m3-fourth-garden-won.png" });
+
+  await canvas.press("Enter");
+  await expect.poll(async () => (await state(page)).garden).toBe(4);
+  expect((await state(page)).flowMs).toBe(1100);
+  await canvas.press("ArrowRight");
+  await canvas.press("Space");
+  await canvas.press("ArrowRight");
+  await canvas.press("Space");
+  await expect.poll(async () => (await state(page)).flowMs, { timeout: 8_000 }).toBe(520);
+  await page.screenshot({ path: "../docs/evidence/m3-quickening-vine-fast.png" });
+  await waitForNode(page, "calm");
+  expect((await state(page)).flowMs).toBe(1100);
+
+  await canvas.press("ArrowRight");
+  await canvas.press("Space");
+  await canvas.press("ArrowLeft");
+  await canvas.press("Space");
+  await expect.poll(async () => (await state(page)).phase, { timeout: 15_000 }).toBe("won");
+  await page.screenshot({ path: "../docs/evidence/m3-fifth-garden-won.png" });
   expect(messages).toEqual([]);
 });
 
@@ -140,17 +159,17 @@ test("sound and reduced motion settings persist and corrupt saves recover", asyn
 
 test("latest unlocked garden resumes after reload and corrupt progress recovers", async ({ page }) => {
   await page.goto("/");
-  await page.evaluate(() => localStorage.setItem("signal-garden:v10:progress", JSON.stringify({ version: 1, latestGarden: 3 })));
+  await page.evaluate(() => localStorage.setItem("signal-garden:v10:progress", JSON.stringify({ version: 1, latestGarden: 4 })));
   await page.reload();
   const canvas = page.locator("canvas");
-  await expect(canvas).toHaveAttribute("aria-label", /Garden 4 ready/i);
+  await expect(canvas).toHaveAttribute("aria-label", /Garden 5 ready/i);
   await page.screenshot({ path: "../docs/evidence/m2-progress-resume.png" });
   await canvas.press("Enter");
-  await expect.poll(async () => (await state(page))?.garden).toBe(3);
+  await expect.poll(async () => (await state(page))?.garden).toBe(4);
   expect((await state(page)).node).toBe("root");
   expect((await state(page)).lives).toBe(3);
 
-  await page.evaluate(() => localStorage.setItem("signal-garden:v10:progress", JSON.stringify({ version: 8, latestGarden: 3 })));
+  await page.evaluate(() => localStorage.setItem("signal-garden:v10:progress", JSON.stringify({ version: 8, latestGarden: 4 })));
   await page.reload();
   await expect(canvas).toHaveAttribute("aria-label", /Garden 1 ready/i);
   await canvas.press("Enter");

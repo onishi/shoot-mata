@@ -5,7 +5,7 @@ export const DEFAULT_PROGRESS = Object.freeze({
   latestGarden: 0,
 });
 
-const LAST_GARDEN = 3;
+const LAST_GARDEN = 4;
 
 export function normalizeProgress(value) {
   if (!value || typeof value !== "object" || Array.isArray(value)) return { ...DEFAULT_PROGRESS };

@@ -50,3 +50,10 @@
 - 雨花へ向かう同期切替はGRAFTを枯枝へ向け、FORK通過後かつGRAFT到着前に戻した場合だけ安全に完走できる。
 - 水色の接続線、両分岐の選択輪、HUDの二経路表示、ARIA通知で連動を識別できる。
 - 単体26/26、構文検査、production build、Chrome E2E 5/5、console error / warning 0件に合格し、同期中と最終勝利を1280×720で目視する。
+
+## M3途中検証 — 第5庭園
+
+- 同期・遅延と併用せず、QUICKENで1100msから520ms、CALMで1100msへ戻る。損傷と再挑戦でも初期拍長へ復旧する。
+- 低速区間でGRAFTとCROWNを先に整え、加速後は短い猶予を入力速度で追わずに通過できる攻略をモデルと実キー操作の両方で確認する。
+- 金色と水色のテンポ門、名称、現在の`ms / BEAT`、二音、ARIA通知で速度状態と変化地点を識別できる。
+- 単体28/28、構文検査、production build、Chrome E2E 5/5、console error / warning 0件に合格し、`m3-quickening-vine-fast.png`と`m3-fifth-garden-won.png`を1280×720で目視する。
