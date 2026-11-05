@@ -120,6 +120,12 @@ function persistPreferences(patch = {}) {
 }
 
 function syncAccessibility() {
+  const huntingNames = game.wardens
+    .filter((entry) => wardenIsHunting(game, entry))
+    .map((entry) => entry.huntsWhen === 'dim' ? 'dusk warden' : 'flame warden');
+  const pursuitText = huntingNames.length > 0
+    ? `${huntingNames.join(' and ')} pursuing`
+    : 'no warden pursuing';
   const phaseText = {
     title: settingsOpen
       ? `CANDLEWICK settings. ${['Volume', 'Screen shake', 'Reduce flashes'][settingsIndex]} selected. Use arrows to change, Escape to close.`
@@ -129,7 +135,7 @@ function syncAccessibility() {
       ? `Room restored. Press Enter to enter room ${game.levelIndex + 2}, or R to retry.`
       : `All ${LEVELS.length} rooms kindled. Press Enter to return to the title or R to retry.`,
     lost: 'All embers lost. Press R to retry.',
-    playing: `${isBright(game) ? 'Bright lamp' : 'Dim lamp'}, ${game.wardens.filter((entry) => wardenIsHunting(game, entry)).map((entry) => entry.huntsWhen === 'dim' ? 'dusk warden' : 'flame warden').join(' and ')} pursuing. ${collectedCount(game)} of 3 star-seeds, ${game.lives} embers, oil ${game.fuel} of ${MAX_FUEL}.`
+    playing: `${isBright(game) ? 'Bright lamp' : 'Dim lamp'}, ${pursuitText}. ${collectedCount(game)} of 3 star-seeds, ${game.lives} embers, oil ${game.fuel} of ${MAX_FUEL}.`
   };
   canvas.setAttribute('aria-label', phaseText[game.phase]);
   canvas.dataset.phase = game.phase;
