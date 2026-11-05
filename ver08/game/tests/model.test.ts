@@ -9,6 +9,13 @@ describe("DUSKLOOM model", () => {
     expect(togglePause(playing).screen).toBe("paused");
   });
 
+  it("starts a selected unlocked panel from the title", () => {
+    const playing = start(createGame(), 1);
+    expect(playing.screen).toBe("playing");
+    expect(playing.levelIndex).toBe(1);
+    expect(playing.moths).toHaveLength(2);
+  });
+
   it("requires Space to leave repaired cloth", () => {
     const state = start(createGame());
     expect(movePlayer(state, "right", false).lastEvent).toBe("blocked");
@@ -125,12 +132,14 @@ describe("DUSKLOOM model", () => {
     expect(state.moths.every((moth) => !state.cloth[moth.y * WIDTH + moth.x])).toBe(true);
   });
 
-  it("restarts the current panel and loops to panel one after the sampler", () => {
+  it("restarts the current panel and returns to the title after the sampler", () => {
     const second = restart(createGame(1));
     expect(restart(second).levelIndex).toBe(1);
     const third = continueAfterWin(withScenario(second, { screen: "won" }));
     expect(third.levelIndex).toBe(2);
     const completed = withScenario(third, { screen: "won" });
-    expect(continueAfterWin(completed).levelIndex).toBe(0);
+    const returned = continueAfterWin(completed);
+    expect(returned.levelIndex).toBe(0);
+    expect(returned.screen).toBe("title");
   });
 });

@@ -53,6 +53,33 @@ test("keyboard options persist sound and reduced motion across reload", async ({
   expect(errors).toEqual([]);
 });
 
+test("campaign progress offers continue or panel one and recovers from damaged storage", async ({ page }) => {
+  await page.keyboard.press("Enter");
+  await stitch(page, "ArrowRight", 19);
+  await press(page, "ArrowUp", 2);
+  await stitch(page, "ArrowLeft", 19);
+  await expectScreen(page, "won");
+  await expect(canvasFor(page)).toHaveAttribute("data-highest-unlocked", "2");
+
+  await page.reload();
+  await expectScreen(page, "title");
+  await expect(canvasFor(page)).toHaveAttribute("data-title-choice", "continue");
+  await page.keyboard.press("Enter");
+  await expectScreen(page, "playing");
+  await expect(canvasFor(page)).toHaveAttribute("data-level", "2");
+
+  await page.reload();
+  await page.keyboard.press("ArrowDown");
+  await expect(canvasFor(page)).toHaveAttribute("data-title-choice", "new");
+  await page.keyboard.press("Enter");
+  await expect(canvasFor(page)).toHaveAttribute("data-level", "1");
+
+  await page.evaluate(() => localStorage.setItem("duskloom.progress.v1", "damaged"));
+  await page.reload();
+  await expect(canvasFor(page)).toHaveAttribute("data-highest-unlocked", "1");
+  await expect(canvasFor(page)).toHaveAttribute("data-title-choice", "new");
+});
+
 test("title, exposed thread, repair, victory, and pause are visible in Chrome", async ({ page }) => {
   const errors: string[] = [];
   page.on("console", (message) => {
@@ -111,6 +138,15 @@ test("title, exposed thread, repair, victory, and pause are visible in Chrome", 
   await stitch(page, "ArrowLeft", 8);
   await expectScreen(page, "won");
   await page.screenshot({ path: "../docs/evidence/m2-three-panel-complete.png" });
+  await expect(canvasFor(page)).toHaveAttribute("data-campaign-complete", "true");
+  await page.keyboard.press("Enter");
+  await expectScreen(page, "title");
+  await expect(canvasFor(page)).toHaveAttribute("data-title-choice", "continue");
+  await page.screenshot({ path: "../docs/evidence/m2-campaign-continue.png" });
+  await page.reload();
+  await expect(canvasFor(page)).toHaveAttribute("data-campaign-complete", "true");
+  await page.keyboard.press("Enter");
+  await expect(canvasFor(page)).toHaveAttribute("data-level", "3");
   expect(errors).toEqual([]);
 });
 

@@ -16,12 +16,15 @@ import {
   type Point,
 } from "./model";
 import { loadPreferences, savePreferences, type Preferences } from "./preferences";
+import { loadProgress, recordWin, saveProgress, type CampaignProgress } from "./progress";
 
 const canvas = document.querySelector<HTMLCanvasElement>("#game")!;
 const live = document.querySelector<HTMLParagraphElement>("#live")!;
 const ctx = canvas.getContext("2d")!;
 
 let state = createGame();
+let progress: CampaignProgress = loadProgress(localStorage, LEVELS.length);
+let titleChoice: "continue" | "new" = progress.highestUnlocked > 0 ? "continue" : "new";
 let preferences: Preferences = loadPreferences(localStorage, {
   volume: 0.75,
   reducedMotion: matchMedia("(prefers-reduced-motion: reduce)").matches,
@@ -114,15 +117,28 @@ function drawTitle(time: number) {
   ctx.font = "18px Georgia";
   ctx.letterSpacing = "1px";
   ctx.fillText("Leave the safe selvage. Stitch the torn dark closed.", 480, 290);
+  const hasContinue = progress.highestUnlocked > 0;
   const shimmer = preferences.reducedMotion ? 0.8 : 0.65 + Math.sin(time / 420) * 0.22;
-  ctx.fillStyle = `rgba(242, 213, 138, ${shimmer})`;
   ctx.font = "700 15px Georgia";
   ctx.letterSpacing = "2px";
-  ctx.fillText("PRESS ENTER TO THREAD THE LOOM", 480, 365);
+  if (hasContinue) {
+    const continueLabel = `CONTINUE — PANEL ${progress.highestUnlocked + 1}: ${LEVELS[progress.highestUnlocked].name}`;
+    ctx.fillStyle = titleChoice === "continue" ? `rgba(242, 213, 138, ${shimmer})` : "#69758d";
+    ctx.fillText(`${titleChoice === "continue" ? "◆" : "◇"}  ${continueLabel}`, 480, 352);
+    ctx.fillStyle = titleChoice === "new" ? `rgba(242, 213, 138, ${shimmer})` : "#69758d";
+    ctx.fillText(`${titleChoice === "new" ? "◆" : "◇"}  START AT PANEL I`, 480, 389);
+    ctx.fillStyle = progress.completed ? "#c59a57" : "#77849e";
+    ctx.font = "11px Georgia";
+    ctx.letterSpacing = "1.4px";
+    ctx.fillText(progress.completed ? "SAMPLER COMPLETE — ALL PANELS MENDED" : "UP / DOWN TO CHOOSE     ENTER TO BEGIN", 480, 426);
+  } else {
+    ctx.fillStyle = `rgba(242, 213, 138, ${shimmer})`;
+    ctx.fillText("PRESS ENTER TO THREAD THE LOOM", 480, 365);
+  }
   ctx.fillStyle = "#77849e";
   ctx.font = "12px Georgia";
   ctx.letterSpacing = "1.5px";
-  ctx.fillText("ARROWS / WASD  MOVE     HOLD SPACE  STITCH     O  OPTIONS", 480, 419);
+  ctx.fillText("ARROWS / WASD  MOVE     HOLD SPACE  STITCH     O  OPTIONS", 480, hasContinue ? 474 : 419);
 }
 
 function drawFrame() {
@@ -338,7 +354,7 @@ function drawGame(time: number) {
     drawOverlay(
       finalPanel ? "SAMPLER MENDED" : "PANEL MENDED",
       finalPanel ? "All three panels hold against the unravellers." : `The next panel waits: ${nextPanel.name}.`,
-      finalPanel ? "ENTER TO WEAVE FROM PANEL I" : `ENTER FOR PANEL ${state.levelIndex + 2}`,
+      finalPanel ? "ENTER TO RETURN TO THE ATELIER" : `ENTER FOR PANEL ${state.levelIndex + 2}`,
     );
   }
   if (state.screen === "lost") drawOverlay("THREAD UNDONE", "The unraveller found every spool.", "ENTER TO RETRY");
@@ -353,7 +369,9 @@ function updateAria() {
   const description = settingsOpen
     ? `Options. Sound volume ${Math.round(preferences.volume * 100)} percent. Reduced motion ${preferences.reducedMotion ? "on" : "off"}.`
     : state.screen === "title"
-    ? "DUSKLOOM title. Press Enter to begin."
+    ? progress.highestUnlocked > 0
+      ? `DUSKLOOM title. ${progress.completed ? "Sampler complete. " : ""}${titleChoice === "continue" ? `Continue at panel ${progress.highestUnlocked + 1} selected.` : "Start at panel one selected."} Use up and down to choose, then Enter.`
+      : "DUSKLOOM title. Press Enter to begin."
     : `${state.screen}. Panel ${state.levelIndex + 1} of ${LEVELS.length}, ${levelFor(state).name}. ${state.repaired} percent repaired. ${state.spools} spools. ${state.trail.length} exposed thread cells.`;
   canvas.setAttribute("aria-label", description);
   canvas.dataset.screen = settingsOpen ? "settings" : state.screen;
@@ -364,6 +382,9 @@ function updateAria() {
   canvas.dataset.moths = String(state.moths.length);
   canvas.dataset.volume = String(Math.round(preferences.volume * 100));
   canvas.dataset.reducedMotion = String(preferences.reducedMotion);
+  canvas.dataset.highestUnlocked = String(progress.highestUnlocked + 1);
+  canvas.dataset.campaignComplete = String(progress.completed);
+  canvas.dataset.titleChoice = titleChoice;
 }
 
 function closeSettings() {
@@ -396,12 +417,21 @@ window.addEventListener("keydown", (event) => {
   } else if (event.code === "KeyO" && ["title", "playing", "paused"].includes(state.screen)) {
     settingsOpen = true;
     announce("Options opened. Use left and right for sound volume, M for reduced motion, Escape to return.");
+  } else if (state.screen === "title" && ["ArrowUp", "ArrowDown", "KeyW", "KeyS"].includes(event.code) && progress.highestUnlocked > 0) {
+    titleChoice = titleChoice === "continue" ? "new" : "continue";
+    announce(titleChoice === "continue" ? `Continue at panel ${progress.highestUnlocked + 1}.` : "Start at panel one.");
   } else if (state.screen === "title" && event.code === "Enter") {
-    state = start(state); lastMothStep = performance.now(); announce("Loom started. Hold Space and move away from the repaired edge to stitch.");
+    const levelIndex = titleChoice === "continue" ? progress.highestUnlocked : 0;
+    state = start(state, levelIndex); lastMothStep = performance.now(); announce(`Panel ${state.levelIndex + 1}, ${levelFor(state).name}. Hold Space and move away from repaired cloth to stitch.`);
   } else if ((state.screen === "won" || state.screen === "lost") && event.code === "Enter") {
     if (state.screen === "won") {
       state = continueAfterWin(state);
-      announce(`Panel ${state.levelIndex + 1}, ${levelFor(state).name}. ${state.moths.length} unravellers are moving.`);
+      if (state.screen === "title") {
+        titleChoice = "continue";
+        announce("Sampler complete. Returned to the atelier.");
+      } else {
+        announce(`Panel ${state.levelIndex + 1}, ${levelFor(state).name}. ${state.moths.length} unravellers are moving.`);
+      }
     } else {
       state = restart(state);
       announce(`Panel ${state.levelIndex + 1} restarted.`);
@@ -415,7 +445,11 @@ window.addEventListener("keydown", (event) => {
   } else if (state.screen === "playing" && direction) {
     state = movePlayer(state, direction, event.shiftKey || event.getModifierState("Alt") || pressedSpace);
     if (state.lastEvent === "claim") announce(`${state.repaired} percent repaired.`);
-    if (state.lastEvent === "win") announce("Night mended. Press Enter to weave again.");
+    if (state.lastEvent === "win") {
+      progress = recordWin(progress, state.levelIndex, LEVELS.length);
+      saveProgress(localStorage, progress, LEVELS.length);
+      announce(state.levelIndex === LEVELS.length - 1 ? "Sampler complete. Press Enter to return to the atelier." : "Night mended. Press Enter for the next panel.");
+    }
   }
   playEvent(previous, state);
   updateAria();

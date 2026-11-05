@@ -106,8 +106,8 @@ export function createGame(levelIndex = 0): GameState {
   };
 }
 
-export function start(state: GameState): GameState {
-  return state.screen === "title" ? { ...createGame(0), screen: "playing" } : state;
+export function start(state: GameState, levelIndex = 0): GameState {
+  return state.screen === "title" ? { ...createGame(levelIndex), screen: "playing" } : state;
 }
 
 export function restart(state?: Pick<GameState, "levelIndex">): GameState {
@@ -117,7 +117,9 @@ export function restart(state?: Pick<GameState, "levelIndex">): GameState {
 export function continueAfterWin(state: GameState): GameState {
   if (state.screen !== "won") return state;
   const nextLevel = state.levelIndex + 1;
-  return { ...createGame(nextLevel < LEVELS.length ? nextLevel : 0), screen: "playing" };
+  return nextLevel < LEVELS.length
+    ? { ...createGame(nextLevel), screen: "playing" }
+    : createGame(0);
 }
 
 export function togglePause(state: GameState): GameState {
