@@ -3,7 +3,7 @@
 ## 構成
 
 - buildless ES modules + Viteによる配布build
-- `src/model.js`: 純粋な規則状態、入力、固定tick、衝突、勝敗
+- `src/model.js`: データ駆動の室、純粋な規則状態、入力、固定tick、照明、衝突、勝敗
 - `src/main.js`: Canvas描画、キー入力、固定step、Web Audio、ARIA
 - `tests/model.test.js`: Node標準テストによる規則回帰
 - `e2e/candlewick.spec.js`: Google Chromeへの実キー入力と主要画面検証
@@ -14,7 +14,11 @@
 
 ## 状態
 
-`title | playing | paused | won | lost`を持つ。プレイ状態はプレイヤー座標、番人座標と巡回方向、灯油、強灯要求、回収済み星種、残火、tickから成る。
+`title | playing | paused | won | lost`を持つ。プレイ状態は室index、プレイヤー座標、番人座標と巡回方向、灯油、強灯要求、回収済み星種、残火、tickから成る。室データは壁、開始位置、番人、星種、出口、鏡を持つ。
+
+## 照明
+
+`isPointLit`を描画上の唯一の点灯判定とする。通常灯／強灯のプレイヤー中心半径に加え、強灯半径内の鏡から方向ベクトルへセル単位で反射線を伸ばし、最初の壁で止める。反射線は規則座標から決定的に導出し、描画時刻へ依存しない。
 
 ## アクセシビリティ
 

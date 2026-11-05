@@ -1,14 +1,19 @@
 import './style.css';
 import {
   COLS,
-  EXIT,
+  LEVELS,
   MAX_FUEL,
   ROWS,
+  activeMirrorBeams,
+  advanceRoom,
   collectedCount,
   createGame,
+  directLightDistance,
   isBright,
   isExitOpen,
+  isPointLit,
   isWall,
+  levelFor,
   movePlayer,
   retryGame,
   setBright,
@@ -64,7 +69,7 @@ function react(previous, next) {
     seed: `Star-seed gathered. ${collectedCount(next)} of 3.`,
     hit: `The ash warden found you. ${next.lives} embers remain.`,
     empty: 'Lamp oil empty. The light folds shut.',
-    won: 'All star-seeds returned. The glasshouse wakes.',
+    won: `All star-seeds returned. Room ${next.levelIndex + 1} restored.`,
     lost: 'Your last ember is out.',
     pause: 'Paused.',
     resume: 'Resumed.'
@@ -97,7 +102,9 @@ function syncAccessibility() {
   const phaseText = {
     title: 'CANDLEWICK title. Press Enter to begin.',
     paused: 'CANDLEWICK paused. Press Escape to resume.',
-    won: 'Room restored. Press Enter to return to the title or R to retry.',
+    won: game.levelIndex + 1 < LEVELS.length
+      ? `Room restored. Press Enter to enter room ${game.levelIndex + 2}, or R to retry.`
+      : 'All available rooms restored. Press Enter to return to the title or R to retry.',
     lost: 'All embers lost. Press R to retry.',
     playing: `${isBright(game) ? 'Bright lamp, warden pursuing' : 'Dim lamp, warden patrolling'}. ${collectedCount(game)} of 3 star-seeds, ${game.lives} embers, oil ${game.fuel} of ${MAX_FUEL}.`
   };
@@ -110,6 +117,8 @@ function syncAccessibility() {
   canvas.dataset.player = `${game.player.x},${game.player.y}`;
   canvas.dataset.warden = `${game.warden.x},${game.warden.y}`;
   canvas.dataset.event = game.event;
+  canvas.dataset.level = String(game.levelIndex + 1);
+  canvas.dataset.mirror = activeMirrorBeams(game).length > 0 ? 'active' : 'idle';
 }
 
 function pathRoundedRect(x, y, width, height, radius) {
@@ -177,7 +186,7 @@ function cellCenter(point) {
 }
 
 function lightDistance(point) {
-  return Math.hypot(point.x - game.player.x, point.y - game.player.y);
+  return directLightDistance(game, point);
 }
 
 function drawFloor(now) {
@@ -193,10 +202,10 @@ function drawFloor(now) {
     for (let x = 0; x < COLS; x += 1) {
       const point = { x, y };
       const distance = lightDistance(point);
-      const seen = distance <= radius;
+      const seen = isPointLit(game, point);
       const px = BOARD.x + x * BOARD.cell;
       const py = BOARD.y + y * BOARD.cell;
-      if (isWall(point)) {
+      if (isWall(point, game)) {
         ctx.fillStyle = seen ? '#4b4050' : '#171622';
         ctx.fillRect(px + 2, py + 2, BOARD.cell - 4, BOARD.cell - 4);
         if (seen) {
@@ -226,8 +235,51 @@ function drawFloor(now) {
   ctx.fillRect(BOARD.x, BOARD.y, COLS * BOARD.cell, ROWS * BOARD.cell);
 }
 
+function drawMirrors(now) {
+  const level = levelFor(game);
+  const beams = activeMirrorBeams(game);
+  for (const beam of beams) {
+    const start = cellCenter(beam.mirror);
+    const last = beam.cells.at(-1);
+    if (last) {
+      const end = cellCenter(last);
+      ctx.save();
+      ctx.strokeStyle = 'rgba(139,224,191,0.68)';
+      ctx.shadowColor = COLORS.mint;
+      ctx.shadowBlur = 13;
+      ctx.lineWidth = 5;
+      ctx.setLineDash([10, 7]);
+      ctx.lineDashOffset = -now / 45;
+      ctx.beginPath();
+      ctx.moveTo(start.x, start.y);
+      ctx.lineTo(end.x, end.y);
+      ctx.stroke();
+      ctx.restore();
+    }
+  }
+  for (const mirror of level.mirrors) {
+    if (!isPointLit(game, mirror)) continue;
+    const center = cellCenter(mirror);
+    const active = beams.some((beam) => beam.mirror === mirror);
+    ctx.save();
+    ctx.translate(center.x, center.y);
+    ctx.rotate(Math.atan2(mirror.dy, mirror.dx) + Math.PI / 2);
+    ctx.fillStyle = active ? COLORS.mint : '#6a6075';
+    ctx.strokeStyle = active ? COLORS.flame : COLORS.smoke;
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(-17, 12);
+    ctx.lineTo(0, -17);
+    ctx.lineTo(17, 12);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+  }
+}
+
 function drawSeed(seed, now) {
-  if (seed.collected || !isBright(game) || lightDistance(seed) > 5.6) return;
+  if (seed.collected || !isBright(game) || !isPointLit(game, seed)) return;
   const point = cellCenter(seed);
   ctx.save();
   ctx.translate(point.x, point.y);
@@ -250,9 +302,10 @@ function drawSeed(seed, now) {
 }
 
 function drawExit(now) {
-  const point = cellCenter(EXIT);
+  const exit = levelFor(game).exit;
+  const point = cellCenter(exit);
   const open = isExitOpen(game);
-  const visible = lightDistance(EXIT) <= (isBright(game) ? 5.6 : 2.6);
+  const visible = isPointLit(game, exit);
   if (!visible) return;
   ctx.save();
   ctx.translate(point.x, point.y);
@@ -276,7 +329,7 @@ function drawExit(now) {
 
 function drawWarden(now) {
   const point = cellCenter(game.warden);
-  const visible = lightDistance(game.warden) <= (isBright(game) ? 5.7 : 2.6);
+  const visible = isPointLit(game, game.warden);
   if (!visible) {
     const dx = game.warden.x - game.player.x;
     const dy = game.warden.y - game.player.y;
@@ -349,8 +402,10 @@ function drawPlayer(now) {
 }
 
 function drawHud() {
-  text('GLASSHOUSE 01', 72, 118, 15, COLORS.brass, 'left', 700);
-  text(isBright(game) ? 'WARDEN: HUNTING' : 'WARDEN: LISTENING', 72, 154, 13, isBright(game) ? '#ef7967' : COLORS.smoke, 'left', 700);
+  const level = levelFor(game);
+  text(`GLASSHOUSE 0${game.levelIndex + 1}`, 72, 118, 15, COLORS.brass, 'left', 700);
+  text(level.name, 72, 145, 11, COLORS.paper, 'left', 700);
+  text(isBright(game) ? 'WARDEN: HUNTING' : 'WARDEN: LISTENING', 72, 174, 13, isBright(game) ? '#ef7967' : COLORS.smoke, 'left', 700);
   text('LAMP OIL', 72, 222, 12, COLORS.smoke, 'left', 700);
   ctx.fillStyle = '#25202e';
   ctx.fillRect(72, 242, 128, 12);
@@ -380,6 +435,10 @@ function drawHud() {
   text('TO REVEAL', 1092, 412, 13, COLORS.paper, 'left', 700);
   text('RELEASE', 1092, 452, 13, COLORS.smoke, 'left', 700);
   text('TO HIDE', 1092, 474, 13, COLORS.paper, 'left', 700);
+  if (level.mirrors.length > 0) {
+    text('PRISM', 1092, 520, 12, COLORS.mint, 'left', 700);
+    text(activeMirrorBeams(game).length > 0 ? 'BEAM TURNED' : 'LIGHT THE GLASS', 1092, 542, 12, COLORS.paper, 'left', 700);
+  }
   text('ESC PAUSE  ·  R RETRY', 640, 650, 13, '#81778f', 'center');
 }
 
@@ -394,7 +453,12 @@ function drawOverlay(title, subtitle, accent = COLORS.wax) {
   ctx.stroke();
   text(title, 640, 320, 34, accent, 'center', 800);
   text(subtitle, 640, 374, 15, COLORS.paper, 'center', 600);
-  text(game.phase === 'paused' ? 'ESC  RESUME' : 'R  TRY AGAIN', 640, 430, 14, COLORS.smoke, 'center', 700);
+  let action = 'R  TRY AGAIN';
+  if (game.phase === 'paused') action = 'ESC  RESUME';
+  if (game.phase === 'won') {
+    action = game.levelIndex + 1 < LEVELS.length ? 'ENTER  NEXT ROOM   ·   R  RETRY' : 'ENTER  TITLE   ·   R  RETRY';
+  }
+  text(action, 640, 430, 14, COLORS.smoke, 'center', 700);
 }
 
 function render(now) {
@@ -403,13 +467,21 @@ function render(now) {
     drawTitle(now);
   } else {
     drawFloor(now);
+    drawMirrors(now);
     game.seeds.forEach((seed) => drawSeed(seed, now));
     drawExit(now);
     drawWarden(now);
     drawPlayer(now);
     drawHud();
     if (game.phase === 'paused') drawOverlay('FLAME HELD', 'The room waits in the dark.', COLORS.wax);
-    if (game.phase === 'won') drawOverlay('GLASSHOUSE WAKES', 'Three small stars answer the dawn.', COLORS.mint);
+    if (game.phase === 'won') {
+      const finalRoom = game.levelIndex + 1 === LEVELS.length;
+      drawOverlay(
+        finalRoom ? 'TWO ROOMS KINDLED' : 'GLASSHOUSE WAKES',
+        finalRoom ? 'The prism carries dawn around the stone.' : 'Three small stars answer the dawn.',
+        COLORS.mint
+      );
+    }
     if (game.phase === 'lost') drawOverlay('LAST EMBER OUT', 'The ash keeps this room—for now.', COLORS.ember);
   }
   requestAnimationFrame(render);
@@ -428,12 +500,12 @@ window.addEventListener('keydown', (event) => {
 
   if (event.code === 'Enter') {
     if (game.phase === 'title') commit(startGame(game));
-    else if (game.phase === 'won') commit(createGame());
+    else if (game.phase === 'won') commit(advanceRoom(game));
     canvas.focus();
     return;
   }
   if (event.code === 'KeyR' && game.phase !== 'title') {
-    commit(retryGame());
+    commit(retryGame(game));
     return;
   }
   if (event.code === 'Escape') {

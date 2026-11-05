@@ -2,14 +2,19 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   EXIT,
+  LEVELS,
   MAX_FUEL,
   PLAYER_START,
   WARDEN_START,
+  activeMirrorBeams,
+  advanceRoom,
   collectedCount,
   createGame,
   forceState,
   isBright,
   isExitOpen,
+  isPointLit,
+  isWall,
   movePlayer,
   retryGame,
   setBright,
@@ -100,4 +105,40 @@ test('all seeds open the exit and entering it wins', () => {
   assert.equal(isExitOpen(game), true);
   game = movePlayer(game, 1, 0);
   assert.equal(game.phase, 'won');
+});
+
+test('winning the first room advances to its distinct second-room data', () => {
+  let game = forceState(startGame(createGame()), { phase: 'won' });
+  game = advanceRoom(game);
+  assert.equal(game.phase, 'playing');
+  assert.equal(game.levelIndex, 1);
+  assert.equal(LEVELS[game.levelIndex].name, 'PRISM WALK');
+  assert.deepEqual(game.player, LEVELS[1].playerStart);
+  assert.equal(isWall({ x: 2, y: 3 }, game), true);
+  assert.equal(isWall({ x: 3, y: 2 }, game), false);
+  assert.equal(retryGame(game).levelIndex, 1);
+});
+
+test('the second-room prism turns bright light toward a distant seed', () => {
+  let game = startGame(createGame(), 1);
+  const distantSeed = LEVELS[1].seeds[0];
+  assert.ok(Math.hypot(distantSeed.x - game.player.x, distantSeed.y - game.player.y) > 5.4);
+  assert.equal(isPointLit(game, distantSeed), false);
+
+  game = setBright(game, true);
+  const beams = activeMirrorBeams(game);
+  assert.equal(beams.length, 1);
+  assert.deepEqual(beams[0].cells.at(-1), { x: 5, y: 1 });
+  assert.equal(isPointLit(game, distantSeed), true);
+
+  game = setBright(game, false);
+  assert.equal(activeMirrorBeams(game).length, 0);
+  assert.equal(isPointLit(game, distantSeed), false);
+});
+
+test('finishing the available second room returns to the title', () => {
+  let game = forceState(startGame(createGame(), 1), { phase: 'won' });
+  game = advanceRoom(game);
+  assert.equal(game.phase, 'title');
+  assert.equal(game.levelIndex, 0);
 });
