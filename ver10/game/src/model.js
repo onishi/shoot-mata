@@ -1,6 +1,11 @@
 export const SWITCHES = ["fork", "graft", "crown"];
 export const FLOW_MS = 800;
 
+export const GARDENS = [
+  { id: "one", name: "FIRST LIGHT", delayedSwitch: null, delayBeats: 0 },
+  { id: "two", name: "SLEEPING CROWN", delayedSwitch: 2, delayBeats: 2 },
+];
+
 export const NODES = {
   root: { x: 92, y: 360, next: ["fork"] },
   fork: { x: 250, y: 360, next: ["moon", "rain"], switchIndex: 0 },
@@ -16,12 +21,14 @@ export const NODES = {
   returnC: { x: 150, y: 565, next: ["fork"] },
 };
 
-export function createGame() {
+function gardenState(garden, phase = "playing") {
   return {
-    phase: "title",
+    phase,
+    garden,
     node: "root",
     previousNode: "root",
     switches: [0, 1, 0],
+    pendingSwitches: [null, null, null],
     blooms: { moon: false, rain: false, bell: false },
     lives: 3,
     steps: 0,
@@ -30,9 +37,21 @@ export function createGame() {
   };
 }
 
+export function createGame() {
+  return gardenState(0, "title");
+}
+
 export function startGame(state) {
-  if (state.phase === "title" || state.phase === "won" || state.phase === "lost") {
-    Object.assign(state, createGame(), { phase: "playing" });
+  if (state.phase === "title" || state.phase === "won") {
+    Object.assign(state, gardenState(0));
+    return true;
+  }
+  if (state.phase === "gardenWon") {
+    Object.assign(state, gardenState(state.garden + 1));
+    return true;
+  }
+  if (state.phase === "lost") {
+    Object.assign(state, gardenState(state.garden));
     return true;
   }
   if (state.phase === "paused") {
@@ -48,7 +67,7 @@ export function togglePause(state) {
 }
 
 export function resetGame(state) {
-  Object.assign(state, createGame(), { phase: "playing" });
+  Object.assign(state, gardenState(state.garden));
 }
 
 export function selectSwitch(state, delta) {
@@ -60,8 +79,20 @@ export function selectSwitch(state, delta) {
 export function toggleSelectedSwitch(state) {
   if (state.phase !== "playing") return false;
   const index = state.selectedSwitch;
-  state.switches[index] = state.switches[index] === 0 ? 1 : 0;
-  state.lastEvent = `switch:${SWITCHES[index]}:${state.switches[index]}`;
+  const garden = GARDENS[state.garden];
+  if (garden.delayedSwitch === index) {
+    const requested = state.pendingSwitches[index]?.value ?? state.switches[index];
+    const value = requested === 0 ? 1 : 0;
+    state.pendingSwitches[index] = value === state.switches[index]
+      ? null
+      : { value, remaining: garden.delayBeats };
+    state.lastEvent = state.pendingSwitches[index]
+      ? `pending:${SWITCHES[index]}:${value}:${garden.delayBeats}`
+      : `pending:${SWITCHES[index]}:cancelled`;
+  } else {
+    state.switches[index] = state.switches[index] === 0 ? 1 : 0;
+    state.lastEvent = `switch:${SWITCHES[index]}:${state.switches[index]}`;
+  }
   return true;
 }
 
@@ -87,6 +118,21 @@ function strike(state, reason) {
   state.previousNode = "root";
   state.blooms = { moon: false, rain: false, bell: false };
   state.switches = [0, 1, 0];
+  state.pendingSwitches = [null, null, null];
+}
+
+function advancePendingSwitches(state) {
+  const committed = [];
+  state.pendingSwitches.forEach((pending, index) => {
+    if (!pending) return;
+    pending.remaining -= 1;
+    if (pending.remaining <= 0) {
+      state.switches[index] = pending.value;
+      state.pendingSwitches[index] = null;
+      committed.push(index);
+    }
+  });
+  return committed;
 }
 
 export function advance(state) {
@@ -97,12 +143,13 @@ export function advance(state) {
   state.previousNode = from;
   state.node = destination;
   state.steps += 1;
+  const committed = advancePendingSwitches(state);
 
   const node = NODES[destination];
   if (node.bloom && !state.blooms[node.bloom]) {
     state.blooms[node.bloom] = true;
     state.lastEvent = `bloom:${node.bloom}`;
-    return { type: "bloom", bloom: node.bloom, from, to: destination };
+    return { type: "bloom", bloom: node.bloom, from, to: destination, committed };
   }
   if (node.hazard) {
     strike(state, "blight");
@@ -110,22 +157,25 @@ export function advance(state) {
   }
   if (node.receiver) {
     if (allBloomed(state)) {
-      state.phase = "won";
-      state.lastEvent = "won";
-      return { type: "won", from, to: destination };
+      const finalGarden = state.garden === GARDENS.length - 1;
+      state.phase = finalGarden ? "won" : "gardenWon";
+      state.lastEvent = finalGarden ? "won" : "gardenWon";
+      return { type: finalGarden ? "won" : "gardenWon", from, to: destination, committed };
     }
     strike(state, "unripe");
     return { type: "strike", reason: "unripe", from, to: destination };
   }
   state.lastEvent = `move:${destination}`;
-  return { type: "move", from, to: destination };
+  return { type: "move", from, to: destination, committed };
 }
 
 export function snapshot(state) {
   return {
     phase: state.phase,
+    garden: state.garden,
     node: state.node,
     switches: [...state.switches],
+    pendingSwitches: state.pendingSwitches.map((pending) => pending ? { ...pending } : null),
     blooms: { ...state.blooms },
     lives: state.lives,
     steps: state.steps,

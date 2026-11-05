@@ -17,6 +17,7 @@ test("new game starts on the title with safe deterministic defaults", () => {
   const state = createGame();
   assert.equal(state.phase, "title");
   assert.deepEqual(state.switches, [0, 1, 0]);
+  assert.deepEqual(state.pendingSwitches, [null, null, null]);
   assert.deepEqual(state.blooms, { moon: false, rain: false, bell: false });
   assert.equal(state.lives, 3);
 });
@@ -78,6 +79,55 @@ test("planned two-lap route opens all flowers and wins", () => {
   state.switches[2] = 0;
   advanceTo(state, "receiver");
   assert.deepEqual(state.blooms, { moon: true, rain: true, bell: true });
+  assert.equal(state.phase, "gardenWon");
+});
+
+test("garden two introduces a crown route that commits after two beats", () => {
+  const state = createGame(); startGame(state);
+  state.phase = "gardenWon";
+  startGame(state);
+  assert.equal(state.garden, 1);
+  state.selectedSwitch = 2;
+  toggleSelectedSwitch(state);
+  assert.equal(state.switches[2], 0);
+  assert.deepEqual(state.pendingSwitches[2], { value: 1, remaining: 2 });
+  advance(state);
+  assert.equal(state.switches[2], 0);
+  assert.equal(state.pendingSwitches[2].remaining, 1);
+  advance(state);
+  assert.equal(state.switches[2], 1);
+  assert.equal(state.pendingSwitches[2], null);
+});
+
+test("a sleeping switch request can be cancelled before it commits", () => {
+  const state = createGame(); startGame(state);
+  state.phase = "gardenWon"; startGame(state);
+  state.selectedSwitch = 2;
+  toggleSelectedSwitch(state);
+  toggleSelectedSwitch(state);
+  assert.equal(state.switches[2], 0);
+  assert.equal(state.pendingSwitches[2], null);
+  resetGame(state);
+  assert.equal(state.garden, 1);
+  state.phase = "lost";
+  startGame(state);
+  assert.equal(state.garden, 1);
+});
+
+test("planned sleeping-crown route completes the second garden", () => {
+  const state = createGame(); startGame(state);
+  state.phase = "gardenWon"; startGame(state);
+  state.switches[1] = 0;
+  state.selectedSwitch = 2;
+  toggleSelectedSwitch(state);
+  advanceTo(state, "returnA");
+  assert.equal(state.switches[2], 1);
+  state.switches[0] = 1;
+  toggleSelectedSwitch(state);
+  advanceTo(state, "rain");
+  assert.equal(state.switches[2], 0);
+  advanceTo(state, "receiver");
+  assert.deepEqual(state.blooms, { moon: true, rain: true, bell: true });
   assert.equal(state.phase, "won");
 });
 
@@ -88,6 +138,7 @@ test("three strikes lead to loss and reset starts a fresh run", () => {
   resetGame(state);
   assert.equal(state.phase, "playing");
   assert.equal(state.lives, 3);
+  assert.equal(state.garden, 0);
 });
 
 test("pause freezes rule advancement", () => {

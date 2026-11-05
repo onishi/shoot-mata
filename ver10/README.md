@@ -6,6 +6,7 @@
 
 - M0 白紙企画比較・独立性確認: 完了
 - M1 コアループ縦切り: 完了。モデル、Google Chrome E2E、主要4画面の目視に合格
+- M2 3庭園・設定・保存: 進行中。第2庭園「SLEEPING CROWN」まで実装
 - 3個の分岐を左右キーで選び、Spaceで行先を切り替える
 - 光種は一定拍で枝路を進み、花を3個通った後だけ受信樹へ届けられる
 - 枯枝または早すぎる受信でライフを失い、経路と開花状況がリセットされる
@@ -18,7 +19,7 @@ npm install
 npm run dev
 ```
 
-Enterで開始する。左右キーまたはA/Dで分岐を選び、Spaceで選択中の分岐を切り替える。Escapeでポーズ、Rで最初からやり直す。`npm run verify`でモデルテスト、構文検査、production build、Google Chrome E2Eを実行する。現在は単体9/9、構文検査、production build、Chrome E2E 3/3に合格している。
+Enterで開始する。左右キーまたはA/Dで分岐を選び、Spaceで選択中の分岐を切り替える。第2庭園ではCROWNの切替だけが2拍後に確定する。Escapeでポーズ、Rで現在の庭園を最初からやり直す。`npm run verify`でモデルテスト、構文検査、production build、Google Chrome E2Eを実行する。現在は単体12/12、構文検査、production build、Chrome E2E 3/3に合格している。
 
 ## 独立性
 
