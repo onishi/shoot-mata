@@ -4,9 +4,10 @@ export const FLOW_MS = 800;
 export const GARDENS = [
   { id: "one", name: "FIRST LIGHT", delayedSwitch: null, delayBeats: 0 },
   { id: "two", name: "SLEEPING CROWN", delayedSwitch: 2, delayBeats: 2 },
+  { id: "three", name: "TURNING ROOT", delayedSwitch: 2, delayBeats: 2 },
 ];
 
-export const NODES = {
+const FIRST_LIGHT_NODES = {
   root: { x: 92, y: 360, next: ["fork"] },
   fork: { x: 250, y: 360, next: ["moon", "rain"], switchIndex: 0 },
   moon: { x: 405, y: 185, next: ["graft"], bloom: "moon" },
@@ -20,6 +21,24 @@ export const NODES = {
   returnB: { x: 555, y: 625, next: ["returnC"] },
   returnC: { x: 150, y: 565, next: ["fork"] },
 };
+
+const TURNING_ROOT_NODES = {
+  root: { x: 86, y: 360, next: ["bud"] },
+  bud: { x: 230, y: 360, next: ["crown"] },
+  crown: { x: 390, y: 360, next: ["receiver", "returnA"], switchIndex: 2 },
+  receiver: { x: 570, y: 175, receiver: true },
+  returnA: { x: 565, y: 535, next: ["fork"] },
+  fork: { x: 735, y: 535, next: ["moon", "rain"], switchIndex: 0 },
+  moon: { x: 865, y: 395, next: ["graft"], bloom: "moon" },
+  rain: { x: 865, y: 625, next: ["graft"], bloom: "rain" },
+  graft: { x: 1010, y: 520, next: ["bell", "blight"], switchIndex: 1 },
+  bell: { x: 1120, y: 335, next: ["crown"], bloom: "bell" },
+  blight: { x: 1120, y: 625, hazard: true },
+};
+
+export function getGardenNodes(garden) {
+  return garden === 2 ? TURNING_ROOT_NODES : FIRST_LIGHT_NODES;
+}
 
 function gardenState(garden, phase = "playing") {
   return {
@@ -97,7 +116,7 @@ export function toggleSelectedSwitch(state) {
 }
 
 export function getNextNode(state, nodeId = state.node) {
-  const node = NODES[nodeId];
+  const node = getGardenNodes(state.garden)[nodeId];
   if (!node?.next) return null;
   if (node.switchIndex !== undefined) return node.next[state.switches[node.switchIndex]];
   return node.next[0];
@@ -145,7 +164,7 @@ export function advance(state) {
   state.steps += 1;
   const committed = advancePendingSwitches(state);
 
-  const node = NODES[destination];
+  const node = getGardenNodes(state.garden)[destination];
   if (node.bloom && !state.blooms[node.bloom]) {
     state.blooms[node.bloom] = true;
     state.lastEvent = `bloom:${node.bloom}`;

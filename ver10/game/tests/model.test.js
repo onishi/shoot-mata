@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { advance, createGame, getNextNode, resetGame, selectSwitch, startGame, togglePause, toggleSelectedSwitch } from "../src/model.js";
+import { advance, createGame, getGardenNodes, getNextNode, resetGame, selectSwitch, startGame, togglePause, toggleSelectedSwitch } from "../src/model.js";
 
 function advanceTo(state, node) {
   for (let guard = 0; guard < 20 && state.node !== node; guard += 1) advance(state);
@@ -126,6 +126,45 @@ test("planned sleeping-crown route completes the second garden", () => {
   toggleSelectedSwitch(state);
   advanceTo(state, "rain");
   assert.equal(state.switches[2], 0);
+  advanceTo(state, "receiver");
+  assert.deepEqual(state.blooms, { moon: true, rain: true, bell: true });
+  assert.equal(state.phase, "gardenWon");
+  startGame(state);
+  assert.equal(state.garden, 2);
+  assert.equal(state.node, "root");
+});
+
+test("garden three turns the route around and requires an early crown reservation", () => {
+  const state = createGame(); startGame(state);
+  state.garden = 2;
+  resetGame(state);
+  assert.equal(getNextNode(state), "bud");
+  assert.equal(getGardenNodes(2).returnA.next[0], "fork");
+
+  state.selectedSwitch = 2;
+  toggleSelectedSwitch(state);
+  advance(state);
+  assert.equal(state.pendingSwitches[2].remaining, 1);
+  advance(state);
+  assert.equal(state.node, "crown");
+  assert.equal(state.switches[2], 1);
+  advance(state);
+  assert.equal(state.node, "returnA");
+});
+
+test("planned turning-root route completes the third garden in two flower circuits", () => {
+  const state = createGame(); startGame(state);
+  state.garden = 2;
+  resetGame(state);
+  state.switches[1] = 0;
+  state.selectedSwitch = 2;
+  toggleSelectedSwitch(state);
+  advanceTo(state, "returnA");
+  advanceTo(state, "crown");
+  assert.deepEqual(state.blooms, { moon: true, rain: false, bell: true });
+  state.switches[0] = 1;
+  advanceTo(state, "fork");
+  toggleSelectedSwitch(state);
   advanceTo(state, "receiver");
   assert.deepEqual(state.blooms, { moon: true, rain: true, bell: true });
   assert.equal(state.phase, "won");

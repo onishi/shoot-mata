@@ -51,8 +51,25 @@ test("keyboard route opens all flowers, loops, and reaches the receiver", async 
   await canvas.press("Space");
   await waitForNode(page, "rain");
   await expect.poll(async () => (await state(page)).switches[2]).toBe(0);
-  await expect.poll(async () => (await state(page)).phase, { timeout: 15_000 }).toBe("won");
+  await expect.poll(async () => (await state(page)).phase, { timeout: 15_000 }).toBe("gardenWon");
   await page.screenshot({ path: "../docs/evidence/m2-second-garden-won.png" });
+
+  await canvas.press("Enter");
+  await expect.poll(async () => (await state(page)).garden).toBe(2);
+  await canvas.press("ArrowLeft");
+  await canvas.press("Space");
+  await canvas.press("ArrowLeft");
+  await canvas.press("Space");
+  await expect.poll(async () => (await state(page)).pendingSwitches[2]).toEqual({ value: 1, remaining: 2 });
+  await page.screenshot({ path: "../docs/evidence/m2-turning-root-entry.png" });
+  await waitForNode(page, "returnA");
+  await waitForNode(page, "crown");
+  await canvas.press("ArrowLeft");
+  await canvas.press("Space");
+  await canvas.press("ArrowLeft");
+  await canvas.press("Space");
+  await expect.poll(async () => (await state(page)).phase, { timeout: 15_000 }).toBe("won");
+  await page.screenshot({ path: "../docs/evidence/m2-third-garden-won.png" });
   expect(messages).toEqual([]);
 });
 
