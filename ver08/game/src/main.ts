@@ -7,6 +7,7 @@ import {
   continueAfterWin,
   createGame,
   flashNeedleFor,
+  grainAt,
   levelFor,
   movePlayer,
   restart,
@@ -65,6 +66,10 @@ function playEvent(previous: GameState, next: GameState) {
   if (next.lastEvent === "stitch") tone(420 + next.trail.length * 12, 0.06, "triangle", 0.035);
   if (next.lastEvent === "move") tone(180, 0.025, "square", 0.015);
   if (next.lastEvent === "blocked") tone(100, 0.05, "square", 0.02);
+  if (next.lastEvent === "grain") {
+    tone(145, 0.07, "square", 0.025);
+    setTimeout(() => tone(115, 0.06, "square", 0.02), 45);
+  }
   if (next.lastEvent === "claim") {
     tone(330, 0.35, "sine", 0.05);
     setTimeout(() => tone(495, 0.32, "sine", 0.04), 70);
@@ -183,6 +188,28 @@ function drawCell(x: number, y: number, time: number) {
     gradient.addColorStop(0, "#080b20"); gradient.addColorStop(1, "#161638");
     ctx.fillStyle = gradient;
     ctx.fillRect(px, py, board.cell, board.cell);
+  }
+  const grain = grainAt(levelFor(state), { x, y });
+  if (grain && !state.cloth[index]) {
+    ctx.save();
+    ctx.strokeStyle = "rgba(100, 215, 202, .56)";
+    ctx.lineWidth = 1.2;
+    ctx.setLineDash([5, 4]);
+    for (let offset = 7; offset < board.cell; offset += 8) {
+      ctx.beginPath();
+      if (grain.axis === "vertical") {
+        ctx.moveTo(px + offset, py + 3); ctx.lineTo(px + offset, py + board.cell - 3);
+      } else {
+        ctx.moveTo(px + 3, py + offset); ctx.lineTo(px + board.cell - 3, py + offset);
+      }
+      ctx.stroke();
+    }
+    ctx.setLineDash([]);
+    ctx.fillStyle = "rgba(116, 231, 213, .82)";
+    ctx.font = "700 10px Georgia";
+    ctx.textAlign = "center";
+    ctx.fillText(grain.axis === "vertical" ? "↕" : "↔", px + board.cell / 2, py + 19);
+    ctx.restore();
   }
 }
 
@@ -309,6 +336,10 @@ function drawHud() {
     ctx.fillStyle = needle.phase === "active" ? "#fff1a8" : "#75c9df";
     ctx.font = "700 9px Georgia"; ctx.letterSpacing = ".8px";
     ctx.fillText(needle.phase === "active" ? "NEEDLE STRIKES" : `NEEDLE IN ${needle.ticksUntilStrike}`, 42, 400);
+  } else if (level.grainPatches) {
+    ctx.fillStyle = "#74d8ca";
+    ctx.font = "700 9px Georgia"; ctx.letterSpacing = ".8px";
+    ctx.fillText("FOLLOW THE GRAIN", 42, 400);
   }
 }
 
@@ -402,6 +433,7 @@ function drawGame(time: number) {
 
 function updateAria() {
   const needle = flashNeedleFor(state);
+  const hasGrain = Boolean(levelFor(state).grainPatches?.length);
   const needleDescription = needle?.phase === "warning"
     ? ` Flash needle warns at column ${needle.column + 1}, striking in ${needle.ticksUntilStrike} ticks.`
     : needle?.phase === "active" ? ` Flash needle active at column ${needle.column + 1}.` : "";
@@ -411,7 +443,7 @@ function updateAria() {
     ? progress.highestUnlocked > 0
       ? `DUSKLOOM title. ${progress.completed ? "Sampler complete. " : ""}${titleChoice === "continue" ? `Continue at panel ${progress.highestUnlocked + 1} selected.` : "Start at panel one selected."} Use up and down to choose, then Enter.`
       : "DUSKLOOM title. Press Enter to begin."
-    : `${state.screen}. Panel ${state.levelIndex + 1} of ${LEVELS.length}, ${levelFor(state).name}. ${state.repaired} percent repaired. ${state.spools} spools. ${state.trail.length} exposed thread cells.${needleDescription}`;
+    : `${state.screen}. Panel ${state.levelIndex + 1} of ${LEVELS.length}, ${levelFor(state).name}. ${state.repaired} percent repaired. ${state.spools} spools. ${state.trail.length} exposed thread cells.${needleDescription}${hasGrain ? " Marked grain cells accept stitches only in the arrow direction." : ""}`;
   canvas.setAttribute("aria-label", description);
   canvas.dataset.screen = settingsOpen ? "settings" : state.screen;
   canvas.dataset.repaired = String(state.repaired);
@@ -421,6 +453,8 @@ function updateAria() {
   canvas.dataset.moths = String(state.moths.length);
   canvas.dataset.hazard = needle?.phase ?? "none";
   canvas.dataset.hazardColumn = needle ? String(needle.column + 1) : "0";
+  canvas.dataset.grain = hasGrain ? "directional" : "none";
+  canvas.dataset.lastEvent = state.lastEvent;
   canvas.dataset.volume = String(Math.round(preferences.volume * 100));
   canvas.dataset.reducedMotion = String(preferences.reducedMotion);
   canvas.dataset.highestUnlocked = String(progress.highestUnlocked + 1);
@@ -485,6 +519,7 @@ window.addEventListener("keydown", (event) => {
     if (state.screen === "playing") lastMothStep = performance.now();
   } else if (state.screen === "playing" && direction) {
     state = movePlayer(state, direction, event.shiftKey || event.getModifierState("Alt") || pressedSpace);
+    if (state.lastEvent === "grain") announce("The grain refuses that stitch. Follow the arrows.");
     if (state.lastEvent === "claim") announce(`${state.repaired} percent repaired.`);
     if (state.lastEvent === "win") {
       progress = recordWin(progress, state.levelIndex, LEVELS.length);

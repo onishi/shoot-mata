@@ -9,6 +9,7 @@ export interface LevelDefinition {
   moths: readonly Moth[];
   clothPatches?: readonly ClothPatch[];
   flashNeedle?: FlashNeedleDefinition;
+  grainPatches?: readonly GrainPatch[];
 }
 
 export interface ClothPatch {
@@ -28,6 +29,10 @@ export interface FlashNeedleState {
   column: number;
   phase: "dormant" | "warning" | "active";
   ticksUntilStrike: number;
+}
+
+export interface GrainPatch extends ClothPatch {
+  axis: "horizontal" | "vertical";
 }
 
 export const LEVELS: readonly LevelDefinition[] = [
@@ -64,6 +69,14 @@ export const LEVELS: readonly LevelDefinition[] = [
     moths: [{ x: 14, y: 3, dx: -1, dy: 1 }],
     flashNeedle: { columns: [5, 14], cycleTicks: 10, warningTicks: 3 },
   },
+  {
+    id: "warp-gate",
+    name: "WARP GATE",
+    goal: 70,
+    player: { x: 9, y: 0 },
+    moths: [{ x: 13, y: 5, dx: -1, dy: 1 }],
+    grainPatches: [{ x: 8, y: 1, width: 3, height: 12, axis: "vertical" }],
+  },
 ];
 
 export type Screen = "title" | "playing" | "paused" | "won" | "lost";
@@ -81,7 +94,7 @@ export interface GameState {
   spools: number;
   repaired: number;
   tick: number;
-  lastEvent: "none" | "move" | "stitch" | "claim" | "cut" | "blocked" | "win";
+  lastEvent: "none" | "move" | "stitch" | "claim" | "cut" | "blocked" | "grain" | "win";
 }
 
 const keyOf = ({ x, y }: Point) => y * WIDTH + x;
@@ -120,6 +133,13 @@ export function flashNeedleFor(state: Pick<GameState, "levelIndex" | "tick">): F
     phase: phaseTick === strikeTick ? "active" : phaseTick >= warningStart ? "warning" : "dormant",
     ticksUntilStrike: (strikeTick - phaseTick + definition.cycleTicks) % definition.cycleTicks,
   };
+}
+
+export function grainAt(level: LevelDefinition, point: Point): GrainPatch | null {
+  return level.grainPatches?.find((area) => (
+    point.x >= area.x && point.x < area.x + area.width
+    && point.y >= area.y && point.y < area.y + area.height
+  )) ?? null;
 }
 
 export function createGame(levelIndex = 0): GameState {
@@ -211,6 +231,9 @@ export function movePlayer(state: GameState, direction: Direction, stitching: bo
   const drawing = state.trail.length > 0;
   if (!onCloth && !drawing && !stitching) return { ...state, lastEvent: "blocked" };
   if (drawing && state.trail.some((point) => same(point, next))) return { ...state, lastEvent: "blocked" };
+  const grain = !onCloth ? grainAt(levelFor(state), next) : null;
+  const directionAxis = direction === "left" || direction === "right" ? "horizontal" : "vertical";
+  if (grain && grain.axis !== directionAxis) return { ...state, lastEvent: "grain" };
   if (!drawing && onCloth) return { ...state, player: next, anchor: next, lastEvent: "move" };
   if (!onCloth) {
     const extended = { ...state, player: next, trail: [...state.trail, next], lastEvent: "stitch" as const };

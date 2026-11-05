@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { LEVELS, advanceMoths, continueAfterWin, createGame, flashNeedleFor, levelFor, movePlayer, restart, start, togglePause, withScenario, WIDTH } from "../src/model";
+import { LEVELS, advanceMoths, continueAfterWin, createGame, flashNeedleFor, grainAt, levelFor, movePlayer, restart, start, togglePause, withScenario, WIDTH } from "../src/model";
 
 describe("DUSKLOOM model", () => {
   it("starts at the left selvage and can pause", () => {
@@ -178,6 +178,30 @@ describe("DUSKLOOM model", () => {
     expect(struck.trail).toEqual([]);
   });
 
+  it("allows stitches only along the marked grain in the fifth panel", () => {
+    let state = restart(createGame(4));
+    expect(levelFor(state).name).toBe("WARP GATE");
+    expect(grainAt(levelFor(state), { x: 9, y: 1 })?.axis).toBe("vertical");
+    state = movePlayer(state, "down", true);
+    expect(state.lastEvent).toBe("stitch");
+    const refused = movePlayer(state, "right", true);
+    expect(refused.lastEvent).toBe("grain");
+    expect(refused.player).toEqual({ x: 9, y: 1 });
+    expect(refused.trail).toEqual([{ x: 9, y: 1 }]);
+  });
+
+  it("uses the vertical grain as a safe first seam before finishing the fifth panel", () => {
+    let state = restart(createGame(4));
+    for (let y = 0; y < 13; y += 1) state = movePlayer(state, "down", true);
+    expect(state.player).toEqual({ x: 9, y: 13 });
+    expect(state.trail).toEqual([]);
+    expect(state.repaired).toBe(61);
+    for (let x = 9; x < 15; x += 1) state = movePlayer(state, "right", false);
+    for (let y = 13; y > 0; y -= 1) state = movePlayer(state, "up", true);
+    expect(state.repaired).toBeGreaterThanOrEqual(LEVELS[4].goal);
+    expect(state.screen).toBe("won");
+  });
+
   it("restarts the current panel and returns to the title after the sampler", () => {
     const second = restart(createGame(1));
     expect(restart(second).levelIndex).toBe(1);
@@ -187,7 +211,10 @@ describe("DUSKLOOM model", () => {
     expect(fourth.levelIndex).toBe(3);
     expect(flashNeedleFor(fourth)).toMatchObject({ column: 5, phase: "dormant" });
     const completed = withScenario(fourth, { screen: "won" });
-    const returned = continueAfterWin(completed);
+    const fifth = continueAfterWin(completed);
+    expect(fifth.levelIndex).toBe(4);
+    expect(grainAt(levelFor(fifth), { x: 9, y: 1 })?.axis).toBe("vertical");
+    const returned = continueAfterWin(withScenario(fifth, { screen: "won" }));
     expect(returned.levelIndex).toBe(0);
     expect(returned.screen).toBe("title");
   });

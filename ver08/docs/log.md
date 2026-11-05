@@ -63,3 +63,11 @@
 - 水色の破線予告、HUDの残りtick、警告音、金色の落雷をCanvasへ接続した。ARIAとdatasetも同じモデル値を使い、設定やポーズ中は既存の固定tick停止に従う。
 - Chrome E2Eを5件へ増やし、4面通し、保存からの第4面到達、予告中の糸出し、落雷切断、4面完了後のタイトル復帰を実入力で通した。`m3-flash-needle-warning.png`、`m3-flash-needle-strike.png`、`m3-four-panel-complete.png`を目視し、重要要素の重なりや低コントラストはなかった。
 - 単体23/23、型検査、production build、Google Chrome E2E 5/5に合格した。sandbox内のport bindはEPERMとなり、権限付き再実行でChrome検証を完了した。次は空間制約を単独導入する第5面。
+
+## 2026-11-05 — M3 WARP GATE
+
+- 第5面へ中央3列の縦木目を追加した。未修復の木目セルは上下の縫いだけを受け入れ、横入力は状態を進めず`grain`イベントを返す。敵数、敵速度、時間ハザードは増やさず、空間の向きだけを学ばせる。
+- 上辺中央から始め、縦木目を下辺まで通す第1縫い目で61%、右側の通常領域へ戻る第2縫い目で78%となる目標70%の経路を規則テストへ固定した。
+- 青緑の破線と縦矢印、HUDの`FOLLOW THE GRAIN`、二段の拒否音、live通知を追加した。Chrome実入力で横入力の拒否、糸の維持、再挑戦、勝利を確認した。
+- 全5面通しと第5面単独を含むChrome E2E 6/6、単体25/25、型検査、production buildに合格した。`m3-warp-gate-grain.png`と`m3-five-panel-complete.png`を目視し、主要要素の重なりや低コントラストはなかった。sandbox内のport bindはEPERMとなり、権限付きでChrome検証を完了した。
+- 次は既存規則を組み合わせる第6面と終演を実装する。
