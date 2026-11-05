@@ -16,14 +16,14 @@ test("progress starts at the first garden when no save exists", () => {
 
 test("the furthest unlocked garden survives save and reload", () => {
   const storage = memoryStorage();
-  const unlocked = unlockGarden(unlockGarden(DEFAULT_PROGRESS, 1), 2);
+  const unlocked = unlockGarden(unlockGarden(unlockGarden(DEFAULT_PROGRESS, 1), 2), 3);
   saveProgress(storage, unlocked);
-  assert.deepEqual(loadProgress(storage), { version: 1, latestGarden: 2 });
+  assert.deepEqual(loadProgress(storage), { version: 1, latestGarden: 3 });
   assert.deepEqual(unlockGarden(unlocked, 1), unlocked);
 });
 
 test("malformed, future, and out-of-range progress recover to the first garden", () => {
-  for (const value of ["broken", "null", '{"version":2,"latestGarden":1}', '{"version":1,"latestGarden":3}', '{"version":1,"latestGarden":1.5}']) {
+  for (const value of ["broken", "null", '{"version":2,"latestGarden":1}', '{"version":1,"latestGarden":4}', '{"version":1,"latestGarden":1.5}']) {
     assert.deepEqual(loadProgress(memoryStorage({ [PROGRESS_KEY]: value })), DEFAULT_PROGRESS);
   }
 });
@@ -31,5 +31,5 @@ test("malformed, future, and out-of-range progress recover to the first garden",
 test("unavailable storage recovers without throwing", () => {
   const storage = { getItem() { throw new Error("denied"); }, setItem() { throw new Error("denied"); } };
   assert.deepEqual(loadProgress(storage), DEFAULT_PROGRESS);
-  assert.deepEqual(saveProgress(storage, { version: 1, latestGarden: 2 }), { version: 1, latestGarden: 2 });
+  assert.deepEqual(saveProgress(storage, { version: 1, latestGarden: 3 }), { version: 1, latestGarden: 3 });
 });

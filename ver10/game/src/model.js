@@ -2,9 +2,10 @@ export const SWITCHES = ["fork", "graft", "crown"];
 export const FLOW_MS = 800;
 
 export const GARDENS = [
-  { id: "one", name: "FIRST LIGHT", delayedSwitch: null, delayBeats: 0 },
-  { id: "two", name: "SLEEPING CROWN", delayedSwitch: 2, delayBeats: 2 },
-  { id: "three", name: "TURNING ROOT", delayedSwitch: 2, delayBeats: 2 },
+  { id: "one", name: "FIRST LIGHT", delayedSwitch: null, delayBeats: 0, syncedSwitches: [] },
+  { id: "two", name: "SLEEPING CROWN", delayedSwitch: 2, delayBeats: 2, syncedSwitches: [] },
+  { id: "three", name: "TURNING ROOT", delayedSwitch: 2, delayBeats: 2, syncedSwitches: [] },
+  { id: "four", name: "TWIN CURRENT", delayedSwitch: null, delayBeats: 0, syncedSwitches: [0, 1], initialSwitches: [0, 0, 0] },
 ];
 
 const FIRST_LIGHT_NODES = {
@@ -36,17 +37,35 @@ const TURNING_ROOT_NODES = {
   blight: { x: 1120, y: 625, hazard: true },
 };
 
+const TWIN_CURRENT_NODES = {
+  root: { x: 90, y: 470, next: ["fork"] },
+  fork: { x: 265, y: 470, next: ["moon", "rain"], switchIndex: 0 },
+  moon: { x: 430, y: 285, next: ["graft"], bloom: "moon" },
+  rain: { x: 430, y: 610, next: ["graft"], bloom: "rain" },
+  graft: { x: 625, y: 430, next: ["bell", "blight"], switchIndex: 1 },
+  bell: { x: 805, y: 245, next: ["crown"], bloom: "bell" },
+  blight: { x: 805, y: 600, hazard: true },
+  crown: { x: 990, y: 395, next: ["receiver", "returnA"], switchIndex: 2 },
+  receiver: { x: 1160, y: 230, receiver: true },
+  returnA: { x: 1095, y: 585, next: ["returnB"] },
+  returnB: { x: 730, y: 665, next: ["returnC"] },
+  returnC: { x: 205, y: 650, next: ["fork"] },
+};
+
 export function getGardenNodes(garden) {
-  return garden === 2 ? TURNING_ROOT_NODES : FIRST_LIGHT_NODES;
+  if (garden === 2) return TURNING_ROOT_NODES;
+  if (garden === 3) return TWIN_CURRENT_NODES;
+  return FIRST_LIGHT_NODES;
 }
 
 function gardenState(garden, phase = "playing") {
+  const initialSwitches = GARDENS[garden]?.initialSwitches ?? [0, 1, 0];
   return {
     phase,
     garden,
     node: "root",
     previousNode: "root",
-    switches: [0, 1, 0],
+    switches: [...initialSwitches],
     pendingSwitches: [null, null, null],
     blooms: { moon: false, rain: false, bell: false },
     lives: 3,
@@ -113,6 +132,11 @@ export function toggleSelectedSwitch(state) {
     state.lastEvent = state.pendingSwitches[index]
       ? `pending:${SWITCHES[index]}:${value}:${garden.delayBeats}`
       : `pending:${SWITCHES[index]}:cancelled`;
+  } else if (garden.syncedSwitches.includes(index)) {
+    for (const syncedIndex of garden.syncedSwitches) {
+      state.switches[syncedIndex] = state.switches[syncedIndex] === 0 ? 1 : 0;
+    }
+    state.lastEvent = `sync:${garden.syncedSwitches.map((syncedIndex) => `${SWITCHES[syncedIndex]}:${state.switches[syncedIndex]}`).join(":")}`;
   } else {
     state.switches[index] = state.switches[index] === 0 ? 1 : 0;
     state.lastEvent = `switch:${SWITCHES[index]}:${state.switches[index]}`;
@@ -141,7 +165,7 @@ function strike(state, reason) {
   state.node = "root";
   state.previousNode = "root";
   state.blooms = { moon: false, rain: false, bell: false };
-  state.switches = [0, 1, 0];
+  state.switches = [...(GARDENS[state.garden].initialSwitches ?? [0, 1, 0])];
   state.pendingSwitches = [null, null, null];
 }
 

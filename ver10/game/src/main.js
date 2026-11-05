@@ -61,6 +61,10 @@ function nodes() {
   return getGardenNodes(state.garden);
 }
 
+function syncedSwitches() {
+  return GARDENS[state.garden].syncedSwitches;
+}
+
 function edges() {
   return Object.entries(nodes()).flatMap(([id, node]) => (node.next ?? []).map((to, index) => ({ from: id, to, index })));
 }
@@ -132,7 +136,8 @@ function updateAccessibleName() {
   const selected = SWITCHES[state.selectedSwitch];
   const pending = state.pendingSwitches[state.selectedSwitch];
   const wait = pending ? ` Route change in ${pending.remaining} beats.` : "";
-  canvas.setAttribute("aria-label", `Garden ${state.garden + 1}. ${state.phase}. Seed at ${state.node}. ${flowers} of 3 flowers open. ${state.lives} lives. ${selected} switch selected.${wait}`);
+  const link = syncedSwitches().includes(state.selectedSwitch) ? " Fork and graft are linked." : "";
+  canvas.setAttribute("aria-label", `Garden ${state.garden + 1}. ${state.phase}. Seed at ${state.node}. ${flowers} of 3 flowers open. ${state.lives} lives. ${selected} switch selected.${link}${wait}`);
 }
 
 function handleKey(event) {
@@ -148,7 +153,7 @@ function handleKey(event) {
     if (startGame(state)) {
       accumulator = 0;
       pulseFrom = "root";
-      pulseTo = "fork";
+      pulseTo = getNextNode(state, "root") ?? "root";
       announce("Garden started. Fork switch selected.");
     }
   } else if (key === "escape") {
@@ -158,7 +163,7 @@ function handleKey(event) {
     resetGame(state);
     accumulator = 0;
     pulseFrom = "root";
-    pulseTo = "fork";
+    pulseTo = getNextNode(state, "root") ?? "root";
     announce("Garden reset.");
   } else if (key === "arrowleft" || key === "a") {
     if (selectSwitch(state, -1)) sound({ type: "move" });
@@ -169,7 +174,13 @@ function handleKey(event) {
       sound({ type: "switch" });
       const branch = SWITCHES[state.selectedSwitch];
       const pending = state.pendingSwitches[state.selectedSwitch];
-      if (pending) {
+      if (syncedSwitches().includes(state.selectedSwitch)) {
+        const routes = syncedSwitches().map((index) => {
+          const id = SWITCHES[index];
+          return `${DISPLAY_NAMES[id]} to ${DISPLAY_NAMES[getNextNode(state, id)]}`;
+        });
+        announce(`Linked routes changed. ${routes.join(". ")}.`);
+      } else if (pending) {
         const destination = nodes()[branch].next[pending.value];
         announce(`${DISPLAY_NAMES[branch]} will change to ${DISPLAY_NAMES[destination]} in ${pending.remaining} beats.`);
       } else {
@@ -255,6 +266,18 @@ function drawEdges(time) {
       ctx.setLineDash([]);
     }
   }
+  if (syncedSwitches().length > 0) {
+    const [first, second] = syncedSwitches().map((index) => nodes()[SWITCHES[index]]);
+    ctx.beginPath();
+    ctx.moveTo(first.x, first.y - 30);
+    ctx.bezierCurveTo(first.x + 70, first.y - 115, second.x - 70, second.y - 115, second.x, second.y - 30);
+    ctx.strokeStyle = "#69d7d088";
+    ctx.lineWidth = 3;
+    ctx.setLineDash([6, 9]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    label("LINKED", (first.x + second.x) / 2, Math.min(first.y, second.y) - 92, COLORS.rain, "center", 11);
+  }
 }
 
 function flower(x, y, color, open, petals = 6) {
@@ -291,7 +314,9 @@ function drawNode(id, time) {
     return;
   }
   const switchIndex = node.switchIndex;
-  const selected = switchIndex === state.selectedSwitch;
+  const selectedGroup = syncedSwitches().includes(state.selectedSwitch) ? syncedSwitches() : [state.selectedSwitch];
+  const selected = selectedGroup.includes(switchIndex);
+  const linked = syncedSwitches().includes(switchIndex);
   const sleeping = GARDENS[state.garden].delayedSwitch === switchIndex;
   ctx.fillStyle = id === "root" ? "#d3ebbc" : "#1c3b30";
   ctx.strokeStyle = selected ? COLORS.lime : "#789584";
@@ -306,6 +331,13 @@ function drawNode(id, time) {
   }
   ctx.closePath(); ctx.fill(); ctx.stroke();
   if (selected) { ctx.strokeStyle = "#c8f39b55"; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(node.x, node.y, 34, 0, Math.PI * 2); ctx.stroke(); }
+  if (linked) {
+    ctx.strokeStyle = COLORS.rain;
+    ctx.lineWidth = 2;
+    ctx.setLineDash([3, 5]);
+    ctx.beginPath(); ctx.arc(node.x, node.y, 29, 0, Math.PI * 2); ctx.stroke();
+    ctx.setLineDash([]);
+  }
   if (sleeping) {
     ctx.strokeStyle = state.pendingSwitches[switchIndex] ? "#d9b7ff" : "#9c78bd";
     ctx.lineWidth = 3;
@@ -335,7 +367,7 @@ function label(text, x, y, color = COLORS.muted, align = "center", size = 14) {
 }
 
 function drawHud() {
-  label(`SIGNAL GARDEN / ${["ONE", "TWO", "THREE"][state.garden]}`, 44, 48, COLORS.ink, "left", 15);
+  label(`SIGNAL GARDEN / ${["ONE", "TWO", "THREE", "FOUR"][state.garden]}`, 44, 48, COLORS.ink, "left", 15);
   label(`LIVES  ${"● ".repeat(state.lives)}${"○ ".repeat(3 - state.lives)}`, 1236, 48, COLORS.ink, "right", 14);
   const bloomCount = Object.values(state.blooms).filter(Boolean).length;
   label(`FLOWERS  ${bloomCount} / 3`, 1236, 74, bloomCount === 3 ? COLORS.lime : COLORS.muted, "right", 13);
@@ -350,14 +382,24 @@ function drawHud() {
   const destination = getNextNode(state, selectedId);
   const pending = state.pendingSwitches[state.selectedSwitch];
   const shownDestination = pending ? nodes()[selectedId].next[pending.value] : destination;
-  if (pending) {
+  if (syncedSwitches().includes(state.selectedSwitch)) {
+    const linkedRoutes = syncedSwitches().map((index) => {
+      const id = SWITCHES[index];
+      return `${DISPLAY_NAMES[id]} → ${DISPLAY_NAMES[getNextNode(state, id)]}`;
+    });
+    label(linkedRoutes.join("    +    "), 44, 82, COLORS.rain, "left", 14);
+  } else if (pending) {
     label(`${DISPLAY_NAMES[selectedId]}  ⇢  ${DISPLAY_NAMES[shownDestination]}  /  ${pending.remaining} BEATS`, 44, 82, "#d9b7ff", "left", 14);
   } else {
     label(`${DISPLAY_NAMES[selectedId]}  →  ${DISPLAY_NAMES[destination]}`, 44, 82, COLORS.lime, "left", 14);
   }
-  if (shownDestination === "blight") label("THIS BRANCH WITHERS", 44, 106, COLORS.danger, "left", 12);
+  const linkedBlight = syncedSwitches().includes(state.selectedSwitch)
+    && syncedSwitches().some((index) => getNextNode(state, SWITCHES[index]) === "blight");
+  if (linkedBlight) label("LINKED GRAFT NOW WITHERS", 44, 106, COLORS.danger, "left", 12);
+  else if (shownDestination === "blight") label("THIS BRANCH WITHERS", 44, 106, COLORS.danger, "left", 12);
   if (shownDestination === "receiver" && bloomCount < 3) label("RECEIVER NEEDS THREE FLOWERS", 44, 106, COLORS.danger, "left", 12);
-  if (state.garden > 0 && state.selectedSwitch === 2 && !pending) label("SLEEPING CROWN CHANGES TWO BEATS LATER", 44, 106, "#caa8e8", "left", 12);
+  if ((state.garden === 1 || state.garden === 2) && state.selectedSwitch === 2 && !pending) label("SLEEPING CROWN CHANGES TWO BEATS LATER", 44, 106, "#caa8e8", "left", 12);
+  if (syncedSwitches().includes(state.selectedSwitch) && !linkedBlight) label("FORK AND GRAFT TURN TOGETHER", 44, 106, COLORS.rain, "left", 12);
 }
 
 function panel(title, subtitle, lines, footer) {
@@ -385,6 +427,7 @@ function render(time) {
     if (state.phase === "paused") panel("GARDEN HELD", "TIME IS ROOTED", ["Inspect the reserved bright branches.", "Space changes the selected branch after resuming."], "PRESS ENTER OR ESC TO RESUME");
     if (state.phase === "gardenWon" && state.garden === 0) panel("FIRST LIGHT ROOTED", "A DEEPER GARDEN STIRS", ["The next crown sleeps before it turns.", "Its dotted route becomes active two beats after SPACE."], "PRESS ENTER FOR GARDEN TWO");
     if (state.phase === "gardenWon" && state.garden === 1) panel("SLEEPING CROWN ROOTED", "THE CURRENT TURNS AROUND", ["The receiver now waits before the flower circuit.", "Reserve the sleeping crown before the signal arrives."], "PRESS ENTER FOR GARDEN THREE");
+    if (state.phase === "gardenWon" && state.garden === 2) panel("TURNING ROOT COMPLETE", "TWO BRANCHES SHARE ONE PULSE", ["Fork and graft now turn together.", "Pass the fork, then restore the graft before the seed arrives."], "PRESS ENTER FOR GARDEN FOUR");
     if (state.phase === "won") panel("FULL CHORUS", "THREE FLOWERS / ONE SIGNAL", ["The seed reached the receiver with every color.", `Route completed in ${state.steps} beats.`], "PRESS ENTER TO GROW AGAIN");
     if (state.phase === "lost") panel("ROOTS QUIET", "THE SIGNAL SPENT ITS LAST LIFE", ["Blight and an unripe receiver both break the route.", "Switch branches before the seed arrives."], "PRESS ENTER OR R TO TRY AGAIN");
   }
@@ -410,7 +453,7 @@ function loop(time) {
         announce(`Garden ${state.garden + 1} complete. Garden ${state.garden + 2} unlocked.`);
       }
       if (result.type === "won") announce("All three flowers open. Signal received. You won.");
-      if (state.node === "root") { pulseFrom = "root"; pulseTo = "fork"; accumulator = 0; }
+      if (state.node === "root") { pulseFrom = "root"; pulseTo = getNextNode(state, "root") ?? "root"; accumulator = 0; }
       else { pulseFrom = state.node; pulseTo = getNextNode(state) ?? state.node; }
       updateAccessibleName();
     }

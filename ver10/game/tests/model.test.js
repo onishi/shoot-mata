@@ -179,6 +179,41 @@ test("planned turning-root route completes the third garden in two flower circui
   toggleSelectedSwitch(state);
   advanceTo(state, "receiver");
   assert.deepEqual(state.blooms, { moon: true, rain: true, bell: true });
+  assert.equal(state.phase, "gardenWon");
+});
+
+test("garden four couples fork and graft while leaving crown independent", () => {
+  const state = createGame(3); startGame(state);
+  assert.deepEqual(state.switches, [0, 0, 0]);
+  assert.equal(getGardenNodes(3).root.next[0], "fork");
+
+  toggleSelectedSwitch(state);
+  assert.deepEqual(state.switches, [1, 1, 0]);
+  assert.equal(state.lastEvent, "sync:fork:1:graft:1");
+  state.selectedSwitch = 1;
+  toggleSelectedSwitch(state);
+  assert.deepEqual(state.switches, [0, 0, 0]);
+  state.selectedSwitch = 2;
+  toggleSelectedSwitch(state);
+  assert.deepEqual(state.switches, [0, 0, 1]);
+});
+
+test("planned twin-current route switches the linked pair between fork and graft", () => {
+  const state = createGame(3); startGame(state);
+  state.switches[2] = 1;
+  advanceTo(state, "returnA");
+  assert.deepEqual(state.blooms, { moon: true, rain: false, bell: true });
+
+  state.selectedSwitch = 0;
+  toggleSelectedSwitch(state);
+  advanceTo(state, "rain");
+  assert.deepEqual(state.switches, [1, 1, 1]);
+  toggleSelectedSwitch(state);
+  state.selectedSwitch = 2;
+  toggleSelectedSwitch(state);
+  advanceTo(state, "receiver");
+
+  assert.deepEqual(state.blooms, { moon: true, rain: true, bell: true });
   assert.equal(state.phase, "won");
 });
 
