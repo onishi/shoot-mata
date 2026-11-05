@@ -97,3 +97,23 @@ test("pause stops the flow and resumes with Escape", async ({ page }) => {
   await canvas.press("Escape");
   await expect.poll(async () => (await state(page)).phase).toBe("playing");
 });
+
+test("sound and reduced motion settings persist and corrupt saves recover", async ({ page }) => {
+  await page.goto("/");
+  const canvas = page.locator("canvas");
+  await canvas.press("m");
+  await canvas.press("v");
+  await expect(page.locator("#volume")).toHaveText("SOUND 50%");
+  await expect(page.locator("#motion")).toHaveAttribute("aria-pressed", "true");
+  await page.screenshot({ path: "../docs/evidence/m2-settings-reduced-motion.png" });
+  await page.reload();
+  await expect(page.locator("#volume")).toHaveText("SOUND 50%");
+  await expect(page.locator("#motion")).toHaveAttribute("aria-pressed", "true");
+  await expect.poll(async () => (await state(page))?.settings).toEqual({ version: 1, volume: 0.5, reducedMotion: true });
+
+  await page.evaluate(() => localStorage.setItem("signal-garden:v10:settings", "broken"));
+  await page.reload();
+  await expect(page.locator("#volume")).toHaveText("SOUND 100%");
+  await expect(page.locator("#motion")).toHaveAttribute("aria-pressed", "false");
+  await expect.poll(async () => (await state(page))?.settings).toEqual({ version: 1, volume: 1, reducedMotion: false });
+});

@@ -14,11 +14,15 @@ import {
   togglePause,
   toggleSelectedSwitch,
 } from "./model.js";
+import { loadSettings, nextVolume, saveSettings } from "./preferences.js";
 
 const canvas = document.querySelector("#game");
 const ctx = canvas.getContext("2d");
 const live = document.querySelector("#live");
+const volumeButton = document.querySelector("#volume");
+const motionButton = document.querySelector("#motion");
 let state = createGame();
+let settings = loadSettings(localStorage);
 let lastTime = performance.now();
 let accumulator = 0;
 let audioContext = null;
@@ -65,13 +69,13 @@ function ensureAudio() {
 }
 
 function tone(frequency, duration = 0.08, type = "sine", gain = 0.035, delay = 0) {
-  if (!audioContext) return;
+  if (!audioContext || settings.volume === 0) return;
   const start = audioContext.currentTime + delay;
   const osc = audioContext.createOscillator();
   const amp = audioContext.createGain();
   osc.type = type;
   osc.frequency.setValueAtTime(frequency, start);
-  amp.gain.setValueAtTime(gain, start);
+  amp.gain.setValueAtTime(gain * settings.volume, start);
   amp.gain.exponentialRampToValueAtTime(0.0001, start + duration);
   osc.connect(amp).connect(audioContext.destination);
   osc.start(start);
@@ -97,6 +101,26 @@ function announce(message) {
   requestAnimationFrame(() => { live.textContent = message; });
 }
 
+function updateSettingsControls() {
+  volumeButton.textContent = `SOUND ${Math.round(settings.volume * 100)}%`;
+  volumeButton.setAttribute("aria-label", `Sound volume ${Math.round(settings.volume * 100)} percent. Press to change.`);
+  motionButton.textContent = settings.reducedMotion ? "MOTION REDUCED" : "MOTION FULL";
+  motionButton.setAttribute("aria-pressed", String(settings.reducedMotion));
+  motionButton.setAttribute("aria-label", `${settings.reducedMotion ? "Reduced" : "Full"} motion. Press to toggle.`);
+}
+
+function changeVolume() {
+  settings = saveSettings(localStorage, { ...settings, volume: nextVolume(settings.volume) });
+  updateSettingsControls();
+  announce(`Sound volume ${Math.round(settings.volume * 100)} percent.`);
+}
+
+function changeMotion() {
+  settings = saveSettings(localStorage, { ...settings, reducedMotion: !settings.reducedMotion });
+  updateSettingsControls();
+  announce(settings.reducedMotion ? "Reduced motion on." : "Reduced motion off.");
+}
+
 function updateAccessibleName() {
   if (state.phase === "title") {
     canvas.setAttribute("aria-label", "SIGNAL GARDEN title. Press Enter to begin.");
@@ -110,10 +134,15 @@ function updateAccessibleName() {
 }
 
 function handleKey(event) {
+  if (event.target instanceof HTMLButtonElement) return;
   const key = event.key.toLowerCase();
-  if (["arrowleft", "arrowright", " ", "enter", "escape", "a", "d", "r"].includes(key)) event.preventDefault();
-  ensureAudio();
-  if (key === "enter") {
+  if (["arrowleft", "arrowright", " ", "enter", "escape", "a", "d", "r", "m", "v"].includes(key)) event.preventDefault();
+  if (key === "m") {
+    changeVolume();
+  } else if (key === "v") {
+    changeMotion();
+  } else if (key === "enter") {
+    ensureAudio();
     if (startGame(state)) {
       accumulator = 0;
       pulseFrom = "root";
@@ -152,6 +181,8 @@ function handleKey(event) {
 
 window.addEventListener("keydown", handleKey);
 canvas.addEventListener("pointerdown", () => canvas.focus());
+volumeButton.addEventListener("click", changeVolume);
+motionButton.addEventListener("click", changeMotion);
 
 function pathEdge(from, to) {
   const a = nodes()[from];
@@ -285,14 +316,15 @@ function drawNode(id, time) {
 function drawPulse(progress) {
   const from = nodes()[pulseFrom] ?? nodes()[state.node];
   const to = nodes()[pulseTo] ?? from;
-  const t = Math.max(0, Math.min(1, progress));
+  const pulseProgress = settings.reducedMotion ? 0 : progress;
+  const t = Math.max(0, Math.min(1, pulseProgress));
   const smooth = t * t * (3 - 2 * t);
   const x = from.x + (to.x - from.x) * smooth;
   const y = from.y + (to.y - from.y) * smooth;
   ctx.shadowColor = COLORS.lime; ctx.shadowBlur = 25;
   ctx.fillStyle = "#efffc9"; ctx.beginPath(); ctx.arc(x, y, 10, 0, Math.PI * 2); ctx.fill();
-  ctx.shadowBlur = 0; ctx.strokeStyle = COLORS.lime; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y, 17 + Math.sin(progress * Math.PI) * 4, 0, Math.PI * 2); ctx.stroke();
-  ctx.fillStyle = "#efffc955"; ctx.beginPath(); ctx.arc(to.x, to.y, 5 + Math.sin(progress * Math.PI * 4) * 2, 0, Math.PI * 2); ctx.fill();
+  ctx.shadowBlur = 0; ctx.strokeStyle = COLORS.lime; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y, 17 + Math.sin(pulseProgress * Math.PI) * 4, 0, Math.PI * 2); ctx.stroke();
+  ctx.fillStyle = "#efffc955"; ctx.beginPath(); ctx.arc(to.x, to.y, 5 + Math.sin(pulseProgress * Math.PI * 4) * 2, 0, Math.PI * 2); ctx.fill();
 }
 
 function label(text, x, y, color = COLORS.muted, align = "center", size = 14) {
@@ -336,14 +368,15 @@ function panel(title, subtitle, lines, footer) {
 }
 
 function render(time) {
-  drawBackground(time);
+  const visualTime = settings.reducedMotion ? 0 : time;
+  drawBackground(visualTime);
   if (state.phase === "title") {
     ctx.strokeStyle = "#547863"; ctx.lineWidth = 8; ctx.beginPath(); ctx.moveTo(180, 410); ctx.bezierCurveTo(400, 280, 770, 520, 1100, 310); ctx.stroke();
     flower(350, 342, COLORS.moon, true); flower(650, 416, COLORS.rain, true); flower(920, 390, COLORS.bell, true, 5);
     panel("SIGNAL GARDEN", "STAY AHEAD OF THE LIGHT", ["A seed flows one branch every beat.", "Select a branch with ← →, switch its destination with SPACE.", "Open all three flowers, then send the seed to the receiver."], "PRESS ENTER TO CULTIVATE");
   } else {
-    drawEdges(time);
-    for (const id of Object.keys(nodes())) drawNode(id, time);
+    drawEdges(visualTime);
+    for (const id of Object.keys(nodes())) drawNode(id, visualTime);
     if (state.phase === "playing" || state.phase === "paused") drawPulse(accumulator / FLOW_MS);
     drawHud();
     if (state.phase === "paused") panel("GARDEN HELD", "TIME IS ROOTED", ["Inspect the reserved bright branches.", "Space changes the selected branch after resuming."], "PRESS ENTER OR ESC TO RESUME");
@@ -352,7 +385,7 @@ function render(time) {
     if (state.phase === "won") panel("FULL CHORUS", "THREE FLOWERS / ONE SIGNAL", ["The seed reached the receiver with every color.", `Route completed in ${state.steps} beats.`], "PRESS ENTER TO GROW AGAIN");
     if (state.phase === "lost") panel("ROOTS QUIET", "THE SIGNAL SPENT ITS LAST LIFE", ["Blight and an unripe receiver both break the route.", "Switch branches before the seed arrives."], "PRESS ENTER OR R TO TRY AGAIN");
   }
-  window.__SIGNAL_GARDEN__ = snapshot(state);
+  window.__SIGNAL_GARDEN__ = { ...snapshot(state), settings: { ...settings } };
   requestAnimationFrame(loop);
 }
 
@@ -380,5 +413,6 @@ function loop(time) {
 }
 
 canvas.focus();
+updateSettingsControls();
 updateAccessibleName();
 requestAnimationFrame((time) => { lastTime = time; render(time); });
