@@ -21,7 +21,8 @@ import {
   setBright,
   startGame,
   tickGame,
-  togglePause
+  togglePause,
+  wardenIsHunting
 } from './model.js';
 import { loadPreferences, savePreferences } from './preferences.js';
 
@@ -128,7 +129,7 @@ function syncAccessibility() {
       ? `Room restored. Press Enter to enter room ${game.levelIndex + 2}, or R to retry.`
       : 'All available rooms restored. Press Enter to return to the title or R to retry.',
     lost: 'All embers lost. Press R to retry.',
-    playing: `${isBright(game) ? 'Bright lamp, warden pursuing' : 'Dim lamp, warden patrolling'}. ${collectedCount(game)} of 3 star-seeds, ${game.lives} embers, oil ${game.fuel} of ${MAX_FUEL}.`
+    playing: `${isBright(game) ? 'Bright lamp' : 'Dim lamp'}, ${game.wardens.filter((entry) => wardenIsHunting(game, entry)).map((entry) => entry.huntsWhen === 'dim' ? 'dusk warden' : 'flame warden').join(' and ')} pursuing. ${collectedCount(game)} of 3 star-seeds, ${game.lives} embers, oil ${game.fuel} of ${MAX_FUEL}.`
   };
   canvas.setAttribute('aria-label', phaseText[game.phase]);
   canvas.dataset.phase = game.phase;
@@ -137,7 +138,9 @@ function syncAccessibility() {
   canvas.dataset.seeds = String(collectedCount(game));
   canvas.dataset.lives = String(game.lives);
   canvas.dataset.player = `${game.player.x},${game.player.y}`;
-  canvas.dataset.warden = `${game.warden.x},${game.warden.y}`;
+  canvas.dataset.warden = game.wardens.map((entry) => `${entry.x},${entry.y}`).join('|');
+  canvas.dataset.wardens = String(game.wardens.length);
+  canvas.dataset.hunting = game.wardens.filter((entry) => wardenIsHunting(game, entry)).map((entry) => entry.huntsWhen).join(',');
   canvas.dataset.event = game.event;
   canvas.dataset.level = String(game.levelIndex + 1);
   canvas.dataset.mirror = activeMirrorBeams(game).length > 0 ? 'active' : 'idle';
@@ -417,18 +420,21 @@ function drawExit(now) {
   ctx.restore();
 }
 
-function drawWarden(now) {
-  const point = cellCenter(game.warden);
-  const visible = isPointLit(game, game.warden);
+function drawWarden(warden, now, index) {
+  const point = cellCenter(warden);
+  const visible = isPointLit(game, warden);
+  const hunting = wardenIsHunting(game, warden);
+  const dusk = warden.huntsWhen === 'dim';
   if (!visible) {
-    const dx = game.warden.x - game.player.x;
-    const dy = game.warden.y - game.player.y;
+    const dx = warden.x - game.player.x;
+    const dy = warden.y - game.player.y;
     const angle = Math.atan2(dy, dx);
     const player = cellCenter(game.player);
     ctx.save();
-    ctx.translate(player.x + Math.cos(angle) * 92, player.y + Math.sin(angle) * 92);
+    const markerRadius = 88 + index * 14;
+    ctx.translate(player.x + Math.cos(angle) * markerRadius, player.y + Math.sin(angle) * markerRadius);
     ctx.rotate(angle + Math.PI / 2);
-    ctx.fillStyle = 'rgba(156,145,178,0.52)';
+    ctx.fillStyle = dusk ? 'rgba(107,198,212,0.62)' : 'rgba(232,110,70,0.58)';
     ctx.beginPath();
     ctx.moveTo(0, -9);
     ctx.lineTo(9, 9);
@@ -440,17 +446,24 @@ function drawWarden(now) {
     return;
   }
   ctx.save();
-  ctx.translate(point.x, point.y + Math.sin(now / 230) * 2);
-  ctx.fillStyle = isBright(game) ? 'rgba(213,91,78,0.34)' : 'rgba(133,119,154,0.3)';
+  ctx.translate(point.x, point.y + Math.sin(now / 230 + index) * 2);
+  ctx.fillStyle = hunting
+    ? (dusk ? 'rgba(65,174,195,0.34)' : 'rgba(213,91,78,0.34)')
+    : 'rgba(133,119,154,0.3)';
   ctx.beginPath();
   ctx.ellipse(0, 2, 17, 25, 0, 0, Math.PI * 2);
   ctx.fill();
-  ctx.strokeStyle = isBright(game) ? '#ef7967' : COLORS.smoke;
+  ctx.strokeStyle = hunting ? (dusk ? '#78d9e4' : '#ef7967') : COLORS.smoke;
   ctx.lineWidth = 3;
   ctx.stroke();
-  ctx.fillStyle = isBright(game) ? COLORS.flame : '#c9bed6';
+  ctx.fillStyle = hunting ? (dusk ? '#b8f5ef' : COLORS.flame) : '#c9bed6';
   ctx.beginPath();
-  if (isBright(game)) {
+  if (dusk) {
+    ctx.moveTo(0, -10);
+    ctx.lineTo(9, 7);
+    ctx.lineTo(-9, 7);
+    ctx.closePath();
+  } else if (hunting) {
     ctx.moveTo(0, -9);
     ctx.lineTo(8, 0);
     ctx.lineTo(0, 8);
@@ -495,7 +508,11 @@ function drawHud() {
   const level = levelFor(game);
   text(`GLASSHOUSE 0${game.levelIndex + 1}`, 72, 118, 15, COLORS.brass, 'left', 700);
   text(level.name, 72, 145, 11, COLORS.paper, 'left', 700);
-  text(isBright(game) ? 'WARDEN: HUNTING' : 'WARDEN: LISTENING', 72, 174, 13, isBright(game) ? '#ef7967' : COLORS.smoke, 'left', 700);
+  if (game.wardens.length === 1) {
+    text(isBright(game) ? 'WARDEN: HUNTING' : 'WARDEN: LISTENING', 72, 174, 13, isBright(game) ? '#ef7967' : COLORS.smoke, 'left', 700);
+  } else {
+    text(isBright(game) ? 'FLAME: HUNTING' : 'DUSK: HUNTING', 72, 174, 13, isBright(game) ? '#ef7967' : '#78d9e4', 'left', 700);
+  }
   text('LAMP OIL', 72, 222, 12, COLORS.smoke, 'left', 700);
   ctx.fillStyle = '#25202e';
   ctx.fillRect(72, 242, 128, 12);
@@ -533,6 +550,10 @@ function drawHud() {
     const glow = Math.max(0, ...activePhosphors(game).map((tile) => tile.charge));
     text('PHOSPHOR', 1092, 520, 12, COLORS.mint, 'left', 700);
     text(glow > 0 ? `AFTERGLOW ${Math.ceil(glow / 8)}` : 'PAINT WITH LIGHT', 1092, 542, 12, COLORS.paper, 'left', 700);
+  }
+  if (game.wardens.length > 1) {
+    text('TWIN VIGIL', 1092, 520, 12, '#78d9e4', 'left', 700);
+    text(isBright(game) ? 'FLAME WAKES' : 'DUSK WAKES', 1092, 542, 12, COLORS.paper, 'left', 700);
   }
   text('ESC PAUSE  ·  R RETRY', 640, 650, 13, '#81778f', 'center');
 }
@@ -573,14 +594,14 @@ function render(now) {
     drawPhosphors(visualNow);
     game.seeds.forEach((seed) => drawSeed(seed, visualNow));
     drawExit(visualNow);
-    drawWarden(visualNow);
+    game.wardens.forEach((warden, index) => drawWarden(warden, visualNow, index));
     drawPlayer(visualNow);
     drawHud();
     if (game.phase === 'paused') drawOverlay('FLAME HELD', 'The room waits in the dark.', COLORS.wax);
     if (game.phase === 'won') {
       const finalRoom = game.levelIndex + 1 === LEVELS.length;
       drawOverlay(
-        finalRoom ? 'THREE ROOMS KINDLED' : 'GLASSHOUSE WAKES',
+        finalRoom ? 'FOUR ROOMS KINDLED' : 'GLASSHOUSE WAKES',
         finalRoom ? 'The walls remember where your flame has been.' : 'Three small stars answer the dawn.',
         COLORS.mint
       );

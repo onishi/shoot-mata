@@ -22,7 +22,8 @@ import {
   setBright,
   startGame,
   tickGame,
-  togglePause
+  togglePause,
+  wardenIsHunting
 } from '../src/model.js';
 import { DEFAULT_PREFERENCES, SAVE_KEY, loadPreferences, savePreferences } from '../src/preferences.js';
 
@@ -74,26 +75,27 @@ test('a seed can only be gathered in bright light', () => {
 test('warden patrols while dim and pursues while bright', () => {
   let dim = startGame(createGame());
   for (let index = 0; index < 4; index += 1) dim = tickGame(dim);
-  assert.deepEqual(dim.warden, { x: 12, y: 8 });
+  assert.deepEqual({ x: dim.wardens[0].x, y: dim.wardens[0].y }, { x: 12, y: 8 });
 
   let bright = forceState(setBright(startGame(createGame()), true), { player: { x: 13, y: 4 } });
   for (let index = 0; index < 4; index += 1) bright = tickGame(bright);
-  assert.deepEqual(bright.warden, { x: 13, y: 7 });
+  assert.deepEqual({ x: bright.wardens[0].x, y: bright.wardens[0].y }, { x: 13, y: 7 });
 });
 
 test('contact costs a life and resets positions while retaining seeds', () => {
   let game = startGame(createGame());
   const seeds = game.seeds.map((seed, index) => ({ ...seed, collected: index === 0 }));
-  game = forceState(game, { player: { x: 12, y: 8 }, warden: { x: 13, y: 8 }, seeds });
+  game = forceState(game, { player: { x: 12, y: 8 }, wardens: [{ ...game.wardens[0], x: 13, y: 8 }], seeds });
   game = movePlayer(game, 1, 0);
   assert.equal(game.lives, 2);
   assert.deepEqual(game.player, PLAYER_START);
-  assert.deepEqual(game.warden, WARDEN_START);
+  assert.deepEqual({ x: game.wardens[0].x, y: game.wardens[0].y }, WARDEN_START);
   assert.equal(collectedCount(game), 1);
 });
 
 test('third contact causes defeat', () => {
-  let game = forceState(startGame(createGame()), { lives: 1, player: { x: 12, y: 8 }, warden: { x: 13, y: 8 } });
+  const started = startGame(createGame());
+  let game = forceState(started, { lives: 1, player: { x: 12, y: 8 }, wardens: [{ ...started.wardens[0], x: 13, y: 8 }] });
   game = movePlayer(game, 1, 0);
   assert.equal(game.phase, 'lost');
   assert.equal(game.lives, 0);
@@ -162,11 +164,36 @@ test('phosphor tiles preserve a fading pool of light after the lamp dims', () =>
   assert.equal(isPointLit(game, rememberedPoint), false);
 });
 
-test('finishing the available third room returns to the title', () => {
+test('winning the third room advances to the twin vigil', () => {
   let game = forceState(startGame(createGame(), 2), { phase: 'won' });
   game = advanceRoom(game);
+  assert.equal(game.phase, 'playing');
+  assert.equal(game.levelIndex, 3);
+  assert.equal(LEVELS[3].name, 'TWIN VIGIL');
+  assert.equal(game.wardens.length, 2);
+});
+
+test('twin wardens trade pursuit when the lamp changes', () => {
+  let dim = startGame(createGame(), 3);
+  assert.equal(wardenIsHunting(dim, dim.wardens[0]), false);
+  assert.equal(wardenIsHunting(dim, dim.wardens[1]), true);
+  const dimStarts = dim.wardens.map(({ x, y }) => ({ x, y }));
+  for (let index = 0; index < 4; index += 1) dim = tickGame(dim);
+  assert.notDeepEqual({ x: dim.wardens[1].x, y: dim.wardens[1].y }, dimStarts[1]);
+
+  let bright = setBright(startGame(createGame(), 3), true);
+  assert.equal(wardenIsHunting(bright, bright.wardens[0]), true);
+  assert.equal(wardenIsHunting(bright, bright.wardens[1]), false);
+  const brightStarts = bright.wardens.map(({ x, y }) => ({ x, y }));
+  for (let index = 0; index < 4; index += 1) bright = tickGame(bright);
+  assert.notDeepEqual({ x: bright.wardens[0].x, y: bright.wardens[0].y }, brightStarts[0]);
+});
+
+test('finishing the available fourth room returns to the title', () => {
+  let game = forceState(startGame(createGame(), 3), { phase: 'won' });
+  game = advanceRoom(game);
   assert.equal(game.phase, 'title');
-  assert.equal(game.levelIndex, 2);
+  assert.equal(game.levelIndex, 3);
 });
 
 test('preferences round-trip progress and accessibility settings', () => {

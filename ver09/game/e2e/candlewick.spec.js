@@ -90,7 +90,7 @@ test('all three seeds open the gate and finish the room', async ({ page }) => {
   expect(problems).toEqual([]);
 });
 
-test('all three rooms are completable and their light rules are visible', async ({ page }) => {
+test('all four rooms are completable and their light rules are visible', async ({ page }) => {
   const problems = watchConsole(page);
   await page.goto('/');
   const canvas = page.locator('#game');
@@ -133,15 +133,35 @@ test('all three rooms are completable and their light rules are visible', async 
   await page.keyboard.up('Space');
   await expect(canvas).toHaveAttribute('data-seeds', '3');
   await expect(canvas).toHaveAttribute('data-phase', 'won');
+
+  await page.keyboard.press('Enter');
+  await expect(canvas).toHaveAttribute('data-level', '4');
+  await expect(canvas).toHaveAttribute('data-wardens', '2');
+  await expect(canvas).toHaveAttribute('data-hunting', 'dim');
+  await page.screenshot({ path: '../docs/evidence/m3-twin-vigil-dim.png' });
+  await page.keyboard.down('Space');
+  await expect(canvas).toHaveAttribute('data-hunting', 'bright');
+  await page.screenshot({ path: '../docs/evidence/m3-twin-vigil-bright.png' });
+  await pressPath(page, 'RRRUUUURRRRUUDDDRRRU');
+  await expect(canvas).toHaveAttribute('data-seeds', '2');
+  await page.keyboard.up('Space');
+  await expect(canvas).toHaveAttribute('data-hunting', 'dim');
+  await pressPath(page, 'RRD');
+  await page.keyboard.down('Space');
+  await pressPath(page, 'D');
+  await page.keyboard.up('Space');
+  await expect(canvas).toHaveAttribute('data-seeds', '3');
+  await pressPath(page, 'RUUUUU');
+  await expect(canvas).toHaveAttribute('data-phase', 'won');
   await expect(canvas).toHaveAttribute('aria-label', /All available rooms restored/i);
-  await page.screenshot({ path: '../docs/evidence/m2-three-rooms-kindled.png' });
+  await page.screenshot({ path: '../docs/evidence/m3-four-rooms-kindled.png' });
 
   await page.keyboard.press('Enter');
   await expect(canvas).toHaveAttribute('data-phase', 'title');
-  await expect(canvas).toHaveAttribute('data-level', '3');
-  await expect(canvas).toHaveAttribute('data-unlocked-level', '3');
+  await expect(canvas).toHaveAttribute('data-level', '4');
+  await expect(canvas).toHaveAttribute('data-unlocked-level', '4');
   await page.keyboard.press('ArrowLeft');
-  await expect(canvas).toHaveAttribute('data-selected-level', '2');
+  await expect(canvas).toHaveAttribute('data-selected-level', '3');
   expect(problems).toEqual([]);
 });
 

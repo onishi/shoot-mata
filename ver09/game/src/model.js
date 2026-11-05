@@ -5,13 +5,17 @@ export const PHOSPHOR_TICKS = 20;
 
 const point = (x, y) => Object.freeze({ x, y });
 const mirror = (x, y, dx, dy, length) => Object.freeze({ x, y, dx, dy, length });
+const warden = (x, y, patrolX, patrolY, huntsWhen = 'bright') => Object.freeze({
+  start: point(x, y),
+  patrol: point(patrolX, patrolY),
+  huntsWhen
+});
 
 export const LEVELS = Object.freeze([
   Object.freeze({
     name: 'ASHEN VESTIBULE',
     playerStart: point(1, 8),
-    wardenStart: point(13, 8),
-    patrol: point(-1, 0),
+    wardens: Object.freeze([warden(13, 8, -1, 0)]),
     exit: point(14, 1),
     seeds: Object.freeze([point(4, 7), point(8, 3), point(12, 2)]),
     mirrors: Object.freeze([]),
@@ -28,8 +32,7 @@ export const LEVELS = Object.freeze([
   Object.freeze({
     name: 'PRISM WALK',
     playerStart: point(1, 8),
-    wardenStart: point(13, 8),
-    patrol: point(-1, 0),
+    wardens: Object.freeze([warden(13, 8, -1, 0)]),
     exit: point(14, 1),
     seeds: Object.freeze([point(5, 2), point(9, 4), point(12, 2)]),
     mirrors: Object.freeze([mirror(5, 7, 0, -1, 6)]),
@@ -45,8 +48,7 @@ export const LEVELS = Object.freeze([
   Object.freeze({
     name: 'AFTERGLOW GALLERY',
     playerStart: point(1, 8),
-    wardenStart: point(13, 8),
-    patrol: point(-1, 0),
+    wardens: Object.freeze([warden(13, 8, -1, 0)]),
     exit: point(14, 1),
     seeds: Object.freeze([point(4, 2), point(8, 7), point(13, 4)]),
     mirrors: Object.freeze([]),
@@ -62,12 +64,30 @@ export const LEVELS = Object.freeze([
       '10,3', '10,4', '10,5', '10,6', '10,7', '10,8',
       '12,5', '13,5', '14,5'
     ])
+  }),
+  Object.freeze({
+    name: 'TWIN VIGIL',
+    playerStart: point(1, 8),
+    wardens: Object.freeze([
+      warden(13, 8, -1, 0, 'bright'),
+      warden(13, 1, -1, 0, 'dim')
+    ]),
+    exit: point(14, 1),
+    seeds: Object.freeze([point(4, 6), point(8, 2), point(13, 6)]),
+    mirrors: Object.freeze([]),
+    phosphors: Object.freeze([]),
+    walls: Object.freeze([
+      '3,1', '3,2', '3,3', '3,4',
+      '6,5', '6,6', '6,7', '6,8',
+      '9,1', '9,2', '9,3', '9,4',
+      '12,5', '12,6', '12,7', '12,8'
+    ])
   })
 ]);
 
 // M1 names remain exported for tests and tooling that inspect the first room.
 export const PLAYER_START = LEVELS[0].playerStart;
-export const WARDEN_START = LEVELS[0].wardenStart;
+export const WARDEN_START = LEVELS[0].wardens[0].start;
 export const EXIT = LEVELS[0].exit;
 export const SEEDS = LEVELS[0].seeds;
 
@@ -92,8 +112,11 @@ function roomState(levelIndex, phase = 'title') {
     levelIndex,
     tick: 0,
     player: copyPoint(level.playerStart),
-    warden: copyPoint(level.wardenStart),
-    patrol: copyPoint(level.patrol),
+    wardens: level.wardens.map((entry) => ({
+      ...copyPoint(entry.start),
+      patrol: copyPoint(entry.patrol),
+      huntsWhen: entry.huntsWhen
+    })),
     fuel: MAX_FUEL,
     brightRequested: false,
     seeds: level.seeds.map((seed) => ({ ...copyPoint(seed), collected: false })),
@@ -123,6 +146,10 @@ export function advanceRoom(state) {
 
 export function isBright(state) {
   return state.phase === 'playing' && state.brightRequested && state.fuel > 0;
+}
+
+export function wardenIsHunting(state, wardenValue) {
+  return wardenValue.huntsWhen === 'dim' ? !isBright(state) : isBright(state);
 }
 
 export function collectedCount(state) {
@@ -190,8 +217,11 @@ function resolveHit(state) {
     ...state,
     lives,
     player: copyPoint(level.playerStart),
-    warden: copyPoint(level.wardenStart),
-    patrol: copyPoint(level.patrol),
+    wardens: level.wardens.map((entry) => ({
+      ...copyPoint(entry.start),
+      patrol: copyPoint(entry.patrol),
+      huntsWhen: entry.huntsWhen
+    })),
     fuel: MAX_FUEL,
     brightRequested: false,
     event: 'hit'
@@ -199,7 +229,7 @@ function resolveHit(state) {
 }
 
 function resolveArrival(state) {
-  if (samePoint(state.player, state.warden)) return resolveHit(state);
+  if (state.wardens.some((entry) => samePoint(state.player, entry))) return resolveHit(state);
 
   let event = state.event;
   const seeds = state.seeds.map((seed) => {
@@ -228,27 +258,27 @@ function validStep(state, origin, dx, dy) {
   return isWall(target, state) ? null : target;
 }
 
-function chaseStep(state) {
-  const dx = Math.sign(state.player.x - state.warden.x);
-  const dy = Math.sign(state.player.y - state.warden.y);
-  const horizontalFirst = state.tick % 8 === 0;
+function chaseStep(state, wardenValue, index) {
+  const dx = Math.sign(state.player.x - wardenValue.x);
+  const dy = Math.sign(state.player.y - wardenValue.y);
+  const horizontalFirst = (state.tick + index * 4) % 8 === 0;
   const candidates = horizontalFirst
     ? [[dx, 0], [0, dy], [-dx, 0], [0, -dy]]
     : [[0, dy], [dx, 0], [0, -dy], [-dx, 0]];
   for (const [stepX, stepY] of candidates) {
     if (stepX === 0 && stepY === 0) continue;
-    const target = validStep(state, state.warden, stepX, stepY);
+    const target = validStep(state, wardenValue, stepX, stepY);
     if (target) return target;
   }
-  return copyPoint(state.warden);
+  return copyPoint(wardenValue);
 }
 
-function patrolStep(state) {
-  const forward = validStep(state, state.warden, state.patrol.x, state.patrol.y);
-  if (forward) return { point: forward, patrol: state.patrol };
-  const reversed = { x: -state.patrol.x, y: -state.patrol.y };
+function patrolStep(state, wardenValue) {
+  const forward = validStep(state, wardenValue, wardenValue.patrol.x, wardenValue.patrol.y);
+  if (forward) return { point: forward, patrol: wardenValue.patrol };
+  const reversed = { x: -wardenValue.patrol.x, y: -wardenValue.patrol.y };
   return {
-    point: validStep(state, state.warden, reversed.x, reversed.y) ?? copyPoint(state.warden),
+    point: validStep(state, wardenValue, reversed.x, reversed.y) ?? copyPoint(wardenValue),
     patrol: reversed
   };
 }
@@ -274,15 +304,16 @@ export function tickGame(state) {
   }));
 
   if (next.tick % 4 === 0) {
-    if (wasBright) {
-      next = { ...next, warden: chaseStep(next), event: 'chase' };
-    } else {
-      const patrol = patrolStep(next);
-      next = { ...next, warden: patrol.point, patrol: patrol.patrol, event: 'patrol' };
-    }
+    const wardens = next.wardens.map((entry, index) => {
+      const hunting = entry.huntsWhen === 'dim' ? !wasBright : wasBright;
+      if (hunting) return { ...entry, ...chaseStep(next, entry, index) };
+      const patrol = patrolStep(next, entry);
+      return { ...entry, ...patrol.point, patrol: patrol.patrol };
+    });
+    next = { ...next, wardens, event: wardens.some((entry) => wardenIsHunting(next, entry)) ? 'chase' : 'patrol' };
   }
 
-  if (samePoint(next.player, next.warden)) return resolveHit(next);
+  if (next.wardens.some((entry) => samePoint(next.player, entry))) return resolveHit(next);
   return next;
 }
 
