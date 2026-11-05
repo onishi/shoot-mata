@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { advance, createGame, getGardenNodes, getNextNode, resetGame, selectSwitch, startGame, togglePause, toggleSelectedSwitch } from "../src/model.js";
+import { advance, createGame, getGardenNodes, getNextNode, resetGame, selectSwitch, setHeldSwitch, startGame, togglePause, toggleSelectedSwitch } from "../src/model.js";
 
 function advanceTo(state, node) {
   for (let guard = 0; guard < 20 && state.node !== node; guard += 1) advance(state);
@@ -242,6 +242,35 @@ test("planned quickening-vine route prepares each lap during the calm current", 
 
   state.switches[0] = 1;
   state.switches[2] = 0;
+  advanceTo(state, "receiver");
+  assert.deepEqual(state.blooms, { moon: true, rain: true, bell: true });
+  assert.equal(state.phase, "gardenWon");
+});
+
+test("garden six bends its crown only while space is held", () => {
+  const state = createGame(5); startGame(state);
+  assert.deepEqual(state.switches, [0, 0, 0]);
+  assert.equal(getNextNode(state, "crown"), "receiver");
+  assert.equal(setHeldSwitch(state, true), false);
+  state.selectedSwitch = 2;
+  assert.equal(setHeldSwitch(state, true), true);
+  assert.equal(state.heldActive, true);
+  assert.equal(getNextNode(state, "crown"), "returnA");
+  state.selectedSwitch = 0;
+  assert.equal(setHeldSwitch(state, false), true);
+  assert.equal(state.heldActive, false);
+  assert.equal(getNextNode(state, "crown"), "receiver");
+});
+
+test("planned tending-crown route holds through the first crown and releases for the finale", () => {
+  const state = createGame(5); startGame(state);
+  state.selectedSwitch = 2;
+  setHeldSwitch(state, true);
+  advanceTo(state, "returnA");
+  assert.deepEqual(state.blooms, { moon: true, rain: false, bell: true });
+
+  setHeldSwitch(state, false);
+  state.switches[0] = 1;
   advanceTo(state, "receiver");
   assert.deepEqual(state.blooms, { moon: true, rain: true, bell: true });
   assert.equal(state.phase, "won");

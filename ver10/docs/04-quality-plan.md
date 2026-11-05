@@ -57,3 +57,10 @@
 - 低速区間でGRAFTとCROWNを先に整え、加速後は短い猶予を入力速度で追わずに通過できる攻略をモデルと実キー操作の両方で確認する。
 - 金色と水色のテンポ門、名称、現在の`ms / BEAT`、二音、ARIA通知で速度状態と変化地点を識別できる。
 - 単体28/28、構文検査、production build、Chrome E2E 5/5、console error / warning 0件に合格し、`m3-quickening-vine-fast.png`と`m3-fifth-garden-won.png`を1280×720で目視する。
+
+## M3完了検証 — 第6庭園と終演
+
+- CROWN選択中のSpace keydownで周回路へ曲がり、キーリピートで状態が揺れず、選択分岐を移動した後でもkeyupで必ず受信樹へ戻る。
+- 1周目はCROWN通過まで保持し、RETURN ROOTで解放してから雨花へ向ける攻略を、モデルと実キー操作の両方で確認する。損傷と再挑戦は保持状態を残さない。
+- 保持状態を二重輪、`HELD / RELEASED`、行先、操作案内、ARIAで識別できる。終演は三色の枝が一つの光へ合流する専用画面を持つ。
+- 単体30/30、構文検査、production build、Chrome E2E 6/6、console error / warning 0件に合格し、`m3-tending-crown-held.png`と`m3-finale.png`を1280×720で目視する。

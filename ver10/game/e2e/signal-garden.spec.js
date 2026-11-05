@@ -107,8 +107,23 @@ test("keyboard route opens all flowers, loops, and reaches the receiver", async 
   await canvas.press("Space");
   await canvas.press("ArrowLeft");
   await canvas.press("Space");
-  await expect.poll(async () => (await state(page)).phase, { timeout: 15_000 }).toBe("won");
+  await expect.poll(async () => (await state(page)).phase, { timeout: 15_000 }).toBe("gardenWon");
   await page.screenshot({ path: "../docs/evidence/m3-fifth-garden-won.png" });
+
+  await canvas.press("Enter");
+  await expect.poll(async () => (await state(page)).garden).toBe(5);
+  await canvas.press("ArrowRight");
+  await canvas.press("ArrowRight");
+  await page.keyboard.down("Space");
+  await expect.poll(async () => (await state(page)).heldActive).toBe(true);
+  await waitForNode(page, "returnA");
+  await page.screenshot({ path: "../docs/evidence/m3-tending-crown-held.png" });
+  await page.keyboard.up("Space");
+  await expect.poll(async () => (await state(page)).heldActive).toBe(false);
+  await canvas.press("ArrowRight");
+  await canvas.press("Space");
+  await expect.poll(async () => (await state(page)).phase, { timeout: 15_000 }).toBe("won");
+  await page.screenshot({ path: "../docs/evidence/m3-finale.png" });
   expect(messages).toEqual([]);
 });
 
@@ -174,4 +189,15 @@ test("latest unlocked garden resumes after reload and corrupt progress recovers"
   await expect(canvas).toHaveAttribute("aria-label", /Garden 1 ready/i);
   await canvas.press("Enter");
   await expect.poll(async () => (await state(page))?.garden).toBe(0);
+});
+
+test("the sixth garden resumes from saved progress", async ({ page }) => {
+  await page.goto("/");
+  await page.evaluate(() => localStorage.setItem("signal-garden:v10:progress", JSON.stringify({ version: 1, latestGarden: 5 })));
+  await page.reload();
+  const canvas = page.locator("canvas");
+  await expect(canvas).toHaveAttribute("aria-label", /Garden 6 ready/i);
+  await canvas.press("Enter");
+  await expect.poll(async () => (await state(page))?.garden).toBe(5);
+  expect((await state(page)).heldActive).toBe(false);
 });
