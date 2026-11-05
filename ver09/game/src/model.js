@@ -82,6 +82,25 @@ export const LEVELS = Object.freeze([
       '9,1', '9,2', '9,3', '9,4',
       '12,5', '12,6', '12,7', '12,8'
     ])
+  }),
+  Object.freeze({
+    name: 'BORROWED GLOW',
+    playerStart: point(1, 8),
+    wardens: Object.freeze([warden(13, 8, -1, 0, 'dim')]),
+    exit: point(14, 1),
+    seeds: Object.freeze([point(4, 6), point(8, 2), point(13, 6)]),
+    mirrors: Object.freeze([]),
+    phosphors: Object.freeze([
+      point(2, 7), point(3, 6), point(4, 6),
+      point(5, 6), point(6, 6), point(7, 6), point(8, 5), point(8, 4), point(8, 3), point(8, 2),
+      point(9, 2), point(10, 2), point(11, 2), point(11, 3), point(11, 4), point(11, 5), point(11, 6),
+      point(12, 6), point(13, 6), point(13, 5), point(13, 4), point(14, 3), point(14, 2)
+    ]),
+    walls: Object.freeze([
+      '5,1', '5,2', '5,3', '5,4', '5,5',
+      '9,4', '9,5', '9,6', '9,7', '9,8',
+      '12,1', '12,2', '12,3', '12,4', '12,5'
+    ])
   })
 ]);
 

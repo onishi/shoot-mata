@@ -56,3 +56,10 @@
 - Chrome E2E 5/5で4室を状態注入なしに通し、通常灯では宵番人、強灯では炎番人が追跡すること、二体を避けて全星種と出口へ到達できること、解放状態が第4室まで保存されることを確認した。
 - `m3-twin-vigil-dim.png`、`m3-twin-vigil-bright.png`、`m3-four-rooms-kindled.png`を1280×720で目視し、赤い菱形と青い三角形、二本の方向マーカー、HUDの追跡名、完了overlayを判読できた。文字欠けや重なりはない。
 - console error / warningは0件だった。開発サーバーの`NO_COLOR`警告はページconsoleへ入らず、ゲーム動作へ影響しない。
+
+## M3 第5室結果
+
+- 単体20/20で第5室進行、燐と宵番人の構成、強灯中の巡回、消灯後の残光・灯油回復・追跡、5室完了後のタイトル復帰を固定した。
+- Chrome E2E 5/5で5室を状態注入なしに通し、第5室では強灯で燐を蓄光している間は宵番人が巡回し、消灯後は残光を維持したまま灯油が24へ回復し、宵番人が実際に追跡移動することを確認した。
+- `m3-borrowed-glow-bright.png`、`m3-borrowed-glow-dim.png`、`m3-five-rooms-kindled.png`を1280×720で目視し、強灯／通常灯、LISTENING／HUNTING、燐の残光、HUD、完了overlayを判読できた。文字欠けや重なりはない。
+- console error / warningは0件だった。開発サーバーの`NO_COLOR`警告はページconsoleへ入らず、ゲーム動作へ影響しない。

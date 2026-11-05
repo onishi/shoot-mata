@@ -90,7 +90,7 @@ test('all three seeds open the gate and finish the room', async ({ page }) => {
   expect(problems).toEqual([]);
 });
 
-test('all four rooms are completable and their light rules are visible', async ({ page }) => {
+test('all five rooms are completable and their light rules are visible', async ({ page }) => {
   const problems = watchConsole(page);
   await page.goto('/');
   const canvas = page.locator('#game');
@@ -153,15 +153,39 @@ test('all four rooms are completable and their light rules are visible', async (
   await expect(canvas).toHaveAttribute('data-seeds', '3');
   await pressPath(page, 'RUUUUU');
   await expect(canvas).toHaveAttribute('data-phase', 'won');
-  await expect(canvas).toHaveAttribute('aria-label', /All available rooms restored/i);
+  await expect(canvas).toHaveAttribute('aria-label', /Room restored/i);
   await page.screenshot({ path: '../docs/evidence/m3-four-rooms-kindled.png' });
 
   await page.keyboard.press('Enter');
+  await expect(canvas).toHaveAttribute('data-level', '5');
+  await expect(canvas).toHaveAttribute('data-wardens', '1');
+  await expect(canvas).toHaveAttribute('data-hunting', 'dim');
+  await page.keyboard.down('Space');
+  await expect(canvas).toHaveAttribute('data-hunting', '');
+  await expect.poll(async () => Number(await canvas.getAttribute('data-phosphor'))).toBeGreaterThan(0);
+  await page.screenshot({ path: '../docs/evidence/m3-borrowed-glow-bright.png' });
+  const duskStart = await canvas.getAttribute('data-warden');
+  await page.keyboard.up('Space');
+  await expect(canvas).toHaveAttribute('data-hunting', 'dim');
+  await expect.poll(async () => Number(await canvas.getAttribute('data-afterglow'))).toBeGreaterThan(0);
+  await expect.poll(async () => canvas.getAttribute('data-warden')).not.toBe(duskStart);
+  await expect(canvas).toHaveAttribute('data-fuel', '24');
+  await page.screenshot({ path: '../docs/evidence/m3-borrowed-glow-dim.png' });
+
+  await page.keyboard.down('Space');
+  await pressPath(page, 'UURRRRRRRUUUURRRDDDDRRRUUUUU');
+  await page.keyboard.up('Space');
+  await expect(canvas).toHaveAttribute('data-seeds', '3');
+  await expect(canvas).toHaveAttribute('data-phase', 'won');
+  await expect(canvas).toHaveAttribute('aria-label', /All available rooms restored/i);
+  await page.screenshot({ path: '../docs/evidence/m3-five-rooms-kindled.png' });
+
+  await page.keyboard.press('Enter');
   await expect(canvas).toHaveAttribute('data-phase', 'title');
-  await expect(canvas).toHaveAttribute('data-level', '4');
-  await expect(canvas).toHaveAttribute('data-unlocked-level', '4');
+  await expect(canvas).toHaveAttribute('data-level', '5');
+  await expect(canvas).toHaveAttribute('data-unlocked-level', '5');
   await page.keyboard.press('ArrowLeft');
-  await expect(canvas).toHaveAttribute('data-selected-level', '3');
+  await expect(canvas).toHaveAttribute('data-selected-level', '4');
   expect(problems).toEqual([]);
 });
 

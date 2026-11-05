@@ -506,10 +506,20 @@ function drawPlayer(now) {
 
 function drawHud() {
   const level = levelFor(game);
+  const huntingWardens = game.wardens.filter((entry) => wardenIsHunting(game, entry));
   text(`GLASSHOUSE 0${game.levelIndex + 1}`, 72, 118, 15, COLORS.brass, 'left', 700);
   text(level.name, 72, 145, 11, COLORS.paper, 'left', 700);
   if (game.wardens.length === 1) {
-    text(isBright(game) ? 'WARDEN: HUNTING' : 'WARDEN: LISTENING', 72, 174, 13, isBright(game) ? '#ef7967' : COLORS.smoke, 'left', 700);
+    const dusk = game.wardens[0].huntsWhen === 'dim';
+    text(
+      huntingWardens.length > 0 ? `${dusk ? 'DUSK' : 'WARDEN'}: HUNTING` : `${dusk ? 'DUSK' : 'WARDEN'}: LISTENING`,
+      72,
+      174,
+      13,
+      huntingWardens.length > 0 ? (dusk ? '#78d9e4' : '#ef7967') : COLORS.smoke,
+      'left',
+      700
+    );
   } else {
     text(isBright(game) ? 'FLAME: HUNTING' : 'DUSK: HUNTING', 72, 174, 13, isBright(game) ? '#ef7967' : '#78d9e4', 'left', 700);
   }
@@ -601,7 +611,7 @@ function render(now) {
     if (game.phase === 'won') {
       const finalRoom = game.levelIndex + 1 === LEVELS.length;
       drawOverlay(
-        finalRoom ? 'FOUR ROOMS KINDLED' : 'GLASSHOUSE WAKES',
+        finalRoom ? `${LEVELS.length} ROOMS KINDLED` : 'GLASSHOUSE WAKES',
         finalRoom ? 'The walls remember where your flame has been.' : 'Three small stars answer the dawn.',
         COLORS.mint
       );

@@ -189,11 +189,38 @@ test('twin wardens trade pursuit when the lamp changes', () => {
   assert.notDeepEqual({ x: bright.wardens[0].x, y: bright.wardens[0].y }, brightStarts[0]);
 });
 
-test('finishing the available fourth room returns to the title', () => {
+test('winning the twin vigil advances to borrowed glow', () => {
   let game = forceState(startGame(createGame(), 3), { phase: 'won' });
   game = advanceRoom(game);
+  assert.equal(game.phase, 'playing');
+  assert.equal(game.levelIndex, 4);
+  assert.equal(LEVELS[4].name, 'BORROWED GLOW');
+  assert.equal(game.wardens.length, 1);
+  assert.equal(game.wardens[0].huntsWhen, 'dim');
+  assert.ok(game.phosphors.length > 0);
+});
+
+test('borrowed glow trades fuel recovery and afterglow for dusk pursuit', () => {
+  let game = setBright(startGame(createGame(), 4), true);
+  assert.equal(wardenIsHunting(game, game.wardens[0]), false);
+  game = tickGame(game);
+  assert.ok(activePhosphors(game).length > 0);
+  const litByMemory = { x: 3, y: 6 };
+
+  game = setBright(game, false);
+  assert.equal(wardenIsHunting(game, game.wardens[0]), true);
+  assert.equal(isPointLit(game, litByMemory), true);
+  const start = { x: game.wardens[0].x, y: game.wardens[0].y };
+  for (let index = 0; index < 4; index += 1) game = tickGame(game);
+  assert.notDeepEqual({ x: game.wardens[0].x, y: game.wardens[0].y }, start);
+  assert.equal(game.fuel, MAX_FUEL);
+});
+
+test('finishing the available fifth room returns to the title', () => {
+  let game = forceState(startGame(createGame(), 4), { phase: 'won' });
+  game = advanceRoom(game);
   assert.equal(game.phase, 'title');
-  assert.equal(game.levelIndex, 3);
+  assert.equal(game.levelIndex, 4);
 });
 
 test('preferences round-trip progress and accessibility settings', () => {
