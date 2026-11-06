@@ -1,5 +1,5 @@
 import "./style.css";
-import { WIDTH, HEIGHT, FIXED_STEP, AIRSPACES, accessibleStatus, airspaceFor, createGame, isSheltered, retry, startGame, togglePause, update, windAt } from "./model.js";
+import { WIDTH, HEIGHT, FIXED_STEP, AIRSPACES, accessibleStatus, airspaceFor, createGame, downdraftAt, isSheltered, retry, startGame, togglePause, update, windAt } from "./model.js";
 
 const canvas = document.querySelector("#game");
 const ctx = canvas.getContext("2d");
@@ -82,6 +82,28 @@ function drawClouds() {
   }
 }
 
+function drawDowndrafts() {
+  for (const draft of airspaceFor(game).downdrafts) {
+    const gradient = ctx.createLinearGradient(draft.x, draft.y, draft.x + draft.width, draft.y);
+    gradient.addColorStop(0, "#8fbac500"); gradient.addColorStop(0.2, "#8fbac529");
+    gradient.addColorStop(0.8, "#8fbac529"); gradient.addColorStop(1, "#8fbac500");
+    ctx.fillStyle = gradient; ctx.fillRect(draft.x, draft.y, draft.width, draft.height);
+    ctx.save(); ctx.strokeStyle = "#c5edf0aa"; ctx.lineWidth = 3;
+    for (let i = 0; i < 5; i++) {
+      const x = draft.x + 25 + i * 32;
+      const offset = (game.elapsed * 90 + i * 63) % (draft.height + 55);
+      const y = draft.y - 25 + offset;
+      ctx.beginPath(); ctx.moveTo(x - 7, y - 34); ctx.quadraticCurveTo(x + 8, y - 10, x, y + 18);
+      ctx.lineTo(x - 8, y + 7); ctx.moveTo(x, y + 18); ctx.lineTo(x + 10, y + 5); ctx.stroke();
+    }
+    ctx.restore();
+    if (game.messageTime <= 0) {
+      ctx.fillStyle = "#d8f4f2"; ctx.font = "700 12px system-ui"; ctx.textAlign = "center";
+      ctx.fillText("SINKING AIR", draft.x + draft.width / 2, draft.y + 18);
+    }
+  }
+}
+
 function drawWind() {
   const wind = windAt(game.elapsed);
   if (game.mode === "title") return;
@@ -131,7 +153,8 @@ function drawHud() {
   for (let i = 0; i < 3; i++) { ctx.fillStyle = game.ribbons[i] ? "#ffd57c" : "#53617a"; ctx.beginPath(); ctx.arc(804 + i * 28, 66, 7, 0, Math.PI * 2); ctx.fill(); }
   if (game.messageTime > 0) { ctx.textAlign = "center"; ctx.fillStyle = "#fff0c7"; ctx.font = "700 18px system-ui"; ctx.fillText(game.message, WIDTH / 2, 104); }
   ctx.textAlign = "center"; ctx.fillStyle = isSheltered(game) ? "#f4fbff" : "#aebed0"; ctx.font = "700 12px system-ui";
-  ctx.fillText(`${airspaceFor(game).name}${isSheltered(game) ? " · SHELTERED" : ""}`, WIDTH / 2, 38);
+  const condition = isSheltered(game) ? " · SHELTERED" : downdraftAt(game) ? " · SINKING" : "";
+  ctx.fillText(`${airspaceFor(game).name}${condition}`, WIDTH / 2, 38);
   if (game.ribbons.every(Boolean)) { ctx.textAlign = "center"; ctx.fillStyle = "#fff0c7"; ctx.font = "600 15px system-ui"; ctx.fillText("RELEASE SPACE · RETURN TO THE LANDING GLOW", WIDTH / 2, 506); }
   ctx.fillStyle = "#f6dc93aa"; ctx.fillRect(402, 500, 156, 6);
 }
@@ -144,14 +167,15 @@ function overlay(title, subtitle, prompt) {
 }
 
 function draw() {
-  drawSky(); drawWind(); drawClouds();
+  drawSky(); drawWind(); drawDowndrafts(); drawClouds();
   airspaceFor(game).ribbons.forEach((r, i) => drawRibbon(r, game.ribbons[i], i));
   if (game.mode !== "title") { drawKite(); drawHud(); }
   if (game.mode === "title") overlay("GALE THREAD", "read the gust · mind the thread · bring three chimes home", "PRESS ENTER TO LAUNCH");
   if (game.mode === "paused") overlay("WIND HELD", "the thread waits with you", "ESC TO CONTINUE · R TO RETRY");
   if (game.mode === "lost") overlay("THREAD PARTED", "the gale took the line, not the lesson", "ENTER OR R TO TRY AGAIN");
-  if (game.mode === "won" && game.airspace < AIRSPACES.length - 1) overlay("FIRST CHIMES RETURN", "the silver cloud waits beyond the open wind", "ENTER TO CROSS INTO CLOUD LEE");
-  if (game.mode === "won" && game.airspace === AIRSPACES.length - 1) overlay("TWO SKIES ANSWER", "six chimes return on two unbroken threads", "ENTER TO FLY CLOUD LEE AGAIN");
+  if (game.mode === "won" && game.airspace === 0) overlay("FIRST CHIMES RETURN", "the silver cloud waits beyond the open wind", "ENTER TO CROSS INTO CLOUD LEE");
+  if (game.mode === "won" && game.airspace === 1) overlay("TWO SKIES ANSWER", "a falling seam divides the final sky", "ENTER TO CROSS INTO FALLING WEFT");
+  if (game.mode === "won" && game.airspace === AIRSPACES.length - 1) overlay("THREE SKIES ANSWER", "nine chimes return on three unbroken threads", "ENTER TO FLY FALLING WEFT AGAIN");
 }
 
 function frame(now) {

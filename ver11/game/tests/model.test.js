@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { AIRSPACES, RIBBONS, accessibleStatus, createGame, isSheltered, retry, startGame, togglePause, update, windAt } from "../src/model.js";
+import { AIRSPACES, RIBBONS, accessibleStatus, createGame, downdraftAt, isSheltered, retry, startGame, togglePause, update, windAt } from "../src/model.js";
 
 function advance(game, seconds, input = {}) {
   const steps = Math.ceil(seconds * 60);
@@ -79,6 +79,36 @@ test("Cloud Lee shelter blocks gust push and excess reel tension", () => {
 test("Cloud Lee uses a distinct reachable chime route", () => {
   const game = createGame(1); startGame(game);
   for (const ribbon of AIRSPACES[1].ribbons) {
+    game.x = ribbon.x; game.y = ribbon.y; update(game, {}, 1 / 60);
+  }
+  game.x = 480; game.y = 472; const events = update(game, {}, 1 / 60);
+  assert.equal(game.mode, "won"); assert.ok(events.some((event) => event.type === "won"));
+});
+
+test("winning Cloud Lee advances into Falling Weft", () => {
+  const game = createGame(1); startGame(game); game.mode = "won"; startGame(game);
+  assert.equal(game.mode, "playing"); assert.equal(game.airspace, 2);
+  assert.match(game.message, /SINKING AIR/);
+});
+
+test("Falling Weft downdraft makes releasing lose more height", () => {
+  const clear = createGame(2); startGame(clear); clear.x = 650; clear.y = 250;
+  const sinking = createGame(2); startGame(sinking); sinking.x = 480; sinking.y = 250;
+  assert.equal(downdraftAt(clear), undefined); assert.ok(downdraftAt(sinking));
+  advance(clear, 0.5, { reel: false }); advance(sinking, 0.5, { reel: false });
+  assert.ok(sinking.y > clear.y + 25);
+  assert.match(accessibleStatus(sinking), /sinking air/i);
+});
+
+test("Falling Weft downdraft slows climbing but does not trap the kite", () => {
+  const game = createGame(2); startGame(game); game.x = 480; game.y = 300;
+  const before = game.y; advance(game, 1, { reel: true });
+  assert.ok(game.y < before); assert.ok(game.y > before - 35);
+});
+
+test("Falling Weft chimes and landing remain reachable", () => {
+  const game = createGame(2); startGame(game);
+  for (const ribbon of AIRSPACES[2].ribbons) {
     game.x = ribbon.x; game.y = ribbon.y; update(game, {}, 1 / 60);
   }
   game.x = 480; game.y = 472; const events = update(game, {}, 1 / 60);

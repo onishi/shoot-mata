@@ -16,7 +16,7 @@ async function launch(page) {
 async function pilot(page, targets, screenshotName) {
   let heldHorizontal = null;
   let reelHeld = false;
-  let shelteredEvidenceTaken = false;
+  let conditionEvidenceTaken = false;
 
   for (let step = 0; step < 600; step++) {
     const state = await snapshot(page);
@@ -32,23 +32,26 @@ async function pilot(page, targets, screenshotName) {
     }
     const cyclePhase = state.elapsed % 6;
     const gusting = cyclePhase >= 4.2;
-    const sheltered = state.airspace === 1 && state.x >= 335 && state.x <= 625 && state.y >= 174 && state.y <= 346;
+    const sheltered = (state.airspace === 1 && state.x >= 335 && state.x <= 625 && state.y >= 174 && state.y <= 346)
+      || (state.airspace === 2 && state.x >= 610 && state.x <= 860 && state.y >= 156 && state.y <= 314);
     const needClimb = count < 3 && state.y > target.y + 5;
     const shouldReel = needClimb && state.tension < (gusting && !sheltered ? 0.42 : 0.78);
     if (reelHeld !== shouldReel) {
       if (shouldReel) await page.keyboard.down("Space"); else await page.keyboard.up("Space");
       reelHeld = shouldReel;
     }
-    if (screenshotName && sheltered && gusting && !shelteredEvidenceTaken) {
+    const inDowndraft = state.airspace === 2 && state.x >= 390 && state.x <= 570 && state.y >= 78 && state.y <= 428;
+    const evidenceCondition = state.airspace === 2 ? inDowndraft : sheltered && gusting;
+    if (screenshotName && evidenceCondition && !conditionEvidenceTaken) {
       await page.screenshot({ path: evidence(screenshotName) });
-      shelteredEvidenceTaken = true;
+      conditionEvidenceTaken = true;
     }
     await page.waitForTimeout(100);
   }
   if (heldHorizontal) await page.keyboard.up(heldHorizontal);
   if (reelHeld) await page.keyboard.up("Space");
   await expect.poll(async () => (await snapshot(page)).mode).toBe("won");
-  return shelteredEvidenceTaken;
+  return conditionEvidenceTaken;
 }
 
 test("title, pause, and thread failure are keyboard reachable", async ({ page }) => {
@@ -83,5 +86,19 @@ test("the second airspace uses cloud shelter and remains keyboard-completable", 
   const sawShelter = await pilot(page, [{ x: 720, y: 382 }, { x: 245, y: 238 }, { x: 710, y: 108 }], "m2-cloud-lee-sheltered.png");
   expect(sawShelter).toBe(true);
   await page.screenshot({ path: evidence("m2-cloud-lee-won.png") });
-  await expect(page.locator("canvas")).toHaveAttribute("aria-label", /Two skies answer/);
+  await expect(page.locator("canvas")).toHaveAttribute("aria-label", /cross into FALLING WEFT/i);
+});
+
+test("the third airspace crosses sinking air and completes the M2 route", async ({ page }) => {
+  await launch(page);
+  await pilot(page, [{ x: 300, y: 382 }, { x: 690, y: 252 }, { x: 405, y: 116 }]);
+  await page.keyboard.press("Enter");
+  await pilot(page, [{ x: 720, y: 382 }, { x: 245, y: 238 }, { x: 710, y: 108 }]);
+  await page.keyboard.press("Enter");
+  await expect.poll(async () => (await snapshot(page)).airspace).toBe(2);
+  await page.screenshot({ path: evidence("m2-falling-weft-entry.png") });
+  const crossedDowndraft = await pilot(page, [{ x: 250, y: 372 }, { x: 735, y: 238 }, { x: 250, y: 102 }], "m2-falling-weft-sinking.png");
+  expect(crossedDowndraft).toBe(true);
+  await page.screenshot({ path: evidence("m2-falling-weft-won.png") });
+  await expect(page.locator("canvas")).toHaveAttribute("aria-label", /Three skies answer/);
 });
