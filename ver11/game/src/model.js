@@ -13,6 +13,7 @@ export const AIRSPACES = [
     ],
     clouds: [],
     downdrafts: [],
+    galeLifts: [],
     gustPush: 125,
   },
   {
@@ -25,6 +26,7 @@ export const AIRSPACES = [
     ],
     clouds: [{ x: 335, y: 174, width: 290, height: 172 }],
     downdrafts: [],
+    galeLifts: [],
     gustPush: 168,
   },
   {
@@ -37,7 +39,24 @@ export const AIRSPACES = [
     ],
     clouds: [{ x: 610, y: 156, width: 250, height: 158 }],
     downdrafts: [{ x: 390, y: 78, width: 180, height: 350, sink: 58 }],
+    galeLifts: [],
     gustPush: 178,
+  },
+  {
+    name: "TURNING TACK",
+    subtitle: "meet the forecast gale and rise on an open thread",
+    ribbons: [
+      { x: 255, y: 365, name: "PORT CHIME" },
+      { x: 705, y: 230, name: "TACK CHIME" },
+      { x: 255, y: 96, name: "CROWN CHIME" },
+    ],
+    clouds: [],
+    downdrafts: [],
+    galeLifts: [
+      { x: 105, y: 72, width: 250, height: 382, direction: 1, lift: 148 },
+      { x: 605, y: 72, width: 250, height: 382, direction: -1, lift: 148 },
+    ],
+    gustPush: 188,
   },
 ];
 
@@ -59,6 +78,15 @@ export function downdraftAt(game) {
   return airspaceFor(game).downdrafts.find((draft) => (
     game.x >= draft.x && game.x <= draft.x + draft.width
     && game.y >= draft.y && game.y <= draft.y + draft.height
+  ));
+}
+
+export function galeLiftAt(game, wind = windAt(game.elapsed)) {
+  if (wind.phase !== "gust") return undefined;
+  return airspaceFor(game).galeLifts.find((lift) => (
+    lift.direction === wind.direction
+    && game.x >= lift.x && game.x <= lift.x + lift.width
+    && game.y >= lift.y && game.y <= lift.y + lift.height
   ));
 }
 
@@ -92,7 +120,12 @@ export function startGame(game) {
     const nextAirspace = game.mode === "won" && game.airspace < AIRSPACES.length - 1 ? game.airspace + 1 : game.airspace;
     const fresh = createGame(nextAirspace);
     const changedAirspace = game.airspace !== nextAirspace;
-    const entryMessages = ["HOLD SPACE TO CLIMB", "SILVER CLOUDS SHELTER THE THREAD", "SINKING AIR STEALS YOUR HEIGHT"];
+    const entryMessages = [
+      "HOLD SPACE TO CLIMB",
+      "SILVER CLOUDS SHELTER THE THREAD",
+      "SINKING AIR STEALS YOUR HEIGHT",
+      "MEET THE GALE · RELEASE TO RISE",
+    ];
     Object.assign(game, fresh, {
       mode: "playing",
       message: changedAirspace ? entryMessages[nextAirspace] : "HOLD SPACE TO CLIMB",
@@ -125,6 +158,7 @@ export function update(game, input, dt = FIXED_STEP) {
   const airspace = airspaceFor(game);
   const sheltered = isSheltered(game);
   const downdraft = downdraftAt(game);
+  const galeLift = galeLiftAt(game, wind);
   const steer = Math.max(-1, Math.min(1, input.steer || 0));
   const windPush = wind.phase === "gust" && !sheltered ? wind.direction * airspace.gustPush : 0;
   game.vx += (steer * 310 + windPush - game.vx * 3.8) * step;
@@ -136,6 +170,7 @@ export function update(game, input, dt = FIXED_STEP) {
     game.tension += (wind.phase === "gust" && !sheltered ? 0.58 : 0.13) * step;
   } else {
     game.y += (62 + (downdraft?.sink || 0)) * step;
+    game.y -= (galeLift?.lift || 0) * step;
     game.tension -= 0.52 * step;
   }
   game.y = Math.max(62, Math.min(488, game.y));
@@ -174,10 +209,11 @@ export function accessibleStatus(game) {
   if (game.mode === "paused") return "Paused. Press Escape to continue.";
   if (game.mode === "lost") return "Thread parted. Press Enter or R to retry.";
   if (game.mode === "won" && game.airspace < AIRSPACES.length - 1) return `All three chimes returned from ${airspaceFor(game).name}. Press Enter to cross into ${AIRSPACES[game.airspace + 1].name}.`;
-  if (game.mode === "won") return "All three chimes returned from Falling Weft. Three skies answer. Press Enter to fly again.";
+  if (game.mode === "won") return `All three chimes returned from ${airspaceFor(game).name}. Four skies answer. Press Enter to fly again.`;
   const wind = windAt(game.elapsed);
   const direction = wind.direction > 0 ? "right" : "left";
   const shelter = isSheltered(game) ? " Sheltered by cloud." : "";
   const sinking = downdraftAt(game) ? " In sinking air." : "";
-  return `Flying in ${airspaceFor(game).name}. ${game.ribbons.filter(Boolean).length} of 3 chimes. Tension ${Math.round(game.tension * 100)} percent. Wind ${wind.phase}, ${direction}.${shelter}${sinking}`;
+  const lifting = galeLiftAt(game, wind) ? " Riding gale lift." : "";
+  return `Flying in ${airspaceFor(game).name}. ${game.ribbons.filter(Boolean).length} of 3 chimes. Tension ${Math.round(game.tension * 100)} percent. Wind ${wind.phase}, ${direction}.${shelter}${sinking}${lifting}`;
 }

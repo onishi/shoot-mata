@@ -1,5 +1,5 @@
 import "./style.css";
-import { WIDTH, HEIGHT, FIXED_STEP, AIRSPACES, accessibleStatus, airspaceFor, createGame, downdraftAt, isSheltered, retry, startGame, togglePause, update, windAt } from "./model.js";
+import { WIDTH, HEIGHT, FIXED_STEP, AIRSPACES, accessibleStatus, airspaceFor, createGame, downdraftAt, galeLiftAt, isSheltered, retry, startGame, togglePause, update, windAt } from "./model.js";
 import { DEFAULT_PREFERENCES, STORAGE_KEY, parsePreferences, serializePreferences, unlockAirspace } from "./preferences.js";
 
 const canvas = document.querySelector("#game");
@@ -149,6 +149,38 @@ function drawDowndrafts() {
   }
 }
 
+function drawGaleLifts() {
+  const wind = windAt(game.elapsed);
+  for (const lift of airspaceFor(game).galeLifts) {
+    const forecast = wind.direction === lift.direction && (wind.phase === "warning" || wind.phase === "gust");
+    const active = wind.phase === "gust" && wind.direction === lift.direction;
+    const gradient = ctx.createLinearGradient(lift.x, lift.y, lift.x + lift.width, lift.y);
+    gradient.addColorStop(0, "#e9cb7200");
+    gradient.addColorStop(0.28, active ? "#ffe99a42" : forecast ? "#e5d9a827" : "#9ba9be13");
+    gradient.addColorStop(0.72, active ? "#ffe99a42" : forecast ? "#e5d9a827" : "#9ba9be13");
+    gradient.addColorStop(1, "#e9cb7200");
+    ctx.fillStyle = gradient; ctx.fillRect(lift.x, lift.y, lift.width, lift.height);
+    ctx.save();
+    ctx.strokeStyle = active ? "#ffe89ddd" : forecast ? "#f0df9a99" : "#b2c2d355";
+    ctx.fillStyle = active ? "#fff1b8" : "#b9c6d0";
+    ctx.lineWidth = active ? 3 : 2;
+    ctx.setLineDash(active ? [] : [7, 8]);
+    const visualTime = preferences.reducedMotion ? 0 : game.elapsed;
+    for (let i = 0; i < 4; i++) {
+      const x = lift.x + 56 + i * 46;
+      const offset = active ? (visualTime * 96 + i * 74) % (lift.height - 60) : i * 82;
+      const y = lift.y + lift.height - 30 - offset;
+      ctx.beginPath(); ctx.moveTo(x - 10, y + 12); ctx.lineTo(x, y); ctx.lineTo(x + 10, y + 12); ctx.stroke();
+    }
+    ctx.setLineDash([]);
+    if (game.messageTime <= 0) {
+      ctx.textAlign = "center"; ctx.font = "700 12px system-ui";
+      ctx.fillText(`${lift.direction > 0 ? "→" : "←"} GALE LIFT`, lift.x + lift.width / 2, lift.y + lift.height - 14);
+    }
+    ctx.restore();
+  }
+}
+
 function drawWind() {
   const wind = windAt(game.elapsed);
   if (game.mode === "title") return;
@@ -199,7 +231,7 @@ function drawHud() {
   for (let i = 0; i < 3; i++) { ctx.fillStyle = game.ribbons[i] ? "#ffd57c" : "#53617a"; ctx.beginPath(); ctx.arc(804 + i * 28, 66, 7, 0, Math.PI * 2); ctx.fill(); }
   if (game.messageTime > 0) { ctx.textAlign = "center"; ctx.fillStyle = "#fff0c7"; ctx.font = "700 18px system-ui"; ctx.fillText(game.message, WIDTH / 2, 104); }
   ctx.textAlign = "center"; ctx.fillStyle = isSheltered(game) ? "#f4fbff" : "#aebed0"; ctx.font = "700 12px system-ui";
-  const condition = isSheltered(game) ? " · SHELTERED" : downdraftAt(game) ? " · SINKING" : "";
+  const condition = isSheltered(game) ? " · SHELTERED" : downdraftAt(game) ? " · SINKING" : galeLiftAt(game) ? " · LIFTING" : "";
   ctx.fillText(`${airspaceFor(game).name}${condition}`, WIDTH / 2, 38);
   if (game.ribbons.every(Boolean)) { ctx.textAlign = "center"; ctx.fillStyle = "#fff0c7"; ctx.font = "600 15px system-ui"; ctx.fillText("RELEASE SPACE · RETURN TO THE LANDING GLOW", WIDTH / 2, 506); }
   ctx.fillStyle = "#f6dc93aa"; ctx.fillRect(402, 500, 156, 6);
@@ -231,7 +263,7 @@ function drawSettings() {
 }
 
 function draw() {
-  drawSky(); drawWind(); drawDowndrafts(); drawClouds();
+  drawSky(); drawGaleLifts(); drawWind(); drawDowndrafts(); drawClouds();
   airspaceFor(game).ribbons.forEach((r, i) => drawRibbon(r, game.ribbons[i], i));
   if (game.mode !== "title") { drawKite(); drawHud(); }
   if (game.mode === "title") overlay("GALE THREAD", `continue from ${airspaceFor(game).name.toLowerCase()} · bring three chimes home`, "ENTER TO LAUNCH · S SETTINGS");
@@ -239,7 +271,8 @@ function draw() {
   if (game.mode === "lost") overlay("THREAD PARTED", "the gale took the line, not the lesson", "ENTER OR R TO TRY AGAIN");
   if (game.mode === "won" && game.airspace === 0) overlay("FIRST CHIMES RETURN", "the silver cloud waits beyond the open wind", "ENTER TO CROSS INTO CLOUD LEE");
   if (game.mode === "won" && game.airspace === 1) overlay("TWO SKIES ANSWER", "a falling seam divides the final sky", "ENTER TO CROSS INTO FALLING WEFT");
-  if (game.mode === "won" && game.airspace === AIRSPACES.length - 1) overlay("THREE SKIES ANSWER", "nine chimes return on three unbroken threads", "ENTER TO FLY FALLING WEFT AGAIN");
+  if (game.mode === "won" && game.airspace === 2) overlay("THREE SKIES ANSWER", "the next gale can carry an open thread upward", "ENTER TO CROSS INTO TURNING TACK");
+  if (game.mode === "won" && game.airspace === AIRSPACES.length - 1) overlay("FOUR SKIES ANSWER", "twelve chimes return on four unbroken threads", "ENTER TO FLY TURNING TACK AGAIN");
   if (settingsOpen) drawSettings();
 }
 

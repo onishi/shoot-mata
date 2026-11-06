@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { AIRSPACES, RIBBONS, accessibleStatus, createGame, downdraftAt, isSheltered, retry, startGame, togglePause, update, windAt } from "../src/model.js";
+import { AIRSPACES, RIBBONS, accessibleStatus, createGame, downdraftAt, galeLiftAt, isSheltered, retry, startGame, togglePause, update, windAt } from "../src/model.js";
 
 function advance(game, seconds, input = {}) {
   const steps = Math.ceil(seconds * 60);
@@ -113,4 +113,38 @@ test("Falling Weft chimes and landing remain reachable", () => {
   }
   game.x = 480; game.y = 472; const events = update(game, {}, 1 / 60);
   assert.equal(game.mode, "won"); assert.ok(events.some((event) => event.type === "won"));
+});
+
+test("winning Falling Weft advances into Turning Tack", () => {
+  const game = createGame(2); startGame(game); game.mode = "won"; startGame(game);
+  assert.equal(game.mode, "playing"); assert.equal(game.airspace, 3);
+  assert.match(game.message, /RELEASE TO RISE/);
+});
+
+test("Turning Tack converts the forecast gust into safe lift while released", () => {
+  const lifted = createGame(3); startGame(lifted); lifted.elapsed = 4.3; lifted.x = 240; lifted.y = 330; lifted.tension = 0.7;
+  const outside = createGame(3); startGame(outside); outside.elapsed = 4.3; outside.x = 480; outside.y = 330; outside.tension = 0.7;
+  assert.ok(galeLiftAt(lifted)); assert.equal(galeLiftAt(outside), undefined);
+  advance(lifted, 0.5, { reel: false }); advance(outside, 0.5, { reel: false });
+  assert.ok(lifted.y < 300); assert.ok(outside.y > 350);
+  assert.ok(lifted.tension < 0.5);
+  assert.match(accessibleStatus(lifted), /Riding gale lift/);
+});
+
+test("Turning Tack only activates the lift facing the current gale", () => {
+  const rightGale = createGame(3); startGame(rightGale); rightGale.elapsed = 4.3; rightGale.x = 240; rightGale.y = 300;
+  const wrongTack = createGame(3); startGame(wrongTack); wrongTack.elapsed = 4.3; wrongTack.x = 720; wrongTack.y = 300;
+  assert.ok(galeLiftAt(rightGale)); assert.equal(galeLiftAt(wrongTack), undefined);
+  rightGale.elapsed = 10.3; rightGale.x = 720;
+  assert.ok(galeLiftAt(rightGale));
+});
+
+test("Turning Tack chimes and landing remain reachable", () => {
+  const game = createGame(3); startGame(game);
+  for (const ribbon of AIRSPACES[3].ribbons) {
+    game.x = ribbon.x; game.y = ribbon.y; update(game, {}, 1 / 60);
+  }
+  game.x = 480; game.y = 472; const events = update(game, {}, 1 / 60);
+  assert.equal(game.mode, "won"); assert.ok(events.some((event) => event.type === "won"));
+  assert.match(accessibleStatus(game), /Four skies answer/);
 });
