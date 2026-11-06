@@ -200,7 +200,7 @@ test("pull-bound seed waits through push and the fourth chamber is completable",
   await expect(canvas).toHaveAttribute("data-phase", "won");
   await expect(canvas).toHaveAttribute("data-docked", "3");
   await expect(canvas).toHaveAttribute("data-score", "53750");
-  await expect(canvas).toHaveAttribute("aria-label", /Chamber 6 complete.*7 polarity flips.*reforge the final crucible/);
+  await expect(canvas).toHaveAttribute("aria-label", /Chamber 6 complete.*7 polarity flips.*record your initials/);
   await page.screenshot({ path: evidence("m3-ending.png") });
 });
 
@@ -240,4 +240,43 @@ test("reaching a chamber resumes there after reload", async ({ page }) => {
   await insertCoinAndStart(page);
   await expect(canvas).toHaveAttribute("data-phase", "playing");
   await expect(canvas).toHaveAttribute("aria-label", /Chamber 2 active/);
+});
+
+test("final score accepts lever initials, saves top five, and returns to attract", async ({ page }) => {
+  await page.goto("/");
+  await page.evaluate(() => localStorage.clear());
+  await page.reload();
+  const canvas = page.locator("canvas");
+  await insertCoinAndStart(page);
+  for (const key of [
+    "Space", "ArrowLeft", "ArrowLeft", "ArrowDown", "ArrowDown", "Space", "Enter",
+    "ArrowRight", "Space", "ArrowRight", "Space", "Space", "Enter",
+    "ArrowRight", "Space", "ArrowDown", "ArrowRight", "Space", "Space", "Enter",
+    "Space", "ArrowDown", "Space", "Space", "ArrowLeft", "Space", "Enter",
+    "Space", "ArrowLeft", "ArrowLeft", "ArrowLeft", "Space",
+    "ArrowRight", "ArrowRight", "ArrowRight", "ArrowRight", "ArrowDown", "Space",
+    "ArrowLeft", "Space", "Space", "Space", "Enter",
+    "ArrowRight", "ArrowDown", "ArrowDown", "Space", "ArrowLeft", "Space",
+    "ArrowRight", "ArrowRight", "ArrowRight", "ArrowUp", "ArrowUp",
+    "Space", "Space", "Space", "Space", "Space"
+  ]) await page.keyboard.press(key);
+  await expect(canvas).toHaveAttribute("data-phase", "won");
+  await page.keyboard.press("Enter");
+  await expect(canvas).toHaveAttribute("data-phase", "initials");
+  await page.keyboard.press("ArrowUp");
+  await page.keyboard.press("ArrowRight");
+  await page.keyboard.press("ArrowUp");
+  await page.keyboard.press("ArrowRight");
+  await page.keyboard.press("ArrowUp");
+  await expect(canvas).toHaveAttribute("data-initials", "BBB");
+  await page.screenshot({ path: evidence("m4-initials.png") });
+  await page.keyboard.press("Space");
+  await expect(canvas).toHaveAttribute("data-phase", "ranking");
+  await expect(canvas).toHaveAttribute("data-ranking-count", "1");
+  await expect(canvas).toHaveAttribute("aria-label", /Local top five ranking.*53750/);
+  await page.screenshot({ path: evidence("m4-ranking.png") });
+  await page.keyboard.press("Enter");
+  await expect(canvas).toHaveAttribute("data-phase", "attract");
+  await page.reload();
+  await expect(canvas).toHaveAttribute("data-ranking-count", "1");
 });

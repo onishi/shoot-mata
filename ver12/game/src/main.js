@@ -1,5 +1,6 @@
 import { HEIGHT, LEVELS, WIDTH, createGame, levelFor, reduce, startGame, statusText } from "./model.js";
 import { loadPreferences, savePreferences } from "./preferences.js";
+import { loadRankings, saveRanking } from "./rankings.js";
 
 const canvas = document.querySelector("#game");
 const ctx = canvas.getContext("2d");
@@ -26,6 +27,8 @@ let settingsRow = 0;
 let demoState = startGame(createGame(0));
 let demoCycleStartedAt = null;
 let demoStep = 0;
+let rankings = loadRankings(localStorage);
+let recordedRanking = false;
 
 const DEMO_TIMELINE = Object.freeze([
   { at: 0, action: null, label: "WATCH THE SMITH" },
@@ -108,7 +111,9 @@ function drawCabinetBands(cabinetState = state) {
   text("BUTTON 1  FLIP FIELD", 480, 676, 12, COLORS.push, "center", 750);
   const cabinetStatus = cabinetState.phase === "attract" ? "INSERT COIN  C"
     : cabinetState.phase === "ready" ? `CREDIT  ${cabinetState.credits}   ·   START  ENTER`
-      : cabinetState.phase === "won" ? "CREDIT  0   ·   NEXT  ENTER" : "CREDIT  0   ·   1 PLAYER";
+      : cabinetState.phase === "won" ? "CREDIT  0   ·   NEXT  ENTER"
+        : cabinetState.phase === "initials" ? "LEVER  SELECT   ·   BUTTON 1  ENTER"
+          : cabinetState.phase === "ranking" ? "LOCAL RECORDS   ·   ENTER  EXIT" : "CREDIT  0   ·   1 PLAYER";
   text(cabinetStatus, 916, 676, 12, COLORS.brass, "right", 750);
 }
 
@@ -417,6 +422,52 @@ function drawSettings() {
   text("M OR ESC TO CLOSE", 480, 390, 12, COLORS.pull, "center", 700);
 }
 
+function drawInitials() {
+  ctx.fillStyle = "#05080bf2";
+  ctx.fillRect(0, 0, 960, 540);
+  text("FORGE COMPLETE", 480, 116, 20, COLORS.brass, "center", 800);
+  text("FINAL SCORE", 480, 158, 12, "#9f9889", "center", 700);
+  text(String(state.score).padStart(6, "0"), 480, 198, 34, COLORS.pale, "center", 800);
+  text("ENTER YOUR INITIALS", 480, 250, 15, COLORS.pull, "center", 750);
+  state.initials.forEach((letter, index) => {
+    const x = 398 + index * 82;
+    roundedRect(x - 30, 286, 60, 72, 5);
+    ctx.fillStyle = index === state.initialCursor ? "#263d40" : "#11181e";
+    ctx.fill();
+    ctx.strokeStyle = index === state.initialCursor ? COLORS.brass : "#465159";
+    ctx.lineWidth = index === state.initialCursor ? 3 : 1;
+    ctx.stroke();
+    text(letter, x, 322, 34, COLORS.pale, "center", 800);
+    if (index === state.initialCursor) text("▲  ▼", x, 380, 11, COLORS.brass, "center", 700);
+  });
+  text("← → SELECT   ·   ↑ ↓ LETTER", 480, 422, 11, "#a9a397", "center", 700);
+  text("BUTTON 1  REGISTER", 480, 462, 13, COLORS.push, "center", 800);
+}
+
+function drawRanking() {
+  ctx.fillStyle = "#05080bf2";
+  ctx.fillRect(0, 0, 960, 540);
+  text("MASTER FORGERS", 480, 92, 29, COLORS.brass, "center", 800);
+  text("LOCAL TOP FIVE", 480, 127, 11, "#9f9889", "center", 700);
+  const submitted = state.initials.join("");
+  for (let index = 0; index < 5; index += 1) {
+    const entry = rankings[index];
+    const y = 181 + index * 55;
+    const current = entry && entry.initials === submitted && entry.score === state.score;
+    if (current) {
+      roundedRect(320, y - 22, 320, 44, 5);
+      ctx.fillStyle = "#26352f";
+      ctx.fill();
+      ctx.strokeStyle = COLORS.brass;
+      ctx.stroke();
+    }
+    text(`${index + 1}`, 350, y, 14, current ? COLORS.brass : "#7e857f", "center", 750);
+    text(entry?.initials ?? "---", 405, y, 17, entry ? COLORS.pale : "#596168", "left", 800);
+    text(entry ? String(entry.score).padStart(6, "0") : "------", 610, y, 17, entry ? COLORS.brass : "#596168", "right", 750);
+  }
+  text("PRESS ENTER · RETURN TO ATTRACT", 480, 490, 12, COLORS.pull, "center", 750);
+}
+
 function render(time = 0) {
   updateAttractDemo(time);
   const liveState = state;
@@ -453,8 +504,10 @@ function render(time = 0) {
       "Iron and pole passed the final heat across three rhythms.",
       "Opposed lodestones ring. The forge answers as one."
     ];
-    overlay(titles[state.levelIndex], bodies[state.levelIndex], final ? "PRESS ENTER TO REFORGE" : `PRESS ENTER FOR CHAMBER ${String(state.levelIndex + 2).padStart(2, "0")}`);
+    overlay(titles[state.levelIndex], bodies[state.levelIndex], final ? "PRESS ENTER · RECORD YOUR SCORE" : `PRESS ENTER FOR CHAMBER ${String(state.levelIndex + 2).padStart(2, "0")}`);
   }
+  if (state.phase === "initials") drawInitials();
+  if (state.phase === "ranking") drawRanking();
   if (settingsOpen) drawSettings();
   ctx.restore();
   canvas.dataset.phase = state.phase;
@@ -467,6 +520,9 @@ function render(time = 0) {
   canvas.dataset.reducedMotion = String(preferences.reducedMotion);
   canvas.dataset.demoStep = showingDemo ? String(demoStep) : "off";
   canvas.dataset.demoDocked = showingDemo ? String(demoState.shards.filter((shard) => shard.docked).length) : "off";
+  canvas.dataset.initials = state.initials.join("");
+  canvas.dataset.initialCursor = String(state.initialCursor);
+  canvas.dataset.rankingCount = String(rankings.length);
   canvas.setAttribute("aria-label", settingsOpen
     ? `Settings. ${settingsRow === 0 ? "Sound" : "Motion"} selected. Sound ${Math.round(preferences.volume * 100)} percent. Motion ${preferences.reducedMotion ? "reduced" : "full"}. Up and down select. Left and right change. M or Escape closes.`
     : statusText(state));
@@ -538,6 +594,11 @@ window.addEventListener("keydown", (event) => {
   const previous = state;
   state = reduce(state, action);
   if (state === previous) return;
+  if (state.phase === "ranking" && previous.phase === "initials" && !recordedRanking) {
+    rankings = saveRanking(localStorage, rankings, state.initials.join(""), state.score);
+    recordedRanking = true;
+  }
+  if (previous.phase === "ranking" && state.phase === "attract") recordedRanking = false;
   if (state.levelIndex > preferences.unlockedLevel) {
     storePreferences({ ...preferences, unlockedLevel: state.levelIndex });
   }

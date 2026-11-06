@@ -12,6 +12,7 @@ import {
   statusText
 } from "../src/model.js";
 import { DEFAULT_PREFERENCES, STORAGE_KEY, loadPreferences, savePreferences } from "../src/preferences.js";
+import { RANKINGS_KEY, loadRankings, saveRanking } from "../src/rankings.js";
 
 test("coin separates attract mode from start and exposes accessible state", () => {
   const title = createGame();
@@ -211,7 +212,18 @@ test("known crown crucible solution completes the sixth chamber and ending", () 
   assert.equal(game.pulses, 7);
   assert.equal(game.shards.filter((shard) => shard.docked).length, 3);
   assert.match(statusText(game), /Chamber 6 complete/);
-  assert.match(statusText(game), /reforge the final crucible/);
+  assert.match(statusText(game), /record your initials/);
+  game = reduce(game, "enter");
+  assert.equal(game.phase, "initials");
+  game = reduce(game, "up");
+  game = reduce(game, "right");
+  game = reduce(game, "down");
+  assert.deepEqual(game.initials, ["B", "Z", "A"]);
+  assert.equal(game.initialCursor, 1);
+  game = reduce(game, "flip");
+  assert.equal(game.phase, "ranking");
+  game = reduce(game, "enter");
+  assert.equal(game.phase, "attract");
 });
 
 test("pause freezes actions and reset restores the chamber", () => {
@@ -249,4 +261,20 @@ test("corrupt or invalid saves safely restore defaults", () => {
   assert.deepEqual(loadPreferences(unavailable, LEVELS.length), DEFAULT_PREFERENCES);
   assert.deepEqual(savePreferences(unavailable, DEFAULT_PREFERENCES, LEVELS.length), DEFAULT_PREFERENCES);
   assert.equal(STORAGE_KEY, "lodestar-forge:v12");
+});
+
+test("local rankings sort, keep five, and recover from corrupt storage", () => {
+  const values = new Map();
+  const storage = {
+    getItem: (key) => values.get(key) ?? null,
+    setItem: (key, value) => values.set(key, value)
+  };
+  let rankings = [];
+  for (const [initials, score] of [["LOW", 100], ["ACE", 900], ["MID", 500], ["TOP", 1200], ["FIV", 400], ["CUT", 200]]) {
+    rankings = saveRanking(storage, rankings, initials, score);
+  }
+  assert.deepEqual(rankings.map((entry) => entry.initials), ["TOP", "ACE", "MID", "FIV", "CUT"]);
+  assert.deepEqual(loadRankings(storage), rankings);
+  values.set(RANKINGS_KEY, "{broken");
+  assert.deepEqual(loadRankings(storage), []);
 });

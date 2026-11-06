@@ -172,12 +172,18 @@ export function createGame(levelIndex = 0) {
     moves: 0,
     pulses: 0,
     lastEvent: "",
-    pulseFrom: null
+    pulseFrom: null,
+    initials: ["A", "A", "A"],
+    initialCursor: 0
   };
 }
 
 export function startGame(state) {
+  if (state.phase === "ranking") return createGame(state.levelIndex);
   if (state.phase !== "attract" && state.phase !== "ready" && state.phase !== "won") return state;
+  if (state.phase === "won" && state.levelIndex === LEVELS.length - 1) {
+    return { ...state, phase: "initials", initials: ["A", "A", "A"], initialCursor: 0 };
+  }
   const advances = state.phase === "won" && state.levelIndex < LEVELS.length - 1;
   const nextIndex = advances ? state.levelIndex + 1 : state.levelIndex;
   const nextScore = state.phase === "won" && !advances ? state.chamberStartScore : state.score;
@@ -188,6 +194,23 @@ export function startGame(state) {
   next.chamberStartScore = nextScore;
   if (nextIndex > state.levelIndex) next.lastEvent = LEVELS[nextIndex].lesson;
   return next;
+}
+
+function editInitials(state, action) {
+  if (state.phase !== "initials") return state;
+  if (action === "left" || action === "right") {
+    const offset = action === "left" ? -1 : 1;
+    return { ...state, initialCursor: (state.initialCursor + offset + 3) % 3 };
+  }
+  if (action === "up" || action === "down") {
+    const initials = [...state.initials];
+    const code = initials[state.initialCursor].charCodeAt(0) - 65;
+    const offset = action === "up" ? 1 : -1;
+    initials[state.initialCursor] = String.fromCharCode(65 + (code + offset + 26) % 26);
+    return { ...state, initials };
+  }
+  if (action === "flip") return { ...state, phase: "ranking" };
+  return state;
 }
 
 export function insertCoin(state) {
@@ -307,6 +330,7 @@ export function flipPolarity(state) {
 }
 
 export function reduce(state, action) {
+  if (state.phase === "initials") return editInitials(state, action);
   if (action === "coin") return insertCoin(state);
   if (action === "enter") return state.phase === "attract" ? state : startGame(state);
   if (action === "reset") return resetGame(state.levelIndex, state.chamberStartScore, state.credits);
@@ -327,9 +351,11 @@ export function statusText(state) {
   const docked = state.shards.filter((shard) => shard.docked).length;
   if (state.phase === "attract") return "Lodestar Forge attract mode. Move with the lever and flip the whole field with button 1. Press C to insert coin.";
   if (state.phase === "ready") return "One credit. Press Enter to start Lodestar Forge.";
+  if (state.phase === "initials") return `Final score ${state.score}. Enter initials ${state.initials.join("")}. Letter ${state.initialCursor + 1} selected. Up and down change letter. Left and right select. Button 1 registers.`;
+  if (state.phase === "ranking") return `Local top five ranking. Final score ${state.score}. Press Enter to return to attract mode.`;
   const chamber = state.levelIndex + 1;
   if (state.phase === "paused") return `Paused in chamber ${chamber}. Score ${state.score}. ${docked} of 3 seeds locked. Press Escape to resume.`;
-  if (state.phase === "won") return `Chamber ${chamber} complete. Score ${state.score}. 3 of 3 seeds locked in ${state.pulses} polarity flips. Press Enter to ${state.levelIndex < LEVELS.length - 1 ? "continue" : "reforge the final crucible"}.`;
+  if (state.phase === "won") return `Chamber ${chamber} complete. Score ${state.score}. 3 of 3 seeds locked in ${state.pulses} polarity flips. Press Enter to ${state.levelIndex < LEVELS.length - 1 ? "continue" : "record your initials"}.`;
   const marked = state.shards.filter((shard) => shard.respondsTo && !shard.docked);
   const markedText = marked.map((shard) => ` ${shard.id} answers only ${shard.respondsTo}.`).join("");
   return `Chamber ${chamber} active. Score ${state.score}. ${state.polarity} polarity. ${docked} of 3 seeds locked.${markedText} Arrow keys move. Space flips polarity. R restarts. Escape pauses.`;
