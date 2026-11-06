@@ -22,3 +22,11 @@
 - `run-codex-loop.sh`と`run-claude-loop.sh`が、エージェント、スクリプト、実行番号、開始時刻を環境変数とプロンプトで渡すようにした。
 - `docs/agent-history.md`とGit commit trailerを必須化し、追跡導入前のM0・M1は推測せず`unknown`と記録した。
 - `sh -n`、両スクリプトの`--help`と不正引数、代替CLIによる環境変数・プロンプト伝播を検証した。
+
+## 2026-11-06 — M2 第2室「IRON BRAKE」
+
+- 実行元: Codex / `run-codex-loop.sh` / run 1 / 開始 `2026-11-06T19:08:34+0900`。
+- 室定義を`LEVELS`へデータ化し、第1室から第2室へのEnter進行、現在室の再挑戦、室別HUDとaccessible nameを追加した。
+- 第2室では最初のPUSHで青い種を収容する一方、固定鉄塊が橙の種を止める。その後のPULL/PUSHで残る2種を収容する3反転の既知解を実装した。
+- `npm run verify`で単体9/9、構文検査、production build、Chrome E2E 3/3に合格した。`m2-iron-brake.png`と`m2-won.png`を1280×720で目視し、鉄塊と停止種、収容数、極性、完成表示に判別不能・切れ・重なりがないことを確認した。
+- M2は未完了。次は固定極を導入する第3室を作り、第1・第2室の判断を組み合わせる。

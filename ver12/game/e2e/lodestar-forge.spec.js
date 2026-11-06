@@ -38,9 +38,32 @@ test("real key sequence completes the first mold", async ({ page }) => {
   }
   await expect(canvas).toHaveAttribute("data-phase", "won");
   await expect(canvas).toHaveAttribute("data-docked", "3");
-  await expect(canvas).toHaveAttribute("aria-label", /Forge complete.*2 polarity flips/);
+  await expect(canvas).toHaveAttribute("aria-label", /Chamber 1 complete.*2 polarity flips/);
   await page.screenshot({ path: evidence("m1-won.png") });
   await page.keyboard.press("Enter");
   await expect(canvas).toHaveAttribute("data-phase", "playing");
+  await expect(canvas).toHaveAttribute("data-chamber", "2");
   await expect(canvas).toHaveAttribute("data-docked", "0");
+});
+
+test("fixed iron brakes one seed and the second chamber is completable", async ({ page }) => {
+  await page.goto("/");
+  const canvas = page.locator("canvas");
+  await page.keyboard.press("Enter");
+  await page.keyboard.press("Space");
+  for (const key of ["ArrowLeft", "ArrowLeft", "ArrowDown", "ArrowDown", "Space", "Enter"]) {
+    await page.keyboard.press(key);
+  }
+  await expect(canvas).toHaveAttribute("data-chamber", "2");
+  await page.keyboard.press("ArrowRight");
+  await page.keyboard.press("Space");
+  await expect(canvas).toHaveAttribute("data-docked", "1");
+  await page.screenshot({ path: evidence("m2-iron-brake.png") });
+
+  await page.keyboard.press("ArrowRight");
+  await page.keyboard.press("Space");
+  await page.keyboard.press("Space");
+  await expect(canvas).toHaveAttribute("data-phase", "won");
+  await expect(canvas).toHaveAttribute("aria-label", /Chamber 2 complete.*3 polarity flips/);
+  await page.screenshot({ path: evidence("m2-won.png") });
 });

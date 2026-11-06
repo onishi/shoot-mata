@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
+  LEVELS,
   createGame,
   flipPolarity,
   movePlayer,
@@ -52,7 +53,42 @@ test("known chamber solution locks all three seeds", () => {
   assert.equal(game.phase, "won");
   assert.equal(game.pulses, 2);
   assert.equal(game.shards.filter((shard) => shard.docked).length, 3);
-  assert.match(statusText(game), /Forge complete/);
+  assert.match(statusText(game), /Chamber 1 complete/);
+  assert.match(statusText(game), /continue/);
+});
+
+test("winning the first mold advances to the iron brake", () => {
+  let game = startGame(createGame());
+  for (const action of ["flip", "left", "left", "down", "down", "flip", "enter"]) game = reduce(game, action);
+  assert.equal(game.levelIndex, 1);
+  assert.equal(game.phase, "playing");
+  assert.match(game.lastEvent, /fixed iron/i);
+  assert.deepEqual(LEVELS[1].blocks, [{ x: 7, y: 2 }]);
+});
+
+test("iron brake stops the unwanted seed while another seed docks", () => {
+  let game = startGame(createGame(1));
+  game = reduce(game, "right");
+  game = reduce(game, "flip");
+  assert.equal(game.shards.find((shard) => shard.id === "cobalt").docked, true);
+  assert.deepEqual(game.shards.find((shard) => shard.id === "ember"), { id: "ember", x: 6, y: 2, docked: false });
+  assert.equal(game.shards.filter((shard) => shard.docked).length, 1);
+
+  game = startGame(createGame(1));
+  for (const action of ["right", "right", "right", "up"]) game = reduce(game, action);
+  assert.deepEqual(game.player, { x: 7, y: 3 });
+  assert.match(game.lastEvent, /blocked/);
+});
+
+test("known iron brake solution completes the second chamber", () => {
+  let game = startGame(createGame(1));
+  for (const action of ["right", "flip", "right", "flip", "flip"]) game = reduce(game, action);
+  assert.equal(game.phase, "won");
+  assert.equal(game.pulses, 3);
+  assert.match(statusText(game), /Chamber 2 complete/);
+  game = reduce(game, "reset");
+  assert.equal(game.levelIndex, 1);
+  assert.equal(game.phase, "playing");
 });
 
 test("pause freezes actions and reset restores the chamber", () => {

@@ -1,34 +1,75 @@
 export const WIDTH = 9;
 export const HEIGHT = 7;
 
-export const LEVEL = Object.freeze({
-  player: Object.freeze({ x: 4, y: 3 }),
-  shards: Object.freeze([
-    Object.freeze({ id: "cobalt", x: 2, y: 2 }),
-    Object.freeze({ id: "ember", x: 6, y: 2 }),
-    Object.freeze({ id: "pearl", x: 4, y: 5 })
-  ]),
-  sockets: Object.freeze([
-    Object.freeze({ x: 1, y: 2 }),
-    Object.freeze({ x: 7, y: 2 }),
-    Object.freeze({ x: 3, y: 5 })
-  ]),
-  walls: Object.freeze([
-    Object.freeze({ x: 3, y: 1 }), Object.freeze({ x: 5, y: 1 }),
-    Object.freeze({ x: 3, y: 4 }), Object.freeze({ x: 6, y: 4 }),
-    Object.freeze({ x: 5, y: 5 })
-  ])
+const freezeLevel = (level) => Object.freeze({
+  ...level,
+  player: Object.freeze(level.player),
+  shards: Object.freeze(level.shards.map(Object.freeze)),
+  sockets: Object.freeze(level.sockets.map(Object.freeze)),
+  walls: Object.freeze(level.walls.map(Object.freeze)),
+  blocks: Object.freeze(level.blocks.map(Object.freeze))
 });
+
+export const LEVELS = Object.freeze([freezeLevel({
+  name: "First Mold",
+  lesson: "One field moves every loose seed.",
+  player: Object.freeze({ x: 4, y: 3 }),
+  shards: [
+    { id: "cobalt", x: 2, y: 2 },
+    { id: "ember", x: 6, y: 2 },
+    { id: "pearl", x: 4, y: 5 }
+  ],
+  sockets: [
+    { x: 1, y: 2 },
+    { x: 7, y: 2 },
+    { x: 3, y: 5 }
+  ],
+  walls: [
+    { x: 3, y: 1 }, { x: 5, y: 1 },
+    { x: 3, y: 4 }, { x: 6, y: 4 },
+    { x: 5, y: 5 }
+  ],
+  blocks: []
+}), freezeLevel({
+  name: "Iron Brake",
+  lesson: "Use fixed iron to hold one seed back.",
+  player: { x: 4, y: 3 },
+  shards: [
+    { id: "cobalt", x: 2, y: 2 },
+    { id: "ember", x: 6, y: 2 },
+    { id: "pearl", x: 4, y: 5 }
+  ],
+  sockets: [
+    { x: 1, y: 2 },
+    { x: 6, y: 1 },
+    { x: 5, y: 5 }
+  ],
+  walls: [
+    { x: 3, y: 1 }, { x: 5, y: 1 },
+    { x: 3, y: 4 }, { x: 6, y: 4 }
+  ],
+  blocks: [
+    { x: 7, y: 2 }
+  ]
+})]);
+
+export const LEVEL = LEVELS[0];
+
+export function levelFor(state) {
+  return LEVELS[state.levelIndex];
+}
 
 const key = ({ x, y }) => `${x},${y}`;
 const same = (a, b) => a.x === b.x && a.y === b.y;
 
-export function createGame() {
+export function createGame(levelIndex = 0) {
+  const level = LEVELS[levelIndex];
   return {
     phase: "title",
+    levelIndex,
     polarity: "pull",
-    player: { ...LEVEL.player },
-    shards: LEVEL.shards.map((shard) => ({ ...shard, docked: false })),
+    player: { ...level.player },
+    shards: level.shards.map((shard) => ({ ...shard, docked: false })),
     moves: 0,
     pulses: 0,
     lastEvent: "",
@@ -38,13 +79,15 @@ export function createGame() {
 
 export function startGame(state) {
   if (state.phase !== "title" && state.phase !== "won") return state;
-  const next = createGame();
+  const nextIndex = state.phase === "won" && state.levelIndex < LEVELS.length - 1 ? state.levelIndex + 1 : state.levelIndex;
+  const next = createGame(nextIndex);
   next.phase = "playing";
+  if (nextIndex > state.levelIndex) next.lastEvent = LEVELS[nextIndex].lesson;
   return next;
 }
 
-export function resetGame() {
-  const state = createGame();
+export function resetGame(levelIndex = 0) {
+  const state = createGame(levelIndex);
   state.phase = "playing";
   state.lastEvent = "The chamber rewinds.";
   return state;
@@ -59,7 +102,7 @@ export function togglePause(state) {
 export function movePlayer(state, dx, dy) {
   if (state.phase !== "playing") return state;
   const target = { x: state.player.x + dx, y: state.player.y + dy };
-  const blocked = isWall(target) || state.shards.some((shard) => !shard.docked && same(shard, target));
+  const blocked = isWall(target, levelFor(state)) || state.shards.some((shard) => !shard.docked && same(shard, target));
   if (blocked) return { ...state, lastEvent: "The way is blocked." };
   return {
     ...state,
@@ -87,6 +130,7 @@ function desiredStep(shard, player, polarity) {
 export function flipPolarity(state) {
   if (state.phase !== "playing") return state;
   const polarity = state.polarity === "pull" ? "push" : "pull";
+  const level = levelFor(state);
   const loose = state.shards.filter((shard) => !shard.docked);
   const occupied = new Set(state.shards.filter((shard) => shard.docked).map(key));
   const proposals = new Map();
@@ -104,7 +148,7 @@ export function flipPolarity(state) {
   const staying = new Set();
   for (const shard of loose) {
     const target = proposals.get(shard.id);
-    if (isWall(target) || same(target, state.player) || occupied.has(key(target)) || targetCounts.get(key(target)) > 1) staying.add(shard.id);
+    if (isWall(target, level) || same(target, state.player) || occupied.has(key(target)) || targetCounts.get(key(target)) > 1) staying.add(shard.id);
   }
 
   let changed = true;
@@ -125,7 +169,7 @@ export function flipPolarity(state) {
   const shards = state.shards.map((shard) => {
     if (shard.docked || staying.has(shard.id)) return { ...shard };
     const target = proposals.get(shard.id);
-    const docked = LEVEL.sockets.some((socket) => same(socket, target));
+    const docked = level.sockets.some((socket) => same(socket, target));
     if (docked) dockedNow += 1;
     return { ...shard, ...target, docked };
   });
@@ -144,7 +188,7 @@ export function flipPolarity(state) {
 
 export function reduce(state, action) {
   if (action === "enter") return startGame(state);
-  if (action === "reset") return resetGame();
+  if (action === "reset") return resetGame(state.levelIndex);
   if (action === "pause") return togglePause(state);
   if (action === "flip") return flipPolarity(state);
   if (action === "left") return movePlayer(state, -1, 0);
@@ -154,14 +198,15 @@ export function reduce(state, action) {
   return state;
 }
 
-export function isWall(position) {
-  return position.x <= 0 || position.x >= WIDTH - 1 || position.y <= 0 || position.y >= HEIGHT - 1 || LEVEL.walls.some((wall) => same(wall, position));
+export function isWall(position, level = LEVEL) {
+  return position.x <= 0 || position.x >= WIDTH - 1 || position.y <= 0 || position.y >= HEIGHT - 1 || level.walls.some((wall) => same(wall, position)) || level.blocks.some((block) => same(block, position));
 }
 
 export function statusText(state) {
   const docked = state.shards.filter((shard) => shard.docked).length;
   if (state.phase === "title") return "Lodestar Forge title. Press Enter to enter the chamber.";
-  if (state.phase === "paused") return `Paused. ${docked} of 3 seeds locked. Press Escape to resume.`;
-  if (state.phase === "won") return `Forge complete. 3 of 3 seeds locked in ${state.pulses} polarity flips. Press Enter to replay.`;
-  return `Chamber active. ${state.polarity} polarity. ${docked} of 3 seeds locked. Arrow keys move. Space flips polarity. R restarts. Escape pauses.`;
+  const chamber = state.levelIndex + 1;
+  if (state.phase === "paused") return `Paused in chamber ${chamber}. ${docked} of 3 seeds locked. Press Escape to resume.`;
+  if (state.phase === "won") return `Chamber ${chamber} complete. 3 of 3 seeds locked in ${state.pulses} polarity flips. Press Enter to ${state.levelIndex < LEVELS.length - 1 ? "continue" : "replay"}.`;
+  return `Chamber ${chamber} active. ${state.polarity} polarity. ${docked} of 3 seeds locked. Arrow keys move. Space flips polarity. R restarts. Escape pauses.`;
 }

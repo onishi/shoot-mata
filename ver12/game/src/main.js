@@ -1,4 +1,4 @@
-import { HEIGHT, LEVEL, WIDTH, createGame, reduce, statusText } from "./model.js";
+import { HEIGHT, LEVELS, WIDTH, createGame, levelFor, reduce, statusText } from "./model.js";
 
 const canvas = document.querySelector("#game");
 const ctx = canvas.getContext("2d");
@@ -114,6 +114,30 @@ function drawWall(wall) {
   ctx.stroke();
 }
 
+function drawBlock(block) {
+  const x = BOARD_X + block.x * CELL + 5;
+  const y = BOARD_Y + block.y * CELL + 5;
+  roundedRect(x, y, CELL - 10, CELL - 10, 4);
+  const g = ctx.createLinearGradient(x, y, x + CELL, y + CELL);
+  g.addColorStop(0, "#9ba3a2");
+  g.addColorStop(0.42, "#343d40");
+  g.addColorStop(1, "#737c79");
+  ctx.fillStyle = g;
+  ctx.fill();
+  ctx.strokeStyle = COLORS.pull;
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  ctx.strokeStyle = "#d3d5ca88";
+  ctx.beginPath();
+  ctx.moveTo(x + 12, y + 8);
+  ctx.lineTo(x + 8, y + 20);
+  ctx.lineTo(x + 16, y + 28);
+  ctx.moveTo(x + 32, y + 14);
+  ctx.lineTo(x + 38, y + 22);
+  ctx.lineTo(x + 31, y + 36);
+  ctx.stroke();
+}
+
 function drawField(time) {
   if (!state.pulseFrom || state.phase === "title") return;
   const p = cellCenter(state.pulseFrom);
@@ -194,9 +218,11 @@ function drawPlayer() {
 }
 
 function drawHud() {
+  const level = levelFor(state);
   text("LODESTAR", 46, 56, 17, COLORS.brass, "left", 700);
   text("FORGE", 46, 81, 29, COLORS.pale, "left", 800);
-  text("CHAMBER 01", 46, 120, 11, "#8e938d", "left", 650);
+  text(`CHAMBER ${String(state.levelIndex + 1).padStart(2, "0")}`, 46, 120, 11, "#8e938d", "left", 650);
+  text(level.name.toUpperCase(), 46, 142, 10, COLORS.brass, "left", 650);
   const color = state.polarity === "pull" ? COLORS.pull : COLORS.push;
   text("FIELD", 46, 174, 11, "#8e938d", "left", 650);
   text(state.polarity.toUpperCase(), 46, 202, 24, color, "left", 800);
@@ -226,19 +252,25 @@ function overlay(title, body, prompt, color = COLORS.brass) {
 }
 
 function render(time = 0) {
+  const level = levelFor(state);
   flash = Math.max(0, flash - 0.035);
   drawBackdrop(time);
   drawBoard();
-  for (const socket of LEVEL.sockets) drawSocket(socket, state.shards.some((shard) => shard.docked && shard.x === socket.x && shard.y === socket.y));
-  for (const wall of LEVEL.walls) drawWall(wall);
+  for (const socket of level.sockets) drawSocket(socket, state.shards.some((shard) => shard.docked && shard.x === socket.x && shard.y === socket.y));
+  for (const wall of level.walls) drawWall(wall);
+  for (const block of level.blocks) drawBlock(block);
   drawField(time);
   for (const shard of state.shards) drawShard(shard, time);
   drawPlayer();
   drawHud();
   if (state.phase === "title") overlay("LODESTAR FORGE", "Stand where the field should bend.", "PRESS ENTER TO IGNITE");
   if (state.phase === "paused") overlay("FIELD SUSPENDED", "The chamber is holding its shape.", "ESC TO RESUME", COLORS.pull);
-  if (state.phase === "won") overlay("THE FIRST MOLD HOLDS", "Three wandering metals, one finished constellation.", "PRESS ENTER TO REFORGE");
+  if (state.phase === "won") {
+    const final = state.levelIndex === LEVELS.length - 1;
+    overlay(final ? "THE IRON BRAKE HOLDS" : "THE FIRST MOLD HOLDS", final ? "A fixed mass gave the field a rhythm." : "Three wandering metals, one finished constellation.", final ? "PRESS ENTER TO REFORGE" : "PRESS ENTER FOR CHAMBER 02");
+  }
   canvas.dataset.phase = state.phase;
+  canvas.dataset.chamber = String(state.levelIndex + 1);
   canvas.dataset.polarity = state.polarity;
   canvas.dataset.docked = String(state.shards.filter((shard) => shard.docked).length);
   canvas.setAttribute("aria-label", statusText(state));
