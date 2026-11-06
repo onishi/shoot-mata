@@ -1,0 +1,18 @@
+{
+  "name": "lodestar-forge",
+  "version": "12.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "test": "node --test",
+    "check": "node --check src/model.js && node --check src/main.js",
+    "build": "vite build",
+    "e2e": "playwright test",
+    "verify": "npm run test && npm run check && npm run build && npm run e2e"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.56.1",
+    "vite": "7.3.7"
+  }
+}
