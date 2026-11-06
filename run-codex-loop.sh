@@ -39,8 +39,11 @@ fi
 
 repo_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 wait_seconds=$((wait_minutes * 60))
-prompt='README.mdおよび各種ドキュメントに沿って、自律的にゲーム開発を進めてください'
+prompt='README.mdおよび各種ドキュメントに沿って、自律的にゲーム開発を進めてください。この実行はrun-codex-loop.shから起動したCodexです。環境変数SHOOT_MATA_AGENT_*を確認し、対象版のdocs/agent-history.mdとdocs/log.mdへ実行元、作業、検証結果を記録し、作成する全コミットへREADME指定のAgent-LoopとAgent-Script trailerを付けてください。'
 run_no=1
+SHOOT_MATA_AGENT_LOOP=codex
+SHOOT_MATA_AGENT_SCRIPT=run-codex-loop.sh
+export SHOOT_MATA_AGENT_LOOP SHOOT_MATA_AGENT_SCRIPT
 
 if ! command -v codex >/dev/null 2>&1; then
   echo "codex command was not found in PATH" >&2
@@ -55,6 +58,10 @@ fi
 trap 'printf "\nCodex loop stopped.\n"; exit 130' INT TERM HUP
 
 while [ "$run_no" -le "$run_limit" ]; do
+  SHOOT_MATA_AGENT_RUN_NUMBER=$run_no
+  SHOOT_MATA_AGENT_RUN_STARTED_AT=$(date '+%Y-%m-%dT%H:%M:%S%z')
+  export SHOOT_MATA_AGENT_RUN_NUMBER SHOOT_MATA_AGENT_RUN_STARTED_AT
+
   printf '\n=== Codex game-development run %d/%d (%s) ===\n' \
     "$run_no" "$run_limit" "$(date '+%Y-%m-%d %H:%M:%S')"
 
