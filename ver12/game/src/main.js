@@ -1,4 +1,5 @@
 import { HEIGHT, LEVELS, WIDTH, createGame, levelFor, reduce, statusText } from "./model.js";
+import { loadPreferences, savePreferences } from "./preferences.js";
 
 const canvas = document.querySelector("#game");
 const ctx = canvas.getContext("2d");
@@ -16,9 +17,12 @@ const COLORS = {
   ember: "#d56845"
 };
 
-let state = createGame();
+let preferences = loadPreferences(localStorage, LEVELS.length);
+let state = createGame(preferences.unlockedLevel);
 let flash = 0;
 let audio = null;
+let settingsOpen = false;
+let settingsRow = 0;
 
 function roundedRect(x, y, w, h, r) {
   ctx.beginPath();
@@ -281,17 +285,48 @@ function overlay(title, body, prompt, color = COLORS.brass) {
   text(prompt, 480, 366, 13, COLORS.pale, "center", 700);
 }
 
+function drawSettings() {
+  ctx.fillStyle = "#05080bf2";
+  ctx.fillRect(0, 0, 960, 540);
+  ctx.strokeStyle = COLORS.pull;
+  ctx.lineWidth = 2;
+  roundedRect(244, 112, 472, 316, 8);
+  ctx.fillStyle = "#11181ef5";
+  ctx.fill();
+  ctx.stroke();
+  text("FORGE SETTINGS", 480, 166, 29, COLORS.pale, "center", 800);
+  text("↑ ↓ SELECT   ·   ← → CHANGE", 480, 202, 11, "#8e938d", "center", 650);
+  const rows = [
+    { label: "SOUND", value: preferences.volume === 0 ? "MUTED" : `${Math.round(preferences.volume * 100)}%` },
+    { label: "MOTION", value: preferences.reducedMotion ? "REDUCED" : "FULL" }
+  ];
+  rows.forEach((row, index) => {
+    const y = 258 + index * 62;
+    if (settingsRow === index) {
+      roundedRect(294, y - 24, 372, 48, 5);
+      ctx.fillStyle = "#203139";
+      ctx.fill();
+      ctx.strokeStyle = COLORS.brass;
+      ctx.stroke();
+    }
+    text(row.label, 324, y, 13, settingsRow === index ? COLORS.brass : "#a39d90", "left", 700);
+    text(`‹  ${row.value}  ›`, 636, y, 14, COLORS.pale, "right", 700);
+  });
+  text("M OR ESC TO CLOSE", 480, 390, 12, COLORS.pull, "center", 700);
+}
+
 function render(time = 0) {
+  const displayTime = preferences.reducedMotion ? 0 : time;
   const level = levelFor(state);
-  flash = Math.max(0, flash - 0.035);
-  drawBackdrop(time);
+  flash = preferences.reducedMotion ? 0 : Math.max(0, flash - 0.035);
+  drawBackdrop(displayTime);
   drawBoard();
   for (const socket of level.sockets) drawSocket(socket, state.shards.some((shard) => shard.docked && shard.x === socket.x && shard.y === socket.y));
   for (const wall of level.walls) drawWall(wall);
   for (const block of level.blocks) drawBlock(block);
   for (const pole of level.poles) drawPole(pole);
-  drawField(time);
-  for (const shard of state.shards) drawShard(shard, time);
+  drawField(displayTime);
+  for (const shard of state.shards) drawShard(shard, displayTime);
   drawPlayer();
   drawHud();
   if (state.phase === "title") overlay("LODESTAR FORGE", "Stand where the field should bend.", "PRESS ENTER TO IGNITE");
@@ -306,11 +341,16 @@ function render(time = 0) {
     ];
     overlay(titles[state.levelIndex], bodies[state.levelIndex], final ? "PRESS ENTER TO REFORGE" : `PRESS ENTER FOR CHAMBER ${String(state.levelIndex + 2).padStart(2, "0")}`);
   }
+  if (settingsOpen) drawSettings();
   canvas.dataset.phase = state.phase;
   canvas.dataset.chamber = String(state.levelIndex + 1);
   canvas.dataset.polarity = state.polarity;
   canvas.dataset.docked = String(state.shards.filter((shard) => shard.docked).length);
-  canvas.setAttribute("aria-label", statusText(state));
+  canvas.dataset.volume = String(preferences.volume);
+  canvas.dataset.reducedMotion = String(preferences.reducedMotion);
+  canvas.setAttribute("aria-label", settingsOpen
+    ? `Settings. ${settingsRow === 0 ? "Sound" : "Motion"} selected. Sound ${Math.round(preferences.volume * 100)} percent. Motion ${preferences.reducedMotion ? "reduced" : "full"}. Up and down select. Left and right change. M or Escape closes.`
+    : statusText(state));
   requestAnimationFrame(render);
 }
 
@@ -320,12 +360,12 @@ function ensureAudio() {
 }
 
 function tone(frequency, delay = 0, duration = 0.08, volume = 0.035) {
-  if (!audio) return;
+  if (!audio || preferences.volume === 0) return;
   const oscillator = audio.createOscillator();
   const gain = audio.createGain();
   oscillator.type = "triangle";
   oscillator.frequency.value = frequency;
-  gain.gain.setValueAtTime(volume, audio.currentTime + delay);
+  gain.gain.setValueAtTime(volume * preferences.volume, audio.currentTime + delay);
   gain.gain.exponentialRampToValueAtTime(0.001, audio.currentTime + delay + duration);
   oscillator.connect(gain).connect(audio.destination);
   oscillator.start(audio.currentTime + delay);
@@ -338,7 +378,40 @@ const keyActions = {
   Space: "flip", Enter: "enter", KeyR: "reset", Escape: "pause"
 };
 
+function storePreferences(next) {
+  preferences = savePreferences(localStorage, next, LEVELS.length);
+}
+
+function handleSettingsKey(event) {
+  if (event.code === "KeyM" || event.code === "Escape") {
+    settingsOpen = false;
+    return true;
+  }
+  if (event.code === "ArrowUp" || event.code === "ArrowDown") {
+    settingsRow = settingsRow === 0 ? 1 : 0;
+    return true;
+  }
+  if (event.code !== "ArrowLeft" && event.code !== "ArrowRight" && event.code !== "Enter" && event.code !== "Space") return false;
+  if (settingsRow === 0) {
+    if (event.code !== "ArrowLeft" && event.code !== "ArrowRight") return true;
+    const step = event.code === "ArrowLeft" ? -0.1 : 0.1;
+    storePreferences({ ...preferences, volume: preferences.volume + step });
+  } else {
+    storePreferences({ ...preferences, reducedMotion: !preferences.reducedMotion });
+  }
+  return true;
+}
+
 window.addEventListener("keydown", (event) => {
+  if (settingsOpen) {
+    if (handleSettingsKey(event)) event.preventDefault();
+    return;
+  }
+  if (event.code === "KeyM") {
+    event.preventDefault();
+    settingsOpen = true;
+    return;
+  }
   const action = keyActions[event.code] ?? keyActions[event.key];
   if (!action) return;
   event.preventDefault();
@@ -346,6 +419,9 @@ window.addEventListener("keydown", (event) => {
   const previous = state;
   state = reduce(state, action);
   if (state === previous) return;
+  if (state.levelIndex > preferences.unlockedLevel) {
+    storePreferences({ ...preferences, unlockedLevel: state.levelIndex });
+  }
   if (action === "flip") {
     flash = 1;
     tone(state.polarity === "pull" ? 280 : 180);
@@ -363,5 +439,5 @@ window.addEventListener("keydown", (event) => {
 });
 
 canvas.addEventListener("pointerdown", () => canvas.focus());
-canvas.setAttribute("aria-keyshortcuts", "Enter ArrowLeft ArrowRight ArrowUp ArrowDown Space R Escape");
+canvas.setAttribute("aria-keyshortcuts", "Enter ArrowLeft ArrowRight ArrowUp ArrowDown Space R Escape M");
 requestAnimationFrame(render);

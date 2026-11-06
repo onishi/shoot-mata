@@ -10,6 +10,7 @@ import {
   startGame,
   statusText
 } from "../src/model.js";
+import { DEFAULT_PREFERENCES, STORAGE_KEY, loadPreferences, savePreferences } from "../src/preferences.js";
 
 test("starts only from title and exposes accessible state", () => {
   const title = createGame();
@@ -126,4 +127,31 @@ test("pause freezes actions and reset restores the chamber", () => {
   assert.equal(game.phase, "playing");
   assert.equal(game.pulses, 0);
   assert.equal(game.shards.some((shard) => shard.docked), false);
+});
+
+test("preferences round-trip and clamp values", () => {
+  const values = new Map();
+  const storage = {
+    getItem: (key) => values.get(key) ?? null,
+    setItem: (key, value) => values.set(key, value)
+  };
+  const saved = savePreferences(storage, { unlockedLevel: 99, volume: 0.34, reducedMotion: true }, LEVELS.length);
+  assert.deepEqual(saved, { unlockedLevel: 2, volume: 0.3, reducedMotion: true });
+  assert.deepEqual(loadPreferences(storage, LEVELS.length), saved);
+});
+
+test("corrupt or invalid saves safely restore defaults", () => {
+  const corrupt = { getItem: () => "{broken" };
+  assert.deepEqual(loadPreferences(corrupt, LEVELS.length), DEFAULT_PREFERENCES);
+
+  const invalid = { getItem: () => JSON.stringify({ unlockedLevel: "third", volume: "loud", reducedMotion: "yes" }) };
+  assert.deepEqual(loadPreferences(invalid, LEVELS.length), DEFAULT_PREFERENCES);
+
+  const unavailable = {
+    getItem: () => { throw new Error("blocked"); },
+    setItem: () => { throw new Error("full"); }
+  };
+  assert.deepEqual(loadPreferences(unavailable, LEVELS.length), DEFAULT_PREFERENCES);
+  assert.deepEqual(savePreferences(unavailable, DEFAULT_PREFERENCES, LEVELS.length), DEFAULT_PREFERENCES);
+  assert.equal(STORAGE_KEY, "lodestar-forge:v12");
 });

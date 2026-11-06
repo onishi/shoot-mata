@@ -90,3 +90,41 @@ test("axial pole holds one seed and the third chamber is completable", async ({ 
   await expect(canvas).toHaveAttribute("aria-label", /Chamber 3 complete.*3 polarity flips/);
   await page.screenshot({ path: evidence("m2-three-chambers-won.png") });
 });
+
+test("settings persist and corrupt saves recover safely", async ({ page }) => {
+  await page.goto("/");
+  const canvas = page.locator("canvas");
+  await page.keyboard.press("KeyM");
+  await expect(canvas).toHaveAttribute("aria-label", /Settings.*Sound selected/);
+  await page.keyboard.press("ArrowLeft");
+  await expect(canvas).toHaveAttribute("data-volume", "0.6");
+  await page.keyboard.press("ArrowDown");
+  await page.keyboard.press("Enter");
+  await expect(canvas).toHaveAttribute("data-reduced-motion", "true");
+  await page.screenshot({ path: evidence("m2-settings.png") });
+  await page.reload();
+  await expect(canvas).toHaveAttribute("data-volume", "0.6");
+  await expect(canvas).toHaveAttribute("data-reduced-motion", "true");
+
+  await page.evaluate(() => localStorage.setItem("lodestar-forge:v12", "{broken"));
+  await page.reload();
+  await expect(canvas).toHaveAttribute("data-volume", "0.7");
+  await expect(canvas).toHaveAttribute("data-reduced-motion", "false");
+  await expect(canvas).toHaveAttribute("data-chamber", "1");
+});
+
+test("reaching a chamber resumes there after reload", async ({ page }) => {
+  await page.goto("/");
+  const canvas = page.locator("canvas");
+  await page.keyboard.press("Enter");
+  for (const key of ["Space", "ArrowLeft", "ArrowLeft", "ArrowDown", "ArrowDown", "Space", "Enter"]) {
+    await page.keyboard.press(key);
+  }
+  await expect(canvas).toHaveAttribute("data-chamber", "2");
+  await page.reload();
+  await expect(canvas).toHaveAttribute("data-phase", "title");
+  await expect(canvas).toHaveAttribute("data-chamber", "2");
+  await page.keyboard.press("Enter");
+  await expect(canvas).toHaveAttribute("data-phase", "playing");
+  await expect(canvas).toHaveAttribute("aria-label", /Chamber 2 active/);
+});
