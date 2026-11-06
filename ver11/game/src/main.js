@@ -1,5 +1,5 @@
 import "./style.css";
-import { WIDTH, HEIGHT, FIXED_STEP, AIRSPACES, accessibleStatus, airspaceFor, createGame, downdraftAt, galeLiftAt, isSheltered, retry, startGame, togglePause, update, windAt } from "./model.js";
+import { WIDTH, HEIGHT, FIXED_STEP, AIRSPACES, accessibleStatus, airspaceFor, createGame, downdraftAt, galeLiftAt, isSheltered, retry, soundGateAt, soundGateIsTuned, startGame, togglePause, update, windAt } from "./model.js";
 import { DEFAULT_PREFERENCES, STORAGE_KEY, parsePreferences, serializePreferences, unlockAirspace } from "./preferences.js";
 
 const canvas = document.querySelector("#game");
@@ -46,6 +46,8 @@ function tone(frequency, duration = 0.12, volume = 0.05, delay = 0) {
 function handleEvents(events) {
   for (const event of events) {
     if (event.type === "ribbon") tone([392, 523, 659][event.index], 0.3, 0.07);
+    if (event.type === "gate") [523, 659].forEach((note, i) => tone(note, 0.24, 0.045, i * 0.07));
+    if (event.type === "gate-blocked") tone(174, 0.18, 0.035);
     if (event.type === "lost") tone(110, 0.55, 0.08);
     if (event.type === "won") [392, 523, 659].forEach((note, i) => tone(note, 0.6, 0.06, i * 0.1));
   }
@@ -181,6 +183,28 @@ function drawGaleLifts() {
   }
 }
 
+function drawSoundGates() {
+  for (const gate of airspaceFor(game).soundGates) {
+    const nearby = Math.abs(game.x - gate.x) <= 54 && game.y >= gate.y && game.y <= gate.y + gate.height;
+    const tuned = nearby && soundGateIsTuned(game, gate);
+    const color = tuned ? "#fff0a8" : nearby ? "#ff997d" : "#b9d7d8";
+    ctx.save();
+    ctx.strokeStyle = color; ctx.fillStyle = tuned ? "#fff0a824" : "#9bc8cc14"; ctx.lineWidth = tuned ? 5 : 3;
+    ctx.setLineDash(tuned ? [] : [8, 9]);
+    ctx.fillRect(gate.x - 18, gate.y, 36, gate.height);
+    ctx.beginPath(); ctx.moveTo(gate.x, gate.y); ctx.lineTo(gate.x, gate.y + gate.height); ctx.stroke();
+    ctx.setLineDash([]);
+    for (let y = gate.y + 82; y < gate.y + gate.height; y += 54) {
+      ctx.beginPath(); ctx.arc(gate.x, y, tuned ? 13 : 9, 0, Math.PI * 2); ctx.stroke();
+    }
+    if (game.messageTime <= 0) {
+      ctx.font = "700 11px system-ui"; ctx.textAlign = "center"; ctx.fillStyle = color;
+      ctx.fillText("32–68% · SOUND GATE", gate.x, gate.y + 18);
+    }
+    ctx.restore();
+  }
+}
+
 function drawWind() {
   const wind = windAt(game.elapsed);
   if (game.mode === "title") return;
@@ -231,7 +255,8 @@ function drawHud() {
   for (let i = 0; i < 3; i++) { ctx.fillStyle = game.ribbons[i] ? "#ffd57c" : "#53617a"; ctx.beginPath(); ctx.arc(804 + i * 28, 66, 7, 0, Math.PI * 2); ctx.fill(); }
   if (game.messageTime > 0) { ctx.textAlign = "center"; ctx.fillStyle = "#fff0c7"; ctx.font = "700 18px system-ui"; ctx.fillText(game.message, WIDTH / 2, 104); }
   ctx.textAlign = "center"; ctx.fillStyle = isSheltered(game) ? "#f4fbff" : "#aebed0"; ctx.font = "700 12px system-ui";
-  const condition = isSheltered(game) ? " · SHELTERED" : downdraftAt(game) ? " · SINKING" : galeLiftAt(game) ? " · LIFTING" : "";
+  const gate = soundGateAt(game);
+  const condition = isSheltered(game) ? " · SHELTERED" : downdraftAt(game) ? " · SINKING" : galeLiftAt(game) ? " · LIFTING" : gate ? soundGateIsTuned(game, gate) ? " · IN TUNE" : " · OUT OF TUNE" : "";
   ctx.fillText(`${airspaceFor(game).name}${condition}`, WIDTH / 2, 38);
   if (game.ribbons.every(Boolean)) { ctx.textAlign = "center"; ctx.fillStyle = "#fff0c7"; ctx.font = "600 15px system-ui"; ctx.fillText("RELEASE SPACE · RETURN TO THE LANDING GLOW", WIDTH / 2, 506); }
   ctx.fillStyle = "#f6dc93aa"; ctx.fillRect(402, 500, 156, 6);
@@ -263,7 +288,7 @@ function drawSettings() {
 }
 
 function draw() {
-  drawSky(); drawGaleLifts(); drawWind(); drawDowndrafts(); drawClouds();
+  drawSky(); drawGaleLifts(); drawSoundGates(); drawWind(); drawDowndrafts(); drawClouds();
   airspaceFor(game).ribbons.forEach((r, i) => drawRibbon(r, game.ribbons[i], i));
   if (game.mode !== "title") { drawKite(); drawHud(); }
   if (game.mode === "title") overlay("GALE THREAD", `continue from ${airspaceFor(game).name.toLowerCase()} · bring three chimes home`, "ENTER TO LAUNCH · S SETTINGS");
@@ -272,7 +297,8 @@ function draw() {
   if (game.mode === "won" && game.airspace === 0) overlay("FIRST CHIMES RETURN", "the silver cloud waits beyond the open wind", "ENTER TO CROSS INTO CLOUD LEE");
   if (game.mode === "won" && game.airspace === 1) overlay("TWO SKIES ANSWER", "a falling seam divides the final sky", "ENTER TO CROSS INTO FALLING WEFT");
   if (game.mode === "won" && game.airspace === 2) overlay("THREE SKIES ANSWER", "the next gale can carry an open thread upward", "ENTER TO CROSS INTO TURNING TACK");
-  if (game.mode === "won" && game.airspace === AIRSPACES.length - 1) overlay("FOUR SKIES ANSWER", "twelve chimes return on four unbroken threads", "ENTER TO FLY TURNING TACK AGAIN");
+  if (game.mode === "won" && game.airspace === 3) overlay("FOUR SKIES ANSWER", "the sounding pass asks the thread to hold its note", "ENTER TO CROSS INTO RESONANT PASS");
+  if (game.mode === "won" && game.airspace === AIRSPACES.length - 1) overlay("FIVE SKIES ANSWER", "fifteen chimes return on five unbroken threads", "ENTER TO FLY RESONANT PASS AGAIN");
   if (settingsOpen) drawSettings();
 }
 

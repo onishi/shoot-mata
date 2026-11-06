@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { AIRSPACES, RIBBONS, accessibleStatus, createGame, downdraftAt, galeLiftAt, isSheltered, retry, startGame, togglePause, update, windAt } from "../src/model.js";
+import { AIRSPACES, RIBBONS, accessibleStatus, createGame, downdraftAt, galeLiftAt, isSheltered, retry, soundGateAt, soundGateIsTuned, startGame, togglePause, update, windAt } from "../src/model.js";
 
 function advance(game, seconds, input = {}) {
   const steps = Math.ceil(seconds * 60);
@@ -146,5 +146,37 @@ test("Turning Tack chimes and landing remain reachable", () => {
   }
   game.x = 480; game.y = 472; const events = update(game, {}, 1 / 60);
   assert.equal(game.mode, "won"); assert.ok(events.some((event) => event.type === "won"));
-  assert.match(accessibleStatus(game), /Four skies answer/);
+  assert.match(accessibleStatus(game), /cross into RESONANT PASS/);
+});
+
+test("winning Turning Tack advances into Resonant Pass", () => {
+  const game = createGame(3); startGame(game); game.mode = "won"; startGame(game);
+  assert.equal(game.mode, "playing"); assert.equal(game.airspace, 4);
+  assert.match(game.message, /TUNE THE THREAD/);
+});
+
+test("Resonant Pass blocks out-of-range thread but admits tuned tension", () => {
+  const slack = createGame(4); startGame(slack); slack.x = 400; slack.y = 300; slack.vx = -220; slack.tension = 0.12;
+  const blocked = advance(slack, 0.5, { steer: -1, reel: false });
+  assert.ok(slack.x >= 326); assert.ok(blocked.some((event) => event.type === "gate-blocked"));
+
+  const taut = createGame(4); startGame(taut); taut.x = 400; taut.y = 300; taut.vx = -220; taut.tension = 0.85;
+  const tautBlocked = advance(taut, 0.25, { steer: -1, reel: true });
+  assert.ok(taut.x >= 326); assert.ok(tautBlocked.some((event) => event.type === "gate-blocked"));
+
+  const tuned = createGame(4); startGame(tuned); tuned.x = 400; tuned.y = 300; tuned.vx = -220; tuned.tension = 0.5;
+  const passed = advance(tuned, 0.5, { steer: -1, reel: false });
+  assert.ok(tuned.x < 360); assert.ok(passed.some((event) => event.type === "gate"));
+  assert.ok(soundGateAt({ ...tuned, x: 360 })); assert.equal(soundGateIsTuned({ ...tuned, x: 360, tension: 0.5 }), true);
+  assert.match(accessibleStatus({ ...tuned, x: 360, tension: 0.1 }), /out of tune/i);
+});
+
+test("Resonant Pass chimes and landing remain reachable", () => {
+  const game = createGame(4); startGame(game);
+  for (const ribbon of AIRSPACES[4].ribbons) {
+    game.x = ribbon.x; game.y = ribbon.y; update(game, {}, 1 / 60);
+  }
+  game.x = 480; game.y = 472; const events = update(game, {}, 1 / 60);
+  assert.equal(game.mode, "won"); assert.ok(events.some((event) => event.type === "won"));
+  assert.match(accessibleStatus(game), /Five skies answer/);
 });

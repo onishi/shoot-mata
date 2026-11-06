@@ -40,13 +40,18 @@ async function pilot(page, targets, screenshotName) {
       || (gustDirection === -1 && state.x >= 605 && state.x <= 855 && state.y >= 72 && state.y <= 454)
     );
     const needClimb = count < 3 && state.y > target.y + 5;
-    const shouldReel = needClimb && !inGaleLift && state.tension < (gusting && !sheltered ? 0.42 : 0.78);
+    const gateAhead = state.airspace === 4 && [360, 600].some((gateX) => (
+      (state.x - gateX) * (target.x - gateX) <= 0 && Math.abs(state.x - gateX) < 125
+    ));
+    const shouldReel = gateAhead
+      ? state.tension < 0.48
+      : needClimb && !inGaleLift && state.tension < (gusting && !sheltered ? 0.42 : 0.78);
     if (reelHeld !== shouldReel) {
       if (shouldReel) await page.keyboard.down("Space"); else await page.keyboard.up("Space");
       reelHeld = shouldReel;
     }
     const inDowndraft = state.airspace === 2 && state.x >= 390 && state.x <= 570 && state.y >= 78 && state.y <= 428;
-    const evidenceCondition = state.airspace === 3 ? inGaleLift : state.airspace === 2 ? inDowndraft : sheltered && gusting;
+    const evidenceCondition = state.airspace === 4 ? state.message === "GATE IN TUNE" : state.airspace === 3 ? inGaleLift : state.airspace === 2 ? inDowndraft : sheltered && gusting;
     if (screenshotName && evidenceCondition && !conditionEvidenceTaken) {
       await page.screenshot({ path: evidence(screenshotName) });
       conditionEvidenceTaken = true;
@@ -136,7 +141,50 @@ test("the fourth airspace rides a forecast gale upward and remains keyboard-comp
   await expect.poll(async () => (await snapshot(page)).elapsed).toBeLessThan(0.5);
   await pilot(page, [{ x: 255, y: 365 }, { x: 705, y: 230 }, { x: 255, y: 96 }]);
   await page.screenshot({ path: evidence("m3-turning-tack-won.png") });
-  await expect(page.locator("canvas")).toHaveAttribute("aria-label", /Four skies answer/i);
+  await expect(page.locator("canvas")).toHaveAttribute("aria-label", /cross into RESONANT PASS/i);
+});
+
+test("the fifth airspace tunes the thread to cross both sound gates", async ({ page }) => {
+  await page.goto("/");
+  await page.evaluate(() => localStorage.setItem("gale-thread:v11", JSON.stringify({
+    version: 1, unlockedAirspace: 4, volume: 0.75, reducedMotion: false,
+  })));
+  await page.reload();
+  await expect.poll(async () => (await snapshot(page))?.airspace).toBe(4);
+  await page.keyboard.press("Enter");
+  await expect.poll(async () => (await snapshot(page))?.mode).toBe("playing");
+  await page.screenshot({ path: evidence("m3-resonant-pass-entry.png") });
+
+  await page.keyboard.down("ArrowLeft");
+  await expect.poll(async () => (await snapshot(page))?.message, { timeout: 5_000 }).toBe("TUNE THE THREAD");
+  const blocked = await snapshot(page);
+  expect(blocked.x).toBeGreaterThanOrEqual(326);
+  let reelHeld = false;
+  let crossedInTune = false;
+  for (let step = 0; step < 80; step++) {
+    const state = await snapshot(page);
+    if (state.message === "GATE IN TUNE") { crossedInTune = true; break; }
+    const shouldReel = reelHeld ? state.tension < 0.52 : state.tension < 0.4;
+    if (reelHeld !== shouldReel) {
+      if (shouldReel) await page.keyboard.down("Space"); else await page.keyboard.up("Space");
+      reelHeld = shouldReel;
+    }
+    await page.waitForTimeout(100);
+  }
+  if (reelHeld) await page.keyboard.up("Space");
+  await page.keyboard.up("ArrowLeft");
+  expect(crossedInTune).toBe(true);
+  const tuned = await snapshot(page);
+  expect(tuned.x).toBeLessThan(360);
+  expect(tuned.tension).toBeGreaterThanOrEqual(0.32);
+  expect(tuned.tension).toBeLessThanOrEqual(0.68);
+  await page.screenshot({ path: evidence("m3-resonant-pass-tuned.png") });
+
+  await page.keyboard.press("r");
+  const usedGate = await pilot(page, [{ x: 225, y: 370 }, { x: 735, y: 236 }, { x: 225, y: 102 }], "m3-resonant-pass-tuned.png");
+  expect(usedGate).toBe(true);
+  await page.screenshot({ path: evidence("m3-resonant-pass-won.png") });
+  await expect(page.locator("canvas")).toHaveAttribute("aria-label", /Five skies answer/i);
 });
 
 test("settings and reached airspace persist across reloads", async ({ page }) => {
