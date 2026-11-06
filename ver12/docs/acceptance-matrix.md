@@ -16,11 +16,11 @@
 | CONT-01 | 6室、4段階以上の規則発展、最終炉と終演 | M3 | 6室、7反転最終炉、`THE CROWN IS FORGED`終演、6室通しE2E | `npm run verify` | 合格 |
 | ARCADE-01 | 4:3主画面とレバー＋1ボタン相当の主操作 | M3 | 960×720 Canvas、上下筐体帯、方向＋Space、`m4-first-field-640x480.png` | `npm run verify`、640×480 E2E | 合格 |
 | ARCADE-02 | アトラクト、コイン、開始、プレイ、失敗／結果、ランキングの筐体フロー | M4 | 6.5秒デモ→C/5投入→START→ゲームオーバー／コンティニューまたは6室→成績→イニシャル→上位5件→復帰。`m4-attract-demo.png`、`m4-gameover.png`、`m4-ranking.png` | Chrome E2E tests 1・3・11、`npm run verify` | 合格 |
-| ARCADE-03 | 最初の10秒・30秒、1クレジット時間、得点、コンティニュー、再挑戦 | M4–M5 | 10秒内反転、30秒内第1室クリア、得点HUD、室別FORGE HEAT、追加クレジットで同室再開。全室実時間は未実測 | Chrome E2E tests 2・3、`m4-first-clear-score.png`、`m4-continue-ready.png` | 一部合格 |
+| ARCADE-03 | 最初の10秒・30秒、1クレジット時間、得点、コンティニュー、再挑戦 | M4–M5 | 10秒内反転、30秒内第1室クリア、得点HUD、室別FORGE HEAT、追加クレジットで同室再開。固定人間ペースの既知解は103.4秒で3〜6分目標未達 | Chrome E2E tests 2・3、`npm run audit:campaign`、`m4-campaign-audit.json` | 一部合格 |
 | DEPTH-01 | 複数の有効手順、巻き戻し、再挑戦価値 | M4 | 収容・室完成・少反転ボーナス、Rで室開始得点へ復帰。複数戦略と手戻しは未実装 | 単体の得点・reset検証、6室E2Eの53,750点 | 一部合格 |
 | ART-01 | 全室の背景、種、UI、磁場、効果音が完成方針で統一 | M4 | 6室Canvas描画、内向き／外向き印、4:3筐体帯、4秒16拍FM風BGM、状態別ジングル | `npm run verify`、理論ピーク0.2907未満、0%ミュート・復帰E2E | 合格 |
 | ACCESS-01 | キーボード、動き軽減、音量、動的名称、2 viewport | M2–M4 | キーボード設定UI、静止描画、音量係数、動的名称、1280×720と640×480のE2E画像 | `npm run verify` | 合格 |
-| QA-01 | 単体、統合、通し、性能、保存破損、配布物監査 | M4–M5 | 単体24件、E2E 11件、設定・ランキング保存破損復帰、build、音響ピーク・ミュート監査 | `npm run verify`、性能・配布物はM4予定 | 一部合格 |
+| QA-01 | 単体、統合、通し、性能、保存破損、配布物監査 | M4–M5 | 単体24件、E2E 11件、設定・ランキング保存破損復帰、build、音響ピーク・ミュート監査、180フレーム平均16.67ms・25ms超0・Long Task 0 | `npm run verify`、`npm run audit:campaign`、配布物はM4予定 | 一部合格 |
 | RELEASE-01 | 配布物hash、公開URL、旧版保持、rollback | M5 | 未実施 | 公開候補で記録予定 | 未達 |
 | CRIT-01 | 2回以上の独立批評と改善 | M5 | 未実施 | baseline・非退行比較予定 | 未達 |
 | RETRO-01 | 基準比較、M6振り返り、ルート方針評価 | M6 | 未実施 | `05-major-retrospective.md` | 未達 |

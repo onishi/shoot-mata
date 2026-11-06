@@ -1,0 +1,72 @@
+{
+  "measuredAt": "2026-11-06T23:48:53.347Z",
+  "viewport": {
+    "width": 1280,
+    "height": 720
+  },
+  "pacingModel": {
+    "inputIntervalMs": 850,
+    "chamberSurveyMs": 6000,
+    "resultReadMs": 4000,
+    "maximumNoInputMs": 6000
+  },
+  "campaign": {
+    "creditToFinalForgeMs": 103392,
+    "totalActions": 56,
+    "finalScore": 53750,
+    "chambers": [
+      {
+        "chamber": 1,
+        "actions": 6,
+        "activeMs": 11158,
+        "pulses": 2
+      },
+      {
+        "chamber": 2,
+        "actions": 5,
+        "activeMs": 10287,
+        "pulses": 3
+      },
+      {
+        "chamber": 3,
+        "actions": 6,
+        "activeMs": 11144,
+        "pulses": 3
+      },
+      {
+        "chamber": 4,
+        "actions": 6,
+        "activeMs": 11145,
+        "pulses": 4
+      },
+      {
+        "chamber": 5,
+        "actions": 15,
+        "activeMs": 18850,
+        "pulses": 6
+      },
+      {
+        "chamber": 6,
+        "actions": 16,
+        "activeMs": 19698,
+        "pulses": 7
+      }
+    ],
+    "knownRouteTargetMs": {
+      "minimum": 180000,
+      "maximum": 360000
+    },
+    "pacingAssessment": "below-target"
+  },
+  "performance": {
+    "sampledFrames": 180,
+    "durationMs": 2999.9,
+    "averageFrameMs": 16.666111111111114,
+    "p95FrameMs": 16.700000000000273,
+    "maxFrameMs": 16.800000000000182,
+    "framesOver25Ms": 0,
+    "longTaskCount": 0,
+    "longestTaskMs": 0,
+    "assessment": "pass"
+  }
+}
