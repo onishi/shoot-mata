@@ -138,6 +138,36 @@ function drawBlock(block) {
   ctx.stroke();
 }
 
+function drawPole(pole) {
+  const p = cellCenter(pole);
+  const horizontal = pole.blocksAxis === "horizontal";
+  ctx.save();
+  ctx.translate(p.x, p.y);
+  ctx.strokeStyle = COLORS.pull;
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.arc(0, 0, 20, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.strokeStyle = COLORS.push;
+  ctx.lineWidth = 4;
+  for (const offset of [-9, 0, 9]) {
+    ctx.beginPath();
+    if (horizontal) {
+      ctx.moveTo(-15, offset);
+      ctx.lineTo(15, offset);
+    } else {
+      ctx.moveTo(offset, -15);
+      ctx.lineTo(offset, 15);
+    }
+    ctx.stroke();
+  }
+  ctx.fillStyle = COLORS.pale;
+  ctx.beginPath();
+  ctx.arc(0, 0, 4, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
 function drawField(time) {
   if (!state.pulseFrom || state.phase === "title") return;
   const p = cellCenter(state.pulseFrom);
@@ -259,6 +289,7 @@ function render(time = 0) {
   for (const socket of level.sockets) drawSocket(socket, state.shards.some((shard) => shard.docked && shard.x === socket.x && shard.y === socket.y));
   for (const wall of level.walls) drawWall(wall);
   for (const block of level.blocks) drawBlock(block);
+  for (const pole of level.poles) drawPole(pole);
   drawField(time);
   for (const shard of state.shards) drawShard(shard, time);
   drawPlayer();
@@ -267,7 +298,13 @@ function render(time = 0) {
   if (state.phase === "paused") overlay("FIELD SUSPENDED", "The chamber is holding its shape.", "ESC TO RESUME", COLORS.pull);
   if (state.phase === "won") {
     const final = state.levelIndex === LEVELS.length - 1;
-    overlay(final ? "THE IRON BRAKE HOLDS" : "THE FIRST MOLD HOLDS", final ? "A fixed mass gave the field a rhythm." : "Three wandering metals, one finished constellation.", final ? "PRESS ENTER TO REFORGE" : "PRESS ENTER FOR CHAMBER 02");
+    const titles = ["THE FIRST MOLD HOLDS", "THE IRON BRAKE HOLDS", "THE POLAR VEIL HOLDS"];
+    const bodies = [
+      "Three wandering metals, one finished constellation.",
+      "A fixed mass gave the field a rhythm.",
+      "Iron and pole held two beats for the final strike."
+    ];
+    overlay(titles[state.levelIndex], bodies[state.levelIndex], final ? "PRESS ENTER TO REFORGE" : `PRESS ENTER FOR CHAMBER ${String(state.levelIndex + 2).padStart(2, "0")}`);
   }
   canvas.dataset.phase = state.phase;
   canvas.dataset.chamber = String(state.levelIndex + 1);

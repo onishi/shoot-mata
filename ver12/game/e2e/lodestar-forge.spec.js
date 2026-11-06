@@ -67,3 +67,26 @@ test("fixed iron brakes one seed and the second chamber is completable", async (
   await expect(canvas).toHaveAttribute("aria-label", /Chamber 2 complete.*3 polarity flips/);
   await page.screenshot({ path: evidence("m2-won.png") });
 });
+
+test("axial pole holds one seed and the third chamber is completable", async ({ page }) => {
+  await page.goto("/");
+  const canvas = page.locator("canvas");
+  await page.keyboard.press("Enter");
+  for (const key of [
+    "Space", "ArrowLeft", "ArrowLeft", "ArrowDown", "ArrowDown", "Space", "Enter",
+    "ArrowRight", "Space", "ArrowRight", "Space", "Space", "Enter"
+  ]) await page.keyboard.press(key);
+  await expect(canvas).toHaveAttribute("data-chamber", "3");
+
+  for (const key of ["ArrowRight", "Space", "ArrowDown", "ArrowRight", "Space"]) {
+    await page.keyboard.press(key);
+  }
+  await expect(canvas).toHaveAttribute("data-phase", "playing");
+  await expect(canvas).toHaveAttribute("data-docked", "1");
+  await page.screenshot({ path: evidence("m2-polar-veil.png") });
+
+  await page.keyboard.press("Space");
+  await expect(canvas).toHaveAttribute("data-phase", "won");
+  await expect(canvas).toHaveAttribute("aria-label", /Chamber 3 complete.*3 polarity flips/);
+  await page.screenshot({ path: evidence("m2-three-chambers-won.png") });
+});

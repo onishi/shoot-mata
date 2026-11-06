@@ -91,6 +91,33 @@ test("known iron brake solution completes the second chamber", () => {
   assert.equal(game.phase, "playing");
 });
 
+test("polar veil blocks only the marked axis and does not block the smith", () => {
+  let game = startGame(createGame(2));
+  game = { ...game, polarity: "push", player: { x: 6, y: 4 } };
+  game = flipPolarity(game);
+  assert.deepEqual(game.shards.find((shard) => shard.id === "pearl"), { id: "pearl", x: 4, y: 5, docked: false });
+
+  game = startGame(createGame(2));
+  game = { ...game, polarity: "push", player: { x: 5, y: 6 }, shards: game.shards.map((shard) => shard.id === "pearl" ? { ...shard, x: 5, y: 4 } : shard) };
+  game = flipPolarity(game);
+  assert.deepEqual(game.shards.find((shard) => shard.id === "pearl"), { id: "pearl", x: 5, y: 5, docked: false });
+
+  game = startGame(createGame(2));
+  game = reduce(game, "right");
+  game = reduce(game, "down");
+  assert.deepEqual(game.player, { x: 5, y: 4 });
+});
+
+test("known polar veil solution completes the third chamber", () => {
+  let game = startGame(createGame(2));
+  for (const action of ["right", "flip", "down", "right", "flip", "flip"]) game = reduce(game, action);
+  assert.equal(game.phase, "won");
+  assert.equal(game.pulses, 3);
+  assert.equal(game.shards.filter((shard) => shard.docked).length, 3);
+  assert.match(statusText(game), /Chamber 3 complete/);
+  assert.match(statusText(game), /replay/);
+});
+
 test("pause freezes actions and reset restores the chamber", () => {
   let game = reduce(startGame(createGame()), "pause");
   assert.equal(game.phase, "paused");

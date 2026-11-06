@@ -7,7 +7,8 @@ const freezeLevel = (level) => Object.freeze({
   shards: Object.freeze(level.shards.map(Object.freeze)),
   sockets: Object.freeze(level.sockets.map(Object.freeze)),
   walls: Object.freeze(level.walls.map(Object.freeze)),
-  blocks: Object.freeze(level.blocks.map(Object.freeze))
+  blocks: Object.freeze(level.blocks.map(Object.freeze)),
+  poles: Object.freeze(level.poles.map(Object.freeze))
 });
 
 export const LEVELS = Object.freeze([freezeLevel({
@@ -29,7 +30,8 @@ export const LEVELS = Object.freeze([freezeLevel({
     { x: 3, y: 4 }, { x: 6, y: 4 },
     { x: 5, y: 5 }
   ],
-  blocks: []
+  blocks: [],
+  poles: []
 }), freezeLevel({
   name: "Iron Brake",
   lesson: "Use fixed iron to hold one seed back.",
@@ -50,6 +52,31 @@ export const LEVELS = Object.freeze([freezeLevel({
   ],
   blocks: [
     { x: 7, y: 2 }
+  ],
+  poles: []
+}), freezeLevel({
+  name: "Polar Veil",
+  lesson: "Striped poles stop seeds on one axis, not the smith.",
+  player: { x: 4, y: 3 },
+  shards: [
+    { id: "cobalt", x: 2, y: 2 },
+    { id: "ember", x: 6, y: 2 },
+    { id: "pearl", x: 4, y: 5 }
+  ],
+  sockets: [
+    { x: 1, y: 2 },
+    { x: 6, y: 1 },
+    { x: 3, y: 5 }
+  ],
+  walls: [
+    { x: 3, y: 1 }, { x: 5, y: 1 },
+    { x: 3, y: 4 }, { x: 6, y: 3 }
+  ],
+  blocks: [
+    { x: 7, y: 2 }
+  ],
+  poles: [
+    { x: 5, y: 5, blocksAxis: "horizontal" }
   ]
 })]);
 
@@ -127,6 +154,11 @@ function desiredStep(shard, player, polarity) {
   return { x: shard.x + sx, y: shard.y + sy };
 }
 
+function isPoleBlocked(shard, target, level) {
+  const axis = target.x === shard.x ? "vertical" : "horizontal";
+  return level.poles.some((pole) => same(pole, target) && pole.blocksAxis === axis);
+}
+
 export function flipPolarity(state) {
   if (state.phase !== "playing") return state;
   const polarity = state.polarity === "pull" ? "push" : "pull";
@@ -148,7 +180,7 @@ export function flipPolarity(state) {
   const staying = new Set();
   for (const shard of loose) {
     const target = proposals.get(shard.id);
-    if (isWall(target, level) || same(target, state.player) || occupied.has(key(target)) || targetCounts.get(key(target)) > 1) staying.add(shard.id);
+    if (isWall(target, level) || isPoleBlocked(shard, target, level) || same(target, state.player) || occupied.has(key(target)) || targetCounts.get(key(target)) > 1) staying.add(shard.id);
   }
 
   let changed = true;
