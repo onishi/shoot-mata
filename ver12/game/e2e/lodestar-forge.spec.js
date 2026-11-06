@@ -24,6 +24,7 @@ test("attract, credit, polarity feedback, pause, and reset are keyboard reachabl
   await expect(canvas).toHaveAttribute("data-demo-docked", "0");
   await page.keyboard.press("KeyC");
   await expect(canvas).toHaveAttribute("data-phase", "ready");
+  await expect(canvas).toHaveAttribute("data-audio-cue", "coin");
   await expect(canvas).toHaveAttribute("data-credits", "1");
   await expect(canvas).toHaveAttribute("data-docked", "0");
   await expect(canvas).toHaveAttribute("data-demo-step", "off");
@@ -32,6 +33,8 @@ test("attract, credit, polarity feedback, pause, and reset are keyboard reachabl
 
   await page.keyboard.press("Enter");
   await expect(canvas).toHaveAttribute("data-phase", "playing");
+  await expect(canvas).toHaveAttribute("data-audio-scene", "play");
+  await expect(canvas).toHaveAttribute("data-audio-cue", "start");
   await page.keyboard.press("Space");
   await expect(canvas).toHaveAttribute("data-polarity", "push");
   await expect(canvas).toHaveAttribute("data-docked", "2");
@@ -39,7 +42,9 @@ test("attract, credit, polarity feedback, pause, and reset are keyboard reachabl
 
   await page.keyboard.press("Escape");
   await expect(canvas).toHaveAttribute("data-phase", "paused");
+  await expect(canvas).toHaveAttribute("data-audio-scene", "silent");
   await page.keyboard.press("Escape");
+  await expect(canvas).toHaveAttribute("data-audio-scene", "play");
   await page.keyboard.press("KeyR");
   await expect(canvas).toHaveAttribute("data-docked", "0");
   expect(errors).toEqual([]);
@@ -215,6 +220,13 @@ test("settings persist and corrupt saves recover safely", async ({ page }) => {
   await page.keyboard.press("Enter");
   await expect(canvas).toHaveAttribute("data-reduced-motion", "true");
   await page.screenshot({ path: evidence("m2-settings.png") });
+  await page.keyboard.press("ArrowUp");
+  for (let i = 0; i < 6; i += 1) await page.keyboard.press("ArrowLeft");
+  await expect(canvas).toHaveAttribute("data-volume", "0");
+  await expect(canvas).toHaveAttribute("data-audio-muted", "true");
+  for (let i = 0; i < 6; i += 1) await page.keyboard.press("ArrowRight");
+  await expect(canvas).toHaveAttribute("data-volume", "0.6");
+  await expect(canvas).toHaveAttribute("data-audio-muted", "false");
   await page.reload();
   await expect(canvas).toHaveAttribute("data-volume", "0.6");
   await expect(canvas).toHaveAttribute("data-reduced-motion", "true");
@@ -272,6 +284,8 @@ test("final score accepts lever initials, saves top five, and returns to attract
   await page.screenshot({ path: evidence("m4-initials.png") });
   await page.keyboard.press("Space");
   await expect(canvas).toHaveAttribute("data-phase", "ranking");
+  await expect(canvas).toHaveAttribute("data-audio-scene", "silent");
+  await expect(canvas).toHaveAttribute("data-audio-cue", "ranking");
   await expect(canvas).toHaveAttribute("data-ranking-count", "1");
   await expect(canvas).toHaveAttribute("aria-label", /Local top five ranking.*53750/);
   await page.screenshot({ path: evidence("m4-ranking.png") });

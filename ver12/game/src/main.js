@@ -1,6 +1,7 @@
 import { HEIGHT, LEVELS, WIDTH, createGame, levelFor, reduce, startGame, statusText } from "./model.js";
 import { loadPreferences, savePreferences } from "./preferences.js";
 import { loadRankings, saveRanking } from "./rankings.js";
+import { ForgeAudio } from "./audio.js";
 
 const canvas = document.querySelector("#game");
 const ctx = canvas.getContext("2d");
@@ -523,6 +524,9 @@ function render(time = 0) {
   canvas.dataset.initials = state.initials.join("");
   canvas.dataset.initialCursor = String(state.initialCursor);
   canvas.dataset.rankingCount = String(rankings.length);
+  canvas.dataset.audioScene = audio?.scene ?? "uninitialized";
+  canvas.dataset.audioCue = audio?.lastCue ?? "none";
+  canvas.dataset.audioMuted = String(preferences.volume === 0);
   canvas.setAttribute("aria-label", settingsOpen
     ? `Settings. ${settingsRow === 0 ? "Sound" : "Motion"} selected. Sound ${Math.round(preferences.volume * 100)} percent. Motion ${preferences.reducedMotion ? "reduced" : "full"}. Up and down select. Left and right change. M or Escape closes.`
     : statusText(state));
@@ -530,21 +534,9 @@ function render(time = 0) {
 }
 
 function ensureAudio() {
-  if (!audio) audio = new AudioContext();
-  if (audio.state === "suspended") audio.resume();
-}
-
-function tone(frequency, delay = 0, duration = 0.08, volume = 0.035) {
-  if (!audio || preferences.volume === 0) return;
-  const oscillator = audio.createOscillator();
-  const gain = audio.createGain();
-  oscillator.type = "triangle";
-  oscillator.frequency.value = frequency;
-  gain.gain.setValueAtTime(volume * preferences.volume, audio.currentTime + delay);
-  gain.gain.exponentialRampToValueAtTime(0.001, audio.currentTime + delay + duration);
-  oscillator.connect(gain).connect(audio.destination);
-  oscillator.start(audio.currentTime + delay);
-  oscillator.stop(audio.currentTime + delay + duration);
+  if (!audio) audio = new ForgeAudio(new AudioContext());
+  audio.setVolume(preferences.volume);
+  audio.resume();
 }
 
 const keyActions = {
@@ -555,6 +547,7 @@ const keyActions = {
 
 function storePreferences(next) {
   preferences = savePreferences(localStorage, next, LEVELS.length);
+  if (audio) audio.setVolume(preferences.volume);
 }
 
 function handleSettingsKey(event) {
@@ -602,25 +595,29 @@ window.addEventListener("keydown", (event) => {
   if (state.levelIndex > preferences.unlockedLevel) {
     storePreferences({ ...preferences, unlockedLevel: state.levelIndex });
   }
-  if (action === "flip") {
+  if (state.phase === "ranking" && previous.phase === "initials") {
+    audio.setScene("silent");
+    audio.cue("ranking");
+  } else if (state.phase === "attract" && previous.phase === "ranking") {
+    audio.setScene("silent");
+  } else if (action === "flip") {
     flash = 1;
-    tone(state.polarity === "pull" ? 280 : 180);
-    tone(state.polarity === "pull" ? 420 : 260, 0.05, 0.12);
+    audio.cue(state.polarity === "pull" ? "pull" : "push");
     const newlyDocked = state.shards.filter((shard, i) => shard.docked && !previous.shards[i].docked).length;
-    for (let i = 0; i < newlyDocked; i += 1) tone(520 + i * 90, 0.12 + i * 0.06, 0.2, 0.05);
+    if (newlyDocked) audio.cue("dock", newlyDocked);
     if (state.phase === "won") {
-      tone(392, 0.2, 0.25, 0.05);
-      tone(494, 0.29, 0.25, 0.05);
-      tone(659, 0.38, 0.35, 0.05);
+      audio.setScene("silent");
+      audio.cue(state.levelIndex === LEVELS.length - 1 ? "ending" : "chamber");
     }
   } else if (action === "coin") {
-    tone(784, 0, 0.06, 0.04);
-    tone(1047, 0.08, 0.12, 0.04);
+    audio.cue("coin");
   } else if (action === "enter" && state.phase === "playing") {
-    tone(330, 0, 0.1, 0.04);
-    tone(494, 0.09, 0.18, 0.04);
+    if (previous.phase === "ready") audio.cue("start");
+    audio.setScene("play", previous.phase === "ready" ? 0.35 : 0);
+  } else if (action === "pause") {
+    audio.setScene(state.phase === "playing" ? "play" : "silent");
   } else if (["left", "right", "up", "down"].includes(action)) {
-    tone(state.player.x === previous.player.x && state.player.y === previous.player.y ? 95 : 135, 0, 0.04, 0.018);
+    audio.cue(state.player.x === previous.player.x && state.player.y === previous.player.y ? "blocked" : "move");
   }
 });
 
