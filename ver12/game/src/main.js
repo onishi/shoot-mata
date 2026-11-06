@@ -213,6 +213,19 @@ function drawShard(shard, time) {
   ctx.closePath();
   ctx.fill();
   ctx.stroke();
+  if (shard.respondsTo) {
+    ctx.rotate(-(shard.x * 0.4 + shard.y * 0.7) - (shard.docked ? 0 : Math.sin(time / 650) * 0.08));
+    ctx.strokeStyle = COLORS.ink;
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(-9, -4);
+    ctx.lineTo(-3, 0);
+    ctx.lineTo(-9, 4);
+    ctx.moveTo(9, -4);
+    ctx.lineTo(3, 0);
+    ctx.lineTo(9, 4);
+    ctx.stroke();
+  }
   ctx.restore();
 }
 
@@ -278,7 +291,7 @@ function overlay(title, body, prompt, color = COLORS.brass) {
   ctx.fillStyle = "#11181eed";
   ctx.fill();
   ctx.stroke();
-  text(title, 480, 196, 35, COLORS.pale, "center", 800);
+  text(title, 480, 196, title.length > 22 ? 29 : 35, COLORS.pale, "center", 800);
   text(body, 480, 252, 15, "#b9b4a7", "center", 500);
   text(state.phase === "title" ? "MOVE TO AIM" : `POLARITY FLIPS  ${state.pulses}`, 480, 295, 12, color, "center", 700);
   text(state.phase === "title" ? "SPACE TO FLIP THE WHOLE FIELD" : "ALL THREE SEEDS ARE LOCKED", 480, 319, 12, color, "center", 700);
@@ -333,11 +346,12 @@ function render(time = 0) {
   if (state.phase === "paused") overlay("FIELD SUSPENDED", "The chamber is holding its shape.", "ESC TO RESUME", COLORS.pull);
   if (state.phase === "won") {
     const final = state.levelIndex === LEVELS.length - 1;
-    const titles = ["THE FIRST MOLD HOLDS", "THE IRON BRAKE HOLDS", "THE POLAR VEIL HOLDS"];
+    const titles = ["THE FIRST MOLD HOLDS", "THE IRON BRAKE HOLDS", "THE POLAR VEIL HOLDS", "THE COLD LODESTONE HOLDS"];
     const bodies = [
       "Three wandering metals, one finished constellation.",
       "A fixed mass gave the field a rhythm.",
-      "Iron and pole held two beats for the final strike."
+      "Iron and pole held two beats for the final strike.",
+      "One cold seed woke only when the field drew inward."
     ];
     overlay(titles[state.levelIndex], bodies[state.levelIndex], final ? "PRESS ENTER TO REFORGE" : `PRESS ENTER FOR CHAMBER ${String(state.levelIndex + 2).padStart(2, "0")}`);
   }

@@ -91,6 +91,31 @@ test("axial pole holds one seed and the third chamber is completable", async ({ 
   await page.screenshot({ path: evidence("m2-three-chambers-won.png") });
 });
 
+test("pull-bound seed waits through push and the fourth chamber is completable", async ({ page }) => {
+  await page.goto("/");
+  const canvas = page.locator("canvas");
+  await page.keyboard.press("Enter");
+  for (const key of [
+    "Space", "ArrowLeft", "ArrowLeft", "ArrowDown", "ArrowDown", "Space", "Enter",
+    "ArrowRight", "Space", "ArrowRight", "Space", "Space", "Enter",
+    "ArrowRight", "Space", "ArrowDown", "ArrowRight", "Space", "Space", "Enter"
+  ]) await page.keyboard.press(key);
+  await expect(canvas).toHaveAttribute("data-chamber", "4");
+
+  await page.keyboard.press("Space");
+  await expect(canvas).toHaveAttribute("data-docked", "2");
+  await expect(canvas).toHaveAttribute("aria-label", /1 loose seed answers only pull/);
+  await page.screenshot({ path: evidence("m3-cold-lodestone.png") });
+
+  for (const key of ["ArrowDown", "Space", "Space", "ArrowLeft", "Space"]) {
+    await page.keyboard.press(key);
+  }
+  await expect(canvas).toHaveAttribute("data-phase", "won");
+  await expect(canvas).toHaveAttribute("data-docked", "3");
+  await expect(canvas).toHaveAttribute("aria-label", /Chamber 4 complete.*4 polarity flips/);
+  await page.screenshot({ path: evidence("m3-four-chambers-won.png") });
+});
+
 test("settings persist and corrupt saves recover safely", async ({ page }) => {
   await page.goto("/");
   const canvas = page.locator("canvas");

@@ -116,6 +116,34 @@ test("known polar veil solution completes the third chamber", () => {
   assert.equal(game.pulses, 3);
   assert.equal(game.shards.filter((shard) => shard.docked).length, 3);
   assert.match(statusText(game), /Chamber 3 complete/);
+  assert.match(statusText(game), /continue/);
+});
+
+test("marked seed answers only its matching polarity", () => {
+  let game = startGame(createGame(3));
+  game = flipPolarity(game);
+  assert.deepEqual(game.shards.find((shard) => shard.id === "cobalt"), {
+    id: "cobalt", x: 2, y: 2, respondsTo: "pull", docked: false
+  });
+  assert.equal(game.shards.find((shard) => shard.id === "ember").docked, true);
+  assert.equal(game.shards.find((shard) => shard.id === "pearl").docked, true);
+
+  game = reduce(game, "down");
+  game = reduce(game, "flip");
+  assert.deepEqual(game.shards.find((shard) => shard.id === "cobalt"), {
+    id: "cobalt", x: 3, y: 2, respondsTo: "pull", docked: false
+  });
+  game = reduce(game, "flip");
+  assert.match(game.lastEvent, /ignores PUSH/);
+});
+
+test("known cold lodestone solution completes the fourth chamber", () => {
+  let game = startGame(createGame(3));
+  for (const action of ["flip", "down", "flip", "flip", "left", "flip"]) game = reduce(game, action);
+  assert.equal(game.phase, "won");
+  assert.equal(game.pulses, 4);
+  assert.equal(game.shards.filter((shard) => shard.docked).length, 3);
+  assert.match(statusText(game), /Chamber 4 complete/);
   assert.match(statusText(game), /replay/);
 });
 
@@ -136,7 +164,7 @@ test("preferences round-trip and clamp values", () => {
     setItem: (key, value) => values.set(key, value)
   };
   const saved = savePreferences(storage, { unlockedLevel: 99, volume: 0.34, reducedMotion: true }, LEVELS.length);
-  assert.deepEqual(saved, { unlockedLevel: 2, volume: 0.3, reducedMotion: true });
+  assert.deepEqual(saved, { unlockedLevel: 3, volume: 0.3, reducedMotion: true });
   assert.deepEqual(loadPreferences(storage, LEVELS.length), saved);
 });
 

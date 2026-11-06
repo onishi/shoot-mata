@@ -78,6 +78,27 @@ export const LEVELS = Object.freeze([freezeLevel({
   poles: [
     { x: 5, y: 5, blocksAxis: "horizontal" }
   ]
+}), freezeLevel({
+  name: "Cold Lodestone",
+  lesson: "Marked seeds answer only the matching field.",
+  player: { x: 4, y: 3 },
+  shards: [
+    { id: "cobalt", x: 2, y: 2, respondsTo: "pull" },
+    { id: "ember", x: 6, y: 2 },
+    { id: "pearl", x: 6, y: 4 }
+  ],
+  sockets: [
+    { x: 3, y: 3 },
+    { x: 7, y: 2 },
+    { x: 7, y: 4 }
+  ],
+  walls: [
+    { x: 3, y: 1 }, { x: 5, y: 1 },
+    { x: 2, y: 3 }, { x: 6, y: 3 },
+    { x: 2, y: 5 }, { x: 6, y: 5 }
+  ],
+  blocks: [],
+  poles: []
 })]);
 
 export const LEVEL = LEVELS[0];
@@ -164,10 +185,11 @@ export function flipPolarity(state) {
   const polarity = state.polarity === "pull" ? "push" : "pull";
   const level = levelFor(state);
   const loose = state.shards.filter((shard) => !shard.docked);
+  const responsive = loose.filter((shard) => !shard.respondsTo || shard.respondsTo === polarity);
   const occupied = new Set(state.shards.filter((shard) => shard.docked).map(key));
   const proposals = new Map();
 
-  for (const shard of loose) {
+  for (const shard of responsive) {
     const target = desiredStep(shard, state.player, polarity);
     proposals.set(shard.id, target);
   }
@@ -177,8 +199,8 @@ export function flipPolarity(state) {
     targetCounts.set(key(target), (targetCounts.get(key(target)) ?? 0) + 1);
   }
 
-  const staying = new Set();
-  for (const shard of loose) {
+  const staying = new Set(loose.filter((shard) => !responsive.includes(shard)).map((shard) => shard.id));
+  for (const shard of responsive) {
     const target = proposals.get(shard.id);
     if (isWall(target, level) || isPoleBlocked(shard, target, level) || same(target, state.player) || occupied.has(key(target)) || targetCounts.get(key(target)) > 1) staying.add(shard.id);
   }
@@ -207,13 +229,14 @@ export function flipPolarity(state) {
   });
   const allDocked = shards.every((shard) => shard.docked);
   const moved = loose.length - staying.size;
+  const resistedByPolarity = responsive.length < loose.length;
   return {
     ...state,
     phase: allDocked ? "won" : "playing",
     polarity,
     shards,
     pulses: state.pulses + 1,
-    lastEvent: allDocked ? "The forge is whole." : dockedNow ? `${dockedNow} seed locked.` : moved ? "The seeds answer." : "The field meets resistance.",
+    lastEvent: allDocked ? "The forge is whole." : dockedNow ? `${dockedNow} seed locked.` : moved ? "The seeds answer." : resistedByPolarity ? `The marked seed ignores ${polarity.toUpperCase()}.` : "The field meets resistance.",
     pulseFrom: { ...state.player }
   };
 }
@@ -240,5 +263,7 @@ export function statusText(state) {
   const chamber = state.levelIndex + 1;
   if (state.phase === "paused") return `Paused in chamber ${chamber}. ${docked} of 3 seeds locked. Press Escape to resume.`;
   if (state.phase === "won") return `Chamber ${chamber} complete. 3 of 3 seeds locked in ${state.pulses} polarity flips. Press Enter to ${state.levelIndex < LEVELS.length - 1 ? "continue" : "replay"}.`;
-  return `Chamber ${chamber} active. ${state.polarity} polarity. ${docked} of 3 seeds locked. Arrow keys move. Space flips polarity. R restarts. Escape pauses.`;
+  const marked = state.shards.filter((shard) => shard.respondsTo && !shard.docked);
+  const markedText = marked.length ? ` ${marked.length} loose seed answers only ${marked[0].respondsTo}.` : "";
+  return `Chamber ${chamber} active. ${state.polarity} polarity. ${docked} of 3 seeds locked.${markedText} Arrow keys move. Space flips polarity. R restarts. Escape pauses.`;
 }
