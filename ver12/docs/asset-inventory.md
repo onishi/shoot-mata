@@ -4,7 +4,7 @@
 
 | 区分 | 用途 | 制作方法・権利 | 完成状態 | ゲーム内確認先 |
 | --- | --- | --- | --- | --- |
-| 背景 | 炉床、鋳型、火花、鉄塊、軸極 | Canvas 2D手続き描画、自作 | M3継続 | 全4室、`m3-cold-lodestone.png` |
+| 背景 | 炉床、鋳型、火花、鉄塊、軸極 | Canvas 2D手続き描画、自作 | M3継続 | 全5室、`m3-tempered-relay.png` |
 | キャラクター | 鍛冶師、3種の金属種、極性シェブロン | Canvas 2D手続き描画、自作 | M3継続 | `m1-first-field.png`、`m3-cold-lodestone.png` |
 | UI | HUD、タイトル、ポーズ、完成、設定 | Canvas 2D描画とCSS、自作 | M2完成 | `m1-title.png`、`m2-settings.png` |
 | エフェクト | 磁力線、脈動、収容強調 | Canvas 2D手続き描画、自作 | M2完成、動き軽減対応 | `m1-first-field.png` |

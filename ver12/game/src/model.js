@@ -99,6 +99,30 @@ export const LEVELS = Object.freeze([freezeLevel({
   ],
   blocks: [],
   poles: []
+}), freezeLevel({
+  name: "Tempered Relay",
+  lesson: "Iron and striped poles relay the field between seeds.",
+  player: { x: 4, y: 3 },
+  shards: [
+    { id: "cobalt", x: 2, y: 2, respondsTo: "pull" },
+    { id: "ember", x: 6, y: 2 },
+    { id: "pearl", x: 4, y: 5 }
+  ],
+  sockets: [
+    { x: 3, y: 5 },
+    { x: 5, y: 3 },
+    { x: 1, y: 2 }
+  ],
+  walls: [
+    { x: 3, y: 1 }, { x: 5, y: 1 },
+    { x: 3, y: 4 }, { x: 6, y: 4 }
+  ],
+  blocks: [
+    { x: 6, y: 3 }
+  ],
+  poles: [
+    { x: 6, y: 1, blocksAxis: "vertical" }
+  ]
 })]);
 
 export const LEVEL = LEVELS[0];

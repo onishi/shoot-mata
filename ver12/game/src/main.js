@@ -346,12 +346,13 @@ function render(time = 0) {
   if (state.phase === "paused") overlay("FIELD SUSPENDED", "The chamber is holding its shape.", "ESC TO RESUME", COLORS.pull);
   if (state.phase === "won") {
     const final = state.levelIndex === LEVELS.length - 1;
-    const titles = ["THE FIRST MOLD HOLDS", "THE IRON BRAKE HOLDS", "THE POLAR VEIL HOLDS", "THE COLD LODESTONE HOLDS"];
+    const titles = ["THE FIRST MOLD HOLDS", "THE IRON BRAKE HOLDS", "THE POLAR VEIL HOLDS", "THE COLD LODESTONE HOLDS", "THE TEMPERED RELAY HOLDS"];
     const bodies = [
       "Three wandering metals, one finished constellation.",
       "A fixed mass gave the field a rhythm.",
       "Iron and pole held two beats for the final strike.",
-      "One cold seed woke only when the field drew inward."
+      "One cold seed woke only when the field drew inward.",
+      "Iron and pole passed the final heat across three rhythms."
     ];
     overlay(titles[state.levelIndex], bodies[state.levelIndex], final ? "PRESS ENTER TO REFORGE" : `PRESS ENTER FOR CHAMBER ${String(state.levelIndex + 2).padStart(2, "0")}`);
   }

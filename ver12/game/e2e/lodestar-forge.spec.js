@@ -114,6 +114,24 @@ test("pull-bound seed waits through push and the fourth chamber is completable",
   await expect(canvas).toHaveAttribute("data-docked", "3");
   await expect(canvas).toHaveAttribute("aria-label", /Chamber 4 complete.*4 polarity flips/);
   await page.screenshot({ path: evidence("m3-four-chambers-won.png") });
+
+  await page.keyboard.press("Enter");
+  await expect(canvas).toHaveAttribute("data-chamber", "5");
+  for (const key of ["Space", "ArrowLeft", "ArrowLeft", "ArrowLeft", "Space"]) {
+    await page.keyboard.press(key);
+  }
+  await expect(canvas).toHaveAttribute("data-phase", "playing");
+  await expect(canvas).toHaveAttribute("data-docked", "2");
+  await page.screenshot({ path: evidence("m3-tempered-relay.png") });
+
+  for (const key of [
+    "ArrowRight", "ArrowRight", "ArrowRight", "ArrowRight", "ArrowDown", "Space",
+    "ArrowLeft", "Space", "Space", "Space"
+  ]) await page.keyboard.press(key);
+  await expect(canvas).toHaveAttribute("data-phase", "won");
+  await expect(canvas).toHaveAttribute("data-docked", "3");
+  await expect(canvas).toHaveAttribute("aria-label", /Chamber 5 complete.*6 polarity flips/);
+  await page.screenshot({ path: evidence("m3-five-chambers-won.png") });
 });
 
 test("settings persist and corrupt saves recover safely", async ({ page }) => {

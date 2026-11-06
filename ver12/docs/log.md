@@ -63,3 +63,11 @@
 - `npm run verify`で単体15/15、構文検査、production build、Chrome E2E 7/7に合格した。絞り込みE2Eのsandbox内再実行はlocalhost bindの`EPERM`になったため、許可済みローカルサーバーで合格を再確認した。
 - `m3-cold-lodestone.png`と`m3-four-chambers-won.png`を1280×720で比較目視した。初回画像で極性印と長い完成見出しが弱かったため、暗色シェブロンと可変見出しサイズへ修正し、再採取後に切れ・重なり・判別不能がないことを確認した。
 - M3は4/6室で継続する。次は第5室で極性種と鉄塊・軸極を組み合わせ、複数種の干渉を深める。
+
+## 2026-11-06 — M3 第5室「TEMPERED RELAY」
+
+- 実行元: Codex / `run-codex-loop.sh` / run 5 / 開始 `2026-11-06T21:23:06+0900`。
+- PULL限定種、固定鉄塊、縦軸を止める固定極を同じ室へ配置した。最初のPUSHでは限定種を休ませ、左からのPULLで2種を先行収容し、残る通常種を固定極・上壁で2回止めて立ち位置を整える6反転解にした。
+- `npm run verify`相当で単体17/17、構文検査、production build、Chrome E2E 7/7に合格した。sandbox内のE2Eはlocalhost bindの`EPERM`になったため、許可済みローカルサーバーで再検証した。
+- `m3-tempered-relay.png`と`m3-five-chambers-won.png`を1280×720で比較目視し、PULL限定印、鉄塊、縞極、収容数、長い完成見出しに切れ・重なり・判別不能がないことを確認した。
+- M3は5/6室で継続する。次はPUSH限定種を導入する第6室と終演を実装し、既存規則を最終炉で再構成する。
