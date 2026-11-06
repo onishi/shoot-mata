@@ -5,6 +5,7 @@
 - Vite + Vanilla JavaScript + Canvas 2D
 - `model.js`: 固定時間刻みで進む決定的規則。DOM、Audio、描画へ依存しない
 - `main.js`: 入力、固定刻みループ、Canvas描画、Web Audio、ARIA通知
+- `preferences.js`: version付きlocalStorageデータの検証、直列化、到達空域の単調更新
 - Node標準test runnerで規則を検証する
 
 ## 決定性
@@ -20,3 +21,5 @@
 ## アクセシビリティ
 
 Canvasはフォーカス可能なapplicationとし、状態・風・張力・回収数をaccessible nameとlive regionへ反映する。色だけでなく線幅、文字、形で状態を区別する。
+
+設定画面も同じCanvasのaccessible nameへ選択項目と両設定値を全文で出す。動き軽減は描画時刻だけを固定し、決定的な規則時刻を変更しない。保存値はversion、空域範囲、音量範囲、boolean型を全て検査し、欠損・破損・将来形式・容量超過時は既定値へ安全に戻す。localStorage自体が使用不能でもゲーム進行を止めない。

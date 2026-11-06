@@ -96,9 +96,49 @@ test("the third airspace crosses sinking air and completes the M2 route", async 
   await pilot(page, [{ x: 720, y: 382 }, { x: 245, y: 238 }, { x: 710, y: 108 }]);
   await page.keyboard.press("Enter");
   await expect.poll(async () => (await snapshot(page)).airspace).toBe(2);
+  await expect.poll(async () => page.evaluate(() => JSON.parse(localStorage.getItem("gale-thread:v11")).unlockedAirspace)).toBe(2);
   await page.screenshot({ path: evidence("m2-falling-weft-entry.png") });
   const crossedDowndraft = await pilot(page, [{ x: 250, y: 372 }, { x: 735, y: 238 }, { x: 250, y: 102 }], "m2-falling-weft-sinking.png");
   expect(crossedDowndraft).toBe(true);
   await page.screenshot({ path: evidence("m2-falling-weft-won.png") });
   await expect(page.locator("canvas")).toHaveAttribute("aria-label", /Three skies answer/);
+});
+
+test("settings and reached airspace persist across reloads", async ({ page }) => {
+  await page.goto("/");
+  await page.evaluate(() => localStorage.setItem("gale-thread:v11", JSON.stringify({
+    version: 1, unlockedAirspace: 2, volume: 0.75, reducedMotion: false,
+  })));
+  await page.reload();
+  await expect.poll(async () => (await snapshot(page))?.airspace).toBe(2);
+  let state = await snapshot(page);
+  expect(state.airspace).toBe(2);
+  expect(state.mode).toBe("title");
+  await expect(page.locator("canvas")).toHaveAttribute("aria-label", /GALE THREAD title/);
+
+  await page.keyboard.press("s");
+  await expect(page.locator("canvas")).toHaveAttribute("aria-label", /Sound volume 75 percent/);
+  await page.keyboard.press("ArrowRight");
+  await page.keyboard.press("ArrowDown");
+  await page.keyboard.press("Enter");
+  await expect(page.locator("canvas")).toHaveAttribute("aria-label", /Reduced motion on/);
+  await page.screenshot({ path: evidence("m2-settings.png") });
+  await page.keyboard.press("Escape");
+  await page.reload();
+  await expect.poll(async () => (await snapshot(page))?.airspace).toBe(2);
+  state = await snapshot(page);
+  expect(state.airspace).toBe(2);
+  expect(state.preferences.volume).toBe(1);
+  expect(state.preferences.reducedMotion).toBe(true);
+});
+
+test("a corrupt save safely returns to defaults", async ({ page }) => {
+  await page.goto("/");
+  await page.evaluate(() => localStorage.setItem("gale-thread:v11", "{not-json"));
+  await page.reload();
+  await expect.poll(async () => (await snapshot(page))?.airspace).toBe(0);
+  const state = await snapshot(page);
+  expect(state.airspace).toBe(0);
+  expect(state.preferences.volume).toBe(0.75);
+  expect(state.preferences.reducedMotion).toBe(false);
 });

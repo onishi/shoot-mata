@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite --host 127.0.0.1",
     "test": "node --test",
-    "check": "node --check src/model.js && node --check src/main.js",
+    "check": "node --check src/model.js && node --check src/preferences.js && node --check src/main.js",
     "build": "vite build",
     "e2e": "playwright test",
     "verify": "npm run test && npm run check && npm run build && npm run e2e"

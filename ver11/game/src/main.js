@@ -1,15 +1,28 @@
 import "./style.css";
 import { WIDTH, HEIGHT, FIXED_STEP, AIRSPACES, accessibleStatus, airspaceFor, createGame, downdraftAt, isSheltered, retry, startGame, togglePause, update, windAt } from "./model.js";
+import { DEFAULT_PREFERENCES, STORAGE_KEY, parsePreferences, serializePreferences, unlockAirspace } from "./preferences.js";
 
 const canvas = document.querySelector("#game");
 const ctx = canvas.getContext("2d");
 const live = document.querySelector("#live");
-const game = createGame();
+function loadPreferences() {
+  try { return parsePreferences(localStorage.getItem(STORAGE_KEY), AIRSPACES.length - 1); }
+  catch { return { ...DEFAULT_PREFERENCES }; }
+}
+
+let preferences = loadPreferences();
+const game = createGame(preferences.unlockedAirspace);
 const keys = new Set();
 let last = performance.now();
 let accumulator = 0;
 let audio;
 let lastAccessible = "";
+let settingsOpen = false;
+let selectedSetting = 0;
+
+function savePreferences() {
+  try { localStorage.setItem(STORAGE_KEY, serializePreferences(preferences)); } catch { /* Play remains available without storage. */ }
+}
 
 function ensureAudio() {
   if (!audio) audio = new AudioContext();
@@ -17,13 +30,13 @@ function ensureAudio() {
 }
 
 function tone(frequency, duration = 0.12, volume = 0.05, delay = 0) {
-  if (!audio) return;
+  if (!audio || preferences.volume === 0) return;
   const oscillator = audio.createOscillator();
   const gain = audio.createGain();
   oscillator.type = "sine";
   oscillator.frequency.value = frequency;
   gain.gain.setValueAtTime(0.001, audio.currentTime + delay);
-  gain.gain.exponentialRampToValueAtTime(volume, audio.currentTime + delay + 0.015);
+  gain.gain.exponentialRampToValueAtTime(volume * preferences.volume, audio.currentTime + delay + 0.015);
   gain.gain.exponentialRampToValueAtTime(0.001, audio.currentTime + delay + duration);
   oscillator.connect(gain).connect(audio.destination);
   oscillator.start(audio.currentTime + delay);
@@ -38,11 +51,42 @@ function handleEvents(events) {
   }
 }
 
+function openSettings() {
+  keys.clear();
+  if (game.mode === "playing") togglePause(game);
+  settingsOpen = true;
+}
+
+function closeSettings() {
+  settingsOpen = false;
+  canvas.focus();
+}
+
+function adjustSetting(direction) {
+  if (selectedSetting === 0) preferences = { ...preferences, volume: Math.max(0, Math.min(1, preferences.volume + direction * 0.25)) };
+  else preferences = { ...preferences, reducedMotion: !preferences.reducedMotion };
+  savePreferences();
+}
+
 window.addEventListener("keydown", (event) => {
-  if (["ArrowLeft", "ArrowRight", "Space", "Enter", "Escape"].includes(event.code)) event.preventDefault();
-  if (event.repeat && ["Enter", "Escape", "KeyR"].includes(event.code)) return;
+  if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Space", "Enter", "Escape"].includes(event.code)) event.preventDefault();
+  if (event.repeat && ["Enter", "Escape", "KeyR", "KeyS"].includes(event.code)) return;
+  if (settingsOpen) {
+    if (event.code === "Escape" || event.code === "KeyS") closeSettings();
+    else if (event.code === "ArrowUp" || event.code === "ArrowDown") selectedSetting = selectedSetting === 0 ? 1 : 0;
+    else if (event.code === "ArrowLeft") adjustSetting(-1);
+    else if (event.code === "ArrowRight" || event.code === "Enter") adjustSetting(1);
+    return;
+  }
+  if (event.code === "KeyS") { openSettings(); return; }
   keys.add(event.code);
-  if (event.code === "Enter") { ensureAudio(); startGame(game); canvas.focus(); }
+  if (event.code === "Enter") {
+    ensureAudio();
+    const previousAirspace = game.airspace;
+    startGame(game);
+    if (game.airspace !== previousAirspace) { preferences = unlockAirspace(preferences, game.airspace); savePreferences(); }
+    canvas.focus();
+  }
   if (event.code === "Escape") togglePause(game);
   if (event.code === "KeyR") { ensureAudio(); retry(game); }
 });
@@ -91,7 +135,8 @@ function drawDowndrafts() {
     ctx.save(); ctx.strokeStyle = "#c5edf0aa"; ctx.lineWidth = 3;
     for (let i = 0; i < 5; i++) {
       const x = draft.x + 25 + i * 32;
-      const offset = (game.elapsed * 90 + i * 63) % (draft.height + 55);
+      const visualTime = preferences.reducedMotion ? 0 : game.elapsed;
+      const offset = (visualTime * 90 + i * 63) % (draft.height + 55);
       const y = draft.y - 25 + offset;
       ctx.beginPath(); ctx.moveTo(x - 7, y - 34); ctx.quadraticCurveTo(x + 8, y - 10, x, y + 18);
       ctx.lineTo(x - 8, y + 7); ctx.moveTo(x, y + 18); ctx.lineTo(x + 10, y + 5); ctx.stroke();
@@ -110,7 +155,8 @@ function drawWind() {
   const alpha = wind.phase === "calm" ? 0.16 : wind.phase === "warning" ? 0.42 : 0.8;
   ctx.save(); ctx.globalAlpha = alpha; ctx.strokeStyle = wind.phase === "gust" ? "#fff0c0" : "#cce8ee"; ctx.lineWidth = wind.phase === "gust" ? 4 : 2;
   for (let i = 0; i < 7; i++) {
-    const offset = ((game.elapsed * (wind.phase === "gust" ? 210 : 55) + i * 149) % 1080) - 60;
+    const visualTime = preferences.reducedMotion ? 0 : game.elapsed;
+    const offset = ((visualTime * (wind.phase === "gust" ? 210 : 55) + i * 149) % 1080) - 60;
     const x = wind.direction > 0 ? offset : WIDTH - offset;
     const y = 86 + i * 54;
     ctx.beginPath(); ctx.moveTo(x - wind.direction * 80, y); ctx.quadraticCurveTo(x, y - 10, x + wind.direction * 85, y + 2); ctx.stroke();
@@ -124,7 +170,7 @@ function drawWind() {
 
 function drawRibbon(ribbon, collected, index) {
   if (collected) return;
-  const pulse = 1 + Math.sin(game.elapsed * 3 + index) * 0.07;
+  const pulse = preferences.reducedMotion ? 1 : 1 + Math.sin(game.elapsed * 3 + index) * 0.07;
   ctx.save(); ctx.translate(ribbon.x, ribbon.y); ctx.scale(pulse, pulse);
   ctx.strokeStyle = "#ffd57c"; ctx.fillStyle = "#6c4d31"; ctx.lineWidth = 4;
   ctx.beginPath(); ctx.arc(0, 0, 20, Math.PI * 0.15, Math.PI * 1.85); ctx.stroke();
@@ -166,30 +212,51 @@ function overlay(title, subtitle, prompt) {
   ctx.fillStyle = "#ffe09a"; ctx.font = "700 15px system-ui"; ctx.fillText(prompt, WIDTH / 2, 306);
 }
 
+function drawSettings() {
+  ctx.fillStyle = "#071022ee"; ctx.fillRect(0, 0, WIDTH, HEIGHT);
+  ctx.textAlign = "center"; ctx.fillStyle = "#f5e6bc"; ctx.font = "700 46px Georgia, serif"; ctx.fillText("WIND TUNING", WIDTH / 2, 142);
+  ctx.fillStyle = "#9fb1c5"; ctx.font = "500 15px system-ui"; ctx.fillText("ARROWS CHANGE · S OR ESC CLOSE", WIDTH / 2, 176);
+  const rows = [
+    { label: "SOUND VOLUME", value: preferences.volume === 0 ? "MUTED" : `${Math.round(preferences.volume * 100)}%` },
+    { label: "REDUCED MOTION", value: preferences.reducedMotion ? "ON" : "OFF" },
+  ];
+  rows.forEach((row, index) => {
+    const y = 244 + index * 88;
+    roundRect(250, y - 34, 460, 64, 8, selectedSetting === index ? "#273c58" : "#101d35", selectedSetting === index ? "#ffe09a" : "#52647b");
+    ctx.textAlign = "left"; ctx.fillStyle = "#d7e2e7"; ctx.font = "650 16px system-ui"; ctx.fillText(row.label, 278, y + 6);
+    ctx.textAlign = "right"; ctx.fillStyle = selectedSetting === index ? "#ffe09a" : "#b9c7d2"; ctx.fillText(`‹  ${row.value}  ›`, 680, y + 6);
+  });
+  ctx.textAlign = "center"; ctx.fillStyle = "#91a5b8"; ctx.font = "400 14px system-ui";
+  ctx.fillText("Progress and settings save automatically on this device.", WIDTH / 2, 438);
+}
+
 function draw() {
   drawSky(); drawWind(); drawDowndrafts(); drawClouds();
   airspaceFor(game).ribbons.forEach((r, i) => drawRibbon(r, game.ribbons[i], i));
   if (game.mode !== "title") { drawKite(); drawHud(); }
-  if (game.mode === "title") overlay("GALE THREAD", "read the gust · mind the thread · bring three chimes home", "PRESS ENTER TO LAUNCH");
-  if (game.mode === "paused") overlay("WIND HELD", "the thread waits with you", "ESC TO CONTINUE · R TO RETRY");
+  if (game.mode === "title") overlay("GALE THREAD", `continue from ${airspaceFor(game).name.toLowerCase()} · bring three chimes home`, "ENTER TO LAUNCH · S SETTINGS");
+  if (game.mode === "paused") overlay("WIND HELD", "the thread waits with you", "ESC CONTINUE · S SETTINGS · R RETRY");
   if (game.mode === "lost") overlay("THREAD PARTED", "the gale took the line, not the lesson", "ENTER OR R TO TRY AGAIN");
   if (game.mode === "won" && game.airspace === 0) overlay("FIRST CHIMES RETURN", "the silver cloud waits beyond the open wind", "ENTER TO CROSS INTO CLOUD LEE");
   if (game.mode === "won" && game.airspace === 1) overlay("TWO SKIES ANSWER", "a falling seam divides the final sky", "ENTER TO CROSS INTO FALLING WEFT");
   if (game.mode === "won" && game.airspace === AIRSPACES.length - 1) overlay("THREE SKIES ANSWER", "nine chimes return on three unbroken threads", "ENTER TO FLY FALLING WEFT AGAIN");
+  if (settingsOpen) drawSettings();
 }
 
 function frame(now) {
   accumulator += Math.min((now - last) / 1000, 0.1); last = now;
   while (accumulator >= FIXED_STEP) {
     const steer = (keys.has("ArrowRight") || keys.has("KeyD") ? 1 : 0) - (keys.has("ArrowLeft") || keys.has("KeyA") ? 1 : 0);
-    handleEvents(update(game, { steer, reel: keys.has("Space") }, FIXED_STEP));
+    if (!settingsOpen) handleEvents(update(game, { steer, reel: keys.has("Space") }, FIXED_STEP));
     accumulator -= FIXED_STEP;
   }
   draw();
-  const status = accessibleStatus(game);
+  const status = settingsOpen
+    ? `Settings. ${selectedSetting === 0 ? "Sound volume" : "Reduced motion"} selected. Sound volume ${Math.round(preferences.volume * 100)} percent. Reduced motion ${preferences.reducedMotion ? "on" : "off"}. Use arrow keys to change. Press S or Escape to close.`
+    : accessibleStatus(game);
   canvas.setAttribute("aria-label", status);
   if (status !== lastAccessible && (game.mode !== "playing" || Math.floor(game.elapsed) % 3 === 0)) { live.textContent = status; lastAccessible = status; }
-  window.__GALE_THREAD__ = { snapshot: () => structuredClone(game) };
+  window.__GALE_THREAD__ = { snapshot: () => structuredClone({ ...game, preferences, settingsOpen, selectedSetting }) };
   requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);
