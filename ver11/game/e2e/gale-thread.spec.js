@@ -274,3 +274,74 @@ test("a corrupt save safely returns to defaults", async ({ page }) => {
   expect(state.preferences.volume).toBe(0.75);
   expect(state.preferences.reducedMotion).toBe(false);
 });
+
+test("M4 viewport, keyboard accessibility, and frame pacing audit", async ({ page }) => {
+  const canvas = page.locator("canvas");
+  for (const viewport of [{ width: 1280, height: 720 }, { width: 640, height: 800 }]) {
+    await page.setViewportSize(viewport);
+    await page.goto("/");
+    await page.evaluate(() => localStorage.removeItem("gale-thread:v11"));
+    await page.reload();
+    const suffix = `${viewport.width}x${viewport.height}`;
+    const box = await canvas.boundingBox();
+    expect(box).not.toBeNull();
+    expect(box.x).toBeGreaterThanOrEqual(0);
+    expect(box.y).toBeGreaterThanOrEqual(0);
+    expect(box.x + box.width).toBeLessThanOrEqual(viewport.width + 0.5);
+    expect(box.y + box.height).toBeLessThanOrEqual(viewport.height + 0.5);
+    expect(box.width / box.height).toBeCloseTo(16 / 9, 2);
+    await page.screenshot({ path: evidence(`m4-title-${suffix}.png`) });
+
+    await page.keyboard.press("Tab");
+    await expect(canvas).toBeFocused();
+    await page.keyboard.press("Enter");
+    await expect(canvas).toHaveAttribute("aria-label", /0 of 3 chimes.*Tension/i);
+    await page.keyboard.press("s");
+    await expect(canvas).toHaveAttribute("aria-label", /Settings.*Sound volume 75 percent.*Reduced motion off/i);
+    await page.keyboard.press("ArrowDown");
+    await page.keyboard.press("Enter");
+    await expect(canvas).toHaveAttribute("aria-label", /Reduced motion selected.*Reduced motion on/i);
+    await page.screenshot({ path: evidence(`m4-settings-${suffix}.png`) });
+    await page.keyboard.press("Escape");
+    await expect(canvas).toBeFocused();
+    await expect(canvas).toHaveAttribute("aria-label", /Paused/i);
+    await page.screenshot({ path: evidence(`m4-paused-${suffix}.png`) });
+  }
+
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await page.goto("/");
+  await page.keyboard.press("Enter");
+  await page.keyboard.down("ArrowRight");
+  const samples = await page.evaluate(() => new Promise((resolve) => {
+    const deltas = [];
+    let previous;
+    function sample(now) {
+      if (previous !== undefined) deltas.push(now - previous);
+      previous = now;
+      if (deltas.length >= 180) resolve(deltas);
+      else requestAnimationFrame(sample);
+    }
+    requestAnimationFrame(sample);
+  }));
+  await page.keyboard.up("ArrowRight");
+  const ordered = samples.slice().sort((a, b) => a - b);
+  const p95 = ordered[Math.floor(ordered.length * 0.95)];
+  const maximum = ordered.at(-1);
+  console.log(`M4 frame pacing: ${samples.length} samples, p95 ${p95.toFixed(2)}ms, max ${maximum.toFixed(2)}ms`);
+  expect(p95).toBeLessThan(25);
+});
+
+test("M4 compact final airspace and finale remain legible", async ({ page }) => {
+  await page.setViewportSize({ width: 640, height: 800 });
+  await page.goto("/");
+  await page.evaluate(() => localStorage.setItem("gale-thread:v11", JSON.stringify({
+    version: 1, unlockedAirspace: 5, volume: 0.75, reducedMotion: true,
+  })));
+  await page.reload();
+  await page.keyboard.press("Enter");
+  await expect.poll(async () => (await snapshot(page))?.mode).toBe("playing");
+  await page.screenshot({ path: evidence("m4-last-horizon-640x800.png") });
+  await pilot(page, [{ x: 230, y: 374 }, { x: 744, y: 238 }, { x: 228, y: 102 }]);
+  await expect(page.locator("canvas")).toHaveAttribute("aria-label", /six-sky chorus is complete/i);
+  await page.screenshot({ path: evidence("m4-finale-640x800.png") });
+});
