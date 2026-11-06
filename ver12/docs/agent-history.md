@@ -15,3 +15,4 @@
 | 2026-11-06 | Codex | none (interactive) | - | 1995年日本のゲームセンター基準を共通完成条件へ追加 | 文書差分・受入条件の整合を確認 | `docs: require 1995 arcade authenticity` |
 | 2026-11-06T23:50:55+0900 | Codex | run-codex-loop.sh | 1 | M3第6室、両極性種の最終炉、終演、4:3筐体基盤を実装 | 単体19/19、build、Chrome E2E 7/7、6室通し、画像2点比較目視 | `feat(ver12): complete six-chamber campaign` |
 | 2026-11-07T00:25:09+0900 | Codex | run-codex-loop.sh | 2 | M4アトラクト、コイン、START待ち、得点、640×480監査を実装 | 単体19/19、build、Chrome E2E 9/9、依存監査、画像4点比較目視 | `feat(ver12): add arcade credit and scoring flow` |
+| 2026-11-07T01:00:41+0900 | Codex | run-codex-loop.sh | 3 | M4自動実演アトラクト、6.5秒循環、コイン割り込み分離を実装 | 単体19/19、build、Chrome E2E 9/9、2 viewport画像比較目視 | `feat(ver12): add autonomous attract demo` |

@@ -1,4 +1,4 @@
-import { HEIGHT, LEVELS, WIDTH, createGame, levelFor, reduce, statusText } from "./model.js";
+import { HEIGHT, LEVELS, WIDTH, createGame, levelFor, reduce, startGame, statusText } from "./model.js";
 import { loadPreferences, savePreferences } from "./preferences.js";
 
 const canvas = document.querySelector("#game");
@@ -23,6 +23,36 @@ let flash = 0;
 let audio = null;
 let settingsOpen = false;
 let settingsRow = 0;
+let demoState = startGame(createGame(0));
+let demoCycleStartedAt = null;
+let demoStep = 0;
+
+const DEMO_TIMELINE = Object.freeze([
+  { at: 0, action: null, label: "WATCH THE SMITH" },
+  { at: 1200, action: "left", label: "1  MOVE THE LEVER" },
+  { at: 2100, action: "right", label: "1  CHOOSE YOUR POSITION" },
+  { at: 3100, action: "flip", label: "2  FLIP THE FIELD" },
+  { at: 4700, action: null, label: "3  LOCK EVERY SEED" }
+]);
+const DEMO_CYCLE_MS = 6500;
+
+function updateAttractDemo(time) {
+  if (state.phase !== "attract") {
+    demoCycleStartedAt = null;
+    return;
+  }
+  if (demoCycleStartedAt === null || time - demoCycleStartedAt >= DEMO_CYCLE_MS) {
+    demoState = startGame(createGame(0));
+    demoCycleStartedAt = time;
+    demoStep = 0;
+  }
+  const elapsed = time - demoCycleStartedAt;
+  while (demoStep + 1 < DEMO_TIMELINE.length && elapsed >= DEMO_TIMELINE[demoStep + 1].at) {
+    demoStep += 1;
+    const action = DEMO_TIMELINE[demoStep].action;
+    if (action) demoState = reduce(demoState, action);
+  }
+}
 
 function roundedRect(x, y, w, h, r) {
   ctx.beginPath();
@@ -60,7 +90,7 @@ function drawBackdrop(time) {
   ctx.globalAlpha = 1;
 }
 
-function drawCabinetBands() {
+function drawCabinetBands(cabinetState = state) {
   ctx.fillStyle = "#080b0e";
   ctx.fillRect(0, 0, 960, 88);
   ctx.fillRect(0, 632, 960, 88);
@@ -76,9 +106,9 @@ function drawCabinetBands() {
   text("MAGNETIC LOGIC · 1 PLAYER", 924, 40, 12, "#9f9889", "right", 700);
   text("LEVER  MOVE", 44, 676, 12, COLORS.pull, "left", 750);
   text("BUTTON 1  FLIP FIELD", 480, 676, 12, COLORS.push, "center", 750);
-  const cabinetStatus = state.phase === "attract" ? "INSERT COIN  C"
-    : state.phase === "ready" ? `CREDIT  ${state.credits}   ·   START  ENTER`
-      : state.phase === "won" ? "CREDIT  0   ·   NEXT  ENTER" : "CREDIT  0   ·   1 PLAYER";
+  const cabinetStatus = cabinetState.phase === "attract" ? "INSERT COIN  C"
+    : cabinetState.phase === "ready" ? `CREDIT  ${cabinetState.credits}   ·   START  ENTER`
+      : cabinetState.phase === "won" ? "CREDIT  0   ·   NEXT  ENTER" : "CREDIT  0   ·   1 PLAYER";
   text(cabinetStatus, 916, 676, 12, COLORS.brass, "right", 750);
 }
 
@@ -331,6 +361,32 @@ function overlay(title, body, prompt, color = COLORS.brass) {
   text(prompt, 480, 366, 13, COLORS.pale, "center", 700);
 }
 
+function drawAttractDemo() {
+  roundedRect(22, 92, 180, 336, 7);
+  ctx.fillStyle = "#080c10e8";
+  ctx.fill();
+  ctx.strokeStyle = COLORS.brass;
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  text("HOW TO PLAY", 112, 128, 17, COLORS.pale, "center", 800);
+  text("AUTO DEMO", 112, 154, 10, COLORS.brass, "center", 700);
+
+  const steps = ["1  MOVE", "2  FLIP", "3  LOCK 3"];
+  steps.forEach((label, index) => {
+    const active = index === 0 ? demoStep >= 1 : index === 1 ? demoStep >= 3 : demoStep >= 4;
+    const y = 207 + index * 58;
+    roundedRect(42, y - 19, 140, 38, 4);
+    ctx.fillStyle = active ? (index === 1 ? "#5a3024" : "#173d3d") : "#121a20";
+    ctx.fill();
+    ctx.strokeStyle = active ? (index === 1 ? COLORS.push : COLORS.pull) : "#38434a";
+    ctx.stroke();
+    text(label, 112, y, 12, active ? COLORS.pale : "#737a78", "center", 750);
+  });
+
+  text(DEMO_TIMELINE[demoStep].label, 480, 508, 12, demoStep >= 3 ? COLORS.push : COLORS.pull, "center", 750);
+  text("PRESS C TO INSERT COIN", 112, 390, 11, COLORS.brass, "center", 800);
+}
+
 function drawSettings() {
   ctx.fillStyle = "#05080bf2";
   ctx.fillRect(0, 0, 960, 540);
@@ -362,11 +418,15 @@ function drawSettings() {
 }
 
 function render(time = 0) {
+  updateAttractDemo(time);
+  const liveState = state;
+  const showingDemo = liveState.phase === "attract";
+  if (showingDemo) state = demoState;
   const displayTime = preferences.reducedMotion ? 0 : time;
   const level = levelFor(state);
   flash = preferences.reducedMotion ? 0 : Math.max(0, flash - 0.035);
   drawBackdrop(displayTime);
-  drawCabinetBands();
+  drawCabinetBands(liveState);
   ctx.save();
   ctx.translate(0, 90);
   drawBoard();
@@ -377,8 +437,9 @@ function render(time = 0) {
   drawField(displayTime);
   for (const shard of state.shards) drawShard(shard, displayTime);
   drawPlayer();
-  drawHud();
-  if (state.phase === "attract") overlay("LODESTAR FORGE", "Bend one field. Lock three metals.", "PRESS C TO INSERT COIN");
+  if (!showingDemo) drawHud();
+  if (showingDemo) drawAttractDemo();
+  state = liveState;
   if (state.phase === "ready") overlay("CREDIT 1", "Stand where the field should bend.", "PRESS ENTER TO START", COLORS.pull);
   if (state.phase === "paused") overlay("FIELD SUSPENDED", "The chamber is holding its shape.", "ESC TO RESUME", COLORS.pull);
   if (state.phase === "won") {
@@ -404,6 +465,8 @@ function render(time = 0) {
   canvas.dataset.score = String(state.score);
   canvas.dataset.volume = String(preferences.volume);
   canvas.dataset.reducedMotion = String(preferences.reducedMotion);
+  canvas.dataset.demoStep = showingDemo ? String(demoStep) : "off";
+  canvas.dataset.demoDocked = showingDemo ? String(demoState.shards.filter((shard) => shard.docked).length) : "off";
   canvas.setAttribute("aria-label", settingsOpen
     ? `Settings. ${settingsRow === 0 ? "Sound" : "Motion"} selected. Sound ${Math.round(preferences.volume * 100)} percent. Motion ${preferences.reducedMotion ? "reduced" : "full"}. Up and down select. Left and right change. M or Escape closes.`
     : statusText(state));

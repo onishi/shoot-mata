@@ -16,10 +16,18 @@ test("attract, credit, polarity feedback, pause, and reset are keyboard reachabl
   const canvas = page.locator("canvas");
   await expect(canvas).toHaveAttribute("data-phase", "attract");
   await expect(canvas).toHaveAttribute("aria-label", /insert coin/i);
-  await page.screenshot({ path: evidence("m4-attract.png") });
+  await expect(canvas).toHaveAttribute("data-demo-step", "3", { timeout: 5000 });
+  await expect(canvas).toHaveAttribute("data-demo-docked", "2");
+  await page.screenshot({ path: evidence("m4-attract-demo.png") });
+  await expect(canvas).toHaveAttribute("data-demo-step", "4", { timeout: 2500 });
+  await expect(canvas).toHaveAttribute("data-demo-step", "0", { timeout: 2500 });
+  await expect(canvas).toHaveAttribute("data-demo-docked", "0");
   await page.keyboard.press("KeyC");
   await expect(canvas).toHaveAttribute("data-phase", "ready");
   await expect(canvas).toHaveAttribute("data-credits", "1");
+  await expect(canvas).toHaveAttribute("data-docked", "0");
+  await expect(canvas).toHaveAttribute("data-demo-step", "off");
+  await expect(canvas).toHaveAttribute("data-demo-docked", "off");
   await page.screenshot({ path: evidence("m4-credit-ready.png") });
 
   await page.keyboard.press("Enter");
@@ -59,6 +67,8 @@ test("the first field remains legible in a 640 by 480 cabinet viewport", async (
   await page.setViewportSize({ width: 640, height: 480 });
   await page.goto("/");
   const canvas = page.locator("canvas");
+  await expect(canvas).toHaveAttribute("data-demo-step", "3", { timeout: 5000 });
+  await page.screenshot({ path: evidence("m4-attract-demo-640x480.png") });
   await insertCoinAndStart(page);
   await page.keyboard.press("Space");
   await expect(canvas).toHaveAttribute("data-docked", "2");

@@ -15,7 +15,7 @@
 | PROD-01 | 3室、段階導入、設定、進行保存 | M2 | `LEVELS`、`preferences.js`、E2E tests 2–4・6–7、`m2-settings.png` | `npm run verify` | 合格 |
 | CONT-01 | 6室、4段階以上の規則発展、最終炉と終演 | M3 | 6室、7反転最終炉、`THE CROWN IS FORGED`終演、6室通しE2E | `npm run verify` | 合格 |
 | ARCADE-01 | 4:3主画面とレバー＋1ボタン相当の主操作 | M3 | 960×720 Canvas、上下筐体帯、方向＋Space、`m4-first-field-640x480.png` | `npm run verify`、640×480 E2E | 合格 |
-| ARCADE-02 | アトラクト、コイン、開始、プレイ、結果、ランキングの筐体フロー | M4 | アトラクト→C/5投入→CREDIT 1→Enter開始、`m4-attract.png`、`m4-credit-ready.png`。デモ・ランキングは未実装 | Chrome E2E tests 1–2、`npm run verify` | 一部合格 |
+| ARCADE-02 | アトラクト、コイン、開始、プレイ、結果、ランキングの筐体フロー | M4 | 6.5秒の移動・反転・2種収容デモ→C/5投入→CREDIT 1→Enter開始、`m4-attract-demo.png`、`m4-attract-demo-640x480.png`、`m4-credit-ready.png`。ランキングは未実装 | Chrome E2E tests 1–2、`npm run verify` | 一部合格 |
 | ARCADE-03 | 最初の10秒・30秒、1クレジット時間、得点、コンティニュー、再挑戦 | M4–M5 | 10秒内反転、30秒内第1室クリア、得点HUD、`m4-first-clear-score.png`。全室時間・コンティニューは未実測 | Chrome E2E test 2、`npm run verify` | 一部合格 |
 | DEPTH-01 | 複数の有効手順、巻き戻し、再挑戦価値 | M4 | 収容・室完成・少反転ボーナス、Rで室開始得点へ復帰。複数戦略と手戻しは未実装 | 単体の得点・reset検証、6室E2Eの53,750点 | 一部合格 |
 | ART-01 | 全室の背景、種、UI、磁場、効果音が完成方針で統一 | M4 | 6室Canvas描画、内向き／外向き印、合成音、4:3筐体帯 | 全主要画面目視・音量監査予定 | 一部合格 |
