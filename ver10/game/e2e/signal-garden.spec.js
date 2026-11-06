@@ -201,3 +201,88 @@ test("the sixth garden resumes from saved progress", async ({ page }) => {
   await expect.poll(async () => (await state(page))?.garden).toBe(5);
   expect((await state(page)).heldActive).toBe(false);
 });
+
+test("desktop and narrow layouts keep the game and controls inside the viewport", async ({ page }) => {
+  const messages = [];
+  page.on("console", (message) => { if (["error", "warning"].includes(message.type())) messages.push(message.text()); });
+
+  for (const viewport of [{ width: 1280, height: 720, name: "1280x720" }, { width: 640, height: 800, name: "640x800" }]) {
+    await page.setViewportSize(viewport);
+    await page.goto("/");
+    const canvas = page.locator("canvas");
+    const box = await canvas.boundingBox();
+    expect(box).not.toBeNull();
+    expect(box.x).toBeGreaterThanOrEqual(0);
+    expect(box.y).toBeGreaterThanOrEqual(0);
+    expect(box.x + box.width).toBeLessThanOrEqual(viewport.width);
+    expect(box.y + box.height).toBeLessThanOrEqual(viewport.height);
+    expect(Math.abs(box.width / box.height - 16 / 9)).toBeLessThan(0.02);
+    for (const button of [page.locator("#volume"), page.locator("#motion")]) {
+      const buttonBox = await button.boundingBox();
+      expect(buttonBox.x).toBeGreaterThanOrEqual(0);
+      expect(buttonBox.x + buttonBox.width).toBeLessThanOrEqual(viewport.width);
+    }
+    await page.screenshot({ path: `../docs/evidence/m4-title-${viewport.name}.png` });
+    await canvas.press("Enter");
+    await canvas.press("Escape");
+    await page.screenshot({ path: `../docs/evidence/m4-paused-${viewport.name}.png` });
+  }
+  expect(messages).toEqual([]);
+});
+
+test("keyboard focus, accessible names, and live status cover the main flow", async ({ page }) => {
+  await page.goto("/");
+  const canvas = page.locator("canvas");
+  await expect(canvas).toBeFocused();
+  await expect(canvas).toHaveAttribute("aria-label", /title.*Garden 1 ready.*Enter/i);
+
+  await page.keyboard.press("Tab");
+  await expect(page.locator("#volume")).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(page.locator("#volume")).toHaveAttribute("aria-label", /50 percent/i);
+  await expect(page.locator("#live")).toHaveText(/50 percent/i);
+
+  await page.keyboard.press("Tab");
+  await expect(page.locator("#motion")).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(page.locator("#motion")).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator("#live")).toHaveText(/Reduced motion on/i);
+
+  await canvas.focus();
+  await canvas.press("Enter");
+  await expect(canvas).toHaveAttribute("aria-label", /Garden 1.*playing.*0 of 3 flowers.*3 lives.*FORK switch selected/i);
+  await canvas.press("ArrowRight");
+  await expect(canvas).toHaveAttribute("aria-label", /GRAFT switch selected/i);
+  await canvas.press("Space");
+  await expect(page.locator("#live")).toHaveText(/GRAFT route changed to BELL FLOWER/i);
+  await canvas.press("Escape");
+  await expect(canvas).toHaveAttribute("aria-label", /paused/i);
+  await canvas.press("Enter");
+  await expect(canvas).toHaveAttribute("aria-label", /playing/i);
+});
+
+test("representative rendering stays within the frame-time budget", async ({ page }) => {
+  await page.goto("/");
+  await page.locator("canvas").press("Enter");
+  const metrics = await page.evaluate(() => new Promise((resolve) => {
+    const samples = [];
+    let previous = performance.now();
+    function sample(now) {
+      samples.push(now - previous);
+      previous = now;
+      if (samples.length < 180) requestAnimationFrame(sample);
+      else {
+        const steady = samples.slice(10).sort((a, b) => a - b);
+        resolve({
+          samples: steady.length,
+          p95: steady[Math.floor(steady.length * 0.95)],
+          max: steady.at(-1),
+        });
+      }
+    }
+    requestAnimationFrame(sample);
+  }));
+  expect(metrics.samples).toBe(170);
+  expect(metrics.p95).toBeLessThan(25);
+  console.log(`render-frame p95=${metrics.p95.toFixed(2)}ms max=${metrics.max.toFixed(2)}ms samples=${metrics.samples}`);
+});

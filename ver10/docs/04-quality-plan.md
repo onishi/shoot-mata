@@ -64,3 +64,12 @@
 - 1周目はCROWN通過まで保持し、RETURN ROOTで解放してから雨花へ向ける攻略を、モデルと実キー操作の両方で確認する。損傷と再挑戦は保持状態を残さない。
 - 保持状態を二重輪、`HELD / RELEASED`、行先、操作案内、ARIAで識別できる。終演は三色の枝が一つの光へ合流する専用画面を持つ。
 - 単体30/30、構文検査、production build、Chrome E2E 6/6、console error / warning 0件に合格し、`m3-tending-crown-held.png`と`m3-finale.png`を1280×720で目視する。
+
+## M4完了検証 — 最終監査
+
+- 1280×720と640×800でCanvas、設定ボタン、タイトル、ポーズを撮影し、viewport内包含、16:9比率、欠け、重なり、主要文の視認性を確認する。
+- Canvasから音量、動き軽減へTabで移動し、Enter操作、焦点、`aria-label`、`aria-pressed`、live region、プレイ・ポーズの動的名称をChromeで検査する。
+- 実プレイ中の`requestAnimationFrame`をウォームアップ後170標本計測し、p95 25ms未満を合格基準とする。
+- 破損設定と破損進行の既定値復旧、到達済み第5・第6庭園の再開を維持する。
+- production HTMLはJavaScriptとCSSを相対参照し、外部依存を含まない。配布物は500KB以下、全ファイルのSHA-256一致を検査する。
+- `npm run verify`で単体30/30、構文検査、production build、Chrome E2E 9/9、配布物監査を一括再実行できる。
