@@ -6,7 +6,7 @@
 | --- | --- | --- | --- | --- |
 | 背景 | 炉床、鋳型、火花、鉄塊、軸極、4:3筐体帯 | Canvas 2D手続き描画、自作 | M3完成、M4演出拡張予定 | 全6室、`m3-crown-crucible.png` |
 | キャラクター | 鍛冶師、3種の金属種、内向き／外向き極性印 | Canvas 2D手続き描画、自作 | M3完成 | `m1-first-field.png`、`m3-crown-crucible.png` |
-| UI | HUD、タイトル、ポーズ、室完成、最終終演、設定 | Canvas 2D描画とCSS、自作 | M3完成、筐体フローはM4 | `m1-title.png`、`m2-settings.png`、`m3-ending.png` |
+| UI | HUD、アトラクト、コイン、START待ち、得点、ポーズ、室完成、最終終演、設定 | Canvas 2D描画とCSS、自作 | M4筐体フロー進行中。ランキング未制作 | `m4-attract.png`、`m4-credit-ready.png`、`m4-first-clear-score.png` |
 | エフェクト | 磁力線、脈動、収容強調 | Canvas 2D手続き描画、自作 | M2完成、動き軽減対応 | `m1-first-field.png` |
 | 効果音 | 移動、反転、収容、完成 | Web Audio oscillator合成、自作 | M2完成、音量対応 | 実キーE2E経路で発音 |
 | 音楽 | 本編音楽 | 未制作 | M4までに制作 | 未確認 |

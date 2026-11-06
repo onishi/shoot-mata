@@ -161,8 +161,11 @@ const same = (a, b) => a.x === b.x && a.y === b.y;
 export function createGame(levelIndex = 0) {
   const level = LEVELS[levelIndex];
   return {
-    phase: "title",
+    phase: "attract",
     levelIndex,
+    credits: 0,
+    score: 0,
+    chamberStartScore: 0,
     polarity: "pull",
     player: { ...level.player },
     shards: level.shards.map((shard) => ({ ...shard, docked: false })),
@@ -174,17 +177,30 @@ export function createGame(levelIndex = 0) {
 }
 
 export function startGame(state) {
-  if (state.phase !== "title" && state.phase !== "won") return state;
-  const nextIndex = state.phase === "won" && state.levelIndex < LEVELS.length - 1 ? state.levelIndex + 1 : state.levelIndex;
+  if (state.phase !== "attract" && state.phase !== "ready" && state.phase !== "won") return state;
+  const advances = state.phase === "won" && state.levelIndex < LEVELS.length - 1;
+  const nextIndex = advances ? state.levelIndex + 1 : state.levelIndex;
+  const nextScore = state.phase === "won" && !advances ? state.chamberStartScore : state.score;
   const next = createGame(nextIndex);
   next.phase = "playing";
+  next.credits = state.phase === "ready" ? Math.max(0, state.credits - 1) : state.credits;
+  next.score = nextScore;
+  next.chamberStartScore = nextScore;
   if (nextIndex > state.levelIndex) next.lastEvent = LEVELS[nextIndex].lesson;
   return next;
 }
 
-export function resetGame(levelIndex = 0) {
+export function insertCoin(state) {
+  if (state.phase !== "attract") return state;
+  return { ...state, phase: "ready", credits: 1, lastEvent: "Credit accepted." };
+}
+
+export function resetGame(levelIndex = 0, score = 0, credits = 1) {
   const state = createGame(levelIndex);
   state.phase = "playing";
+  state.credits = credits;
+  state.score = score;
+  state.chamberStartScore = score;
   state.lastEvent = "The chamber rewinds.";
   return state;
 }
@@ -283,6 +299,7 @@ export function flipPolarity(state) {
     phase: allDocked ? "won" : "playing",
     polarity,
     shards,
+    score: state.score + dockedNow * 1000 + (allDocked ? 5000 + Math.max(0, 8 - (state.pulses + 1)) * 250 : 0),
     pulses: state.pulses + 1,
     lastEvent: allDocked ? "The forge is whole." : dockedNow ? `${dockedNow} seed locked.` : moved ? "The seeds answer." : resistedByPolarity ? `The marked seed ignores ${polarity.toUpperCase()}.` : "The field meets resistance.",
     pulseFrom: { ...state.player }
@@ -290,8 +307,9 @@ export function flipPolarity(state) {
 }
 
 export function reduce(state, action) {
-  if (action === "enter") return startGame(state);
-  if (action === "reset") return resetGame(state.levelIndex);
+  if (action === "coin") return insertCoin(state);
+  if (action === "enter") return state.phase === "attract" ? state : startGame(state);
+  if (action === "reset") return resetGame(state.levelIndex, state.chamberStartScore, state.credits);
   if (action === "pause") return togglePause(state);
   if (action === "flip") return flipPolarity(state);
   if (action === "left") return movePlayer(state, -1, 0);
@@ -307,11 +325,12 @@ export function isWall(position, level = LEVEL) {
 
 export function statusText(state) {
   const docked = state.shards.filter((shard) => shard.docked).length;
-  if (state.phase === "title") return "Lodestar Forge title. Press Enter to enter the chamber.";
+  if (state.phase === "attract") return "Lodestar Forge attract mode. Move with the lever and flip the whole field with button 1. Press C to insert coin.";
+  if (state.phase === "ready") return "One credit. Press Enter to start Lodestar Forge.";
   const chamber = state.levelIndex + 1;
-  if (state.phase === "paused") return `Paused in chamber ${chamber}. ${docked} of 3 seeds locked. Press Escape to resume.`;
-  if (state.phase === "won") return `Chamber ${chamber} complete. 3 of 3 seeds locked in ${state.pulses} polarity flips. Press Enter to ${state.levelIndex < LEVELS.length - 1 ? "continue" : "reforge the final crucible"}.`;
+  if (state.phase === "paused") return `Paused in chamber ${chamber}. Score ${state.score}. ${docked} of 3 seeds locked. Press Escape to resume.`;
+  if (state.phase === "won") return `Chamber ${chamber} complete. Score ${state.score}. 3 of 3 seeds locked in ${state.pulses} polarity flips. Press Enter to ${state.levelIndex < LEVELS.length - 1 ? "continue" : "reforge the final crucible"}.`;
   const marked = state.shards.filter((shard) => shard.respondsTo && !shard.docked);
   const markedText = marked.map((shard) => ` ${shard.id} answers only ${shard.respondsTo}.`).join("");
-  return `Chamber ${chamber} active. ${state.polarity} polarity. ${docked} of 3 seeds locked.${markedText} Arrow keys move. Space flips polarity. R restarts. Escape pauses.`;
+  return `Chamber ${chamber} active. Score ${state.score}. ${state.polarity} polarity. ${docked} of 3 seeds locked.${markedText} Arrow keys move. Space flips polarity. R restarts. Escape pauses.`;
 }

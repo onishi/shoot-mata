@@ -2,16 +2,25 @@ import { expect, test } from "@playwright/test";
 
 const evidence = (name) => new URL(`../../docs/evidence/${name}`, import.meta.url).pathname;
 
-test("title, polarity feedback, pause, and reset are keyboard reachable", async ({ page }) => {
+const insertCoinAndStart = async (page) => {
+  await page.keyboard.press("KeyC");
+  await page.keyboard.press("Enter");
+};
+
+test("attract, credit, polarity feedback, pause, and reset are keyboard reachable", async ({ page }) => {
   const errors = [];
   page.on("console", (message) => {
     if (message.type() === "error") errors.push(message.text());
   });
   await page.goto("/");
   const canvas = page.locator("canvas");
-  await expect(canvas).toHaveAttribute("data-phase", "title");
-  await expect(canvas).toHaveAttribute("aria-label", /Press Enter/);
-  await page.screenshot({ path: evidence("m1-title.png") });
+  await expect(canvas).toHaveAttribute("data-phase", "attract");
+  await expect(canvas).toHaveAttribute("aria-label", /insert coin/i);
+  await page.screenshot({ path: evidence("m4-attract.png") });
+  await page.keyboard.press("KeyC");
+  await expect(canvas).toHaveAttribute("data-phase", "ready");
+  await expect(canvas).toHaveAttribute("data-credits", "1");
+  await page.screenshot({ path: evidence("m4-credit-ready.png") });
 
   await page.keyboard.press("Enter");
   await expect(canvas).toHaveAttribute("data-phase", "playing");
@@ -28,10 +37,41 @@ test("title, polarity feedback, pause, and reset are keyboard reachable", async 
   expect(errors).toEqual([]);
 });
 
+test("a fresh credit reaches field feedback inside ten seconds and a clear inside thirty", async ({ page }) => {
+  await page.goto("/");
+  await page.evaluate(() => localStorage.clear());
+  await page.reload();
+  const canvas = page.locator("canvas");
+  const startedAt = Date.now();
+  await insertCoinAndStart(page);
+  await page.keyboard.press("Space");
+  expect(Date.now() - startedAt).toBeLessThan(10_000);
+  await expect(canvas).toHaveAttribute("data-polarity", "push");
+  await expect(canvas).toHaveAttribute("data-docked", "2");
+  for (const key of ["ArrowLeft", "ArrowLeft", "ArrowDown", "ArrowDown", "Space"]) await page.keyboard.press(key);
+  expect(Date.now() - startedAt).toBeLessThan(30_000);
+  await expect(canvas).toHaveAttribute("data-phase", "won");
+  await expect(canvas).toHaveAttribute("data-score", "9500");
+  await page.screenshot({ path: evidence("m4-first-clear-score.png") });
+});
+
+test("the first field remains legible in a 640 by 480 cabinet viewport", async ({ page }) => {
+  await page.setViewportSize({ width: 640, height: 480 });
+  await page.goto("/");
+  const canvas = page.locator("canvas");
+  await insertCoinAndStart(page);
+  await page.keyboard.press("Space");
+  await expect(canvas).toHaveAttribute("data-docked", "2");
+  const box = await canvas.boundingBox();
+  expect(box.width).toBeLessThanOrEqual(640);
+  expect(Math.abs(box.width / box.height - 4 / 3)).toBeLessThan(0.01);
+  await page.screenshot({ path: evidence("m4-first-field-640x480.png") });
+});
+
 test("real key sequence completes the first mold", async ({ page }) => {
   await page.goto("/");
   const canvas = page.locator("canvas");
-  await page.keyboard.press("Enter");
+  await insertCoinAndStart(page);
   await page.keyboard.press("Space");
   for (const key of ["ArrowLeft", "ArrowLeft", "ArrowDown", "ArrowDown", "Space"]) {
     await page.keyboard.press(key);
@@ -49,7 +89,7 @@ test("real key sequence completes the first mold", async ({ page }) => {
 test("fixed iron brakes one seed and the second chamber is completable", async ({ page }) => {
   await page.goto("/");
   const canvas = page.locator("canvas");
-  await page.keyboard.press("Enter");
+  await insertCoinAndStart(page);
   await page.keyboard.press("Space");
   for (const key of ["ArrowLeft", "ArrowLeft", "ArrowDown", "ArrowDown", "Space", "Enter"]) {
     await page.keyboard.press(key);
@@ -71,7 +111,7 @@ test("fixed iron brakes one seed and the second chamber is completable", async (
 test("axial pole holds one seed and the third chamber is completable", async ({ page }) => {
   await page.goto("/");
   const canvas = page.locator("canvas");
-  await page.keyboard.press("Enter");
+  await insertCoinAndStart(page);
   for (const key of [
     "Space", "ArrowLeft", "ArrowLeft", "ArrowDown", "ArrowDown", "Space", "Enter",
     "ArrowRight", "Space", "ArrowRight", "Space", "Space", "Enter"
@@ -94,7 +134,7 @@ test("axial pole holds one seed and the third chamber is completable", async ({ 
 test("pull-bound seed waits through push and the fourth chamber is completable", async ({ page }) => {
   await page.goto("/");
   const canvas = page.locator("canvas");
-  await page.keyboard.press("Enter");
+  await insertCoinAndStart(page);
   for (const key of [
     "Space", "ArrowLeft", "ArrowLeft", "ArrowDown", "ArrowDown", "Space", "Enter",
     "ArrowRight", "Space", "ArrowRight", "Space", "Space", "Enter",
@@ -149,6 +189,7 @@ test("pull-bound seed waits through push and the fourth chamber is completable",
   ]) await page.keyboard.press(key);
   await expect(canvas).toHaveAttribute("data-phase", "won");
   await expect(canvas).toHaveAttribute("data-docked", "3");
+  await expect(canvas).toHaveAttribute("data-score", "53750");
   await expect(canvas).toHaveAttribute("aria-label", /Chamber 6 complete.*7 polarity flips.*reforge the final crucible/);
   await page.screenshot({ path: evidence("m3-ending.png") });
 });
@@ -178,15 +219,15 @@ test("settings persist and corrupt saves recover safely", async ({ page }) => {
 test("reaching a chamber resumes there after reload", async ({ page }) => {
   await page.goto("/");
   const canvas = page.locator("canvas");
-  await page.keyboard.press("Enter");
+  await insertCoinAndStart(page);
   for (const key of ["Space", "ArrowLeft", "ArrowLeft", "ArrowDown", "ArrowDown", "Space", "Enter"]) {
     await page.keyboard.press(key);
   }
   await expect(canvas).toHaveAttribute("data-chamber", "2");
   await page.reload();
-  await expect(canvas).toHaveAttribute("data-phase", "title");
+  await expect(canvas).toHaveAttribute("data-phase", "attract");
   await expect(canvas).toHaveAttribute("data-chamber", "2");
-  await page.keyboard.press("Enter");
+  await insertCoinAndStart(page);
   await expect(canvas).toHaveAttribute("data-phase", "playing");
   await expect(canvas).toHaveAttribute("aria-label", /Chamber 2 active/);
 });

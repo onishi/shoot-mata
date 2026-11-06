@@ -76,7 +76,10 @@ function drawCabinetBands() {
   text("MAGNETIC LOGIC · 1 PLAYER", 924, 40, 12, "#9f9889", "right", 700);
   text("LEVER  MOVE", 44, 676, 12, COLORS.pull, "left", 750);
   text("BUTTON 1  FLIP FIELD", 480, 676, 12, COLORS.push, "center", 750);
-  text("START  ENTER", 916, 676, 12, COLORS.brass, "right", 750);
+  const cabinetStatus = state.phase === "attract" ? "INSERT COIN  C"
+    : state.phase === "ready" ? `CREDIT  ${state.credits}   ·   START  ENTER`
+      : state.phase === "won" ? "CREDIT  0   ·   NEXT  ENTER" : "CREDIT  0   ·   1 PLAYER";
+  text(cabinetStatus, 916, 676, 12, COLORS.brass, "right", 750);
 }
 
 function drawBoard() {
@@ -192,7 +195,7 @@ function drawPole(pole) {
 }
 
 function drawField(time) {
-  if (!state.pulseFrom || state.phase === "title") return;
+  if (!state.pulseFrom || state.phase === "attract" || state.phase === "ready") return;
   const p = cellCenter(state.pulseFrom);
   const color = state.polarity === "pull" ? COLORS.pull : COLORS.push;
   ctx.strokeStyle = color;
@@ -307,6 +310,8 @@ function drawHud() {
   text(`${docked} / 3`, 46, 318, 25, COLORS.brass, "left", 800);
   text("FLIPS", 46, 369, 11, "#8e938d", "left", 650);
   text(String(state.pulses).padStart(2, "0"), 46, 398, 22, COLORS.pale, "left", 700);
+  text("SCORE", 46, 449, 11, "#8e938d", "left", 650);
+  text(String(state.score).padStart(6, "0"), 46, 476, 20, COLORS.brass, "left", 750);
   if (state.lastEvent) text(state.lastEvent.toUpperCase(), 480, 507, 12, state.lastEvent.includes("resistance") ? COLORS.push : COLORS.brass, "center", 650);
 }
 
@@ -321,8 +326,8 @@ function overlay(title, body, prompt, color = COLORS.brass) {
   ctx.stroke();
   text(title, 480, 196, title.length > 22 ? 29 : 35, COLORS.pale, "center", 800);
   text(body, 480, 252, 15, "#b9b4a7", "center", 500);
-  text(state.phase === "title" ? "MOVE TO AIM" : `POLARITY FLIPS  ${state.pulses}`, 480, 295, 12, color, "center", 700);
-  text(state.phase === "title" ? "SPACE TO FLIP THE WHOLE FIELD" : "ALL THREE SEEDS ARE LOCKED", 480, 319, 12, color, "center", 700);
+  text(state.phase === "attract" || state.phase === "ready" ? "LEVER TO AIM" : `POLARITY FLIPS  ${state.pulses}`, 480, 295, 12, color, "center", 700);
+  text(state.phase === "attract" || state.phase === "ready" ? "BUTTON 1 FLIPS EVERY SEED" : "ALL THREE SEEDS ARE LOCKED", 480, 319, 12, color, "center", 700);
   text(prompt, 480, 366, 13, COLORS.pale, "center", 700);
 }
 
@@ -373,7 +378,8 @@ function render(time = 0) {
   for (const shard of state.shards) drawShard(shard, displayTime);
   drawPlayer();
   drawHud();
-  if (state.phase === "title") overlay("LODESTAR FORGE", "Stand where the field should bend.", "PRESS ENTER TO IGNITE");
+  if (state.phase === "attract") overlay("LODESTAR FORGE", "Bend one field. Lock three metals.", "PRESS C TO INSERT COIN");
+  if (state.phase === "ready") overlay("CREDIT 1", "Stand where the field should bend.", "PRESS ENTER TO START", COLORS.pull);
   if (state.phase === "paused") overlay("FIELD SUSPENDED", "The chamber is holding its shape.", "ESC TO RESUME", COLORS.pull);
   if (state.phase === "won") {
     const final = state.levelIndex === LEVELS.length - 1;
@@ -394,6 +400,8 @@ function render(time = 0) {
   canvas.dataset.chamber = String(state.levelIndex + 1);
   canvas.dataset.polarity = state.polarity;
   canvas.dataset.docked = String(state.shards.filter((shard) => shard.docked).length);
+  canvas.dataset.credits = String(state.credits);
+  canvas.dataset.score = String(state.score);
   canvas.dataset.volume = String(preferences.volume);
   canvas.dataset.reducedMotion = String(preferences.reducedMotion);
   canvas.setAttribute("aria-label", settingsOpen
@@ -423,7 +431,7 @@ function tone(frequency, delay = 0, duration = 0.08, volume = 0.035) {
 const keyActions = {
   ArrowLeft: "left", KeyA: "left", ArrowRight: "right", KeyD: "right",
   ArrowUp: "up", KeyW: "up", ArrowDown: "down", KeyS: "down",
-  Space: "flip", Enter: "enter", KeyR: "reset", Escape: "pause"
+  Space: "flip", Enter: "enter", KeyC: "coin", Digit5: "coin", KeyR: "reset", Escape: "pause"
 };
 
 function storePreferences(next) {
@@ -481,11 +489,17 @@ window.addEventListener("keydown", (event) => {
       tone(494, 0.29, 0.25, 0.05);
       tone(659, 0.38, 0.35, 0.05);
     }
+  } else if (action === "coin") {
+    tone(784, 0, 0.06, 0.04);
+    tone(1047, 0.08, 0.12, 0.04);
+  } else if (action === "enter" && state.phase === "playing") {
+    tone(330, 0, 0.1, 0.04);
+    tone(494, 0.09, 0.18, 0.04);
   } else if (["left", "right", "up", "down"].includes(action)) {
     tone(state.player.x === previous.player.x && state.player.y === previous.player.y ? 95 : 135, 0, 0.04, 0.018);
   }
 });
 
 canvas.addEventListener("pointerdown", () => canvas.focus());
-canvas.setAttribute("aria-keyshortcuts", "Enter ArrowLeft ArrowRight ArrowUp ArrowDown Space R Escape M");
+canvas.setAttribute("aria-keyshortcuts", "C 5 Enter ArrowLeft ArrowRight ArrowUp ArrowDown Space R Escape M");
 requestAnimationFrame(render);

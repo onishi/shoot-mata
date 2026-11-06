@@ -4,6 +4,7 @@ import {
   LEVELS,
   createGame,
   flipPolarity,
+  insertCoin,
   movePlayer,
   reduce,
   resetGame,
@@ -12,11 +13,16 @@ import {
 } from "../src/model.js";
 import { DEFAULT_PREFERENCES, STORAGE_KEY, loadPreferences, savePreferences } from "../src/preferences.js";
 
-test("starts only from title and exposes accessible state", () => {
+test("coin separates attract mode from start and exposes accessible state", () => {
   const title = createGame();
-  assert.equal(title.phase, "title");
-  const game = startGame(title);
+  assert.equal(title.phase, "attract");
+  assert.match(statusText(title), /insert coin/i);
+  const ready = insertCoin(title);
+  assert.equal(ready.phase, "ready");
+  assert.equal(ready.credits, 1);
+  const game = startGame(ready);
   assert.equal(game.phase, "playing");
+  assert.equal(game.credits, 0);
   assert.match(statusText(game), /pull polarity/);
 });
 
@@ -54,8 +60,11 @@ test("known chamber solution locks all three seeds", () => {
   assert.equal(game.phase, "won");
   assert.equal(game.pulses, 2);
   assert.equal(game.shards.filter((shard) => shard.docked).length, 3);
+  assert.equal(game.score, 9500);
   assert.match(statusText(game), /Chamber 1 complete/);
   assert.match(statusText(game), /continue/);
+  game = reduce(game, "reset");
+  assert.equal(game.score, 0);
 });
 
 test("winning the first mold advances to the iron brake", () => {
