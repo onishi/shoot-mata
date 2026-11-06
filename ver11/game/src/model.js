@@ -2,15 +2,49 @@ export const WIDTH = 960;
 export const HEIGHT = 540;
 export const FIXED_STEP = 1 / 60;
 
-export const RIBBONS = [
-  { x: 300, y: 382, name: "LOW CHIME" },
-  { x: 690, y: 252, name: "CROSS CHIME" },
-  { x: 405, y: 116, name: "HIGH CHIME" },
+export const AIRSPACES = [
+  {
+    name: "AMBER REACH",
+    subtitle: "open wind",
+    ribbons: [
+      { x: 300, y: 382, name: "LOW CHIME" },
+      { x: 690, y: 252, name: "CROSS CHIME" },
+      { x: 405, y: 116, name: "HIGH CHIME" },
+    ],
+    clouds: [],
+    gustPush: 125,
+  },
+  {
+    name: "CLOUD LEE",
+    subtitle: "find shelter in the silver cloud",
+    ribbons: [
+      { x: 720, y: 382, name: "LOW CHIME" },
+      { x: 245, y: 238, name: "LEE CHIME" },
+      { x: 710, y: 108, name: "HIGH CHIME" },
+    ],
+    clouds: [{ x: 335, y: 174, width: 290, height: 172 }],
+    gustPush: 168,
+  },
 ];
 
-export function createGame() {
+// Kept as the first-airspace layout for consumers that only need the M1 course.
+export const RIBBONS = AIRSPACES[0].ribbons;
+
+export function airspaceFor(game) {
+  return AIRSPACES[Math.max(0, Math.min(AIRSPACES.length - 1, game.airspace || 0))];
+}
+
+export function isSheltered(game) {
+  return airspaceFor(game).clouds.some((cloud) => (
+    game.x >= cloud.x && game.x <= cloud.x + cloud.width
+    && game.y >= cloud.y && game.y <= cloud.y + cloud.height
+  ));
+}
+
+export function createGame(airspace = 0) {
   return {
     mode: "title",
+    airspace,
     elapsed: 0,
     x: 480,
     y: 488,
@@ -34,14 +68,20 @@ export function windAt(elapsed) {
 
 export function startGame(game) {
   if (game.mode === "title" || game.mode === "lost" || game.mode === "won") {
-    const fresh = createGame();
-    Object.assign(game, fresh, { mode: "playing", message: "HOLD SPACE TO CLIMB", messageTime: 2.8 });
+    const nextAirspace = game.mode === "won" && game.airspace < AIRSPACES.length - 1 ? game.airspace + 1 : game.airspace;
+    const fresh = createGame(nextAirspace);
+    const enteringCloudLee = nextAirspace === 1 && game.airspace !== nextAirspace;
+    Object.assign(game, fresh, {
+      mode: "playing",
+      message: enteringCloudLee ? "SILVER CLOUDS SHELTER THE THREAD" : "HOLD SPACE TO CLIMB",
+      messageTime: enteringCloudLee ? 3.8 : 2.8,
+    });
   }
   return game;
 }
 
 export function retry(game) {
-  const fresh = createGame();
+  const fresh = createGame(game.airspace);
   Object.assign(game, fresh, { mode: "playing", message: "THREAD RESTORED", messageTime: 1.8 });
   return game;
 }
@@ -60,15 +100,17 @@ export function update(game, input, dt = FIXED_STEP) {
   game.messageTime = Math.max(0, game.messageTime - step);
 
   const wind = windAt(game.elapsed);
+  const airspace = airspaceFor(game);
+  const sheltered = isSheltered(game);
   const steer = Math.max(-1, Math.min(1, input.steer || 0));
-  const windPush = wind.phase === "gust" ? wind.direction * 125 : 0;
+  const windPush = wind.phase === "gust" && !sheltered ? wind.direction * airspace.gustPush : 0;
   game.vx += (steer * 310 + windPush - game.vx * 3.8) * step;
   game.x += game.vx * step;
   game.x = Math.max(48, Math.min(WIDTH - 48, game.x));
 
   if (input.reel) {
     game.y -= 82 * step;
-    game.tension += (wind.phase === "gust" ? 0.58 : 0.13) * step;
+    game.tension += (wind.phase === "gust" && !sheltered ? 0.58 : 0.13) * step;
   } else {
     game.y += 62 * step;
     game.tension -= 0.52 * step;
@@ -85,7 +127,7 @@ export function update(game, input, dt = FIXED_STEP) {
     return events;
   }
 
-  RIBBONS.forEach((ribbon, index) => {
+  airspace.ribbons.forEach((ribbon, index) => {
     if (game.ribbons[index]) return;
     const distance = Math.hypot(game.x - ribbon.x, game.y - ribbon.y);
     if (distance <= 42) {
@@ -108,8 +150,10 @@ export function accessibleStatus(game) {
   if (game.mode === "title") return "GALE THREAD title. Press Enter to begin.";
   if (game.mode === "paused") return "Paused. Press Escape to continue.";
   if (game.mode === "lost") return "Thread parted. Press Enter or R to retry.";
-  if (game.mode === "won") return "All three chimes returned. The sky answers. Press Enter to fly again.";
+  if (game.mode === "won" && game.airspace < AIRSPACES.length - 1) return "All three chimes returned from Amber Reach. Press Enter to cross into Cloud Lee.";
+  if (game.mode === "won") return "All three chimes returned from Cloud Lee. Two skies answer. Press Enter to fly again.";
   const wind = windAt(game.elapsed);
   const direction = wind.direction > 0 ? "right" : "left";
-  return `Flying. ${game.ribbons.filter(Boolean).length} of 3 chimes. Tension ${Math.round(game.tension * 100)} percent. Wind ${wind.phase}, ${direction}.`;
+  const shelter = isSheltered(game) ? " Sheltered by cloud." : "";
+  return `Flying in ${airspaceFor(game).name}. ${game.ribbons.filter(Boolean).length} of 3 chimes. Tension ${Math.round(game.tension * 100)} percent. Wind ${wind.phase}, ${direction}.${shelter}`;
 }

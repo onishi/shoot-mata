@@ -1,5 +1,5 @@
 import "./style.css";
-import { WIDTH, HEIGHT, FIXED_STEP, RIBBONS, accessibleStatus, createGame, retry, startGame, togglePause, update, windAt } from "./model.js";
+import { WIDTH, HEIGHT, FIXED_STEP, AIRSPACES, accessibleStatus, airspaceFor, createGame, isSheltered, retry, startGame, togglePause, update, windAt } from "./model.js";
 
 const canvas = document.querySelector("#game");
 const ctx = canvas.getContext("2d");
@@ -63,6 +63,25 @@ function drawSky() {
   ctx.fillStyle = "#17243b"; ctx.beginPath(); ctx.moveTo(0, 490); ctx.quadraticCurveTo(170, 448, 350, 490); ctx.quadraticCurveTo(620, 430, 960, 488); ctx.lineTo(960, 540); ctx.lineTo(0, 540); ctx.fill();
 }
 
+function drawClouds() {
+  const clouds = airspaceFor(game).clouds;
+  for (const cloud of clouds) {
+    const gradient = ctx.createLinearGradient(cloud.x, cloud.y, cloud.x, cloud.y + cloud.height);
+    gradient.addColorStop(0, "#d2e0e3"); gradient.addColorStop(1, "#687f92");
+    ctx.fillStyle = gradient; ctx.strokeStyle = "#eef8f5dd"; ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.roundRect(cloud.x, cloud.y + 34, cloud.width, cloud.height - 60, 52);
+    ctx.fill(); ctx.stroke();
+    for (let i = 0; i < 5; i++) {
+      const x = cloud.x + 42 + i * 51;
+      const y = cloud.y + 48 + (i % 2) * 18;
+      ctx.beginPath(); ctx.arc(x, y, 38 + (i % 3) * 7, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.fillStyle = "#eef8f5"; ctx.font = "700 13px system-ui"; ctx.textAlign = "center";
+    ctx.fillText("WIND SHADOW", cloud.x + cloud.width / 2, cloud.y + cloud.height - 16);
+  }
+}
+
 function drawWind() {
   const wind = windAt(game.elapsed);
   if (game.mode === "title") return;
@@ -111,6 +130,8 @@ function drawHud() {
   ctx.fillStyle = "#dbe7eb"; ctx.font = "600 14px system-ui"; ctx.fillText(`${game.ribbons.filter(Boolean).length} / 3 CHIMES`, 785, 48);
   for (let i = 0; i < 3; i++) { ctx.fillStyle = game.ribbons[i] ? "#ffd57c" : "#53617a"; ctx.beginPath(); ctx.arc(804 + i * 28, 66, 7, 0, Math.PI * 2); ctx.fill(); }
   if (game.messageTime > 0) { ctx.textAlign = "center"; ctx.fillStyle = "#fff0c7"; ctx.font = "700 18px system-ui"; ctx.fillText(game.message, WIDTH / 2, 104); }
+  ctx.textAlign = "center"; ctx.fillStyle = isSheltered(game) ? "#f4fbff" : "#aebed0"; ctx.font = "700 12px system-ui";
+  ctx.fillText(`${airspaceFor(game).name}${isSheltered(game) ? " · SHELTERED" : ""}`, WIDTH / 2, 38);
   if (game.ribbons.every(Boolean)) { ctx.textAlign = "center"; ctx.fillStyle = "#fff0c7"; ctx.font = "600 15px system-ui"; ctx.fillText("RELEASE SPACE · RETURN TO THE LANDING GLOW", WIDTH / 2, 506); }
   ctx.fillStyle = "#f6dc93aa"; ctx.fillRect(402, 500, 156, 6);
 }
@@ -123,13 +144,14 @@ function overlay(title, subtitle, prompt) {
 }
 
 function draw() {
-  drawSky(); drawWind();
-  RIBBONS.forEach((r, i) => drawRibbon(r, game.ribbons[i], i));
+  drawSky(); drawWind(); drawClouds();
+  airspaceFor(game).ribbons.forEach((r, i) => drawRibbon(r, game.ribbons[i], i));
   if (game.mode !== "title") { drawKite(); drawHud(); }
   if (game.mode === "title") overlay("GALE THREAD", "read the gust · mind the thread · bring three chimes home", "PRESS ENTER TO LAUNCH");
   if (game.mode === "paused") overlay("WIND HELD", "the thread waits with you", "ESC TO CONTINUE · R TO RETRY");
   if (game.mode === "lost") overlay("THREAD PARTED", "the gale took the line, not the lesson", "ENTER OR R TO TRY AGAIN");
-  if (game.mode === "won") overlay("THE SKY ANSWERS", "three chimes return on one unbroken thread", "ENTER TO FLY AGAIN");
+  if (game.mode === "won" && game.airspace < AIRSPACES.length - 1) overlay("FIRST CHIMES RETURN", "the silver cloud waits beyond the open wind", "ENTER TO CROSS INTO CLOUD LEE");
+  if (game.mode === "won" && game.airspace === AIRSPACES.length - 1) overlay("TWO SKIES ANSWER", "six chimes return on two unbroken threads", "ENTER TO FLY CLOUD LEE AGAIN");
 }
 
 function frame(now) {

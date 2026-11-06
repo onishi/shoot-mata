@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { RIBBONS, accessibleStatus, createGame, retry, startGame, togglePause, update, windAt } from "../src/model.js";
+import { AIRSPACES, RIBBONS, accessibleStatus, createGame, isSheltered, retry, startGame, togglePause, update, windAt } from "../src/model.js";
 
 function advance(game, seconds, input = {}) {
   const steps = Math.ceil(seconds * 60);
@@ -59,4 +59,28 @@ test("pause freezes play and retry clears damage", () => {
 test("accessible status names changing play state", () => {
   const game = createGame(); assert.match(accessibleStatus(game), /title/i); startGame(game); assert.match(accessibleStatus(game), /Tension/);
   togglePause(game); assert.match(accessibleStatus(game), /Paused/);
+});
+
+test("winning Amber Reach advances into Cloud Lee", () => {
+  const game = createGame(); startGame(game); game.mode = "won"; startGame(game);
+  assert.equal(game.mode, "playing"); assert.equal(game.airspace, 1);
+  assert.match(game.message, /CLOUDS SHELTER/);
+});
+
+test("Cloud Lee shelter blocks gust push and excess reel tension", () => {
+  const exposed = createGame(1); startGame(exposed); exposed.elapsed = 4.3; exposed.x = 700; exposed.y = 260; exposed.tension = 0.2;
+  const sheltered = createGame(1); startGame(sheltered); sheltered.elapsed = 4.3; sheltered.x = 480; sheltered.y = 260; sheltered.tension = 0.2;
+  assert.equal(isSheltered(exposed), false); assert.equal(isSheltered(sheltered), true);
+  advance(exposed, 0.25, { reel: true }); advance(sheltered, 0.25, { reel: true });
+  assert.ok(exposed.vx > sheltered.vx + 20); assert.ok(exposed.tension > sheltered.tension + 0.08);
+  assert.match(accessibleStatus(sheltered), /Sheltered by cloud/);
+});
+
+test("Cloud Lee uses a distinct reachable chime route", () => {
+  const game = createGame(1); startGame(game);
+  for (const ribbon of AIRSPACES[1].ribbons) {
+    game.x = ribbon.x; game.y = ribbon.y; update(game, {}, 1 / 60);
+  }
+  game.x = 480; game.y = 472; const events = update(game, {}, 1 / 60);
+  assert.equal(game.mode, "won"); assert.ok(events.some((event) => event.type === "won"));
 });
