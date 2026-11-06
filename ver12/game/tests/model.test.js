@@ -175,7 +175,34 @@ test("known tempered relay solution completes the fifth chamber", () => {
   assert.equal(game.pulses, 6);
   assert.equal(game.shards.filter((shard) => shard.docked).length, 3);
   assert.match(statusText(game), /Chamber 5 complete/);
-  assert.match(statusText(game), /replay/);
+  assert.match(statusText(game), /continue/);
+});
+
+test("crown crucible alternates pull- and push-bound seeds around iron and pole", () => {
+  let game = startGame(createGame(5));
+  for (const action of ["right", "down", "down", "flip"]) game = reduce(game, action);
+  assert.equal(game.shards.find((shard) => shard.id === "pearl").docked, true);
+  assert.deepEqual(game.shards.find((shard) => shard.id === "ember"), {
+    id: "ember", x: 6, y: 2, respondsTo: "push", docked: false
+  });
+  assert.match(statusText(game), /cobalt answers only pull/);
+  assert.match(statusText(game), /ember answers only push/);
+  assert.deepEqual(LEVELS[5].blocks, [{ x: 6, y: 3 }]);
+  assert.deepEqual(LEVELS[5].poles, [{ x: 6, y: 1, blocksAxis: "vertical" }]);
+});
+
+test("known crown crucible solution completes the sixth chamber and ending", () => {
+  let game = startGame(createGame(5));
+  for (const action of [
+    "right", "down", "down", "flip", "left", "flip",
+    "right", "right", "right", "up", "up",
+    "flip", "flip", "flip", "flip", "flip", "flip"
+  ]) game = reduce(game, action);
+  assert.equal(game.phase, "won");
+  assert.equal(game.pulses, 7);
+  assert.equal(game.shards.filter((shard) => shard.docked).length, 3);
+  assert.match(statusText(game), /Chamber 6 complete/);
+  assert.match(statusText(game), /reforge the final crucible/);
 });
 
 test("pause freezes actions and reset restores the chamber", () => {
@@ -195,7 +222,7 @@ test("preferences round-trip and clamp values", () => {
     setItem: (key, value) => values.set(key, value)
   };
   const saved = savePreferences(storage, { unlockedLevel: 99, volume: 0.34, reducedMotion: true }, LEVELS.length);
-  assert.deepEqual(saved, { unlockedLevel: 4, volume: 0.3, reducedMotion: true });
+  assert.deepEqual(saved, { unlockedLevel: 5, volume: 0.3, reducedMotion: true });
   assert.deepEqual(loadPreferences(storage, LEVELS.length), saved);
 });
 

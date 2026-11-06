@@ -42,22 +42,41 @@ function cellCenter(position) {
 }
 
 function drawBackdrop(time) {
-  const gradient = ctx.createRadialGradient(480, 530, 20, 480, 440, 520);
+  const gradient = ctx.createRadialGradient(480, 700, 20, 480, 500, 650);
   gradient.addColorStop(0, "#4a261b");
   gradient.addColorStop(0.44, "#182027");
   gradient.addColorStop(1, COLORS.ink);
   ctx.fillStyle = gradient;
-  ctx.fillRect(0, 0, 960, 540);
+  ctx.fillRect(0, 0, 960, 720);
   ctx.globalAlpha = 0.09;
   for (let i = 0; i < 26; i += 1) {
     const x = (i * 151 + time * 0.005 * (i % 3 + 1)) % 980 - 10;
-    const y = 515 - ((i * 37 + time * 0.012) % 105);
+    const y = 695 - ((i * 37 + time * 0.012) % 150);
     ctx.fillStyle = i % 2 ? COLORS.push : COLORS.brass;
     ctx.beginPath();
     ctx.arc(x, y, 1.5 + (i % 3), 0, Math.PI * 2);
     ctx.fill();
   }
   ctx.globalAlpha = 1;
+}
+
+function drawCabinetBands() {
+  ctx.fillStyle = "#080b0e";
+  ctx.fillRect(0, 0, 960, 88);
+  ctx.fillRect(0, 632, 960, 88);
+  ctx.strokeStyle = "#7c6240";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(0, 87);
+  ctx.lineTo(960, 87);
+  ctx.moveTo(0, 633);
+  ctx.lineTo(960, 633);
+  ctx.stroke();
+  text("LODESTAR FORGE", 36, 40, 20, COLORS.brass, "left", 800);
+  text("MAGNETIC LOGIC · 1 PLAYER", 924, 40, 12, "#9f9889", "right", 700);
+  text("LEVER  MOVE", 44, 676, 12, COLORS.pull, "left", 750);
+  text("BUTTON 1  FLIP FIELD", 480, 676, 12, COLORS.push, "center", 750);
+  text("START  ENTER", 916, 676, 12, COLORS.brass, "right", 750);
 }
 
 function drawBoard() {
@@ -218,12 +237,21 @@ function drawShard(shard, time) {
     ctx.strokeStyle = COLORS.ink;
     ctx.lineWidth = 4;
     ctx.beginPath();
-    ctx.moveTo(-9, -4);
-    ctx.lineTo(-3, 0);
-    ctx.lineTo(-9, 4);
-    ctx.moveTo(9, -4);
-    ctx.lineTo(3, 0);
-    ctx.lineTo(9, 4);
+    if (shard.respondsTo === "pull") {
+      ctx.moveTo(-9, -4);
+      ctx.lineTo(-3, 0);
+      ctx.lineTo(-9, 4);
+      ctx.moveTo(9, -4);
+      ctx.lineTo(3, 0);
+      ctx.lineTo(9, 4);
+    } else {
+      ctx.moveTo(-3, -4);
+      ctx.lineTo(-9, 0);
+      ctx.lineTo(-3, 4);
+      ctx.moveTo(3, -4);
+      ctx.lineTo(9, 0);
+      ctx.lineTo(3, 4);
+    }
     ctx.stroke();
   }
   ctx.restore();
@@ -333,6 +361,9 @@ function render(time = 0) {
   const level = levelFor(state);
   flash = preferences.reducedMotion ? 0 : Math.max(0, flash - 0.035);
   drawBackdrop(displayTime);
+  drawCabinetBands();
+  ctx.save();
+  ctx.translate(0, 90);
   drawBoard();
   for (const socket of level.sockets) drawSocket(socket, state.shards.some((shard) => shard.docked && shard.x === socket.x && shard.y === socket.y));
   for (const wall of level.walls) drawWall(wall);
@@ -346,17 +377,19 @@ function render(time = 0) {
   if (state.phase === "paused") overlay("FIELD SUSPENDED", "The chamber is holding its shape.", "ESC TO RESUME", COLORS.pull);
   if (state.phase === "won") {
     const final = state.levelIndex === LEVELS.length - 1;
-    const titles = ["THE FIRST MOLD HOLDS", "THE IRON BRAKE HOLDS", "THE POLAR VEIL HOLDS", "THE COLD LODESTONE HOLDS", "THE TEMPERED RELAY HOLDS"];
+    const titles = ["THE FIRST MOLD HOLDS", "THE IRON BRAKE HOLDS", "THE POLAR VEIL HOLDS", "THE COLD LODESTONE HOLDS", "THE TEMPERED RELAY HOLDS", "THE CROWN IS FORGED"];
     const bodies = [
       "Three wandering metals, one finished constellation.",
       "A fixed mass gave the field a rhythm.",
       "Iron and pole held two beats for the final strike.",
       "One cold seed woke only when the field drew inward.",
-      "Iron and pole passed the final heat across three rhythms."
+      "Iron and pole passed the final heat across three rhythms.",
+      "Opposed lodestones ring. The forge answers as one."
     ];
     overlay(titles[state.levelIndex], bodies[state.levelIndex], final ? "PRESS ENTER TO REFORGE" : `PRESS ENTER FOR CHAMBER ${String(state.levelIndex + 2).padStart(2, "0")}`);
   }
   if (settingsOpen) drawSettings();
+  ctx.restore();
   canvas.dataset.phase = state.phase;
   canvas.dataset.chamber = String(state.levelIndex + 1);
   canvas.dataset.polarity = state.polarity;

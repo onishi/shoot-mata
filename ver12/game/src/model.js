@@ -123,6 +123,30 @@ export const LEVELS = Object.freeze([freezeLevel({
   poles: [
     { x: 6, y: 1, blocksAxis: "vertical" }
   ]
+}), freezeLevel({
+  name: "Crown Crucible",
+  lesson: "Opposed marks answer on alternating beats.",
+  player: { x: 4, y: 3 },
+  shards: [
+    { id: "cobalt", x: 2, y: 2, respondsTo: "pull" },
+    { id: "ember", x: 6, y: 2, respondsTo: "push" },
+    { id: "pearl", x: 4, y: 5 }
+  ],
+  sockets: [
+    { x: 3, y: 5 },
+    { x: 3, y: 3 },
+    { x: 3, y: 2 }
+  ],
+  walls: [
+    { x: 3, y: 1 }, { x: 5, y: 1 },
+    { x: 3, y: 4 }, { x: 6, y: 4 }
+  ],
+  blocks: [
+    { x: 6, y: 3 }
+  ],
+  poles: [
+    { x: 6, y: 1, blocksAxis: "vertical" }
+  ]
 })]);
 
 export const LEVEL = LEVELS[0];
@@ -286,8 +310,8 @@ export function statusText(state) {
   if (state.phase === "title") return "Lodestar Forge title. Press Enter to enter the chamber.";
   const chamber = state.levelIndex + 1;
   if (state.phase === "paused") return `Paused in chamber ${chamber}. ${docked} of 3 seeds locked. Press Escape to resume.`;
-  if (state.phase === "won") return `Chamber ${chamber} complete. 3 of 3 seeds locked in ${state.pulses} polarity flips. Press Enter to ${state.levelIndex < LEVELS.length - 1 ? "continue" : "replay"}.`;
+  if (state.phase === "won") return `Chamber ${chamber} complete. 3 of 3 seeds locked in ${state.pulses} polarity flips. Press Enter to ${state.levelIndex < LEVELS.length - 1 ? "continue" : "reforge the final crucible"}.`;
   const marked = state.shards.filter((shard) => shard.respondsTo && !shard.docked);
-  const markedText = marked.length ? ` ${marked.length} loose seed answers only ${marked[0].respondsTo}.` : "";
+  const markedText = marked.map((shard) => ` ${shard.id} answers only ${shard.respondsTo}.`).join("");
   return `Chamber ${chamber} active. ${state.polarity} polarity. ${docked} of 3 seeds locked.${markedText} Arrow keys move. Space flips polarity. R restarts. Escape pauses.`;
 }

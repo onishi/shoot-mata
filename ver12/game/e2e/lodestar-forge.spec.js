@@ -104,7 +104,7 @@ test("pull-bound seed waits through push and the fourth chamber is completable",
 
   await page.keyboard.press("Space");
   await expect(canvas).toHaveAttribute("data-docked", "2");
-  await expect(canvas).toHaveAttribute("aria-label", /1 loose seed answers only pull/);
+  await expect(canvas).toHaveAttribute("aria-label", /cobalt answers only pull/);
   await page.screenshot({ path: evidence("m3-cold-lodestone.png") });
 
   for (const key of ["ArrowDown", "Space", "Space", "ArrowLeft", "Space"]) {
@@ -132,6 +132,25 @@ test("pull-bound seed waits through push and the fourth chamber is completable",
   await expect(canvas).toHaveAttribute("data-docked", "3");
   await expect(canvas).toHaveAttribute("aria-label", /Chamber 5 complete.*6 polarity flips/);
   await page.screenshot({ path: evidence("m3-five-chambers-won.png") });
+
+  await page.keyboard.press("Enter");
+  await expect(canvas).toHaveAttribute("data-chamber", "6");
+  for (const key of ["ArrowRight", "ArrowDown", "ArrowDown", "Space"]) {
+    await page.keyboard.press(key);
+  }
+  await expect(canvas).toHaveAttribute("data-phase", "playing");
+  await expect(canvas).toHaveAttribute("data-docked", "1");
+  await expect(canvas).toHaveAttribute("aria-label", /cobalt answers only pull.*ember answers only push/);
+  await page.screenshot({ path: evidence("m3-crown-crucible.png") });
+
+  for (const key of [
+    "ArrowLeft", "Space", "ArrowRight", "ArrowRight", "ArrowRight", "ArrowUp", "ArrowUp",
+    "Space", "Space", "Space", "Space", "Space"
+  ]) await page.keyboard.press(key);
+  await expect(canvas).toHaveAttribute("data-phase", "won");
+  await expect(canvas).toHaveAttribute("data-docked", "3");
+  await expect(canvas).toHaveAttribute("aria-label", /Chamber 6 complete.*7 polarity flips.*reforge the final crucible/);
+  await page.screenshot({ path: evidence("m3-ending.png") });
 });
 
 test("settings persist and corrupt saves recover safely", async ({ page }) => {
