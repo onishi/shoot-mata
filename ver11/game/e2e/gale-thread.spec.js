@@ -33,14 +33,19 @@ async function pilot(page, targets, screenshotName) {
     const cyclePhase = state.elapsed % 6;
     const gusting = cyclePhase >= 4.2;
     const sheltered = (state.airspace === 1 && state.x >= 335 && state.x <= 625 && state.y >= 174 && state.y <= 346)
-      || (state.airspace === 2 && state.x >= 610 && state.x <= 860 && state.y >= 156 && state.y <= 314);
+      || (state.airspace === 2 && state.x >= 610 && state.x <= 860 && state.y >= 156 && state.y <= 314)
+      || (state.airspace === 5 && state.x >= 390 && state.x <= 610 && state.y >= 326 && state.y <= 458);
     const gustDirection = Math.floor(state.elapsed / 6) % 2 === 0 ? 1 : -1;
-    const inGaleLift = state.airspace === 3 && gusting && (
-      (gustDirection === 1 && state.x >= 105 && state.x <= 355 && state.y >= 72 && state.y <= 454)
-      || (gustDirection === -1 && state.x >= 605 && state.x <= 855 && state.y >= 72 && state.y <= 454)
+    const inGaleLift = gusting && (
+      (state.airspace === 3 && (
+        (gustDirection === 1 && state.x >= 105 && state.x <= 355 && state.y >= 72 && state.y <= 454)
+        || (gustDirection === -1 && state.x >= 605 && state.x <= 855 && state.y >= 72 && state.y <= 454)
+      ))
+      || (state.airspace === 5 && gustDirection === -1 && state.x >= 642 && state.x <= 870 && state.y >= 72 && state.y <= 454)
     );
     const needClimb = count < 3 && state.y > target.y + 5;
-    const gateAhead = state.airspace === 4 && [360, 600].some((gateX) => (
+    const gateXs = state.airspace === 4 ? [360, 600] : state.airspace === 5 ? [570] : [];
+    const gateAhead = gateXs.some((gateX) => (
       (state.x - gateX) * (target.x - gateX) <= 0 && Math.abs(state.x - gateX) < 125
     ));
     const shouldReel = gateAhead
@@ -50,8 +55,9 @@ async function pilot(page, targets, screenshotName) {
       if (shouldReel) await page.keyboard.down("Space"); else await page.keyboard.up("Space");
       reelHeld = shouldReel;
     }
-    const inDowndraft = state.airspace === 2 && state.x >= 390 && state.x <= 570 && state.y >= 78 && state.y <= 428;
-    const evidenceCondition = state.airspace === 4 ? state.message === "GATE IN TUNE" : state.airspace === 3 ? inGaleLift : state.airspace === 2 ? inDowndraft : sheltered && gusting;
+    const inDowndraft = (state.airspace === 2 && state.x >= 390 && state.x <= 570 && state.y >= 78 && state.y <= 428)
+      || (state.airspace === 5 && state.x >= 300 && state.x <= 460 && state.y >= 92 && state.y <= 338);
+    const evidenceCondition = state.airspace === 4 || state.airspace === 5 ? state.message === "GATE IN TUNE" : state.airspace === 3 ? inGaleLift : state.airspace === 2 ? inDowndraft : sheltered && gusting;
     if (screenshotName && evidenceCondition && !conditionEvidenceTaken) {
       await page.screenshot({ path: evidence(screenshotName) });
       conditionEvidenceTaken = true;
@@ -184,7 +190,50 @@ test("the fifth airspace tunes the thread to cross both sound gates", async ({ p
   const usedGate = await pilot(page, [{ x: 225, y: 370 }, { x: 735, y: 236 }, { x: 225, y: 102 }], "m3-resonant-pass-tuned.png");
   expect(usedGate).toBe(true);
   await page.screenshot({ path: evidence("m3-resonant-pass-won.png") });
-  await expect(page.locator("canvas")).toHaveAttribute("aria-label", /Five skies answer/i);
+  await expect(page.locator("canvas")).toHaveAttribute("aria-label", /cross into LAST HORIZON/i);
+});
+
+test("the final airspace weaves every learned wind rule into the finale", async ({ page }) => {
+  await page.goto("/");
+  await page.evaluate(() => localStorage.setItem("gale-thread:v11", JSON.stringify({
+    version: 1, unlockedAirspace: 5, volume: 0.75, reducedMotion: false,
+  })));
+  await page.reload();
+  await expect.poll(async () => (await snapshot(page))?.airspace).toBe(5);
+  await page.keyboard.press("Enter");
+  await expect.poll(async () => (await snapshot(page))?.mode).toBe("playing");
+  await page.screenshot({ path: evidence("m3-last-horizon-entry.png") });
+  const crossedGate = await pilot(page, [
+    { x: 230, y: 374 }, { x: 744, y: 238 }, { x: 228, y: 102 },
+  ], "m3-last-horizon-weave.png");
+  expect(crossedGate).toBe(true);
+  await page.screenshot({ path: evidence("m3-last-horizon-finale.png") });
+  await expect(page.locator("canvas")).toHaveAttribute("aria-label", /six-sky chorus is complete/i);
+});
+
+test("a fresh save flies all six airspaces into the final chorus", async ({ page }) => {
+  test.setTimeout(180_000);
+  const consoleProblems = [];
+  page.on("console", (message) => {
+    if (message.type() === "error" || message.type() === "warning") consoleProblems.push(message.text());
+  });
+  await launch(page);
+  const routes = [
+    [{ x: 300, y: 382 }, { x: 690, y: 252 }, { x: 405, y: 116 }],
+    [{ x: 720, y: 382 }, { x: 245, y: 238 }, { x: 710, y: 108 }],
+    [{ x: 250, y: 372 }, { x: 735, y: 238 }, { x: 250, y: 102 }],
+    [{ x: 255, y: 365 }, { x: 705, y: 230 }, { x: 255, y: 96 }],
+    [{ x: 225, y: 370 }, { x: 735, y: 236 }, { x: 225, y: 102 }],
+    [{ x: 230, y: 374 }, { x: 744, y: 238 }, { x: 228, y: 102 }],
+  ];
+  for (let airspace = 0; airspace < routes.length; airspace++) {
+    await expect.poll(async () => (await snapshot(page)).airspace).toBe(airspace);
+    await pilot(page, routes[airspace]);
+    if (airspace < routes.length - 1) await page.keyboard.press("Enter");
+  }
+  await expect(page.locator("canvas")).toHaveAttribute("aria-label", /six-sky chorus is complete/i);
+  await expect.poll(async () => page.evaluate(() => JSON.parse(localStorage.getItem("gale-thread:v11")).unlockedAirspace)).toBe(5);
+  expect(consoleProblems).toEqual([]);
 });
 
 test("settings and reached airspace persist across reloads", async ({ page }) => {

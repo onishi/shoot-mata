@@ -79,6 +79,20 @@ export const AIRSPACES = [
     ],
     gustPush: 172,
   },
+  {
+    name: "LAST HORIZON",
+    subtitle: "weave every wind into one homeward line",
+    ribbons: [
+      { x: 230, y: 374, name: "LEE CHIME" },
+      { x: 744, y: 238, name: "GALE CHIME" },
+      { x: 228, y: 102, name: "HORIZON CHIME" },
+    ],
+    clouds: [{ x: 390, y: 326, width: 220, height: 132 }],
+    downdrafts: [{ x: 300, y: 92, width: 160, height: 246, sink: 58 }],
+    galeLifts: [{ x: 642, y: 72, width: 228, height: 382, direction: -1, lift: 148 }],
+    soundGates: [{ x: 570, y: 62, height: 426, minTension: 0.32, maxTension: 0.68 }],
+    gustPush: 188,
+  },
 ];
 
 // Kept as the first-airspace layout for consumers that only need the M1 course.
@@ -158,6 +172,7 @@ export function startGame(game) {
       "SINKING AIR STEALS YOUR HEIGHT",
       "MEET THE GALE · RELEASE TO RISE",
       "TUNE THE THREAD TO CROSS",
+      "WEAVE EVERY WIND HOME",
     ];
     Object.assign(game, fresh, {
       mode: "playing",
@@ -260,7 +275,7 @@ export function accessibleStatus(game) {
   if (game.mode === "paused") return "Paused. Press Escape to continue.";
   if (game.mode === "lost") return "Thread parted. Press Enter or R to retry.";
   if (game.mode === "won" && game.airspace < AIRSPACES.length - 1) return `All three chimes returned from ${airspaceFor(game).name}. Press Enter to cross into ${AIRSPACES[game.airspace + 1].name}.`;
-  if (game.mode === "won") return `All three chimes returned from ${airspaceFor(game).name}. Five skies answer. Press Enter to fly again.`;
+  if (game.mode === "won") return `All three chimes returned from ${airspaceFor(game).name}. The six-sky chorus is complete. Press Enter to fly the final horizon again.`;
   const wind = windAt(game.elapsed);
   const direction = wind.direction > 0 ? "right" : "left";
   const shelter = isSheltered(game) ? " Sheltered by cloud." : "";

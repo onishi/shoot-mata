@@ -178,5 +178,38 @@ test("Resonant Pass chimes and landing remain reachable", () => {
   }
   game.x = 480; game.y = 472; const events = update(game, {}, 1 / 60);
   assert.equal(game.mode, "won"); assert.ok(events.some((event) => event.type === "won"));
-  assert.match(accessibleStatus(game), /Five skies answer/);
+  assert.match(accessibleStatus(game), /cross into LAST HORIZON/);
+});
+
+test("winning Resonant Pass advances into the combined final airspace", () => {
+  const game = createGame(4); startGame(game); game.mode = "won"; startGame(game);
+  assert.equal(game.mode, "playing"); assert.equal(game.airspace, 5);
+  assert.match(game.message, /EVERY WIND/);
+  assert.equal(AIRSPACES[5].clouds.length, 1);
+  assert.equal(AIRSPACES[5].downdrafts.length, 1);
+  assert.equal(AIRSPACES[5].galeLifts.length, 1);
+  assert.equal(AIRSPACES[5].soundGates.length, 1);
+});
+
+test("Last Horizon reuses shelter, sinking air, gale lift, and tuning rules", () => {
+  const sheltered = createGame(5); startGame(sheltered); sheltered.x = 480; sheltered.y = 390;
+  assert.equal(isSheltered(sheltered), true);
+  sheltered.x = 380; sheltered.y = 220;
+  assert.ok(downdraftAt(sheltered));
+  sheltered.elapsed = 10.3; sheltered.x = 740; sheltered.y = 260;
+  assert.ok(galeLiftAt(sheltered));
+  sheltered.x = 570; sheltered.tension = 0.5;
+  assert.equal(soundGateIsTuned(sheltered, soundGateAt(sheltered)), true);
+});
+
+test("Last Horizon chimes lead to the six-sky finale", () => {
+  const game = createGame(5); startGame(game);
+  for (const ribbon of AIRSPACES[5].ribbons) {
+    game.x = ribbon.x; game.y = ribbon.y; update(game, {}, 1 / 60);
+  }
+  game.x = 480; game.y = 472; const events = update(game, {}, 1 / 60);
+  assert.equal(game.mode, "won"); assert.ok(events.some((event) => event.type === "won"));
+  assert.match(accessibleStatus(game), /six-sky chorus is complete/i);
+  startGame(game);
+  assert.equal(game.airspace, 5); assert.equal(game.mode, "playing");
 });

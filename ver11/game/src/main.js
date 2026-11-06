@@ -298,7 +298,8 @@ function draw() {
   if (game.mode === "won" && game.airspace === 1) overlay("TWO SKIES ANSWER", "a falling seam divides the final sky", "ENTER TO CROSS INTO FALLING WEFT");
   if (game.mode === "won" && game.airspace === 2) overlay("THREE SKIES ANSWER", "the next gale can carry an open thread upward", "ENTER TO CROSS INTO TURNING TACK");
   if (game.mode === "won" && game.airspace === 3) overlay("FOUR SKIES ANSWER", "the sounding pass asks the thread to hold its note", "ENTER TO CROSS INTO RESONANT PASS");
-  if (game.mode === "won" && game.airspace === AIRSPACES.length - 1) overlay("FIVE SKIES ANSWER", "fifteen chimes return on five unbroken threads", "ENTER TO FLY RESONANT PASS AGAIN");
+  if (game.mode === "won" && game.airspace === 4) overlay("FIVE SKIES ANSWER", "one last horizon gathers every lesson of the wind", "ENTER TO CROSS INTO LAST HORIZON");
+  if (game.mode === "won" && game.airspace === AIRSPACES.length - 1) overlay("THE SIX-SKY CHORUS", "eighteen chimes ring home on six unbroken threads", "ENTER TO FLY LAST HORIZON AGAIN");
   if (settingsOpen) drawSettings();
 }
 
