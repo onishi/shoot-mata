@@ -14,6 +14,7 @@ const freezeLevel = (level) => Object.freeze({
 export const LEVELS = Object.freeze([freezeLevel({
   name: "First Mold",
   lesson: "One field moves every loose seed.",
+  pulseLimit: 6,
   player: Object.freeze({ x: 4, y: 3 }),
   shards: [
     { id: "cobalt", x: 2, y: 2 },
@@ -35,6 +36,7 @@ export const LEVELS = Object.freeze([freezeLevel({
 }), freezeLevel({
   name: "Iron Brake",
   lesson: "Use fixed iron to hold one seed back.",
+  pulseLimit: 7,
   player: { x: 4, y: 3 },
   shards: [
     { id: "cobalt", x: 2, y: 2 },
@@ -57,6 +59,7 @@ export const LEVELS = Object.freeze([freezeLevel({
 }), freezeLevel({
   name: "Polar Veil",
   lesson: "Striped poles stop seeds on one axis, not the smith.",
+  pulseLimit: 7,
   player: { x: 4, y: 3 },
   shards: [
     { id: "cobalt", x: 2, y: 2 },
@@ -81,6 +84,7 @@ export const LEVELS = Object.freeze([freezeLevel({
 }), freezeLevel({
   name: "Cold Lodestone",
   lesson: "Marked seeds answer only the matching field.",
+  pulseLimit: 8,
   player: { x: 4, y: 3 },
   shards: [
     { id: "cobalt", x: 2, y: 2, respondsTo: "pull" },
@@ -102,6 +106,7 @@ export const LEVELS = Object.freeze([freezeLevel({
 }), freezeLevel({
   name: "Tempered Relay",
   lesson: "Iron and striped poles relay the field between seeds.",
+  pulseLimit: 10,
   player: { x: 4, y: 3 },
   shards: [
     { id: "cobalt", x: 2, y: 2, respondsTo: "pull" },
@@ -126,6 +131,7 @@ export const LEVELS = Object.freeze([freezeLevel({
 }), freezeLevel({
   name: "Crown Crucible",
   lesson: "Opposed marks answer on alternating beats.",
+  pulseLimit: 11,
   player: { x: 4, y: 3 },
   shards: [
     { id: "cobalt", x: 2, y: 2, respondsTo: "pull" },
@@ -166,6 +172,8 @@ export function createGame(levelIndex = 0) {
     credits: 0,
     score: 0,
     chamberStartScore: 0,
+    continues: 0,
+    outcome: null,
     polarity: "pull",
     player: { ...level.player },
     shards: level.shards.map((shard) => ({ ...shard, docked: false })),
@@ -180,19 +188,25 @@ export function createGame(levelIndex = 0) {
 
 export function startGame(state) {
   if (state.phase === "ranking") return createGame(state.levelIndex);
-  if (state.phase !== "attract" && state.phase !== "ready" && state.phase !== "won") return state;
-  if (state.phase === "won" && state.levelIndex === LEVELS.length - 1) {
-    return { ...state, phase: "initials", initials: ["A", "A", "A"], initialCursor: 0 };
+  if (state.phase === "gameover") {
+    return { ...state, phase: "initials", outcome: "over", initials: ["A", "A", "A"], initialCursor: 0 };
   }
+  if (state.phase !== "attract" && state.phase !== "ready" && state.phase !== "continue_ready" && state.phase !== "won") return state;
+  if (state.phase === "won" && state.levelIndex === LEVELS.length - 1) {
+    return { ...state, phase: "initials", outcome: "complete", initials: ["A", "A", "A"], initialCursor: 0 };
+  }
+  const continuing = state.phase === "continue_ready";
   const advances = state.phase === "won" && state.levelIndex < LEVELS.length - 1;
   const nextIndex = advances ? state.levelIndex + 1 : state.levelIndex;
-  const nextScore = state.phase === "won" && !advances ? state.chamberStartScore : state.score;
+  const nextScore = continuing || (state.phase === "won" && !advances) ? state.chamberStartScore : state.score;
   const next = createGame(nextIndex);
   next.phase = "playing";
-  next.credits = state.phase === "ready" ? Math.max(0, state.credits - 1) : state.credits;
+  next.credits = state.phase === "ready" || continuing ? Math.max(0, state.credits - 1) : state.credits;
   next.score = nextScore;
   next.chamberStartScore = nextScore;
+  next.continues = state.continues + (continuing ? 1 : 0);
   if (nextIndex > state.levelIndex) next.lastEvent = LEVELS[nextIndex].lesson;
+  if (continuing) next.lastEvent = "The forge burns again.";
   return next;
 }
 
@@ -214,8 +228,9 @@ function editInitials(state, action) {
 }
 
 export function insertCoin(state) {
-  if (state.phase !== "attract") return state;
-  return { ...state, phase: "ready", credits: 1, lastEvent: "Credit accepted." };
+  if (state.phase === "attract") return { ...state, phase: "ready", credits: 1, lastEvent: "Credit accepted." };
+  if (state.phase === "gameover") return { ...state, phase: "continue_ready", credits: 1, lastEvent: "Continue credit accepted." };
+  return state;
 }
 
 export function resetGame(levelIndex = 0, score = 0, credits = 1) {
@@ -315,16 +330,18 @@ export function flipPolarity(state) {
     return { ...shard, ...target, docked };
   });
   const allDocked = shards.every((shard) => shard.docked);
+  const nextPulses = state.pulses + 1;
+  const overheated = !allDocked && nextPulses >= level.pulseLimit;
   const moved = loose.length - staying.size;
   const resistedByPolarity = responsive.length < loose.length;
   return {
     ...state,
-    phase: allDocked ? "won" : "playing",
+    phase: allDocked ? "won" : overheated ? "gameover" : "playing",
     polarity,
     shards,
     score: state.score + dockedNow * 1000 + (allDocked ? 5000 + Math.max(0, 8 - (state.pulses + 1)) * 250 : 0),
-    pulses: state.pulses + 1,
-    lastEvent: allDocked ? "The forge is whole." : dockedNow ? `${dockedNow} seed locked.` : moved ? "The seeds answer." : resistedByPolarity ? `The marked seed ignores ${polarity.toUpperCase()}.` : "The field meets resistance.",
+    pulses: nextPulses,
+    lastEvent: allDocked ? "The forge is whole." : overheated ? "The forge overheated." : dockedNow ? `${dockedNow} seed locked.` : moved ? "The seeds answer." : resistedByPolarity ? `The marked seed ignores ${polarity.toUpperCase()}.` : "The field meets resistance.",
     pulseFrom: { ...state.player }
   };
 }
@@ -333,7 +350,11 @@ export function reduce(state, action) {
   if (state.phase === "initials") return editInitials(state, action);
   if (action === "coin") return insertCoin(state);
   if (action === "enter") return state.phase === "attract" ? state : startGame(state);
-  if (action === "reset") return resetGame(state.levelIndex, state.chamberStartScore, state.credits);
+  if (action === "reset" && ["playing", "paused", "won"].includes(state.phase)) {
+    const reset = resetGame(state.levelIndex, state.chamberStartScore, state.credits);
+    reset.continues = state.continues;
+    return reset;
+  }
   if (action === "pause") return togglePause(state);
   if (action === "flip") return flipPolarity(state);
   if (action === "left") return movePlayer(state, -1, 0);
@@ -351,6 +372,8 @@ export function statusText(state) {
   const docked = state.shards.filter((shard) => shard.docked).length;
   if (state.phase === "attract") return "Lodestar Forge attract mode. Move with the lever and flip the whole field with button 1. Press C to insert coin.";
   if (state.phase === "ready") return "One credit. Press Enter to start Lodestar Forge.";
+  if (state.phase === "continue_ready") return `Continue credit ready in chamber ${state.levelIndex + 1}. Press Enter to restart the chamber.`;
+  if (state.phase === "gameover") return `Game over in chamber ${state.levelIndex + 1}. Forge heat reached ${levelFor(state).pulseLimit}. Press C to continue or Enter to record your score.`;
   if (state.phase === "initials") return `Final score ${state.score}. Enter initials ${state.initials.join("")}. Letter ${state.initialCursor + 1} selected. Up and down change letter. Left and right select. Button 1 registers.`;
   if (state.phase === "ranking") return `Local top five ranking. Final score ${state.score}. Press Enter to return to attract mode.`;
   const chamber = state.levelIndex + 1;

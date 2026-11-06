@@ -236,6 +236,29 @@ test("pause freezes actions and reset restores the chamber", () => {
   assert.equal(game.shards.some((shard) => shard.docked), false);
 });
 
+test("forge heat creates game over, score exit, and one-credit continue", () => {
+  let game = startGame(createGame());
+  game = { ...game, pulses: LEVELS[0].pulseLimit - 1 };
+  game = reduce(game, "flip");
+  assert.equal(game.phase, "gameover");
+  assert.match(statusText(game), /Game over.*Press C to continue/i);
+  assert.equal(reduce(game, "reset"), game, "R cannot bypass the continue credit");
+
+  const scoreExit = reduce(game, "enter");
+  assert.equal(scoreExit.phase, "initials");
+  assert.equal(scoreExit.outcome, "over");
+
+  game = reduce(game, "coin");
+  assert.equal(game.phase, "continue_ready");
+  assert.equal(game.credits, 1);
+  game = reduce(game, "enter");
+  assert.equal(game.phase, "playing");
+  assert.equal(game.credits, 0);
+  assert.equal(game.continues, 1);
+  assert.equal(game.pulses, 0);
+  assert.equal(game.score, game.chamberStartScore);
+});
+
 test("preferences round-trip and clamp values", () => {
   const values = new Map();
   const storage = {

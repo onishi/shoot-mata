@@ -18,3 +18,4 @@
 | 2026-11-07T01:00:41+0900 | Codex | run-codex-loop.sh | 3 | M4自動実演アトラクト、6.5秒循環、コイン割り込み分離を実装 | 単体19/19、build、Chrome E2E 9/9、2 viewport画像比較目視 | `feat(ver12): add autonomous attract demo` |
 | 2026-11-07T01:33:42+0900 | Codex | run-codex-loop.sh | 4 | M4成績入力、ローカル上位5件、アトラクト復帰を実装 | 単体20/20、build、Chrome E2E 10/10、画像2点比較目視 | `feat(ver12): add local arcade ranking` |
 | 2026-11-07T02:08:42+0900 | Codex | run-codex-loop.sh | 5 | M4 FM音源風BGM、状態別ジングル、音量・ミュート監査を実装 | 単体23/23、build、Chrome E2E 10/10、理論ピーク監査、画像2点比較目視 | `feat(ver12): add FM forge soundtrack` |
+| 2026-11-07T08:07:34+0900 | Codex | run-codex-loop.sh | 1 | M4 FORGE HEAT、ゲームオーバー、追加クレジットによる同室コンティニューを実装 | 単体24/24、build、Chrome E2E 11/11、6室通し非退行、画像2点比較目視 | `feat(ver12): add arcade continue flow` |

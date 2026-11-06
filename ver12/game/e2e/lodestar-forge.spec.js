@@ -68,6 +68,39 @@ test("a fresh credit reaches field feedback inside ten seconds and a clear insid
   await page.screenshot({ path: evidence("m4-first-clear-score.png") });
 });
 
+test("forge heat reaches game over and a new credit continues the chamber", async ({ page }) => {
+  await page.goto("/");
+  const canvas = page.locator("canvas");
+  await insertCoinAndStart(page);
+  for (let i = 0; i < 6; i += 1) await page.keyboard.press("Space");
+  await expect(canvas).toHaveAttribute("data-phase", "gameover");
+  await expect(canvas).toHaveAttribute("data-heat-limit", "6");
+  await expect(canvas).toHaveAttribute("data-audio-scene", "silent");
+  await expect(canvas).toHaveAttribute("data-audio-cue", "gameover");
+  await expect(canvas).toHaveAttribute("aria-label", /Game over.*Press C to continue.*record your score/i);
+  await page.screenshot({ path: evidence("m4-gameover.png") });
+
+  await page.keyboard.press("KeyR");
+  await expect(canvas).toHaveAttribute("data-phase", "gameover");
+  await page.keyboard.press("KeyC");
+  await expect(canvas).toHaveAttribute("data-phase", "continue_ready");
+  await page.screenshot({ path: evidence("m4-continue-ready.png") });
+  await page.keyboard.press("Enter");
+  await expect(canvas).toHaveAttribute("data-phase", "playing");
+  await expect(canvas).toHaveAttribute("data-continues", "1");
+  await expect(canvas).toHaveAttribute("data-score", "0");
+  await expect(canvas).toHaveAttribute("data-audio-scene", "play");
+
+  for (let i = 0; i < 6; i += 1) await page.keyboard.press("Space");
+  await page.keyboard.press("Enter");
+  await expect(canvas).toHaveAttribute("data-phase", "initials");
+  await expect(canvas).toHaveAttribute("data-outcome", "over");
+  await page.keyboard.press("Space");
+  await expect(canvas).toHaveAttribute("data-phase", "ranking");
+  await page.keyboard.press("Enter");
+  await expect(canvas).toHaveAttribute("data-phase", "attract");
+});
+
 test("the first field remains legible in a 640 by 480 cabinet viewport", async ({ page }) => {
   await page.setViewportSize({ width: 640, height: 480 });
   await page.goto("/");

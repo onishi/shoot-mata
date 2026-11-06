@@ -112,6 +112,8 @@ function drawCabinetBands(cabinetState = state) {
   text("BUTTON 1  FLIP FIELD", 480, 676, 12, COLORS.push, "center", 750);
   const cabinetStatus = cabinetState.phase === "attract" ? "INSERT COIN  C"
     : cabinetState.phase === "ready" ? `CREDIT  ${cabinetState.credits}   ·   START  ENTER`
+      : cabinetState.phase === "gameover" ? "CONTINUE?  C   ·   SCORE  ENTER"
+        : cabinetState.phase === "continue_ready" ? `CREDIT  ${cabinetState.credits}   ·   CONTINUE  ENTER`
       : cabinetState.phase === "won" ? "CREDIT  0   ·   NEXT  ENTER"
         : cabinetState.phase === "initials" ? "LEVER  SELECT   ·   BUTTON 1  ENTER"
           : cabinetState.phase === "ranking" ? "LOCAL RECORDS   ·   ENTER  EXIT" : "CREDIT  0   ·   1 PLAYER";
@@ -344,8 +346,8 @@ function drawHud() {
   const docked = state.shards.filter((shard) => shard.docked).length;
   text("SEEDS LOCKED", 46, 287, 11, "#8e938d", "left", 650);
   text(`${docked} / 3`, 46, 318, 25, COLORS.brass, "left", 800);
-  text("FLIPS", 46, 369, 11, "#8e938d", "left", 650);
-  text(String(state.pulses).padStart(2, "0"), 46, 398, 22, COLORS.pale, "left", 700);
+  text("FORGE HEAT", 46, 369, 11, "#8e938d", "left", 650);
+  text(`${String(state.pulses).padStart(2, "0")} / ${String(level.pulseLimit).padStart(2, "0")}`, 46, 398, 19, state.pulses >= level.pulseLimit - 1 ? COLORS.push : COLORS.pale, "left", 700);
   text("SCORE", 46, 449, 11, "#8e938d", "left", 650);
   text(String(state.score).padStart(6, "0"), 46, 476, 20, COLORS.brass, "left", 750);
   if (state.lastEvent) text(state.lastEvent.toUpperCase(), 480, 507, 12, state.lastEvent.includes("resistance") ? COLORS.push : COLORS.brass, "center", 650);
@@ -362,8 +364,10 @@ function overlay(title, body, prompt, color = COLORS.brass) {
   ctx.stroke();
   text(title, 480, 196, title.length > 22 ? 29 : 35, COLORS.pale, "center", 800);
   text(body, 480, 252, 15, "#b9b4a7", "center", 500);
-  text(state.phase === "attract" || state.phase === "ready" ? "LEVER TO AIM" : `POLARITY FLIPS  ${state.pulses}`, 480, 295, 12, color, "center", 700);
-  text(state.phase === "attract" || state.phase === "ready" ? "BUTTON 1 FLIPS EVERY SEED" : "ALL THREE SEEDS ARE LOCKED", 480, 319, 12, color, "center", 700);
+  const instructions = state.phase === "attract" || state.phase === "ready";
+  const failed = state.phase === "gameover" || state.phase === "continue_ready";
+  text(instructions ? "LEVER TO AIM" : failed ? `FORGE HEAT  ${state.pulses} / ${levelFor(state).pulseLimit}` : `POLARITY FLIPS  ${state.pulses}`, 480, 295, 12, color, "center", 700);
+  text(instructions ? "BUTTON 1 FLIPS EVERY SEED" : failed ? (state.phase === "gameover" ? "CHAMBER LIMIT REACHED" : "CHAMBER WILL REWIND") : "ALL THREE SEEDS ARE LOCKED", 480, 319, 12, color, "center", 700);
   text(prompt, 480, 366, 13, COLORS.pale, "center", 700);
 }
 
@@ -426,7 +430,7 @@ function drawSettings() {
 function drawInitials() {
   ctx.fillStyle = "#05080bf2";
   ctx.fillRect(0, 0, 960, 540);
-  text("FORGE COMPLETE", 480, 116, 20, COLORS.brass, "center", 800);
+  text(state.outcome === "over" ? "GAME OVER" : "FORGE COMPLETE", 480, 116, 20, state.outcome === "over" ? COLORS.push : COLORS.brass, "center", 800);
   text("FINAL SCORE", 480, 158, 12, "#9f9889", "center", 700);
   text(String(state.score).padStart(6, "0"), 480, 198, 34, COLORS.pale, "center", 800);
   text("ENTER YOUR INITIALS", 480, 250, 15, COLORS.pull, "center", 750);
@@ -493,6 +497,8 @@ function render(time = 0) {
   if (showingDemo) drawAttractDemo();
   state = liveState;
   if (state.phase === "ready") overlay("CREDIT 1", "Stand where the field should bend.", "PRESS ENTER TO START", COLORS.pull);
+  if (state.phase === "gameover") overlay("FORGE OVERHEATED", "The field took too many polarity strikes.", "C TO CONTINUE  ·  ENTER TO RECORD SCORE", COLORS.push);
+  if (state.phase === "continue_ready") overlay("CONTINUE READY", "The chamber and its score will rewind.", "PRESS ENTER TO RETURN TO THE FORGE", COLORS.pull);
   if (state.phase === "paused") overlay("FIELD SUSPENDED", "The chamber is holding its shape.", "ESC TO RESUME", COLORS.pull);
   if (state.phase === "won") {
     const final = state.levelIndex === LEVELS.length - 1;
@@ -517,6 +523,9 @@ function render(time = 0) {
   canvas.dataset.docked = String(state.shards.filter((shard) => shard.docked).length);
   canvas.dataset.credits = String(state.credits);
   canvas.dataset.score = String(state.score);
+  canvas.dataset.heatLimit = String(levelFor(state).pulseLimit);
+  canvas.dataset.continues = String(state.continues);
+  canvas.dataset.outcome = state.outcome ?? "none";
   canvas.dataset.volume = String(preferences.volume);
   canvas.dataset.reducedMotion = String(preferences.reducedMotion);
   canvas.dataset.demoStep = showingDemo ? String(demoStep) : "off";
@@ -608,12 +617,15 @@ window.addEventListener("keydown", (event) => {
     if (state.phase === "won") {
       audio.setScene("silent");
       audio.cue(state.levelIndex === LEVELS.length - 1 ? "ending" : "chamber");
+    } else if (state.phase === "gameover") {
+      audio.setScene("silent");
+      audio.cue("gameover");
     }
   } else if (action === "coin") {
     audio.cue("coin");
   } else if (action === "enter" && state.phase === "playing") {
-    if (previous.phase === "ready") audio.cue("start");
-    audio.setScene("play", previous.phase === "ready" ? 0.35 : 0);
+    if (previous.phase === "ready" || previous.phase === "continue_ready") audio.cue("start");
+    audio.setScene("play", previous.phase === "ready" || previous.phase === "continue_ready" ? 0.35 : 0);
   } else if (action === "pause") {
     audio.setScene(state.phase === "playing" ? "play" : "silent");
   } else if (["left", "right", "up", "down"].includes(action)) {
