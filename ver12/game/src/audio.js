@@ -84,7 +84,8 @@ export class ForgeAudio {
       pull: [[280, 0, 0.08], [420, 0.05, 0.12]],
       push: [[180, 0, 0.08], [260, 0.05, 0.12]],
       move: [[135, 0, 0.04]],
-      blocked: [[95, 0, 0.05]]
+      blocked: [[95, 0, 0.05]],
+      sigil: [[440, 0, 0.12], [660, 0.08, 0.18], [880, 0.16, 0.26]]
     }[name] ?? [];
     for (const [frequency, delay, duration] of notes) this.voice(frequency, delay, duration, MIX.effectVoice, "square", 8);
     if (name === "dock") {

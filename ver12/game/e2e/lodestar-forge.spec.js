@@ -68,6 +68,21 @@ test("a fresh credit reaches field feedback inside ten seconds and a clear insid
   await page.screenshot({ path: evidence("m4-first-clear-score.png") });
 });
 
+test("temper sigil offers a visible higher-scoring first chamber route", async ({ page }) => {
+  await page.goto("/");
+  const canvas = page.locator("canvas");
+  await insertCoinAndStart(page);
+  for (const key of ["ArrowRight", "ArrowRight", "Space"]) await page.keyboard.press(key);
+  await expect(canvas).toHaveAttribute("data-sigil-lit", "true");
+  await expect(canvas).toHaveAttribute("data-score", "5000");
+  await expect(canvas).toHaveAttribute("data-audio-cue", "sigil");
+  await expect(canvas).toHaveAttribute("aria-label", /temper sigil lit/i);
+  await page.screenshot({ path: evidence("m4-temper-sigil.png") });
+  for (const key of ["ArrowLeft", "Space", "Space"]) await page.keyboard.press(key);
+  await expect(canvas).toHaveAttribute("data-phase", "won");
+  await expect(canvas).toHaveAttribute("data-score", "12250");
+});
+
 test("forge heat reaches game over and a new credit continues the chamber", async ({ page }) => {
   await page.goto("/");
   const canvas = page.locator("canvas");

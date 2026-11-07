@@ -62,10 +62,28 @@ test("known chamber solution locks all three seeds", () => {
   assert.equal(game.pulses, 2);
   assert.equal(game.shards.filter((shard) => shard.docked).length, 3);
   assert.equal(game.score, 9500);
+  assert.equal(game.sigilLit, false);
   assert.match(statusText(game), /Chamber 1 complete/);
   assert.match(statusText(game), /continue/);
   game = reduce(game, "reset");
   assert.equal(game.score, 0);
+});
+
+test("temper sigil creates a riskier high-score route without blocking the safe clear", () => {
+  let game = startGame(createGame());
+  for (const action of ["right", "right", "flip"]) game = reduce(game, action);
+  assert.equal(game.sigilLit, true);
+  assert.equal(game.score, 5000);
+  assert.deepEqual(game.shards.find((shard) => shard.id === "ember"), {
+    id: "ember", x: 6, y: 1, docked: false
+  });
+  assert.match(game.lastEvent, /sigil.*3000/i);
+  for (const action of ["left", "flip", "flip"]) game = reduce(game, action);
+  assert.equal(game.phase, "won");
+  assert.equal(game.pulses, 3);
+  assert.equal(game.score, 12250);
+  assert.equal(game.sigilLit, true);
+  assert.match(statusText(game), /Chamber 1 complete/);
 });
 
 test("winning the first mold advances to the iron brake", () => {

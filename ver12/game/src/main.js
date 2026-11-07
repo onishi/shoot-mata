@@ -164,6 +164,30 @@ function drawSocket(socket, occupied) {
   ctx.fill();
 }
 
+function drawSigil(sigil) {
+  if (!sigil) return;
+  const p = cellCenter(sigil);
+  const lit = state.sigilLit;
+  ctx.save();
+  ctx.translate(p.x, p.y);
+  ctx.rotate(Math.PI / 4);
+  ctx.fillStyle = lit ? "#d8ab5e55" : "#261e17";
+  ctx.strokeStyle = lit ? COLORS.brass : "#765a35";
+  ctx.lineWidth = lit ? 4 : 2;
+  ctx.fillRect(-17, -17, 34, 34);
+  ctx.strokeRect(-17, -17, 34, 34);
+  ctx.rotate(-Math.PI / 4);
+  ctx.strokeStyle = lit ? COLORS.pale : COLORS.brass;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(-11, 0);
+  ctx.lineTo(11, 0);
+  ctx.moveTo(0, -11);
+  ctx.lineTo(0, 11);
+  ctx.stroke();
+  ctx.restore();
+}
+
 function drawWall(wall) {
   const x = BOARD_X + wall.x * CELL + 7;
   const y = BOARD_Y + wall.y * CELL + 7;
@@ -343,6 +367,7 @@ function drawHud() {
   text("FIELD", 46, 174, 11, "#8e938d", "left", 650);
   text(state.polarity.toUpperCase(), 46, 202, 24, color, "left", 800);
   text(state.polarity === "pull" ? "INWARD  «" : "OUTWARD  »", 46, 226, 11, color);
+  if (level.sigil) text(`TEMPER  ${state.sigilLit ? "LIT" : `+${level.sigil.bonus}`}`, 46, 253, 10, state.sigilLit ? COLORS.pale : COLORS.brass, "left", 750);
   const docked = state.shards.filter((shard) => shard.docked).length;
   text("SEEDS LOCKED", 46, 287, 11, "#8e938d", "left", 650);
   text(`${docked} / 3`, 46, 318, 25, COLORS.brass, "left", 800);
@@ -487,6 +512,7 @@ function render(time = 0) {
   ctx.translate(0, 90);
   drawBoard();
   for (const socket of level.sockets) drawSocket(socket, state.shards.some((shard) => shard.docked && shard.x === socket.x && shard.y === socket.y));
+  drawSigil(level.sigil);
   for (const wall of level.walls) drawWall(wall);
   for (const block of level.blocks) drawBlock(block);
   for (const pole of level.poles) drawPole(pole);
@@ -523,6 +549,7 @@ function render(time = 0) {
   canvas.dataset.docked = String(state.shards.filter((shard) => shard.docked).length);
   canvas.dataset.credits = String(state.credits);
   canvas.dataset.score = String(state.score);
+  canvas.dataset.sigilLit = String(state.sigilLit);
   canvas.dataset.heatLimit = String(levelFor(state).pulseLimit);
   canvas.dataset.continues = String(state.continues);
   canvas.dataset.outcome = state.outcome ?? "none";
@@ -614,6 +641,7 @@ window.addEventListener("keydown", (event) => {
     audio.cue(state.polarity === "pull" ? "pull" : "push");
     const newlyDocked = state.shards.filter((shard, i) => shard.docked && !previous.shards[i].docked).length;
     if (newlyDocked) audio.cue("dock", newlyDocked);
+    if (state.sigilLit && !previous.sigilLit) audio.cue("sigil");
     if (state.phase === "won") {
       audio.setScene("silent");
       audio.cue(state.levelIndex === LEVELS.length - 1 ? "ending" : "chamber");

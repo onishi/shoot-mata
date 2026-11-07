@@ -20,3 +20,4 @@
 | 2026-11-07T02:08:42+0900 | Codex | run-codex-loop.sh | 5 | M4 FM音源風BGM、状態別ジングル、音量・ミュート監査を実装 | 単体23/23、build、Chrome E2E 10/10、理論ピーク監査、画像2点比較目視 | `feat(ver12): add FM forge soundtrack` |
 | 2026-11-07T08:07:34+0900 | Codex | run-codex-loop.sh | 1 | M4 FORGE HEAT、ゲームオーバー、追加クレジットによる同室コンティニューを実装 | 単体24/24、build、Chrome E2E 11/11、6室通し非退行、画像2点比較目視 | `feat(ver12): add arcade continue flow` |
 | 2026-11-07T08:42:29+0900 | Codex | run-codex-loop.sh | 2 | M4人間相当ペース通し・180フレーム性能監査を再実行可能にし、時間目標未達を記録 | 全6室103.4秒・53,750点、180フレーム平均16.67ms、25ms超0、Long Task 0 | `test(ver12): audit campaign pacing and performance` |
+| 2026-11-07T09:19:55+0900 | Codex | run-codex-loop.sh | 3 | M4第1室へ安全解と競合するTEMPER SIGIL高得点経路を実装 | 単体25/25、build、Chrome E2E 12/12、画像1点目視 | `feat(ver12): add temper sigil score route` |
