@@ -86,6 +86,89 @@ test("temper sigil creates a riskier high-score route without blocking the safe 
   assert.match(statusText(game), /Chamber 1 complete/);
 });
 
+test("one-step undo restores the full pre-flip state without duplicating heat or score", () => {
+  let game = startGame(createGame());
+  game = reduce(game, "right");
+  game = reduce(game, "right");
+  const beforeFlip = game;
+  game = reduce(game, "flip");
+  assert.equal(game.sigilLit, true);
+  assert.equal(game.score, 5000);
+  assert.equal(game.pulses, 1);
+  game = reduce(game, "left");
+  game = reduce(game, "undo");
+  assert.equal(game.phase, "playing");
+  assert.equal(game.polarity, beforeFlip.polarity);
+  assert.deepEqual(game.player, beforeFlip.player);
+  assert.deepEqual(game.shards, beforeFlip.shards);
+  assert.equal(game.score, beforeFlip.score);
+  assert.equal(game.pulses, beforeFlip.pulses);
+  assert.equal(game.sigilLit, beforeFlip.sigilLit);
+  assert.equal(game.undoUsed, true);
+  assert.equal(game.undoSnapshot, null);
+  assert.match(statusText(game), /undo spent/i);
+
+  game = reduce(game, "flip");
+  assert.equal(game.score, 5000, "replaying the strike awards the sigil and docks only once");
+  assert.equal(game.pulses, 1, "replaying the strike restores its heat cost");
+  assert.equal(reduce(game, "undo"), game, "a chamber cannot chain undos");
+});
+
+test("undo can recover the strike that wins or overheats, but only once", () => {
+  let won = startGame(createGame());
+  for (const action of ["flip", "left", "left", "down", "down"]) won = reduce(won, action);
+  won = reduce(won, "flip");
+  assert.equal(won.phase, "won");
+  won = reduce(won, "undo");
+  assert.equal(won.phase, "playing");
+  assert.equal(won.score, 2000);
+  assert.equal(won.pulses, 1);
+
+  let overheated = startGame(createGame());
+  overheated = { ...overheated, pulses: LEVELS[0].pulseLimit - 1 };
+  overheated = reduce(overheated, "flip");
+  assert.equal(overheated.phase, "gameover");
+  overheated = reduce(overheated, "undo");
+  assert.equal(overheated.phase, "playing");
+  assert.equal(overheated.pulses, LEVELS[0].pulseLimit - 1);
+  assert.equal(overheated.undoUsed, true);
+});
+
+test("each later chamber has a distinct higher-heat temper route", () => {
+  const routes = [
+    {
+      level: 1, pulses: 5, bonus: 3000, score: 11750,
+      actions: ["flip", "flip", "flip", "right", "right", "flip", "flip"]
+    },
+    {
+      level: 2, pulses: 4, bonus: 3500, score: 12500,
+      actions: ["left", "left", "flip", "right", "right", "right", "down", "flip", "flip", "left", "down", "flip"]
+    },
+    {
+      level: 3, pulses: 5, bonus: 4000, score: 12750,
+      actions: ["right", "down", "flip", "flip", "flip", "left", "flip", "flip"]
+    },
+    {
+      level: 4, pulses: 8, bonus: 5000, score: 13000,
+      actions: ["right", "down", "flip", "left", "up", "left", "flip", "left", "left", "flip", "flip", "flip", "flip", "right", "right", "right", "down", "flip", "flip"]
+    },
+    {
+      level: 5, pulses: 9, bonus: 6000, score: 14000,
+      actions: ["right", "down", "down", "flip", "left", "flip", "flip", "left", "left", "left", "up", "flip", "right", "down", "right", "right", "right", "right", "right", "up", "up", "flip", "flip", "flip", "flip", "flip"]
+    }
+  ];
+
+  for (const route of routes) {
+    let game = startGame(createGame(route.level));
+    for (const action of route.actions) game = reduce(game, action);
+    assert.equal(game.phase, "won", `chamber ${route.level + 1} completes`);
+    assert.equal(game.sigilLit, true, `chamber ${route.level + 1} lights its sigil`);
+    assert.equal(game.pulses, route.pulses, `chamber ${route.level + 1} spends extra heat`);
+    assert.equal(LEVELS[route.level].sigil.bonus, route.bonus);
+    assert.equal(game.score, route.score);
+  }
+});
+
 test("winning the first mold advances to the iron brake", () => {
   let game = startGame(createGame());
   for (const action of ["flip", "left", "left", "down", "down", "flip", "enter"]) game = reduce(game, action);

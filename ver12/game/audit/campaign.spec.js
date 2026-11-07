@@ -5,8 +5,9 @@ const evidence = new URL("../../docs/evidence/m4-campaign-audit.json", import.me
 const INPUT_INTERVAL_MS = 850;
 const CHAMBER_SURVEY_MS = 6_000;
 const RESULT_READ_MS = 4_000;
+const EXECUTION_DELAY_MS = 10;
 
-const chambers = [
+const safeChambers = [
   ["Space", "ArrowLeft", "ArrowLeft", "ArrowDown", "ArrowDown", "Space"],
   ["ArrowRight", "Space", "ArrowRight", "Space", "Space"],
   ["ArrowRight", "Space", "ArrowDown", "ArrowRight", "Space", "Space"],
@@ -21,6 +22,15 @@ const chambers = [
     "ArrowRight", "ArrowRight", "ArrowRight", "ArrowUp", "ArrowUp",
     "Space", "Space", "Space", "Space", "Space"
   ]
+];
+
+const temperChambers = [
+  ["ArrowRight", "ArrowRight", "Space", "ArrowLeft", "Space", "Space"],
+  ["Space", "Space", "Space", "ArrowRight", "ArrowRight", "Space", "Space"],
+  ["ArrowLeft", "ArrowLeft", "Space", "ArrowRight", "ArrowRight", "ArrowRight", "ArrowDown", "Space", "Space", "ArrowLeft", "ArrowDown", "Space"],
+  ["ArrowRight", "ArrowDown", "Space", "Space", "Space", "ArrowLeft", "Space", "Space"],
+  ["ArrowRight", "ArrowDown", "Space", "ArrowLeft", "ArrowUp", "ArrowLeft", "Space", "ArrowLeft", "ArrowLeft", "Space", "Space", "Space", "Space", "ArrowRight", "ArrowRight", "ArrowRight", "ArrowDown", "Space", "Space"],
+  ["ArrowRight", "ArrowDown", "ArrowDown", "Space", "ArrowLeft", "Space", "Space", "ArrowLeft", "ArrowLeft", "ArrowLeft", "ArrowUp", "Space", "ArrowRight", "ArrowDown", "ArrowRight", "ArrowRight", "ArrowRight", "ArrowRight", "ArrowRight", "ArrowUp", "ArrowUp", "Space", "Space", "Space", "Space", "Space"]
 ];
 
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -70,54 +80,73 @@ test("human-paced six-chamber credit and 180-frame performance audit", async ({ 
   expect(performance.framesOver25Ms).toBe(0);
   expect(performance.longTaskCount).toBe(0);
 
-  const startedAt = Date.now();
-  await page.keyboard.press("KeyC");
-  await wait(INPUT_INTERVAL_MS);
-  await page.keyboard.press("Enter");
-
-  const chamberResults = [];
-  for (let index = 0; index < chambers.length; index += 1) {
-    const chamberStartedAt = Date.now();
-    await wait(CHAMBER_SURVEY_MS);
-    for (const key of chambers[index]) {
-      await page.keyboard.press(key);
-      await wait(INPUT_INTERVAL_MS);
+  const runCampaign = async (name, chambers, expectedScore) => {
+    await page.evaluate(() => localStorage.clear());
+    await page.reload();
+    let logicalElapsedMs = 0;
+    const pacedWait = async (logicalMs) => {
+      logicalElapsedMs += logicalMs;
+      await wait(EXECUTION_DELAY_MS);
+    };
+    await page.keyboard.press("KeyC");
+    await pacedWait(INPUT_INTERVAL_MS);
+    await page.keyboard.press("Enter");
+    const chamberResults = [];
+    for (let index = 0; index < chambers.length; index += 1) {
+      const chamberStartedAt = logicalElapsedMs;
+      await pacedWait(CHAMBER_SURVEY_MS);
+      for (const key of chambers[index]) {
+        await page.keyboard.press(key);
+        await pacedWait(INPUT_INTERVAL_MS);
+      }
+      await expect(canvas).toHaveAttribute("data-phase", "won");
+      chamberResults.push({
+        chamber: index + 1,
+        actions: chambers[index].length,
+        activeMs: logicalElapsedMs - chamberStartedAt,
+        pulses: Number((await canvas.getAttribute("aria-label")).match(/(\d+) polarity flips/)?.[1]),
+        sigilLit: await canvas.getAttribute("data-sigil-lit") === "true"
+      });
+      if (index < chambers.length - 1) {
+        await pacedWait(RESULT_READ_MS);
+        await page.keyboard.press("Enter");
+      }
     }
-    await expect(canvas).toHaveAttribute("data-phase", "won");
-    chamberResults.push({
-      chamber: index + 1,
-      actions: chambers[index].length,
-      activeMs: Date.now() - chamberStartedAt,
-      pulses: Number((await canvas.getAttribute("aria-label")).match(/(\d+) polarity flips/)?.[1])
-    });
-    if (index < chambers.length - 1) {
-      await wait(RESULT_READ_MS);
-      await page.keyboard.press("Enter");
-    }
-  }
+    const creditToFinalForgeMs = logicalElapsedMs;
+    await expect(canvas).toHaveAttribute("data-score", String(expectedScore));
+    return {
+      name,
+      creditToFinalForgeMs,
+      totalActions: chambers.reduce((sum, actions) => sum + actions.length, 2),
+      finalScore: Number(await canvas.getAttribute("data-score")),
+      failures: 0,
+      chambers: chamberResults,
+      knownRouteTargetMs: { minimum: 180_000, maximum: 360_000 },
+      pacingAssessment: creditToFinalForgeMs < 180_000
+        ? "below-target"
+        : creditToFinalForgeMs > 360_000 ? "above-target" : "within-target"
+    };
+  };
 
-  const completedAt = Date.now();
-  await expect(canvas).toHaveAttribute("data-score", "53750");
-  const campaignDurationMs = completedAt - startedAt;
-  const pacingAssessment = campaignDurationMs < 180_000
-    ? "below-target"
-    : campaignDurationMs > 360_000 ? "above-target" : "within-target";
+  const safe = await runCampaign("safe", safeChambers, 53750);
+  const temper = await runCampaign("temper", temperChambers, 76250);
   const report = {
     measuredAt: new Date().toISOString(),
     viewport: { width: 1280, height: 720 },
     pacingModel: {
+      timeBasis: "deterministic logical human pace; browser actions execute with a short CI delay",
       inputIntervalMs: INPUT_INTERVAL_MS,
       chamberSurveyMs: CHAMBER_SURVEY_MS,
       resultReadMs: RESULT_READ_MS,
-      maximumNoInputMs: CHAMBER_SURVEY_MS
+      maximumNoInputMs: CHAMBER_SURVEY_MS,
+      executionDelayMs: EXECUTION_DELAY_MS
     },
-    campaign: {
-      creditToFinalForgeMs: campaignDurationMs,
-      totalActions: chambers.reduce((sum, actions) => sum + actions.length, 2),
-      finalScore: Number(await canvas.getAttribute("data-score")),
-      chambers: chamberResults,
-      knownRouteTargetMs: { minimum: 180_000, maximum: 360_000 },
-      pacingAssessment
+    campaigns: { safe, temper },
+    comparison: {
+      durationDeltaMs: temper.creditToFinalForgeMs - safe.creditToFinalForgeMs,
+      actionDelta: temper.totalActions - safe.totalActions,
+      scoreDelta: temper.finalScore - safe.finalScore,
+      failureDelta: temper.failures - safe.failures
     },
     performance: { ...performance, assessment: "pass" }
   };

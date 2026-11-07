@@ -39,7 +39,7 @@ export const LEVELS = Object.freeze([freezeLevel({
   name: "Iron Brake",
   lesson: "Use fixed iron to hold one seed back.",
   pulseLimit: 7,
-  sigil: null,
+  sigil: { x: 4, y: 4, bonus: 3000 },
   player: { x: 4, y: 3 },
   shards: [
     { id: "cobalt", x: 2, y: 2 },
@@ -63,7 +63,7 @@ export const LEVELS = Object.freeze([freezeLevel({
   name: "Polar Veil",
   lesson: "Striped poles stop seeds on one axis, not the smith.",
   pulseLimit: 7,
-  sigil: null,
+  sigil: { x: 1, y: 1, bonus: 3500 },
   player: { x: 4, y: 3 },
   shards: [
     { id: "cobalt", x: 2, y: 2 },
@@ -89,7 +89,7 @@ export const LEVELS = Object.freeze([freezeLevel({
   name: "Cold Lodestone",
   lesson: "Marked seeds answer only the matching field.",
   pulseLimit: 8,
-  sigil: null,
+  sigil: { x: 6, y: 1, bonus: 4000 },
   player: { x: 4, y: 3 },
   shards: [
     { id: "cobalt", x: 2, y: 2, respondsTo: "pull" },
@@ -112,7 +112,7 @@ export const LEVELS = Object.freeze([freezeLevel({
   name: "Tempered Relay",
   lesson: "Iron and striped poles relay the field between seeds.",
   pulseLimit: 10,
-  sigil: null,
+  sigil: { x: 3, y: 2, bonus: 5000 },
   player: { x: 4, y: 3 },
   shards: [
     { id: "cobalt", x: 2, y: 2, respondsTo: "pull" },
@@ -138,7 +138,7 @@ export const LEVELS = Object.freeze([freezeLevel({
   name: "Crown Crucible",
   lesson: "Opposed marks answer on alternating beats.",
   pulseLimit: 11,
-  sigil: null,
+  sigil: { x: 1, y: 3, bonus: 6000 },
   player: { x: 4, y: 3 },
   shards: [
     { id: "cobalt", x: 2, y: 2, respondsTo: "pull" },
@@ -189,6 +189,8 @@ export function createGame(levelIndex = 0) {
     lastEvent: "",
     pulseFrom: null,
     sigilLit: false,
+    undoUsed: false,
+    undoSnapshot: null,
     initials: ["A", "A", "A"],
     initialCursor: 0
   };
@@ -344,6 +346,18 @@ export function flipPolarity(state) {
   const overheated = !allDocked && nextPulses >= level.pulseLimit;
   const moved = loose.length - staying.size;
   const resistedByPolarity = responsive.length < loose.length;
+  const undoSnapshot = state.undoUsed ? null : {
+    phase: state.phase,
+    polarity: state.polarity,
+    player: { ...state.player },
+    shards: state.shards.map((shard) => ({ ...shard })),
+    score: state.score,
+    moves: state.moves,
+    pulses: state.pulses,
+    lastEvent: state.lastEvent,
+    pulseFrom: state.pulseFrom ? { ...state.pulseFrom } : null,
+    sigilLit: state.sigilLit
+  };
   return {
     ...state,
     phase: allDocked ? "won" : overheated ? "gameover" : "playing",
@@ -353,7 +367,23 @@ export function flipPolarity(state) {
     pulses: nextPulses,
     lastEvent: allDocked ? "The forge is whole." : overheated ? "The forge overheated." : sigilLitNow ? `Temper sigil struck! +${level.sigil.bonus}.` : dockedNow ? `${dockedNow} seed locked.` : moved ? "The seeds answer." : resistedByPolarity ? `The marked seed ignores ${polarity.toUpperCase()}.` : "The field meets resistance.",
     sigilLit: state.sigilLit || sigilLitNow,
-    pulseFrom: { ...state.player }
+    pulseFrom: { ...state.player },
+    undoSnapshot
+  };
+}
+
+export function undoLastFlip(state) {
+  if (state.undoUsed || !state.undoSnapshot || !["playing", "won", "gameover"].includes(state.phase)) return state;
+  return {
+    ...state,
+    ...state.undoSnapshot,
+    player: { ...state.undoSnapshot.player },
+    shards: state.undoSnapshot.shards.map((shard) => ({ ...shard })),
+    pulseFrom: state.undoSnapshot.pulseFrom ? { ...state.undoSnapshot.pulseFrom } : null,
+    phase: "playing",
+    lastEvent: "Last field strike rewound.",
+    undoUsed: true,
+    undoSnapshot: null
   };
 }
 
@@ -367,6 +397,7 @@ export function reduce(state, action) {
     return reset;
   }
   if (action === "pause") return togglePause(state);
+  if (action === "undo") return undoLastFlip(state);
   if (action === "flip") return flipPolarity(state);
   if (action === "left") return movePlayer(state, -1, 0);
   if (action === "right") return movePlayer(state, 1, 0);
@@ -393,5 +424,5 @@ export function statusText(state) {
   const marked = state.shards.filter((shard) => shard.respondsTo && !shard.docked);
   const markedText = marked.map((shard) => ` ${shard.id} answers only ${shard.respondsTo}.`).join("");
   const sigilText = levelFor(state).sigil ? ` Temper sigil ${state.sigilLit ? "lit" : `unlit for ${levelFor(state).sigil.bonus} bonus points`}.` : "";
-  return `Chamber ${chamber} active. Score ${state.score}. ${state.polarity} polarity. ${docked} of 3 seeds locked.${sigilText}${markedText} Arrow keys move. Space flips polarity. R restarts. Escape pauses.`;
+  return `Chamber ${chamber} active. Score ${state.score}. ${state.polarity} polarity. ${docked} of 3 seeds locked.${sigilText}${markedText} One-step undo ${state.undoUsed ? "spent" : state.undoSnapshot ? "ready" : "waiting for a polarity flip"}. Arrow keys move. Space flips polarity. U undoes the last flip once per chamber. R restarts. Escape pauses.`;
 }

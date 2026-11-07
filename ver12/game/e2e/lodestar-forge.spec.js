@@ -83,6 +83,56 @@ test("temper sigil offers a visible higher-scoring first chamber route", async (
   await expect(canvas).toHaveAttribute("data-score", "12250");
 });
 
+test("one-step undo restores heat, score, sigil, seeds, and smith without replay exploits", async ({ page }) => {
+  await page.goto("/");
+  const canvas = page.locator("canvas");
+  await insertCoinAndStart(page);
+  for (const key of ["ArrowRight", "ArrowRight", "Space"]) await page.keyboard.press(key);
+  await expect(canvas).toHaveAttribute("data-undo", "ready");
+  await expect(canvas).toHaveAttribute("data-sigil-lit", "true");
+  await expect(canvas).toHaveAttribute("data-score", "5000");
+  await page.keyboard.press("ArrowLeft");
+  await page.keyboard.press("KeyU");
+  await expect(canvas).toHaveAttribute("data-undo", "spent");
+  await expect(canvas).toHaveAttribute("data-polarity", "pull");
+  await expect(canvas).toHaveAttribute("data-docked", "0");
+  await expect(canvas).toHaveAttribute("data-sigil-lit", "false");
+  await expect(canvas).toHaveAttribute("data-score", "0");
+  await expect(canvas).toHaveAttribute("aria-label", /undo spent/i);
+  await page.keyboard.press("Space");
+  await expect(canvas).toHaveAttribute("data-score", "5000");
+  await page.keyboard.press("KeyU");
+  await expect(canvas).toHaveAttribute("data-score", "5000");
+  await expect(canvas).toHaveAttribute("data-undo", "spent");
+  await page.screenshot({ path: evidence("m4-undo-spent.png") });
+});
+
+test("temper routes remain playable through all six chambers", async ({ page }) => {
+  await page.goto("/");
+  await page.evaluate(() => localStorage.clear());
+  await page.reload();
+  const canvas = page.locator("canvas");
+  await insertCoinAndStart(page);
+  const routes = [
+    ["ArrowRight", "ArrowRight", "Space", "ArrowLeft", "Space", "Space"],
+    ["Space", "Space", "Space", "ArrowRight", "ArrowRight", "Space", "Space"],
+    ["ArrowLeft", "ArrowLeft", "Space", "ArrowRight", "ArrowRight", "ArrowRight", "ArrowDown", "Space", "Space", "ArrowLeft", "ArrowDown", "Space"],
+    ["ArrowRight", "ArrowDown", "Space", "Space", "Space", "ArrowLeft", "Space", "Space"],
+    ["ArrowRight", "ArrowDown", "Space", "ArrowLeft", "ArrowUp", "ArrowLeft", "Space", "ArrowLeft", "ArrowLeft", "Space", "Space", "Space", "Space", "ArrowRight", "ArrowRight", "ArrowRight", "ArrowDown", "Space", "Space"],
+    ["ArrowRight", "ArrowDown", "ArrowDown", "Space", "ArrowLeft", "Space", "Space", "ArrowLeft", "ArrowLeft", "ArrowLeft", "ArrowUp", "Space", "ArrowRight", "ArrowDown", "ArrowRight", "ArrowRight", "ArrowRight", "ArrowRight", "ArrowRight", "ArrowUp", "ArrowUp", "Space", "Space", "Space", "Space", "Space"]
+  ];
+
+  for (let index = 0; index < routes.length; index += 1) {
+    for (const key of routes[index]) await page.keyboard.press(key);
+    await expect(canvas).toHaveAttribute("data-phase", "won");
+    await expect(canvas).toHaveAttribute("data-sigil-lit", "true");
+    if (index < routes.length - 1) await page.keyboard.press("Enter");
+  }
+  await expect(canvas).toHaveAttribute("data-score", "76250");
+  await expect(canvas).toHaveAttribute("aria-label", /Chamber 6 complete.*9 polarity flips/);
+  await page.screenshot({ path: evidence("m4-temper-campaign.png") });
+});
+
 test("forge heat reaches game over and a new credit continues the chamber", async ({ page }) => {
   await page.goto("/");
   const canvas = page.locator("canvas");

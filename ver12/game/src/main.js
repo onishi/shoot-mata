@@ -373,6 +373,7 @@ function drawHud() {
   text(`${docked} / 3`, 46, 318, 25, COLORS.brass, "left", 800);
   text("FORGE HEAT", 46, 369, 11, "#8e938d", "left", 650);
   text(`${String(state.pulses).padStart(2, "0")} / ${String(level.pulseLimit).padStart(2, "0")}`, 46, 398, 19, state.pulses >= level.pulseLimit - 1 ? COLORS.push : COLORS.pale, "left", 700);
+  text(`UNDO  ${state.undoUsed ? "SPENT" : state.undoSnapshot ? "READY" : "STANDBY"}`, 46, 423, 9, state.undoUsed ? "#737a78" : COLORS.pull, "left", 700);
   text("SCORE", 46, 449, 11, "#8e938d", "left", 650);
   text(String(state.score).padStart(6, "0"), 46, 476, 20, COLORS.brass, "left", 750);
   if (state.lastEvent) text(state.lastEvent.toUpperCase(), 480, 507, 12, state.lastEvent.includes("resistance") ? COLORS.push : COLORS.brass, "center", 650);
@@ -550,6 +551,7 @@ function render(time = 0) {
   canvas.dataset.credits = String(state.credits);
   canvas.dataset.score = String(state.score);
   canvas.dataset.sigilLit = String(state.sigilLit);
+  canvas.dataset.undo = state.undoUsed ? "spent" : state.undoSnapshot ? "ready" : "standby";
   canvas.dataset.heatLimit = String(levelFor(state).pulseLimit);
   canvas.dataset.continues = String(state.continues);
   canvas.dataset.outcome = state.outcome ?? "none";
@@ -578,7 +580,7 @@ function ensureAudio() {
 const keyActions = {
   ArrowLeft: "left", KeyA: "left", ArrowRight: "right", KeyD: "right",
   ArrowUp: "up", KeyW: "up", ArrowDown: "down", KeyS: "down",
-  Space: "flip", Enter: "enter", KeyC: "coin", Digit5: "coin", KeyR: "reset", Escape: "pause"
+  Space: "flip", Enter: "enter", KeyC: "coin", Digit5: "coin", KeyU: "undo", KeyR: "reset", Escape: "pause"
 };
 
 function storePreferences(next) {
@@ -636,6 +638,10 @@ window.addEventListener("keydown", (event) => {
     audio.cue("ranking");
   } else if (state.phase === "attract" && previous.phase === "ranking") {
     audio.setScene("silent");
+  } else if (action === "undo") {
+    flash = 0;
+    audio.setScene("play");
+    audio.cue("blocked");
   } else if (action === "flip") {
     flash = 1;
     audio.cue(state.polarity === "pull" ? "pull" : "push");
@@ -662,5 +668,5 @@ window.addEventListener("keydown", (event) => {
 });
 
 canvas.addEventListener("pointerdown", () => canvas.focus());
-canvas.setAttribute("aria-keyshortcuts", "C 5 Enter ArrowLeft ArrowRight ArrowUp ArrowDown Space R Escape M");
+canvas.setAttribute("aria-keyshortcuts", "C 5 Enter ArrowLeft ArrowRight ArrowUp ArrowDown Space U R Escape M");
 requestAnimationFrame(render);
