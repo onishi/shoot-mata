@@ -1,0 +1,146 @@
+{
+  "measuredAt": "2026-11-08T01:19:16.959Z",
+  "viewport": {
+    "width": 1280,
+    "height": 720
+  },
+  "pacingModel": {
+    "timeBasis": "deterministic logical human pace; browser actions execute with a short CI delay",
+    "inputIntervalMs": 850,
+    "chamberSurveyMs": 6000,
+    "resultReadMs": 4000,
+    "maximumNoInputMs": 6000,
+    "executionDelayMs": 10
+  },
+  "campaigns": {
+    "safe": {
+      "name": "safe",
+      "creditToFinalForgeMs": 102750,
+      "totalActions": 56,
+      "finalScore": 53750,
+      "failures": 0,
+      "chambers": [
+        {
+          "chamber": 1,
+          "actions": 6,
+          "activeMs": 11100,
+          "pulses": 2,
+          "sigilLit": false
+        },
+        {
+          "chamber": 2,
+          "actions": 5,
+          "activeMs": 10250,
+          "pulses": 3,
+          "sigilLit": false
+        },
+        {
+          "chamber": 3,
+          "actions": 6,
+          "activeMs": 11100,
+          "pulses": 3,
+          "sigilLit": false
+        },
+        {
+          "chamber": 4,
+          "actions": 6,
+          "activeMs": 11100,
+          "pulses": 4,
+          "sigilLit": false
+        },
+        {
+          "chamber": 5,
+          "actions": 15,
+          "activeMs": 18750,
+          "pulses": 6,
+          "sigilLit": false
+        },
+        {
+          "chamber": 6,
+          "actions": 16,
+          "activeMs": 19600,
+          "pulses": 7,
+          "sigilLit": false
+        }
+      ],
+      "knownRouteTargetMs": {
+        "minimum": 180000,
+        "maximum": 360000
+      },
+      "pacingAssessment": "below-target"
+    },
+    "temper": {
+      "name": "temper",
+      "creditToFinalForgeMs": 123150,
+      "totalActions": 80,
+      "finalScore": 76250,
+      "failures": 0,
+      "chambers": [
+        {
+          "chamber": 1,
+          "actions": 6,
+          "activeMs": 11100,
+          "pulses": 3,
+          "sigilLit": true
+        },
+        {
+          "chamber": 2,
+          "actions": 7,
+          "activeMs": 11950,
+          "pulses": 5,
+          "sigilLit": true
+        },
+        {
+          "chamber": 3,
+          "actions": 12,
+          "activeMs": 16200,
+          "pulses": 4,
+          "sigilLit": true
+        },
+        {
+          "chamber": 4,
+          "actions": 8,
+          "activeMs": 12800,
+          "pulses": 5,
+          "sigilLit": true
+        },
+        {
+          "chamber": 5,
+          "actions": 19,
+          "activeMs": 22150,
+          "pulses": 8,
+          "sigilLit": true
+        },
+        {
+          "chamber": 6,
+          "actions": 26,
+          "activeMs": 28100,
+          "pulses": 9,
+          "sigilLit": true
+        }
+      ],
+      "knownRouteTargetMs": {
+        "minimum": 180000,
+        "maximum": 360000
+      },
+      "pacingAssessment": "below-target"
+    }
+  },
+  "comparison": {
+    "durationDeltaMs": 20400,
+    "actionDelta": 24,
+    "scoreDelta": 22500,
+    "failureDelta": 0
+  },
+  "performance": {
+    "sampledFrames": 180,
+    "durationMs": 2999.9,
+    "averageFrameMs": 16.66611111111111,
+    "p95FrameMs": 16.799999999999955,
+    "maxFrameMs": 16.800000000000182,
+    "framesOver25Ms": 0,
+    "longTaskCount": 0,
+    "longestTaskMs": 0,
+    "assessment": "pass"
+  }
+}
