@@ -196,3 +196,12 @@
 - 初回Pages run `42469925357`はbuildとdeployに成功したが、本番監査が相対asset URLを検出できず失敗した。実際のVite出力もPagesサブパスでは不正な絶対`/assets/`だったため、buildを`--base=./`へ変更した。相対JS/CSSを含む35,647 bytesの候補で単体30/30、Chrome E2E 15/15、release通し1/1、11経路artifact検査を再合格し、修正版を再公開する。
 - 修正版commit `301aff7`のPages run `42470411157`はbuild 2分57秒、deploy 35秒で成功した。deployment `7634490486`へトップと`/v12.2/`を公開し、CI本番監査は全11経路、commit metadata、旧v5保持、2 asset MIMEに合格した。
 - 開発環境から`node ver12.2/game/scripts/verify-deployment.mjs https://onishi.github.io/shoot-mata/ 301aff7c4c213045894c301dc6519a344f3181b1`を独立再実行し、同じ11経路、v12.2 commit、2 asset MIMEに再合格した。v12.2をPublished Product、M5完了とする。次の独立実行はM6メジャー振り返りだけを行う。
+
+## 2026-11-08 — M6メジャー振り返り・基準判断
+
+- 実行元: Codex / `run-codex-loop.sh` / run 2 / 開始 `2026-11-08T19:47:03+0900`。
+- v12.2、総合基準v4.2、直近完成版v10.1・v11.1を、製品規模、中核、判断、コンテンツ差、初動、テンポ、アート、音、演出、終盤、再挑戦、筐体性、アクセシビリティ、検証、公開の15軸で比較した。
+- v12.2は既知方針1分42.8秒／2分3.2秒、6単画面室で、v4.2の約23.1分、6環境、24敵、6ボスに対して総合規模・表現密度・山場が届かないため、総合基準はv4.2を維持した。
+- 4:3、自動実演、コイン、START、コンティニュー、成績、ランキング、アトラクト復帰と、公開commit・hash・旧版・MIMEの本番追跡を根拠に、v12.2を「アーケード筐体性・公開追跡」の部門別基準へ追加した。
+- 規模不足をM4まで発見できなかった原因を工程へ戻し、ルートREADMEの製品規模契約で初見発見時間と習熟後1クレジット時間を分離した。M3終了前に両方を計測し、想定下限を大きく割れば内容か深さを追加するゲートも設けた。
+- `npm run verify`は単体30/30、構文検査、production build、Chrome E2E 15/15に合格した。v4.2・v10.1・v11.1・v12.2の代表6画像を比較目視した。`05-major-retrospective.md`、status、受入表、筐体監査、READMEを更新し、v12をMajor Closedとした。
