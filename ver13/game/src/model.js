@@ -11,6 +11,11 @@ export const WAVES = [
     { kind: 'bulwark', slot: 2, distance: 1.02, speed: 0.04, hp: 2, armor: 1 },
     { kind: 'marcher', slot: 8, distance: 1.18, speed: 0.052, hp: 2 },
     { kind: 'bulwark', slot: 13, distance: 1.34, speed: 0.038, hp: 2, armor: 1 }
+  ],
+  [
+    { kind: 'rusher', slot: 1, distance: 0.98, speed: 0.105, hp: 1 },
+    { kind: 'rusher', slot: 6, distance: 1.18, speed: 0.1, hp: 1 },
+    { kind: 'rusher', slot: 11, distance: 1.38, speed: 0.095, hp: 1 }
   ]
 ];
 
@@ -50,7 +55,9 @@ export function startNextWave(game) {
   game.mode = 'playing';
   game.hammer = null;
   game.cooldown = 0;
-  game.message = game.wave === 1 ? 'BULWARK — RETURN BREAKS GUARD' : `WAVE ${game.wave + 1}`;
+  if (game.wave === 1) game.message = 'BULWARK — RETURN BREAKS GUARD';
+  else if (game.wave === 2) game.message = 'RUSHER — STRIKE BEFORE THE WARNING CLOSES';
+  else game.message = `WAVE ${game.wave + 1}`;
   return true;
 }
 

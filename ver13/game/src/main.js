@@ -1,4 +1,4 @@
-import { angleForSlot, castHammer, createGame, movePlayer, startGame, startNextWave, step } from './model.js';
+import { angleForSlot, castHammer, createGame, movePlayer, startGame, startNextWave, step, WAVES } from './model.js';
 import { keyLabel, loadSave, rebind, storeSave } from './storage.js';
 
 const canvas = document.querySelector('#game');
@@ -18,6 +18,19 @@ const settings = [
   { label: 'CAST ECHO', type: 'key', action: 'cast' },
   { label: 'RETURN TO CABINET', type: 'back' }
 ];
+const WAVE_COUNT = WAVES.length;
+const WAVE_BRIEFS = {
+  1: {
+    title: 'WAVE 2 — IRON PROCESSION',
+    line1: 'CYAN GUARD STOPS THE OUTBOUND HIT', color1: '#9adbe8',
+    line2: 'THE GOLD RETURN BREAKS THROUGH', color2: '#ffcf55'
+  },
+  2: {
+    title: 'WAVE 3 — AMBER RUSH',
+    line1: 'AMBER RUSHERS CLOSE TWICE AS FAST', color1: '#ffae55',
+    line2: 'ONE CLEAN STRIKE STOPS EACH CHARGE', color2: '#f5e6b0'
+  }
+};
 
 function polar(slot, radius) {
   const angle = angleForSlot(slot);
@@ -66,13 +79,19 @@ function drawActors() {
     if (!enemy.alive) continue;
     const [x, y] = polar(enemy.slot, 66 + enemy.distance * 105);
     ctx.save(); ctx.translate(x, y); ctx.rotate(angleForSlot(enemy.slot) + Math.PI / 2);
-    ctx.fillStyle = enemy.flash ? '#ffffff' : enemy.kind === 'bulwark' ? '#9b65cf' : '#d54b62';
+    ctx.fillStyle = enemy.flash ? '#ffffff' : enemy.kind === 'bulwark' ? '#9b65cf' : enemy.kind === 'rusher' ? '#ff9838' : '#d54b62';
     ctx.strokeStyle = '#280f23'; ctx.lineWidth = 3;
     if (enemy.kind === 'bulwark') {
       ctx.beginPath(); ctx.moveTo(0, -15); ctx.lineTo(13, -7); ctx.lineTo(10, 12); ctx.lineTo(0, 8); ctx.lineTo(-10, 12); ctx.lineTo(-13, -7); ctx.closePath(); ctx.fill(); ctx.stroke();
       if (enemy.armor > 0) {
         ctx.strokeStyle = enemy.blocked ? '#ffffff' : '#72e5ff'; ctx.lineWidth = 4;
         ctx.beginPath(); ctx.arc(0, -5, 17, Math.PI * 1.12, Math.PI * 1.88); ctx.stroke();
+      }
+    } else if (enemy.kind === 'rusher') {
+      ctx.beginPath(); ctx.moveTo(0, -17); ctx.lineTo(8, -4); ctx.lineTo(5, 12); ctx.lineTo(0, 7); ctx.lineTo(-5, 12); ctx.lineTo(-8, -4); ctx.closePath(); ctx.fill(); ctx.stroke();
+      ctx.strokeStyle = '#ffe08a'; ctx.lineWidth = 2;
+      for (const offset of [-1, 1]) {
+        ctx.beginPath(); ctx.moveTo(offset * 8, 2); ctx.lineTo(offset * 15, 8); ctx.lineTo(offset * 9, 11); ctx.stroke();
       }
     } else {
       ctx.beginPath(); ctx.moveTo(0, -13); ctx.lineTo(11, 10); ctx.lineTo(0, 6); ctx.lineTo(-11, 10); ctx.closePath(); ctx.fill(); ctx.stroke();
@@ -129,7 +148,7 @@ function render() {
     drawSettings();
   } else if (game.mode !== 'title') drawActors();
   text(`SCORE ${String(game.score).padStart(6, '0')}`, 18, 82, 16);
-  text(`WAVE ${game.wave + 1}/2  CHAIN ×${game.chain}`, 320, 82, 16, '#77e4ca', 'center');
+  text(`WAVE ${game.wave + 1}/${WAVE_COUNT}  CHAIN ×${game.chain}`, 320, 82, 16, '#77e4ca', 'center');
   text(`BELL ${'◆'.repeat(game.bell)}${'◇'.repeat(3 - game.bell)}`, 622, 82, 16, game.bell === 1 ? '#ff6b62' : '#ffe29a', 'right');
   if (menu === 'game') text(game.message, 320, 418, game.mode === 'title' ? 24 : 18, game.mode === 'gameOver' ? '#ff6b62' : '#ffe29a', 'center');
   if (menu === 'game' && game.mode === 'title') {
@@ -141,9 +160,10 @@ function render() {
   }
   if (menu === 'game' && game.mode === 'waveBrief') {
     ctx.fillStyle = '#080d20df'; ctx.fillRect(92, 167, 456, 172);
-    text('WAVE 2 — IRON PROCESSION', 320, 208, 22, '#ffe29a', 'center');
-    text('CYAN GUARD STOPS THE OUTBOUND HIT', 320, 251, 15, '#9adbe8', 'center');
-    text('THE GOLD RETURN BREAKS THROUGH', 320, 280, 15, '#ffcf55', 'center');
+    const brief = WAVE_BRIEFS[game.wave + 1];
+    text(brief.title, 320, 208, 22, '#ffe29a', 'center');
+    text(brief.line1, 320, 251, 15, brief.color1, 'center');
+    text(brief.line2, 320, 280, 15, brief.color2, 'center');
     text(`PRESS ${keyLabel(save.keys.cast)}`, 320, 320, 18, '#f5e6b0', 'center');
   }
   if (menu === 'game' && paused) { ctx.fillStyle = '#080d20cc'; ctx.fillRect(120, 195, 400, 110); text('PAUSED', 320, 245, 30, '#ffe29a', 'center'); text('S SETTINGS', 320, 278, 14, '#9adbe8', 'center'); }

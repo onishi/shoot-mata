@@ -21,6 +21,14 @@ test('saved progress can start directly at the second wave', () => {
   assert.equal(game.bell, 3);
 });
 
+test('saved progress can start at the fast third wave', () => {
+  const game = startGame(createGame(), 2);
+  assert.equal(game.wave, 2);
+  assert.equal(game.enemies.length, 3);
+  assert.equal(game.enemies.every(enemy => enemy.kind === 'rusher'), true);
+  assert.equal(game.enemies.every(enemy => enemy.hp === 1 && enemy.speed >= 0.095), true);
+});
+
 test('player wraps around the sixteen-position ring', () => {
   const game = startGame(createGame());
   movePlayer(game, -1);
@@ -73,7 +81,31 @@ test('bulwark blocks outbound damage but is broken by the return', () => {
   assert.match(game.message, /GUARD SHATTERED/);
   advance(game, 1.05);
   assert.equal(game.enemies[0].alive, false);
+  assert.equal(game.mode, 'waveBrief');
+});
+
+test('clearing wave two opens the fast third wave', () => {
+  const game = startGame(createGame(), 1);
+  for (const enemy of game.enemies) enemy.alive = false;
+  step(game);
+  assert.equal(game.mode, 'waveBrief');
+  assert.equal(startNextWave(game), true);
+  assert.equal(game.wave, 2);
+  assert.equal(game.enemies.every(enemy => enemy.kind === 'rusher'), true);
+  assert.match(game.message, /RUSHER/);
+});
+
+test('one outbound strike stops a rusher', () => {
+  const game = startGame(createGame(), 2);
+  game.enemies = [{
+    id: 0, kind: 'rusher', slot: 0, distance: 0.9, speed: 0,
+    hp: 1, armor: 0, alive: true, flash: 0, blocked: 0
+  }];
+  castHammer(game);
+  advance(game, 0.75);
+  assert.equal(game.enemies[0].alive, false);
   assert.equal(game.mode, 'waveClear');
+  assert.match(game.message, /DAWN HELD/);
 });
 
 test('leaving the return slot loses the chain and starts cooldown', () => {

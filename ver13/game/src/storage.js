@@ -1,3 +1,5 @@
+import { WAVES } from './model.js';
+
 export const SAVE_KEY = 'ringward:v13:settings';
 
 export const DEFAULT_SAVE = Object.freeze({
@@ -28,7 +30,7 @@ export function sanitizeSave(value) {
     version: 1,
     volume: Number.isFinite(source.volume) ? Math.max(0, Math.min(10, Math.round(source.volume))) : DEFAULT_SAVE.volume,
     reducedMotion: source.reducedMotion === true,
-    highestWave: Number.isInteger(source.highestWave) ? Math.max(0, Math.min(1, source.highestWave)) : 0,
+    highestWave: Number.isInteger(source.highestWave) ? Math.max(0, Math.min(WAVES.length - 1, source.highestWave)) : 0,
     keys
   };
 }
