@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { castHammer, createGame, movePlayer, startGame, startNextWave, step } from '../src/model.js';
+import { castHammer, createGame, drainAudioEvents, movePlayer, startGame, startNextWave, step } from '../src/model.js';
 
 function advance(game, seconds, dt = 1 / 120) {
   for (let elapsed = 0; elapsed < seconds && game.mode === 'playing'; elapsed += dt) step(game, dt);
@@ -126,4 +126,23 @@ test('three breaches end the game', () => {
   step(game, 1 / 60);
   assert.equal(game.bell, 0);
   assert.equal(game.mode, 'gameOver');
+});
+
+test('play events expose the required audio feedback without render coupling', () => {
+  const game = startGame(createGame());
+  drainAudioEvents(game);
+  game.enemies = [
+    { id: 0, slot: 0, distance: 0.9, speed: 0, hp: 2, armor: 0, alive: true, flash: 0, blocked: 0 },
+    { id: 1, slot: 8, distance: 9, speed: 0, hp: 99, armor: 0, alive: true, flash: 0, blocked: 0 }
+  ];
+  castHammer(game);
+  advance(game, 2.2);
+  const cues = drainAudioEvents(game);
+  for (const cue of ['cast', 'outboundHit', 'turn', 'returnBreak', 'catch']) assert.ok(cues.includes(cue), `${cue} emitted`);
+
+  const breach = startGame(createGame());
+  drainAudioEvents(breach);
+  breach.enemies = [{ id: 0, slot: 0, distance: 0.201, speed: 1, hp: 2, alive: true, flash: 0 }];
+  step(breach, 1 / 60);
+  assert.ok(drainAudioEvents(breach).includes('bellHit'));
 });

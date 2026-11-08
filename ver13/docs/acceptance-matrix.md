@@ -13,6 +13,6 @@
 | SCALE-02 | 初見18〜28分／習熟14〜20分 | M3 | 分離した実ブラウザ監査 | 未着手 |
 | ARCADE-01 | 4:3、レバー＋1ボタン、遠目の状態 | M1 | 640×480／1280×720画面 | 合格 |
 | ARCADE-02 | アトラクトからランキング復帰 | M4 | Chrome筐体フロー | 未着手 |
-| AUDIO-01 | BGM、即時効果音、状態ジングル | M4 | 実PCM・聴感監査 | 未着手 |
+| AUDIO-01 | BGM、即時効果音、状態ジングル | M4 | `tests/audio.test.js`、`tests/model.test.js`、`m2-audio-audit.json`；実PCM・聴感の最終監査はM4 | 部分合格 |
 | ACCESS-01 | キー再配置、音量、動き軽減、非色依存 | M4 | 単体13/13、Chrome設定・`Z`投擲、`m2-settings-1280x720.png`・`m2-settings-640x480.png`；実音量と全画面監査はM4 | 部分合格 |
 | RELEASE-01 | clean build、hash、公開URL、旧版保持 | M5 | manifest・本番監査 | 未着手 |

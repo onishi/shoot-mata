@@ -26,11 +26,19 @@ function loadWave(game, waveIndex) {
   }));
 }
 
+function emit(game, type) {
+  game.audioEvents.push(type);
+}
+
+export function drainAudioEvents(game) {
+  return game.audioEvents.splice(0);
+}
+
 export function createGame() {
   return {
     mode: 'title', playerSlot: 0, hammer: null, cooldown: 0,
     enemies: [], bell: 3, score: 0, chain: 0, wave: 0,
-    message: 'PRESS ENTER', tick: 0
+    message: 'PRESS ENTER', tick: 0, audioEvents: []
   };
 }
 
@@ -46,6 +54,8 @@ export function startGame(game, waveIndex = 0) {
   game.chain = 0;
   game.message = safeWave === 0 ? 'CAST — MOVE — CATCH' : `WAVE ${safeWave + 1} — HOLD THE BELL`;
   game.tick = 0;
+  game.audioEvents.length = 0;
+  emit(game, 'start');
   return game;
 }
 
@@ -58,6 +68,7 @@ export function startNextWave(game) {
   if (game.wave === 1) game.message = 'BULWARK — RETURN BREAKS GUARD';
   else if (game.wave === 2) game.message = 'RUSHER — STRIKE BEFORE THE WARNING CLOSES';
   else game.message = `WAVE ${game.wave + 1}`;
+  emit(game, 'waveStart');
   return true;
 }
 
@@ -70,6 +81,7 @@ export function castHammer(game) {
   if (game.mode !== 'playing' || game.hammer || game.cooldown > 0) return false;
   game.hammer = { slot: game.playerSlot, distance: 0.18, phase: 'out', previous: 0.18 };
   game.message = 'OUTBOUND';
+  emit(game, 'cast');
   return true;
 }
 
@@ -93,6 +105,7 @@ function hitEnemies(game, from, to) {
       game.hammer.guardBlocked = true;
       game.score += 50;
       game.message = 'GUARD BLOCK — HIT THE RETURN';
+      emit(game, 'guard');
       continue;
     }
     enemy.hp -= damage;
@@ -100,9 +113,11 @@ function hitEnemies(game, from, to) {
     const multiplier = 1 + Math.min(game.chain, 8) * 0.25;
     game.score += Math.round((game.hammer.phase === 'out' ? 100 : 200) * multiplier);
     game.message = game.hammer.phase === 'out' ? 'OUTBOUND HIT' : 'RETURN BREAK';
+    if (game.hammer.phase === 'out') emit(game, 'outboundHit');
     if (enemy.hp <= 0) {
       enemy.alive = false;
       game.score += Math.round((game.hammer.phase === 'out' ? 400 : 800) * multiplier);
+      emit(game, game.hammer.phase === 'return' ? 'returnBreak' : 'outboundBreak');
     }
   }
 }
@@ -121,15 +136,18 @@ export function step(game, dt = 1 / 60) {
       hammer.distance = 1.45;
       hammer.phase = 'return';
       game.message = hammer.guardBlocked ? 'GUARD SHATTERED — RETURN BREAKS IT' : 'RETURNING — CATCH IT';
+      emit(game, 'turn');
     } else if (hammer.phase === 'return' && hammer.distance <= 0.18) {
       if (slotDistance(game.playerSlot, hammer.slot) <= 1) {
         game.chain += 1;
         game.score += 250 * game.chain;
         game.message = `PERFECT CATCH ×${game.chain}`;
+        emit(game, 'catch');
       } else {
         game.chain = 0;
         game.cooldown = 0.8;
         game.message = 'MISSED — RECAST DELAY';
+        emit(game, 'miss');
       }
       game.hammer = null;
     }
@@ -145,21 +163,25 @@ export function step(game, dt = 1 / 60) {
       game.bell -= 1;
       game.chain = 0;
       game.message = 'THE BELL IS STRUCK';
+      emit(game, 'bellHit');
     }
   }
 
   if (game.bell <= 0) {
     game.mode = 'gameOver';
     game.message = 'BELL FALLEN — PRESS R';
+    emit(game, 'gameOver');
   } else if (game.enemies.length && game.enemies.every(enemy => !enemy.alive)) {
     game.hammer = null;
     game.score += game.bell * 1000;
     if (game.wave + 1 < WAVES.length) {
       game.mode = 'waveBrief';
       game.message = `WAVE ${game.wave + 1} HELD — PRESS SPACE`;
+      emit(game, 'waveClear');
     } else {
       game.mode = 'waveClear';
       game.message = 'DAWN HELD — PRESS R';
+      emit(game, 'victory');
     }
   }
   return game;

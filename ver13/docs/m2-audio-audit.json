@@ -1,0 +1,12 @@
+{
+  "runAt": "2026-11-09T02:34:38+0900",
+  "browser": "Google Chrome headless",
+  "requiredCues": ["cast", "turn", "outboundHit", "returnBreak", "catch", "bellHit"],
+  "zeroPercentOscillatorStarts": 0,
+  "hundredPercentOscillatorStartsBeforePause": 4,
+  "oscillatorStartsAfterPauseWait": 4,
+  "oscillatorStartsAfterResume": 10,
+  "hundredPercentMasterGain": 1,
+  "storedVolume": 10,
+  "consoleErrors": []
+}

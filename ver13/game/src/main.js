@@ -1,4 +1,5 @@
-import { angleForSlot, castHammer, createGame, movePlayer, startGame, startNextWave, step, WAVES } from './model.js';
+import { RingwardAudio } from './audio.js';
+import { angleForSlot, castHammer, createGame, drainAudioEvents, movePlayer, startGame, startNextWave, step, WAVES } from './model.js';
 import { keyLabel, loadSave, rebind, storeSave } from './storage.js';
 
 const canvas = document.querySelector('#game');
@@ -10,6 +11,8 @@ let menu = 'game';
 let settingRow = 0;
 let captureAction = null;
 let previous = performance.now();
+const audio = new RingwardAudio();
+audio.setVolume(save.volume);
 const settings = [
   { label: 'SOUND VOLUME', type: 'volume' },
   { label: 'REDUCED MOTION', type: 'motion' },
@@ -198,7 +201,7 @@ function handleSettings(event) {
   if (event.code === 'ArrowDown') settingRow = (settingRow + 1) % settings.length;
   const item = settings[settingRow];
   if ((event.code === 'ArrowLeft' || event.code === 'ArrowRight') && item.type === 'volume') {
-    save.volume = Math.max(0, Math.min(10, save.volume + (event.code === 'ArrowLeft' ? -1 : 1))); persist();
+    save.volume = Math.max(0, Math.min(10, save.volume + (event.code === 'ArrowLeft' ? -1 : 1))); audio.setVolume(save.volume); persist();
   } else if ((event.code === 'ArrowLeft' || event.code === 'ArrowRight' || event.code === 'Enter') && item.type === 'motion') {
     save.reducedMotion = !save.reducedMotion; persist();
   } else if (event.code === 'Enter' && item.type === 'key') captureAction = item.action;
@@ -206,6 +209,7 @@ function handleSettings(event) {
 }
 
 addEventListener('keydown', event => {
+  audio.unlock();
   if (menu === 'settings') { handleSettings(event); return; }
   if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Space', ...Object.values(save.keys)].includes(event.code)) event.preventDefault();
   if (event.code === 'KeyS' && (game.mode === 'title' || paused)) { menu = 'settings'; return; }
@@ -225,6 +229,8 @@ function frame(now) {
   const elapsed = Math.min(0.05, (now - previous) / 1000); previous = now;
   const previousMode = game.mode;
   if (!paused && menu === 'game') step(game, elapsed);
+  for (const cue of drainAudioEvents(game)) audio.play(cue);
+  audio.update(menu === 'game' ? game.mode : 'settings', paused);
   if (previousMode === 'playing' && game.mode === 'waveBrief' && game.wave + 1 > save.highestWave) {
     save.highestWave = game.wave + 1; persist();
   }
