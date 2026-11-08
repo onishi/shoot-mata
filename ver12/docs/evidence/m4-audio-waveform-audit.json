@@ -1,0 +1,99 @@
+{
+  "measuredAt": "2026-11-08T00:44:49.122Z",
+  "renderer": "Chrome OfflineAudioContext",
+  "assessment": "pass",
+  "sampleRate": 44100,
+  "cues": {
+    "coin": {
+      "durationSeconds": 2,
+      "peak": 0.018441,
+      "rms": 0.001584,
+      "nonSilentSamples": 8704,
+      "clippedSamples": 0
+    },
+    "start": {
+      "durationSeconds": 2,
+      "peak": 0.018538,
+      "rms": 0.002419,
+      "nonSilentSamples": 18346,
+      "clippedSamples": 0
+    },
+    "chamber": {
+      "durationSeconds": 2,
+      "peak": 0.020259,
+      "rms": 0.002936,
+      "nonSilentSamples": 21030,
+      "clippedSamples": 0
+    },
+    "ending": {
+      "durationSeconds": 2,
+      "peak": 0.021212,
+      "rms": 0.004952,
+      "nonSilentSamples": 53061,
+      "clippedSamples": 0
+    },
+    "gameover": {
+      "durationSeconds": 2,
+      "peak": 0.018409,
+      "rms": 0.003163,
+      "nonSilentSamples": 30739,
+      "clippedSamples": 0
+    },
+    "ranking": {
+      "durationSeconds": 2,
+      "peak": 0.018812,
+      "rms": 0.00266,
+      "nonSilentSamples": 21841,
+      "clippedSamples": 0
+    },
+    "pull": {
+      "durationSeconds": 2,
+      "peak": 0.018347,
+      "rms": 0.001597,
+      "nonSilentSamples": 7422,
+      "clippedSamples": 0
+    },
+    "push": {
+      "durationSeconds": 2,
+      "peak": 0.017996,
+      "rms": 0.001601,
+      "nonSilentSamples": 7469,
+      "clippedSamples": 0
+    },
+    "move": {
+      "durationSeconds": 2,
+      "peak": 0.016282,
+      "rms": 0.000716,
+      "nonSilentSamples": 1759,
+      "clippedSamples": 0
+    },
+    "blocked": {
+      "durationSeconds": 2,
+      "peak": 0.016136,
+      "rms": 0.000801,
+      "nonSilentSamples": 2202,
+      "clippedSamples": 0
+    },
+    "sigil": {
+      "durationSeconds": 2,
+      "peak": 0.019329,
+      "rms": 0.00266,
+      "nonSilentSamples": 18351,
+      "clippedSamples": 0
+    },
+    "dock": {
+      "durationSeconds": 2,
+      "peak": 0.022224,
+      "rms": 0.001893,
+      "nonSilentSamples": 12584,
+      "clippedSamples": 0
+    }
+  },
+  "theme": {
+    "durationSeconds": 5,
+    "peak": 0.012004,
+    "rms": 0.001518,
+    "nonSilentSamples": 92721,
+    "clippedSamples": 0
+  }
+}

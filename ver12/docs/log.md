@@ -168,3 +168,12 @@
 - 最初の監査は従来TEMPER経路より250点高い76,500点を探索器が発見し、固定期待値76,250点だけが不一致になった。従来基準以上を条件とするよう修正し、監査1/1に合格した。
 - `npm run verify`で単体28/28、構文検査、production build、Chrome E2E 14/14に合格し、`npm run audit:campaign`も安全／TEMPER通しと180フレーム性能に再合格した。`m4-discovery-campaign.png`を目視し、最終炉、TEMPER、UNDO、得点、終演表示に切れ・重なり・判別不能がないことを確認した。
 - M4は継続する。次はproduction配布物のクリーン生成・hash・起動監査と、Web Audio実波形の無音・クリップ・状態別キュー監査を行う。
+
+## 2026-11-08 — M4 実波形・クリーン配布物監査
+
+- 実行元: Codex / `run-codex-loop.sh` / run 3 / 開始 `2026-11-08T09:39:48+0900`。
+- Chrome OfflineAudioContextで全12効果音・ジングルと4秒BGMを44.1kHz PCMへ描画する`npm run audit:audio`を追加した。全音が非無音、効果音・ジングル最大ピーク0.022224、BGM最大ピーク0.012004、クリップサンプル0で合格した。
+- 既存`dist`を削除してproductionを生成し、全ファイルのbytesとSHA-256を記録する`npm run build:clean`を追加した。配布物は3ファイル・32,140 bytesで、一覧を`m4-release-manifest.json`へ固定した。
+- `npm run audit:release`で配布物だけをpreviewし、v12.0表示、アトラクト、コイン、全6室、53,750点の最終炉まで通した。HTTP 4xx/5xxは0件だった。
+- `m4-release-attract.png`を目視し、v12.0、遊び方デモ、盤面、コイン案内、操作帯に切れ・重なり・判別不能がないことを確認した。`npm run verify`も単体28/28、構文検査、build、Chrome E2E 14/14に合格した。
+- M4を完了する。次はv12.1を作り、v12.0の証拠をbaselineとするM5第1回批評で初回理解・視認性・テンポを改善する。

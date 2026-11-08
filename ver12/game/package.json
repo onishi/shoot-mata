@@ -6,11 +6,14 @@
   "scripts": {
     "dev": "vite --host 127.0.0.1",
     "test": "node --test",
-    "check": "node --check src/model.js && node --check src/main.js && node --check audit/campaign.spec.js && node --check audit/discovery.spec.js && node --check playwright.audit.config.js",
+    "check": "node --check src/model.js && node --check src/main.js && node --check audit/campaign.spec.js && node --check audit/discovery.spec.js && node --check audit/audio.spec.js && node --check audit/release.spec.js && node --check scripts/clean-build.mjs && node --check playwright.audit.config.js && node --check playwright.release.config.js",
     "build": "vite build",
+    "build:clean": "node scripts/clean-build.mjs",
     "e2e": "playwright test",
     "audit:campaign": "playwright test --config playwright.audit.config.js campaign.spec.js",
     "audit:discovery": "playwright test --config playwright.audit.config.js discovery.spec.js",
+    "audit:audio": "playwright test --config playwright.audit.config.js audio.spec.js",
+    "audit:release": "npm run build:clean && playwright test --config playwright.release.config.js",
     "verify": "npm run test && npm run check && npm run build && npm run e2e"
   },
   "devDependencies": {

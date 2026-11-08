@@ -20,7 +20,7 @@
 | DEPTH-01 | 複数の有効手順、巻き戻し、再挑戦価値 | M4 | 全6室に安全／TEMPER方針。安全25反転53,750点、TEMPER 34反転76,250点。室ごとに1回のUが反転前の盤面・得点・熱・SIGILを復元し、再反転時の得点複製を防止。`m4-temper-campaign.png`、`m4-undo-spent.png` | `npm run test -- --test-name-pattern='temper|undo|known chamber'`、Chrome E2E tests 3〜5、`npm run audit:campaign` | 合格 |
 | ART-01 | 全室の背景、種、UI、磁場、効果音が完成方針で統一 | M4 | 6室Canvas描画、内向き／外向き印、点灯TEMPER SIGIL、4:3筐体帯、4秒16拍FM風BGM、状態別ジングル | `npm run verify`、理論ピーク0.2907未満、0%ミュート・復帰E2E | 合格 |
 | ACCESS-01 | キーボード、動き軽減、音量、動的名称、2 viewport | M2–M4 | キーボード設定UI、静止描画、音量係数、動的名称、1280×720と640×480のE2E画像 | `npm run verify` | 合格 |
-| QA-01 | 単体、統合、通し、性能、保存破損、配布物監査 | M4–M5 | 単体28件、E2E 14件、設定・ランキング保存破損復帰、build、既知2方針＋固定ルートなし探索、音響ピーク・ミュート監査、180フレーム平均16.67ms・25ms超0・Long Task 0 | `npm run verify`、`npm run audit:campaign`、`npm run audit:discovery`、配布物はM4予定 | 一部合格 |
+| QA-01 | 単体、統合、通し、性能、保存破損、配布物監査 | M4–M5 | 単体28件、E2E 14件、設定・ランキング保存破損復帰、既知2方針＋固定ルートなし探索、180フレーム平均16.67ms・25ms超0・Long Task 0。実PCM全12音+BGMはクリップ0。クリーン配布物3ファイル32,140 bytesのhash、v12.0表示、6室53,750点通し | `npm run verify`、`npm run audit:campaign`、`npm run audit:discovery`、`npm run audit:audio`、`npm run audit:release`、`m4-release-manifest.json` | M4合格（M5公開監査は別途） |
 | RELEASE-01 | 配布物hash、公開URL、旧版保持、rollback | M5 | 未実施 | 公開候補で記録予定 | 未達 |
 | CRIT-01 | 2回以上の独立批評と改善 | M5 | 未実施 | baseline・非退行比較予定 | 未達 |
 | RETRO-01 | 基準比較、M6振り返り、ルート方針評価 | M6 | 未実施 | `05-major-retrospective.md` | 未達 |

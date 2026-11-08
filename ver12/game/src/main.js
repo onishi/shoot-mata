@@ -18,6 +18,7 @@ const COLORS = {
   push: "#ef884f",
   ember: "#d56845"
 };
+const GAME_VERSION = "v12.0";
 
 let preferences = loadPreferences(localStorage, LEVELS.length);
 let state = createGame(preferences.unlockedLevel);
@@ -107,6 +108,7 @@ function drawCabinetBands(cabinetState = state) {
   ctx.lineTo(960, 633);
   ctx.stroke();
   text("LODESTAR FORGE", 36, 40, 20, COLORS.brass, "left", 800);
+  text(GAME_VERSION, 241, 40, 10, "#7e857f", "left", 750);
   text("MAGNETIC LOGIC · 1 PLAYER", 924, 40, 12, "#9f9889", "right", 700);
   text("LEVER  MOVE", 44, 676, 12, COLORS.pull, "left", 750);
   text("BUTTON 1  FLIP FIELD", 480, 676, 12, COLORS.push, "center", 750);
@@ -565,6 +567,7 @@ function render(time = 0) {
   canvas.dataset.audioScene = audio?.scene ?? "uninitialized";
   canvas.dataset.audioCue = audio?.lastCue ?? "none";
   canvas.dataset.audioMuted = String(preferences.volume === 0);
+  canvas.dataset.version = GAME_VERSION;
   canvas.setAttribute("aria-label", settingsOpen
     ? `Settings. ${settingsRow === 0 ? "Sound" : "Motion"} selected. Sound ${Math.round(preferences.volume * 100)} percent. Motion ${preferences.reducedMotion ? "reduced" : "full"}. Up and down select. Left and right change. M or Escape closes.`
     : statusText(state));

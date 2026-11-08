@@ -1,0 +1,12 @@
+{
+  "auditedAt": "2026-11-08T00:42:26.342Z",
+  "servedFrom": "dist via vite preview",
+  "version": "v12.0",
+  "finalPhase": "won",
+  "finalChamber": 6,
+  "finalScore": 53750,
+  "failedResponses": [],
+  "manifestFileCount": 3,
+  "manifestTotalBytes": 32140,
+  "assessment": "pass"
+}
