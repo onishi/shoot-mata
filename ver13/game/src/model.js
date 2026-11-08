@@ -1,16 +1,31 @@
 export const TAU = Math.PI * 2;
 export const SLOT_COUNT = 16;
 
-const firstWave = [
-  { slot: 0, distance: 1, speed: 0.055, hp: 2 },
-  { slot: 5, distance: 1.16, speed: 0.047, hp: 2 },
-  { slot: 11, distance: 1.3, speed: 0.044, hp: 2 }
+export const WAVES = [
+  [
+    { kind: 'marcher', slot: 0, distance: 1, speed: 0.055, hp: 2 },
+    { kind: 'marcher', slot: 5, distance: 1.16, speed: 0.047, hp: 2 },
+    { kind: 'marcher', slot: 11, distance: 1.3, speed: 0.044, hp: 2 }
+  ],
+  [
+    { kind: 'bulwark', slot: 2, distance: 1.02, speed: 0.04, hp: 2, armor: 1 },
+    { kind: 'marcher', slot: 8, distance: 1.18, speed: 0.052, hp: 2 },
+    { kind: 'bulwark', slot: 13, distance: 1.34, speed: 0.038, hp: 2, armor: 1 }
+  ]
 ];
+
+function loadWave(game, waveIndex) {
+  game.wave = waveIndex;
+  game.enemies = WAVES[waveIndex].map((enemy, id) => ({
+    armor: 0, ...enemy, id, alive: true, flash: 0, blocked: 0
+  }));
+}
 
 export function createGame() {
   return {
     mode: 'title', playerSlot: 0, hammer: null, cooldown: 0,
-    enemies: [], bell: 3, score: 0, chain: 0, message: 'PRESS ENTER', tick: 0
+    enemies: [], bell: 3, score: 0, chain: 0, wave: 0,
+    message: 'PRESS ENTER', tick: 0
   };
 }
 
@@ -19,13 +34,23 @@ export function startGame(game) {
   game.playerSlot = 0;
   game.hammer = null;
   game.cooldown = 0;
-  game.enemies = firstWave.map((enemy, id) => ({ ...enemy, id, alive: true, flash: 0 }));
+  loadWave(game, 0);
   game.bell = 3;
   game.score = 0;
   game.chain = 0;
   game.message = 'CAST — MOVE — CATCH';
   game.tick = 0;
   return game;
+}
+
+export function startNextWave(game) {
+  if (game.mode !== 'waveBrief' || game.wave + 1 >= WAVES.length) return false;
+  loadWave(game, game.wave + 1);
+  game.mode = 'playing';
+  game.hammer = null;
+  game.cooldown = 0;
+  game.message = game.wave === 1 ? 'BULWARK — RETURN BREAKS GUARD' : `WAVE ${game.wave + 1}`;
+  return true;
 }
 
 export function movePlayer(game, direction) {
@@ -53,6 +78,15 @@ function hitEnemies(game, from, to) {
       : enemy.distance <= from && enemy.distance >= to;
     if (!crossed) continue;
     const damage = game.hammer.phase === 'out' ? 1 : 2;
+    if (game.hammer.phase === 'out' && enemy.armor > 0) {
+      enemy.armor -= 1;
+      enemy.blocked = 14;
+      enemy.flash = 8;
+      game.hammer.guardBlocked = true;
+      game.score += 50;
+      game.message = 'GUARD BLOCK — HIT THE RETURN';
+      continue;
+    }
     enemy.hp -= damage;
     enemy.flash = 8;
     const multiplier = 1 + Math.min(game.chain, 8) * 0.25;
@@ -78,7 +112,7 @@ export function step(game, dt = 1 / 60) {
     if (hammer.phase === 'out' && hammer.distance >= 1.45) {
       hammer.distance = 1.45;
       hammer.phase = 'return';
-      game.message = 'RETURNING — CATCH IT';
+      game.message = hammer.guardBlocked ? 'GUARD SHATTERED — RETURN BREAKS IT' : 'RETURNING — CATCH IT';
     } else if (hammer.phase === 'return' && hammer.distance <= 0.18) {
       if (slotDistance(game.playerSlot, hammer.slot) <= 1) {
         game.chain += 1;
@@ -96,6 +130,7 @@ export function step(game, dt = 1 / 60) {
   for (const enemy of game.enemies) {
     if (!enemy.alive) continue;
     enemy.flash = Math.max(0, enemy.flash - 1);
+    enemy.blocked = Math.max(0, enemy.blocked - 1);
     enemy.distance -= enemy.speed * dt;
     if (enemy.distance <= 0.2) {
       enemy.alive = false;
@@ -109,10 +144,15 @@ export function step(game, dt = 1 / 60) {
     game.mode = 'gameOver';
     game.message = 'BELL FALLEN — PRESS R';
   } else if (game.enemies.length && game.enemies.every(enemy => !enemy.alive)) {
-    game.mode = 'waveClear';
     game.hammer = null;
     game.score += game.bell * 1000;
-    game.message = 'DAWN HELD — PRESS R';
+    if (game.wave + 1 < WAVES.length) {
+      game.mode = 'waveBrief';
+      game.message = `WAVE ${game.wave + 1} HELD — PRESS SPACE`;
+    } else {
+      game.mode = 'waveClear';
+      game.message = 'DAWN HELD — PRESS R';
+    }
   }
   return game;
 }
