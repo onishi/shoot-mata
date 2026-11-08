@@ -29,16 +29,17 @@ export function createGame() {
   };
 }
 
-export function startGame(game) {
+export function startGame(game, waveIndex = 0) {
+  const safeWave = Number.isInteger(waveIndex) && waveIndex >= 0 && waveIndex < WAVES.length ? waveIndex : 0;
   game.mode = 'playing';
   game.playerSlot = 0;
   game.hammer = null;
   game.cooldown = 0;
-  loadWave(game, 0);
+  loadWave(game, safeWave);
   game.bell = 3;
   game.score = 0;
   game.chain = 0;
-  game.message = 'CAST — MOVE — CATCH';
+  game.message = safeWave === 0 ? 'CAST — MOVE — CATCH' : `WAVE ${safeWave + 1} — HOLD THE BELL`;
   game.tick = 0;
   return game;
 }

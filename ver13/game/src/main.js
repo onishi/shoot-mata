@@ -1,10 +1,23 @@
 import { angleForSlot, castHammer, createGame, movePlayer, startGame, startNextWave, step } from './model.js';
+import { keyLabel, loadSave, rebind, storeSave } from './storage.js';
 
 const canvas = document.querySelector('#game');
 const ctx = canvas.getContext('2d');
 let game = createGame();
 let paused = false;
+let save = loadSave();
+let menu = 'game';
+let settingRow = 0;
+let captureAction = null;
 let previous = performance.now();
+const settings = [
+  { label: 'SOUND VOLUME', type: 'volume' },
+  { label: 'REDUCED MOTION', type: 'motion' },
+  { label: 'RUN COUNTER-CLOCKWISE', type: 'key', action: 'left' },
+  { label: 'RUN CLOCKWISE', type: 'key', action: 'right' },
+  { label: 'CAST ECHO', type: 'key', action: 'cast' },
+  { label: 'RETURN TO CABINET', type: 'back' }
+];
 
 function polar(slot, radius) {
   const angle = angleForSlot(slot);
@@ -85,50 +98,116 @@ function drawActors() {
   ctx.restore();
 }
 
+function drawSettings() {
+  ctx.fillStyle = '#080d20'; ctx.fillRect(0, 58, 640, 380);
+  text('OPERATOR ACCESSIBILITY', 320, 105, 24, '#ffe29a', 'center');
+  text('SETTING', 120, 140, 13, '#9adbe8');
+  text('VALUE', 520, 140, 13, '#9adbe8', 'right');
+  settings.forEach((item, index) => {
+    const y = 180 + index * 40;
+    if (index === settingRow) {
+      ctx.fillStyle = '#49324f'; ctx.fillRect(92, y - 25, 456, 34);
+      text('▶', 104, y, 16, '#ffcf55');
+    }
+    text(item.label, 126, y, 15, index === settingRow ? '#ffffff' : '#d6d9ec');
+    let value = '';
+    if (item.type === 'volume') value = `${save.volume * 10}%`;
+    if (item.type === 'motion') value = save.reducedMotion ? 'ON' : 'OFF';
+    if (item.type === 'key') value = captureAction === item.action ? 'PRESS A KEY' : keyLabel(save.keys[item.action]);
+    text(value, 520, y, 16, captureAction === item.action ? '#ffcf55' : '#77e4ca', 'right');
+  });
+  text(captureAction ? 'ESC CANCEL' : '↑↓ SELECT   ←→ CHANGE   ENTER SET   ESC BACK', 320, 418, 13, '#f2c8ba', 'center');
+}
+
 function render() {
   ctx.fillStyle = '#080d20'; ctx.fillRect(0, 0, 640, 480);
   ctx.fillStyle = '#481f32'; ctx.fillRect(0, 0, 640, 58); ctx.fillRect(0, 438, 640, 42);
   text('RINGWARD', 18, 37, 30, '#ffe29a');
-  text('v13.0  M1', 620, 35, 14, '#9adbe8', 'right');
+  text('v13.0  M2', 620, 35, 14, '#9adbe8', 'right');
   drawArena(); drawBell();
-  if (game.mode !== 'title') drawActors();
+  if (menu === 'settings') {
+    drawSettings();
+  } else if (game.mode !== 'title') drawActors();
   text(`SCORE ${String(game.score).padStart(6, '0')}`, 18, 82, 16);
   text(`WAVE ${game.wave + 1}/2  CHAIN ×${game.chain}`, 320, 82, 16, '#77e4ca', 'center');
   text(`BELL ${'◆'.repeat(game.bell)}${'◇'.repeat(3 - game.bell)}`, 622, 82, 16, game.bell === 1 ? '#ff6b62' : '#ffe29a', 'right');
-  text(game.message, 320, 418, game.mode === 'title' ? 24 : 18, game.mode === 'gameOver' ? '#ff6b62' : '#ffe29a', 'center');
-  if (game.mode === 'title') {
+  if (menu === 'game') text(game.message, 320, 418, game.mode === 'title' ? 24 : 18, game.mode === 'gameOver' ? '#ff6b62' : '#ffe29a', 'center');
+  if (menu === 'game' && game.mode === 'title') {
     text('ONE HAMMER. TWO STRIKES. CATCH THE RETURN.', 320, 200, 17, '#9adbe8', 'center');
-    text('← → RUN THE RING', 320, 252, 17, '#d6d9ec', 'center');
-    text('SPACE CAST ECHO', 320, 282, 17, '#d6d9ec', 'center');
+    text(`${keyLabel(save.keys.left)} ${keyLabel(save.keys.right)} RUN THE RING`, 320, 252, 17, '#d6d9ec', 'center');
+    text(`${keyLabel(save.keys.cast)} CAST ECHO`, 320, 282, 17, '#d6d9ec', 'center');
+    if (save.highestWave > 0) text(`ENTER CONTINUE WAVE ${save.highestWave + 1}    N NEW RUN`, 320, 316, 14, '#77e4ca', 'center');
+    text('S SETTINGS', 320, 348, 14, '#f2c8ba', 'center');
   }
-  if (game.mode === 'waveBrief') {
+  if (menu === 'game' && game.mode === 'waveBrief') {
     ctx.fillStyle = '#080d20df'; ctx.fillRect(92, 167, 456, 172);
     text('WAVE 2 — IRON PROCESSION', 320, 208, 22, '#ffe29a', 'center');
     text('CYAN GUARD STOPS THE OUTBOUND HIT', 320, 251, 15, '#9adbe8', 'center');
     text('THE GOLD RETURN BREAKS THROUGH', 320, 280, 15, '#ffcf55', 'center');
-    text('PRESS SPACE', 320, 320, 18, '#f5e6b0', 'center');
+    text(`PRESS ${keyLabel(save.keys.cast)}`, 320, 320, 18, '#f5e6b0', 'center');
   }
-  if (paused) { ctx.fillStyle = '#080d20cc'; ctx.fillRect(120, 205, 400, 90); text('PAUSED', 320, 260, 30, '#ffe29a', 'center'); }
+  if (menu === 'game' && paused) { ctx.fillStyle = '#080d20cc'; ctx.fillRect(120, 195, 400, 110); text('PAUSED', 320, 245, 30, '#ffe29a', 'center'); text('S SETTINGS', 320, 278, 14, '#9adbe8', 'center'); }
   text('8-WAY LEVER　　ECHO BUTTON　　START', 320, 466, 13, '#f2c8ba', 'center');
-  canvas.setAttribute('aria-label', `RINGWARD ${game.mode}. Score ${game.score}. Chain ${game.chain}. Bell ${game.bell}. ${game.message}`);
+  const selectedSetting = settings[settingRow];
+  const settingValue = selectedSetting.type === 'volume' ? `${save.volume * 10}%`
+    : selectedSetting.type === 'motion' ? (save.reducedMotion ? 'on' : 'off')
+      : selectedSetting.type === 'key' ? keyLabel(save.keys[selectedSetting.action]) : '';
+  canvas.setAttribute('aria-label', menu === 'settings'
+    ? `RINGWARD operator accessibility. ${selectedSetting.label}. ${settingValue}`
+    : `RINGWARD ${game.mode}. Score ${game.score}. Chain ${game.chain}. Bell ${game.bell}. ${game.message}`);
+}
+
+function persist() {
+  storeSave(save);
+}
+
+function closeSettings() {
+  captureAction = null;
+  menu = 'game';
+}
+
+function handleSettings(event) {
+  event.preventDefault();
+  if (captureAction) {
+    if (event.code === 'Escape') captureAction = null;
+    else if (rebind(save, captureAction, event.code)) { captureAction = null; persist(); }
+    return;
+  }
+  if (event.code === 'Escape' || event.code === 'KeyS') { closeSettings(); return; }
+  if (event.code === 'ArrowUp') settingRow = (settingRow + settings.length - 1) % settings.length;
+  if (event.code === 'ArrowDown') settingRow = (settingRow + 1) % settings.length;
+  const item = settings[settingRow];
+  if ((event.code === 'ArrowLeft' || event.code === 'ArrowRight') && item.type === 'volume') {
+    save.volume = Math.max(0, Math.min(10, save.volume + (event.code === 'ArrowLeft' ? -1 : 1))); persist();
+  } else if ((event.code === 'ArrowLeft' || event.code === 'ArrowRight' || event.code === 'Enter') && item.type === 'motion') {
+    save.reducedMotion = !save.reducedMotion; persist();
+  } else if (event.code === 'Enter' && item.type === 'key') captureAction = item.action;
+  else if (event.code === 'Enter' && item.type === 'back') closeSettings();
 }
 
 addEventListener('keydown', event => {
-  if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Space'].includes(event.code)) event.preventDefault();
-  if (event.code === 'Enter' && game.mode === 'title') startGame(game);
-  else if (event.code === 'Space' && game.mode === 'waveBrief') startNextWave(game);
-  else if (event.code === 'KeyR' && game.mode !== 'title') { game = createGame(); startGame(game); paused = false; }
+  if (menu === 'settings') { handleSettings(event); return; }
+  if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Space', ...Object.values(save.keys)].includes(event.code)) event.preventDefault();
+  if (event.code === 'KeyS' && (game.mode === 'title' || paused)) { menu = 'settings'; return; }
+  if (event.code === 'Enter' && game.mode === 'title') startGame(game, save.highestWave);
+  else if (event.code === 'KeyN' && game.mode === 'title') startGame(game, 0);
+  else if (event.code === save.keys.cast && game.mode === 'waveBrief') startNextWave(game);
+  else if (event.code === 'KeyR' && game.mode !== 'title') { game = createGame(); startGame(game, save.highestWave); paused = false; }
   else if (event.code === 'KeyP' && game.mode === 'playing') paused = !paused;
   else if (!paused && game.mode === 'playing') {
-    if (event.code === 'ArrowLeft' || event.code === 'ArrowUp') movePlayer(game, -1);
-    if (event.code === 'ArrowRight' || event.code === 'ArrowDown') movePlayer(game, 1);
-    if (event.code === 'Space') castHammer(game);
+    if (event.code === save.keys.left) movePlayer(game, -1);
+    if (event.code === save.keys.right) movePlayer(game, 1);
+    if (event.code === save.keys.cast) castHammer(game);
   }
 });
 
 function frame(now) {
   const elapsed = Math.min(0.05, (now - previous) / 1000); previous = now;
-  if (!paused) step(game, elapsed);
+  const previousMode = game.mode;
+  if (!paused && menu === 'game') step(game, elapsed);
+  if (previousMode === 'playing' && game.mode === 'waveBrief' && game.wave + 1 > save.highestWave) {
+    save.highestWave = game.wave + 1; persist();
+  }
   render(); requestAnimationFrame(frame);
 }
 canvas.focus(); requestAnimationFrame(frame);

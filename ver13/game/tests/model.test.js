@@ -13,6 +13,14 @@ test('start creates a fresh three-enemy wave', () => {
   assert.equal(game.bell, 3);
 });
 
+test('saved progress can start directly at the second wave', () => {
+  const game = startGame(createGame(), 1);
+  assert.equal(game.wave, 1);
+  assert.equal(game.enemies.filter(enemy => enemy.kind === 'bulwark').length, 2);
+  assert.equal(game.score, 0);
+  assert.equal(game.bell, 3);
+});
+
 test('player wraps around the sixteen-position ring', () => {
   const game = startGame(createGame());
   movePlayer(game, -1);
