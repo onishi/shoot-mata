@@ -1,0 +1,24 @@
+{
+  "version": "v12.1",
+  "buildCommand": "npm run build:clean",
+  "cleanBuild": true,
+  "fileCount": 3,
+  "totalBytes": 35645,
+  "files": [
+    {
+      "path": "assets/index-3XFsy21S.css",
+      "bytes": 907,
+      "sha256": "94bd37dff593a281a4f7c9c888d7dac5fc386108fc67d1ccb01b731a01b48443"
+    },
+    {
+      "path": "assets/index-Bc-Q_k7S.js",
+      "bytes": 33905,
+      "sha256": "7f50c6770e6ecc16d45ea62a76e0d4b2380dded80fe2c4cdb4825fee25d811b1"
+    },
+    {
+      "path": "index.html",
+      "bytes": 833,
+      "sha256": "e3fb367b3057e9db87ae7eabee53e7dabc5ec85f54ad3f90ca8eda64147142ea"
+    }
+  ]
+}

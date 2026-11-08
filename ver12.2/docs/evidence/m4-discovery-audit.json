@@ -1,0 +1,169 @@
+{
+  "measuredAt": "2026-11-08T10:04:30.402Z",
+  "method": {
+    "name": "route-free deterministic discoverability proxy",
+    "routeKnowledge": "no chamber-specific input routes; breadth-first search applies one shared rule to current level data",
+    "limitation": "This is not a human usability test. The planner has exact rule and board state access, while logical pauses approximate reading and feedback inspection.",
+    "policy": "seek completion with TEMPER lit; use the first field strike as an undo-backed learning probe",
+    "inputIntervalMs": 850,
+    "chamberSurveyMs": 45000,
+    "fieldObservationMs": 12000,
+    "resultReadMs": 4000,
+    "executionDelayMs": 10
+  },
+  "targetMs": {
+    "minimum": 480000,
+    "maximum": 900000
+  },
+  "creditToFinalForgeMs": 863600,
+  "pacingAssessment": "within-target",
+  "totalActions": 96,
+  "undoUses": 6,
+  "failures": 0,
+  "finalScore": 76500,
+  "chambers": [
+    {
+      "chamber": 1,
+      "discoveredRoute": [
+        "right",
+        "right",
+        "flip",
+        "flip",
+        "left",
+        "flip"
+      ],
+      "expandedStates": 245,
+      "discoveredStates": 413,
+      "pulses": 3,
+      "undoUsed": true,
+      "failures": 0,
+      "activeMs": 99800
+    },
+    {
+      "chamber": 2,
+      "discoveredRoute": [
+        "flip",
+        "flip",
+        "flip",
+        "right",
+        "right",
+        "flip",
+        "flip"
+      ],
+      "expandedStates": 373,
+      "discoveredStates": 695,
+      "pulses": 5,
+      "undoUsed": true,
+      "failures": 0,
+      "activeMs": 124650
+    },
+    {
+      "chamber": 3,
+      "discoveredRoute": [
+        "left",
+        "left",
+        "flip",
+        "right",
+        "right",
+        "right",
+        "down",
+        "flip",
+        "flip",
+        "left",
+        "down",
+        "flip"
+      ],
+      "expandedStates": 3830,
+      "discoveredStates": 5388,
+      "pulses": 4,
+      "undoUsed": true,
+      "failures": 0,
+      "activeMs": 116900
+    },
+    {
+      "chamber": 4,
+      "discoveredRoute": [
+        "right",
+        "down",
+        "flip",
+        "flip",
+        "left",
+        "flip",
+        "flip"
+      ],
+      "expandedStates": 325,
+      "discoveredStates": 527,
+      "pulses": 4,
+      "undoUsed": true,
+      "failures": 0,
+      "activeMs": 112650
+    },
+    {
+      "chamber": 5,
+      "discoveredRoute": [
+        "flip",
+        "flip",
+        "flip",
+        "left",
+        "left",
+        "flip",
+        "flip",
+        "left",
+        "flip",
+        "right",
+        "right",
+        "right",
+        "right",
+        "down",
+        "flip",
+        "left",
+        "flip",
+        "flip",
+        "flip"
+      ],
+      "expandedStates": 51944,
+      "discoveredStates": 64674,
+      "pulses": 10,
+      "undoUsed": true,
+      "failures": 0,
+      "activeMs": 194850
+    },
+    {
+      "chamber": 6,
+      "discoveredRoute": [
+        "right",
+        "down",
+        "flip",
+        "left",
+        "down",
+        "flip",
+        "flip",
+        "left",
+        "left",
+        "left",
+        "up",
+        "flip",
+        "right",
+        "down",
+        "right",
+        "right",
+        "right",
+        "right",
+        "right",
+        "up",
+        "up",
+        "flip",
+        "flip",
+        "flip",
+        "flip",
+        "flip"
+      ],
+      "expandedStates": 53484,
+      "discoveredStates": 59385,
+      "pulses": 9,
+      "undoUsed": true,
+      "failures": 0,
+      "activeMs": 188800
+    }
+  ]
+}

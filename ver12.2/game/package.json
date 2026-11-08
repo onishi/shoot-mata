@@ -1,0 +1,26 @@
+{
+  "name": "lodestar-forge",
+  "version": "12.2.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "test": "node --test",
+    "check": "node --check src/model.js && node --check src/main.js && node --check audit/campaign.spec.js && node --check audit/discovery.spec.js && node --check audit/audio.spec.js && node --check audit/release.spec.js && node --check scripts/clean-build.mjs && node --check scripts/package-release.mjs && node --check scripts/verify-release.mjs && node --check scripts/verify-deployment.mjs && node --check playwright.audit.config.js && node --check playwright.release.config.js",
+    "build": "vite build",
+    "build:clean": "node scripts/clean-build.mjs",
+    "e2e": "playwright test",
+    "audit:campaign": "playwright test --config playwright.audit.config.js campaign.spec.js",
+    "audit:discovery": "playwright test --config playwright.audit.config.js discovery.spec.js",
+    "audit:audio": "playwright test --config playwright.audit.config.js audio.spec.js",
+    "audit:release": "npm run build:clean && playwright test --config playwright.release.config.js",
+    "package:release": "node scripts/package-release.mjs",
+    "verify:release": "node scripts/verify-release.mjs",
+    "verify:deployment": "node scripts/verify-deployment.mjs",
+    "verify": "npm run test && npm run check && npm run build && npm run e2e"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.56.1",
+    "vite": "7.3.7"
+  }
+}
