@@ -1,0 +1,12 @@
+{
+  "name": "ringward",
+  "version": "13.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "serve": "python3 -m http.server 4173 --bind 127.0.0.1",
+    "test": "node --test",
+    "check": "node --check src/model.js && node --check src/main.js",
+    "verify": "npm run test && npm run check"
+  }
+}
