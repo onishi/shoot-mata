@@ -80,7 +80,7 @@
 - 全TEMPER方針76,250点はCROWN MASTER専用の金色放射・条件表示・7音ジングルへ分岐し、安全方針53,750点には次のSTAR FORGER条件を示す。accessible name、成績入力、テスト用data属性にも職人位を接続した。
 - `m5-masterwork-ending.png`を1280×720で目視し、最高位、得点、条件、コンティニュー数、次操作に切れ・重なり・判別不能がないことを確認した。
 - `npm run verify`は単体30/30、構文検査、production build、Chrome E2E 15/15に合格。安全102.750秒・53,750点、全TEMPER 123.150秒・76,250点、固定ルートなし863.600秒・76,500点、180フレーム平均16.666ms・25ms超0・Long Task 0を維持した。
-- OfflineAudioContextで13キューとBGMを再監査し、新規masterwork最大ピーク0.022541、全音クリップ0を確認した。クリーン配布物は3ファイル35,645 bytesで、v12.2表示・アトラクト・安全6室・HTTPエラー0をpreview監査した。M5第2回批評を完了する。
+- OfflineAudioContextで13キューとBGMを再監査し、新規masterwork最大ピーク0.022541、全音クリップ0を確認した。Pagesサブパス対応後のクリーン配布物は3ファイル35,647 bytesで、v12.2表示・アトラクト・安全6室・HTTPエラー0をpreview監査した。M5第2回批評を完了する。
 
 ## 未解決課題
 

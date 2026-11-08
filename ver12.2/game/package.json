@@ -7,7 +7,7 @@
     "dev": "vite --host 127.0.0.1",
     "test": "node --test",
     "check": "node --check src/model.js && node --check src/main.js && node --check audit/campaign.spec.js && node --check audit/discovery.spec.js && node --check audit/audio.spec.js && node --check audit/release.spec.js && node --check scripts/clean-build.mjs && node --check scripts/package-release.mjs && node --check scripts/verify-release.mjs && node --check scripts/verify-deployment.mjs && node --check playwright.audit.config.js && node --check playwright.release.config.js",
-    "build": "vite build",
+    "build": "vite build --base=./",
     "build:clean": "node scripts/clean-build.mjs",
     "e2e": "playwright test",
     "audit:campaign": "playwright test --config playwright.audit.config.js campaign.spec.js",

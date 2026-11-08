@@ -191,5 +191,6 @@
 - 実行元: Codex / `run-codex-loop.sh` / run 1 / 開始 `2026-11-08T19:01:23+0900`。
 - 未コミットで残っていたv12.2第2回批評成果を保持して検証した。53,750点級のIRON FORGER、65,000点以上のSTAR FORGER、75,000点以上かつノーコンティニューのCROWN MASTERを終演へ接続し、最高位へ金色放射と専用7音ジングルを与えている。
 - GitHub Pages artifactをトップと`/v12.2/`へv12.2、`/v5/`・v4系・v3系へ既存公開版を収容する構成へ更新した。release metadataでcommitを固定し、全11経路、v5保持、asset MIME、外部runtime URLなし、1 MB未満をローカル監査する。
-- `npm run verify`は単体30/30、構文検査、production build、Chrome E2E 15/15に合格した。`audit:campaign`、`audit:discovery`、`audit:audio`、`audit:release`も各1/1に合格し、既知2方針、固定ルートなし探索、180フレーム、全13音+BGM、クリーン配布物3ファイル35,645 bytesを再確認した。
+- `npm run verify`は単体30/30、構文検査、production build、Chrome E2E 15/15に合格した。`audit:campaign`、`audit:discovery`、`audit:audio`、`audit:release`も各1/1に合格し、既知2方針、固定ルートなし探索、180フレーム、全13音+BGM、Pagesサブパス対応後のクリーン配布物3ファイル35,647 bytesを再確認した。
 - `m5-masterwork-ending.png`を再目視し、4:3筐体枠、CROWN MASTER、76,250点、全TEMPER・ノーコンティニュー条件、次操作に切れ・重なり・判別不能がないことを確認した。ローカルPages artifact検査は合格、公開URL監査はpush後に行う。
+- 初回Pages run `42469925357`はbuildとdeployに成功したが、本番監査が相対asset URLを検出できず失敗した。実際のVite出力もPagesサブパスでは不正な絶対`/assets/`だったため、buildを`--base=./`へ変更した。相対JS/CSSを含む35,647 bytesの候補で単体30/30、Chrome E2E 15/15、release通し1/1、11経路artifact検査を再合格し、修正版を再公開する。

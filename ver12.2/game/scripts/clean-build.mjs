@@ -8,7 +8,7 @@ const evidence = new URL("../../docs/evidence/m5-release-manifest.json", import.
 
 await rm(dist, { recursive: true, force: true });
 const vite = new URL("../node_modules/vite/bin/vite.js", import.meta.url);
-const build = spawnSync(process.execPath, [vite.pathname, "build"], {
+const build = spawnSync(process.execPath, [vite.pathname, "build", "--base=./"], {
   cwd: root,
   stdio: "inherit"
 });
