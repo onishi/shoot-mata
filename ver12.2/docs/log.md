@@ -194,3 +194,5 @@
 - `npm run verify`は単体30/30、構文検査、production build、Chrome E2E 15/15に合格した。`audit:campaign`、`audit:discovery`、`audit:audio`、`audit:release`も各1/1に合格し、既知2方針、固定ルートなし探索、180フレーム、全13音+BGM、Pagesサブパス対応後のクリーン配布物3ファイル35,647 bytesを再確認した。
 - `m5-masterwork-ending.png`を再目視し、4:3筐体枠、CROWN MASTER、76,250点、全TEMPER・ノーコンティニュー条件、次操作に切れ・重なり・判別不能がないことを確認した。ローカルPages artifact検査は合格、公開URL監査はpush後に行う。
 - 初回Pages run `42469925357`はbuildとdeployに成功したが、本番監査が相対asset URLを検出できず失敗した。実際のVite出力もPagesサブパスでは不正な絶対`/assets/`だったため、buildを`--base=./`へ変更した。相対JS/CSSを含む35,647 bytesの候補で単体30/30、Chrome E2E 15/15、release通し1/1、11経路artifact検査を再合格し、修正版を再公開する。
+- 修正版commit `301aff7`のPages run `42470411157`はbuild 2分57秒、deploy 35秒で成功した。deployment `7634490486`へトップと`/v12.2/`を公開し、CI本番監査は全11経路、commit metadata、旧v5保持、2 asset MIMEに合格した。
+- 開発環境から`node ver12.2/game/scripts/verify-deployment.mjs https://onishi.github.io/shoot-mata/ 301aff7c4c213045894c301dc6519a344f3181b1`を独立再実行し、同じ11経路、v12.2 commit、2 asset MIMEに再合格した。v12.2をPublished Product、M5完了とする。次の独立実行はM6メジャー振り返りだけを行う。
