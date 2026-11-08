@@ -22,3 +22,4 @@
 | 2026-11-07T08:42:29+0900 | Codex | run-codex-loop.sh | 2 | M4人間相当ペース通し・180フレーム性能監査を再実行可能にし、時間目標未達を記録 | 全6室103.4秒・53,750点、180フレーム平均16.67ms、25ms超0、Long Task 0 | `test(ver12): audit campaign pacing and performance` |
 | 2026-11-07T09:19:55+0900 | Codex | run-codex-loop.sh | 3 | M4第1室へ安全解と競合するTEMPER SIGIL高得点経路を実装 | 単体25/25、build、Chrome E2E 12/12、画像1点目視 | `feat(ver12): add temper sigil score route` |
 | 2026-11-07T19:53:14+0900 | Codex | run-codex-loop.sh | 1 | 中断中の全6室TEMPER経路を復元・検証し、室ごとに1回の完全状態UNDOを実装 | 単体28/28、build、Chrome E2E 14/14、論理ペース監査1/1、画像2点目視 | `feat(ver12): deepen temper routes with field undo` |
+| 2026-11-08T09:05:19+0900 | Codex | run-codex-loop.sh | 2 | 固定ルートなしの全6室探索とUNDO学習試行を自動化し、初見相当時間を監査 | 14分23.6秒・96操作・76,500点、単体28/28、build、Chrome E2E 14/14、既存監査1/1、画像目視 | `test(ver12): audit route-free campaign discovery` |

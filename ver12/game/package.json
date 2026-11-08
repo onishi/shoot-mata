@@ -6,10 +6,11 @@
   "scripts": {
     "dev": "vite --host 127.0.0.1",
     "test": "node --test",
-    "check": "node --check src/model.js && node --check src/main.js && node --check audit/campaign.spec.js && node --check playwright.audit.config.js",
+    "check": "node --check src/model.js && node --check src/main.js && node --check audit/campaign.spec.js && node --check audit/discovery.spec.js && node --check playwright.audit.config.js",
     "build": "vite build",
     "e2e": "playwright test",
-    "audit:campaign": "playwright test --config playwright.audit.config.js",
+    "audit:campaign": "playwright test --config playwright.audit.config.js campaign.spec.js",
+    "audit:discovery": "playwright test --config playwright.audit.config.js discovery.spec.js",
     "verify": "npm run test && npm run check && npm run build && npm run e2e"
   },
   "devDependencies": {
