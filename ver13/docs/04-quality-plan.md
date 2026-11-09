@@ -23,3 +23,4 @@
 - 設定は正常値、破損JSON、不正値、保存不能、キー重複を単体で固定し、Chrome実キーで変更、再読込、再配置後の投擲を確認する。
 - `m2-settings-1280x720.png`と`m2-settings-640x480.png`で設定項目、値、選択、操作案内の切れ・重なりを目視する。
 - 音イベント列で投擲、折返し、往路命中、復路撃破、回収、鐘被弾を単体固定する。実ChromeではOscillator発音を監査し、保存音量0%で0件、100%で発音とunity gain、ポーズ中の追加スケジュール0件、再開後の復帰、console error 0を確認する。
+- アトラクトは単体でコイン必須、クレジット消費、決定的デモ、デモ割込みを固定する。実Chromeでは無操作デモ開始、`C`、CREDIT 1、保存地点START、新規START、console error 0を確認し、`m2-attract-1280x720.png`、`m2-demonstration-1280x720.png`、`m2-credit-start-640x480.png`を比較目視する。

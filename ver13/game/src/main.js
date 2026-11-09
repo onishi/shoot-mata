@@ -1,5 +1,5 @@
 import { RingwardAudio } from './audio.js';
-import { angleForSlot, castHammer, createGame, drainAudioEvents, movePlayer, startGame, startNextWave, step, WAVES } from './model.js';
+import { angleForSlot, castHammer, createGame, drainAudioEvents, driveDemo, insertCoin, movePlayer, returnToAttract, startCredit, startDemo, startNextWave, step, WAVES } from './model.js';
 import { keyLabel, loadSave, rebind, storeSave } from './storage.js';
 
 const canvas = document.querySelector('#game');
@@ -11,6 +11,8 @@ let menu = 'game';
 let settingRow = 0;
 let captureAction = null;
 let previous = performance.now();
+let cabinetElapsed = 0;
+let demoControlElapsed = 0;
 const audio = new RingwardAudio();
 audio.setVolume(save.volume);
 const settings = [
@@ -149,17 +151,24 @@ function render() {
   drawArena(); drawBell();
   if (menu === 'settings') {
     drawSettings();
-  } else if (game.mode !== 'title') drawActors();
+  } else if (game.mode === 'playing' || ['waveBrief', 'waveClear', 'gameOver'].includes(game.mode)) drawActors();
   text(`SCORE ${String(game.score).padStart(6, '0')}`, 18, 82, 16);
   text(`WAVE ${game.wave + 1}/${WAVE_COUNT}  CHAIN ×${game.chain}`, 320, 82, 16, '#77e4ca', 'center');
   text(`BELL ${'◆'.repeat(game.bell)}${'◇'.repeat(3 - game.bell)}`, 622, 82, 16, game.bell === 1 ? '#ff6b62' : '#ffe29a', 'right');
-  if (menu === 'game') text(game.message, 320, 418, game.mode === 'title' ? 24 : 18, game.mode === 'gameOver' ? '#ff6b62' : '#ffe29a', 'center');
-  if (menu === 'game' && game.mode === 'title') {
+  if (menu === 'game') text(game.message, 320, 418, ['attract', 'startWait'].includes(game.mode) ? 24 : 18, game.mode === 'gameOver' ? '#ff6b62' : '#ffe29a', 'center');
+  if (menu === 'game' && ['attract', 'startWait'].includes(game.mode)) {
     text('ONE HAMMER. TWO STRIKES. CATCH THE RETURN.', 320, 200, 17, '#9adbe8', 'center');
     text(`${keyLabel(save.keys.left)} ${keyLabel(save.keys.right)} RUN THE RING`, 320, 252, 17, '#d6d9ec', 'center');
     text(`${keyLabel(save.keys.cast)} CAST ECHO`, 320, 282, 17, '#d6d9ec', 'center');
-    if (save.highestWave > 0) text(`ENTER CONTINUE WAVE ${save.highestWave + 1}    N NEW RUN`, 320, 316, 14, '#77e4ca', 'center');
-    text('S SETTINGS', 320, 348, 14, '#f2c8ba', 'center');
+    if (game.mode === 'attract') text('PRESS C — INSERT COIN', 320, 326, 18, '#ffcf55', 'center');
+    else if (save.highestWave > 0) text(`ENTER CONTINUE WAVE ${save.highestWave + 1}    N NEW RUN`, 320, 326, 14, '#77e4ca', 'center');
+    else text('PRESS ENTER — START', 320, 326, 18, '#77e4ca', 'center');
+    text('S SETTINGS', 320, 358, 14, '#f2c8ba', 'center');
+  }
+  if (menu === 'game' && game.demo) {
+    ctx.fillStyle = '#481f32dd'; ctx.fillRect(194, 91, 252, 34);
+    text('DEMONSTRATION', 320, 115, 18, '#ffe29a', 'center');
+    text('ALIGN • CAST • CATCH', 320, 148, 14, '#9adbe8', 'center');
   }
   if (menu === 'game' && game.mode === 'waveBrief') {
     ctx.fillStyle = '#080d20df'; ctx.fillRect(92, 167, 456, 172);
@@ -170,14 +179,14 @@ function render() {
     text(`PRESS ${keyLabel(save.keys.cast)}`, 320, 320, 18, '#f5e6b0', 'center');
   }
   if (menu === 'game' && paused) { ctx.fillStyle = '#080d20cc'; ctx.fillRect(120, 195, 400, 110); text('PAUSED', 320, 245, 30, '#ffe29a', 'center'); text('S SETTINGS', 320, 278, 14, '#9adbe8', 'center'); }
-  text('8-WAY LEVER　　ECHO BUTTON　　START', 320, 466, 13, '#f2c8ba', 'center');
+  text(`8-WAY LEVER　 ECHO BUTTON　 START　 CREDIT ${game.credits}`, 320, 466, 13, '#f2c8ba', 'center');
   const selectedSetting = settings[settingRow];
   const settingValue = selectedSetting.type === 'volume' ? `${save.volume * 10}%`
     : selectedSetting.type === 'motion' ? (save.reducedMotion ? 'on' : 'off')
       : selectedSetting.type === 'key' ? keyLabel(save.keys[selectedSetting.action]) : '';
   canvas.setAttribute('aria-label', menu === 'settings'
     ? `RINGWARD operator accessibility. ${selectedSetting.label}. ${settingValue}`
-    : `RINGWARD ${game.mode}. Score ${game.score}. Chain ${game.chain}. Bell ${game.bell}. ${game.message}`);
+    : `RINGWARD ${game.mode}. ${game.demo ? 'Demonstration. ' : ''}Credit ${game.credits}. Score ${game.score}. Chain ${game.chain}. Bell ${game.bell}. ${game.message}`);
 }
 
 function persist() {
@@ -212,11 +221,12 @@ addEventListener('keydown', event => {
   audio.unlock();
   if (menu === 'settings') { handleSettings(event); return; }
   if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Space', ...Object.values(save.keys)].includes(event.code)) event.preventDefault();
-  if (event.code === 'KeyS' && (game.mode === 'title' || paused)) { menu = 'settings'; return; }
-  if (event.code === 'Enter' && game.mode === 'title') startGame(game, save.highestWave);
-  else if (event.code === 'KeyN' && game.mode === 'title') startGame(game, 0);
+  if (event.code === 'KeyC') { insertCoin(game); paused = false; cabinetElapsed = 0; return; }
+  if (event.code === 'KeyS' && (['attract', 'startWait'].includes(game.mode) || paused)) { menu = 'settings'; return; }
+  if (event.code === 'Enter' && game.mode === 'startWait') startCredit(game, save.highestWave);
+  else if (event.code === 'KeyN' && game.mode === 'startWait') startCredit(game, 0);
   else if (event.code === save.keys.cast && game.mode === 'waveBrief') startNextWave(game);
-  else if (event.code === 'KeyR' && game.mode !== 'title') { game = createGame(); startGame(game, save.highestWave); paused = false; }
+  else if (event.code === 'KeyR' && ['gameOver', 'waveClear'].includes(game.mode)) { returnToAttract(game); paused = false; cabinetElapsed = 0; }
   else if (event.code === 'KeyP' && game.mode === 'playing') paused = !paused;
   else if (!paused && game.mode === 'playing') {
     if (event.code === save.keys.left) movePlayer(game, -1);
@@ -228,7 +238,18 @@ addEventListener('keydown', event => {
 function frame(now) {
   const elapsed = Math.min(0.05, (now - previous) / 1000); previous = now;
   const previousMode = game.mode;
-  if (!paused && menu === 'game') step(game, elapsed);
+  if (!paused && menu === 'game') {
+    if (game.mode === 'attract') {
+      cabinetElapsed += elapsed;
+      if (cabinetElapsed >= 4.5) { startDemo(game); demoControlElapsed = 0; }
+    } else if (game.demo) {
+      game.demoTime += elapsed;
+      demoControlElapsed += elapsed;
+      if (demoControlElapsed >= 0.1) { driveDemo(game); demoControlElapsed = 0; }
+      step(game, elapsed);
+      if (game.demoTime >= 11 || game.mode !== 'playing') { returnToAttract(game); cabinetElapsed = 0; }
+    } else step(game, elapsed);
+  }
   for (const cue of drainAudioEvents(game)) audio.play(cue);
   audio.update(menu === 'game' ? game.mode : 'settings', paused);
   if (previousMode === 'playing' && game.mode === 'waveBrief' && game.wave + 1 > save.highestWave) {

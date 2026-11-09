@@ -1,10 +1,38 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { castHammer, createGame, drainAudioEvents, movePlayer, startGame, startNextWave, step } from '../src/model.js';
+import { castHammer, createGame, drainAudioEvents, driveDemo, insertCoin, movePlayer, returnToAttract, startCredit, startDemo, startGame, startNextWave, step } from '../src/model.js';
 
 function advance(game, seconds, dt = 1 / 120) {
   for (let elapsed = 0; elapsed < seconds && game.mode === 'playing'; elapsed += dt) step(game, dt);
 }
+
+test('cabinet requires a coin and consumes one credit to start', () => {
+  const game = createGame();
+  assert.equal(game.mode, 'attract');
+  assert.equal(startCredit(game), false);
+  insertCoin(game);
+  assert.equal(game.mode, 'startWait');
+  assert.equal(game.credits, 1);
+  assert.ok(drainAudioEvents(game).includes('coin'));
+  assert.equal(startCredit(game, 1), true);
+  assert.equal(game.mode, 'playing');
+  assert.equal(game.wave, 1);
+  assert.equal(game.credits, 0);
+});
+
+test('attract demonstration plays deterministically and yields to a coin', () => {
+  const game = createGame();
+  assert.equal(startDemo(game), true);
+  for (let i = 0; i < 80; i++) { driveDemo(game); step(game, 0.05); }
+  assert.equal(game.demo, true);
+  assert.ok(game.tick > 0);
+  insertCoin(game);
+  assert.equal(game.demo, false);
+  assert.equal(game.mode, 'startWait');
+  assert.equal(game.credits, 1);
+  returnToAttract(game);
+  assert.equal(game.mode, 'startWait');
+});
 
 test('start creates a fresh three-enemy wave', () => {
   const game = startGame(createGame());

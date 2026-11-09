@@ -1,4 +1,5 @@
 const CUE_SPECS = Object.freeze({
+  coin: [[988, 0.05, 'square'], [1319, 0.12, 'square']],
   start: [[392, 0.08, 'square'], [523, 0.13, 'square']],
   waveStart: [[294, 0.08, 'square'], [440, 0.12, 'square']],
   cast: [[210, 0.09, 'sawtooth'], [315, 0.06, 'square']],

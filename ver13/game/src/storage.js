@@ -10,7 +10,7 @@ export const DEFAULT_SAVE = Object.freeze({
   keys: Object.freeze({ left: 'ArrowLeft', right: 'ArrowRight', cast: 'Space' })
 });
 
-const BLOCKED_BINDINGS = new Set(['Enter', 'Escape', 'KeyP', 'KeyR', 'KeyS', 'KeyN']);
+const BLOCKED_BINDINGS = new Set(['Enter', 'Escape', 'KeyC', 'KeyP', 'KeyR', 'KeyS', 'KeyN']);
 
 export function sanitizeSave(value) {
   const source = value && typeof value === 'object' ? value : {};

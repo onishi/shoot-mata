@@ -36,9 +36,10 @@ export function drainAudioEvents(game) {
 
 export function createGame() {
   return {
-    mode: 'title', playerSlot: 0, hammer: null, cooldown: 0,
+    mode: 'attract', playerSlot: 0, hammer: null, cooldown: 0,
     enemies: [], bell: 3, score: 0, chain: 0, wave: 0,
-    message: 'PRESS ENTER', tick: 0, audioEvents: []
+    message: 'INSERT COIN', tick: 0, audioEvents: [], credits: 0,
+    demo: false, demoTime: 0
   };
 }
 
@@ -54,9 +55,61 @@ export function startGame(game, waveIndex = 0) {
   game.chain = 0;
   game.message = safeWave === 0 ? 'CAST — MOVE — CATCH' : `WAVE ${safeWave + 1} — HOLD THE BELL`;
   game.tick = 0;
+  game.demo = false;
+  game.demoTime = 0;
   game.audioEvents.length = 0;
   emit(game, 'start');
   return game;
+}
+
+export function insertCoin(game) {
+  const credits = Math.min(9, game.credits + 1);
+  if (game.mode !== 'playing' || game.demo) {
+    Object.assign(game, createGame());
+    game.mode = 'startWait';
+    game.message = 'PUSH START';
+  }
+  game.credits = credits;
+  emit(game, 'coin');
+  return true;
+}
+
+export function startCredit(game, waveIndex = 0) {
+  if (game.mode !== 'startWait' || game.credits <= 0) return false;
+  game.credits -= 1;
+  startGame(game, waveIndex);
+  return true;
+}
+
+export function startDemo(game) {
+  if (game.mode !== 'attract' || game.credits > 0) return false;
+  startGame(game, 0);
+  game.demo = true;
+  game.message = 'HOW TO PLAY — WATCH THE RETURN';
+  return true;
+}
+
+export function returnToAttract(game) {
+  const credits = game.credits;
+  Object.assign(game, createGame());
+  game.credits = credits;
+  if (credits > 0) {
+    game.mode = 'startWait';
+    game.message = 'PUSH START';
+  }
+  return game;
+}
+
+export function driveDemo(game) {
+  if (!game.demo || game.mode !== 'playing') return false;
+  const targetSlot = game.hammer?.slot ?? game.enemies
+    .filter(enemy => enemy.alive)
+    .sort((a, b) => a.distance - b.distance)[0]?.slot;
+  if (!Number.isInteger(targetSlot)) return false;
+  const clockwise = (targetSlot - game.playerSlot + SLOT_COUNT) % SLOT_COUNT;
+  if (clockwise !== 0) movePlayer(game, clockwise <= SLOT_COUNT / 2 ? 1 : -1);
+  else if (!game.hammer) castHammer(game);
+  return true;
 }
 
 export function startNextWave(game) {
