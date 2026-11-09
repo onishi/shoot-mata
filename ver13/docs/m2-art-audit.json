@@ -1,0 +1,19 @@
+{
+  "viewportEvidence": [
+    "m2-art-action-1280x720.png",
+    "m2-art-catch-640x480.png"
+  ],
+  "realKeyPath": "attract -> C coin -> Enter start -> Space outbound hit -> return break -> perfect catch -> move -> second cast",
+  "observed": {
+    "outboundHit": "Score 100, Chain 0, Bell 3",
+    "perfectCatch": "Score 1350, Chain 1, Bell 3",
+    "secondTargetHit": "Score 1475, Chain 1, Bell 3",
+    "consoleErrors": 0
+  },
+  "visualReview": [
+    "Shrine, dawn sky, bronze bell, warder, three enemy silhouettes and echo hammer share one limited-palette direction",
+    "Combat actors remain inside the HUD boundary at 1280x720",
+    "HUD, message, credit strip, catch ring and actors have no clipping or unintended overlap at 640x480"
+  ],
+  "browser": "Installed Google Chrome, headless fallback because shared browser host was unavailable"
+}

@@ -30,6 +30,10 @@ function emit(game, type) {
   game.audioEvents.push(type);
 }
 
+function effect(game, kind, slot, distance, life = 0.34) {
+  game.effects.push({ kind, slot, distance, life, duration: life });
+}
+
 export function drainAudioEvents(game) {
   return game.audioEvents.splice(0);
 }
@@ -39,7 +43,7 @@ export function createGame() {
     mode: 'attract', playerSlot: 0, hammer: null, cooldown: 0,
     enemies: [], bell: 3, score: 0, chain: 0, wave: 0,
     message: 'INSERT COIN', tick: 0, audioEvents: [], credits: 0,
-    demo: false, demoTime: 0
+    demo: false, demoTime: 0, effects: []
   };
 }
 
@@ -57,6 +61,7 @@ export function startGame(game, waveIndex = 0) {
   game.tick = 0;
   game.demo = false;
   game.demoTime = 0;
+  game.effects = [];
   game.audioEvents.length = 0;
   emit(game, 'start');
   return game;
@@ -155,6 +160,7 @@ function hitEnemies(game, from, to) {
       enemy.armor -= 1;
       enemy.blocked = 14;
       enemy.flash = 8;
+      effect(game, 'guard', enemy.slot, enemy.distance, 0.28);
       game.hammer.guardBlocked = true;
       game.score += 50;
       game.message = 'GUARD BLOCK — HIT THE RETURN';
@@ -163,12 +169,14 @@ function hitEnemies(game, from, to) {
     }
     enemy.hp -= damage;
     enemy.flash = 8;
+    effect(game, 'hit', enemy.slot, enemy.distance, 0.24);
     const multiplier = 1 + Math.min(game.chain, 8) * 0.25;
     game.score += Math.round((game.hammer.phase === 'out' ? 100 : 200) * multiplier);
     game.message = game.hammer.phase === 'out' ? 'OUTBOUND HIT' : 'RETURN BREAK';
     if (game.hammer.phase === 'out') emit(game, 'outboundHit');
     if (enemy.hp <= 0) {
       enemy.alive = false;
+      effect(game, 'break', enemy.slot, enemy.distance, 0.46);
       game.score += Math.round((game.hammer.phase === 'out' ? 400 : 800) * multiplier);
       emit(game, game.hammer.phase === 'return' ? 'returnBreak' : 'outboundBreak');
     }
@@ -179,6 +187,8 @@ export function step(game, dt = 1 / 60) {
   if (game.mode !== 'playing') return game;
   game.tick += 1;
   game.cooldown = Math.max(0, game.cooldown - dt);
+  for (const visual of game.effects) visual.life -= dt;
+  game.effects = game.effects.filter(visual => visual.life > 0);
 
   if (game.hammer) {
     const hammer = game.hammer;
@@ -195,6 +205,7 @@ export function step(game, dt = 1 / 60) {
         game.chain += 1;
         game.score += 250 * game.chain;
         game.message = `PERFECT CATCH ×${game.chain}`;
+        effect(game, 'catch', hammer.slot, 0.2, 0.5);
         emit(game, 'catch');
       } else {
         game.chain = 0;
@@ -213,6 +224,7 @@ export function step(game, dt = 1 / 60) {
     enemy.distance -= enemy.speed * dt;
     if (enemy.distance <= 0.2) {
       enemy.alive = false;
+      effect(game, 'bell', enemy.slot, 0.2, 0.55);
       game.bell -= 1;
       game.chain = 0;
       game.message = 'THE BELL IS STRUCK';

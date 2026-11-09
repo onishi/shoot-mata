@@ -8,3 +8,4 @@
 | 2026-11-09T01:59:23+0900 | Codex | run-codex-loop.sh | 4 | M2第3波、高速RUSHER、3波表示、波定義追従の到達保存と敗北復帰を実装 | 単体17/17、構文、Chrome実キー3波通し・再読込・敗北復帰、1280×720目視、console error 0合格 | feat(ver13): add amber rusher wave |
 | 2026-11-09T02:34:38+0900 | Codex | run-codex-loop.sh | 5 | M2の代表BGM、主要効果音、状態ジングル、描画非依存の音イベント列を実装 | 単体21/21、構文、実Chrome音量0%／100%・ポーズ／再開・保存、console error 0合格 | feat(ver13): synthesize reactive arcade audio |
 | 2026-11-09T21:25:03+0900 | Codex | run-codex-loop.sh | 1 | M2の自動実演アトラクト、コイン投入、CREDIT表示、START時消費、保存／新規開始を実装 | 単体23/23、構文、Chrome実キー筐体フロー、2 viewport目視、console error 0合格 | feat(ver13): add coin-operated attract flow |
+| 2026-11-09T21:59:44+0900 | Codex | run-codex-loop.sh | 2 | M2第1幕の社殿、鐘、守り手、3敵種、響槌、決定的な命中・破壊・回収演出を完成表現へ更新しM2完了 | 単体24/24、構文、Chrome実キー2方向、2 viewport目視、console error 0合格 | feat(ver13): finish act one arcade presentation |

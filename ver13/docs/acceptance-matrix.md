@@ -12,6 +12,7 @@
 | SCALE-01 | 6幕18波6守護者 | M3 | 全幕通し | 未着手 |
 | SCALE-02 | 初見18〜28分／習熟14〜20分 | M3 | 分離した実ブラウザ監査 | 未着手 |
 | ARCADE-01 | 4:3、レバー＋1ボタン、遠目の状態 | M1 | 640×480／1280×720画面 | 合格 |
+| ART-01 | 第1幕代表区間の背景、鐘、守り手、敵、響槌、即時演出が完成表現 | M2 | 単体24/24、`m2-art-audit.json`、`m2-art-action-1280x720.png`、`m2-art-catch-640x480.png` | 合格 |
 | ARCADE-02 | アトラクトからランキング復帰 | M4 | 単体23/23、Chromeのアトラクト→自動実演→コイン割込み→START、`m2-cabinet-audit.json`、3画面；コンティニュー・成績・ランキング復帰は未実装 | 部分合格 |
 | AUDIO-01 | BGM、即時効果音、状態ジングル | M4 | `tests/audio.test.js`、`tests/model.test.js`、`m2-audio-audit.json`；実PCM・聴感の最終監査はM4 | 部分合格 |
 | ACCESS-01 | キー再配置、音量、動き軽減、非色依存 | M4 | 単体13/13、Chrome設定・`Z`投擲、`m2-settings-1280x720.png`・`m2-settings-640x480.png`；実音量と全画面監査はM4 | 部分合格 |

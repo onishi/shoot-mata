@@ -174,3 +174,23 @@ test('play events expose the required audio feedback without render coupling', (
   step(breach, 1 / 60);
   assert.ok(drainAudioEvents(breach).includes('bellHit'));
 });
+
+test('combat exposes deterministic visual effects with finite lifetimes', () => {
+  const game = startGame(createGame());
+  game.enemies = [
+    { id: 0, slot: 0, distance: 0.9, speed: 0, hp: 2, armor: 0, alive: true, flash: 0, blocked: 0 },
+    { id: 1, slot: 8, distance: 9, speed: 0, hp: 99, armor: 0, alive: true, flash: 0, blocked: 0 }
+  ];
+  castHammer(game);
+  advance(game, 2.2);
+  assert.ok(game.effects.some(effect => effect.kind === 'catch'));
+  assert.ok(game.effects.every(effect => effect.life > 0 && effect.life <= effect.duration));
+  advance(game, 0.6);
+  assert.equal(game.effects.length, 0);
+
+  const breach = startGame(createGame());
+  breach.enemies = [{ id: 0, slot: 3, distance: 0.201, speed: 1, hp: 2, alive: true, flash: 0 }];
+  step(breach, 1 / 60);
+  assert.equal(breach.effects[0].kind, 'bell');
+  assert.equal(breach.effects[0].slot, 3);
+});
