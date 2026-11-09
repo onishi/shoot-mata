@@ -34,6 +34,21 @@ const WAVE_BRIEFS = {
     title: 'WAVE 3 — AMBER RUSH',
     line1: 'AMBER RUSHERS CLOSE TWICE AS FAST', color1: '#ffae55',
     line2: 'ONE CLEAN STRIKE STOPS EACH CHARGE', color2: '#f5e6b0'
+  },
+  3: {
+    title: 'ACT II — LANTERN VORTEX',
+    line1: 'VIOLET ORBITERS STEP ACROSS THE RING', color1: '#d09cff',
+    line2: 'SIDE FLASH SHOWS THEIR NEXT MOVE', color2: '#80f0cf'
+  },
+  4: {
+    title: 'WAVE 5 — CROSSING LINES',
+    line1: 'HOLD ONE LINE OR LEAD THE MOVING MARK', color1: '#80f0cf',
+    line2: 'THE RETURN CAN CATCH ITS NEW POSITION', color2: '#ffcf55'
+  },
+  5: {
+    title: 'WAVE 6 — SECOND WATCH',
+    line1: 'GUARD • RUSH • ORBIT IN ONE PROCESSION', color1: '#f1b2ff',
+    line2: 'CHOOSE THE FIRST THREAT — THEN CATCH', color2: '#ffe29a'
   }
 };
 
@@ -82,9 +97,12 @@ function drawBell() {
 
 function drawArena() {
   const sky = ctx.createLinearGradient(0, 58, 0, 266);
-  sky.addColorStop(0, '#080d2a'); sky.addColorStop(0.58, '#273358'); sky.addColorStop(1, '#b45147');
+  const actTwo = game.wave >= 3;
+  sky.addColorStop(0, actTwo ? '#120c2e' : '#080d2a');
+  sky.addColorStop(0.58, actTwo ? '#31305f' : '#273358');
+  sky.addColorStop(1, actTwo ? '#2d817e' : '#b45147');
   ctx.fillStyle = sky; ctx.fillRect(0, 58, 640, 210);
-  ctx.fillStyle = '#d46b4d'; ctx.beginPath(); ctx.arc(320, 210, 39, Math.PI, 0); ctx.fill();
+  ctx.fillStyle = actTwo ? '#a7e4c6' : '#d46b4d'; ctx.beginPath(); ctx.arc(320, 210, 39, Math.PI, 0); ctx.fill();
   ctx.fillStyle = '#11162b';
   ctx.beginPath(); ctx.moveTo(0, 226); ctx.lineTo(72, 173); ctx.lineTo(130, 224); ctx.lineTo(205, 157); ctx.lineTo(275, 227); ctx.lineTo(366, 162); ctx.lineTo(438, 224); ctx.lineTo(529, 171); ctx.lineTo(640, 229); ctx.lineTo(640, 280); ctx.lineTo(0, 280); ctx.closePath(); ctx.fill();
   ctx.fillStyle = '#171426'; ctx.fillRect(0, 238, 640, 200);
@@ -96,6 +114,15 @@ function drawArena() {
   for (const x of [57, 583]) {
     ctx.strokeStyle = '#5b302b'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(x, 107); ctx.lineTo(x, 153); ctx.stroke();
     ctx.fillStyle = '#f6b64f'; ctx.fillRect(x - 9, 153, 18, 27); ctx.fillStyle = '#7d2925'; ctx.fillRect(x - 11, 150, 22, 5); ctx.fillRect(x - 11, 179, 22, 5);
+  }
+
+  if (actTwo) {
+    ctx.strokeStyle = '#65d7bd'; ctx.lineWidth = 3;
+    for (const x of [92, 548]) {
+      ctx.beginPath(); ctx.arc(x, 205, 29, 0, Math.PI * 2); ctx.stroke();
+      ctx.beginPath(); ctx.arc(x, 205, 17, 0, Math.PI * 2); ctx.stroke();
+      ctx.fillStyle = '#d391ff'; ctx.fillRect(x - 4, 174, 8, 62);
+    }
   }
 
   const floor = ctx.createRadialGradient(320, 258, 55, 320, 258, 285);
@@ -118,7 +145,7 @@ function drawArena() {
 function drawEnemy(enemy, x, y) {
   const bob = Math.sin(game.tick * 0.2 + enemy.id * 1.7) * 2;
   ctx.save(); ctx.translate(x, y + bob); ctx.rotate(angleForSlot(enemy.slot) + Math.PI / 2);
-  const color = enemy.flash ? '#ffffff' : enemy.kind === 'bulwark' ? '#8d63c8' : enemy.kind === 'rusher' ? '#ed7d32' : '#bc4054';
+  const color = enemy.flash ? '#ffffff' : enemy.kind === 'bulwark' ? '#8d63c8' : enemy.kind === 'rusher' ? '#ed7d32' : enemy.kind === 'orbiter' ? '#b86be0' : '#bc4054';
   ctx.strokeStyle = '#170d20'; ctx.lineWidth = 3;
   ctx.fillStyle = '#32152a'; ctx.beginPath(); ctx.ellipse(0, 8, 13, 17, 0, 0, Math.PI * 2); ctx.fill();
   ctx.fillStyle = color;
@@ -134,6 +161,12 @@ function drawEnemy(enemy, x, y) {
     ctx.fillStyle = '#ffcf55'; ctx.fillRect(-3, -13, 6, 8);
     ctx.strokeStyle = '#ffd875'; ctx.lineWidth = 3;
     for (const side of [-1, 1]) { ctx.beginPath(); ctx.moveTo(side * 8, -2); ctx.lineTo(side * 18, 5); ctx.lineTo(side * 10, 11); ctx.stroke(); }
+  } else if (enemy.kind === 'orbiter') {
+    ctx.beginPath(); ctx.moveTo(0, -20); ctx.quadraticCurveTo(17, -8, 9, 16); ctx.lineTo(0, 9); ctx.lineTo(-9, 16); ctx.quadraticCurveTo(-17, -8, 0, -20); ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#72e2c2'; ctx.beginPath(); ctx.arc(0, -5, 5, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = enemy.orbitWarning ? '#ffffff' : '#72e2c2'; ctx.lineWidth = enemy.orbitWarning ? 4 : 2;
+    const side = enemy.orbitDirection ?? 1;
+    ctx.beginPath(); ctx.moveTo(side * 7, 1); ctx.lineTo(side * 20, 8); ctx.lineTo(side * 12, 14); ctx.stroke();
   } else {
     ctx.beginPath(); ctx.moveTo(0, -18); ctx.lineTo(12, -6); ctx.lineTo(10, 16); ctx.lineTo(0, 10); ctx.lineTo(-10, 16); ctx.lineTo(-12, -6); ctx.closePath(); ctx.fill(); ctx.stroke();
     ctx.fillStyle = '#f0a64c'; ctx.fillRect(-5, -11, 10, 7);
@@ -216,7 +249,7 @@ function render() {
   ctx.fillStyle = '#080d20'; ctx.fillRect(0, 0, 640, 480);
   ctx.fillStyle = '#481f32'; ctx.fillRect(0, 0, 640, 58); ctx.fillRect(0, 438, 640, 42);
   text('RINGWARD', 18, 37, 30, '#ffe29a');
-  text('v13.0  M2', 620, 35, 14, '#9adbe8', 'right');
+  text('v13.0  M3', 620, 35, 14, '#9adbe8', 'right');
   drawArena(); drawBell();
   if (menu === 'settings') {
     drawSettings();

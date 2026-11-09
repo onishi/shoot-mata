@@ -16,13 +16,31 @@ export const WAVES = [
     { kind: 'rusher', slot: 1, distance: 0.98, speed: 0.105, hp: 1 },
     { kind: 'rusher', slot: 6, distance: 1.18, speed: 0.1, hp: 1 },
     { kind: 'rusher', slot: 11, distance: 1.38, speed: 0.095, hp: 1 }
+  ],
+  [
+    { kind: 'orbiter', slot: 1, distance: 1.02, speed: 0.038, hp: 2, orbitEvery: 0.82, orbitDirection: 1 },
+    { kind: 'orbiter', slot: 7, distance: 1.2, speed: 0.036, hp: 2, orbitEvery: 0.9, orbitDirection: -1 },
+    { kind: 'orbiter', slot: 12, distance: 1.36, speed: 0.034, hp: 2, orbitEvery: 0.98, orbitDirection: 1 }
+  ],
+  [
+    { kind: 'marcher', slot: 0, distance: 0.98, speed: 0.052, hp: 2 },
+    { kind: 'orbiter', slot: 4, distance: 1.13, speed: 0.04, hp: 2, orbitEvery: 0.8, orbitDirection: 1 },
+    { kind: 'marcher', slot: 9, distance: 1.26, speed: 0.05, hp: 2 },
+    { kind: 'orbiter', slot: 13, distance: 1.39, speed: 0.038, hp: 2, orbitEvery: 0.86, orbitDirection: -1 }
+  ],
+  [
+    { kind: 'bulwark', slot: 1, distance: 1.02, speed: 0.041, hp: 2, armor: 1 },
+    { kind: 'rusher', slot: 5, distance: 1.06, speed: 0.098, hp: 1 },
+    { kind: 'orbiter', slot: 8, distance: 1.18, speed: 0.04, hp: 2, orbitEvery: 0.76, orbitDirection: 1 },
+    { kind: 'rusher', slot: 11, distance: 1.3, speed: 0.094, hp: 1 },
+    { kind: 'orbiter', slot: 14, distance: 1.42, speed: 0.038, hp: 2, orbitEvery: 0.82, orbitDirection: -1 }
   ]
 ];
 
 function loadWave(game, waveIndex) {
   game.wave = waveIndex;
   game.enemies = WAVES[waveIndex].map((enemy, id) => ({
-    armor: 0, ...enemy, id, alive: true, flash: 0, blocked: 0
+    armor: 0, orbitClock: 0, orbitWarning: false, ...enemy, id, alive: true, flash: 0, blocked: 0
   }));
 }
 
@@ -125,6 +143,9 @@ export function startNextWave(game) {
   game.cooldown = 0;
   if (game.wave === 1) game.message = 'BULWARK — RETURN BREAKS GUARD';
   else if (game.wave === 2) game.message = 'RUSHER — STRIKE BEFORE THE WARNING CLOSES';
+  else if (game.wave === 3) game.message = 'ORBITER — READ THE SIDE FLASH';
+  else if (game.wave === 4) game.message = 'CROSSING LINES — LEAD THE MOVING MARK';
+  else if (game.wave === 5) game.message = 'SECOND WATCH — BREAK THE PROCESSION';
   else game.message = `WAVE ${game.wave + 1}`;
   emit(game, 'waveStart');
   return true;
@@ -221,6 +242,15 @@ export function step(game, dt = 1 / 60) {
     if (!enemy.alive) continue;
     enemy.flash = Math.max(0, enemy.flash - 1);
     enemy.blocked = Math.max(0, enemy.blocked - 1);
+    if (enemy.orbitEvery) {
+      enemy.orbitClock += dt;
+      enemy.orbitWarning = enemy.orbitClock >= enemy.orbitEvery * 0.68;
+      if (enemy.orbitClock >= enemy.orbitEvery) {
+        enemy.orbitClock -= enemy.orbitEvery;
+        enemy.slot = (enemy.slot + enemy.orbitDirection + SLOT_COUNT) % SLOT_COUNT;
+        enemy.orbitWarning = false;
+      }
+    }
     enemy.distance -= enemy.speed * dt;
     if (enemy.distance <= 0.2) {
       enemy.alive = false;
@@ -245,7 +275,7 @@ export function step(game, dt = 1 / 60) {
       emit(game, 'waveClear');
     } else {
       game.mode = 'waveClear';
-      game.message = 'DAWN HELD — PRESS R';
+      game.message = game.wave >= 5 ? 'SECOND WATCH HELD — PRESS R' : 'DAWN HELD — PRESS R';
       emit(game, 'victory');
     }
   }

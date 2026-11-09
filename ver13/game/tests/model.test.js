@@ -57,6 +57,29 @@ test('saved progress can start at the fast third wave', () => {
   assert.equal(game.enemies.every(enemy => enemy.hp === 1 && enemy.speed >= 0.095), true);
 });
 
+test('act two opens with telegraphed orbiters that change aim slots', () => {
+  const game = startGame(createGame(), 3);
+  assert.equal(game.enemies.every(enemy => enemy.kind === 'orbiter'), true);
+  const enemy = game.enemies[0];
+  const originalSlot = enemy.slot;
+  advance(game, enemy.orbitEvery * 0.7);
+  assert.equal(enemy.orbitWarning, true);
+  advance(game, enemy.orbitEvery * 0.35);
+  assert.equal(enemy.slot, (originalSlot + enemy.orbitDirection + 16) % 16);
+  assert.equal(enemy.orbitWarning, false);
+});
+
+test('waves five and six combine established threats for the first climax', () => {
+  const crossing = startGame(createGame(), 4);
+  assert.equal(crossing.enemies.filter(enemy => enemy.kind === 'orbiter').length, 2);
+  assert.equal(crossing.enemies.filter(enemy => enemy.kind === 'marcher').length, 2);
+
+  const climax = startGame(createGame(), 5);
+  for (const kind of ['bulwark', 'rusher', 'orbiter']) {
+    assert.ok(climax.enemies.some(enemy => enemy.kind === kind), `${kind} present`);
+  }
+});
+
 test('player wraps around the sixteen-position ring', () => {
   const game = startGame(createGame());
   movePlayer(game, -1);
@@ -132,8 +155,16 @@ test('one outbound strike stops a rusher', () => {
   castHammer(game);
   advance(game, 0.75);
   assert.equal(game.enemies[0].alive, false);
+  assert.equal(game.mode, 'waveBrief');
+  assert.match(game.message, /WAVE 3 HELD/);
+});
+
+test('clearing act two ends the second watch after six waves', () => {
+  const game = startGame(createGame(), 5);
+  for (const enemy of game.enemies) enemy.alive = false;
+  step(game);
   assert.equal(game.mode, 'waveClear');
-  assert.match(game.message, /DAWN HELD/);
+  assert.match(game.message, /SECOND WATCH HELD/);
 });
 
 test('leaving the return slot loses the chain and starts cooldown', () => {
