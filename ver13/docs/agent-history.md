@@ -13,3 +13,4 @@
 | 2026-11-11T20:54:32+0900 | Codex | run-codex-loop.sh | 1 | M3第1・2幕へ3段階復路封印、行動変化、大型造形、専用音を持つ2守護者と幕終演を実装 | 単体32/32、構文、Chrome実キーDAWN WARDEN撃破、2 viewport目視、保存値3、console error 0合格 | feat(ver13): crown first two guardian battles |
 | 2026-11-11T21:30:12+0900 | Codex | run-codex-loop.sh | 2 | M3第3幕へ命中反応移動DANCER、第7〜9波、天空風庭、3段階GALE SOVEREIGNを実装 | 単体36/36、構文、Chrome実キー第7波命中・追従、2 viewport目視、console error 0合格 | feat(ver13): stage third watch sky dance |
 | 2026-11-11T22:06:17+0900 | Codex | run-codex-loop.sh | 3 | M3第4幕へ折返し反応REFRACTOR、第10〜12波、鏡炉、3段階PRISM EMPERORを実装 | 単体39/39、構文、Chrome実キー復路撃破・第4守護者到達、4画面目視、console error 0合格 | feat(ver13): forge fourth watch refraction |
+| 2026-11-11T22:44:07+0900 | Codex | run-codex-loop.sh | 4 | M3第5幕へレバー逆歩MIRROR、第13〜15波、月鏡庭、3段階TIDE ORACLEを実装 | 単体42/42、構文、Chrome実キー逆歩・往復撃破・第5守護者到達、4画面目視、console error 0合格 | feat(ver13): reflect fifth watch counterstep |

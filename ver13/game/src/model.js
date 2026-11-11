@@ -71,6 +71,26 @@ export const WAVES = [
     { kind: 'refractor', slot: 9, distance: 1.29, speed: 0.031, hp: 2, turnDirection: -1 },
     { kind: 'orbiter', slot: 12, distance: 1.4, speed: 0.039, hp: 2, orbitEvery: 0.76, orbitDirection: 1 },
     { kind: 'dancer', slot: 15, distance: 1.48, speed: 0.035, hp: 2, sidestepDirection: -1 }
+  ],
+  [
+    { kind: 'mirror', slot: 4, distance: 1.04, speed: 0.03, hp: 2 },
+    { kind: 'mirror', slot: 8, distance: 1.2, speed: 0.028, hp: 2 },
+    { kind: 'mirror', slot: 12, distance: 1.36, speed: 0.026, hp: 2 }
+  ],
+  [
+    { kind: 'mirror', slot: 4, distance: 1.02, speed: 0.031, hp: 2 },
+    { kind: 'dancer', slot: 7, distance: 1.13, speed: 0.034, hp: 2, sidestepDirection: -1 },
+    { kind: 'mirror', slot: 10, distance: 1.27, speed: 0.029, hp: 2 },
+    { kind: 'refractor', slot: 14, distance: 1.4, speed: 0.031, hp: 2, turnDirection: 1 }
+  ],
+  [
+    { kind: 'mirror', slot: 2, distance: 1.01, speed: 0.032, hp: 2 },
+    { kind: 'rusher', slot: 4, distance: 1.07, speed: 0.097, hp: 1 },
+    { kind: 'bulwark', slot: 6, distance: 1.17, speed: 0.042, hp: 2, armor: 1 },
+    { kind: 'mirror', slot: 8, distance: 1.27, speed: 0.03, hp: 2 },
+    { kind: 'orbiter', slot: 10, distance: 1.37, speed: 0.039, hp: 2, orbitEvery: 0.74, orbitDirection: -1 },
+    { kind: 'dancer', slot: 12, distance: 1.45, speed: 0.035, hp: 2, sidestepDirection: 1 },
+    { kind: 'refractor', slot: 14, distance: 1.51, speed: 0.032, hp: 2, turnDirection: -1 }
   ]
 ];
 
@@ -94,6 +114,11 @@ export const GUARDIANS = [
     kind: 'prismEmperor', name: 'PRISM EMPEROR', slot: 3, distance: 1.22,
     speed: 0.022, hp: 6, armor: 1, phases: 3, phaseHp: 2,
     phaseSlots: [3, 10, 15], phaseOrbit: [1.34, 1.1, 0.94], phaseSpeed: [0.022, 0.032, 0.043]
+  },
+  {
+    kind: 'tideOracle', name: 'TIDE ORACLE', slot: 4, distance: 1.23,
+    speed: 0.023, hp: 6, armor: 1, phases: 3, phaseHp: 2,
+    phaseSlots: [4, 11, 1], phaseOrbit: [1.28, 1.04, 0.88], phaseSpeed: [0.023, 0.034, 0.045]
   }
 ];
 
@@ -222,6 +247,9 @@ export function startNextWave(game) {
   else if (game.wave === 9) game.message = 'REFRACTOR — AIM AT THE TURN MARK';
   else if (game.wave === 10) game.message = 'FRACTURED LINES — LEAD THEN RECOVER';
   else if (game.wave === 11) game.message = 'FOURTH WATCH — COMMAND THE TURN';
+  else if (game.wave === 12) game.message = 'MIRROR — YOUR STEP MOVES ITS COUNTERSTEP';
+  else if (game.wave === 13) game.message = 'CROSSED REFLECTIONS — RUN, LEAD, RECOVER';
+  else if (game.wave === 14) game.message = 'FIFTH WATCH — RULE THE WHOLE RING';
   else game.message = `WAVE ${game.wave + 1}`;
   emit(game, 'waveStart');
   return true;
@@ -229,7 +257,7 @@ export function startNextWave(game) {
 
 export function startGuardian(game) {
   if (game.mode !== 'guardianBrief') return false;
-  const act = game.wave === 2 ? 0 : game.wave === 5 ? 1 : game.wave === 8 ? 2 : game.wave === 11 ? 3 : -1;
+  const act = game.wave % 3 === 2 ? Math.floor(game.wave / 3) : -1;
   if (act < 0) return false;
   loadGuardian(game, act);
   game.mode = 'playing';
@@ -238,7 +266,8 @@ export function startGuardian(game) {
   game.message = act === 0 ? 'DAWN WARDEN — BREAK THREE RETURN SEALS'
     : act === 1 ? 'VORTEX REGENT — CHASE THE TURNING CROWN'
       : act === 2 ? 'GALE SOVEREIGN — SURVIVE THE SHIFTING CROWN'
-        : 'PRISM EMPEROR — BREAK THE BURNING CROWN';
+        : act === 3 ? 'PRISM EMPEROR — BREAK THE BURNING CROWN'
+          : 'TIDE ORACLE — BREAK THE MIRRORED CROWN';
   emit(game, 'guardianStart');
   return true;
 }
@@ -246,6 +275,17 @@ export function startGuardian(game) {
 export function movePlayer(game, direction) {
   if (game.mode !== 'playing') return;
   game.playerSlot = (game.playerSlot + direction + SLOT_COUNT) % SLOT_COUNT;
+  let mirrored = false;
+  for (const enemy of game.enemies) {
+    if (!enemy.alive || enemy.kind !== 'mirror') continue;
+    enemy.slot = (enemy.slot - direction + SLOT_COUNT) % SLOT_COUNT;
+    effect(game, 'mirror', enemy.slot, enemy.distance, 0.28);
+    mirrored = true;
+  }
+  if (mirrored) {
+    game.message = 'MIRROR COUNTERSTEPS — FIND THE CROSSING LINE';
+    emit(game, 'mirror');
+  }
 }
 
 export function castHammer(game) {
@@ -415,17 +455,19 @@ export function step(game, dt = 1 / 60) {
         game.mode = 'waveBrief';
         game.message = clearedAct === 0 ? 'FIRST WATCH CROWNED — PRESS SPACE'
           : clearedAct === 1 ? 'SECOND WATCH CROWNED — PRESS SPACE'
-            : 'THIRD WATCH CROWNED — PRESS SPACE';
+            : clearedAct === 2 ? 'THIRD WATCH CROWNED — PRESS SPACE'
+              : 'FOURTH WATCH CROWNED — PRESS SPACE';
       } else {
         game.mode = 'waveClear';
-        game.message = 'FOURTH WATCH CROWNED — PRESS R';
+        game.message = 'FIFTH WATCH CROWNED — PRESS R';
       }
       emit(game, 'guardianClear');
-    } else if (game.wave === 2 || game.wave === 5 || game.wave === 8 || game.wave === 11) {
+    } else if (game.wave % 3 === 2) {
       game.mode = 'guardianBrief';
       game.message = game.wave === 2 ? 'GUARDIAN — DAWN WARDEN'
         : game.wave === 5 ? 'GUARDIAN — VORTEX REGENT'
-          : game.wave === 8 ? 'GUARDIAN — GALE SOVEREIGN' : 'GUARDIAN — PRISM EMPEROR';
+          : game.wave === 8 ? 'GUARDIAN — GALE SOVEREIGN'
+            : game.wave === 11 ? 'GUARDIAN — PRISM EMPEROR' : 'GUARDIAN — TIDE ORACLE';
       emit(game, 'waveClear');
     } else if (game.wave + 1 < WAVES.length) {
       game.mode = 'waveBrief';
@@ -433,7 +475,7 @@ export function step(game, dt = 1 / 60) {
       emit(game, 'waveClear');
     } else {
       game.mode = 'waveClear';
-      game.message = game.wave >= 11 ? 'FOURTH WATCH HELD — PRESS R' : game.wave >= 8 ? 'THIRD WATCH HELD — PRESS R' : game.wave >= 5 ? 'SECOND WATCH HELD — PRESS R' : 'DAWN HELD — PRESS R';
+      game.message = game.wave >= 14 ? 'FIFTH WATCH HELD — PRESS R' : game.wave >= 11 ? 'FOURTH WATCH HELD — PRESS R' : game.wave >= 8 ? 'THIRD WATCH HELD — PRESS R' : game.wave >= 5 ? 'SECOND WATCH HELD — PRESS R' : 'DAWN HELD — PRESS R';
       emit(game, 'victory');
     }
   }

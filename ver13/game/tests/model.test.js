@@ -141,6 +141,37 @@ test('waves eleven and twelve combine turn-triggered movement with prior threats
   }
 });
 
+test('act five mirrors counterstep against lever movement and creates crossing lines', () => {
+  const game = startGame(createGame(), 12);
+  assert.equal(game.enemies.every(enemy => enemy.kind === 'mirror'), true);
+  const mirror = game.enemies[0];
+  assert.equal(mirror.slot, 4);
+  movePlayer(game, 1);
+  assert.equal(game.playerSlot, 1);
+  assert.equal(mirror.slot, 3);
+  movePlayer(game, 1);
+  assert.equal(game.playerSlot, 2);
+  assert.equal(mirror.slot, 2);
+  assert.match(game.message, /MIRROR COUNTERSTEPS/);
+  assert.ok(drainAudioEvents(game).includes('mirror'));
+  assert.equal(castHammer(game), true);
+  advance(game, 2.2);
+  assert.equal(mirror.alive, false);
+  assert.equal(game.chain, 1);
+});
+
+test('waves fourteen and fifteen mix lever-reactive mirrors with all prior threat families', () => {
+  const crossed = startGame(createGame(), 13);
+  for (const kind of ['mirror', 'dancer', 'refractor']) {
+    assert.ok(crossed.enemies.some(enemy => enemy.kind === kind), `${kind} present`);
+  }
+
+  const fifthWatch = startGame(createGame(), 14);
+  for (const kind of ['mirror', 'rusher', 'bulwark', 'orbiter', 'dancer', 'refractor']) {
+    assert.ok(fifthWatch.enemies.some(enemy => enemy.kind === kind), `${kind} present`);
+  }
+});
+
 test('player wraps around the sixteen-position ring', () => {
   const game = startGame(createGame());
   movePlayer(game, -1);
@@ -260,7 +291,7 @@ test('act one guardian changes slot, pace, and armor across three return seals',
 });
 
 test('each guardian seal gives the opening hammer time to land its return', () => {
-  for (const [wave, expectedMode, ending] of [[2, 'waveBrief', /FIRST WATCH CROWNED/], [5, 'waveBrief', /SECOND WATCH CROWNED/], [8, 'waveBrief', /THIRD WATCH CROWNED/], [11, 'waveClear', /FOURTH WATCH CROWNED/]]) {
+  for (const [wave, expectedMode, ending] of [[2, 'waveBrief', /FIRST WATCH CROWNED/], [5, 'waveBrief', /SECOND WATCH CROWNED/], [8, 'waveBrief', /THIRD WATCH CROWNED/], [11, 'waveBrief', /FOURTH WATCH CROWNED/], [14, 'waveClear', /FIFTH WATCH CROWNED/]]) {
     const game = startGame(createGame(), wave);
     game.mode = 'guardianBrief';
     startGuardian(game);
@@ -299,7 +330,7 @@ test('guardian survives a bell strike by withdrawing while the bell remains', ()
   assert.ok(guardian.distance > 1);
 });
 
-test('breaking guardians opens each next act and crowns the fourth watch', () => {
+test('breaking guardians opens each next act and crowns the fifth watch', () => {
   const first = startGame(createGame(), 2);
   first.mode = 'guardianBrief';
   startGuardian(first);
@@ -337,8 +368,19 @@ test('breaking guardians opens each next act and crowns the fourth watch', () =>
   assert.equal(fourth.enemies[0].kind, 'prismEmperor');
   fourth.enemies[0].alive = false;
   step(fourth);
-  assert.equal(fourth.mode, 'waveClear');
+  assert.equal(fourth.mode, 'waveBrief');
   assert.match(fourth.message, /FOURTH WATCH CROWNED/);
+  assert.equal(startNextWave(fourth), true);
+  assert.equal(fourth.wave, 12);
+
+  const fifth = startGame(createGame(), 14);
+  fifth.mode = 'guardianBrief';
+  startGuardian(fifth);
+  assert.equal(fifth.enemies[0].kind, 'tideOracle');
+  fifth.enemies[0].alive = false;
+  step(fifth);
+  assert.equal(fifth.mode, 'waveClear');
+  assert.match(fifth.message, /FIFTH WATCH CROWNED/);
 });
 
 test('leaving the return slot loses the chain and starts cooldown', () => {
