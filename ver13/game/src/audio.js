@@ -12,6 +12,10 @@ const CUE_SPECS = Object.freeze({
   miss: [[180, 0.12, 'sawtooth'], [120, 0.18, 'sawtooth']],
   bellHit: [[82, 0.32, 'sine'], [123, 0.24, 'square'], [247, 0.12, 'sawtooth']],
   waveClear: [[330, 0.08, 'square'], [494, 0.08, 'square'], [659, 0.16, 'square']],
+  guardianStart: [[98, 0.18, 'sawtooth'], [196, 0.14, 'square'], [392, 0.2, 'square']],
+  guardianPhase: [[147, 0.08, 'square'], [294, 0.1, 'sawtooth'], [588, 0.16, 'square']],
+  guardianBreak: [[131, 0.1, 'sawtooth'], [262, 0.1, 'square'], [523, 0.12, 'square'], [1047, 0.24, 'sine']],
+  guardianClear: [[262, 0.09, 'square'], [392, 0.09, 'square'], [523, 0.09, 'square'], [784, 0.12, 'square'], [1047, 0.28, 'sine']],
   victory: [[392, 0.1, 'square'], [523, 0.1, 'square'], [659, 0.1, 'square'], [1047, 0.28, 'sine']],
   gameOver: [[220, 0.16, 'square'], [165, 0.2, 'square'], [110, 0.35, 'sawtooth']]
 });

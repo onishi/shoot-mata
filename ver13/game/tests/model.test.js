@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { castHammer, createGame, drainAudioEvents, driveDemo, insertCoin, movePlayer, returnToAttract, startCredit, startDemo, startGame, startNextWave, step } from '../src/model.js';
+import { castHammer, createGame, drainAudioEvents, driveDemo, insertCoin, movePlayer, returnToAttract, startCredit, startDemo, startGame, startGuardian, startNextWave, step } from '../src/model.js';
 
 function advance(game, seconds, dt = 1 / 120) {
   for (let elapsed = 0; elapsed < seconds && game.mode === 'playing'; elapsed += dt) step(game, dt);
@@ -155,16 +155,97 @@ test('one outbound strike stops a rusher', () => {
   castHammer(game);
   advance(game, 0.75);
   assert.equal(game.enemies[0].alive, false);
-  assert.equal(game.mode, 'waveBrief');
-  assert.match(game.message, /WAVE 3 HELD/);
+  assert.equal(game.mode, 'guardianBrief');
+  assert.match(game.message, /DAWN WARDEN/);
 });
 
-test('clearing act two ends the second watch after six waves', () => {
+test('clearing act two summons its guardian', () => {
   const game = startGame(createGame(), 5);
   for (const enemy of game.enemies) enemy.alive = false;
   step(game);
-  assert.equal(game.mode, 'waveClear');
-  assert.match(game.message, /SECOND WATCH HELD/);
+  assert.equal(game.mode, 'guardianBrief');
+  assert.match(game.message, /VORTEX REGENT/);
+});
+
+test('act one guardian changes slot, pace, and armor across three return seals', () => {
+  const game = startGame(createGame(), 2);
+  for (const enemy of game.enemies) enemy.alive = false;
+  step(game);
+  assert.equal(game.mode, 'guardianBrief');
+  assert.equal(startGuardian(game), true);
+  const guardian = game.enemies[0];
+  assert.equal(guardian.kind, 'dawnWarden');
+  assert.equal(guardian.phase, 1);
+  const firstSlot = guardian.slot;
+  guardian.armor = 0;
+  game.playerSlot = guardian.slot;
+  castHammer(game);
+  advance(game, 2.2);
+  assert.equal(guardian.phase, 2);
+  assert.notEqual(guardian.slot, firstSlot);
+  assert.equal(guardian.armor, 1);
+  assert.ok(guardian.orbitEvery > 0);
+  assert.ok(drainAudioEvents(game).includes('guardianPhase'));
+});
+
+test('each guardian seal gives the opening hammer time to land its return', () => {
+  for (const [wave, expectedMode, ending] of [[2, 'waveBrief', /FIRST WATCH CROWNED/], [5, 'waveClear', /SECOND WATCH CROWNED/]]) {
+    const game = startGame(createGame(), wave);
+    game.mode = 'guardianBrief';
+    startGuardian(game);
+
+    for (let phase = 1; phase <= 3; phase++) {
+      const guardian = game.enemies[0];
+      assert.equal(guardian.phase, phase);
+      // A flashing side mark asks the player to let the imminent lane change
+      // resolve before committing the single hammer.
+      while (guardian.orbitWarning) step(game, 1 / 120);
+      game.playerSlot = guardian.slot;
+      assert.equal(castHammer(game), true);
+      advance(game, 2.2);
+      if (phase < 3) {
+        assert.equal(guardian.phase, phase + 1);
+        assert.equal(guardian.armor, 1);
+      }
+    }
+
+    assert.equal(game.mode, expectedMode);
+    assert.match(game.message, ending);
+    assert.ok(game.score >= 15000);
+  }
+});
+
+test('guardian survives a bell strike by withdrawing while the bell remains', () => {
+  const game = startGame(createGame(), 2);
+  game.mode = 'guardianBrief';
+  startGuardian(game);
+  const guardian = game.enemies[0];
+  guardian.distance = 0.201;
+  guardian.speed = 1;
+  step(game, 1 / 60);
+  assert.equal(game.bell, 2);
+  assert.equal(guardian.alive, true);
+  assert.ok(guardian.distance > 1);
+});
+
+test('breaking act one guardian opens act two and act two guardian crowns the watch', () => {
+  const first = startGame(createGame(), 2);
+  first.mode = 'guardianBrief';
+  startGuardian(first);
+  first.enemies[0].alive = false;
+  step(first);
+  assert.equal(first.mode, 'waveBrief');
+  assert.match(first.message, /FIRST WATCH CROWNED/);
+  assert.equal(startNextWave(first), true);
+  assert.equal(first.wave, 3);
+
+  const second = startGame(createGame(), 5);
+  second.mode = 'guardianBrief';
+  startGuardian(second);
+  second.enemies[0].alive = false;
+  step(second);
+  assert.equal(second.mode, 'waveClear');
+  assert.match(second.message, /SECOND WATCH CROWNED/);
 });
 
 test('leaving the return slot loses the chain and starts cooldown', () => {

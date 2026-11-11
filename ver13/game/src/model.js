@@ -37,11 +37,34 @@ export const WAVES = [
   ]
 ];
 
+export const GUARDIANS = [
+  {
+    kind: 'dawnWarden', name: 'DAWN WARDEN', slot: 2, distance: 1.16,
+    speed: 0.014, hp: 6, armor: 1, phases: 3, phaseHp: 2,
+    phaseSlots: [2, 7, 13], phaseOrbit: [0, 1.55, 1.35], phaseSpeed: [0.014, 0.021, 0.03]
+  },
+  {
+    kind: 'vortexRegent', name: 'VORTEX REGENT', slot: 14, distance: 1.2,
+    speed: 0.018, hp: 6, armor: 1, phases: 3, phaseHp: 2,
+    phaseSlots: [14, 4, 9], phaseOrbit: [1.5, 1.3, 1.15], phaseSpeed: [0.018, 0.026, 0.036]
+  }
+];
+
 function loadWave(game, waveIndex) {
   game.wave = waveIndex;
   game.enemies = WAVES[waveIndex].map((enemy, id) => ({
     armor: 0, orbitClock: 0, orbitWarning: false, ...enemy, id, alive: true, flash: 0, blocked: 0
   }));
+}
+
+function loadGuardian(game, act) {
+  const spec = GUARDIANS[act];
+  game.guardianAct = act;
+  game.enemies = [{
+    ...spec, id: 0, alive: true, guardian: true, phase: 1,
+    flash: 0, blocked: 0, orbitClock: 0, orbitWarning: false,
+    orbitEvery: spec.phaseOrbit[0], orbitDirection: act === 0 ? 1 : -1
+  }];
 }
 
 function emit(game, type) {
@@ -61,7 +84,7 @@ export function createGame() {
     mode: 'attract', playerSlot: 0, hammer: null, cooldown: 0,
     enemies: [], bell: 3, score: 0, chain: 0, wave: 0,
     message: 'INSERT COIN', tick: 0, audioEvents: [], credits: 0,
-    demo: false, demoTime: 0, effects: []
+    demo: false, demoTime: 0, effects: [], guardianAct: null
   };
 }
 
@@ -151,6 +174,19 @@ export function startNextWave(game) {
   return true;
 }
 
+export function startGuardian(game) {
+  if (game.mode !== 'guardianBrief') return false;
+  const act = game.wave === 2 ? 0 : game.wave === 5 ? 1 : -1;
+  if (act < 0) return false;
+  loadGuardian(game, act);
+  game.mode = 'playing';
+  game.hammer = null;
+  game.cooldown = 0;
+  game.message = act === 0 ? 'DAWN WARDEN — BREAK THREE RETURN SEALS' : 'VORTEX REGENT — CHASE THE TURNING CROWN';
+  emit(game, 'guardianStart');
+  return true;
+}
+
 export function movePlayer(game, direction) {
   if (game.mode !== 'playing') return;
   game.playerSlot = (game.playerSlot + direction + SLOT_COUNT) % SLOT_COUNT;
@@ -181,6 +217,12 @@ function hitEnemies(game, from, to) {
       enemy.armor -= 1;
       enemy.blocked = 14;
       enemy.flash = 8;
+      if (enemy.guardian) {
+        // Opening a seal must leave a fair, readable window for this same
+        // hammer to return before the guardian changes lanes again.
+        enemy.orbitClock = 0;
+        enemy.orbitWarning = false;
+      }
       effect(game, 'guard', enemy.slot, enemy.distance, 0.28);
       game.hammer.guardBlocked = true;
       game.score += 50;
@@ -198,8 +240,25 @@ function hitEnemies(game, from, to) {
     if (enemy.hp <= 0) {
       enemy.alive = false;
       effect(game, 'break', enemy.slot, enemy.distance, 0.46);
-      game.score += Math.round((game.hammer.phase === 'out' ? 400 : 800) * multiplier);
-      emit(game, game.hammer.phase === 'return' ? 'returnBreak' : 'outboundBreak');
+      game.score += Math.round((game.hammer.phase === 'out' ? 400 : 800) * multiplier) + (enemy.guardian ? 3000 : 0);
+      emit(game, enemy.guardian ? 'guardianBreak' : game.hammer.phase === 'return' ? 'returnBreak' : 'outboundBreak');
+    } else if (enemy.guardian) {
+      const nextPhase = enemy.phases - Math.ceil(enemy.hp / enemy.phaseHp) + 1;
+      if (nextPhase > enemy.phase) {
+        enemy.phase = nextPhase;
+        enemy.armor = 1;
+        enemy.slot = enemy.phaseSlots[nextPhase - 1];
+        enemy.distance = Math.max(enemy.distance, 1.02);
+        enemy.speed = enemy.phaseSpeed[nextPhase - 1];
+        enemy.orbitEvery = enemy.phaseOrbit[nextPhase - 1];
+        enemy.orbitDirection *= -1;
+        enemy.orbitClock = 0;
+        enemy.orbitWarning = false;
+        effect(game, 'phase', enemy.slot, enemy.distance, 0.7);
+        game.score += 1000 * nextPhase;
+        game.message = `SEAL ${nextPhase}/${enemy.phases} — NEW PROCESSION`;
+        emit(game, 'guardianPhase');
+      }
     }
   }
 }
@@ -244,7 +303,8 @@ export function step(game, dt = 1 / 60) {
     enemy.blocked = Math.max(0, enemy.blocked - 1);
     if (enemy.orbitEvery) {
       enemy.orbitClock += dt;
-      enemy.orbitWarning = enemy.orbitClock >= enemy.orbitEvery * 0.68;
+      const warningAt = enemy.guardian ? Math.max(0, enemy.orbitEvery - 0.82) : enemy.orbitEvery * 0.68;
+      enemy.orbitWarning = enemy.orbitClock >= warningAt;
       if (enemy.orbitClock >= enemy.orbitEvery) {
         enemy.orbitClock -= enemy.orbitEvery;
         enemy.slot = (enemy.slot + enemy.orbitDirection + SLOT_COUNT) % SLOT_COUNT;
@@ -253,11 +313,16 @@ export function step(game, dt = 1 / 60) {
     }
     enemy.distance -= enemy.speed * dt;
     if (enemy.distance <= 0.2) {
-      enemy.alive = false;
       effect(game, 'bell', enemy.slot, 0.2, 0.55);
       game.bell -= 1;
       game.chain = 0;
-      game.message = 'THE BELL IS STRUCK';
+      if (enemy.guardian && game.bell > 0) {
+        enemy.distance = 1.08;
+        enemy.slot = (enemy.slot + 5) % SLOT_COUNT;
+        enemy.orbitClock = 0;
+        game.message = 'GUARDIAN STRIKE — IT WITHDRAWS';
+      } else enemy.alive = false;
+      if (!enemy.guardian) game.message = 'THE BELL IS STRUCK';
       emit(game, 'bellHit');
     }
   }
@@ -269,7 +334,23 @@ export function step(game, dt = 1 / 60) {
   } else if (game.enemies.length && game.enemies.every(enemy => !enemy.alive)) {
     game.hammer = null;
     game.score += game.bell * 1000;
-    if (game.wave + 1 < WAVES.length) {
+    if (game.guardianAct !== null) {
+      const clearedAct = game.guardianAct;
+      game.guardianAct = null;
+      game.score += 5000;
+      if (clearedAct === 0) {
+        game.mode = 'waveBrief';
+        game.message = 'FIRST WATCH CROWNED — PRESS SPACE';
+      } else {
+        game.mode = 'waveClear';
+        game.message = 'SECOND WATCH CROWNED — PRESS R';
+      }
+      emit(game, 'guardianClear');
+    } else if (game.wave === 2 || game.wave === 5) {
+      game.mode = 'guardianBrief';
+      game.message = game.wave === 2 ? 'GUARDIAN — DAWN WARDEN' : 'GUARDIAN — VORTEX REGENT';
+      emit(game, 'waveClear');
+    } else if (game.wave + 1 < WAVES.length) {
       game.mode = 'waveBrief';
       game.message = `WAVE ${game.wave + 1} HELD — PRESS SPACE`;
       emit(game, 'waveClear');

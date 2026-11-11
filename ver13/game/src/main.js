@@ -1,5 +1,5 @@
 import { RingwardAudio } from './audio.js';
-import { angleForSlot, castHammer, createGame, drainAudioEvents, driveDemo, insertCoin, movePlayer, returnToAttract, startCredit, startDemo, startNextWave, step, WAVES } from './model.js';
+import { angleForSlot, castHammer, createGame, drainAudioEvents, driveDemo, insertCoin, movePlayer, returnToAttract, startCredit, startDemo, startGuardian, startNextWave, step, WAVES } from './model.js';
 import { keyLabel, loadSave, rebind, storeSave } from './storage.js';
 
 const canvas = document.querySelector('#game');
@@ -145,6 +145,44 @@ function drawArena() {
 function drawEnemy(enemy, x, y) {
   const bob = Math.sin(game.tick * 0.2 + enemy.id * 1.7) * 2;
   ctx.save(); ctx.translate(x, y + bob); ctx.rotate(angleForSlot(enemy.slot) + Math.PI / 2);
+  if (enemy.guardian) {
+    const vortex = enemy.kind === 'vortexRegent';
+    const pulse = 1 + Math.sin(game.tick * (vortex ? 0.24 : 0.14)) * 0.06;
+    ctx.scale(pulse, pulse);
+    ctx.strokeStyle = enemy.flash ? '#ffffff' : vortex ? '#e0a5ff' : '#ffe29a';
+    ctx.fillStyle = vortex ? '#35164d' : '#502028';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    if (vortex) {
+      ctx.moveTo(0, -37); ctx.quadraticCurveTo(33, -27, 27, 8); ctx.lineTo(14, 29);
+      ctx.lineTo(0, 20); ctx.lineTo(-14, 29); ctx.lineTo(-27, 8); ctx.quadraticCurveTo(-33, -27, 0, -37);
+    } else {
+      ctx.moveTo(0, -38); ctx.lineTo(24, -25); ctx.lineTo(31, 11); ctx.lineTo(17, 31);
+      ctx.lineTo(0, 23); ctx.lineTo(-17, 31); ctx.lineTo(-31, 11); ctx.lineTo(-24, -25);
+    }
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = vortex ? '#71e1c4' : '#e98545';
+    ctx.beginPath(); ctx.arc(0, -6, 10 + enemy.phase * 2, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = '#fff3bd'; ctx.lineWidth = 3;
+    for (let seal = 0; seal < enemy.phases; seal++) {
+      const angle = -0.75 + seal * 0.75;
+      const open = seal < enemy.phase - 1;
+      ctx.globalAlpha = open ? 0.3 : 1;
+      ctx.beginPath(); ctx.arc(Math.cos(angle) * 24, 9 + Math.sin(angle) * 17, open ? 4 : 7, 0, Math.PI * 2); ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+    if (enemy.armor > 0) {
+      ctx.strokeStyle = enemy.blocked ? '#ffffff' : '#80eaff'; ctx.lineWidth = 4;
+      ctx.beginPath(); ctx.arc(0, -4, 34, Math.PI * 1.08, Math.PI * 1.92); ctx.stroke();
+    }
+    if (enemy.orbitWarning) {
+      ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 5;
+      const side = enemy.orbitDirection ?? 1;
+      ctx.beginPath(); ctx.moveTo(side * 24, -4); ctx.lineTo(side * 43, 8); ctx.lineTo(side * 29, 19); ctx.stroke();
+    }
+    ctx.restore();
+    return;
+  }
   const color = enemy.flash ? '#ffffff' : enemy.kind === 'bulwark' ? '#8d63c8' : enemy.kind === 'rusher' ? '#ed7d32' : enemy.kind === 'orbiter' ? '#b86be0' : '#bc4054';
   ctx.strokeStyle = '#170d20'; ctx.lineWidth = 3;
   ctx.fillStyle = '#32152a'; ctx.beginPath(); ctx.ellipse(0, 8, 13, 17, 0, 0, Math.PI * 2); ctx.fill();
@@ -181,7 +219,7 @@ function drawEffects() {
     const [x, y] = polar(effect.slot, combatRadius(effect.distance));
     const progress = 1 - effect.life / effect.duration;
     ctx.save(); ctx.translate(x, y); ctx.globalAlpha = Math.max(0, 1 - progress);
-    const color = effect.kind === 'guard' ? '#72e5ff' : effect.kind === 'bell' ? '#ff6547' : effect.kind === 'catch' ? '#ffe06f' : '#fff1ae';
+    const color = effect.kind === 'guard' ? '#72e5ff' : effect.kind === 'bell' ? '#ff6547' : effect.kind === 'catch' ? '#ffe06f' : effect.kind === 'phase' ? '#dca0ff' : '#fff1ae';
     ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = effect.kind === 'break' ? 4 : 3;
     const radius = 8 + progress * (effect.kind === 'catch' ? 38 : 27);
     ctx.beginPath(); ctx.arc(0, 0, radius, 0, Math.PI * 2); ctx.stroke();
@@ -253,9 +291,10 @@ function render() {
   drawArena(); drawBell();
   if (menu === 'settings') {
     drawSettings();
-  } else if (game.mode === 'playing' || ['waveBrief', 'waveClear', 'gameOver'].includes(game.mode)) drawActors();
+  } else if (game.mode === 'playing' || ['waveBrief', 'guardianBrief', 'waveClear', 'gameOver'].includes(game.mode)) drawActors();
   text(`SCORE ${String(game.score).padStart(6, '0')}`, 18, 82, 16);
-  text(`WAVE ${game.wave + 1}/${WAVE_COUNT}  CHAIN ×${game.chain}`, 320, 82, 16, '#77e4ca', 'center');
+  const guardian = game.enemies.find(enemy => enemy.alive && enemy.guardian);
+  text(guardian ? `GUARDIAN  SEAL ${guardian.phase}/${guardian.phases}  CHAIN ×${game.chain}` : `WAVE ${game.wave + 1}/${WAVE_COUNT}  CHAIN ×${game.chain}`, 320, 82, 16, '#77e4ca', 'center');
   text(`BELL ${'◆'.repeat(game.bell)}${'◇'.repeat(3 - game.bell)}`, 622, 82, 16, game.bell === 1 ? '#ff6b62' : '#ffe29a', 'right');
   if (menu === 'game') text(game.message, 320, 418, ['attract', 'startWait'].includes(game.mode) ? 24 : 18, game.mode === 'gameOver' ? '#ff6b62' : '#ffe29a', 'center');
   if (menu === 'game' && ['attract', 'startWait'].includes(game.mode)) {
@@ -279,6 +318,15 @@ function render() {
     text(brief.line1, 320, 251, 15, brief.color1, 'center');
     text(brief.line2, 320, 280, 15, brief.color2, 'center');
     text(`PRESS ${keyLabel(save.keys.cast)}`, 320, 320, 18, '#f5e6b0', 'center');
+  }
+  if (menu === 'game' && game.mode === 'guardianBrief') {
+    const second = game.wave === 5;
+    ctx.fillStyle = '#080d20e8'; ctx.fillRect(78, 148, 484, 210);
+    text(second ? 'ACT II GUARDIAN — VORTEX REGENT' : 'ACT I GUARDIAN — DAWN WARDEN', 320, 193, 21, second ? '#d9a2ff' : '#ffe29a', 'center');
+    text('OUTBOUND OPENS EACH RETURN SEAL', 320, 238, 15, '#80eaff', 'center');
+    text(second ? 'THE CROWN ORBITS FASTER AFTER EACH BREAK' : 'IT CHANGES LINE AND PACE AFTER EACH BREAK', 320, 269, 14, '#ffcf55', 'center');
+    text('THREE SEALS • ONE BELL', 320, 300, 16, '#f2c8ba', 'center');
+    text(`PRESS ${keyLabel(save.keys.cast)}`, 320, 338, 18, '#ffffff', 'center');
   }
   if (menu === 'game' && paused) { ctx.fillStyle = '#080d20cc'; ctx.fillRect(120, 195, 400, 110); text('PAUSED', 320, 245, 30, '#ffe29a', 'center'); text('S SETTINGS', 320, 278, 14, '#9adbe8', 'center'); }
   text(`8-WAY LEVER　 ECHO BUTTON　 START　 CREDIT ${game.credits}`, 320, 466, 13, '#f2c8ba', 'center');
@@ -328,6 +376,7 @@ addEventListener('keydown', event => {
   if (event.code === 'Enter' && game.mode === 'startWait') startCredit(game, save.highestWave);
   else if (event.code === 'KeyN' && game.mode === 'startWait') startCredit(game, 0);
   else if (event.code === save.keys.cast && game.mode === 'waveBrief') startNextWave(game);
+  else if (event.code === save.keys.cast && game.mode === 'guardianBrief') startGuardian(game);
   else if (event.code === 'KeyR' && ['gameOver', 'waveClear'].includes(game.mode)) { returnToAttract(game); paused = false; cabinetElapsed = 0; }
   else if (event.code === 'KeyP' && game.mode === 'playing') paused = !paused;
   else if (!paused && game.mode === 'playing') {
