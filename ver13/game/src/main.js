@@ -64,6 +64,21 @@ const WAVE_BRIEFS = {
     title: 'WAVE 9 — THIRD WATCH',
     line1: 'SHIFT • ORBIT • RUSH • GUARD IN ONE STORM', color1: '#bdefff',
     line2: 'READ THE FIRST THREAT AND KEEP YOUR RHYTHM', color2: '#ffe29a'
+  },
+  9: {
+    title: 'ACT IV — MIRROR FOUNDRY',
+    line1: 'BLUE REFRACTORS STEP WHEN THE HAMMER TURNS', color1: '#9eeeff',
+    line2: 'CAST AT THE CHEVRON — THE RETURN WILL MEET IT', color2: '#ffcf55'
+  },
+  10: {
+    title: 'WAVE 11 — FRACTURED LINES',
+    line1: 'YOUR TURN MOVES EVERY REFRACTOR AT ONCE', color1: '#9eeeff',
+    line2: 'LEAD THE RETURN • THEN RECOVER THE CATCH', color2: '#ffe29a'
+  },
+  11: {
+    title: 'WAVE 12 — FOURTH WATCH',
+    line1: 'TURN • RUSH • GUARD • ORBIT • DANCE', color1: '#c4f5ff',
+    line2: 'ONE CAST CHANGES THE WHOLE PROCESSION', color2: '#ffb36b'
   }
 };
 
@@ -114,11 +129,12 @@ function drawArena() {
   const sky = ctx.createLinearGradient(0, 58, 0, 266);
   const actTwo = game.wave >= 3;
   const actThree = game.wave >= 6;
-  sky.addColorStop(0, actThree ? '#071f2c' : actTwo ? '#120c2e' : '#080d2a');
-  sky.addColorStop(0.58, actThree ? '#17606b' : actTwo ? '#31305f' : '#273358');
-  sky.addColorStop(1, actThree ? '#82b36b' : actTwo ? '#2d817e' : '#b45147');
+  const actFour = game.wave >= 9;
+  sky.addColorStop(0, actFour ? '#210b24' : actThree ? '#071f2c' : actTwo ? '#120c2e' : '#080d2a');
+  sky.addColorStop(0.58, actFour ? '#6d2133' : actThree ? '#17606b' : actTwo ? '#31305f' : '#273358');
+  sky.addColorStop(1, actFour ? '#e2763b' : actThree ? '#82b36b' : actTwo ? '#2d817e' : '#b45147');
   ctx.fillStyle = sky; ctx.fillRect(0, 58, 640, 210);
-  ctx.fillStyle = actThree ? '#e7f3a6' : actTwo ? '#a7e4c6' : '#d46b4d'; ctx.beginPath(); ctx.arc(320, 210, 39, Math.PI, 0); ctx.fill();
+  ctx.fillStyle = actFour ? '#fff0a0' : actThree ? '#e7f3a6' : actTwo ? '#a7e4c6' : '#d46b4d'; ctx.beginPath(); ctx.arc(320, 210, 39, Math.PI, 0); ctx.fill();
   ctx.fillStyle = '#11162b';
   ctx.beginPath(); ctx.moveTo(0, 226); ctx.lineTo(72, 173); ctx.lineTo(130, 224); ctx.lineTo(205, 157); ctx.lineTo(275, 227); ctx.lineTo(366, 162); ctx.lineTo(438, 224); ctx.lineTo(529, 171); ctx.lineTo(640, 229); ctx.lineTo(640, 280); ctx.lineTo(0, 280); ctx.closePath(); ctx.fill();
   ctx.fillStyle = '#171426'; ctx.fillRect(0, 238, 640, 200);
@@ -132,7 +148,20 @@ function drawArena() {
     ctx.fillStyle = '#f6b64f'; ctx.fillRect(x - 9, 153, 18, 27); ctx.fillStyle = '#7d2925'; ctx.fillRect(x - 11, 150, 22, 5); ctx.fillRect(x - 11, 179, 22, 5);
   }
 
-  if (actThree) {
+  if (actFour) {
+    // Twin furnaces, suspended chains, and molten troughs give the fourth
+    // watch a dense industrial silhouette distinct from the open sky court.
+    for (const x of [75, 565]) {
+      ctx.fillStyle = '#351425'; ctx.fillRect(x - 34, 112, 68, 132);
+      ctx.strokeStyle = '#c85d43'; ctx.lineWidth = 5; ctx.strokeRect(x - 34, 112, 68, 132);
+      ctx.fillStyle = '#ffb34f'; ctx.beginPath(); ctx.arc(x, 210, 20, Math.PI, 0); ctx.fill();
+      ctx.strokeStyle = '#a6e9ef'; ctx.lineWidth = 3;
+      for (let y = 100; y < 202; y += 22) { ctx.beginPath(); ctx.arc(x, y, 7, 0, Math.PI * 2); ctx.stroke(); }
+    }
+    ctx.strokeStyle = '#7dd9df'; ctx.lineWidth = 4;
+    ctx.beginPath(); ctx.moveTo(142, 126); ctx.lineTo(250, 163); ctx.lineTo(390, 122); ctx.lineTo(498, 160); ctx.stroke();
+    ctx.fillStyle = '#f0713f'; ctx.fillRect(130, 232, 380, 10);
+  } else if (actThree) {
     // Tall wind banners and stepped cloud rails make the third watch read as
     // an open, high-altitude court instead of another recolored shrine.
     for (const x of [76, 564]) {
@@ -175,13 +204,18 @@ function drawEnemy(enemy, x, y) {
   if (enemy.guardian) {
     const vortex = enemy.kind === 'vortexRegent';
     const gale = enemy.kind === 'galeSovereign';
-    const pulse = 1 + Math.sin(game.tick * (vortex ? 0.24 : gale ? 0.3 : 0.14)) * 0.06;
+    const prism = enemy.kind === 'prismEmperor';
+    const pulse = 1 + Math.sin(game.tick * (vortex ? 0.24 : gale ? 0.3 : prism ? 0.34 : 0.14)) * 0.06;
     ctx.scale(pulse, pulse);
-    ctx.strokeStyle = enemy.flash ? '#ffffff' : gale ? '#dff69a' : vortex ? '#e0a5ff' : '#ffe29a';
-    ctx.fillStyle = gale ? '#155a56' : vortex ? '#35164d' : '#502028';
+    ctx.strokeStyle = enemy.flash ? '#ffffff' : prism ? '#aef6ff' : gale ? '#dff69a' : vortex ? '#e0a5ff' : '#ffe29a';
+    ctx.fillStyle = prism ? '#67263e' : gale ? '#155a56' : vortex ? '#35164d' : '#502028';
     ctx.lineWidth = 4;
     ctx.beginPath();
-    if (gale) {
+    if (prism) {
+      ctx.moveTo(0, -43); ctx.lineTo(12, -23); ctx.lineTo(38, -9); ctx.lineTo(22, 4);
+      ctx.lineTo(29, 31); ctx.lineTo(0, 20); ctx.lineTo(-29, 31); ctx.lineTo(-22, 4);
+      ctx.lineTo(-38, -9); ctx.lineTo(-12, -23);
+    } else if (gale) {
       ctx.moveTo(0, -40); ctx.lineTo(13, -23); ctx.lineTo(35, -17); ctx.lineTo(23, 2);
       ctx.lineTo(32, 27); ctx.lineTo(8, 19); ctx.lineTo(0, 33); ctx.lineTo(-8, 19);
       ctx.lineTo(-32, 27); ctx.lineTo(-23, 2); ctx.lineTo(-35, -17); ctx.lineTo(-13, -23);
@@ -193,7 +227,7 @@ function drawEnemy(enemy, x, y) {
       ctx.lineTo(0, 23); ctx.lineTo(-17, 31); ctx.lineTo(-31, 11); ctx.lineTo(-24, -25);
     }
     ctx.closePath(); ctx.fill(); ctx.stroke();
-    ctx.fillStyle = gale ? '#e3ef72' : vortex ? '#71e1c4' : '#e98545';
+    ctx.fillStyle = prism ? '#7de1e8' : gale ? '#e3ef72' : vortex ? '#71e1c4' : '#e98545';
     ctx.beginPath(); ctx.arc(0, -6, 10 + enemy.phase * 2, 0, Math.PI * 2); ctx.fill();
     ctx.strokeStyle = '#fff3bd'; ctx.lineWidth = 3;
     for (let seal = 0; seal < enemy.phases; seal++) {
@@ -215,7 +249,7 @@ function drawEnemy(enemy, x, y) {
     ctx.restore();
     return;
   }
-  const color = enemy.flash ? '#ffffff' : enemy.kind === 'bulwark' ? '#8d63c8' : enemy.kind === 'rusher' ? '#ed7d32' : enemy.kind === 'orbiter' ? '#b86be0' : enemy.kind === 'dancer' ? '#4fbd79' : '#bc4054';
+  const color = enemy.flash ? '#ffffff' : enemy.kind === 'bulwark' ? '#8d63c8' : enemy.kind === 'rusher' ? '#ed7d32' : enemy.kind === 'orbiter' ? '#b86be0' : enemy.kind === 'dancer' ? '#4fbd79' : enemy.kind === 'refractor' ? '#55b9cc' : '#bc4054';
   ctx.strokeStyle = '#170d20'; ctx.lineWidth = 3;
   ctx.fillStyle = '#32152a'; ctx.beginPath(); ctx.ellipse(0, 8, 13, 17, 0, 0, Math.PI * 2); ctx.fill();
   ctx.fillStyle = color;
@@ -243,6 +277,12 @@ function drawEnemy(enemy, x, y) {
     ctx.fillStyle = '#e7ef79'; ctx.beginPath(); ctx.arc(0, -8, 5, 0, Math.PI * 2); ctx.fill();
     ctx.strokeStyle = '#dff69a'; ctx.lineWidth = 3;
     ctx.beginPath(); ctx.moveTo(side * 7, 2); ctx.lineTo(side * 21, -3); ctx.lineTo(side * 16, 8); ctx.stroke();
+  } else if (enemy.kind === 'refractor') {
+    const side = enemy.turnDirection ?? 1;
+    ctx.beginPath(); ctx.moveTo(0, -23); ctx.lineTo(15, -7); ctx.lineTo(9, 18); ctx.lineTo(0, 10); ctx.lineTo(-9, 18); ctx.lineTo(-15, -7); ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#e5fbff'; ctx.beginPath(); ctx.moveTo(0, -15); ctx.lineTo(7, -3); ctx.lineTo(0, 9); ctx.lineTo(-7, -3); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = '#b8f7ff'; ctx.lineWidth = 4;
+    ctx.beginPath(); ctx.moveTo(side * 8, -2); ctx.lineTo(side * 24, 5); ctx.lineTo(side * 15, 14); ctx.stroke();
   } else {
     ctx.beginPath(); ctx.moveTo(0, -18); ctx.lineTo(12, -6); ctx.lineTo(10, 16); ctx.lineTo(0, 10); ctx.lineTo(-10, 16); ctx.lineTo(-12, -6); ctx.closePath(); ctx.fill(); ctx.stroke();
     ctx.fillStyle = '#f0a64c'; ctx.fillRect(-5, -11, 10, 7);
@@ -257,7 +297,7 @@ function drawEffects() {
     const [x, y] = polar(effect.slot, combatRadius(effect.distance));
     const progress = 1 - effect.life / effect.duration;
     ctx.save(); ctx.translate(x, y); ctx.globalAlpha = Math.max(0, 1 - progress);
-    const color = effect.kind === 'guard' ? '#72e5ff' : effect.kind === 'bell' ? '#ff6547' : effect.kind === 'catch' ? '#ffe06f' : effect.kind === 'phase' ? '#dca0ff' : effect.kind === 'sidestep' ? '#9af5a8' : '#fff1ae';
+    const color = effect.kind === 'guard' ? '#72e5ff' : effect.kind === 'bell' ? '#ff6547' : effect.kind === 'catch' ? '#ffe06f' : effect.kind === 'phase' ? '#dca0ff' : effect.kind === 'sidestep' ? '#9af5a8' : effect.kind === 'refract' ? '#a9f7ff' : '#fff1ae';
     ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = effect.kind === 'break' ? 4 : 3;
     const radius = 8 + progress * (effect.kind === 'catch' ? 38 : 27);
     ctx.beginPath(); ctx.arc(0, 0, radius, 0, Math.PI * 2); ctx.stroke();
@@ -360,10 +400,11 @@ function render() {
   if (menu === 'game' && game.mode === 'guardianBrief') {
     const second = game.wave === 5;
     const third = game.wave === 8;
+    const fourth = game.wave === 11;
     ctx.fillStyle = '#080d20e8'; ctx.fillRect(78, 148, 484, 210);
-    text(third ? 'ACT III GUARDIAN — GALE SOVEREIGN' : second ? 'ACT II GUARDIAN — VORTEX REGENT' : 'ACT I GUARDIAN — DAWN WARDEN', 320, 193, 21, third ? '#dff69a' : second ? '#d9a2ff' : '#ffe29a', 'center');
+    text(fourth ? 'ACT IV GUARDIAN — PRISM EMPEROR' : third ? 'ACT III GUARDIAN — GALE SOVEREIGN' : second ? 'ACT II GUARDIAN — VORTEX REGENT' : 'ACT I GUARDIAN — DAWN WARDEN', 320, 193, 21, fourth ? '#aef6ff' : third ? '#dff69a' : second ? '#d9a2ff' : '#ffe29a', 'center');
     text('OUTBOUND OPENS EACH RETURN SEAL', 320, 238, 15, '#80eaff', 'center');
-    text(third ? 'THE WIND CROWN TURNS FASTER AFTER EACH BREAK' : second ? 'THE CROWN ORBITS FASTER AFTER EACH BREAK' : 'IT CHANGES LINE AND PACE AFTER EACH BREAK', 320, 269, 14, '#ffcf55', 'center');
+    text(fourth ? 'THE PRISM CROWN ACCELERATES AFTER EACH BREAK' : third ? 'THE WIND CROWN TURNS FASTER AFTER EACH BREAK' : second ? 'THE CROWN ORBITS FASTER AFTER EACH BREAK' : 'IT CHANGES LINE AND PACE AFTER EACH BREAK', 320, 269, 14, '#ffcf55', 'center');
     text('THREE SEALS • ONE BELL', 320, 300, 16, '#f2c8ba', 'center');
     text(`PRESS ${keyLabel(save.keys.cast)}`, 320, 338, 18, '#ffffff', 'center');
   }

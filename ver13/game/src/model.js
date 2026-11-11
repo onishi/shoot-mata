@@ -52,6 +52,25 @@ export const WAVES = [
     { kind: 'rusher', slot: 7, distance: 1.2, speed: 0.096, hp: 1 },
     { kind: 'bulwark', slot: 10, distance: 1.3, speed: 0.042, hp: 2, armor: 1 },
     { kind: 'dancer', slot: 13, distance: 1.42, speed: 0.034, hp: 2, sidestepDirection: -1 }
+  ],
+  [
+    { kind: 'refractor', slot: 2, distance: 1.04, speed: 0.031, hp: 2, turnDirection: 1 },
+    { kind: 'refractor', slot: 7, distance: 1.2, speed: 0.029, hp: 2, turnDirection: -1 },
+    { kind: 'refractor', slot: 12, distance: 1.36, speed: 0.027, hp: 2, turnDirection: 1 }
+  ],
+  [
+    { kind: 'refractor', slot: 1, distance: 1.02, speed: 0.032, hp: 2, turnDirection: 1 },
+    { kind: 'marcher', slot: 5, distance: 1.12, speed: 0.051, hp: 2 },
+    { kind: 'refractor', slot: 9, distance: 1.26, speed: 0.03, hp: 2, turnDirection: -1 },
+    { kind: 'dancer', slot: 13, distance: 1.4, speed: 0.034, hp: 2, sidestepDirection: -1 }
+  ],
+  [
+    { kind: 'refractor', slot: 0, distance: 1.02, speed: 0.033, hp: 2, turnDirection: 1 },
+    { kind: 'rusher', slot: 3, distance: 1.08, speed: 0.097, hp: 1 },
+    { kind: 'bulwark', slot: 6, distance: 1.18, speed: 0.042, hp: 2, armor: 1 },
+    { kind: 'refractor', slot: 9, distance: 1.29, speed: 0.031, hp: 2, turnDirection: -1 },
+    { kind: 'orbiter', slot: 12, distance: 1.4, speed: 0.039, hp: 2, orbitEvery: 0.76, orbitDirection: 1 },
+    { kind: 'dancer', slot: 15, distance: 1.48, speed: 0.035, hp: 2, sidestepDirection: -1 }
   ]
 ];
 
@@ -70,6 +89,11 @@ export const GUARDIANS = [
     kind: 'galeSovereign', name: 'GALE SOVEREIGN', slot: 1, distance: 1.2,
     speed: 0.02, hp: 6, armor: 1, phases: 3, phaseHp: 2,
     phaseSlots: [1, 6, 12], phaseOrbit: [1.42, 1.2, 1.02], phaseSpeed: [0.02, 0.029, 0.04]
+  },
+  {
+    kind: 'prismEmperor', name: 'PRISM EMPEROR', slot: 3, distance: 1.22,
+    speed: 0.022, hp: 6, armor: 1, phases: 3, phaseHp: 2,
+    phaseSlots: [3, 10, 15], phaseOrbit: [1.34, 1.1, 0.94], phaseSpeed: [0.022, 0.032, 0.043]
   }
 ];
 
@@ -195,6 +219,9 @@ export function startNextWave(game) {
   else if (game.wave === 6) game.message = 'DANCER — FOLLOW THE STRUCK STEP';
   else if (game.wave === 7) game.message = 'BROKEN RHYTHM — CATCH, TURN, CAST';
   else if (game.wave === 8) game.message = 'THIRD WATCH — MASTER EVERY LINE';
+  else if (game.wave === 9) game.message = 'REFRACTOR — AIM AT THE TURN MARK';
+  else if (game.wave === 10) game.message = 'FRACTURED LINES — LEAD THEN RECOVER';
+  else if (game.wave === 11) game.message = 'FOURTH WATCH — COMMAND THE TURN';
   else game.message = `WAVE ${game.wave + 1}`;
   emit(game, 'waveStart');
   return true;
@@ -202,7 +229,7 @@ export function startNextWave(game) {
 
 export function startGuardian(game) {
   if (game.mode !== 'guardianBrief') return false;
-  const act = game.wave === 2 ? 0 : game.wave === 5 ? 1 : game.wave === 8 ? 2 : -1;
+  const act = game.wave === 2 ? 0 : game.wave === 5 ? 1 : game.wave === 8 ? 2 : game.wave === 11 ? 3 : -1;
   if (act < 0) return false;
   loadGuardian(game, act);
   game.mode = 'playing';
@@ -210,7 +237,8 @@ export function startGuardian(game) {
   game.cooldown = 0;
   game.message = act === 0 ? 'DAWN WARDEN — BREAK THREE RETURN SEALS'
     : act === 1 ? 'VORTEX REGENT — CHASE THE TURNING CROWN'
-      : 'GALE SOVEREIGN — SURVIVE THE SHIFTING CROWN';
+      : act === 2 ? 'GALE SOVEREIGN — SURVIVE THE SHIFTING CROWN'
+        : 'PRISM EMPEROR — BREAK THE BURNING CROWN';
   emit(game, 'guardianStart');
   return true;
 }
@@ -313,7 +341,17 @@ export function step(game, dt = 1 / 60) {
     if (hammer.phase === 'out' && hammer.distance >= 1.45) {
       hammer.distance = 1.45;
       hammer.phase = 'return';
-      game.message = hammer.guardBlocked ? 'GUARD SHATTERED — RETURN BREAKS IT' : 'RETURNING — CATCH IT';
+      let refracted = false;
+      for (const enemy of game.enemies) {
+        if (!enemy.alive || enemy.kind !== 'refractor') continue;
+        enemy.slot = (enemy.slot + enemy.turnDirection + SLOT_COUNT) % SLOT_COUNT;
+        enemy.turnDirection *= -1;
+        effect(game, 'refract', enemy.slot, enemy.distance, 0.42);
+        refracted = true;
+      }
+      game.message = refracted ? 'REFRACTORS SHIFT — RETURN LINE LOCKED'
+        : hammer.guardBlocked ? 'GUARD SHATTERED — RETURN BREAKS IT' : 'RETURNING — CATCH IT';
+      if (refracted) emit(game, 'refract');
       emit(game, 'turn');
     } else if (hammer.phase === 'return' && hammer.distance <= 0.18) {
       if (slotDistance(game.playerSlot, hammer.slot) <= 1) {
@@ -375,16 +413,19 @@ export function step(game, dt = 1 / 60) {
       game.score += 5000;
       if (clearedAct < GUARDIANS.length - 1) {
         game.mode = 'waveBrief';
-        game.message = clearedAct === 0 ? 'FIRST WATCH CROWNED — PRESS SPACE' : 'SECOND WATCH CROWNED — PRESS SPACE';
+        game.message = clearedAct === 0 ? 'FIRST WATCH CROWNED — PRESS SPACE'
+          : clearedAct === 1 ? 'SECOND WATCH CROWNED — PRESS SPACE'
+            : 'THIRD WATCH CROWNED — PRESS SPACE';
       } else {
         game.mode = 'waveClear';
-        game.message = 'THIRD WATCH CROWNED — PRESS R';
+        game.message = 'FOURTH WATCH CROWNED — PRESS R';
       }
       emit(game, 'guardianClear');
-    } else if (game.wave === 2 || game.wave === 5 || game.wave === 8) {
+    } else if (game.wave === 2 || game.wave === 5 || game.wave === 8 || game.wave === 11) {
       game.mode = 'guardianBrief';
       game.message = game.wave === 2 ? 'GUARDIAN — DAWN WARDEN'
-        : game.wave === 5 ? 'GUARDIAN — VORTEX REGENT' : 'GUARDIAN — GALE SOVEREIGN';
+        : game.wave === 5 ? 'GUARDIAN — VORTEX REGENT'
+          : game.wave === 8 ? 'GUARDIAN — GALE SOVEREIGN' : 'GUARDIAN — PRISM EMPEROR';
       emit(game, 'waveClear');
     } else if (game.wave + 1 < WAVES.length) {
       game.mode = 'waveBrief';
@@ -392,7 +433,7 @@ export function step(game, dt = 1 / 60) {
       emit(game, 'waveClear');
     } else {
       game.mode = 'waveClear';
-      game.message = game.wave >= 8 ? 'THIRD WATCH HELD — PRESS R' : game.wave >= 5 ? 'SECOND WATCH HELD — PRESS R' : 'DAWN HELD — PRESS R';
+      game.message = game.wave >= 11 ? 'FOURTH WATCH HELD — PRESS R' : game.wave >= 8 ? 'THIRD WATCH HELD — PRESS R' : game.wave >= 5 ? 'SECOND WATCH HELD — PRESS R' : 'DAWN HELD — PRESS R';
       emit(game, 'victory');
     }
   }
