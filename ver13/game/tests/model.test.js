@@ -80,6 +80,39 @@ test('waves five and six combine established threats for the first climax', () =
   }
 });
 
+test('act three dancers sidestep only after a surviving outbound hit', () => {
+  const game = startGame(createGame(), 6);
+  assert.equal(game.enemies.every(enemy => enemy.kind === 'dancer'), true);
+  const dancer = game.enemies[0];
+  const originalSlot = dancer.slot;
+  game.playerSlot = originalSlot;
+  castHammer(game);
+  advance(game, 0.8);
+  assert.equal(dancer.hp, 1);
+  assert.equal(dancer.slot, (originalSlot + 1) % 16);
+  assert.equal(dancer.sidestepDirection, -1);
+  assert.match(game.message, /DANCER STEPS/);
+  assert.ok(drainAudioEvents(game).includes('sidestep'));
+  movePlayer(game, 1);
+  advance(game, 1.5);
+  assert.equal(game.chain, 1);
+  assert.equal(castHammer(game), true);
+  advance(game, 0.8);
+  assert.equal(dancer.alive, false);
+});
+
+test('waves eight and nine mix reactive dancers with established threats', () => {
+  const brokenRhythm = startGame(createGame(), 7);
+  for (const kind of ['dancer', 'bulwark', 'rusher']) {
+    assert.ok(brokenRhythm.enemies.some(enemy => enemy.kind === kind), `${kind} present`);
+  }
+
+  const thirdWatch = startGame(createGame(), 8);
+  for (const kind of ['dancer', 'bulwark', 'rusher', 'orbiter']) {
+    assert.ok(thirdWatch.enemies.some(enemy => enemy.kind === kind), `${kind} present`);
+  }
+});
+
 test('player wraps around the sixteen-position ring', () => {
   const game = startGame(createGame());
   movePlayer(game, -1);
@@ -167,6 +200,16 @@ test('clearing act two summons its guardian', () => {
   assert.match(game.message, /VORTEX REGENT/);
 });
 
+test('clearing act three summons the gale sovereign', () => {
+  const game = startGame(createGame(), 8);
+  for (const enemy of game.enemies) enemy.alive = false;
+  step(game);
+  assert.equal(game.mode, 'guardianBrief');
+  assert.match(game.message, /GALE SOVEREIGN/);
+  assert.equal(startGuardian(game), true);
+  assert.equal(game.enemies[0].kind, 'galeSovereign');
+});
+
 test('act one guardian changes slot, pace, and armor across three return seals', () => {
   const game = startGame(createGame(), 2);
   for (const enemy of game.enemies) enemy.alive = false;
@@ -189,7 +232,7 @@ test('act one guardian changes slot, pace, and armor across three return seals',
 });
 
 test('each guardian seal gives the opening hammer time to land its return', () => {
-  for (const [wave, expectedMode, ending] of [[2, 'waveBrief', /FIRST WATCH CROWNED/], [5, 'waveClear', /SECOND WATCH CROWNED/]]) {
+  for (const [wave, expectedMode, ending] of [[2, 'waveBrief', /FIRST WATCH CROWNED/], [5, 'waveBrief', /SECOND WATCH CROWNED/], [8, 'waveClear', /THIRD WATCH CROWNED/]]) {
     const game = startGame(createGame(), wave);
     game.mode = 'guardianBrief';
     startGuardian(game);
@@ -228,7 +271,7 @@ test('guardian survives a bell strike by withdrawing while the bell remains', ()
   assert.ok(guardian.distance > 1);
 });
 
-test('breaking act one guardian opens act two and act two guardian crowns the watch', () => {
+test('breaking guardians opens each next act and crowns the third watch', () => {
   const first = startGame(createGame(), 2);
   first.mode = 'guardianBrief';
   startGuardian(first);
@@ -244,8 +287,19 @@ test('breaking act one guardian opens act two and act two guardian crowns the wa
   startGuardian(second);
   second.enemies[0].alive = false;
   step(second);
-  assert.equal(second.mode, 'waveClear');
+  assert.equal(second.mode, 'waveBrief');
   assert.match(second.message, /SECOND WATCH CROWNED/);
+  assert.equal(startNextWave(second), true);
+  assert.equal(second.wave, 6);
+
+  const third = startGame(createGame(), 8);
+  third.mode = 'guardianBrief';
+  startGuardian(third);
+  assert.equal(third.enemies[0].kind, 'galeSovereign');
+  third.enemies[0].alive = false;
+  step(third);
+  assert.equal(third.mode, 'waveClear');
+  assert.match(third.message, /THIRD WATCH CROWNED/);
 });
 
 test('leaving the return slot loses the chain and starts cooldown', () => {

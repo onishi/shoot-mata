@@ -34,6 +34,24 @@ export const WAVES = [
     { kind: 'orbiter', slot: 8, distance: 1.18, speed: 0.04, hp: 2, orbitEvery: 0.76, orbitDirection: 1 },
     { kind: 'rusher', slot: 11, distance: 1.3, speed: 0.094, hp: 1 },
     { kind: 'orbiter', slot: 14, distance: 1.42, speed: 0.038, hp: 2, orbitEvery: 0.82, orbitDirection: -1 }
+  ],
+  [
+    { kind: 'dancer', slot: 1, distance: 1.04, speed: 0.034, hp: 2, sidestepDirection: 1 },
+    { kind: 'dancer', slot: 6, distance: 1.2, speed: 0.032, hp: 2, sidestepDirection: -1 },
+    { kind: 'dancer', slot: 12, distance: 1.36, speed: 0.03, hp: 2, sidestepDirection: 1 }
+  ],
+  [
+    { kind: 'dancer', slot: 0, distance: 1.02, speed: 0.035, hp: 2, sidestepDirection: 1 },
+    { kind: 'bulwark', slot: 4, distance: 1.14, speed: 0.041, hp: 2, armor: 1 },
+    { kind: 'dancer', slot: 8, distance: 1.27, speed: 0.033, hp: 2, sidestepDirection: -1 },
+    { kind: 'rusher', slot: 12, distance: 1.4, speed: 0.094, hp: 1 }
+  ],
+  [
+    { kind: 'dancer', slot: 1, distance: 1.02, speed: 0.036, hp: 2, sidestepDirection: 1 },
+    { kind: 'orbiter', slot: 4, distance: 1.1, speed: 0.039, hp: 2, orbitEvery: 0.78, orbitDirection: -1 },
+    { kind: 'rusher', slot: 7, distance: 1.2, speed: 0.096, hp: 1 },
+    { kind: 'bulwark', slot: 10, distance: 1.3, speed: 0.042, hp: 2, armor: 1 },
+    { kind: 'dancer', slot: 13, distance: 1.42, speed: 0.034, hp: 2, sidestepDirection: -1 }
   ]
 ];
 
@@ -47,6 +65,11 @@ export const GUARDIANS = [
     kind: 'vortexRegent', name: 'VORTEX REGENT', slot: 14, distance: 1.2,
     speed: 0.018, hp: 6, armor: 1, phases: 3, phaseHp: 2,
     phaseSlots: [14, 4, 9], phaseOrbit: [1.5, 1.3, 1.15], phaseSpeed: [0.018, 0.026, 0.036]
+  },
+  {
+    kind: 'galeSovereign', name: 'GALE SOVEREIGN', slot: 1, distance: 1.2,
+    speed: 0.02, hp: 6, armor: 1, phases: 3, phaseHp: 2,
+    phaseSlots: [1, 6, 12], phaseOrbit: [1.42, 1.2, 1.02], phaseSpeed: [0.02, 0.029, 0.04]
   }
 ];
 
@@ -63,7 +86,7 @@ function loadGuardian(game, act) {
   game.enemies = [{
     ...spec, id: 0, alive: true, guardian: true, phase: 1,
     flash: 0, blocked: 0, orbitClock: 0, orbitWarning: false,
-    orbitEvery: spec.phaseOrbit[0], orbitDirection: act === 0 ? 1 : -1
+    orbitEvery: spec.phaseOrbit[0], orbitDirection: act === 1 ? -1 : 1
   }];
 }
 
@@ -169,6 +192,9 @@ export function startNextWave(game) {
   else if (game.wave === 3) game.message = 'ORBITER — READ THE SIDE FLASH';
   else if (game.wave === 4) game.message = 'CROSSING LINES — LEAD THE MOVING MARK';
   else if (game.wave === 5) game.message = 'SECOND WATCH — BREAK THE PROCESSION';
+  else if (game.wave === 6) game.message = 'DANCER — FOLLOW THE STRUCK STEP';
+  else if (game.wave === 7) game.message = 'BROKEN RHYTHM — CATCH, TURN, CAST';
+  else if (game.wave === 8) game.message = 'THIRD WATCH — MASTER EVERY LINE';
   else game.message = `WAVE ${game.wave + 1}`;
   emit(game, 'waveStart');
   return true;
@@ -176,13 +202,15 @@ export function startNextWave(game) {
 
 export function startGuardian(game) {
   if (game.mode !== 'guardianBrief') return false;
-  const act = game.wave === 2 ? 0 : game.wave === 5 ? 1 : -1;
+  const act = game.wave === 2 ? 0 : game.wave === 5 ? 1 : game.wave === 8 ? 2 : -1;
   if (act < 0) return false;
   loadGuardian(game, act);
   game.mode = 'playing';
   game.hammer = null;
   game.cooldown = 0;
-  game.message = act === 0 ? 'DAWN WARDEN — BREAK THREE RETURN SEALS' : 'VORTEX REGENT — CHASE THE TURNING CROWN';
+  game.message = act === 0 ? 'DAWN WARDEN — BREAK THREE RETURN SEALS'
+    : act === 1 ? 'VORTEX REGENT — CHASE THE TURNING CROWN'
+      : 'GALE SOVEREIGN — SURVIVE THE SHIFTING CROWN';
   emit(game, 'guardianStart');
   return true;
 }
@@ -237,6 +265,13 @@ function hitEnemies(game, from, to) {
     game.score += Math.round((game.hammer.phase === 'out' ? 100 : 200) * multiplier);
     game.message = game.hammer.phase === 'out' ? 'OUTBOUND HIT' : 'RETURN BREAK';
     if (game.hammer.phase === 'out') emit(game, 'outboundHit');
+    if (game.hammer.phase === 'out' && enemy.kind === 'dancer' && enemy.hp > 0) {
+      enemy.slot = (enemy.slot + enemy.sidestepDirection + SLOT_COUNT) % SLOT_COUNT;
+      enemy.sidestepDirection *= -1;
+      effect(game, 'sidestep', enemy.slot, enemy.distance, 0.42);
+      game.message = 'DANCER STEPS — FOLLOW IT AND CATCH';
+      emit(game, 'sidestep');
+    }
     if (enemy.hp <= 0) {
       enemy.alive = false;
       effect(game, 'break', enemy.slot, enemy.distance, 0.46);
@@ -338,17 +373,18 @@ export function step(game, dt = 1 / 60) {
       const clearedAct = game.guardianAct;
       game.guardianAct = null;
       game.score += 5000;
-      if (clearedAct === 0) {
+      if (clearedAct < GUARDIANS.length - 1) {
         game.mode = 'waveBrief';
-        game.message = 'FIRST WATCH CROWNED — PRESS SPACE';
+        game.message = clearedAct === 0 ? 'FIRST WATCH CROWNED — PRESS SPACE' : 'SECOND WATCH CROWNED — PRESS SPACE';
       } else {
         game.mode = 'waveClear';
-        game.message = 'SECOND WATCH CROWNED — PRESS R';
+        game.message = 'THIRD WATCH CROWNED — PRESS R';
       }
       emit(game, 'guardianClear');
-    } else if (game.wave === 2 || game.wave === 5) {
+    } else if (game.wave === 2 || game.wave === 5 || game.wave === 8) {
       game.mode = 'guardianBrief';
-      game.message = game.wave === 2 ? 'GUARDIAN — DAWN WARDEN' : 'GUARDIAN — VORTEX REGENT';
+      game.message = game.wave === 2 ? 'GUARDIAN — DAWN WARDEN'
+        : game.wave === 5 ? 'GUARDIAN — VORTEX REGENT' : 'GUARDIAN — GALE SOVEREIGN';
       emit(game, 'waveClear');
     } else if (game.wave + 1 < WAVES.length) {
       game.mode = 'waveBrief';
@@ -356,7 +392,7 @@ export function step(game, dt = 1 / 60) {
       emit(game, 'waveClear');
     } else {
       game.mode = 'waveClear';
-      game.message = game.wave >= 5 ? 'SECOND WATCH HELD — PRESS R' : 'DAWN HELD — PRESS R';
+      game.message = game.wave >= 8 ? 'THIRD WATCH HELD — PRESS R' : game.wave >= 5 ? 'SECOND WATCH HELD — PRESS R' : 'DAWN HELD — PRESS R';
       emit(game, 'victory');
     }
   }

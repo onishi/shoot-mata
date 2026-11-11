@@ -6,6 +6,7 @@ const CUE_SPECS = Object.freeze({
   turn: [[660, 0.05, 'sine'], [880, 0.09, 'sine']],
   outboundHit: [[150, 0.05, 'square'], [300, 0.07, 'square']],
   outboundBreak: [[220, 0.05, 'square'], [440, 0.11, 'sawtooth']],
+  sidestep: [[740, 0.04, 'square'], [554, 0.06, 'square'], [831, 0.08, 'sine']],
   returnBreak: [[196, 0.06, 'square'], [392, 0.08, 'square'], [784, 0.14, 'sawtooth']],
   guard: [[105, 0.08, 'sawtooth'], [118, 0.12, 'square']],
   catch: [[523, 0.06, 'square'], [659, 0.06, 'square'], [988, 0.13, 'sine']],

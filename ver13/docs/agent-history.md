@@ -11,3 +11,4 @@
 | 2026-11-09T21:59:44+0900 | Codex | run-codex-loop.sh | 2 | M2第1幕の社殿、鐘、守り手、3敵種、響槌、決定的な命中・破壊・回収演出を完成表現へ更新しM2完了 | 単体24/24、構文、Chrome実キー2方向、2 viewport目視、console error 0合格 | feat(ver13): finish act one arcade presentation |
 | 2026-11-09T22:34:35+0900 | Codex | run-codex-loop.sh | 3 | M3第2幕のORBITER、第4〜6波、固定・高速・装甲との混成山場、灯籠渦背景を実装 | 単体28/28、構文、Chrome実キー第4〜6波起動、2 viewport目視、console error 0合格 | feat(ver13): build act two orbiting assault |
 | 2026-11-11T20:54:32+0900 | Codex | run-codex-loop.sh | 1 | M3第1・2幕へ3段階復路封印、行動変化、大型造形、専用音を持つ2守護者と幕終演を実装 | 単体32/32、構文、Chrome実キーDAWN WARDEN撃破、2 viewport目視、保存値3、console error 0合格 | feat(ver13): crown first two guardian battles |
+| 2026-11-11T21:30:12+0900 | Codex | run-codex-loop.sh | 2 | M3第3幕へ命中反応移動DANCER、第7〜9波、天空風庭、3段階GALE SOVEREIGNを実装 | 単体36/36、構文、Chrome実キー第7波命中・追従、2 viewport目視、console error 0合格 | feat(ver13): stage third watch sky dance |

@@ -49,6 +49,21 @@ const WAVE_BRIEFS = {
     title: 'WAVE 6 — SECOND WATCH',
     line1: 'GUARD • RUSH • ORBIT IN ONE PROCESSION', color1: '#f1b2ff',
     line2: 'CHOOSE THE FIRST THREAT — THEN CATCH', color2: '#ffe29a'
+  },
+  6: {
+    title: 'ACT III — SKY DANCE',
+    line1: 'GREEN DANCERS STEP AS YOUR OUTBOUND HITS', color1: '#9af5a8',
+    line2: 'FOLLOW ONE LINE AND STILL CATCH THE RETURN', color2: '#ffe29a'
+  },
+  7: {
+    title: 'WAVE 8 — BROKEN RHYTHM',
+    line1: 'DANCERS PULL YOUR AIM • GUARDS HOLD THEIR LINE', color1: '#9af5a8',
+    line2: 'CATCH FIRST — THEN TURN TO THE NEW MARK', color2: '#ffcf55'
+  },
+  8: {
+    title: 'WAVE 9 — THIRD WATCH',
+    line1: 'SHIFT • ORBIT • RUSH • GUARD IN ONE STORM', color1: '#bdefff',
+    line2: 'READ THE FIRST THREAT AND KEEP YOUR RHYTHM', color2: '#ffe29a'
   }
 };
 
@@ -98,11 +113,12 @@ function drawBell() {
 function drawArena() {
   const sky = ctx.createLinearGradient(0, 58, 0, 266);
   const actTwo = game.wave >= 3;
-  sky.addColorStop(0, actTwo ? '#120c2e' : '#080d2a');
-  sky.addColorStop(0.58, actTwo ? '#31305f' : '#273358');
-  sky.addColorStop(1, actTwo ? '#2d817e' : '#b45147');
+  const actThree = game.wave >= 6;
+  sky.addColorStop(0, actThree ? '#071f2c' : actTwo ? '#120c2e' : '#080d2a');
+  sky.addColorStop(0.58, actThree ? '#17606b' : actTwo ? '#31305f' : '#273358');
+  sky.addColorStop(1, actThree ? '#82b36b' : actTwo ? '#2d817e' : '#b45147');
   ctx.fillStyle = sky; ctx.fillRect(0, 58, 640, 210);
-  ctx.fillStyle = actTwo ? '#a7e4c6' : '#d46b4d'; ctx.beginPath(); ctx.arc(320, 210, 39, Math.PI, 0); ctx.fill();
+  ctx.fillStyle = actThree ? '#e7f3a6' : actTwo ? '#a7e4c6' : '#d46b4d'; ctx.beginPath(); ctx.arc(320, 210, 39, Math.PI, 0); ctx.fill();
   ctx.fillStyle = '#11162b';
   ctx.beginPath(); ctx.moveTo(0, 226); ctx.lineTo(72, 173); ctx.lineTo(130, 224); ctx.lineTo(205, 157); ctx.lineTo(275, 227); ctx.lineTo(366, 162); ctx.lineTo(438, 224); ctx.lineTo(529, 171); ctx.lineTo(640, 229); ctx.lineTo(640, 280); ctx.lineTo(0, 280); ctx.closePath(); ctx.fill();
   ctx.fillStyle = '#171426'; ctx.fillRect(0, 238, 640, 200);
@@ -116,7 +132,18 @@ function drawArena() {
     ctx.fillStyle = '#f6b64f'; ctx.fillRect(x - 9, 153, 18, 27); ctx.fillStyle = '#7d2925'; ctx.fillRect(x - 11, 150, 22, 5); ctx.fillRect(x - 11, 179, 22, 5);
   }
 
-  if (actTwo) {
+  if (actThree) {
+    // Tall wind banners and stepped cloud rails make the third watch read as
+    // an open, high-altitude court instead of another recolored shrine.
+    for (const x of [76, 564]) {
+      ctx.strokeStyle = '#d9f3cf'; ctx.lineWidth = 4;
+      ctx.beginPath(); ctx.moveTo(x, 105); ctx.lineTo(x, 231); ctx.stroke();
+      ctx.fillStyle = '#2f9b83'; ctx.beginPath(); ctx.moveTo(x + 3, 113); ctx.lineTo(x + (x < 320 ? 34 : -34), 127); ctx.lineTo(x + 3, 151); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#d7e86f'; ctx.beginPath(); ctx.moveTo(x + 3, 157); ctx.lineTo(x + (x < 320 ? 27 : -27), 171); ctx.lineTo(x + 3, 191); ctx.closePath(); ctx.fill();
+    }
+    ctx.strokeStyle = '#9ad9c2'; ctx.lineWidth = 5;
+    for (const y of [214, 229]) { ctx.beginPath(); ctx.moveTo(116, y); ctx.bezierCurveTo(202, y - 30, 438, y + 24, 524, y - 8); ctx.stroke(); }
+  } else if (actTwo) {
     ctx.strokeStyle = '#65d7bd'; ctx.lineWidth = 3;
     for (const x of [92, 548]) {
       ctx.beginPath(); ctx.arc(x, 205, 29, 0, Math.PI * 2); ctx.stroke();
@@ -147,13 +174,18 @@ function drawEnemy(enemy, x, y) {
   ctx.save(); ctx.translate(x, y + bob); ctx.rotate(angleForSlot(enemy.slot) + Math.PI / 2);
   if (enemy.guardian) {
     const vortex = enemy.kind === 'vortexRegent';
-    const pulse = 1 + Math.sin(game.tick * (vortex ? 0.24 : 0.14)) * 0.06;
+    const gale = enemy.kind === 'galeSovereign';
+    const pulse = 1 + Math.sin(game.tick * (vortex ? 0.24 : gale ? 0.3 : 0.14)) * 0.06;
     ctx.scale(pulse, pulse);
-    ctx.strokeStyle = enemy.flash ? '#ffffff' : vortex ? '#e0a5ff' : '#ffe29a';
-    ctx.fillStyle = vortex ? '#35164d' : '#502028';
+    ctx.strokeStyle = enemy.flash ? '#ffffff' : gale ? '#dff69a' : vortex ? '#e0a5ff' : '#ffe29a';
+    ctx.fillStyle = gale ? '#155a56' : vortex ? '#35164d' : '#502028';
     ctx.lineWidth = 4;
     ctx.beginPath();
-    if (vortex) {
+    if (gale) {
+      ctx.moveTo(0, -40); ctx.lineTo(13, -23); ctx.lineTo(35, -17); ctx.lineTo(23, 2);
+      ctx.lineTo(32, 27); ctx.lineTo(8, 19); ctx.lineTo(0, 33); ctx.lineTo(-8, 19);
+      ctx.lineTo(-32, 27); ctx.lineTo(-23, 2); ctx.lineTo(-35, -17); ctx.lineTo(-13, -23);
+    } else if (vortex) {
       ctx.moveTo(0, -37); ctx.quadraticCurveTo(33, -27, 27, 8); ctx.lineTo(14, 29);
       ctx.lineTo(0, 20); ctx.lineTo(-14, 29); ctx.lineTo(-27, 8); ctx.quadraticCurveTo(-33, -27, 0, -37);
     } else {
@@ -161,7 +193,7 @@ function drawEnemy(enemy, x, y) {
       ctx.lineTo(0, 23); ctx.lineTo(-17, 31); ctx.lineTo(-31, 11); ctx.lineTo(-24, -25);
     }
     ctx.closePath(); ctx.fill(); ctx.stroke();
-    ctx.fillStyle = vortex ? '#71e1c4' : '#e98545';
+    ctx.fillStyle = gale ? '#e3ef72' : vortex ? '#71e1c4' : '#e98545';
     ctx.beginPath(); ctx.arc(0, -6, 10 + enemy.phase * 2, 0, Math.PI * 2); ctx.fill();
     ctx.strokeStyle = '#fff3bd'; ctx.lineWidth = 3;
     for (let seal = 0; seal < enemy.phases; seal++) {
@@ -183,7 +215,7 @@ function drawEnemy(enemy, x, y) {
     ctx.restore();
     return;
   }
-  const color = enemy.flash ? '#ffffff' : enemy.kind === 'bulwark' ? '#8d63c8' : enemy.kind === 'rusher' ? '#ed7d32' : enemy.kind === 'orbiter' ? '#b86be0' : '#bc4054';
+  const color = enemy.flash ? '#ffffff' : enemy.kind === 'bulwark' ? '#8d63c8' : enemy.kind === 'rusher' ? '#ed7d32' : enemy.kind === 'orbiter' ? '#b86be0' : enemy.kind === 'dancer' ? '#4fbd79' : '#bc4054';
   ctx.strokeStyle = '#170d20'; ctx.lineWidth = 3;
   ctx.fillStyle = '#32152a'; ctx.beginPath(); ctx.ellipse(0, 8, 13, 17, 0, 0, Math.PI * 2); ctx.fill();
   ctx.fillStyle = color;
@@ -205,6 +237,12 @@ function drawEnemy(enemy, x, y) {
     ctx.strokeStyle = enemy.orbitWarning ? '#ffffff' : '#72e2c2'; ctx.lineWidth = enemy.orbitWarning ? 4 : 2;
     const side = enemy.orbitDirection ?? 1;
     ctx.beginPath(); ctx.moveTo(side * 7, 1); ctx.lineTo(side * 20, 8); ctx.lineTo(side * 12, 14); ctx.stroke();
+  } else if (enemy.kind === 'dancer') {
+    const side = enemy.sidestepDirection ?? 1;
+    ctx.beginPath(); ctx.moveTo(0, -22); ctx.lineTo(10, -6); ctx.lineTo(17, 11); ctx.lineTo(4, 7); ctx.lineTo(0, 20); ctx.lineTo(-4, 7); ctx.lineTo(-17, 11); ctx.lineTo(-10, -6); ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#e7ef79'; ctx.beginPath(); ctx.arc(0, -8, 5, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = '#dff69a'; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(side * 7, 2); ctx.lineTo(side * 21, -3); ctx.lineTo(side * 16, 8); ctx.stroke();
   } else {
     ctx.beginPath(); ctx.moveTo(0, -18); ctx.lineTo(12, -6); ctx.lineTo(10, 16); ctx.lineTo(0, 10); ctx.lineTo(-10, 16); ctx.lineTo(-12, -6); ctx.closePath(); ctx.fill(); ctx.stroke();
     ctx.fillStyle = '#f0a64c'; ctx.fillRect(-5, -11, 10, 7);
@@ -219,7 +257,7 @@ function drawEffects() {
     const [x, y] = polar(effect.slot, combatRadius(effect.distance));
     const progress = 1 - effect.life / effect.duration;
     ctx.save(); ctx.translate(x, y); ctx.globalAlpha = Math.max(0, 1 - progress);
-    const color = effect.kind === 'guard' ? '#72e5ff' : effect.kind === 'bell' ? '#ff6547' : effect.kind === 'catch' ? '#ffe06f' : effect.kind === 'phase' ? '#dca0ff' : '#fff1ae';
+    const color = effect.kind === 'guard' ? '#72e5ff' : effect.kind === 'bell' ? '#ff6547' : effect.kind === 'catch' ? '#ffe06f' : effect.kind === 'phase' ? '#dca0ff' : effect.kind === 'sidestep' ? '#9af5a8' : '#fff1ae';
     ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = effect.kind === 'break' ? 4 : 3;
     const radius = 8 + progress * (effect.kind === 'catch' ? 38 : 27);
     ctx.beginPath(); ctx.arc(0, 0, radius, 0, Math.PI * 2); ctx.stroke();
@@ -321,10 +359,11 @@ function render() {
   }
   if (menu === 'game' && game.mode === 'guardianBrief') {
     const second = game.wave === 5;
+    const third = game.wave === 8;
     ctx.fillStyle = '#080d20e8'; ctx.fillRect(78, 148, 484, 210);
-    text(second ? 'ACT II GUARDIAN — VORTEX REGENT' : 'ACT I GUARDIAN — DAWN WARDEN', 320, 193, 21, second ? '#d9a2ff' : '#ffe29a', 'center');
+    text(third ? 'ACT III GUARDIAN — GALE SOVEREIGN' : second ? 'ACT II GUARDIAN — VORTEX REGENT' : 'ACT I GUARDIAN — DAWN WARDEN', 320, 193, 21, third ? '#dff69a' : second ? '#d9a2ff' : '#ffe29a', 'center');
     text('OUTBOUND OPENS EACH RETURN SEAL', 320, 238, 15, '#80eaff', 'center');
-    text(second ? 'THE CROWN ORBITS FASTER AFTER EACH BREAK' : 'IT CHANGES LINE AND PACE AFTER EACH BREAK', 320, 269, 14, '#ffcf55', 'center');
+    text(third ? 'THE WIND CROWN TURNS FASTER AFTER EACH BREAK' : second ? 'THE CROWN ORBITS FASTER AFTER EACH BREAK' : 'IT CHANGES LINE AND PACE AFTER EACH BREAK', 320, 269, 14, '#ffcf55', 'center');
     text('THREE SEALS • ONE BELL', 320, 300, 16, '#f2c8ba', 'center');
     text(`PRESS ${keyLabel(save.keys.cast)}`, 320, 338, 18, '#ffffff', 'center');
   }
