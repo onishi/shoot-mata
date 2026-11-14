@@ -30,3 +30,4 @@
 - `npm run audit:campaign`は状態や敵を直接変更せず、製品の移動、投擲、波開始、守護者開始だけを120Hzの決定的モデルへ入力する。習熟は0.12秒判断・説明1.2秒、初見代理は0.2秒判断・説明6秒・17判断ごとの読取り停止として分離する。
 - モデル監査は高速な規模下限と戦略偏りの回帰であり、実ブラウザ全編通しを代替しない。M3終了には新規開始、物理キー配送、実フレーム時間、console errorをChromeで測る。
 - 三陣HUDとMIRROR静止は`m3-three-formation-hud-1280x720.png`、`m3-mirror-anchor-1280x720.png`、`m3-depth-browser-audit.json`で代表目視する。
+- `npm run audit:browser-campaign`は新規Chromeプロファイルへ`C`、`N`、方向、投擲だけを送り、保存地点や状態注入を使わず全18波×三陣と6守護者、14〜20分、終演、console error 0を検査する。`m3-browser-campaign-audit.json`へ全遷移、`m3-browser-campaign-ending-1280x720.png`へ終演を残す。

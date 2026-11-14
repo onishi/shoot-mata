@@ -16,3 +16,4 @@
 | 2026-11-11T22:44:07+0900 | Codex | run-codex-loop.sh | 4 | M3第5幕へレバー逆歩MIRROR、第13〜15波、月鏡庭、3段階TIDE ORACLEを実装 | 単体42/42、構文、Chrome実キー逆歩・往復撃破・第5守護者到達、4画面目視、console error 0合格 | feat(ver13): reflect fifth watch counterstep |
 | 2026-11-14T12:10:08+0900 | Codex | run-codex-loop.sh | 1 | M3第6幕へ投擲反応CHORISTER、第16〜18波、星唱庭、3段階RING MATRIARCHと全幕終演を実装 | 単体45/45、構文、Chrome実キー予告先投擲・復路撃破・第18波再開、3画面目視、console error 0合格 | feat(ver13): crown final watch chorus |
 | 2026-11-14T13:16:46+0900 | Codex | run-codex-loop.sh | 2 | M3全編を三陣化し、MIRROR偶奇進行不能と高速守護者の投擲窓を修正、分離した製品時間代理を固定 | 習熟14.67分・初見代理18.29分完走、単体47/47、構文、Chrome代表画面2枚、console error 0合格 | feat(ver13): deepen campaign processions |
+| 2026-11-14T14:23:53+0900 | Codex | run-codex-loop.sh | 3 | 新規Chromeへ状態注入せず製品キーだけを送る全編監査を追加し、M3実時間規模ゲートを完了 | 実Chrome 14.19分・全18波×三陣・6守護者・BELL 1・console error 0、単体47/47、構文、終演目視合格 | test(ver13): prove full browser campaign |

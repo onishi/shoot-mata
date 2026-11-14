@@ -501,6 +501,32 @@ function render() {
   canvas.setAttribute('aria-label', menu === 'settings'
     ? `RINGWARD operator accessibility. ${selectedSetting.label}. ${settingValue}`
     : `RINGWARD ${game.mode}. ${game.demo ? 'Demonstration. ' : ''}Credit ${game.credits}. Score ${game.score}. Chain ${game.chain}. Bell ${game.bell}. ${game.message}`);
+  // Read-only state for black-box cabinet audits. This lets browser automation
+  // observe the same rendered session without importing the model, changing
+  // saves, or injecting game state.
+  canvas.dataset.gameState = JSON.stringify({
+    mode: game.mode,
+    playerSlot: game.playerSlot,
+    hammer: game.hammer && { slot: game.hammer.slot, phase: game.hammer.phase },
+    enemies: game.enemies.filter(enemy => enemy.alive).map(enemy => ({
+      kind: enemy.kind,
+      slot: enemy.slot,
+      distance: enemy.distance,
+      guardian: Boolean(enemy.guardian),
+      orbitWarning: Boolean(enemy.orbitWarning),
+      orbitDirection: enemy.orbitDirection ?? 0,
+      castDirection: enemy.castDirection ?? 0,
+      turnDirection: enemy.turnDirection ?? 0,
+      mirrorStep: enemy.mirrorStep ?? 0
+    })),
+    wave: game.wave,
+    waveFormation: game.waveFormation,
+    guardianAct: game.guardianAct,
+    bell: game.bell,
+    score: game.score,
+    chain: game.chain,
+    message: game.message
+  });
 }
 
 function persist() {

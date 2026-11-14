@@ -16,7 +16,7 @@
 | CORE-12 | CHORISTERの投擲反応移動、予告先投擲、第16波単独導入、第17波反応敵混成、第18波全8種最終試験、第6守護者 | M3 | `tests/model.test.js`、単体45/45、`m3-act6-audit.json`、`m3-final-audit.json`、3画面 | 合格 |
 | SAVE-01 | 版付き設定・到達波保存と安全な復旧 | M2 | `tests/storage.test.js`、Chrome第3波保存値2・再読込・ゲームオーバー後復帰監査 | 合格 |
 | SCALE-01 | 6幕18波6守護者 | M3 | `tests/model.test.js`、単体45/45、第18波Chrome保存再開、全幕実時間通しはSCALE-02で実施 | 合格 |
-| SCALE-02 | 初見18〜28分／習熟14〜20分 | M3 | `npm run audit:campaign`、`m3-campaign-proxy-audit.json`で習熟14.67分・初見代理18.29分完走；状態注入なし実ブラウザ全編通しは未実施 | 部分合格 |
+| SCALE-02 | 初見18〜28分／習熟14〜20分 | M3 | `npm run audit:campaign`で習熟14.67分・初見代理18.29分、`npm run audit:browser-campaign`と`m3-browser-campaign-audit.json`で新規Chromeの全18波×三陣・6守護者を14.19分・BELL 1・console error 0で完走 | 合格 |
 | ARCADE-01 | 4:3、レバー＋1ボタン、遠目の状態 | M1 | 640×480／1280×720画面 | 合格 |
 | ART-01 | 第1幕代表区間の背景、鐘、守り手、敵、響槌、即時演出が完成表現 | M2 | 単体24/24、`m2-art-audit.json`、`m2-art-action-1280x720.png`、`m2-art-catch-640x480.png` | 合格 |
 | ARCADE-02 | アトラクトからランキング復帰 | M4 | 単体23/23、Chromeのアトラクト→自動実演→コイン割込み→START、`m2-cabinet-audit.json`、3画面；コンティニュー・成績・ランキング復帰は未実装 | 部分合格 |
