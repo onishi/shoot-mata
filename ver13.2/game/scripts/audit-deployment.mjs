@@ -68,7 +68,14 @@ try {
 
   await send('Runtime.enable');
   await send('Page.enable');
-  assert.equal(await evaluate('document.title'), 'RINGWARD v13.2');
+  let title = '';
+  const titleDeadline = Date.now() + 10000;
+  while (Date.now() < titleDeadline) {
+    title = await evaluate('document.title') ?? '';
+    if (title === 'RINGWARD v13.2') break;
+    await sleep(100);
+  }
+  assert.equal(title, 'RINGWARD v13.2');
   const attract = await waitForMode('attract', 8000);
   await press('KeyC', 'c', 67);
   const start = await waitForMode('startWait');
