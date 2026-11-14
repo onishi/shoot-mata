@@ -1,0 +1,14 @@
+{
+  "name": "tidebreak-95",
+  "version": "14.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "serve": "python3 -m http.server 4314 --bind 127.0.0.1",
+    "test": "node --test",
+    "audit:browser": "node scripts/audit-browser.mjs",
+    "audit:small": "node scripts/audit-browser.mjs --small-only",
+    "check": "node --check src/model.js && node --check src/audio.js && node --check src/main.js && node --check scripts/audit-browser.mjs",
+    "verify": "npm run test && npm run check"
+  }
+}
