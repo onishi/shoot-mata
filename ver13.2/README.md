@@ -13,4 +13,4 @@ npm run serve
 
 ## 現在地
 
-v13.1をbaselineとしてM5第二批評を完了した。危険線内の撃破を2倍得点にし、CHAIN 4/8へECHO DRIVE節目を追加して、安全完走と危険な高得点狙いを分けた。最終守護者は第2封印で逆歩、第3封印で投擲反応を再構成し、終演とランキングへC〜S成績を保存する。クリーン配布物6ファイル82,998 bytesのSHA-256を固定し、commit `47720dc`を[GitHub Pages](https://onishi.github.io/shoot-mata/)へ公開した。CIと開発環境から14経路、12 hash応答、旧版保持、アトラクト→コイン→開始を監査済みのPublished Productである。次は独立実行でM6比較・振り返りを行う。
+v13.1をbaselineとしてM5第二批評を完了した。危険線内の撃破を2倍得点にし、CHAIN 4/8へECHO DRIVE節目を追加して、安全完走と危険な高得点狙いを分けた。最終守護者は第2封印で逆歩、第3封印で投擲反応を再構成し、終演とランキングへC〜S成績を保存する。クリーン配布物6ファイル82,998 bytesのSHA-256を固定し、commit `47720dc`を[GitHub Pages](https://onishi.github.io/shoot-mata/)へ公開した。CIと開発環境から14経路、12 hash応答、旧版保持、アトラクト→コイン→開始を監査済みのPublished Productである。M6比較では総合基準v4.2を維持し、アーケード筐体性・公開追跡の部門基準をv13.2へ更新した。v13はMajor Closedである。

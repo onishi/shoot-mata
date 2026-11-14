@@ -26,3 +26,4 @@
 | CRITIQUE-01 | 第一批評で初回理解、危険視認、失敗復帰、波規則表示を改善し、規模と筐体フローを非退行にする | M5 | `06-v13.1-critique.md`、`tests/model.test.js`、版assert付き`npm run audit:quality`で15.55分・全18波三陣・6守護者・60fps・console error 0、24画面 | 合格 |
 | CRITIQUE-02 | 第二批評で得点選択、CHAIN節目、最終試験、成績ランクを改善し、規模と筐体フローを非退行にする | M5 | `07-v13.2-critique.md`、57/57、決定的14.66分／18.28分、版assert付きChrome 15.81分・RANK B・60fps・console error 0、24画面 | 合格 |
 | RELEASE-01 | clean build、hash、公開URL、旧版保持 | M5 | `m5-release-manifest.json`でクリーン6ファイル82,998 bytesのSHA-256を固定。commit `47720dc`、Pages run `43602357448`。CIと開発環境からトップ、v13.2、v13.1、v13.0、v12.2以下の14経路、12 hash応答、JS/CSS MIMEを検査。`m5-production-runtime-audit.json`で本番アトラクト→START→第1波、BELL 3、console error 0を確認。rollbackはPages workflow履歴の直前正常deployment再実行 | 合格 |
+| RETRO-01 | 総合基準・部門基準との同一軸比較、基準判断、制作ループ改善 | M6 | `05-major-retrospective.md`、v4.2・v12.2・v13.2の代表6画面比較、`npm run verify` 57/57、ルート`README.md`の基準・工程更新 | 合格 |
