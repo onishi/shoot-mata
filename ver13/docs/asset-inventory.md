@@ -20,4 +20,5 @@
 | 8拍代表BGM・主要効果音・状態ジングル | Web Audioで新規合成 | 本リポジトリ内自作 | 代表完成 | 第1〜3波、`m2-audio-audit.json` |
 | 守護者開始・段階変化・封印破壊・幕制覇音 | Web Audioで新規合成 | 本リポジトリ内自作 | 代表完成 | 第1・2幕守護者、`tests/audio.test.js` |
 | CHORISTER投擲反応音 | Web Audioで新規合成 | 本リポジトリ内自作 | 完成 | 第16〜18波、`tests/audio.test.js` |
+| コンティニュー・成績入力・ランキングジングル | Web Audioで新規合成 | 本リポジトリ内自作 | 完成 | `tests/audio.test.js`、`m4-cabinet-flow-audit.json` |
 | 幕別BGM変奏 | Web Audioで新規合成予定 | 本リポジトリ内自作 | 未着手 | M3〜M4 |

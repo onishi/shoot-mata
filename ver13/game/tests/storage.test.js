@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { DEFAULT_SAVE, loadSave, rebind, SAVE_KEY, sanitizeSave, storeSave } from '../src/storage.js';
+import { addRanking, DEFAULT_SAVE, loadSave, rebind, SAVE_KEY, sanitizeSave, storeSave } from '../src/storage.js';
 
 function memoryStorage(initial = {}) {
   const values = new Map(Object.entries(initial));
@@ -77,4 +77,14 @@ test('unavailable storage never interrupts play', () => {
   const blocked = { getItem() { throw new Error('blocked'); }, setItem() { throw new Error('blocked'); } };
   assert.deepEqual(loadSave(blocked), sanitizeSave(DEFAULT_SAVE));
   assert.equal(storeSave(DEFAULT_SAVE, blocked), false);
+});
+
+test('rankings retain the five highest sanitized cabinet results', () => {
+  const save = sanitizeSave(DEFAULT_SAVE);
+  for (const [initials, score] of [['AAA', 100], ['BBB', 600], ['CCC', 300], ['DDD', 500], ['EEE', 200], ['FFF', 400]]) {
+    addRanking(save, { initials, score, wave: 18, cleared: score >= 500, continues: 0 });
+  }
+  assert.deepEqual(save.rankings.map(entry => entry.initials), ['BBB', 'DDD', 'FFF', 'CCC', 'EEE']);
+  const repaired = sanitizeSave({ rankings: [{ initials: '<script>', score: 999999 }, { initials: 'OKA', score: -5, wave: 99 }] });
+  assert.deepEqual(repaired.rankings, [{ initials: 'OKA', score: 0, wave: 18, cleared: false, continues: 0 }]);
 });

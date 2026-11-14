@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { castHammer, createGame, drainAudioEvents, driveDemo, insertCoin, movePlayer, returnToAttract, startCredit, startDemo, startGame, startGuardian, startNextWave, step, WAVE_FORMATION_COUNT } from '../src/model.js';
+import { beginInitialEntry, castHammer, confirmInitial, continueCredit, createGame, drainAudioEvents, driveDemo, insertCoin, moveInitial, movePlayer, returnToAttract, startCredit, startDemo, startGame, startGuardian, startNextWave, step, WAVE_FORMATION_COUNT } from '../src/model.js';
 
 function advance(game, seconds, dt = 1 / 120) {
   for (let elapsed = 0; elapsed < seconds && game.mode === 'playing'; elapsed += dt) step(game, dt);
@@ -487,12 +487,56 @@ test('leaving the return slot loses the chain and starts cooldown', () => {
   assert.match(game.message, /MISSED/);
 });
 
-test('three breaches end the game', () => {
+test('three breaches open a ten-second continue offer', () => {
   const game = startGame(createGame());
   game.enemies = [0, 1, 2].map(id => ({ id, slot: id, distance: 0.201, speed: 1, hp: 2, alive: true, flash: 0 }));
   step(game, 1 / 60);
   assert.equal(game.bell, 0);
-  assert.equal(game.mode, 'gameOver');
+  assert.equal(game.mode, 'continue');
+  assert.equal(game.continueTime, 10);
+});
+
+test('continue consumes a credit and restores the failed wave checkpoint', () => {
+  const game = startGame(createGame(), 7);
+  game.score = 42000;
+  game.waveStartScore = 36000;
+  game.credits = 1;
+  game.bell = 0;
+  game.mode = 'continue';
+  assert.equal(continueCredit(game), true);
+  assert.equal(game.mode, 'playing');
+  assert.equal(game.wave, 7);
+  assert.equal(game.waveFormation, 0);
+  assert.equal(game.score, 36000);
+  assert.equal(game.bell, 3);
+  assert.equal(game.credits, 0);
+  assert.equal(game.continues, 1);
+});
+
+test('continue countdown leads to lever initials and a ranked result', () => {
+  const game = startGame(createGame(), 4);
+  game.score = 12345;
+  game.bell = 0;
+  game.mode = 'continue';
+  game.continueTime = 0.01;
+  step(game, 0.02);
+  assert.equal(game.mode, 'nameEntry');
+  moveInitial(game, -1);
+  assert.equal(game.initials[0], 'Z');
+  assert.equal(confirmInitial(game), false);
+  moveInitial(game, 1);
+  assert.equal(confirmInitial(game), false);
+  assert.equal(confirmInitial(game), true);
+  assert.equal(game.mode, 'ranking');
+  assert.deepEqual(game.result, { initials: 'ZBA', score: 12345, wave: 5, cleared: false, continues: 0 });
+});
+
+test('victory can enter initials without a continue countdown', () => {
+  const game = startGame(createGame(), 17);
+  game.mode = 'waveClear';
+  game.score = 99999;
+  assert.equal(beginInitialEntry(game), true);
+  assert.equal(game.mode, 'nameEntry');
 });
 
 test('play events expose the required audio feedback without render coupling', () => {

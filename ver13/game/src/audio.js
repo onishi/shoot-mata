@@ -21,7 +21,11 @@ const CUE_SPECS = Object.freeze({
   guardianBreak: [[131, 0.1, 'sawtooth'], [262, 0.1, 'square'], [523, 0.12, 'square'], [1047, 0.24, 'sine']],
   guardianClear: [[262, 0.09, 'square'], [392, 0.09, 'square'], [523, 0.09, 'square'], [784, 0.12, 'square'], [1047, 0.28, 'sine']],
   victory: [[392, 0.1, 'square'], [523, 0.1, 'square'], [659, 0.1, 'square'], [1047, 0.28, 'sine']],
-  gameOver: [[220, 0.16, 'square'], [165, 0.2, 'square'], [110, 0.35, 'sawtooth']]
+  gameOver: [[220, 0.16, 'square'], [165, 0.2, 'square'], [110, 0.35, 'sawtooth']],
+  continue: [[196, 0.08, 'square'], [392, 0.08, 'square'], [784, 0.18, 'square']],
+  nameEntry: [[330, 0.08, 'square'], [440, 0.08, 'square'], [660, 0.14, 'sine']],
+  initial: [[523, 0.05, 'square'], [659, 0.08, 'square']],
+  ranking: [[262, 0.08, 'square'], [392, 0.08, 'square'], [523, 0.08, 'square'], [784, 0.2, 'sine']]
 });
 
 export const AUDIO_CUES = Object.freeze(Object.keys(CUE_SPECS));

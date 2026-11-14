@@ -202,7 +202,10 @@ export function createGame() {
     mode: 'attract', playerSlot: 0, hammer: null, cooldown: 0,
     enemies: [], bell: 3, score: 0, chain: 0, wave: 0, waveFormation: 0,
     message: 'INSERT COIN', tick: 0, audioEvents: [], credits: 0,
-    demo: false, demoTime: 0, effects: [], guardianAct: null
+    demo: false, demoTime: 0, effects: [], guardianAct: null,
+    waveStartScore: 0, continues: 0, continueTime: 0,
+    initials: ['A', 'A', 'A'], initialIndex: 0, rankings: [], result: null,
+    rankingTime: 0
   };
 }
 
@@ -215,6 +218,7 @@ export function startGame(game, waveIndex = 0) {
   loadWave(game, safeWave);
   game.bell = 3;
   game.score = 0;
+  game.waveStartScore = 0;
   game.chain = 0;
   game.message = safeWave === 0 ? 'CAST — MOVE — CATCH' : `WAVE ${safeWave + 1} — HOLD THE BELL`;
   game.tick = 0;
@@ -228,6 +232,12 @@ export function startGame(game, waveIndex = 0) {
 
 export function insertCoin(game) {
   const credits = Math.min(9, game.credits + 1);
+  if (game.mode === 'continue') {
+    game.credits = credits;
+    game.message = 'CREDIT READY — PRESS ENTER TO CONTINUE';
+    emit(game, 'coin');
+    return true;
+  }
   if (game.mode !== 'playing' || game.demo) {
     Object.assign(game, createGame());
     game.mode = 'startWait';
@@ -245,6 +255,59 @@ export function startCredit(game, waveIndex = 0) {
   return true;
 }
 
+export function continueCredit(game) {
+  if (game.mode !== 'continue' || game.credits <= 0) return false;
+  const credits = game.credits - 1;
+  const wave = game.wave;
+  const score = game.waveStartScore;
+  const continues = game.continues + 1;
+  startGame(game, wave);
+  game.credits = credits;
+  game.score = score;
+  game.waveStartScore = score;
+  game.continues = continues;
+  game.message = `CONTINUE ${continues} — WAVE ${wave + 1}`;
+  emit(game, 'continue');
+  return true;
+}
+
+export function beginInitialEntry(game) {
+  if (!['continue', 'waveClear'].includes(game.mode)) return false;
+  game.mode = 'nameEntry';
+  game.continueTime = 0;
+  game.initials = ['A', 'A', 'A'];
+  game.initialIndex = 0;
+  game.message = 'ENTER YOUR MARK';
+  emit(game, 'nameEntry');
+  return true;
+}
+
+export function moveInitial(game, direction) {
+  if (game.mode !== 'nameEntry' || !Number.isFinite(direction)) return false;
+  const current = game.initials[game.initialIndex].charCodeAt(0) - 65;
+  game.initials[game.initialIndex] = String.fromCharCode(65 + (current + Math.sign(direction) + 26) % 26);
+  return true;
+}
+
+export function confirmInitial(game) {
+  if (game.mode !== 'nameEntry') return false;
+  if (game.initialIndex < 2) {
+    game.initialIndex += 1;
+    emit(game, 'initial');
+    return false;
+  }
+  game.result = {
+    initials: game.initials.join(''), score: game.score, wave: game.wave + 1,
+    cleared: game.bell > 0 && game.wave === WAVES.length - 1,
+    continues: game.continues
+  };
+  game.mode = 'ranking';
+  game.rankingTime = 12;
+  game.message = 'HALL OF ECHOES';
+  emit(game, 'ranking');
+  return true;
+}
+
 export function startDemo(game) {
   if (game.mode !== 'attract' || game.credits > 0) return false;
   startGame(game, 0);
@@ -255,8 +318,10 @@ export function startDemo(game) {
 
 export function returnToAttract(game) {
   const credits = game.credits;
+  const rankings = game.rankings;
   Object.assign(game, createGame());
   game.credits = credits;
+  game.rankings = rankings;
   if (credits > 0) {
     game.mode = 'startWait';
     game.message = 'PUSH START';
@@ -282,6 +347,7 @@ export function startNextWave(game) {
   game.mode = 'playing';
   game.hammer = null;
   game.cooldown = 0;
+  game.waveStartScore = game.score;
   if (game.wave === 1) game.message = 'BULWARK — RETURN BREAKS GUARD';
   else if (game.wave === 2) game.message = 'RUSHER — STRIKE BEFORE THE WARNING CLOSES';
   else if (game.wave === 3) game.message = 'ORBITER — READ THE SIDE FLASH';
@@ -433,6 +499,16 @@ function hitEnemies(game, from, to) {
 }
 
 export function step(game, dt = 1 / 60) {
+  if (game.mode === 'continue') {
+    game.continueTime = Math.max(0, game.continueTime - dt);
+    if (game.continueTime <= 0) beginInitialEntry(game);
+    return game;
+  }
+  if (game.mode === 'ranking') {
+    game.rankingTime = Math.max(0, game.rankingTime - dt);
+    if (game.rankingTime <= 0) returnToAttract(game);
+    return game;
+  }
   if (game.mode !== 'playing') return game;
   game.tick += 1;
   game.cooldown = Math.max(0, game.cooldown - dt);
@@ -515,8 +591,9 @@ export function step(game, dt = 1 / 60) {
   }
 
   if (game.bell <= 0) {
-    game.mode = 'gameOver';
-    game.message = 'BELL FALLEN — PRESS R';
+    game.mode = 'continue';
+    game.continueTime = 10;
+    game.message = 'BELL FALLEN — CONTINUE?';
     emit(game, 'gameOver');
   } else if (game.enemies.length && game.enemies.every(enemy => !enemy.alive)) {
     game.hammer = null;

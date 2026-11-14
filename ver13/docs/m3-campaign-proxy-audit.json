@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "auditedAt": "2026-11-14T05:41:24.960Z",
+  "auditedAt": "2026-11-14T06:49:16.327Z",
   "scope": "Deterministic model-time proxy using only the production move, cast, wave-start, and guardian-start actions.",
   "limitation": "This is not the required real-browser full campaign audit; browser timing, rendering, audio, and physical key delivery remain to be measured.",
   "policies": [

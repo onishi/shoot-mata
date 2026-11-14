@@ -1,0 +1,19 @@
+{
+  "schema": 1,
+  "auditedAt": "2026-11-14T06:48:18.368Z",
+  "scope": "Fresh Chrome profile; product C/N/Enter/arrow/Space inputs only.",
+  "continueOfferSeconds": 9.98,
+  "resumedWave": 1,
+  "resumedBell": 3,
+  "ranking": [
+    {
+      "initials": "BBB",
+      "score": 0,
+      "wave": 1,
+      "cleared": false,
+      "continues": 1
+    }
+  ],
+  "returnedMode": "attract",
+  "consoleErrors": 0
+}

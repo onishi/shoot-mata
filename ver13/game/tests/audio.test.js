@@ -13,7 +13,7 @@ test('required play events have distinct synthesized cues', () => {
 test('music runs only during unpaused active play', () => {
   assert.equal(musicEnabledForState('playing', false), true);
   assert.equal(musicEnabledForState('playing', true), false);
-  for (const mode of ['title', 'waveBrief', 'guardianBrief', 'waveClear', 'gameOver', 'settings']) {
+  for (const mode of ['title', 'waveBrief', 'guardianBrief', 'waveClear', 'continue', 'nameEntry', 'ranking', 'settings']) {
     assert.equal(musicEnabledForState(mode, false), false);
   }
 });
