@@ -18,3 +18,4 @@
 | 2026-11-14T13:16:46+0900 | Codex | run-codex-loop.sh | 2 | M3全編を三陣化し、MIRROR偶奇進行不能と高速守護者の投擲窓を修正、分離した製品時間代理を固定 | 習熟14.67分・初見代理18.29分完走、単体47/47、構文、Chrome代表画面2枚、console error 0合格 | feat(ver13): deepen campaign processions |
 | 2026-11-14T14:23:53+0900 | Codex | run-codex-loop.sh | 3 | 新規Chromeへ状態注入せず製品キーだけを送る全編監査を追加し、M3実時間規模ゲートを完了 | 実Chrome 14.19分・全18波×三陣・6守護者・BELL 1・console error 0、単体47/47、構文、終演目視合格 | test(ver13): prove full browser campaign |
 | 2026-11-14T15:41:46+0900 | Codex | run-codex-loop.sh | 4 | M4の10秒コンティニュー、波得点復帰、3文字成績入力、保存上位5件、ランキングからアトラクト復帰を実装 | 単体51/51、構文、Chrome製品キー通し、2画面目視、console error 0合格 | feat(ver13): complete arcade result flow |
+| 2026-11-14T16:49:52+0900 | Codex | run-codex-loop.sh | 5 | M4の6幕BGM変奏と独立ポートのChrome実PCM監査を実装 | 単体52/52、構文、48kHz PCM全27音・6曲、最悪重畳peak 0.158099、停止状態無音、console error 0合格 | feat(ver13): vary and audit act soundtracks |

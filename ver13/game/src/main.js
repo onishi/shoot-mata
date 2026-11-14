@@ -649,7 +649,8 @@ function frame(now) {
     } else step(game, elapsed);
   }
   for (const cue of drainAudioEvents(game)) audio.play(cue);
-  audio.update(menu === 'game' ? game.mode : 'settings', paused);
+  const musicAct = game.guardian ? game.guardianAct : Math.floor(game.wave / 3);
+  audio.update(menu === 'game' ? game.mode : 'settings', paused, musicAct);
   if (previousMode === 'playing' && game.mode === 'waveBrief' && game.wave + 1 > save.highestWave) {
     save.highestWave = game.wave + 1; persist();
   }

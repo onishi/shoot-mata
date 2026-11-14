@@ -35,6 +35,17 @@ export const AUDIO_CUE_SIGNATURES = Object.freeze(Object.fromEntries(
 export const musicEnabledForState = (mode, paused = false) => mode === 'playing' && !paused;
 export const volumeGain = volume => Math.pow(Math.max(0, Math.min(10, volume)) / 10, 1.6);
 
+export const MUSIC_VARIATIONS = Object.freeze([
+  { name: 'Dawn Procession', step: 0.19, bass: [98, 98, 131, 147, 98, 196, 165, 131], metal: [392, 494, 523, 659, 392, 784, 659, 494], accents: [1, 3, 5, 7] },
+  { name: 'Lantern Vortex', step: 0.17, bass: [110, 147, 110, 165, 123, 196, 147, 220], metal: [440, 587, 659, 587, 494, 740, 659, 880], accents: [0, 3, 4, 7] },
+  { name: 'Gale Banner', step: 0.16, bass: [131, 165, 196, 165, 147, 220, 196, 262], metal: [523, 659, 784, 659, 587, 880, 784, 1047], accents: [0, 2, 5, 6] },
+  { name: 'Prism Forge', step: 0.21, bass: [82, 123, 165, 123, 92, 147, 185, 147], metal: [659, 494, 831, 554, 740, 587, 988, 659], accents: [1, 2, 5, 6] },
+  { name: 'Moon Mirror', step: 0.23, bass: [110, 165, 220, 165, 110, 147, 196, 147], metal: [880, 659, 523, 659, 988, 740, 587, 740], accents: [0, 2, 4, 6] },
+  { name: 'Star Chorus', step: 0.15, bass: [131, 196, 165, 247, 147, 220, 196, 294], metal: [523, 784, 659, 988, 587, 880, 784, 1175], accents: [0, 1, 3, 4, 6, 7] }
+]);
+
+export const musicVariationForAct = act => MUSIC_VARIATIONS[Math.max(0, Math.min(5, Number.isInteger(act) ? act : 0))];
+
 export class RingwardAudio {
   constructor(contextFactory = () => new (globalThis.AudioContext || globalThis.webkitAudioContext)()) {
     this.contextFactory = contextFactory;
@@ -44,6 +55,7 @@ export class RingwardAudio {
     this.musicActive = false;
     this.nextBeat = 0;
     this.beat = 0;
+    this.musicAct = 0;
   }
 
   unlock() {
@@ -99,27 +111,40 @@ export class RingwardAudio {
     return true;
   }
 
-  update(mode, paused = false) {
+  scheduleMusicBeat(act, beat, offset = 0) {
+    const variation = musicVariationForAct(act);
+    const index = beat % variation.bass.length;
+    this.tone(variation.bass[index], 0.17, 'square', offset, 0.035);
+    if (variation.accents.includes(index)) this.tone(variation.metal[index], 0.055, 'sine', offset, 0.025);
+    return variation.step;
+  }
+
+  scheduleMusicSample(act, beats = 16, offset = 0) {
+    let cursor = offset;
+    for (let beat = 0; beat < beats; beat += 1) {
+      cursor += this.scheduleMusicBeat(act, beat, cursor);
+    }
+    return cursor + 0.2;
+  }
+
+  update(mode, paused = false, act = 0) {
     const active = musicEnabledForState(mode, paused);
     if (!this.context || this.volume === 0) {
       this.musicActive = active;
       if (this.context) this.nextBeat = this.context.currentTime;
       return;
     }
-    if (active !== this.musicActive) {
+    const nextAct = Math.max(0, Math.min(5, Number.isInteger(act) ? act : 0));
+    if (active !== this.musicActive || nextAct !== this.musicAct) {
       this.musicActive = active;
+      this.musicAct = nextAct;
       this.nextBeat = this.context.currentTime;
       this.beat = 0;
     }
     if (!active) return;
-    const bass = [98, 98, 131, 147, 98, 196, 165, 131];
-    const metal = [392, 494, 523, 659, 392, 784, 659, 494];
     while (this.nextBeat < this.context.currentTime + 0.12) {
-      const index = this.beat % bass.length;
       const offset = Math.max(0, this.nextBeat - this.context.currentTime);
-      this.tone(bass[index], 0.17, 'square', offset, 0.035);
-      if (index % 2 === 1) this.tone(metal[index], 0.055, 'sine', offset, 0.025);
-      this.nextBeat += 0.19;
+      this.nextBeat += this.scheduleMusicBeat(this.musicAct, this.beat, offset);
       this.beat += 1;
     }
   }

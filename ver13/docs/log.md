@@ -1,5 +1,13 @@
 # Development log
 
+## 2026-11-14 — M4幕別BGM変奏・実PCM監査
+
+- 実行元: Codex / `run-codex-loop.sh` / run 5 / 開始 `2026-11-14T16:49:52+0900`。
+- 6幕へDawn Procession、Lantern Vortex、Gale Banner、Prism Forge、Moon Mirror、Star Chorusを割り当て、低音域、金属音域、拍間隔、アクセント位置を変えた。通常波と守護者の現在幕へ追従し、幕移行時は拍頭から変奏を切り替える。
+- Chromeの`OfflineAudioContext`へ48kHz実PCMを出力する`npm run audit:audio`を追加した。全27効果音と全6曲は非無音・非有限値0・peak 0.98未満、BGMへ鐘被弾と復路破壊を重ねた最悪条件もpeak 0.158099でクリップしなかった。ポーズ、波間、コンティニュー、ランキング、設定、音量0は非無音サンプル0、console error 0だった。
+- 初回監査は制限環境のChrome起動待ちで失敗し、外部実行では監査合格後に一時profile削除競合が起きた。終了後の再試行を追加し、さらに既存4173番サーバーを誤利用しないよう空きポートを毎回予約する方式へ修正した後、終了コード0で再合格した。
+- `npm run verify`は単体52/52と全ソース構文、`git diff --check`にも合格した。実筐体相当スピーカーの主観聴感は未確認として残し、次は全画面、動き軽減、キー再配置、60fps、保存破損、勝利後成績導線の実Chrome横断監査を行う。
+
 ## 2026-11-14 — M4コンティニュー・成績・ランキング筐体フロー
 
 - 実行元: Codex / `run-codex-loop.sh` / run 4 / 開始 `2026-11-14T15:41:46+0900`。

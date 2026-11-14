@@ -17,8 +17,7 @@
 | 響槌・往復軌跡・命中・防御・破壊・回収・鐘被弾演出 | 新規Canvasベクター描画、決定的モデルイベント | 本リポジトリ内自作 | 代表完成 | `m2-art-audit.json` |
 | 第6幕星唱庭背景・CHORISTER・投擲反応音符 | 新規Canvasベクター描画、決定的モデル状態 | 本リポジトリ内自作 | 完成 | 第16〜18波、`m3-act6-chorister-1280x720.png`、`m3-act6-chorister-640x480.png` |
 | RING MATRIARCH大型造形・3封印・横移動予告 | 新規Canvasベクター描画、決定的モデル状態 | 本リポジトリ内自作 | 完成 | `tests/model.test.js`、`m3-final-watch-1280x720.png` |
-| 8拍代表BGM・主要効果音・状態ジングル | Web Audioで新規合成 | 本リポジトリ内自作 | 代表完成 | 第1〜3波、`m2-audio-audit.json` |
+| 8拍基調と6幕BGM変奏 | Web Audioで新規合成 | 本リポジトリ内自作 | 完成 | 全6幕、`m4-audio-pcm-audit.json` |
 | 守護者開始・段階変化・封印破壊・幕制覇音 | Web Audioで新規合成 | 本リポジトリ内自作 | 代表完成 | 第1・2幕守護者、`tests/audio.test.js` |
 | CHORISTER投擲反応音 | Web Audioで新規合成 | 本リポジトリ内自作 | 完成 | 第16〜18波、`tests/audio.test.js` |
 | コンティニュー・成績入力・ランキングジングル | Web Audioで新規合成 | 本リポジトリ内自作 | 完成 | `tests/audio.test.js`、`m4-cabinet-flow-audit.json` |
-| 幕別BGM変奏 | Web Audioで新規合成予定 | 本リポジトリ内自作 | 未着手 | M3〜M4 |

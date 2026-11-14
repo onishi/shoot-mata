@@ -31,3 +31,9 @@
 - モデル監査は高速な規模下限と戦略偏りの回帰であり、実ブラウザ全編通しを代替しない。M3終了には新規開始、物理キー配送、実フレーム時間、console errorをChromeで測る。
 - 三陣HUDとMIRROR静止は`m3-three-formation-hud-1280x720.png`、`m3-mirror-anchor-1280x720.png`、`m3-depth-browser-audit.json`で代表目視する。
 - `npm run audit:browser-campaign`は新規Chromeプロファイルへ`C`、`N`、方向、投擲だけを送り、保存地点や状態注入を使わず全18波×三陣と6守護者、14〜20分、終演、console error 0を検査する。`m3-browser-campaign-audit.json`へ全遷移、`m3-browser-campaign-ending-1280x720.png`へ終演を残す。
+
+## M4音響監査
+
+- `npm run audit:audio`は監査専用の空きポートと新規Chromeプロファイルを使い、`OfflineAudioContext`で全27効果音、6幕曲、BGMと大音量効果音の重畳を48kHz PCMへレンダリングする。
+- 各出力は絶対値0.00001超のサンプルを持つこと、非有限サンプル0、peak 0.98未満を必須とする。6幕曲はPCMのゼロ交差数も異なることを検査する。
+- ポーズ、波間、コンティニュー、ランキング、設定、音量0は非無音サンプル0を必須とし、結果を`m4-audio-pcm-audit.json`へ残す。
