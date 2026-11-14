@@ -1,0 +1,28 @@
+{
+  "browser": "Chrome/157.0.8103.52",
+  "started": "RINGWARD playing. Credit 0. Score 0. Chain 0. Bell 3. WAVE 16 — HOLD THE BELL",
+  "answered": "RINGWARD playing. Credit 0. Score 100. Chain 0. Bell 3. OUTBOUND HIT",
+  "firstBreak": "RINGWARD playing. Credit 0. Score 1350. Chain 1. Bell 3. PERFECT CATCH ×1",
+  "metrics": {
+    "innerWidth": 640,
+    "innerHeight": 480,
+    "scrollWidth": 640,
+    "scrollHeight": 509,
+    "canvas": {
+      "x": 0,
+      "y": 0,
+      "width": 640,
+      "height": 480,
+      "top": 0,
+      "right": 640,
+      "bottom": 480,
+      "left": 0
+    }
+  },
+  "consoleErrors": 0,
+  "productInputOnly": true,
+  "viewportChecks": [
+    "1280x720",
+    "640x480"
+  ]
+}

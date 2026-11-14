@@ -1,0 +1,15 @@
+{
+  "auditedAt": "2026-11-11T11:57:00Z",
+  "browser": "Installed Google Chrome, headless fallback because shared browser host was unavailable",
+  "guardianBrief": "RINGWARD guardianBrief. Credit 0. Score 5625. Chain 2. Bell 3. GUARDIAN — DAWN WARDEN",
+  "phaseTwo": "RINGWARD playing. Credit 0. Score 8725. Chain 3. Bell 3. PERFECT CATCH ×3",
+  "phaseThree": "RINGWARD playing. Credit 0. Score 13125. Chain 4. Bell 3. PERFECT CATCH ×4",
+  "guardianClear": "RINGWARD waveBrief. Credit 0. Score 26175. Chain 4. Bell 3. FIRST WATCH CROWNED — PRESS SPACE",
+  "highestWave": 3,
+  "viewports": [
+    "1280x720",
+    "640x480"
+  ],
+  "observedDecision": "An early cast during the phase-three side warning missed; waiting for the telegraphed lane change and realigning cleared the seal.",
+  "consoleErrors": []
+}

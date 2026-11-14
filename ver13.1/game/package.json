@@ -1,0 +1,17 @@
+{
+  "name": "ringward",
+  "version": "13.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "serve": "python3 -m http.server 4173 --bind 127.0.0.1",
+    "test": "node --test",
+    "check": "node --check src/model.js && node --check src/storage.js && node --check src/audio.js && node --check src/main.js && node --check scripts/audit-campaign.mjs && node --check scripts/audit-browser-campaign.mjs && node --check scripts/audit-cabinet-flow.mjs && node --check scripts/audit-audio.mjs",
+    "audit:campaign": "node scripts/audit-campaign.mjs --write",
+    "audit:browser-campaign": "node scripts/audit-browser-campaign.mjs",
+    "audit:quality": "node scripts/audit-browser-campaign.mjs --quality",
+    "audit:cabinet": "node scripts/audit-cabinet-flow.mjs",
+    "audit:audio": "node scripts/audit-audio.mjs",
+    "verify": "npm run test && npm run check"
+  }
+}
