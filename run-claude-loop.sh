@@ -4,7 +4,7 @@ set -eu
 
 usage() {
   echo "Usage: $0 [run-count] [wait-minutes]"
-  echo "Defaults: run-count=12, wait-minutes=30"
+  echo "Defaults: run-count=12, wait-minutes=60"
   echo "Runs autonomous game-development turns from the repository README."
 }
 
@@ -16,7 +16,7 @@ case "${1:-}" in
 esac
 
 run_limit=${1:-12}
-wait_minutes=${2:-30}
+wait_minutes=${2:-60}
 
 case "$run_limit" in
   ''|*[!0-9]*)
