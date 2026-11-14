@@ -91,6 +91,28 @@ export const WAVES = [
     { kind: 'orbiter', slot: 10, distance: 1.37, speed: 0.039, hp: 2, orbitEvery: 0.74, orbitDirection: -1 },
     { kind: 'dancer', slot: 12, distance: 1.45, speed: 0.035, hp: 2, sidestepDirection: 1 },
     { kind: 'refractor', slot: 14, distance: 1.51, speed: 0.032, hp: 2, turnDirection: -1 }
+  ],
+  [
+    { kind: 'chorister', slot: 2, distance: 1.04, speed: 0.029, hp: 2, castDirection: 1 },
+    { kind: 'chorister', slot: 7, distance: 1.2, speed: 0.027, hp: 2, castDirection: -1 },
+    { kind: 'chorister', slot: 12, distance: 1.36, speed: 0.025, hp: 2, castDirection: 1 }
+  ],
+  [
+    { kind: 'chorister', slot: 1, distance: 1.02, speed: 0.03, hp: 2, castDirection: 1 },
+    { kind: 'mirror', slot: 4, distance: 1.13, speed: 0.03, hp: 2 },
+    { kind: 'chorister', slot: 7, distance: 1.25, speed: 0.028, hp: 2, castDirection: -1 },
+    { kind: 'dancer', slot: 10, distance: 1.37, speed: 0.035, hp: 2, sidestepDirection: 1 },
+    { kind: 'refractor', slot: 14, distance: 1.48, speed: 0.032, hp: 2, turnDirection: -1 }
+  ],
+  [
+    { kind: 'chorister', slot: 0, distance: 1.01, speed: 0.031, hp: 2, castDirection: 1 },
+    { kind: 'rusher', slot: 2, distance: 1.07, speed: 0.098, hp: 1 },
+    { kind: 'bulwark', slot: 4, distance: 1.16, speed: 0.043, hp: 2, armor: 1 },
+    { kind: 'mirror', slot: 6, distance: 1.25, speed: 0.031, hp: 2 },
+    { kind: 'orbiter', slot: 8, distance: 1.34, speed: 0.04, hp: 2, orbitEvery: 0.72, orbitDirection: 1 },
+    { kind: 'dancer', slot: 10, distance: 1.42, speed: 0.036, hp: 2, sidestepDirection: -1 },
+    { kind: 'refractor', slot: 12, distance: 1.49, speed: 0.033, hp: 2, turnDirection: 1 },
+    { kind: 'marcher', slot: 14, distance: 1.55, speed: 0.054, hp: 2 }
   ]
 ];
 
@@ -119,6 +141,11 @@ export const GUARDIANS = [
     kind: 'tideOracle', name: 'TIDE ORACLE', slot: 4, distance: 1.23,
     speed: 0.023, hp: 6, armor: 1, phases: 3, phaseHp: 2,
     phaseSlots: [4, 11, 1], phaseOrbit: [1.28, 1.04, 0.88], phaseSpeed: [0.023, 0.034, 0.045]
+  },
+  {
+    kind: 'ringMatriarch', name: 'RING MATRIARCH', slot: 6, distance: 1.25,
+    speed: 0.024, hp: 6, armor: 1, phases: 3, phaseHp: 2,
+    phaseSlots: [6, 13, 3], phaseOrbit: [1.22, 0.98, 0.82], phaseSpeed: [0.024, 0.036, 0.048]
   }
 ];
 
@@ -250,6 +277,9 @@ export function startNextWave(game) {
   else if (game.wave === 12) game.message = 'MIRROR — YOUR STEP MOVES ITS COUNTERSTEP';
   else if (game.wave === 13) game.message = 'CROSSED REFLECTIONS — RUN, LEAD, RECOVER';
   else if (game.wave === 14) game.message = 'FIFTH WATCH — RULE THE WHOLE RING';
+  else if (game.wave === 15) game.message = 'CHORISTER — CAST AT THE ANSWERING MARK';
+  else if (game.wave === 16) game.message = 'ANSWERING LINES — STEP, LEAD, CAST';
+  else if (game.wave === 17) game.message = 'FINAL WATCH — COMMAND EVERY PROCESSION';
   else game.message = `WAVE ${game.wave + 1}`;
   emit(game, 'waveStart');
   return true;
@@ -267,7 +297,8 @@ export function startGuardian(game) {
     : act === 1 ? 'VORTEX REGENT — CHASE THE TURNING CROWN'
       : act === 2 ? 'GALE SOVEREIGN — SURVIVE THE SHIFTING CROWN'
         : act === 3 ? 'PRISM EMPEROR — BREAK THE BURNING CROWN'
-          : 'TIDE ORACLE — BREAK THE MIRRORED CROWN';
+          : act === 4 ? 'TIDE ORACLE — BREAK THE MIRRORED CROWN'
+            : 'RING MATRIARCH — BREAK THE FINAL CROWN';
   emit(game, 'guardianStart');
   return true;
 }
@@ -290,8 +321,17 @@ export function movePlayer(game, direction) {
 
 export function castHammer(game) {
   if (game.mode !== 'playing' || game.hammer || game.cooldown > 0) return false;
+  let answered = false;
+  for (const enemy of game.enemies) {
+    if (!enemy.alive || enemy.kind !== 'chorister') continue;
+    enemy.slot = (enemy.slot + enemy.castDirection + SLOT_COUNT) % SLOT_COUNT;
+    enemy.castDirection *= -1;
+    effect(game, 'chorus', enemy.slot, enemy.distance, 0.42);
+    answered = true;
+  }
   game.hammer = { slot: game.playerSlot, distance: 0.18, phase: 'out', previous: 0.18 };
-  game.message = 'OUTBOUND';
+  game.message = answered ? 'CHORUS ANSWERS — CAST LINE LOCKED' : 'OUTBOUND';
+  if (answered) emit(game, 'chorus');
   emit(game, 'cast');
   return true;
 }
@@ -456,10 +496,11 @@ export function step(game, dt = 1 / 60) {
         game.message = clearedAct === 0 ? 'FIRST WATCH CROWNED — PRESS SPACE'
           : clearedAct === 1 ? 'SECOND WATCH CROWNED — PRESS SPACE'
             : clearedAct === 2 ? 'THIRD WATCH CROWNED — PRESS SPACE'
-              : 'FOURTH WATCH CROWNED — PRESS SPACE';
+              : clearedAct === 3 ? 'FOURTH WATCH CROWNED — PRESS SPACE'
+                : 'FIFTH WATCH CROWNED — PRESS SPACE';
       } else {
         game.mode = 'waveClear';
-        game.message = 'FIFTH WATCH CROWNED — PRESS R';
+        game.message = 'ALL SIX WATCHES CROWNED — PRESS R';
       }
       emit(game, 'guardianClear');
     } else if (game.wave % 3 === 2) {
@@ -467,7 +508,8 @@ export function step(game, dt = 1 / 60) {
       game.message = game.wave === 2 ? 'GUARDIAN — DAWN WARDEN'
         : game.wave === 5 ? 'GUARDIAN — VORTEX REGENT'
           : game.wave === 8 ? 'GUARDIAN — GALE SOVEREIGN'
-            : game.wave === 11 ? 'GUARDIAN — PRISM EMPEROR' : 'GUARDIAN — TIDE ORACLE';
+            : game.wave === 11 ? 'GUARDIAN — PRISM EMPEROR'
+              : game.wave === 14 ? 'GUARDIAN — TIDE ORACLE' : 'GUARDIAN — RING MATRIARCH';
       emit(game, 'waveClear');
     } else if (game.wave + 1 < WAVES.length) {
       game.mode = 'waveBrief';
@@ -475,7 +517,7 @@ export function step(game, dt = 1 / 60) {
       emit(game, 'waveClear');
     } else {
       game.mode = 'waveClear';
-      game.message = game.wave >= 14 ? 'FIFTH WATCH HELD — PRESS R' : game.wave >= 11 ? 'FOURTH WATCH HELD — PRESS R' : game.wave >= 8 ? 'THIRD WATCH HELD — PRESS R' : game.wave >= 5 ? 'SECOND WATCH HELD — PRESS R' : 'DAWN HELD — PRESS R';
+      game.message = game.wave >= 17 ? 'ALL SIX WATCHES HELD — PRESS R' : game.wave >= 14 ? 'FIFTH WATCH HELD — PRESS R' : game.wave >= 11 ? 'FOURTH WATCH HELD — PRESS R' : game.wave >= 8 ? 'THIRD WATCH HELD — PRESS R' : game.wave >= 5 ? 'SECOND WATCH HELD — PRESS R' : 'DAWN HELD — PRESS R';
       emit(game, 'victory');
     }
   }

@@ -13,8 +13,9 @@
 | CORE-09 | DANCERの往路命中反応移動、追従回収、第7波単独導入、第8波混成、第9波4種山場、第3守護者 | M3 | `tests/model.test.js`、単体36/36、`m3-act3-audit.json`、`m3-act3-dancer-1280x720.png`、`m3-act3-dancer-640x480.png` | 合格 |
 | CORE-10 | REFRACTORの折返し反応移動、復路先読み、第10波単独導入、第11波混成、第12波5種山場、第4守護者 | M3 | `tests/model.test.js`、単体39/39、`m3-act4-audit.json`、`m3-act4-guardian-audit.json`、4画面 | 合格 |
 | CORE-11 | MIRRORのレバー逆歩、交差線攻略、第13波単独導入、第14波反応敵混成、第15波6種山場、第5守護者 | M3 | `tests/model.test.js`、単体42/42、`m3-act5-audit.json`、`m3-act5-guardian-audit.json`、4画面 | 合格 |
+| CORE-12 | CHORISTERの投擲反応移動、予告先投擲、第16波単独導入、第17波反応敵混成、第18波全8種最終試験、第6守護者 | M3 | `tests/model.test.js`、単体45/45、`m3-act6-audit.json`、`m3-final-audit.json`、3画面 | 合格 |
 | SAVE-01 | 版付き設定・到達波保存と安全な復旧 | M2 | `tests/storage.test.js`、Chrome第3波保存値2・再読込・ゲームオーバー後復帰監査 | 合格 |
-| SCALE-01 | 6幕18波6守護者 | M3 | 第5幕15波・5守護者まで実装、全幕通しは未実施 | 進行中 |
+| SCALE-01 | 6幕18波6守護者 | M3 | `tests/model.test.js`、単体45/45、第18波Chrome保存再開、全幕実時間通しはSCALE-02で実施 | 合格 |
 | SCALE-02 | 初見18〜28分／習熟14〜20分 | M3 | 分離した実ブラウザ監査 | 未着手 |
 | ARCADE-01 | 4:3、レバー＋1ボタン、遠目の状態 | M1 | 640×480／1280×720画面 | 合格 |
 | ART-01 | 第1幕代表区間の背景、鐘、守り手、敵、響槌、即時演出が完成表現 | M2 | 単体24/24、`m2-art-audit.json`、`m2-art-action-1280x720.png`、`m2-art-catch-640x480.png` | 合格 |

@@ -9,6 +9,7 @@ const CUE_SPECS = Object.freeze({
   sidestep: [[740, 0.04, 'square'], [554, 0.06, 'square'], [831, 0.08, 'sine']],
   refract: [[932, 0.04, 'sine'], [698, 0.05, 'square'], [1047, 0.09, 'sine']],
   mirror: [[392, 0.04, 'square'], [784, 0.05, 'sine'], [392, 0.07, 'square']],
+  chorus: [[349, 0.04, 'square'], [523, 0.05, 'square'], [698, 0.08, 'sine']],
   returnBreak: [[196, 0.06, 'square'], [392, 0.08, 'square'], [784, 0.14, 'sawtooth']],
   guard: [[105, 0.08, 'sawtooth'], [118, 0.12, 'square']],
   catch: [[523, 0.06, 'square'], [659, 0.06, 'square'], [988, 0.13, 'sine']],

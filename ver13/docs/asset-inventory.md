@@ -15,7 +15,9 @@
 | 第5幕月鏡庭背景・MIRROR・逆歩反応記号 | 新規Canvasベクター描画、決定的モデル状態 | 本リポジトリ内自作 | 完成 | 第13〜15波、`m3-act5-mirror-1280x720.png`、`m3-act5-mirror-640x480.png` |
 | TIDE ORACLE大型造形・3封印・横移動予告 | 新規Canvasベクター描画、決定的モデル状態 | 本リポジトリ内自作 | 完成 | `m3-act5-guardian-brief-1280x720.png`、`m3-act5-guardian-640x480.png` |
 | 響槌・往復軌跡・命中・防御・破壊・回収・鐘被弾演出 | 新規Canvasベクター描画、決定的モデルイベント | 本リポジトリ内自作 | 代表完成 | `m2-art-audit.json` |
-| 最終幕の背景・第6守護者大型造形・主要動作 | 新規制作予定 | 本リポジトリ内自作 | 未着手 | M3 |
+| 第6幕星唱庭背景・CHORISTER・投擲反応音符 | 新規Canvasベクター描画、決定的モデル状態 | 本リポジトリ内自作 | 完成 | 第16〜18波、`m3-act6-chorister-1280x720.png`、`m3-act6-chorister-640x480.png` |
+| RING MATRIARCH大型造形・3封印・横移動予告 | 新規Canvasベクター描画、決定的モデル状態 | 本リポジトリ内自作 | 完成 | `tests/model.test.js`、`m3-final-watch-1280x720.png` |
 | 8拍代表BGM・主要効果音・状態ジングル | Web Audioで新規合成 | 本リポジトリ内自作 | 代表完成 | 第1〜3波、`m2-audio-audit.json` |
 | 守護者開始・段階変化・封印破壊・幕制覇音 | Web Audioで新規合成 | 本リポジトリ内自作 | 代表完成 | 第1・2幕守護者、`tests/audio.test.js` |
+| CHORISTER投擲反応音 | Web Audioで新規合成 | 本リポジトリ内自作 | 完成 | 第16〜18波、`tests/audio.test.js` |
 | 幕別BGM変奏 | Web Audioで新規合成予定 | 本リポジトリ内自作 | 未着手 | M3〜M4 |

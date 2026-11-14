@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { AUDIO_CUES, AUDIO_CUE_SIGNATURES, musicEnabledForState, volumeGain } from '../src/audio.js';
 
 test('required play events have distinct synthesized cues', () => {
-  for (const cue of ['coin', 'cast', 'turn', 'outboundHit', 'returnBreak', 'catch', 'bellHit', 'guardianStart', 'guardianPhase', 'guardianBreak', 'guardianClear']) {
+  for (const cue of ['coin', 'cast', 'turn', 'chorus', 'outboundHit', 'returnBreak', 'catch', 'bellHit', 'guardianStart', 'guardianPhase', 'guardianBreak', 'guardianClear']) {
     assert.ok(AUDIO_CUES.includes(cue), `${cue} cue is registered`);
   }
   assert.equal(new Set(AUDIO_CUES).size, AUDIO_CUES.length);

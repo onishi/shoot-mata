@@ -15,7 +15,7 @@ test('missing and corrupt saves fall back to safe defaults', () => {
 test('save values are clamped and duplicate or reserved bindings are rejected', () => {
   const safe = sanitizeSave({ volume: 99, reducedMotion: true, highestWave: 50, keys: { left: 'KeyA', right: 'KeyA', cast: 'Enter' } });
   assert.equal(safe.volume, 10);
-  assert.equal(safe.highestWave, 14);
+  assert.equal(safe.highestWave, 17);
   assert.equal(safe.keys.left, 'KeyA');
   assert.equal(safe.keys.right, 'ArrowRight');
   assert.equal(safe.keys.cast, 'Space');
@@ -54,6 +54,13 @@ test('fifteenth-wave progress survives storage round trip', () => {
   const save = sanitizeSave({ ...DEFAULT_SAVE, highestWave: 14 });
   assert.equal(storeSave(save, storage), true);
   assert.equal(loadSave(storage).highestWave, 14);
+});
+
+test('eighteenth-wave progress survives storage round trip', () => {
+  const storage = memoryStorage();
+  const save = sanitizeSave({ ...DEFAULT_SAVE, highestWave: 17 });
+  assert.equal(storeSave(save, storage), true);
+  assert.equal(loadSave(storage).highestWave, 17);
 });
 
 test('rebinding swaps an occupied key and persists the sanitized save', () => {

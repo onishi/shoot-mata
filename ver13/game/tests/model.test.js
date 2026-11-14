@@ -172,6 +172,35 @@ test('waves fourteen and fifteen mix lever-reactive mirrors with all prior threa
   }
 });
 
+test('act six choristers answer each cast at their marked adjacent slot', () => {
+  const game = startGame(createGame(), 15);
+  assert.equal(game.enemies.every(enemy => enemy.kind === 'chorister'), true);
+  const chorister = game.enemies[0];
+  const originalSlot = chorister.slot;
+  const targetSlot = (originalSlot + chorister.castDirection + 16) % 16;
+  game.playerSlot = targetSlot;
+  assert.equal(castHammer(game), true);
+  assert.equal(chorister.slot, targetSlot);
+  assert.equal(chorister.castDirection, -1);
+  assert.match(game.message, /CHORUS ANSWERS/);
+  assert.ok(drainAudioEvents(game).includes('chorus'));
+  advance(game, 2.2);
+  assert.equal(chorister.alive, false);
+  assert.equal(game.chain, 1);
+});
+
+test('waves seventeen and eighteen combine cast-reactive choristers into the final trial', () => {
+  const answeringLines = startGame(createGame(), 16);
+  for (const kind of ['chorister', 'mirror', 'dancer', 'refractor']) {
+    assert.ok(answeringLines.enemies.some(enemy => enemy.kind === kind), `${kind} present`);
+  }
+
+  const finalWatch = startGame(createGame(), 17);
+  for (const kind of ['chorister', 'marcher', 'rusher', 'bulwark', 'mirror', 'orbiter', 'dancer', 'refractor']) {
+    assert.ok(finalWatch.enemies.some(enemy => enemy.kind === kind), `${kind} present`);
+  }
+});
+
 test('player wraps around the sixteen-position ring', () => {
   const game = startGame(createGame());
   movePlayer(game, -1);
@@ -291,7 +320,7 @@ test('act one guardian changes slot, pace, and armor across three return seals',
 });
 
 test('each guardian seal gives the opening hammer time to land its return', () => {
-  for (const [wave, expectedMode, ending] of [[2, 'waveBrief', /FIRST WATCH CROWNED/], [5, 'waveBrief', /SECOND WATCH CROWNED/], [8, 'waveBrief', /THIRD WATCH CROWNED/], [11, 'waveBrief', /FOURTH WATCH CROWNED/], [14, 'waveClear', /FIFTH WATCH CROWNED/]]) {
+  for (const [wave, expectedMode, ending] of [[2, 'waveBrief', /FIRST WATCH CROWNED/], [5, 'waveBrief', /SECOND WATCH CROWNED/], [8, 'waveBrief', /THIRD WATCH CROWNED/], [11, 'waveBrief', /FOURTH WATCH CROWNED/], [14, 'waveBrief', /FIFTH WATCH CROWNED/], [17, 'waveClear', /ALL SIX WATCHES CROWNED/]]) {
     const game = startGame(createGame(), wave);
     game.mode = 'guardianBrief';
     startGuardian(game);
@@ -379,8 +408,19 @@ test('breaking guardians opens each next act and crowns the fifth watch', () => 
   assert.equal(fifth.enemies[0].kind, 'tideOracle');
   fifth.enemies[0].alive = false;
   step(fifth);
-  assert.equal(fifth.mode, 'waveClear');
+  assert.equal(fifth.mode, 'waveBrief');
   assert.match(fifth.message, /FIFTH WATCH CROWNED/);
+  assert.equal(startNextWave(fifth), true);
+  assert.equal(fifth.wave, 15);
+
+  const sixth = startGame(createGame(), 17);
+  sixth.mode = 'guardianBrief';
+  startGuardian(sixth);
+  assert.equal(sixth.enemies[0].kind, 'ringMatriarch');
+  sixth.enemies[0].alive = false;
+  step(sixth);
+  assert.equal(sixth.mode, 'waveClear');
+  assert.match(sixth.message, /ALL SIX WATCHES CROWNED/);
 });
 
 test('leaving the return slot loses the chain and starts cooldown', () => {
