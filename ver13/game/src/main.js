@@ -546,6 +546,10 @@ function render() {
   // observe the same rendered session without importing the model, changing
   // saves, or injecting game state.
   canvas.dataset.gameState = JSON.stringify({
+    menu,
+    paused,
+    reducedMotion: save.reducedMotion,
+    keys: save.keys,
     mode: game.mode,
     playerSlot: game.playerSlot,
     hammer: game.hammer && { slot: game.hammer.slot, phase: game.hammer.phase },
@@ -567,6 +571,7 @@ function render() {
     score: game.score,
     chain: game.chain,
     credits: game.credits,
+    continues: game.continues,
     continueTime: game.continueTime,
     initials: game.initials,
     initialIndex: game.initialIndex,

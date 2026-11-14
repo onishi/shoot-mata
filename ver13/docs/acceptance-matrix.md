@@ -21,5 +21,6 @@
 | ART-01 | 第1幕代表区間の背景、鐘、守り手、敵、響槌、即時演出が完成表現 | M2 | 単体24/24、`m2-art-audit.json`、`m2-art-action-1280x720.png`、`m2-art-catch-640x480.png` | 合格 |
 | ARCADE-02 | アトラクトからランキング復帰 | M4 | 単体51/51、Chromeのアトラクト→自動実演→コイン→START、敗北→10秒コンティニュー→同波復帰、3文字入力→上位5件→アトラクト復帰、`m2-cabinet-audit.json`、`m4-cabinet-flow-audit.json`、`m4-continue-offer-1280x720.png`、`m4-ranking-1280x720.png` | 合格 |
 | AUDIO-01 | 6幕BGM変奏、即時効果音、状態ジングル、停止・音量 | M4 | `tests/audio.test.js`、`tests/model.test.js`、`npm run audit:audio`、`m4-audio-pcm-audit.json`で48kHz実PCM全27音・6曲・重畳・停止状態を監査 | 合格 |
-| ACCESS-01 | キー再配置、音量、動き軽減、非色依存 | M4 | 単体13/13、Chrome設定・`Z`投擲、`m2-settings-1280x720.png`・`m2-settings-640x480.png`；実音量と全画面監査はM4 | 部分合格 |
+| ACCESS-01 | キー再配置、音量、動き軽減、非色依存 | M4 | 単体52/52、`npm run audit:audio`、`npm run audit:quality`で動き軽減ON・`Z`投擲の全編完走、2 viewport全画面比較 | 合格 |
+| QUALITY-01 | 60fps、保存破損、全主要画面、勝利後成績導線 | M4 | `m4-quality-audit.json`で60.00fps・破損復旧・14.69分完走・勝利`BBB`首位・console error 0、12状態×2 viewportの24画面 | 合格 |
 | RELEASE-01 | clean build、hash、公開URL、旧版保持 | M5 | manifest・本番監査 | 未着手 |
