@@ -25,4 +25,4 @@
 | QUALITY-01 | 60fps、保存破損、全主要画面、勝利後成績導線 | M4 | `m4-quality-audit.json`で60.00fps・破損復旧・14.69分完走・勝利`BBB`首位・console error 0、12状態×2 viewportの24画面 | 合格 |
 | CRITIQUE-01 | 第一批評で初回理解、危険視認、失敗復帰、波規則表示を改善し、規模と筐体フローを非退行にする | M5 | `06-v13.1-critique.md`、`tests/model.test.js`、版assert付き`npm run audit:quality`で15.55分・全18波三陣・6守護者・60fps・console error 0、24画面 | 合格 |
 | CRITIQUE-02 | 第二批評で得点選択、CHAIN節目、最終試験、成績ランクを改善し、規模と筐体フローを非退行にする | M5 | `07-v13.2-critique.md`、57/57、決定的14.66分／18.28分、版assert付きChrome 15.81分・RANK B・60fps・console error 0、24画面 | 合格 |
-| RELEASE-01 | clean build、hash、公開URL、旧版保持 | M5 | manifest・本番監査 | 未着手 |
+| RELEASE-01 | clean build、hash、公開URL、旧版保持 | M5 | `m5-release-manifest.json`でクリーン6ファイル82,998 bytesのSHA-256を固定。ローカルPages候補でトップ、v13.2、v13.1、v13.0、v12.2以下の14経路と12 hash応答を検査し、`m5-production-runtime-audit.json`でアトラクト→START→第1波、BELL 3、console error 0を確認 | ローカルRelease Candidate合格・本番未確認 |

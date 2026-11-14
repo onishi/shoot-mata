@@ -1,5 +1,13 @@
 # Development log
 
+## 2026-11-14 — M5クリーン配布候補・Pages公開経路
+
+- 実行元: Codex / `run-codex-loop.sh` / run 9 / 開始 `2026-11-14T22:47:16+0900`。
+- v13.2の`index.html`と5ソースを空の`dist`へ複写するクリーンbuild、6ファイル82,998 bytesのSHA-256 manifest、トップと`/v13.2/`へ同一候補を置くPages packagingを追加した。`/v13.1/`、`/v13.0/`と既存v12.2以下の11経路を保持し、release metadataへcommitとmanifestを結ぶ。
+- ローカルPages候補は14経路、トップと`/v13.2/`の12 hash応答、JS/CSS MIME、外部runtime URLなし、v13.0/v13.1/v12.2保持に合格した。新規Chromeでアトラクト→コイン→START→第1波、BELL 3、console error 0を確認し、`m5-production-start-1280x720.png`を目視して版表示、HUD、初回コーチ、敵、鐘に切れ・重なり・判別不能がないことを確認した。
+- 初回packagingはローカルのv12.2 artifactが未組立で停止し、保存版artifactを再生成してから合格した。初回Chrome監査はdataset作成前の未定義状態を待てず停止したため、初期化待機を許容して再実行した。
+- `npm ci`、単体57/57、全ソース構文、クリーンbuild、artifact検査、`git diff --check`に合格した。本番URLは未確認のためPublished ProductではなくローカルRelease Candidateとし、次は公開commitをpushしてPagesと独立本番監査を行う。
+
 ## 2026-11-14 — v13.2第二批評・危険得点と最終試験
 
 - 実行元: Codex / `run-codex-loop.sh` / run 8 / 開始 `2026-11-14T21:24:38+0900`。

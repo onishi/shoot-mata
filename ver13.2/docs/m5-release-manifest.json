@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "product": "RINGWARD",
+  "version": "v13.2",
+  "buildCommand": "npm run build:clean",
+  "cleanBuild": true,
+  "fileCount": 6,
+  "totalBytes": 82998,
+  "files": [
+    {
+      "path": "index.html",
+      "bytes": 624,
+      "sha256": "0b2668449aec0521afe856c164cb45ccf480ab65f30a1e5bed720aee5caf907f"
+    },
+    {
+      "path": "src/audio.js",
+      "bytes": 7467,
+      "sha256": "e05409528b41f8c365bdb2ee4f56fae5506eff43cfd864c9b2d90bbf88204c3a"
+    },
+    {
+      "path": "src/main.js",
+      "bytes": 41303,
+      "sha256": "987322a4602013bbbf19f271ec258f1855a128fffc96bd9bcb50d1c36c481d7f"
+    },
+    {
+      "path": "src/model.js",
+      "bytes": 29759,
+      "sha256": "99d200daf127acda56f2918d886e919fa4ded883b0ab542977122d92c831038f"
+    },
+    {
+      "path": "src/storage.js",
+      "bytes": 3209,
+      "sha256": "f61d208e4c30affa8ee6c01f513dd41ad77d8a68c2b138d284e8b9fd8dcde025"
+    },
+    {
+      "path": "src/style.css",
+      "bytes": 636,
+      "sha256": "90d42130e5036e2597ec01620f0bf06a4632a570196c2b5d24c192dc35ebb12c"
+    }
+  ]
+}
