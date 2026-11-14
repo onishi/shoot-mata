@@ -7,6 +7,9 @@
 - ローカルPages候補は14経路、トップと`/v13.2/`の12 hash応答、JS/CSS MIME、外部runtime URLなし、v13.0/v13.1/v12.2保持に合格した。新規Chromeでアトラクト→コイン→START→第1波、BELL 3、console error 0を確認し、`m5-production-start-1280x720.png`を目視して版表示、HUD、初回コーチ、敵、鐘に切れ・重なり・判別不能がないことを確認した。
 - 初回packagingはローカルのv12.2 artifactが未組立で停止し、保存版artifactを再生成してから合格した。初回Chrome監査はdataset作成前の未定義状態を待てず停止したため、初期化待機を許容して再実行した。
 - `npm ci`、単体57/57、全ソース構文、クリーンbuild、artifact検査、`git diff --check`に合格した。本番URLは未確認のためPublished ProductではなくローカルRelease Candidateとし、次は公開commitをpushしてPagesと独立本番監査を行う。
+- 公開commit `7c181cb`をpushし、Pages run `43601908140`はbuild 2分52秒、deploy 56秒で成功した。CI本番監査は14経路、commit metadata、トップと`/v13.2/`の12 hash応答、JS/CSS MIME、v13.0/v13.1/v12.2保持に合格した。
+- 開発環境から`node scripts/verify-deployment.mjs https://onishi.github.io/shoot-mata/ 7c181cb291a767997c9bf9f0ccf77ef42efd5bda`を独立再実行し同じ本番条件へ合格した。最初の本番Chrome監査はページ読込前の空titleを早取りして停止したため、title初期化待機を追加した。再実行はアトラクト→コイン→START→第1波、BELL 3、console error 0に合格し、v13.2をPublished Product、M5完了とする。次の独立実行はM6だけを行う。
+- title待機修正commit `47720dc`の最終Pages run `43602357448`もbuild 2分49秒、deploy 51秒、CI本番監査に合格した。開発環境から最終commitに対する14経路・12 hash応答とChrome筐体経路を再検証し、同じ結果を確認した。
 
 ## 2026-11-14 — v13.2第二批評・危険得点と最終試験
 
