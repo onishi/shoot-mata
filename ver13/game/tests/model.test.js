@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { castHammer, createGame, drainAudioEvents, driveDemo, insertCoin, movePlayer, returnToAttract, startCredit, startDemo, startGame, startGuardian, startNextWave, step } from '../src/model.js';
+import { castHammer, createGame, drainAudioEvents, driveDemo, insertCoin, movePlayer, returnToAttract, startCredit, startDemo, startGame, startGuardian, startNextWave, step, WAVE_FORMATION_COUNT } from '../src/model.js';
 
 function advance(game, seconds, dt = 1 / 120) {
   for (let elapsed = 0; elapsed < seconds && game.mode === 'playing'; elapsed += dt) step(game, dt);
@@ -152,12 +152,28 @@ test('act five mirrors counterstep against lever movement and creates crossing l
   movePlayer(game, 1);
   assert.equal(game.playerSlot, 2);
   assert.equal(mirror.slot, 2);
-  assert.match(game.message, /MIRROR COUNTERSTEPS/);
+  assert.match(game.message, /THIRD STEP HOLDS/);
   assert.ok(drainAudioEvents(game).includes('mirror'));
   assert.equal(castHammer(game), true);
   advance(game, 2.2);
   assert.equal(mirror.alive, false);
   assert.equal(game.chain, 1);
+});
+
+test('every third lever step anchors mirrors so odd entry lines remain solvable', () => {
+  const game = startGame(createGame(), 12);
+  const mirror = game.enemies[0];
+  mirror.slot = 3;
+  movePlayer(game, 1);
+  assert.equal(mirror.slot, 2);
+  movePlayer(game, 1);
+  assert.equal(mirror.slot, 1);
+  movePlayer(game, 1);
+  assert.equal(mirror.slot, 1);
+  assert.match(game.message, /MIRROR ANCHORS/);
+  movePlayer(game, -1);
+  assert.equal(game.playerSlot, 2);
+  assert.equal(mirror.slot, 2);
 });
 
 test('waves fourteen and fifteen mix lever-reactive mirrors with all prior threat families', () => {
@@ -217,6 +233,7 @@ test('only one hammer can be active', () => {
 
 test('outbound and return destroy the aligned marcher and reward a catch', () => {
   const game = startGame(createGame());
+  game.waveFormation = WAVE_FORMATION_COUNT - 1;
   game.enemies = [{ id: 0, slot: 0, distance: 0.9, speed: 0, hp: 2, alive: true, flash: 0 }];
   castHammer(game);
   advance(game, 2.2);
@@ -228,8 +245,15 @@ test('outbound and return destroy the aligned marcher and reward a catch', () =>
 
 test('clearing wave one opens a brief and starts the armored second wave', () => {
   const game = startGame(createGame());
-  for (const enemy of game.enemies) enemy.alive = false;
-  step(game);
+  for (let formation = 0; formation < WAVE_FORMATION_COUNT; formation++) {
+    for (const enemy of game.enemies) enemy.alive = false;
+    step(game);
+    if (formation < WAVE_FORMATION_COUNT - 1) {
+      assert.equal(game.mode, 'playing');
+      assert.equal(game.waveFormation, formation + 1);
+      assert.match(game.message, /PROCESSION/);
+    }
+  }
   assert.equal(game.mode, 'waveBrief');
   assert.equal(startNextWave(game), true);
   assert.equal(game.mode, 'playing');
@@ -240,6 +264,7 @@ test('clearing wave one opens a brief and starts the armored second wave', () =>
 test('bulwark blocks outbound damage but is broken by the return', () => {
   const game = startGame(createGame());
   game.wave = 1;
+  game.waveFormation = WAVE_FORMATION_COUNT - 1;
   game.enemies = [{
     id: 0, kind: 'bulwark', slot: 0, distance: 0.9, speed: 0,
     hp: 2, armor: 1, alive: true, flash: 0, blocked: 0
@@ -258,8 +283,10 @@ test('bulwark blocks outbound damage but is broken by the return', () => {
 
 test('clearing wave two opens the fast third wave', () => {
   const game = startGame(createGame(), 1);
-  for (const enemy of game.enemies) enemy.alive = false;
-  step(game);
+  for (let formation = 0; formation < WAVE_FORMATION_COUNT; formation++) {
+    for (const enemy of game.enemies) enemy.alive = false;
+    step(game);
+  }
   assert.equal(game.mode, 'waveBrief');
   assert.equal(startNextWave(game), true);
   assert.equal(game.wave, 2);
@@ -269,6 +296,7 @@ test('clearing wave two opens the fast third wave', () => {
 
 test('one outbound strike stops a rusher', () => {
   const game = startGame(createGame(), 2);
+  game.waveFormation = WAVE_FORMATION_COUNT - 1;
   game.enemies = [{
     id: 0, kind: 'rusher', slot: 0, distance: 0.9, speed: 0,
     hp: 1, armor: 0, alive: true, flash: 0, blocked: 0
@@ -282,16 +310,20 @@ test('one outbound strike stops a rusher', () => {
 
 test('clearing act two summons its guardian', () => {
   const game = startGame(createGame(), 5);
-  for (const enemy of game.enemies) enemy.alive = false;
-  step(game);
+  for (let formation = 0; formation < WAVE_FORMATION_COUNT; formation++) {
+    for (const enemy of game.enemies) enemy.alive = false;
+    step(game);
+  }
   assert.equal(game.mode, 'guardianBrief');
   assert.match(game.message, /VORTEX REGENT/);
 });
 
 test('clearing act three summons the gale sovereign', () => {
   const game = startGame(createGame(), 8);
-  for (const enemy of game.enemies) enemy.alive = false;
-  step(game);
+  for (let formation = 0; formation < WAVE_FORMATION_COUNT; formation++) {
+    for (const enemy of game.enemies) enemy.alive = false;
+    step(game);
+  }
   assert.equal(game.mode, 'guardianBrief');
   assert.match(game.message, /GALE SOVEREIGN/);
   assert.equal(startGuardian(game), true);
@@ -300,8 +332,10 @@ test('clearing act three summons the gale sovereign', () => {
 
 test('act one guardian changes slot, pace, and armor across three return seals', () => {
   const game = startGame(createGame(), 2);
-  for (const enemy of game.enemies) enemy.alive = false;
-  step(game);
+  for (let formation = 0; formation < WAVE_FORMATION_COUNT; formation++) {
+    for (const enemy of game.enemies) enemy.alive = false;
+    step(game);
+  }
   assert.equal(game.mode, 'guardianBrief');
   assert.equal(startGuardian(game), true);
   const guardian = game.enemies[0];
@@ -344,6 +378,24 @@ test('each guardian seal gives the opening hammer time to land its return', () =
     assert.match(game.message, ending);
     assert.ok(game.score >= 15000);
   }
+});
+
+test('accelerating guardian phases retain a post-shift casting window', () => {
+  const game = startGame(createGame(), 17);
+  game.mode = 'guardianBrief';
+  startGuardian(game);
+  const guardian = game.enemies[0];
+  guardian.phase = 3;
+  guardian.orbitEvery = guardian.phaseOrbit[2];
+  guardian.orbitClock = 0;
+  step(game, guardian.orbitEvery * 0.5);
+  assert.equal(guardian.orbitWarning, false);
+  step(game, guardian.orbitEvery * 0.1);
+  assert.equal(guardian.orbitWarning, true);
+  const previousSlot = guardian.slot;
+  step(game, guardian.orbitEvery * 0.4);
+  assert.notEqual(guardian.slot, previousSlot);
+  assert.equal(guardian.orbitWarning, false);
 });
 
 test('guardian survives a bell strike by withdrawing while the bell remains', () => {

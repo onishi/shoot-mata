@@ -24,3 +24,9 @@
 - `m2-settings-1280x720.png`と`m2-settings-640x480.png`で設定項目、値、選択、操作案内の切れ・重なりを目視する。
 - 音イベント列で投擲、折返し、往路命中、復路撃破、回収、鐘被弾を単体固定する。実ChromeではOscillator発音を監査し、保存音量0%で0件、100%で発音とunity gain、ポーズ中の追加スケジュール0件、再開後の復帰、console error 0を確認する。
 - アトラクトは単体でコイン必須、クレジット消費、決定的デモ、デモ割込みを固定する。実Chromeでは無操作デモ開始、`C`、CREDIT 1、保存地点START、新規START、console error 0を確認し、`m2-attract-1280x720.png`、`m2-demonstration-1280x720.png`、`m2-credit-start-640x480.png`を比較目視する。
+
+## M3規模監査
+
+- `npm run audit:campaign`は状態や敵を直接変更せず、製品の移動、投擲、波開始、守護者開始だけを120Hzの決定的モデルへ入力する。習熟は0.12秒判断・説明1.2秒、初見代理は0.2秒判断・説明6秒・17判断ごとの読取り停止として分離する。
+- モデル監査は高速な規模下限と戦略偏りの回帰であり、実ブラウザ全編通しを代替しない。M3終了には新規開始、物理キー配送、実フレーム時間、console errorをChromeで測る。
+- 三陣HUDとMIRROR静止は`m3-three-formation-hud-1280x720.png`、`m3-mirror-anchor-1280x720.png`、`m3-depth-browser-audit.json`で代表目視する。

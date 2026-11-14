@@ -1,0 +1,610 @@
+{
+  "schema": 1,
+  "auditedAt": "2026-11-14T04:21:22.664Z",
+  "scope": "Deterministic model-time proxy using only the production move, cast, wave-start, and guardian-start actions.",
+  "limitation": "This is not the required real-browser full campaign audit; browser timing, rendering, audio, and physical key delivery remain to be measured.",
+  "policies": [
+    {
+      "name": "practiced",
+      "actionEvery": 0.12,
+      "briefSeconds": 1.2,
+      "hesitationEvery": 0,
+      "contractMinutes": [
+        14,
+        20
+      ],
+      "description": "Known-rule priority targeting and immediate brief advance."
+    },
+    {
+      "name": "first-sight-proxy",
+      "actionEvery": 0.2,
+      "briefSeconds": 6,
+      "hesitationEvery": 17,
+      "contractMinutes": [
+        18,
+        28
+      ],
+      "description": "Slower decisions, six-second instruction reads, and periodic formation-reading pauses."
+    }
+  ],
+  "runs": [
+    {
+      "policy": "practiced",
+      "modeledSeconds": 879.917,
+      "modeledMinutes": 14.67,
+      "result": "waveClear",
+      "finalWave": 18,
+      "bell": 3,
+      "score": 11723550,
+      "actions": 6827,
+      "casts": 355,
+      "transitions": [
+        {
+          "seconds": 22.117,
+          "mode": "waveBrief",
+          "wave": 1,
+          "bell": 3
+        },
+        {
+          "seconds": 23.333,
+          "mode": "playing",
+          "wave": 2,
+          "bell": 3
+        },
+        {
+          "seconds": 45.133,
+          "mode": "waveBrief",
+          "wave": 2,
+          "bell": 3
+        },
+        {
+          "seconds": 46.35,
+          "mode": "playing",
+          "wave": 3,
+          "bell": 3
+        },
+        {
+          "seconds": 65.592,
+          "mode": "guardianBrief",
+          "wave": 3,
+          "bell": 3
+        },
+        {
+          "seconds": 66.8,
+          "mode": "playing",
+          "wave": 3,
+          "bell": 3
+        },
+        {
+          "seconds": 74.45,
+          "mode": "waveBrief",
+          "wave": 3,
+          "bell": 3
+        },
+        {
+          "seconds": 75.658,
+          "mode": "playing",
+          "wave": 4,
+          "bell": 3
+        },
+        {
+          "seconds": 151.725,
+          "mode": "waveBrief",
+          "wave": 4,
+          "bell": 3
+        },
+        {
+          "seconds": 152.942,
+          "mode": "playing",
+          "wave": 5,
+          "bell": 3
+        },
+        {
+          "seconds": 206.25,
+          "mode": "waveBrief",
+          "wave": 5,
+          "bell": 3
+        },
+        {
+          "seconds": 207.467,
+          "mode": "playing",
+          "wave": 6,
+          "bell": 3
+        },
+        {
+          "seconds": 286.75,
+          "mode": "guardianBrief",
+          "wave": 6,
+          "bell": 3
+        },
+        {
+          "seconds": 287.967,
+          "mode": "playing",
+          "wave": 6,
+          "bell": 3
+        },
+        {
+          "seconds": 295.483,
+          "mode": "waveBrief",
+          "wave": 6,
+          "bell": 3
+        },
+        {
+          "seconds": 296.7,
+          "mode": "playing",
+          "wave": 7,
+          "bell": 3
+        },
+        {
+          "seconds": 338.483,
+          "mode": "waveBrief",
+          "wave": 7,
+          "bell": 3
+        },
+        {
+          "seconds": 339.7,
+          "mode": "playing",
+          "wave": 8,
+          "bell": 3
+        },
+        {
+          "seconds": 380.642,
+          "mode": "waveBrief",
+          "wave": 8,
+          "bell": 3
+        },
+        {
+          "seconds": 381.858,
+          "mode": "playing",
+          "wave": 9,
+          "bell": 3
+        },
+        {
+          "seconds": 455.408,
+          "mode": "guardianBrief",
+          "wave": 9,
+          "bell": 3
+        },
+        {
+          "seconds": 456.625,
+          "mode": "playing",
+          "wave": 9,
+          "bell": 3
+        },
+        {
+          "seconds": 464.675,
+          "mode": "waveBrief",
+          "wave": 9,
+          "bell": 3
+        },
+        {
+          "seconds": 465.892,
+          "mode": "playing",
+          "wave": 10,
+          "bell": 3
+        },
+        {
+          "seconds": 487.983,
+          "mode": "waveBrief",
+          "wave": 10,
+          "bell": 3
+        },
+        {
+          "seconds": 489.2,
+          "mode": "playing",
+          "wave": 11,
+          "bell": 3
+        },
+        {
+          "seconds": 524.558,
+          "mode": "waveBrief",
+          "wave": 11,
+          "bell": 3
+        },
+        {
+          "seconds": 525.775,
+          "mode": "playing",
+          "wave": 12,
+          "bell": 3
+        },
+        {
+          "seconds": 585.15,
+          "mode": "guardianBrief",
+          "wave": 12,
+          "bell": 3
+        },
+        {
+          "seconds": 586.367,
+          "mode": "playing",
+          "wave": 12,
+          "bell": 3
+        },
+        {
+          "seconds": 594.292,
+          "mode": "waveBrief",
+          "wave": 12,
+          "bell": 3
+        },
+        {
+          "seconds": 595.508,
+          "mode": "playing",
+          "wave": 13,
+          "bell": 3
+        },
+        {
+          "seconds": 615.317,
+          "mode": "waveBrief",
+          "wave": 13,
+          "bell": 3
+        },
+        {
+          "seconds": 616.533,
+          "mode": "playing",
+          "wave": 14,
+          "bell": 3
+        },
+        {
+          "seconds": 649.167,
+          "mode": "waveBrief",
+          "wave": 14,
+          "bell": 3
+        },
+        {
+          "seconds": 650.383,
+          "mode": "playing",
+          "wave": 15,
+          "bell": 3
+        },
+        {
+          "seconds": 712.492,
+          "mode": "guardianBrief",
+          "wave": 15,
+          "bell": 3
+        },
+        {
+          "seconds": 713.708,
+          "mode": "playing",
+          "wave": 15,
+          "bell": 3
+        },
+        {
+          "seconds": 721.383,
+          "mode": "waveBrief",
+          "wave": 15,
+          "bell": 3
+        },
+        {
+          "seconds": 722.6,
+          "mode": "playing",
+          "wave": 16,
+          "bell": 3
+        },
+        {
+          "seconds": 743.8,
+          "mode": "waveBrief",
+          "wave": 16,
+          "bell": 3
+        },
+        {
+          "seconds": 745.017,
+          "mode": "playing",
+          "wave": 17,
+          "bell": 3
+        },
+        {
+          "seconds": 788.358,
+          "mode": "waveBrief",
+          "wave": 17,
+          "bell": 3
+        },
+        {
+          "seconds": 789.575,
+          "mode": "playing",
+          "wave": 18,
+          "bell": 3
+        },
+        {
+          "seconds": 869.758,
+          "mode": "guardianBrief",
+          "wave": 18,
+          "bell": 3
+        },
+        {
+          "seconds": 870.975,
+          "mode": "playing",
+          "wave": 18,
+          "bell": 3
+        }
+      ]
+    },
+    {
+      "policy": "first-sight-proxy",
+      "modeledSeconds": 1097.142,
+      "modeledMinutes": 18.29,
+      "result": "waveClear",
+      "finalWave": 18,
+      "bell": 1,
+      "score": 5243225,
+      "actions": 4787,
+      "casts": 351,
+      "transitions": [
+        {
+          "seconds": 26.058,
+          "mode": "waveBrief",
+          "wave": 1,
+          "bell": 3
+        },
+        {
+          "seconds": 32.075,
+          "mode": "playing",
+          "wave": 2,
+          "bell": 3
+        },
+        {
+          "seconds": 57.8,
+          "mode": "waveBrief",
+          "wave": 2,
+          "bell": 3
+        },
+        {
+          "seconds": 63.817,
+          "mode": "playing",
+          "wave": 3,
+          "bell": 3
+        },
+        {
+          "seconds": 86.825,
+          "mode": "guardianBrief",
+          "wave": 3,
+          "bell": 3
+        },
+        {
+          "seconds": 92.833,
+          "mode": "playing",
+          "wave": 3,
+          "bell": 3
+        },
+        {
+          "seconds": 100.483,
+          "mode": "waveBrief",
+          "wave": 3,
+          "bell": 3
+        },
+        {
+          "seconds": 106.492,
+          "mode": "playing",
+          "wave": 4,
+          "bell": 3
+        },
+        {
+          "seconds": 178.008,
+          "mode": "waveBrief",
+          "wave": 4,
+          "bell": 3
+        },
+        {
+          "seconds": 184.025,
+          "mode": "playing",
+          "wave": 5,
+          "bell": 3
+        },
+        {
+          "seconds": 257.075,
+          "mode": "waveBrief",
+          "wave": 5,
+          "bell": 3
+        },
+        {
+          "seconds": 263.092,
+          "mode": "playing",
+          "wave": 6,
+          "bell": 3
+        },
+        {
+          "seconds": 346.517,
+          "mode": "guardianBrief",
+          "wave": 6,
+          "bell": 2
+        },
+        {
+          "seconds": 352.533,
+          "mode": "playing",
+          "wave": 6,
+          "bell": 2
+        },
+        {
+          "seconds": 360.3,
+          "mode": "waveBrief",
+          "wave": 6,
+          "bell": 2
+        },
+        {
+          "seconds": 366.317,
+          "mode": "playing",
+          "wave": 7,
+          "bell": 2
+        },
+        {
+          "seconds": 410.258,
+          "mode": "waveBrief",
+          "wave": 7,
+          "bell": 2
+        },
+        {
+          "seconds": 416.275,
+          "mode": "playing",
+          "wave": 8,
+          "bell": 2
+        },
+        {
+          "seconds": 462.025,
+          "mode": "waveBrief",
+          "wave": 8,
+          "bell": 2
+        },
+        {
+          "seconds": 468.042,
+          "mode": "playing",
+          "wave": 9,
+          "bell": 2
+        },
+        {
+          "seconds": 536.242,
+          "mode": "guardianBrief",
+          "wave": 9,
+          "bell": 1
+        },
+        {
+          "seconds": 542.258,
+          "mode": "playing",
+          "wave": 9,
+          "bell": 1
+        },
+        {
+          "seconds": 550.308,
+          "mode": "waveBrief",
+          "wave": 9,
+          "bell": 1
+        },
+        {
+          "seconds": 556.325,
+          "mode": "playing",
+          "wave": 10,
+          "bell": 1
+        },
+        {
+          "seconds": 582.792,
+          "mode": "waveBrief",
+          "wave": 10,
+          "bell": 1
+        },
+        {
+          "seconds": 588.808,
+          "mode": "playing",
+          "wave": 11,
+          "bell": 1
+        },
+        {
+          "seconds": 628.217,
+          "mode": "waveBrief",
+          "wave": 11,
+          "bell": 1
+        },
+        {
+          "seconds": 634.233,
+          "mode": "playing",
+          "wave": 12,
+          "bell": 1
+        },
+        {
+          "seconds": 712.558,
+          "mode": "guardianBrief",
+          "wave": 12,
+          "bell": 1
+        },
+        {
+          "seconds": 718.575,
+          "mode": "playing",
+          "wave": 12,
+          "bell": 1
+        },
+        {
+          "seconds": 726.5,
+          "mode": "waveBrief",
+          "wave": 12,
+          "bell": 1
+        },
+        {
+          "seconds": 732.517,
+          "mode": "playing",
+          "wave": 13,
+          "bell": 1
+        },
+        {
+          "seconds": 754.767,
+          "mode": "waveBrief",
+          "wave": 13,
+          "bell": 1
+        },
+        {
+          "seconds": 760.783,
+          "mode": "playing",
+          "wave": 14,
+          "bell": 1
+        },
+        {
+          "seconds": 797.283,
+          "mode": "waveBrief",
+          "wave": 14,
+          "bell": 1
+        },
+        {
+          "seconds": 803.3,
+          "mode": "playing",
+          "wave": 15,
+          "bell": 1
+        },
+        {
+          "seconds": 897.5,
+          "mode": "guardianBrief",
+          "wave": 15,
+          "bell": 1
+        },
+        {
+          "seconds": 903.517,
+          "mode": "playing",
+          "wave": 15,
+          "bell": 1
+        },
+        {
+          "seconds": 911.192,
+          "mode": "waveBrief",
+          "wave": 15,
+          "bell": 1
+        },
+        {
+          "seconds": 917.208,
+          "mode": "playing",
+          "wave": 16,
+          "bell": 1
+        },
+        {
+          "seconds": 941.992,
+          "mode": "waveBrief",
+          "wave": 16,
+          "bell": 1
+        },
+        {
+          "seconds": 948.008,
+          "mode": "playing",
+          "wave": 17,
+          "bell": 1
+        },
+        {
+          "seconds": 994.55,
+          "mode": "waveBrief",
+          "wave": 17,
+          "bell": 1
+        },
+        {
+          "seconds": 1000.567,
+          "mode": "playing",
+          "wave": 18,
+          "bell": 1
+        },
+        {
+          "seconds": 1083.208,
+          "mode": "guardianBrief",
+          "wave": 18,
+          "bell": 1
+        },
+        {
+          "seconds": 1089.217,
+          "mode": "playing",
+          "wave": 18,
+          "bell": 1
+        }
+      ]
+    }
+  ]
+}

@@ -1,5 +1,6 @@
 export const TAU = Math.PI * 2;
 export const SLOT_COUNT = 16;
+export const WAVE_FORMATION_COUNT = 3;
 
 export const WAVES = [
   [
@@ -149,11 +150,29 @@ export const GUARDIANS = [
   }
 ];
 
-function loadWave(game, waveIndex) {
+function loadFormation(game, waveIndex, formation) {
+  const specs = WAVES[waveIndex];
+  const distances = specs.map(enemy => enemy.distance);
+  const rotation = [0, 3, 7][formation];
+  const directionScale = formation === 1 ? -1 : 1;
+  const speedScale = [1, 0.96, 1.04][formation];
   game.wave = waveIndex;
-  game.enemies = WAVES[waveIndex].map((enemy, id) => ({
-    armor: 0, orbitClock: 0, orbitWarning: false, ...enemy, id, alive: true, flash: 0, blocked: 0
+  game.waveFormation = formation;
+  game.enemies = specs.map((enemy, id) => ({
+    armor: 0, orbitClock: 0, orbitWarning: false, ...enemy,
+    slot: (enemy.slot + rotation) % SLOT_COUNT,
+    distance: formation === 1 ? distances[distances.length - 1 - id] : enemy.distance + (formation === 2 ? 0.06 : 0),
+    speed: enemy.speed * speedScale,
+    ...(enemy.orbitDirection ? { orbitDirection: enemy.orbitDirection * directionScale } : {}),
+    ...(enemy.sidestepDirection ? { sidestepDirection: enemy.sidestepDirection * directionScale } : {}),
+    ...(enemy.turnDirection ? { turnDirection: enemy.turnDirection * directionScale } : {}),
+    ...(enemy.castDirection ? { castDirection: enemy.castDirection * directionScale } : {}),
+    id, alive: true, flash: 0, blocked: 0, mirrorStep: 0
   }));
+}
+
+function loadWave(game, waveIndex) {
+  loadFormation(game, waveIndex, 0);
 }
 
 function loadGuardian(game, act) {
@@ -181,7 +200,7 @@ export function drainAudioEvents(game) {
 export function createGame() {
   return {
     mode: 'attract', playerSlot: 0, hammer: null, cooldown: 0,
-    enemies: [], bell: 3, score: 0, chain: 0, wave: 0,
+    enemies: [], bell: 3, score: 0, chain: 0, wave: 0, waveFormation: 0,
     message: 'INSERT COIN', tick: 0, audioEvents: [], credits: 0,
     demo: false, demoTime: 0, effects: [], guardianAct: null
   };
@@ -307,14 +326,21 @@ export function movePlayer(game, direction) {
   if (game.mode !== 'playing') return;
   game.playerSlot = (game.playerSlot + direction + SLOT_COUNT) % SLOT_COUNT;
   let mirrored = false;
+  let anchored = false;
   for (const enemy of game.enemies) {
     if (!enemy.alive || enemy.kind !== 'mirror') continue;
-    enemy.slot = (enemy.slot - direction + SLOT_COUNT) % SLOT_COUNT;
-    effect(game, 'mirror', enemy.slot, enemy.distance, 0.28);
+    enemy.mirrorStep = ((enemy.mirrorStep ?? 0) + 1) % 3;
+    if (enemy.mirrorStep === 0) {
+      effect(game, 'guard', enemy.slot, enemy.distance, 0.28);
+      anchored = true;
+    } else {
+      enemy.slot = (enemy.slot - direction + SLOT_COUNT) % SLOT_COUNT;
+      effect(game, 'mirror', enemy.slot, enemy.distance, 0.28);
+    }
     mirrored = true;
   }
   if (mirrored) {
-    game.message = 'MIRROR COUNTERSTEPS — FIND THE CROSSING LINE';
+    game.message = anchored ? 'MIRROR ANCHORS — CROSS THE OPEN LINE' : 'MIRROR COUNTERSTEPS — THIRD STEP HOLDS';
     emit(game, 'mirror');
   }
 }
@@ -455,8 +481,16 @@ export function step(game, dt = 1 / 60) {
     enemy.flash = Math.max(0, enemy.flash - 1);
     enemy.blocked = Math.max(0, enemy.blocked - 1);
     if (enemy.orbitEvery) {
-      enemy.orbitClock += dt;
-      const warningAt = enemy.guardian ? Math.max(0, enemy.orbitEvery - 0.82) : enemy.orbitEvery * 0.68;
+      // A guardian that has not begun its warning holds the committed lane
+      // while the one allowed hammer is in flight. Warning casts still lose
+      // to the announced shift; post-shift casts get a reliable full journey.
+      if (!(enemy.guardian && game.hammer && !enemy.orbitWarning)) enemy.orbitClock += dt;
+      // Guardian phases accelerate below one second. A fixed 0.82-second
+      // warning made the final crown warn for its entire cycle, leaving only
+      // one simulation frame after a lane change in which a cast was safe.
+      // Keeping the latter 45% as warning preserves anticipation and always
+      // leaves a readable post-shift commitment window.
+      const warningAt = enemy.guardian ? enemy.orbitEvery * 0.55 : enemy.orbitEvery * 0.68;
       enemy.orbitWarning = enemy.orbitClock >= warningAt;
       if (enemy.orbitClock >= enemy.orbitEvery) {
         enemy.orbitClock -= enemy.orbitEvery;
@@ -486,6 +520,15 @@ export function step(game, dt = 1 / 60) {
     emit(game, 'gameOver');
   } else if (game.enemies.length && game.enemies.every(enemy => !enemy.alive)) {
     game.hammer = null;
+    if (game.guardianAct === null && game.waveFormation + 1 < WAVE_FORMATION_COUNT) {
+      const nextFormation = game.waveFormation + 1;
+      game.score += game.bell * 500;
+      loadFormation(game, game.wave, nextFormation);
+      game.cooldown = 0;
+      game.message = `PROCESSION ${nextFormation + 1}/${WAVE_FORMATION_COUNT} — READ THE NEW ORDER`;
+      emit(game, 'waveStart');
+      return game;
+    }
     game.score += game.bell * 1000;
     if (game.guardianAct !== null) {
       const clearedAct = game.guardianAct;

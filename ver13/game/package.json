@@ -6,7 +6,8 @@
   "scripts": {
     "serve": "python3 -m http.server 4173 --bind 127.0.0.1",
     "test": "node --test",
-    "check": "node --check src/model.js && node --check src/storage.js && node --check src/audio.js && node --check src/main.js",
+    "check": "node --check src/model.js && node --check src/storage.js && node --check src/audio.js && node --check src/main.js && node --check scripts/audit-campaign.mjs",
+    "audit:campaign": "node scripts/audit-campaign.mjs --write",
     "verify": "npm run test && npm run check"
   }
 }

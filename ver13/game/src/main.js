@@ -1,5 +1,5 @@
 import { RingwardAudio } from './audio.js';
-import { angleForSlot, castHammer, createGame, drainAudioEvents, driveDemo, insertCoin, movePlayer, returnToAttract, startCredit, startDemo, startGuardian, startNextWave, step, WAVES } from './model.js';
+import { angleForSlot, castHammer, createGame, drainAudioEvents, driveDemo, insertCoin, movePlayer, returnToAttract, startCredit, startDemo, startGuardian, startNextWave, step, WAVES, WAVE_FORMATION_COUNT } from './model.js';
 import { keyLabel, loadSave, rebind, storeSave } from './storage.js';
 
 const canvas = document.querySelector('#game');
@@ -82,8 +82,8 @@ const WAVE_BRIEFS = {
   },
   12: {
     title: 'ACT V — MOON MIRROR',
-    line1: 'WHITE MIRRORS COUNTERSTEP YOUR LEVER', color1: '#f2f5ff',
-    line2: 'RUN INTO THE CROSSING LINE — THEN CAST', color2: '#ffcf55'
+    line1: 'WHITE MIRRORS COUNTERSTEP — THIRD STEP HOLDS', color1: '#f2f5ff',
+    line2: 'USE THE ANCHOR TO CROSS THE LINE — THEN CAST', color2: '#ffcf55'
   },
   13: {
     title: 'WAVE 14 — CROSSED REFLECTIONS',
@@ -454,7 +454,7 @@ function render() {
   } else if (game.mode === 'playing' || ['waveBrief', 'guardianBrief', 'waveClear', 'gameOver'].includes(game.mode)) drawActors();
   text(`SCORE ${String(game.score).padStart(6, '0')}`, 18, 82, 16);
   const guardian = game.enemies.find(enemy => enemy.alive && enemy.guardian);
-  text(guardian ? `GUARDIAN  SEAL ${guardian.phase}/${guardian.phases}  CHAIN ×${game.chain}` : `WAVE ${game.wave + 1}/${WAVE_COUNT}  CHAIN ×${game.chain}`, 320, 82, 16, '#77e4ca', 'center');
+  text(guardian ? `GUARDIAN  SEAL ${guardian.phase}/${guardian.phases}  CHAIN ×${game.chain}` : `WAVE ${game.wave + 1}/${WAVE_COUNT}  FORM ${game.waveFormation + 1}/${WAVE_FORMATION_COUNT}  CHAIN ×${game.chain}`, 320, 82, 15, '#77e4ca', 'center');
   text(`BELL ${'◆'.repeat(game.bell)}${'◇'.repeat(3 - game.bell)}`, 622, 82, 16, game.bell === 1 ? '#ff6b62' : '#ffe29a', 'right');
   if (menu === 'game') text(game.message, 320, 418, ['attract', 'startWait'].includes(game.mode) ? 24 : 18, game.mode === 'gameOver' ? '#ff6b62' : '#ffe29a', 'center');
   if (menu === 'game' && ['attract', 'startWait'].includes(game.mode)) {
