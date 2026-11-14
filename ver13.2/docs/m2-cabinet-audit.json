@@ -1,0 +1,13 @@
+{
+  "viewportEvidence": [
+    "m2-attract-1280x720.png",
+    "m2-demonstration-1280x720.png",
+    "m2-credit-start-640x480.png"
+  ],
+  "attract": "RINGWARD attract. Credit 0. Score 0. Chain 0. Bell 3. INSERT COIN",
+  "demonstration": "RINGWARD playing. Demonstration. Credit 0. Score 100. Chain 0. Bell 3. RETURNING — CATCH IT",
+  "coinInterrupt": "RINGWARD startWait. Credit 1. Score 0. Chain 0. Bell 3. PUSH START",
+  "continuedStart": "RINGWARD playing. Credit 0. Score 0. Chain 0. Bell 3. WAVE 3 — HOLD THE BELL",
+  "newStart": "RINGWARD playing. Credit 0. Score 0. Chain 0. Bell 3. CAST — MOVE — CATCH",
+  "consoleErrors": []
+}

@@ -1,0 +1,310 @@
+{
+  "schema": 1,
+  "auditedAt": "2026-11-14T07:52:48.113Z",
+  "browser": "Chrome OfflineAudioContext",
+  "thresholds": {
+    "nonSilent": "abs(sample) > 0.00001",
+    "clipping": "peak < 0.98",
+    "finite": "nonFiniteSamples = 0"
+  },
+  "sampleRate": 48000,
+  "cues": {
+    "coin": {
+      "peak": 0.087138,
+      "rms": 0.007305,
+      "nonSilentSamples": 8097,
+      "nonFiniteSamples": 0,
+      "zeroCrossings": 428
+    },
+    "start": {
+      "peak": 0.084342,
+      "rms": 0.008187,
+      "nonSilentSamples": 9421,
+      "nonFiniteSamples": 0,
+      "zeroCrossings": 192
+    },
+    "waveStart": {
+      "peak": 0.089472,
+      "rms": 0.007969,
+      "nonSilentSamples": 8940,
+      "nonFiniteSamples": 0,
+      "zeroCrossings": 154
+    },
+    "cast": {
+      "peak": 0.077043,
+      "rms": 0.005386,
+      "nonSilentSamples": 6318,
+      "nonFiniteSamples": 0,
+      "zeroCrossings": 72
+    },
+    "turn": {
+      "peak": 0.085382,
+      "rms": 0.005552,
+      "nonSilentSamples": 6564,
+      "nonFiniteSamples": 0,
+      "zeroCrossings": 232
+    },
+    "outboundHit": {
+      "peak": 0.085811,
+      "rms": 0.006091,
+      "nonSilentSamples": 5702,
+      "nonFiniteSamples": 0,
+      "zeroCrossings": 62
+    },
+    "outboundBreak": {
+      "peak": 0.084183,
+      "rms": 0.005067,
+      "nonSilentSamples": 7411,
+      "nonFiniteSamples": 0,
+      "zeroCrossings": 128
+    },
+    "sidestep": {
+      "peak": 0.087081,
+      "rms": 0.007079,
+      "nonSilentSamples": 7488,
+      "nonFiniteSamples": 0,
+      "zeroCrossings": 240
+    },
+    "refract": {
+      "peak": 0.089942,
+      "rms": 0.006797,
+      "nonSilentSamples": 7680,
+      "nonFiniteSamples": 0,
+      "zeroCrossings": 318
+    },
+    "mirror": {
+      "peak": 0.084309,
+      "rms": 0.006818,
+      "nonSilentSamples": 6821,
+      "nonFiniteSamples": 0,
+      "zeroCrossings": 134
+    },
+    "chorus": {
+      "peak": 0.08815,
+      "rms": 0.006844,
+      "nonSilentSamples": 7211,
+      "nonFiniteSamples": 0,
+      "zeroCrossings": 184
+    },
+    "returnBreak": {
+      "peak": 0.082033,
+      "rms": 0.007725,
+      "nonSilentSamples": 11348,
+      "nonFiniteSamples": 0,
+      "zeroCrossings": 302
+    },
+    "guard": {
+      "peak": 0.080552,
+      "rms": 0.006908,
+      "nonSilentSamples": 8914,
+      "nonFiniteSamples": 0,
+      "zeroCrossings": 44
+    },
+    "catch": {
+      "peak": 0.089176,
+      "rms": 0.008282,
+      "nonSilentSamples": 10422,
+      "nonFiniteSamples": 0,
+      "zeroCrossings": 380
+    },
+    "miss": {
+      "peak": 0.076007,
+      "rms": 0.005744,
+      "nonSilentSamples": 12641,
+      "nonFiniteSamples": 0,
+      "zeroCrossings": 74
+    },
+    "bellHit": {
+      "peak": 0.126272,
+      "rms": 0.018735,
+      "nonSilentSamples": 16077,
+      "nonFiniteSamples": 0,
+      "zeroCrossings": 122
+    },
+    "waveClear": {
+      "peak": 0.086378,
+      "rms": 0.010281,
+      "nonSilentSamples": 13081,
+      "nonFiniteSamples": 0,
+      "zeroCrossings": 320
+    },
+    "guardianStart": {
+      "peak": 0.088355,
+      "rms": 0.011738,
+      "nonSilentSamples": 17244,
+      "nonFiniteSamples": 0,
+      "zeroCrossings": 216
+    },
+    "guardianPhase": {
+      "peak": 0.087786,
+      "rms": 0.009508,
+      "nonSilentSamples": 13639,
+      "nonFiniteSamples": 0,
+      "zeroCrossings": 258
+    },
+    "guardianBreak": {
+      "peak": 0.088626,
+      "rms": 0.01208,
+      "nonSilentSamples": 21193,
+      "nonFiniteSamples": 0,
+      "zeroCrossings": 662
+    },
+    "guardianClear": {
+      "peak": 0.090055,
+      "rms": 0.014111,
+      "nonSilentSamples": 25071,
+      "nonFiniteSamples": 0,
+      "zeroCrossings": 862
+    },
+    "victory": {
+      "peak": 0.090357,
+      "rms": 0.012922,
+      "nonSilentSamples": 22569,
+      "nonFiniteSamples": 0,
+      "zeroCrossings": 810
+    },
+    "gameOver": {
+      "peak": 0.08845,
+      "rms": 0.012762,
+      "nonSilentSamples": 24060,
+      "nonFiniteSamples": 0,
+      "zeroCrossings": 138
+    },
+    "continue": {
+      "peak": 0.086985,
+      "rms": 0.010614,
+      "nonSilentSamples": 14043,
+      "nonFiniteSamples": 0,
+      "zeroCrossings": 368
+    },
+    "nameEntry": {
+      "peak": 0.089311,
+      "rms": 0.009172,
+      "nonSilentSamples": 12014,
+      "nonFiniteSamples": 0,
+      "zeroCrossings": 282
+    },
+    "initial": {
+      "peak": 0.08372,
+      "rms": 0.006348,
+      "nonSilentSamples": 6184,
+      "nonFiniteSamples": 0,
+      "zeroCrossings": 164
+    },
+    "ranking": {
+      "peak": 0.088345,
+      "rms": 0.011291,
+      "nonSilentSamples": 17092,
+      "nonFiniteSamples": 0,
+      "zeroCrossings": 452
+    }
+  },
+  "music": [
+    {
+      "act": 1,
+      "name": "Dawn Procession",
+      "peak": 0.054606,
+      "rms": 0.007192,
+      "nonSilentSamples": 145816,
+      "nonFiniteSamples": 0,
+      "zeroCrossings": 856
+    },
+    {
+      "act": 2,
+      "name": "Lantern Vortex",
+      "peak": 0.055155,
+      "rms": 0.007192,
+      "nonSilentSamples": 131445,
+      "nonFiniteSamples": 0,
+      "zeroCrossings": 866
+    },
+    {
+      "act": 3,
+      "name": "Gale Banner",
+      "peak": 0.054546,
+      "rms": 0.007134,
+      "nonSilentSamples": 124231,
+      "nonFiniteSamples": 0,
+      "zeroCrossings": 1000
+    },
+    {
+      "act": 4,
+      "name": "Prism Forge",
+      "peak": 0.052635,
+      "rms": 0.007111,
+      "nonSilentSamples": 145826,
+      "nonFiniteSamples": 0,
+      "zeroCrossings": 860
+    },
+    {
+      "act": 5,
+      "name": "Moon Mirror",
+      "peak": 0.055862,
+      "rms": 0.007208,
+      "nonSilentSamples": 145788,
+      "nonFiniteSamples": 0,
+      "zeroCrossings": 1010
+    },
+    {
+      "act": 6,
+      "name": "Star Chorus",
+      "peak": 0.054614,
+      "rms": 0.007232,
+      "nonSilentSamples": 117039,
+      "nonFiniteSamples": 0,
+      "zeroCrossings": 1040
+    }
+  ],
+  "combined": {
+    "peak": 0.158099,
+    "rms": 0.013056,
+    "nonSilentSamples": 117025,
+    "nonFiniteSamples": 0,
+    "zeroCrossings": 1130
+  },
+  "stopped": {
+    "paused": {
+      "peak": 0,
+      "rms": 0,
+      "nonSilentSamples": 0,
+      "nonFiniteSamples": 0,
+      "zeroCrossings": 0
+    },
+    "waveBrief": {
+      "peak": 0,
+      "rms": 0,
+      "nonSilentSamples": 0,
+      "nonFiniteSamples": 0,
+      "zeroCrossings": 0
+    },
+    "continue": {
+      "peak": 0,
+      "rms": 0,
+      "nonSilentSamples": 0,
+      "nonFiniteSamples": 0,
+      "zeroCrossings": 0
+    },
+    "ranking": {
+      "peak": 0,
+      "rms": 0,
+      "nonSilentSamples": 0,
+      "nonFiniteSamples": 0,
+      "zeroCrossings": 0
+    },
+    "settings": {
+      "peak": 0,
+      "rms": 0,
+      "nonSilentSamples": 0,
+      "nonFiniteSamples": 0,
+      "zeroCrossings": 0
+    }
+  },
+  "muted": {
+    "peak": 0,
+    "rms": 0,
+    "nonSilentSamples": 0,
+    "nonFiniteSamples": 0,
+    "zeroCrossings": 0
+  },
+  "consoleErrors": 0
+}

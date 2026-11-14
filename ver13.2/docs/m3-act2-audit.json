@@ -1,0 +1,13 @@
+{
+  "auditedAt": "2026-11-09T13:37:33.091Z",
+  "browser": "Installed Google Chrome, headless fallback because shared browser host was unavailable",
+  "wave4": "RINGWARD playing. Credit 0. Score 0. Chain 0. Bell 3. WAVE 4 — HOLD THE BELL",
+  "wave4Action": "RINGWARD playing. Credit 0. Score 0. Chain 0. Bell 3. OUTBOUND",
+  "wave5": "RINGWARD playing. Credit 0. Score 0. Chain 0. Bell 3. WAVE 5 — HOLD THE BELL",
+  "wave6": "RINGWARD playing. Credit 0. Score 0. Chain 0. Bell 3. WAVE 6 — HOLD THE BELL",
+  "viewports": [
+    "1280x720",
+    "640x480"
+  ],
+  "consoleErrors": []
+}

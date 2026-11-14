@@ -1,0 +1,28 @@
+{
+  "browser": "Chrome/157.0.8103.39",
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+  "started": "RINGWARD playing. Credit 0. Score 0. Chain 0. Bell 3. WAVE 7 — HOLD THE BELL",
+  "action": "RINGWARD playing. Credit 0. Score 100. Chain 0. Bell 3. DANCER STEPS — FOLLOW IT AND CATCH",
+  "metrics": {
+    "innerWidth": 640,
+    "innerHeight": 480,
+    "scrollWidth": 640,
+    "scrollHeight": 509,
+    "canvas": {
+      "x": 0,
+      "y": 0,
+      "width": 640,
+      "height": 480,
+      "top": 0,
+      "right": 640,
+      "bottom": 480,
+      "left": 0
+    }
+  },
+  "consoleErrors": 0,
+  "wave": 7,
+  "viewportChecks": [
+    "1280x720",
+    "640x480"
+  ]
+}
