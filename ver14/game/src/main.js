@@ -14,6 +14,20 @@ let settingsRow = 0;
 let bindingAction = null;
 let last = performance.now();
 const keys = { left: false, right: false };
+let pauseReason = null;
+let frameStats = { elapsedMs: 0, samples: 0, sumMs: 0, maxMs: 0, overBudget: 0 };
+
+function releaseInputs() { keys.left = false; keys.right = false; }
+function setPaused(value, reason = null) {
+  paused = value;
+  pauseReason = value ? reason : null;
+  releaseInputs();
+  last = performance.now();
+}
+function pauseForInterruption(reason) {
+  if (state.mode === "playing" && !paused) setPaused(true, reason);
+}
+function resetFrameStats() { frameStats = { elapsedMs: 0, samples: 0, sumMs: 0, maxMs: 0, overBudget: 0 }; }
 
 const palette = [
   { sky: "#ef8b56", far: "#542e58", water: "#086078", edge: "#172f46", light: "#ffdb79" },
@@ -274,7 +288,11 @@ function render() {
   const theme = palette[state.section];
   ctx.save(); if (state.shake > 0 && !settings.reducedMotion) ctx.translate((Math.random()-.5)*12,(Math.random()-.5)*8);
   drawSky(theme); drawChannel(theme); [...state.entities].filter(entity => !entity.hit).sort((a,b)=>b.z-a.z).forEach(drawEntity); drawBoat(); drawEffects(); drawHud(theme); ctx.restore();
-  if (paused) { ctx.fillStyle="#06101adc";ctx.fillRect(0,0,WIDTH,HEIGHT);text("PAUSED",480,245,54,"#fff","center");text("P TO RESUME",480,305,20,"#8ce7df","center"); }
+  if (paused) {
+    ctx.fillStyle="#06101adc";ctx.fillRect(0,0,WIDTH,HEIGHT);text(pauseReason ? "RESCUE HOLD" : "PAUSED",480,235,54,"#fff","center");
+    if (pauseReason) text("WINDOW FOCUS LOST — CONTROLS RELEASED",480,286,17,"#ffdb66","center");
+    text("P TO RESUME",480,326,20,"#8ce7df","center");
+  }
   if (state.mode === "cleared" || state.mode === "gameover") drawEnd(theme);
 }
 
@@ -309,23 +327,34 @@ addEventListener("keydown", event => {
     }
     return;
   }
-  if (event.code === settings.controls.left) keys.left = true;
-  if (event.code === settings.controls.right) keys.right = true;
-  if (event.code === "Enter" && state.mode === "title") { audio.ensure(); startGame(state); }
+  if (!paused && event.code === settings.controls.left) keys.left = true;
+  if (!paused && event.code === settings.controls.right) keys.right = true;
+  if (event.code === "Enter" && state.mode === "title") { audio.ensure(); startGame(state); resetFrameStats(); }
   if (event.code === "KeyS" && state.mode === "title") { settingsOpen = true; settingsRow = 0; }
   if (event.code === settings.controls.surge && !event.repeat && !paused && activateSurge(state)) audio.surge();
-  if (event.code === "KeyP" && state.mode === "playing") paused = !paused;
-  if (event.code === "KeyR" && state.mode !== "title") { audio.ensure(); startGame(state); paused = false; }
+  if (event.code === "KeyP" && state.mode === "playing") setPaused(!paused, null);
+  if (event.code === "KeyR" && state.mode !== "title") { audio.ensure(); startGame(state); setPaused(false); resetFrameStats(); }
 });
 addEventListener("keyup", event => { if(event.code===settings.controls.left)keys.left=false;if(event.code===settings.controls.right)keys.right=false; });
+addEventListener("blur", () => pauseForInterruption("blur"));
+document.addEventListener("visibilitychange", () => { if (document.hidden) pauseForInterruption("hidden"); });
 
 function frame(now) {
-  const dt = Math.min(.05,(now-last)/1000); last=now;
+  const rawMs = Math.max(0, now - last); const dt = Math.min(.05,rawMs/1000); last=now;
+  if (state.mode === "playing" && !paused && rawMs < 1000) {
+    frameStats.elapsedMs += rawMs; frameStats.samples += 1; frameStats.sumMs += rawMs;
+    frameStats.maxMs = Math.max(frameStats.maxMs, rawMs); if (rawMs > 20) frameStats.overBudget += 1;
+  }
   const beforeRescue=state.rescued,beforeHull=state.integrity;
   if (!paused) updateGame(state,keys,dt);
   if(state.rescued>beforeRescue)audio.rescue(); if(state.integrity<beforeHull)audio.hit();
   audio.update(dt,state.mode==="playing"&&!paused,state.section,state.boatV,state.surgeTime); render(); requestAnimationFrame(frame);
 }
 
-window.__TIDEBREAK__ = { getState: () => JSON.parse(JSON.stringify(state)), getInputs: () => ({ ...keys }), getAudioState: () => audio.inspect(), getSettings: () => JSON.parse(JSON.stringify(settings)), isSettingsOpen: () => settingsOpen, start: () => startGame(state), surge: () => activateSurge(state) };
+window.__TIDEBREAK__ = {
+  getState: () => JSON.parse(JSON.stringify(state)), getInputs: () => ({ ...keys }), getAudioState: () => audio.inspect(),
+  getSettings: () => JSON.parse(JSON.stringify(settings)), isSettingsOpen: () => settingsOpen,
+  getRuntime: () => ({ paused, pauseReason, frameStats: { ...frameStats, averageMs: frameStats.samples ? frameStats.sumMs / frameStats.samples : 0 } }),
+  start: () => { startGame(state); setPaused(false); resetFrameStats(); }, surge: () => activateSurge(state)
+};
 requestAnimationFrame(frame);

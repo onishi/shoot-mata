@@ -39,7 +39,7 @@ async function evaluate(expression) {
   return result.result.value;
 }
 async function key(key, code) {
-  const virtualCodes = { Enter: 13, " ": 32, ArrowLeft: 37, ArrowUp: 38, ArrowRight: 39, ArrowDown: 40, Escape: 27, S: 83, A: 65, D: 68, W: 87 };
+  const virtualCodes = { Enter: 13, " ": 32, ArrowLeft: 37, ArrowUp: 38, ArrowRight: 39, ArrowDown: 40, Escape: 27, S: 83, P: 80, A: 65, D: 68, W: 87 };
   await send("Input.dispatchKeyEvent", { type: "rawKeyDown", key, code, windowsVirtualKeyCode: virtualCodes[key] ?? 0, nativeVirtualKeyCode: virtualCodes[key] ?? 0 });
   await send("Input.dispatchKeyEvent", { type: "keyUp", key, code });
 }
@@ -56,6 +56,50 @@ async function screenshot(name) {
 
 await send("Page.enable");
 await send("Runtime.enable");
+if (process.argv.includes("--product-only")) {
+  await send("Emulation.setDeviceMetricsOverride", { width: 1280, height: 720, deviceScaleFactor: 1, mobile: false });
+  await send("Page.navigate", { url: "http://127.0.0.1:4314/" }); await sleep(700);
+  const currentTitle = await evaluate("document.title");
+  if (currentTitle !== "TIDEBREAK 95 v14.0") throw new Error(`Wrong target: ${currentTitle}`);
+  await key("Enter", "Enter"); await sleep(300);
+  await send("Input.dispatchKeyEvent", { type: "rawKeyDown", key: "ArrowLeft", code: "ArrowLeft", windowsVirtualKeyCode: 37, nativeVirtualKeyCode: 37 });
+  await sleep(100);
+  const beforeBlur = await evaluate("({state:window.__TIDEBREAK__.getState(),inputs:window.__TIDEBREAK__.getInputs()})");
+  await evaluate("window.dispatchEvent(new Event('blur'))"); await sleep(350);
+  const onHold = await evaluate("({state:window.__TIDEBREAK__.getState(),inputs:window.__TIDEBREAK__.getInputs(),runtime:window.__TIDEBREAK__.getRuntime(),audio:window.__TIDEBREAK__.getAudioState()})");
+  await screenshot(`${artifactPrefix}-focus-hold-1280x720.png`);
+  if (!beforeBlur.inputs.left || !onHold.runtime.paused || onHold.runtime.pauseReason !== "blur") throw new Error("Focus loss did not enter rescue hold");
+  if (onHold.inputs.left || onHold.inputs.right) throw new Error("Steering remained latched during rescue hold");
+  if (onHold.state.time - beforeBlur.state.time > 0.08) throw new Error("Authored time advanced while focus hold was active");
+  if (onHold.audio.playing) throw new Error("Continuous audio remained active during rescue hold");
+  await send("Page.bringToFront");
+  await send("Emulation.setFocusEmulationEnabled", { enabled: true }); await sleep(120);
+  await key("P", "KeyP"); await sleep(250);
+  const resumed = await evaluate("({state:window.__TIDEBREAK__.getState(),inputs:window.__TIDEBREAK__.getInputs(),runtime:window.__TIDEBREAK__.getRuntime()})");
+  if (resumed.runtime.paused || resumed.inputs.left || resumed.inputs.right) throw new Error(`Explicit resume retained stale input: ${JSON.stringify(resumed)}`);
+  const targetAuthoredTime = resumed.state.time + 60;
+  let observed = resumed.state;
+  let steering = 0;
+  async function steerProduct(direction) {
+    if (direction === steering) return;
+    if (steering) { const name=steering<0?"ArrowLeft":"ArrowRight"; await send("Input.dispatchKeyEvent",{type:"keyUp",key:name,code:name,windowsVirtualKeyCode:steering<0?37:39}); }
+    steering=direction;
+    if (steering) { const name=steering<0?"ArrowLeft":"ArrowRight"; await send("Input.dispatchKeyEvent",{type:"rawKeyDown",key:name,code:name,windowsVirtualKeyCode:steering<0?37:39}); }
+  }
+  const deadline = Date.now() + 150000;
+  while (observed.mode === "playing" && observed.time < targetAuthoredTime && Date.now() < deadline) {
+    const next=observed.entities.filter(entity=>!entity.hit&&entity.z>0&&entity.z<.58).sort((a,b)=>a.z-b.z)[0]; let targetX=0;
+    if(next){const breakable=next.type==="driftwood"&&(observed.surgeTime>0||(observed.cooldown<=0&&observed.surge>=.34));targetX=(next.type==="survivor"||next.type==="gate"||breakable)?next.x:(next.x>0?-.46:.46);if((next.type==="survivor"||next.type==="driftwood")&&next.z<.25&&observed.cooldown<=0&&observed.surge>=.34)await key(" ","Space");}
+    const desired=Math.max(-1.1,Math.min(1.1,(targetX-observed.boatX)*2.5));const delta=desired-observed.boatV;await steerProduct(Math.abs(delta)<.12?0:delta<0?-1:1);await sleep(80);observed=await evaluate("window.__TIDEBREAK__.getState()");
+  }
+  await steerProduct(0);
+  const runtime = await evaluate("window.__TIDEBREAK__.getRuntime()");
+  if (observed.time < targetAuthoredTime) throw new Error(`Performance audit ended early at ${observed.time.toFixed(2)}s`);
+  if (runtime.frameStats.samples < 2500 || runtime.frameStats.averageMs > 18 || runtime.frameStats.maxMs > 80) throw new Error(`Frame budget failed: ${JSON.stringify(runtime.frameStats)}`);
+  const audit={title:currentTitle,beforeBlur,onHold,resumed,after60Seconds:observed,runtime};
+  await writeFile(new URL(`../../docs/${artifactPrefix}-audit.json`,import.meta.url),`${JSON.stringify(audit,null,2)}\n`);
+  console.log(JSON.stringify({title:currentTitle,pauseReason:onHold.runtime.pauseReason,timeHeld:onHold.state.time-beforeBlur.state.time,afterTime:observed.time,frameStats:runtime.frameStats}));socket.close();process.exit(0);
+}
 if (process.argv.includes("--settings-only")) {
   await send("Emulation.setDeviceMetricsOverride", { width: 1280, height: 720, deviceScaleFactor: 1, mobile: false });
   await send("Page.navigate", { url: "http://127.0.0.1:4314/" });
