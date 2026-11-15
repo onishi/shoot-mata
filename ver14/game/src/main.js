@@ -1,11 +1,17 @@
 import { activateSurge, createGame, HEIGHT, startGame, STAGE_SECONDS, updateGame, WIDTH } from "./model.js";
 import { ArcadeAudio } from "./audio.js";
+import { canBind, displayCode, loadSettings, saveSettings } from "./settings.js";
 
 const canvas = document.querySelector("#game");
 const ctx = canvas.getContext("2d");
 const audio = new ArcadeAudio();
+let settings = loadSettings(localStorage);
+audio.setVolume(settings.volume);
 let state = createGame();
 let paused = false;
+let settingsOpen = false;
+let settingsRow = 0;
+let bindingAction = null;
 let last = performance.now();
 const keys = { left: false, right: false };
 
@@ -166,7 +172,7 @@ function drawBoat() {
     const spread = 64 + force * 22 + (side * state.boatV * 10);
     ctx.strokeStyle = "#d9ffffaa"; ctx.lineWidth = 4 + force;
     ctx.beginPath(); ctx.moveTo(x + side * 28, y + 19); ctx.quadraticCurveTo(x + side * spread * .75, y + 40, x + side * spread, 538); ctx.stroke();
-    for (let i = 0; i < 7; i++) {
+    for (let i = 0; i < (settings.reducedMotion ? 3 : 7); i++) {
       const phase = (state.time * (2.8 + force) + i * .137 + (side > 0 ? .43 : 0)) % 1;
       const px = x + side * (31 + phase * spread) + Math.sin(i * 9.7) * 7;
       const py = y + 20 + phase * 64;
@@ -226,8 +232,32 @@ function drawTitle() {
   text("FLOODLINE RESCUE RACER",480,288,22,"#79e8e1","center");
   text("STEER THE HYDROFOIL. SURGE THROUGH THE IMPOSSIBLE.",480,330,17,"#d3e4e6","center",600);
   const blink = Math.floor(performance.now()/450)%2; if (blink) text("PRESS ENTER",480,405,29,"#ffdd61","center");
-  text("← →  STEER",350,457,18,"#fff","center"); text("SPACE  SURGE",610,457,18,"#fff","center");
-  text("v14.0 M2 REPRESENTATIVE SLICE",480,510,13,"#76a6af","center");
+  text(`${displayCode(settings.controls.left)} ${displayCode(settings.controls.right)}  STEER`,350,457,18,"#fff","center"); text(`${displayCode(settings.controls.surge)}  SURGE`,610,457,18,"#fff","center");
+  text("S  SETTINGS",480,490,15,"#9de8e2","center");
+  text("v14.0 M2 REPRESENTATIVE SLICE",480,520,13,"#76a6af","center");
+}
+
+const settingRows = ["volume", "motion", "left", "right", "surge", "back"];
+function drawSettings() {
+  const theme = palette[0]; drawSky(theme); drawChannel(theme);
+  ctx.fillStyle = "#06101bea"; ctx.fillRect(145,42,670,456);
+  text("RESCUE CONSOLE",480,86,38,"#ffda61","center");
+  text("ACCESSIBILITY & CONTROLS",480,120,16,"#82dedb","center");
+  const rows = [
+    ["MASTER VOLUME", `${Math.round(settings.volume * 100)}%`],
+    ["REDUCED MOTION", settings.reducedMotion ? "ON" : "OFF"],
+    ["STEER LEFT", displayCode(settings.controls.left)],
+    ["STEER RIGHT", displayCode(settings.controls.right)],
+    ["SURGE", displayCode(settings.controls.surge)],
+    ["RETURN TO TITLE", "ENTER"]
+  ];
+  rows.forEach(([label, value], index) => {
+    const y = 169 + index * 48;
+    if (index === settingsRow) { ctx.fillStyle="#1a5263";ctx.fillRect(205,y-20,550,39); }
+    text(label,230,y,19,index===settingsRow?"#fff":"#a9c8cc");
+    text(bindingAction && settingRows[index] === bindingAction ? "PRESS A KEY" : value,730,y,19,bindingAction && settingRows[index] === bindingAction?"#ffda61":"#fff","right");
+  });
+  text(bindingAction ? "ESC CANCEL" : "↑ ↓ SELECT   ← → CHANGE   ENTER CONFIRM   ESC BACK",480,471,14,"#8fded9","center");
 }
 
 function drawEnd(theme) {
@@ -239,24 +269,55 @@ function drawEnd(theme) {
 }
 
 function render() {
+  if (settingsOpen) { drawSettings(); return; }
   if (state.mode === "title") { drawTitle(); return; }
   const theme = palette[state.section];
-  ctx.save(); if (state.shake > 0) ctx.translate((Math.random()-.5)*12,(Math.random()-.5)*8);
+  ctx.save(); if (state.shake > 0 && !settings.reducedMotion) ctx.translate((Math.random()-.5)*12,(Math.random()-.5)*8);
   drawSky(theme); drawChannel(theme); [...state.entities].filter(entity => !entity.hit).sort((a,b)=>b.z-a.z).forEach(drawEntity); drawBoat(); drawEffects(); drawHud(theme); ctx.restore();
   if (paused) { ctx.fillStyle="#06101adc";ctx.fillRect(0,0,WIDTH,HEIGHT);text("PAUSED",480,245,54,"#fff","center");text("P TO RESUME",480,305,20,"#8ce7df","center"); }
   if (state.mode === "cleared" || state.mode === "gameover") drawEnd(theme);
 }
 
+function persistSettings() { settings = saveSettings(localStorage, settings); audio.setVolume(settings.volume); }
+function changeSetting(direction = 1) {
+  const row = settingRows[settingsRow];
+  if (row === "volume") settings.volume = Math.round(Math.max(0, Math.min(1, settings.volume + direction * .1)) * 10) / 10;
+  if (row === "motion") settings.reducedMotion = !settings.reducedMotion;
+  persistSettings();
+}
+
 addEventListener("keydown", event => {
-  if (["ArrowLeft","ArrowRight","Space","Enter"].includes(event.code)) event.preventDefault();
-  if (event.code === "ArrowLeft") keys.left = true;
-  if (event.code === "ArrowRight") keys.right = true;
+  if (["ArrowLeft","ArrowRight","ArrowUp","ArrowDown","Space","Enter"].includes(event.code)) event.preventDefault();
+  if (settingsOpen) {
+    if (bindingAction) {
+      if (event.code === "Escape") { bindingAction = null; return; }
+      if (canBind(event.code, settings.controls, bindingAction)) {
+        settings.controls[bindingAction] = event.code; bindingAction = null; persistSettings();
+      }
+      return;
+    }
+    if (event.code === "ArrowUp") settingsRow = (settingsRow + settingRows.length - 1) % settingRows.length;
+    if (event.code === "ArrowDown") settingsRow = (settingsRow + 1) % settingRows.length;
+    if (event.code === "ArrowLeft") changeSetting(-1);
+    if (event.code === "ArrowRight") changeSetting(1);
+    if (event.code === "Escape") settingsOpen = false;
+    if (event.code === "Enter") {
+      const row = settingRows[settingsRow];
+      if (["left","right","surge"].includes(row)) bindingAction = row;
+      else if (row === "back") settingsOpen = false;
+      else changeSetting(1);
+    }
+    return;
+  }
+  if (event.code === settings.controls.left) keys.left = true;
+  if (event.code === settings.controls.right) keys.right = true;
   if (event.code === "Enter" && state.mode === "title") { audio.ensure(); startGame(state); }
-  if (event.code === "Space" && !event.repeat && !paused && activateSurge(state)) audio.surge();
+  if (event.code === "KeyS" && state.mode === "title") { settingsOpen = true; settingsRow = 0; }
+  if (event.code === settings.controls.surge && !event.repeat && !paused && activateSurge(state)) audio.surge();
   if (event.code === "KeyP" && state.mode === "playing") paused = !paused;
   if (event.code === "KeyR" && state.mode !== "title") { audio.ensure(); startGame(state); paused = false; }
 });
-addEventListener("keyup", event => { if(event.code==="ArrowLeft")keys.left=false;if(event.code==="ArrowRight")keys.right=false; });
+addEventListener("keyup", event => { if(event.code===settings.controls.left)keys.left=false;if(event.code===settings.controls.right)keys.right=false; });
 
 function frame(now) {
   const dt = Math.min(.05,(now-last)/1000); last=now;
@@ -266,5 +327,5 @@ function frame(now) {
   audio.update(dt,state.mode==="playing"&&!paused,state.section,state.boatV,state.surgeTime); render(); requestAnimationFrame(frame);
 }
 
-window.__TIDEBREAK__ = { getState: () => JSON.parse(JSON.stringify(state)), getAudioState: () => audio.inspect(), start: () => startGame(state), surge: () => activateSurge(state) };
+window.__TIDEBREAK__ = { getState: () => JSON.parse(JSON.stringify(state)), getInputs: () => ({ ...keys }), getAudioState: () => audio.inspect(), getSettings: () => JSON.parse(JSON.stringify(settings)), isSettingsOpen: () => settingsOpen, start: () => startGame(state), surge: () => activateSurge(state) };
 requestAnimationFrame(frame);

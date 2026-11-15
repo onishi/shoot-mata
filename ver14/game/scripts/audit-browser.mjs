@@ -39,12 +39,13 @@ async function evaluate(expression) {
   return result.result.value;
 }
 async function key(key, code) {
-  await send("Input.dispatchKeyEvent", { type: "keyDown", key, code, windowsVirtualKeyCode: key === "Enter" ? 13 : key === " " ? 32 : key === "ArrowRight" ? 39 : 37 });
+  const virtualCodes = { Enter: 13, " ": 32, ArrowLeft: 37, ArrowUp: 38, ArrowRight: 39, ArrowDown: 40, Escape: 27, S: 83, A: 65, D: 68, W: 87 };
+  await send("Input.dispatchKeyEvent", { type: "rawKeyDown", key, code, windowsVirtualKeyCode: virtualCodes[key] ?? 0, nativeVirtualKeyCode: virtualCodes[key] ?? 0 });
   await send("Input.dispatchKeyEvent", { type: "keyUp", key, code });
 }
 async function holdKey(key, code, milliseconds) {
-  const virtualKey = key === "ArrowRight" ? 39 : 37;
-  await send("Input.dispatchKeyEvent", { type: "keyDown", key, code, windowsVirtualKeyCode: virtualKey });
+  const virtualKey = key === "ArrowRight" ? 39 : key === "ArrowLeft" ? 37 : key.length === 1 ? key.toUpperCase().charCodeAt(0) : 0;
+  await send("Input.dispatchKeyEvent", { type: "rawKeyDown", key, code, windowsVirtualKeyCode: virtualKey, nativeVirtualKeyCode: virtualKey });
   await sleep(milliseconds);
   await send("Input.dispatchKeyEvent", { type: "keyUp", key, code, windowsVirtualKeyCode: virtualKey });
 }
@@ -55,6 +56,46 @@ async function screenshot(name) {
 
 await send("Page.enable");
 await send("Runtime.enable");
+if (process.argv.includes("--settings-only")) {
+  await send("Emulation.setDeviceMetricsOverride", { width: 1280, height: 720, deviceScaleFactor: 1, mobile: false });
+  await send("Page.navigate", { url: "http://127.0.0.1:4314/" });
+  await sleep(600);
+  const currentTitle = await evaluate("document.title");
+  if (currentTitle !== "TIDEBREAK 95 v14.0") throw new Error(`Wrong target: ${currentTitle}`);
+  await evaluate("localStorage.setItem('tidebreak95.settings.v1', '{broken')");
+  await send("Page.reload"); await sleep(500);
+  await send("Page.bringToFront");
+  const recovered = await evaluate("window.__TIDEBREAK__.getSettings()");
+  if (recovered.volume !== 0.8 || recovered.controls.left !== "ArrowLeft") throw new Error("Corrupt settings did not recover");
+  await evaluate("window.__auditKeys=[]; window.addEventListener('keydown', event => window.__auditKeys.push({key:event.key,code:event.code}))");
+  await key("S", "KeyS"); await sleep(150);
+  const opened = await evaluate("window.__TIDEBREAK__.isSettingsOpen()");
+  if (!opened) throw new Error(`Settings key did not open menu: ${JSON.stringify(await evaluate("window.__auditKeys"))}`);
+  await screenshot(`${artifactPrefix}-settings-1280x720.png`);
+  await key("ArrowLeft", "ArrowLeft");
+  await key("ArrowDown", "ArrowDown"); await key("Enter", "Enter");
+  await key("ArrowDown", "ArrowDown"); await key("Enter", "Enter"); await key("A", "KeyA");
+  await key("ArrowDown", "ArrowDown"); await key("Enter", "Enter"); await key("D", "KeyD");
+  await key("ArrowDown", "ArrowDown"); await key("Enter", "Enter"); await key("W", "KeyW");
+  const configured = await evaluate("window.__TIDEBREAK__.getSettings()");
+  await send("Page.reload"); await sleep(500);
+  const persisted = await evaluate("window.__TIDEBREAK__.getSettings()");
+  await key("S", "KeyS"); await sleep(120);
+  await send("Emulation.setDeviceMetricsOverride", { width: 640, height: 360, deviceScaleFactor: 1, mobile: false });
+  await screenshot(`${artifactPrefix}-settings-640x360.png`);
+  await key("Escape", "Escape"); await key("Enter", "Enter");
+  await send("Input.dispatchKeyEvent", { type: "rawKeyDown", key: "A", code: "KeyA", windowsVirtualKeyCode: 65, nativeVirtualKeyCode: 65 });
+  const remappedInput = await evaluate("window.__TIDEBREAK__.getInputs()");
+  await send("Input.dispatchKeyEvent", { type: "keyUp", key: "A", code: "KeyA", windowsVirtualKeyCode: 65 });
+  const playState = await evaluate("window.__TIDEBREAK__.getState()");
+  const audio = await evaluate("window.__TIDEBREAK__.getAudioState()");
+  if (JSON.stringify(configured) !== JSON.stringify(persisted)) throw new Error("Settings did not persist across reload");
+  if (playState.mode !== "playing" || !remappedInput.left) throw new Error(`Remapped steering did not reach game input: ${JSON.stringify({ configured, persisted, playState, remappedInput })}`);
+  if (audio.masterVolume !== 0.7) throw new Error("Master volume was not applied");
+  const audit = { title: currentTitle, recovered, configured, persisted, playMode: playState.mode, remappedInput, audio };
+  await writeFile(new URL(`../../docs/${artifactPrefix}-settings-audit.json`, import.meta.url), `${JSON.stringify(audit, null, 2)}\n`);
+  console.log(JSON.stringify(audit)); socket.close(); process.exit(0);
+}
 if (process.argv.includes("--small-only")) {
   await send("Emulation.setDeviceMetricsOverride", { width: 640, height: 360, deviceScaleFactor: 1, mobile: false });
   const currentTitle = await evaluate("document.title");

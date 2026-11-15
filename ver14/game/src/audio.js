@@ -3,7 +3,9 @@ export class ArcadeAudio {
     this.context = null; this.beat = 0; this.timer = 0;
     this.engine = null; this.engineGain = null; this.waterGain = null;
     this.lastMix = { playing: false, engineHz: 0, engineGain: 0, waterGain: 0 };
+    this.masterVolume = 0.8;
   }
+  setVolume(value) { this.masterVolume = Math.max(0, Math.min(1, Number(value) || 0)); }
   ensure() {
     if (!this.context) {
       this.context = new (window.AudioContext || window.webkitAudioContext)();
@@ -41,7 +43,7 @@ export class ArcadeAudio {
     const volume = this.context.createGain();
     oscillator.type = type; oscillator.frequency.setValueAtTime(frequency, now);
     oscillator.frequency.exponentialRampToValueAtTime(Math.max(40, frequency * slide), now + duration);
-    volume.gain.setValueAtTime(gain, now); volume.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+    volume.gain.setValueAtTime(gain * this.masterVolume, now); volume.gain.exponentialRampToValueAtTime(0.0001, now + duration);
     oscillator.connect(volume).connect(this.context.destination); oscillator.start(now); oscillator.stop(now + duration);
   }
   surge() { this.ensure(); this.tone(120, .28, "sawtooth", .08, 4.2); this.tone(70, .38, "triangle", .09, 1.8); }
@@ -52,8 +54,8 @@ export class ArcadeAudio {
     const now = this.context.currentTime;
     const throttle = playing ? Math.min(1, Math.abs(boatV) * 0.45 + (surgeTime > 0 ? 0.7 : 0.18)) : 0;
     const engineHz = 72 + throttle * 74 + section * 7;
-    const engineGain = playing ? 0.018 + throttle * 0.024 : 0;
-    const waterGain = playing ? 0.012 + throttle * 0.025 : 0;
+    const engineGain = playing ? (0.018 + throttle * 0.024) * this.masterVolume : 0;
+    const waterGain = playing ? (0.012 + throttle * 0.025) * this.masterVolume : 0;
     this.engine.frequency.setTargetAtTime(engineHz, now, 0.055);
     this.engineGain.gain.setTargetAtTime(engineGain, now, 0.08);
     this.waterGain.gain.setTargetAtTime(waterGain, now, 0.1);
@@ -68,5 +70,5 @@ export class ArcadeAudio {
       this.timer = .27;
     }
   }
-  inspect() { return { active: Boolean(this.context), state: this.context?.state ?? "closed", ...this.lastMix }; }
+  inspect() { return { active: Boolean(this.context), state: this.context?.state ?? "closed", masterVolume: this.masterVolume, ...this.lastMix }; }
 }

@@ -1,0 +1,44 @@
+{
+  "title": "TIDEBREAK 95 v14.0",
+  "recovered": {
+    "volume": 0.8,
+    "reducedMotion": false,
+    "controls": {
+      "left": "ArrowLeft",
+      "right": "ArrowRight",
+      "surge": "Space"
+    }
+  },
+  "configured": {
+    "volume": 0.7,
+    "reducedMotion": true,
+    "controls": {
+      "left": "KeyA",
+      "right": "KeyD",
+      "surge": "KeyW"
+    }
+  },
+  "persisted": {
+    "volume": 0.7,
+    "reducedMotion": true,
+    "controls": {
+      "left": "KeyA",
+      "right": "KeyD",
+      "surge": "KeyW"
+    }
+  },
+  "playMode": "playing",
+  "remappedInput": {
+    "left": true,
+    "right": false
+  },
+  "audio": {
+    "active": true,
+    "state": "running",
+    "masterVolume": 0.7,
+    "playing": false,
+    "engineHz": 0,
+    "engineGain": 0,
+    "waterGain": 0
+  }
+}
