@@ -1,4 +1,4 @@
-import { activateSurge, createGame, HEIGHT, startGame, STAGE_SECONDS, updateGame, WIDTH } from "./model.js";
+import { activateSurge, createGame, HEIGHT, routeProfile, startGame, STAGE_SECONDS, updateGame, WIDTH } from "./model.js";
 import { ArcadeAudio } from "./audio.js";
 import { canBind, displayCode, loadSettings, saveSettings } from "./settings.js";
 
@@ -92,10 +92,38 @@ function drawSky(theme) {
 function channelX(worldX, z) { return WIDTH / 2 + worldX * (170 + (1 - z) * 330); }
 function channelY(z) { return 214 + Math.pow(1 - z, 1.45) * 326; }
 
+function projectedRoute(time, z) {
+  const lookAhead = Math.max(0, z) * 3.2;
+  return routeProfile(time + lookAhead);
+}
+
+function drawFloodedArcade(theme) {
+  // A close, inhabited commercial canyon replaces the harbor skyline. Shop
+  // fronts lean toward the S-bend while signs and balconies establish scale.
+  const sideBuildings = [
+    [0, 170, 176, 335, "#252944"], [62, 126, 122, 360, "#343151"],
+    [784, 145, 176, 360, "#272d49"], [858, 105, 102, 390, "#3c3150"]
+  ];
+  for (const [x,y,w,h,color] of sideBuildings) {
+    ctx.fillStyle=color; ctx.fillRect(x,y,w,h);
+    ctx.fillStyle="#f0b85c";
+    for(let row=0;row<4;row++) for(let col=0;col<2;col++) ctx.fillRect(x+18+col*46,y+32+row*48,22,9);
+  }
+  ctx.fillStyle="#de5148";ctx.fillRect(20,248,132,31);text("NAMI MARKET",86,265,14,"#fff5d5","center");
+  ctx.fillStyle="#51bbb4";ctx.fillRect(806,222,132,31);text("AQUA ARCADE",872,239,14,"#071b2a","center");
+  ctx.strokeStyle="#181b31";ctx.lineWidth=8;ctx.beginPath();ctx.moveTo(110,192);ctx.lineTo(302,238);ctx.moveTo(850,173);ctx.lineTo(666,235);ctx.stroke();
+  ctx.fillStyle="#f6d45e";for(const [x,y] of [[112,192],[300,238],[850,173],[668,235]]){ctx.beginPath();ctx.arc(x,y,7,0,Math.PI*2);ctx.fill();}
+}
+
 function drawChannel(theme) {
-  polygon([[335,210],[625,210],[940,540],[20,540]], theme.water);
-  polygon([[0,210],[335,210],[20,540],[0,540]], theme.edge);
-  polygon([[625,210],[960,210],[960,540],[940,540]], theme.edge);
+  const samples = [];
+  for (let i = 0; i <= 12; i++) {
+    const z = 1 - i / 12, profile = projectedRoute(state.time, z), y = channelY(z);
+    samples.push({ y, left: channelX(profile.center - profile.halfWidth, z), right: channelX(profile.center + profile.halfWidth, z) });
+  }
+  polygon([...samples.map(point=>[point.left,point.y]), ...samples.slice().reverse().map(point=>[point.right,point.y])], theme.water);
+  polygon([[0,210],[samples[0].left,samples[0].y],...samples.slice(1).map(point=>[point.left,point.y]),[0,540]], theme.edge);
+  polygon([[960,210],[samples[0].right,samples[0].y],...samples.slice(1).map(point=>[point.right,point.y]),[960,540]], theme.edge);
   ctx.lineWidth = 3;
   for (let i = 0; i < 8; i++) {
     const y = 245 + i * 42 + ((state.time * 80) % 42);
@@ -104,7 +132,8 @@ function drawChannel(theme) {
     ctx.beginPath(); ctx.moveTo(480 - 70 - ratio * 340, y); ctx.quadraticCurveTo(480, y - 13, 480 + 80 + ratio * 280, y); ctx.stroke();
   }
   ctx.strokeStyle = theme.light; ctx.lineWidth = 5; ctx.setLineDash([14, 16]);
-  ctx.beginPath(); ctx.moveTo(335,210); ctx.lineTo(20,540); ctx.moveTo(625,210); ctx.lineTo(940,540); ctx.stroke(); ctx.setLineDash([]);
+  ctx.beginPath(); ctx.moveTo(samples[0].left,samples[0].y);for(const point of samples.slice(1))ctx.lineTo(point.left,point.y);
+  ctx.moveTo(samples[0].right,samples[0].y);for(const point of samples.slice(1))ctx.lineTo(point.right,point.y);ctx.stroke();ctx.setLineDash([]);
   if (state.section === 0) {
     // Near quay faces frame the playable water without hiding its boundary.
     polygon([[0,292],[164,275],[89,540],[0,540]], "#223548", "#0c1b29", 5);
@@ -121,7 +150,13 @@ function drawChannel(theme) {
     ctx.fillStyle="#e7f2e9"; ctx.fillRect(820,255,111,26); text("FLOOD 04",875,269,13,"#223247","center",900);
   }
   if (state.section === 1) {
-    for (const x of [90, 810]) { ctx.fillStyle = "#24314b"; ctx.fillRect(x, 285, 75, 205); ctx.fillStyle = "#ef875c"; ctx.fillRect(x + 10, 310, 55, 12); }
+    drawFloodedArcade(theme);
+    const direction = state.crosscurrent >= 0 ? 1 : -1;
+    ctx.strokeStyle="#a5fff0aa";ctx.lineWidth=5;
+    for(let row=0;row<4;row++){
+      const y=304+row*53, reach=55+row*20, center=channelX(state.routeCenter,(500-y)/290);
+      ctx.beginPath();ctx.moveTo(center-direction*reach,y);ctx.lineTo(center+direction*reach,y+10);ctx.lineTo(center+direction*(reach-18),y-3);ctx.stroke();
+    }
   }
   if (state.section === 2) {
     ctx.strokeStyle = "#8de8dd66"; ctx.lineWidth = 12;
@@ -133,7 +168,7 @@ function drawEntity(entity) {
   const z = Math.max(0, entity.z);
   const x = channelX(entity.x, z), y = channelY(z), scale = .25 + (1 - z) * 1.25;
   ctx.save(); ctx.translate(x, y); ctx.scale(scale, scale);
-  if (entity.type === "survivor") {
+  if (entity.type === "survivor" || entity.type === "routeSurvivor") {
     const wave = Math.sin(state.time * 8 + entity.id) * .28;
     ctx.fillStyle = "#ffdf57"; ctx.beginPath(); ctx.ellipse(0, 7, 31, 14, 0, 0, Math.PI * 2); ctx.fill();
     ctx.fillStyle = "#202f42"; ctx.beginPath(); ctx.ellipse(0, 7, 20, 7, 0, 0, Math.PI * 2); ctx.fill();
@@ -144,6 +179,9 @@ function drawEntity(entity) {
     ctx.strokeStyle="#ff594f"; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(31,-43);ctx.lineTo(31,-83);ctx.stroke();
     polygon([[31,-83],[64,-74],[31,-62]], "#ff594f", "#fff1c7", 2);
     text("SOS", 47, -73, 12, "#fff", "center");
+    if (entity.type === "routeSurvivor") {
+      ctx.fillStyle="#10243ddd";ctx.fillRect(-50,22,100,24);text(entity.route,-0,35,12,"#ffe263","center");
+    }
   } else if (entity.type === "gate") {
     ctx.strokeStyle = "#7effdf"; ctx.lineWidth = 9; ctx.beginPath(); ctx.arc(0, -8, 48, Math.PI, 0); ctx.stroke();
     ctx.fillStyle = "#ffce52"; ctx.fillRect(-52, -12, 12, 38); ctx.fillRect(40, -12, 12, 38);
@@ -235,6 +273,11 @@ function drawHud(theme) {
   text("SURGE",745,37,17,"#9cfff4"); ctx.fillStyle="#15313c"; ctx.fillRect(815,27,105,18); ctx.fillStyle=theme.light; ctx.fillRect(818,30,99*state.surge,12);
   text(state.surge>=.34?"SPACE READY":"RECHARGING",920,63,14,state.surge>=.34?"#fff16b":"#7ba6ae","right");
   if (state.messageTime > 0) text(state.message,480,115,30,theme.light,"center");
+  if (state.section === 1) {
+    const arrow=state.crosscurrent>0.03?"→":state.crosscurrent<-.03?"←":"·";
+    ctx.fillStyle="#07111bdc";ctx.fillRect(728,86,194,27);
+    text(`CURRENT ${arrow} ${Math.round(Math.abs(state.crosscurrent)*100)}`,910,100,13,"#9cfff4","right");
+  }
 }
 
 function drawTitle() {
@@ -248,7 +291,7 @@ function drawTitle() {
   const blink = Math.floor(performance.now()/450)%2; if (blink) text("PRESS ENTER",480,405,29,"#ffdd61","center");
   text(`${displayCode(settings.controls.left)} ${displayCode(settings.controls.right)}  STEER`,350,457,18,"#fff","center"); text(`${displayCode(settings.controls.surge)}  SURGE`,610,457,18,"#fff","center");
   text("S  SETTINGS",480,490,15,"#9de8e2","center");
-  text("v14.0 M2 REPRESENTATIVE SLICE",480,520,13,"#76a6af","center");
+  text("v14.0 M3 FLOODED ARCADE",480,520,13,"#76a6af","center");
 }
 
 const settingRows = ["volume", "motion", "left", "right", "surge", "back"];

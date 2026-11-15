@@ -179,6 +179,9 @@ let steering = 0;
 let capturedSection = 0;
 let capturedSurvivor = false;
 let capturedBreak = false;
+let capturedStreetBend = false;
+let capturedStreetChoice = false;
+const streetSamples = [];
 async function steer(direction) {
   if (direction === steering) return;
   if (steering !== 0) {
@@ -209,6 +212,17 @@ while (observed.mode === "playing" && Date.now() < deadline) {
   await steer(Math.abs(deltaV) < 0.12 ? 0 : deltaV < 0 ? -1 : 1);
   await sleep(90);
   observed = await evaluate("window.__TIDEBREAK__.getState()");
+  if (observed.section === 1 && (!streetSamples.length || observed.time - streetSamples.at(-1).time >= 0.48)) {
+    streetSamples.push({ time: observed.time, center: observed.routeCenter, halfWidth: observed.routeHalfWidth, current: observed.crosscurrent, boatX: observed.boatX });
+  }
+  if (!capturedStreetBend && observed.section === 1 && Math.abs(observed.routeCenter) > 0.22) {
+    capturedStreetBend = true;
+    await screenshot(`${artifactPrefix}-street-bend-1280x720.png`);
+  }
+  if (!capturedStreetChoice && observed.entities.some(entity => !entity.hit && entity.type === "routeSurvivor" && entity.z < 0.62)) {
+    capturedStreetChoice = true;
+    await screenshot(`${artifactPrefix}-street-choice-1280x720.png`);
+  }
   if (!capturedSurvivor && observed.entities.some(entity => !entity.hit && entity.type === "survivor" && entity.z < 0.52)) {
     capturedSurvivor = true;
     await screenshot(`${artifactPrefix}-survivor-gesture-1280x720.png`);
@@ -228,7 +242,8 @@ if (observed.mode === "playing") throw new Error(`Audit timed out at authored ti
 await screenshot(`${artifactPrefix}-result-1280x720.png`);
 const audio = await evaluate("window.__TIDEBREAK__.getAudioState()");
 audioSamples.push({ moment: "result", ...audio });
-const audit = { title, mode: observed.mode, time: observed.time, section: observed.section, spawned: observed.spawned, integrity: observed.integrity, rescued: observed.rescued, score: observed.score, capturedSurvivor, capturedBreak, audioSamples };
+if (!capturedStreetBend || !capturedStreetChoice) throw new Error(`Flooded arcade evidence missing: ${JSON.stringify({capturedStreetBend,capturedStreetChoice})}`);
+const audit = { title, mode: observed.mode, time: observed.time, section: observed.section, spawned: observed.spawned, integrity: observed.integrity, rescued: observed.rescued, score: observed.score, routeChoices: observed.routeChoices, capturedSurvivor, capturedBreak, capturedStreetBend, capturedStreetChoice, streetSamples, audioSamples };
 await writeFile(new URL(`../../docs/${artifactPrefix}-browser-audit.json`, import.meta.url), `${JSON.stringify(audit, null, 2)}\n`);
 console.log(JSON.stringify(audit));
 socket.close();

@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { activateSurge, createGame, startGame, STAGE_SECONDS, updateGame } from "../src/model.js";
+import { activateSurge, createGame, routeProfile, startGame, STAGE_SECONDS, updateGame } from "../src/model.js";
 
 test("steering has momentum and stays inside the flood channel", () => {
   const state = startGame(createGame());
@@ -47,5 +47,31 @@ test("the vertical slice reaches its authored ending", () => {
   while (state.time < STAGE_SECONDS && state.mode === "playing") updateGame(state, {}, 0.05);
   assert.equal(state.mode, "cleared");
   assert.equal(state.section, 3);
-  assert.equal(state.spawned, 30);
+  assert.equal(state.spawned, 34);
+});
+
+test("the flooded arcade bends, narrows, and pushes across the route", () => {
+  const entrance = routeProfile(25);
+  const eastBend = routeProfile(31.25);
+  const westBend = routeProfile(43.75);
+  assert.equal(entrance.center, 0);
+  assert.ok(eastBend.center > 0.25 && westBend.center < -0.25);
+  assert.ok(eastBend.halfWidth < routeProfile(10).halfWidth);
+  assert.notEqual(eastBend.current, 0);
+});
+
+test("rescuing one flooded arcade branch closes its alternative", () => {
+  const state = startGame(createGame());
+  state.time = 32.5;
+  state.boatX = -0.28;
+  state.surgeTime = 0.5;
+  state.entities.push(
+    { id: 90, type: "routeSurvivor", x: -0.28, route: "MARKET", choice: "market", z: 0.101, hit: false },
+    { id: 91, type: "routeSurvivor", x: 0.28, route: "ARCADE", choice: "market", z: 0.101, hit: false }
+  );
+  updateGame(state, {}, 1 / 60);
+  assert.equal(state.routeChoices.length, 1);
+  assert.equal(state.routeChoices[0].route, "MARKET");
+  assert.equal(state.entities.find(entity => entity.id === 91)?.hit, true);
+  assert.match(state.message, /MARKET ROUTE/);
 });
