@@ -92,6 +92,8 @@ await screenshot(`${artifactPrefix}-rescue-route-1280x720.png`);
 let observed = gameState;
 let steering = 0;
 let capturedSection = 0;
+let capturedSurvivor = false;
+let capturedBreak = false;
 async function steer(direction) {
   if (direction === steering) return;
   if (steering !== 0) {
@@ -112,7 +114,8 @@ while (observed.mode === "playing" && Date.now() < deadline) {
   const next = observed.entities.filter(entity => !entity.hit && entity.z > 0 && entity.z < 0.58).sort((a, b) => a.z - b.z)[0];
   let targetX = 0;
   if (next) {
-    if (next.type === "survivor" || next.type === "gate") targetX = next.x;
+    const canBreakDriftwood = next.type === "driftwood" && (observed.surgeTime > 0 || (observed.cooldown <= 0 && observed.surge >= 0.34));
+    if (next.type === "survivor" || next.type === "gate" || canBreakDriftwood) targetX = next.x;
     else targetX = next.x > 0 ? -0.46 : 0.46;
     if ((next.type === "survivor" || next.type === "driftwood") && next.z < 0.25 && observed.cooldown <= 0 && observed.surge >= 0.34) await key(" ", "Space");
   }
@@ -121,6 +124,14 @@ while (observed.mode === "playing" && Date.now() < deadline) {
   await steer(Math.abs(deltaV) < 0.12 ? 0 : deltaV < 0 ? -1 : 1);
   await sleep(90);
   observed = await evaluate("window.__TIDEBREAK__.getState()");
+  if (!capturedSurvivor && observed.entities.some(entity => !entity.hit && entity.type === "survivor" && entity.z < 0.52)) {
+    capturedSurvivor = true;
+    await screenshot(`${artifactPrefix}-survivor-gesture-1280x720.png`);
+  }
+  if (!capturedBreak && observed.effects.some(effect => effect.type === "break")) {
+    capturedBreak = true;
+    await screenshot(`${artifactPrefix}-driftwood-break-1280x720.png`);
+  }
   if (observed.section > capturedSection) {
     capturedSection = observed.section;
     audioSamples.push({ moment: `section-${capturedSection}`, ...(await evaluate("window.__TIDEBREAK__.getAudioState()")) });
@@ -132,7 +143,7 @@ if (observed.mode === "playing") throw new Error(`Audit timed out at authored ti
 await screenshot(`${artifactPrefix}-result-1280x720.png`);
 const audio = await evaluate("window.__TIDEBREAK__.getAudioState()");
 audioSamples.push({ moment: "result", ...audio });
-const audit = { title, mode: observed.mode, time: observed.time, section: observed.section, spawned: observed.spawned, integrity: observed.integrity, rescued: observed.rescued, score: observed.score, audioSamples };
+const audit = { title, mode: observed.mode, time: observed.time, section: observed.section, spawned: observed.spawned, integrity: observed.integrity, rescued: observed.rescued, score: observed.score, capturedSurvivor, capturedBreak, audioSamples };
 await writeFile(new URL(`../../docs/${artifactPrefix}-browser-audit.json`, import.meta.url), `${JSON.stringify(audit, null, 2)}\n`);
 console.log(JSON.stringify(audit));
 socket.close();

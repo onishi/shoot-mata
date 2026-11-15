@@ -16,6 +16,7 @@ test("surge spends charge and protects long enough to break driftwood", () => {
   assert.equal(state.integrity, 3);
   assert.ok(state.score >= 350);
   assert.ok(state.surge < 0.8);
+  assert.ok(state.effects.some(effect => effect.type === "break"), "broken driftwood leaves a visible impact effect");
 });
 
 test("surge widens the rescue window and builds a chain", () => {

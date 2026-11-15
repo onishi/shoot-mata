@@ -29,6 +29,27 @@ function polygon(points, fill, stroke = null, width = 2) {
   if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = width; ctx.stroke(); }
 }
 
+function drawHarborHorizon(theme) {
+  // Three depth bands keep the opening harbor legible while the water races
+  // toward the player: refinery silhouettes, working quays, then foreground
+  // rescue hardware. Shapes are deliberately asymmetric so it reads as a
+  // place rather than a repeated skyline texture.
+  ctx.fillStyle = "#263849";
+  polygon([[0,232],[0,174],[52,174],[52,145],[70,145],[70,232]], "#263849");
+  polygon([[74,232],[74,188],[155,188],[155,129],[168,129],[168,232]], "#213445");
+  polygon([[760,232],[760,166],[841,166],[841,194],[914,194],[914,144],[930,144],[930,232]], "#203244");
+  ctx.strokeStyle = "#172838"; ctx.lineWidth = 8;
+  ctx.beginPath(); ctx.moveTo(116,184); ctx.lineTo(214,112); ctx.lineTo(214,229); ctx.moveTo(214,112); ctx.lineTo(300,184); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(836,166); ctx.lineTo(748,105); ctx.lineTo(748,229); ctx.moveTo(748,105); ctx.lineTo(680,170); ctx.stroke();
+  ctx.strokeStyle = theme.light; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.moveTo(126,178); ctx.lineTo(205,120); ctx.moveTo(827,160); ctx.lineTo(757,112); ctx.stroke();
+  ctx.fillStyle = "#e8c85b";
+  for (const [x, y] of [[42,188],[91,203],[143,204],[790,185],[873,208],[923,178]]) ctx.fillRect(x, y, 14, 5);
+  ctx.fillStyle = "#e8eee2"; ctx.fillRect(244,190,112,23); ctx.fillStyle = "#d94b43"; ctx.fillRect(278,184,30,6);
+  ctx.fillStyle = "#132538"; ctx.fillRect(265,178,17,12); ctx.fillRect(318,178,17,12);
+  ctx.fillStyle = "#f5d557"; ctx.beginPath(); ctx.arc(300,176,5,0,Math.PI*2); ctx.fill();
+}
+
 function drawSky(theme) {
   const grad = ctx.createLinearGradient(0, 0, 0, 290);
   grad.addColorStop(0, theme.sky); grad.addColorStop(1, theme.far);
@@ -40,6 +61,7 @@ function drawSky(theme) {
     ctx.fillRect(i * 82 - 18, 230 - h, 58, h);
     if (state.section > 0) { ctx.fillStyle = theme.light; ctx.fillRect(i * 82, 203 - h, 4, 13); ctx.fillStyle = theme.far; }
   }
+  if (state.section === 0) drawHarborHorizon(theme);
   if (state.section === 3) {
     ctx.fillStyle = "#070d18"; ctx.fillRect(210, 178, 540, 68);
     polygon([[250,178],[320,112],[650,112],[714,178]], "#101828", theme.light, 4);
@@ -63,6 +85,21 @@ function drawChannel(theme) {
   }
   ctx.strokeStyle = theme.light; ctx.lineWidth = 5; ctx.setLineDash([14, 16]);
   ctx.beginPath(); ctx.moveTo(335,210); ctx.lineTo(20,540); ctx.moveTo(625,210); ctx.lineTo(940,540); ctx.stroke(); ctx.setLineDash([]);
+  if (state.section === 0) {
+    // Near quay faces frame the playable water without hiding its boundary.
+    polygon([[0,292],[164,275],[89,540],[0,540]], "#223548", "#0c1b29", 5);
+    polygon([[960,270],[802,284],[876,540],[960,540]], "#213347", "#0c1b29", 5);
+    ctx.fillStyle = "#e5b84e";
+    for (const [x,y,w] of [[18,326,105],[5,410,92],[837,322,105],[873,414,87]]) {
+      ctx.save(); ctx.translate(x,y); ctx.rotate(x < 400 ? -.12 : .12); ctx.fillRect(0,0,w,9); ctx.fillStyle="#142435"; ctx.fillRect(18,0,18,9); ctx.fillRect(54,0,18,9); ctx.restore(); ctx.fillStyle="#e5b84e";
+    }
+    for (const [x,y] of [[142,304],[84,438],[817,312],[885,446]]) {
+      ctx.fillStyle="#f04f45"; ctx.fillRect(x-9,y-38,18,38); ctx.fillStyle="#fff1bd"; ctx.fillRect(x-9,y-28,18,8);
+      ctx.strokeStyle="#151e2c"; ctx.lineWidth=5; ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x,y+32); ctx.stroke();
+    }
+    ctx.fillStyle="#f4d653"; ctx.fillRect(24,258,112,26); text("RESCUE PIER",80,272,13,"#18283a","center",900);
+    ctx.fillStyle="#e7f2e9"; ctx.fillRect(820,255,111,26); text("FLOOD 04",875,269,13,"#223247","center",900);
+  }
   if (state.section === 1) {
     for (const x of [90, 810]) { ctx.fillStyle = "#24314b"; ctx.fillRect(x, 285, 75, 205); ctx.fillStyle = "#ef875c"; ctx.fillRect(x + 10, 310, 55, 12); }
   }
@@ -77,15 +114,23 @@ function drawEntity(entity) {
   const x = channelX(entity.x, z), y = channelY(z), scale = .25 + (1 - z) * 1.25;
   ctx.save(); ctx.translate(x, y); ctx.scale(scale, scale);
   if (entity.type === "survivor") {
-    ctx.fillStyle = "#ffdf57"; ctx.beginPath(); ctx.ellipse(0, 5, 28, 13, 0, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = "#f25d52"; ctx.fillRect(-12, -31, 24, 31); ctx.fillStyle = "#ffe3bc"; ctx.beginPath(); ctx.arc(0, -39, 10, 0, Math.PI * 2); ctx.fill();
-    ctx.strokeStyle = "#fff"; ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(-8,-27); ctx.lineTo(-26,-46); ctx.moveTo(8,-27); ctx.lineTo(27,-48); ctx.stroke();
-    text("SOS", 0, -66, 16, "#fff", "center");
+    const wave = Math.sin(state.time * 8 + entity.id) * .28;
+    ctx.fillStyle = "#ffdf57"; ctx.beginPath(); ctx.ellipse(0, 7, 31, 14, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = "#202f42"; ctx.beginPath(); ctx.ellipse(0, 7, 20, 7, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = "#f25d52"; ctx.fillRect(-12, -31, 24, 34); ctx.fillStyle = "#ffe3bc"; ctx.beginPath(); ctx.arc(0, -39, 10, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = "#fff4d1"; ctx.lineWidth = 6; ctx.lineCap = "round"; ctx.beginPath();
+    ctx.moveTo(-8,-25); ctx.lineTo(-27,-43); ctx.lineTo(-34,-35);
+    ctx.moveTo(8,-25); ctx.lineTo(25 + wave * 20,-51); ctx.lineTo(35 + wave * 16,-43); ctx.stroke();
+    ctx.strokeStyle="#ff594f"; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(31,-43);ctx.lineTo(31,-83);ctx.stroke();
+    polygon([[31,-83],[64,-74],[31,-62]], "#ff594f", "#fff1c7", 2);
+    text("SOS", 47, -73, 12, "#fff", "center");
   } else if (entity.type === "gate") {
     ctx.strokeStyle = "#7effdf"; ctx.lineWidth = 9; ctx.beginPath(); ctx.arc(0, -8, 48, Math.PI, 0); ctx.stroke();
     ctx.fillStyle = "#ffce52"; ctx.fillRect(-52, -12, 12, 38); ctx.fillRect(40, -12, 12, 38);
   } else if (entity.type === "driftwood") {
-    ctx.rotate(-.2); ctx.fillStyle = "#5b3427"; ctx.fillRect(-47,-12,94,24); ctx.fillStyle = "#b67445"; ctx.fillRect(-35,-17,62,7);
+    ctx.rotate(-.2); polygon([[-52,-8],[-35,-19],[4,-14],[17,-25],[50,-13],[43,12],[6,15],[-17,24],[-49,13]], "#5b3427", "#2b2523", 4);
+    ctx.fillStyle = "#b67445"; ctx.fillRect(-35,-13,66,7); ctx.fillStyle="#d4985c"; ctx.fillRect(-17,-7,37,5);
+    ctx.strokeStyle="#33251f";ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(15,-17);ctx.lineTo(4,10);ctx.moveTo(-22,-14);ctx.lineTo(-30,14);ctx.stroke();
   } else if (entity.type === "concrete") {
     polygon([[-46,20],[-35,-34],[22,-46],[47,15]], "#71808a", "#b9c7cc", 4);
     ctx.fillStyle = "#f05b45"; ctx.fillRect(-21,-20,12,12); ctx.fillRect(4,-20,12,12);
@@ -146,7 +191,16 @@ function drawEffects() {
       ctx.fillStyle = "#ef5146"; ctx.fillRect(personX-6,personY+7,12,15);
       text("SAVED",x,y-60-progress*20,25,"#fff16b","center");
     }
-    if (effect.type === "break") { ctx.fillStyle = "#ffd879"; for(let i=0;i<9;i++){ const a=i*.7; ctx.fillRect(x+Math.cos(a)*progress*80,y+Math.sin(a)*progress*55,12,7); } }
+    if (effect.type === "break") {
+      // The log becomes two tumbling halves plus splinters instead of simply
+      // vanishing on contact, making the surge result readable in motion.
+      for (const side of [-1,1]) {
+        ctx.save(); ctx.translate(x + side * progress * 68, y - progress * 25); ctx.rotate(side * (.25 + progress * 1.4));
+        polygon([[-31,-9],[24,-13],[32,7],[-24,12]], side < 0 ? "#70412c" : "#5a3326", "#2c2421", 3); ctx.restore();
+      }
+      ctx.fillStyle = "#ffd879";
+      for(let i=0;i<11;i++){ const a=i*.73; ctx.save();ctx.translate(x+Math.cos(a)*progress*92,y+Math.sin(a)*progress*62);ctx.rotate(a+progress*2);ctx.fillRect(-7,-3,14,6);ctx.restore(); }
+    }
     if (effect.type === "hit") { ctx.strokeStyle = "#ff544b"; ctx.lineWidth = 10; ctx.beginPath(); ctx.arc(x,y,25+progress*70,0,Math.PI*2); ctx.stroke(); }
     ctx.restore();
   }
