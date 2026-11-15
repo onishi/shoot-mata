@@ -47,7 +47,55 @@ test("the vertical slice reaches its authored ending", () => {
   while (state.time < STAGE_SECONDS && state.mode === "playing") updateGame(state, {}, 0.05);
   assert.equal(state.mode, "cleared");
   assert.equal(state.section, 3);
-  assert.equal(state.spawned, 34);
+  assert.equal(state.spawned, 36);
+});
+
+test("the underflow requires diving below ceilings and surfacing above intakes", () => {
+  const deep = startGame(createGame());
+  deep.time = 55;
+  deep.section = 2;
+  deep.depth = 0.72;
+  deep.entities.push({ id: 90, type: "lowCeiling", x: 0, z: 0.101, hit: false });
+  updateGame(deep, { dive: true }, 1 / 60);
+  assert.equal(deep.integrity, 3);
+  assert.equal(deep.message, "DIVE CLEAR");
+
+  const surface = startGame(createGame());
+  surface.time = 58;
+  surface.section = 2;
+  surface.depth = 0.15;
+  surface.entities.push({ id: 91, type: "intake", x: 0, z: 0.101, hit: false });
+  updateGame(surface, { surface: true }, 1 / 60);
+  assert.equal(surface.integrity, 3);
+  assert.equal(surface.message, "SURFACE CLEAR");
+});
+
+test("underflow rescue access follows the boat layer", () => {
+  const state = startGame(createGame());
+  state.time = 55;
+  state.section = 2;
+  state.depth = 0.75;
+  state.entities.push({ id: 92, type: "tunnelSurvivor", layer: "deep", route: "DIVE TEAM", x: 0, z: 0.101, hit: false });
+  updateGame(state, { dive: true }, 1 / 60);
+  assert.equal(state.rescued, 1);
+  assert.match(state.message, /DIVE TEAM/);
+  assert.deepEqual(state.underflowRescues.map(rescue => rescue.layer), ["deep"]);
+
+  state.depth = 0.8;
+  state.entities.push({ id: 93, type: "tunnelSurvivor", layer: "surface", route: "AIR POCKET", x: 0, z: 0.101, hit: false });
+  updateGame(state, { dive: true }, 1 / 60);
+  assert.equal(state.rescued, 1);
+  assert.equal(state.message, "SURFACE TO REACH THEM");
+});
+
+test("a gradual return to the surface is recorded after a deep dive", () => {
+  const state = startGame(createGame());
+  state.time = 55;
+  state.section = 2;
+  while (state.depth < 0.7) updateGame(state, { dive: true }, 1 / 60);
+  while (state.depth > 0.3) updateGame(state, { surface: true }, 1 / 60);
+  assert.ok(state.maxDepth >= 0.7);
+  assert.equal(state.surfacedAfterDive, true);
 });
 
 test("the flooded arcade bends, narrows, and pushes across the route", () => {

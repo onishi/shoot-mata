@@ -49,17 +49,17 @@ export class ArcadeAudio {
   surge() { this.ensure(); this.tone(120, .28, "sawtooth", .08, 4.2); this.tone(70, .38, "triangle", .09, 1.8); }
   rescue() { this.tone(520, .12, "square", .055, 1.5); setTimeout(() => this.tone(780, .18, "square", .045, 1.25), 85); }
   hit() { this.tone(100, .32, "sawtooth", .1, .45); }
-  update(dt, playing, section, boatV = 0, surgeTime = 0) {
+  update(dt, playing, section, boatV = 0, surgeTime = 0, depth = 0) {
     if (!this.context) return;
     const now = this.context.currentTime;
     const throttle = playing ? Math.min(1, Math.abs(boatV) * 0.45 + (surgeTime > 0 ? 0.7 : 0.18)) : 0;
-    const engineHz = 72 + throttle * 74 + section * 7;
-    const engineGain = playing ? (0.018 + throttle * 0.024) * this.masterVolume : 0;
-    const waterGain = playing ? (0.012 + throttle * 0.025) * this.masterVolume : 0;
+    const engineHz = (72 + throttle * 74 + section * 7) * (1 - depth * .24);
+    const engineGain = playing ? (0.018 + throttle * 0.024 + depth * .006) * this.masterVolume : 0;
+    const waterGain = playing ? (0.012 + throttle * 0.025 + depth * .018) * this.masterVolume : 0;
     this.engine.frequency.setTargetAtTime(engineHz, now, 0.055);
     this.engineGain.gain.setTargetAtTime(engineGain, now, 0.08);
     this.waterGain.gain.setTargetAtTime(waterGain, now, 0.1);
-    this.lastMix = { playing, engineHz, engineGain, waterGain };
+    this.lastMix = { playing, engineHz, engineGain, waterGain, depth };
     if (!playing) return;
     this.timer -= dt;
     if (this.timer <= 0) {

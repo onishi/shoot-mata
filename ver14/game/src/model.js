@@ -15,21 +15,35 @@ export const ROUTE_EVENTS = [
   [40, "driftwood", -0.52], [43, "driftwood", 0.48], [46, "survivor", -0.40],
   [46.8, "routeSurvivor", -0.26, { choice: "station", route: "CLINIC" }],
   [46.8, "routeSurvivor", 0.26, { choice: "station", route: "STATION" }],
-  [49, "gate", 0], [52, "concrete", 0.38], [55, "survivor", 0.22],
-  [58, "driftwood", -0.22], [61, "survivor", -0.56], [64, "gate", 0.34],
-  [67, "concrete", -0.12], [70, "driftwood", 0.50], [73, "survivor", 0.04],
+  [49, "gate", 0],
+  [52, "lowCeiling", 0], [54.5, "tunnelSurvivor", -0.24, { layer: "deep", route: "DIVE TEAM" }],
+  [57, "intake", 0.32], [59.5, "tunnelSurvivor", 0.24, { layer: "surface", route: "AIR POCKET" }],
+  [62, "lowCeiling", 0], [64.5, "tunnelSurvivor", 0.18, { layer: "deep", route: "VALVE CREW" }],
+  [67, "intake", -0.30], [69, "gate", 0.22],
+  [71.5, "tunnelSurvivor", -0.25, { choice: "floodway", layer: "surface", route: "UPPER CREW" }],
+  [71.5, "tunnelSurvivor", 0.25, { choice: "floodway", layer: "deep", route: "LOWER CREW" }],
   [76, "bargeLeft", -0.34], [79, "bargeRight", 0.34], [82, "survivor", -0.18],
   [85, "bargeLeft", -0.46], [87, "bargeRight", 0.46], [89, "gate", 0]
 ];
 
 export function routeProfile(time) {
-  if (time < 25 || time >= 50) return { center: 0, halfWidth: 0.72, current: 0 };
-  const phase = (time - 25) / 25;
-  return {
-    center: Math.sin(phase * Math.PI * 2) * 0.27,
-    halfWidth: 0.47 - Math.sin(phase * Math.PI) * 0.035,
-    current: Math.sin(phase * Math.PI * 4 + 0.65) * 0.34
-  };
+  if (time >= 25 && time < 50) {
+    const phase = (time - 25) / 25;
+    return {
+      center: Math.sin(phase * Math.PI * 2) * 0.27,
+      halfWidth: 0.47 - Math.sin(phase * Math.PI) * 0.035,
+      current: Math.sin(phase * Math.PI * 4 + 0.65) * 0.34
+    };
+  }
+  if (time >= 50 && time < 75) {
+    const phase = (time - 50) / 25;
+    return {
+      center: Math.sin(phase * Math.PI * 3) * 0.11,
+      halfWidth: 0.54 - Math.sin(phase * Math.PI) * 0.025,
+      current: Math.sin(phase * Math.PI * 2 + 2.4) * -0.12
+    };
+  }
+  return { center: 0, halfWidth: 0.72, current: 0 };
 }
 
 export function createGame() {
@@ -37,7 +51,8 @@ export function createGame() {
     mode: "title", time: 0, boatX: 0, boatV: 0, integrity: 3, rescued: 0,
     score: 0, combo: 0, surge: 1, surgeTime: 0, cooldown: 0, spawned: 0,
     entities: [], effects: [], shake: 0, section: 0, message: "", messageTime: 0,
-    routeCenter: 0, routeHalfWidth: 0.72, crosscurrent: 0, routeChoices: []
+    routeCenter: 0, routeHalfWidth: 0.72, crosscurrent: 0, routeChoices: [],
+    depth: 0, depthV: 0, maxDepth: 0, surfacedAfterDive: false, underflowRescues: []
   };
 }
 
@@ -74,15 +89,17 @@ export function activateSurge(state) {
 function resolveEntity(state, entity) {
   const distance = Math.abs(entity.x - state.boatX);
   const protectedByWake = state.surgeTime > 0;
-  if (entity.type === "survivor" || entity.type === "routeSurvivor") {
-    if (distance < (protectedByWake ? 0.31 : 0.12)) {
+  if (entity.type === "survivor" || entity.type === "routeSurvivor" || entity.type === "tunnelSurvivor") {
+    const layerReady = entity.type !== "tunnelSurvivor" || (entity.layer === "deep" ? state.depth >= 0.58 : state.depth <= 0.34);
+    if (distance < (protectedByWake ? 0.31 : 0.12) && layerReady) {
       state.rescued += 1;
       state.combo += 1;
       state.score += 1000 * state.combo;
       state.surge = clamp(state.surge + 0.22, 0, 1);
-      state.message = state.combo > 1 ? `RESCUE CHAIN ×${state.combo}` : "RESCUE!";
+      state.message = entity.type === "tunnelSurvivor" ? `${entity.route} RESCUED` : state.combo > 1 ? `RESCUE CHAIN ×${state.combo}` : "RESCUE!";
       state.messageTime = 1.2;
       state.effects.push({ type: "rescue", x: entity.x, targetX: state.boatX, life: 0.9, max: 0.9 });
+      if (entity.type === "tunnelSurvivor") state.underflowRescues.push({ route: entity.route, layer: entity.layer, time: state.time });
       if (entity.choice) {
         state.routeChoices.push({ choice: entity.choice, route: entity.route, time: state.time });
         for (const alternative of state.entities) {
@@ -92,7 +109,7 @@ function resolveEntity(state, entity) {
       }
     } else {
       state.combo = 0;
-      state.message = "SIGNAL LOST";
+      state.message = entity.type === "tunnelSurvivor" && !layerReady ? (entity.layer === "deep" ? "DIVE TO REACH THEM" : "SURFACE TO REACH THEM") : "SIGNAL LOST";
       state.messageTime = 0.8;
     }
   } else if (entity.type === "gate") {
@@ -101,6 +118,21 @@ function resolveEntity(state, entity) {
       state.surge = clamp(state.surge + 0.3, 0, 1);
       state.message = "CURRENT GATE +CHARGE";
       state.messageTime = 1;
+    }
+  } else if (entity.type === "lowCeiling" || entity.type === "intake") {
+    const safe = entity.type === "lowCeiling" ? state.depth >= 0.58 : state.depth <= 0.38;
+    if (safe) {
+      state.score += 450;
+      state.surge = clamp(state.surge + 0.10, 0, 1);
+      state.message = entity.type === "lowCeiling" ? "DIVE CLEAR" : "SURFACE CLEAR";
+      state.messageTime = 0.8;
+    } else {
+      state.integrity -= 1;
+      state.combo = 0;
+      state.shake = 0.45;
+      state.message = entity.type === "lowCeiling" ? "CEILING STRIKE" : "INTAKE STRIKE";
+      state.messageTime = 1.1;
+      state.effects.push({ type: "hit", x: state.boatX, life: 0.65, max: 0.65 });
     }
   } else {
     const width = entity.type.startsWith("barge") ? 0.30 : 0.20;
@@ -142,6 +174,18 @@ export function updateGame(state, input, dt) {
   const rightEdge = state.routeCenter + state.routeHalfWidth;
   state.boatX = clamp(state.boatX + state.boatV * dt, leftEdge, rightEdge);
   if (state.boatX <= leftEdge + 0.001 || state.boatX >= rightEdge - 0.001) state.boatV *= -0.3;
+  if (state.section === 2) {
+    const depthForce = input.dive ? 3.4 : input.surface ? -4.2 : -1.25;
+    state.depthV += depthForce * dt;
+    state.depthV *= Math.pow(0.035, dt);
+    state.depth = clamp(state.depth + state.depthV * dt, 0, 1);
+    if (state.depth === 0 || state.depth === 1) state.depthV *= -0.12;
+    state.maxDepth = Math.max(state.maxDepth, state.depth);
+    if (state.maxDepth >= 0.65 && state.depth <= 0.32) state.surfacedAfterDive = true;
+  } else {
+    state.depth = Math.max(0, state.depth - dt * 2.4);
+    state.depthV = 0;
+  }
   state.surgeTime = Math.max(0, state.surgeTime - dt);
   state.cooldown = Math.max(0, state.cooldown - dt);
   state.surge = clamp(state.surge + dt * 0.028, 0, 1);
@@ -150,7 +194,7 @@ export function updateGame(state, input, dt) {
   const nextSection = sectionFor(state.time);
   if (nextSection !== state.section) {
     state.section = nextSection;
-    state.message = ["", "FLOODED ARCADE", "CROSSCURRENT", "BREAKWATER BARGE"][nextSection];
+    state.message = ["", "FLOODED ARCADE", "UNDERFLOW — DIVE", "BREAKWATER BARGE"][nextSection];
     state.messageTime = 2.2;
   }
   spawnScheduled(state);

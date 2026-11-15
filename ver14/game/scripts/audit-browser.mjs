@@ -63,20 +63,21 @@ if (process.argv.includes("--product-only")) {
   if (currentTitle !== "TIDEBREAK 95 v14.0") throw new Error(`Wrong target: ${currentTitle}`);
   await key("Enter", "Enter"); await sleep(300);
   await send("Input.dispatchKeyEvent", { type: "rawKeyDown", key: "ArrowLeft", code: "ArrowLeft", windowsVirtualKeyCode: 37, nativeVirtualKeyCode: 37 });
+  await send("Input.dispatchKeyEvent", { type: "rawKeyDown", key: "ArrowDown", code: "ArrowDown", windowsVirtualKeyCode: 40, nativeVirtualKeyCode: 40 });
   await sleep(100);
   const beforeBlur = await evaluate("({state:window.__TIDEBREAK__.getState(),inputs:window.__TIDEBREAK__.getInputs()})");
   await evaluate("window.dispatchEvent(new Event('blur'))"); await sleep(350);
   const onHold = await evaluate("({state:window.__TIDEBREAK__.getState(),inputs:window.__TIDEBREAK__.getInputs(),runtime:window.__TIDEBREAK__.getRuntime(),audio:window.__TIDEBREAK__.getAudioState()})");
   await screenshot(`${artifactPrefix}-focus-hold-1280x720.png`);
-  if (!beforeBlur.inputs.left || !onHold.runtime.paused || onHold.runtime.pauseReason !== "blur") throw new Error("Focus loss did not enter rescue hold");
-  if (onHold.inputs.left || onHold.inputs.right) throw new Error("Steering remained latched during rescue hold");
+  if (!beforeBlur.inputs.left || !beforeBlur.inputs.dive || !onHold.runtime.paused || onHold.runtime.pauseReason !== "blur") throw new Error("Focus loss did not enter rescue hold with active controls");
+  if (Object.values(onHold.inputs).some(Boolean)) throw new Error("Controls remained latched during rescue hold");
   if (onHold.state.time - beforeBlur.state.time > 0.08) throw new Error("Authored time advanced while focus hold was active");
   if (onHold.audio.playing) throw new Error("Continuous audio remained active during rescue hold");
   await send("Page.bringToFront");
   await send("Emulation.setFocusEmulationEnabled", { enabled: true }); await sleep(120);
   await key("P", "KeyP"); await sleep(250);
   const resumed = await evaluate("({state:window.__TIDEBREAK__.getState(),inputs:window.__TIDEBREAK__.getInputs(),runtime:window.__TIDEBREAK__.getRuntime()})");
-  if (resumed.runtime.paused || resumed.inputs.left || resumed.inputs.right) throw new Error(`Explicit resume retained stale input: ${JSON.stringify(resumed)}`);
+  if (resumed.runtime.paused || Object.values(resumed.inputs).some(Boolean)) throw new Error(`Explicit resume retained stale input: ${JSON.stringify(resumed)}`);
   const targetAuthoredTime = resumed.state.time + 60;
   let observed = resumed.state;
   let steering = 0;
@@ -181,7 +182,10 @@ let capturedSurvivor = false;
 let capturedBreak = false;
 let capturedStreetBend = false;
 let capturedStreetChoice = false;
+let capturedUnderflowDive = false;
+let capturedUnderflowSurface = false;
 const streetSamples = [];
+const underflowSamples = [];
 async function steer(direction) {
   if (direction === steering) return;
   if (steering !== 0) {
@@ -194,6 +198,19 @@ async function steer(direction) {
     await send("Input.dispatchKeyEvent", { type: "keyDown", key: keyName, code: keyName, windowsVirtualKeyCode: steering < 0 ? 37 : 39 });
   }
 }
+let vertical = 0;
+async function changeDepth(direction) {
+  if (direction === vertical) return;
+  if (vertical !== 0) {
+    const name = vertical > 0 ? "ArrowDown" : "ArrowUp";
+    await send("Input.dispatchKeyEvent", { type: "keyUp", key: name, code: name, windowsVirtualKeyCode: vertical > 0 ? 40 : 38 });
+  }
+  vertical = direction;
+  if (vertical !== 0) {
+    const name = vertical > 0 ? "ArrowDown" : "ArrowUp";
+    await send("Input.dispatchKeyEvent", { type: "rawKeyDown", key: name, code: name, windowsVirtualKeyCode: vertical > 0 ? 40 : 38 });
+  }
+}
 // Chrome can halve requestAnimationFrame cadence while its audit window is in
 // the background. Keep a wall-clock guard without mistaking that throttling
 // for an authored early ending.
@@ -203,9 +220,14 @@ while (observed.mode === "playing" && Date.now() < deadline) {
   let targetX = 0;
   if (next) {
     const canBreakDriftwood = next.type === "driftwood" && (observed.surgeTime > 0 || (observed.cooldown <= 0 && observed.surge >= 0.34));
-    if (next.type === "survivor" || next.type === "gate" || canBreakDriftwood) targetX = next.x;
+    if (next.type === "survivor" || next.type === "routeSurvivor" || next.type === "tunnelSurvivor" || next.type === "gate" || next.type === "lowCeiling" || canBreakDriftwood) targetX = next.x;
     else targetX = next.x > 0 ? -0.46 : 0.46;
-    if ((next.type === "survivor" || next.type === "driftwood") && next.z < 0.25 && observed.cooldown <= 0 && observed.surge >= 0.34) await key(" ", "Space");
+    if ((next.type === "survivor" || next.type === "routeSurvivor" || next.type === "tunnelSurvivor" || next.type === "driftwood") && next.z < 0.25 && observed.cooldown <= 0 && observed.surge >= 0.34) await key(" ", "Space");
+    if (observed.section === 2 && next.z < .72) {
+      const needsDeep = next.type === "lowCeiling" || (next.type === "tunnelSurvivor" && next.layer === "deep");
+      const needsSurface = next.type === "intake" || (next.type === "tunnelSurvivor" && next.layer === "surface");
+      await changeDepth(needsDeep ? 1 : needsSurface ? -1 : 0);
+    } else if (observed.section !== 2) await changeDepth(0);
   }
   const desiredV = Math.max(-1.1, Math.min(1.1, (targetX - observed.boatX) * 2.5));
   const deltaV = desiredV - observed.boatV;
@@ -214,6 +236,17 @@ while (observed.mode === "playing" && Date.now() < deadline) {
   observed = await evaluate("window.__TIDEBREAK__.getState()");
   if (observed.section === 1 && (!streetSamples.length || observed.time - streetSamples.at(-1).time >= 0.48)) {
     streetSamples.push({ time: observed.time, center: observed.routeCenter, halfWidth: observed.routeHalfWidth, current: observed.crosscurrent, boatX: observed.boatX });
+  }
+  if (observed.section === 2 && (!underflowSamples.length || observed.time - underflowSamples.at(-1).time >= 0.32)) {
+    underflowSamples.push({ time: observed.time, depth: observed.depth, depthV: observed.depthV, boatX: observed.boatX });
+  }
+  if (!capturedUnderflowDive && observed.section === 2 && observed.depth > .68) {
+    capturedUnderflowDive = true;
+    await screenshot(`${artifactPrefix}-underflow-dive-1280x720.png`);
+  }
+  if (!capturedUnderflowSurface && capturedUnderflowDive && observed.section === 2 && observed.surfacedAfterDive) {
+    capturedUnderflowSurface = true;
+    await screenshot(`${artifactPrefix}-underflow-surface-1280x720.png`);
   }
   if (!capturedStreetBend && observed.section === 1 && Math.abs(observed.routeCenter) > 0.22) {
     capturedStreetBend = true;
@@ -238,12 +271,16 @@ while (observed.mode === "playing" && Date.now() < deadline) {
   }
 }
 await steer(0);
+await changeDepth(0);
 if (observed.mode === "playing") throw new Error(`Audit timed out at authored time ${observed.time.toFixed(2)}s`);
 await screenshot(`${artifactPrefix}-result-1280x720.png`);
 const audio = await evaluate("window.__TIDEBREAK__.getAudioState()");
 audioSamples.push({ moment: "result", ...audio });
 if (!capturedStreetBend || !capturedStreetChoice) throw new Error(`Flooded arcade evidence missing: ${JSON.stringify({capturedStreetBend,capturedStreetChoice})}`);
-const audit = { title, mode: observed.mode, time: observed.time, section: observed.section, spawned: observed.spawned, integrity: observed.integrity, rescued: observed.rescued, score: observed.score, routeChoices: observed.routeChoices, capturedSurvivor, capturedBreak, capturedStreetBend, capturedStreetChoice, streetSamples, audioSamples };
+if (!capturedUnderflowDive || !capturedUnderflowSurface) throw new Error(`Underflow transition evidence missing: ${JSON.stringify({capturedUnderflowDive,capturedUnderflowSurface,maxDepth:observed.maxDepth})}`);
+const rescueLayers = new Set(observed.underflowRescues.map(rescue => rescue.layer));
+if (!rescueLayers.has("deep") || !rescueLayers.has("surface")) throw new Error(`Both underflow rescue layers were not completed: ${JSON.stringify(observed.underflowRescues)}`);
+const audit = { title, mode: observed.mode, time: observed.time, section: observed.section, spawned: observed.spawned, integrity: observed.integrity, rescued: observed.rescued, score: observed.score, routeChoices: observed.routeChoices, underflowRescues: observed.underflowRescues, maxDepth: observed.maxDepth, surfacedAfterDive: observed.surfacedAfterDive, capturedSurvivor, capturedBreak, capturedStreetBend, capturedStreetChoice, capturedUnderflowDive, capturedUnderflowSurface, streetSamples, underflowSamples, audioSamples };
 await writeFile(new URL(`../../docs/${artifactPrefix}-browser-audit.json`, import.meta.url), `${JSON.stringify(audit, null, 2)}\n`);
 console.log(JSON.stringify(audit));
 socket.close();
