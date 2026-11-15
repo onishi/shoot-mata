@@ -1,0 +1,66 @@
+{
+  "title": "TIDEBREAK 95 v14.0",
+  "mode": "cleared",
+  "time": 94.01300000000828,
+  "section": 3,
+  "spawned": 30,
+  "integrity": 3,
+  "rescued": 10,
+  "score": 68500,
+  "audioSamples": [
+    {
+      "moment": "cruise",
+      "active": true,
+      "state": "running",
+      "playing": true,
+      "engineHz": 85.32,
+      "engineGain": 0.02232,
+      "waterGain": 0.0165
+    },
+    {
+      "moment": "surge",
+      "active": true,
+      "state": "running",
+      "playing": true,
+      "engineHz": 123.8,
+      "engineGain": 0.0348,
+      "waterGain": 0.0295
+    },
+    {
+      "moment": "section-1",
+      "active": true,
+      "state": "running",
+      "playing": true,
+      "engineHz": 94.08135136335932,
+      "engineGain": 0.022891249090819236,
+      "waterGain": 0.017095051136270037
+    },
+    {
+      "moment": "section-2",
+      "active": true,
+      "state": "running",
+      "playing": true,
+      "engineHz": 102.92999034658192,
+      "engineGain": 0.02349080767997251,
+      "waterGain": 0.0177195913333047
+    },
+    {
+      "moment": "section-3",
+      "active": true,
+      "state": "running",
+      "playing": true,
+      "engineHz": 108.19956071616377,
+      "engineGain": 0.022929587259296356,
+      "waterGain": 0.017134986728433707
+    },
+    {
+      "moment": "result",
+      "active": true,
+      "state": "running",
+      "playing": false,
+      "engineHz": 93,
+      "engineGain": 0,
+      "waterGain": 0
+    }
+  ]
+}

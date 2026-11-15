@@ -64,7 +64,7 @@ function resolveEntity(state, entity) {
       state.surge = clamp(state.surge + 0.22, 0, 1);
       state.message = state.combo > 1 ? `RESCUE CHAIN ×${state.combo}` : "RESCUE!";
       state.messageTime = 1.2;
-      state.effects.push({ type: "rescue", x: entity.x, life: 0.75, max: 0.75 });
+      state.effects.push({ type: "rescue", x: entity.x, targetX: state.boatX, life: 0.9, max: 0.9 });
     } else {
       state.combo = 0;
       state.message = "SIGNAL LOST";

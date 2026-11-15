@@ -103,14 +103,32 @@ function drawBoat() {
     ctx.strokeStyle = "#9cfff4"; ctx.lineWidth = 10; ctx.globalAlpha = .65;
     ctx.beginPath(); ctx.ellipse(x, y + 15, pulse * 1.65, pulse * .55, 0, 0, Math.PI * 2); ctx.stroke(); ctx.globalAlpha = 1;
   }
-  ctx.save(); ctx.translate(x, y); ctx.rotate(state.boatV * .12);
-  polygon([[-50,32],[-30,-34],[0,-56],[31,-34],[51,32],[0,20]], "#f2f0d2", "#112039", 5);
-  polygon([[-25,14],[-18,-23],[0,-39],[18,-23],[26,14],[0,5]], "#ef5146");
-  ctx.fillStyle = "#75e4e1"; ctx.fillRect(-14,-18,28,16);
-  ctx.fillStyle = "#ffdc5b"; ctx.beginPath(); ctx.arc(0,-29,6,0,Math.PI*2); ctx.fill();
+  const roll = Math.max(-0.18, Math.min(0.18, state.boatV * .16));
+  const lift = state.surgeTime > 0 ? 6 + Math.sin(state.time * 35) * 2 : 0;
+  ctx.save(); ctx.translate(x, y - lift); ctx.rotate(roll);
+  ctx.fillStyle = "#09182799"; ctx.beginPath(); ctx.ellipse(0, 28, 59, 18, 0, 0, Math.PI * 2); ctx.fill();
+  polygon([[-56,29],[-42,-10],[-24,-43],[0,-60],[25,-43],[43,-10],[57,29],[28,24],[0,14],[-29,24]], "#ece9cf", "#0b192c", 5);
+  polygon([[-34,15],[-25,-21],[0,-47],[26,-21],[35,15],[0,4]], "#d9433d", "#872c34", 2);
+  polygon([[-22,-15],[-12,-32],[0,-42],[13,-32],[23,-15]], "#16374d", "#8ff2ec", 3);
+  ctx.fillStyle = "#9ff5ed"; ctx.fillRect(-13,-25,26,8);
+  ctx.strokeStyle = "#172337"; ctx.lineWidth = 6; ctx.beginPath(); ctx.moveTo(-67,18); ctx.lineTo(-33,12); ctx.moveTo(67,18); ctx.lineTo(33,12); ctx.stroke();
+  ctx.strokeStyle = "#f0d66a"; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(-65,15); ctx.lineTo(-70,29); ctx.moveTo(65,15); ctx.lineTo(70,29); ctx.stroke();
+  ctx.fillStyle = "#ffdc5b"; ctx.beginPath(); ctx.arc(0,-34,6,0,Math.PI*2); ctx.fill();
+  ctx.strokeStyle = "#fff2ad"; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(-6,-5); ctx.lineTo(-29,19); ctx.moveTo(6,-5); ctx.lineTo(29,19); ctx.stroke();
   ctx.restore();
-  ctx.strokeStyle = "#d9ffff99"; ctx.lineWidth = 5;
-  for (const side of [-1, 1]) { ctx.beginPath(); ctx.moveTo(x + side * 28, y + 24); ctx.lineTo(x + side * (70 + Math.abs(state.boatV) * 20), 535); ctx.stroke(); }
+  const force = 1 + Math.min(1.4, Math.abs(state.boatV)) + (state.surgeTime > 0 ? 1.2 : 0);
+  for (const side of [-1, 1]) {
+    const spread = 64 + force * 22 + (side * state.boatV * 10);
+    ctx.strokeStyle = "#d9ffffaa"; ctx.lineWidth = 4 + force;
+    ctx.beginPath(); ctx.moveTo(x + side * 28, y + 19); ctx.quadraticCurveTo(x + side * spread * .75, y + 40, x + side * spread, 538); ctx.stroke();
+    for (let i = 0; i < 7; i++) {
+      const phase = (state.time * (2.8 + force) + i * .137 + (side > 0 ? .43 : 0)) % 1;
+      const px = x + side * (31 + phase * spread) + Math.sin(i * 9.7) * 7;
+      const py = y + 20 + phase * 64;
+      ctx.fillStyle = `rgba(210,255,255,${(1-phase)*.72})`;
+      ctx.beginPath(); ctx.ellipse(px, py, 2 + phase * 5, 5 + phase * 9, side * .25, 0, Math.PI * 2); ctx.fill();
+    }
+  }
 }
 
 function drawEffects() {
@@ -118,7 +136,16 @@ function drawEffects() {
     const progress = 1 - effect.life / effect.max;
     const x = channelX(effect.x, 0.08), y = 467;
     ctx.save(); ctx.globalAlpha = 1 - progress;
-    if (effect.type === "rescue") { ctx.strokeStyle = "#fff16b"; ctx.lineWidth = 8; ctx.beginPath(); ctx.arc(x,y,20+progress*90,0,Math.PI*2); ctx.stroke(); text("SAVED",x,y-60-progress*20,25,"#fff16b","center"); }
+    if (effect.type === "rescue") {
+      ctx.strokeStyle = "#fff16b"; ctx.lineWidth = 8; ctx.beginPath(); ctx.arc(x,y,20+progress*90,0,Math.PI*2); ctx.stroke();
+      const eased = 1 - Math.pow(1 - Math.min(1, progress * 1.35), 3);
+      const targetX = channelX(effect.targetX ?? state.boatX, 0);
+      const personX = x + (targetX - x) * eased, personY = y + (470 - y) * eased - Math.sin(eased * Math.PI) * 62;
+      ctx.strokeStyle = "#f6f1bc"; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(x,y); ctx.quadraticCurveTo((x+targetX)/2,y-75,targetX,470); ctx.stroke();
+      ctx.fillStyle = "#ffdf57"; ctx.beginPath(); ctx.arc(personX,personY,9-progress*3,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = "#ef5146"; ctx.fillRect(personX-6,personY+7,12,15);
+      text("SAVED",x,y-60-progress*20,25,"#fff16b","center");
+    }
     if (effect.type === "break") { ctx.fillStyle = "#ffd879"; for(let i=0;i<9;i++){ const a=i*.7; ctx.fillRect(x+Math.cos(a)*progress*80,y+Math.sin(a)*progress*55,12,7); } }
     if (effect.type === "hit") { ctx.strokeStyle = "#ff544b"; ctx.lineWidth = 10; ctx.beginPath(); ctx.arc(x,y,25+progress*70,0,Math.PI*2); ctx.stroke(); }
     ctx.restore();
@@ -146,7 +173,7 @@ function drawTitle() {
   text("STEER THE HYDROFOIL. SURGE THROUGH THE IMPOSSIBLE.",480,330,17,"#d3e4e6","center",600);
   const blink = Math.floor(performance.now()/450)%2; if (blink) text("PRESS ENTER",480,405,29,"#ffdd61","center");
   text("← →  STEER",350,457,18,"#fff","center"); text("SPACE  SURGE",610,457,18,"#fff","center");
-  text("v14.0 M1 VERTICAL SLICE",480,510,13,"#76a6af","center");
+  text("v14.0 M2 REPRESENTATIVE SLICE",480,510,13,"#76a6af","center");
 }
 
 function drawEnd(theme) {
@@ -161,7 +188,7 @@ function render() {
   if (state.mode === "title") { drawTitle(); return; }
   const theme = palette[state.section];
   ctx.save(); if (state.shake > 0) ctx.translate((Math.random()-.5)*12,(Math.random()-.5)*8);
-  drawSky(theme); drawChannel(theme); [...state.entities].sort((a,b)=>b.z-a.z).forEach(drawEntity); drawBoat(); drawEffects(); drawHud(theme); ctx.restore();
+  drawSky(theme); drawChannel(theme); [...state.entities].filter(entity => !entity.hit).sort((a,b)=>b.z-a.z).forEach(drawEntity); drawBoat(); drawEffects(); drawHud(theme); ctx.restore();
   if (paused) { ctx.fillStyle="#06101adc";ctx.fillRect(0,0,WIDTH,HEIGHT);text("PAUSED",480,245,54,"#fff","center");text("P TO RESUME",480,305,20,"#8ce7df","center"); }
   if (state.mode === "cleared" || state.mode === "gameover") drawEnd(theme);
 }
@@ -182,8 +209,8 @@ function frame(now) {
   const beforeRescue=state.rescued,beforeHull=state.integrity;
   if (!paused) updateGame(state,keys,dt);
   if(state.rescued>beforeRescue)audio.rescue(); if(state.integrity<beforeHull)audio.hit();
-  audio.update(dt,state.mode==="playing"&&!paused,state.section); render(); requestAnimationFrame(frame);
+  audio.update(dt,state.mode==="playing"&&!paused,state.section,state.boatV,state.surgeTime); render(); requestAnimationFrame(frame);
 }
 
-window.__TIDEBREAK__ = { getState: () => JSON.parse(JSON.stringify(state)), start: () => startGame(state), surge: () => activateSurge(state) };
+window.__TIDEBREAK__ = { getState: () => JSON.parse(JSON.stringify(state)), getAudioState: () => audio.inspect(), start: () => startGame(state), surge: () => activateSurge(state) };
 requestAnimationFrame(frame);

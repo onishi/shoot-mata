@@ -27,6 +27,9 @@ test("surge widens the rescue window and builds a chain", () => {
   assert.equal(state.rescued, 1);
   assert.equal(state.combo, 1);
   assert.ok(state.surge > 0.7);
+  assert.equal(state.effects[1].type, "rescue");
+  assert.equal(state.effects[1].targetX, 0.25);
+  assert.equal(state.effects[1].max, 0.9);
 });
 
 test("unprotected collision damages the hull", () => {
