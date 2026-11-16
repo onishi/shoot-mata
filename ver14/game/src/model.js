@@ -22,8 +22,12 @@ export const ROUTE_EVENTS = [
   [67, "intake", -0.30], [69, "gate", 0.22],
   [71.5, "tunnelSurvivor", -0.25, { choice: "floodway", layer: "surface", route: "UPPER CREW" }],
   [71.5, "tunnelSurvivor", 0.25, { choice: "floodway", layer: "deep", route: "LOWER CREW" }],
-  [76, "bargeLeft", -0.34], [79, "bargeRight", 0.34], [82, "survivor", -0.18],
-  [85, "bargeLeft", -0.46], [87, "bargeRight", 0.46], [89, "gate", 0]
+  [76.2, "containerFall", -0.28, { tide: "low", warning: "HANGING STACK" }],
+  [79.4, "containerFall", 0.30, { tide: "high", warning: "SUNKEN STACK" }],
+  [82.6, "survivor", -0.18],
+  [83.5, "containerFall", -0.34, { tide: "high", warning: "SUNKEN STACK" }],
+  [86.7, "containerFall", 0.32, { tide: "low", warning: "HANGING STACK" }],
+  [89.0, "containerFall", 0, { tide: "high", warning: "FINAL STACK" }]
 ];
 
 export function routeProfile(time) {
@@ -52,7 +56,9 @@ export function createGame() {
     score: 0, combo: 0, surge: 1, surgeTime: 0, cooldown: 0, spawned: 0,
     entities: [], effects: [], shake: 0, section: 0, message: "", messageTime: 0,
     routeCenter: 0, routeHalfWidth: 0.72, crosscurrent: 0, routeChoices: [],
-    depth: 0, depthV: 0, maxDepth: 0, surfacedAfterDive: false, underflowRescues: []
+    depth: 0, depthV: 0, maxDepth: 0, surfacedAfterDive: false, underflowRescues: [],
+    tideLevel: 0.5, tideTarget: "low", escortActive: false, escortX: 0,
+    escortIntegrity: 3, containerClears: [], tideSwitches: 0
   };
 }
 
@@ -134,6 +140,23 @@ function resolveEntity(state, entity) {
       state.messageTime = 1.1;
       state.effects.push({ type: "hit", x: state.boatX, life: 0.65, max: 0.65 });
     }
+  } else if (entity.type === "containerFall") {
+    const tideReady = entity.tide === "high" ? state.tideLevel >= 0.62 : state.tideLevel <= 0.38;
+    const formationReady = Math.abs(state.boatX - state.escortX) <= 0.38;
+    if (tideReady && formationReady) {
+      state.score += 900;
+      state.surge = clamp(state.surge + 0.14, 0, 1);
+      state.containerClears.push({ tide: entity.tide, time: state.time });
+      state.message = `${entity.tide.toUpperCase()} WATER — CONVOY CLEAR`;
+      state.effects.push({ type: "containerClear", x: entity.x, life: 0.75, max: 0.75 });
+    } else {
+      state.escortIntegrity -= 1;
+      state.combo = 0;
+      state.shake = 0.55;
+      state.message = tideReady ? "FERRY OUT OF FORMATION" : `${entity.tide.toUpperCase()} WATER REQUIRED`;
+      state.effects.push({ type: "escortHit", x: state.escortX, life: 0.75, max: 0.75 });
+    }
+    state.messageTime = 1.2;
   } else {
     const width = entity.type.startsWith("barge") ? 0.30 : 0.20;
     if (distance < width) {
@@ -186,6 +209,14 @@ export function updateGame(state, input, dt) {
     state.depth = Math.max(0, state.depth - dt * 2.4);
     state.depthV = 0;
   }
+  if (state.section === 3) {
+    const requestedTide = input.surface ? "high" : input.dive ? "low" : state.tideTarget;
+    if (requestedTide !== state.tideTarget) state.tideSwitches += 1;
+    state.tideTarget = requestedTide;
+    const targetLevel = requestedTide === "high" ? 1 : 0;
+    state.tideLevel += clamp(targetLevel - state.tideLevel, -dt * 0.78, dt * 0.78);
+    state.escortX += clamp(state.boatX - state.escortX, -dt * 0.42, dt * 0.42);
+  }
   state.surgeTime = Math.max(0, state.surgeTime - dt);
   state.cooldown = Math.max(0, state.cooldown - dt);
   state.surge = clamp(state.surge + dt * 0.028, 0, 1);
@@ -194,8 +225,13 @@ export function updateGame(state, input, dt) {
   const nextSection = sectionFor(state.time);
   if (nextSection !== state.section) {
     state.section = nextSection;
-    state.message = ["", "FLOODED ARCADE", "UNDERFLOW — DIVE", "BREAKWATER BARGE"][nextSection];
+    state.message = ["", "FLOODED ARCADE", "UNDERFLOW — DIVE", "CONTAINER CONVOY"][nextSection];
     state.messageTime = 2.2;
+    if (nextSection === 3) {
+      state.escortActive = true;
+      state.escortX = state.boatX;
+      state.tideTarget = "low";
+    }
   }
   spawnScheduled(state);
   const pace = 0.28 + state.section * 0.018;
@@ -206,9 +242,9 @@ export function updateGame(state, input, dt) {
   state.entities = state.entities.filter(entity => entity.z > -0.12);
   for (const effect of state.effects) effect.life -= dt;
   state.effects = state.effects.filter(effect => effect.life > 0);
-  if (state.integrity <= 0) {
+  if (state.integrity <= 0 || state.escortIntegrity <= 0) {
     state.mode = "gameover";
-    state.message = "SWALLOWED BY THE SURGE";
+    state.message = state.escortIntegrity <= 0 ? "RESCUE FERRY LOST" : "SWALLOWED BY THE SURGE";
   } else if (state.time >= STAGE_SECONDS) {
     state.mode = "cleared";
     state.score += state.integrity * 2000 + state.rescued * 500;

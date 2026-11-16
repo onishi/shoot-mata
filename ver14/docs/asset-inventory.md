@@ -2,10 +2,10 @@
 
 | 種別 | 用途 | 制作方法・権利 | 現在状態 | 確認先 |
 | --- | --- | --- | --- | --- |
-| 背景 | 夕港、街路、地下放水路、バージ | 新規Canvas描画、プロジェクト所有 | 外港はM2三層景観、浸水商業区はM3のS字・店舗峡谷、地下放水路は斜材・警告灯・パイプの閉鎖景観、後続2区間はM1暫定 | `m2-harbor-wake-idle`, `m3-street-street-bend`, `m3-underflow-underflow-dive` |
+| 背景 | 夕港、街路、地下放水路、倒壊コンテナ港 | 新規Canvas描画、プロジェクト所有 | 外港はM2三層景観、商業区はS字・店舗峡谷、地下は斜材・警告灯・パイプ、倒壊港はガントリー・積層コンテナ・潮位線までM3実装、高潮防壁は未実装 | `m2-harbor-wake-idle`, `m3-street-street-bend`, `m3-underflow-underflow-dive`, `m3-convoy-convoy-low` |
 | 主役 | 赤白の救難艇 | 新規Canvas描画、プロジェクト所有 | M2固有シルエット・ロール実装 | プレイ画面手前、`m2-wake-idle` |
-| 対象 | 漂流者、分岐救助標識、流木、コンクリート、低天井、吸入口、充電門 | 新規Canvas描画、プロジェクト所有 | 漂流者・流木はM2造形、M3で地区名SOS、深度別救助環、低天井、回転吸入口を追加 | `m2-harbor-survivor-gesture`, `m3-street-street-choice`, `m3-underflow-underflow-surface` |
-| UI | 船体、救助、得点、サージ、深度計 | 新規Canvas描画、プロジェクト所有 | 地下区間の深度・必要入力予告までM3実装 | 全プレイ画面、`m3-underflow-underflow-dive` |
+| 対象 | 漂流者、分岐救助標識、流木、コンクリート、低天井、吸入口、救助フェリー、崩落コンテナ | 新規Canvas描画、プロジェクト所有 | 漂流者・流木はM2造形、M3で地区名SOS、深度別救助、回転吸入口、固有フェリー、低潮・高潮別コンテナを追加 | `m2-harbor-survivor-gesture`, `m3-street-street-choice`, `m3-underflow-underflow-surface`, `m3-convoy-convoy-high` |
+| UI | 船体、救助、得点、サージ、深度計、フェリー耐久、潮位 | 新規Canvas描画、プロジェクト所有 | 地下の深度予告と倒壊港の潮位・護送状態までM3実装 | 全プレイ画面、`m3-underflow-underflow-dive`, `m3-convoy-convoy-low` |
 | エフェクト | 速度連動飛沫、サージ環、救助引上げ、破砕、被害 | 新規手続き描画、プロジェクト所有 | 航跡・救助・流木二分はM2更新、被害はM1暫定 | `m2-harbor-driftwood-break`, `m2-rescue-route` |
 | 音楽 | 4区間の短い音列 | 新規Web Audio合成、プロジェクト所有 | M1暫定 | プレイ中 |
 | 効果音 | サージ、救助、被害 | 新規Web Audio合成、プロジェクト所有 | M1暫定 | 各イベント |

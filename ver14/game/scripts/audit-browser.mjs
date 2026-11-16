@@ -184,8 +184,11 @@ let capturedStreetBend = false;
 let capturedStreetChoice = false;
 let capturedUnderflowDive = false;
 let capturedUnderflowSurface = false;
+let capturedConvoyLow = false;
+let capturedConvoyHigh = false;
 const streetSamples = [];
 const underflowSamples = [];
+const convoySamples = [];
 async function steer(direction) {
   if (direction === steering) return;
   if (steering !== 0) {
@@ -227,6 +230,9 @@ while (observed.mode === "playing" && Date.now() < deadline) {
       const needsDeep = next.type === "lowCeiling" || (next.type === "tunnelSurvivor" && next.layer === "deep");
       const needsSurface = next.type === "intake" || (next.type === "tunnelSurvivor" && next.layer === "surface");
       await changeDepth(needsDeep ? 1 : needsSurface ? -1 : 0);
+    } else if (observed.section === 3 && next.type === "containerFall" && next.z < .78) {
+      await changeDepth(next.tide === "low" ? 1 : -1);
+      targetX = observed.escortX;
     } else if (observed.section !== 2) await changeDepth(0);
   }
   const desiredV = Math.max(-1.1, Math.min(1.1, (targetX - observed.boatX) * 2.5));
@@ -239,6 +245,15 @@ while (observed.mode === "playing" && Date.now() < deadline) {
   }
   if (observed.section === 2 && (!underflowSamples.length || observed.time - underflowSamples.at(-1).time >= 0.32)) {
     underflowSamples.push({ time: observed.time, depth: observed.depth, depthV: observed.depthV, boatX: observed.boatX });
+  }
+  if (observed.section === 3 && (!convoySamples.length || observed.time - convoySamples.at(-1).time >= 0.24)) {
+    convoySamples.push({ time: observed.time, tideLevel: observed.tideLevel, tideTarget: observed.tideTarget, boatX: observed.boatX, escortX: observed.escortX, escortIntegrity: observed.escortIntegrity, clears: observed.containerClears.length });
+  }
+  if (!capturedConvoyLow && observed.section === 3 && observed.tideLevel < .3 && observed.entities.some(entity => !entity.hit && entity.type === "containerFall" && entity.tide === "low" && entity.z > .12 && entity.z < .58)) {
+    capturedConvoyLow = true; await screenshot(`${artifactPrefix}-convoy-low-1280x720.png`);
+  }
+  if (!capturedConvoyHigh && observed.section === 3 && observed.tideLevel > .7 && observed.entities.some(entity => !entity.hit && entity.type === "containerFall" && entity.tide === "high" && entity.z > .28 && entity.z < .58)) {
+    capturedConvoyHigh = true; await screenshot(`${artifactPrefix}-convoy-high-1280x720.png`);
   }
   if (!capturedUnderflowDive && observed.section === 2 && observed.depth > .68) {
     capturedUnderflowDive = true;
@@ -280,7 +295,8 @@ if (!capturedStreetBend || !capturedStreetChoice) throw new Error(`Flooded arcad
 if (!capturedUnderflowDive || !capturedUnderflowSurface) throw new Error(`Underflow transition evidence missing: ${JSON.stringify({capturedUnderflowDive,capturedUnderflowSurface,maxDepth:observed.maxDepth})}`);
 const rescueLayers = new Set(observed.underflowRescues.map(rescue => rescue.layer));
 if (!rescueLayers.has("deep") || !rescueLayers.has("surface")) throw new Error(`Both underflow rescue layers were not completed: ${JSON.stringify(observed.underflowRescues)}`);
-const audit = { title, mode: observed.mode, time: observed.time, section: observed.section, spawned: observed.spawned, integrity: observed.integrity, rescued: observed.rescued, score: observed.score, routeChoices: observed.routeChoices, underflowRescues: observed.underflowRescues, maxDepth: observed.maxDepth, surfacedAfterDive: observed.surfacedAfterDive, capturedSurvivor, capturedBreak, capturedStreetBend, capturedStreetChoice, capturedUnderflowDive, capturedUnderflowSurface, streetSamples, underflowSamples, audioSamples };
+if (!capturedConvoyLow || !capturedConvoyHigh || observed.escortIntegrity !== 3 || observed.containerClears.length < 4 || observed.tideSwitches < 3) throw new Error(`Container convoy evidence missing: ${JSON.stringify({capturedConvoyLow,capturedConvoyHigh,escortIntegrity:observed.escortIntegrity,containerClears:observed.containerClears,tideSwitches:observed.tideSwitches})}`);
+const audit = { title, mode: observed.mode, time: observed.time, section: observed.section, spawned: observed.spawned, integrity: observed.integrity, rescued: observed.rescued, score: observed.score, routeChoices: observed.routeChoices, underflowRescues: observed.underflowRescues, maxDepth: observed.maxDepth, surfacedAfterDive: observed.surfacedAfterDive, escortIntegrity: observed.escortIntegrity, containerClears: observed.containerClears, tideSwitches: observed.tideSwitches, capturedSurvivor, capturedBreak, capturedStreetBend, capturedStreetChoice, capturedUnderflowDive, capturedUnderflowSurface, capturedConvoyLow, capturedConvoyHigh, streetSamples, underflowSamples, convoySamples, audioSamples };
 await writeFile(new URL(`../../docs/${artifactPrefix}-browser-audit.json`, import.meta.url), `${JSON.stringify(audit, null, 2)}\n`);
 console.log(JSON.stringify(audit));
 socket.close();

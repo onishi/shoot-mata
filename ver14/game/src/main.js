@@ -86,8 +86,27 @@ function drawUnderflowSky(theme) {
   text("UNDERFLOW 07", 480, 137, 23, "#80f0e5", "center");
 }
 
+function drawContainerPort(theme) {
+  const flash = .55 + Math.sin(state.time * 7) * .25;
+  ctx.fillStyle = "#070d18"; ctx.fillRect(0, 0, WIDTH, 245);
+  ctx.fillStyle = "#111a2a";
+  polygon([[0,220],[0,104],[78,104],[78,220]], "#111a2a");
+  polygon([[882,220],[882,78],[960,78],[960,220]], "#111a2a");
+  ctx.strokeStyle="#293a50";ctx.lineWidth=13;
+  ctx.beginPath();ctx.moveTo(80,202);ctx.lineTo(235,55);ctx.lineTo(235,220);ctx.moveTo(880,202);ctx.lineTo(725,55);ctx.lineTo(725,220);ctx.stroke();
+  ctx.strokeStyle=theme.light;ctx.lineWidth=4;
+  ctx.beginPath();ctx.moveTo(92,193);ctx.lineTo(225,65);ctx.moveTo(868,193);ctx.lineTo(735,65);ctx.stroke();
+  for (const [x,y,color] of [[18,126,"#b7473e"],[18,164,"#315b70"],[86,154,"#d58c3a"],[824,118,"#315b70"],[892,154,"#b7473e"],[824,156,"#d58c3a"]]) {
+    ctx.fillStyle=color;ctx.fillRect(x,y,118,32);ctx.strokeStyle="#080d16";ctx.lineWidth=3;ctx.strokeRect(x,y,118,32);
+    ctx.strokeStyle="#ffffff33";ctx.beginPath();ctx.moveTo(x+12,y+5);ctx.lineTo(x+12,y+27);ctx.moveTo(x+106,y+5);ctx.lineTo(x+106,y+27);ctx.stroke();
+  }
+  ctx.fillStyle=`rgba(255,207,72,${flash})`;ctx.fillRect(286,183,388,8);
+  ctx.fillStyle="#08101bd9";ctx.fillRect(330,112,300,47);text("COLLAPSE QUAY 9",480,137,22,"#ffd458","center");
+}
+
 function drawSky(theme) {
   if (state.section === 2) { drawUnderflowSky(theme); return; }
+  if (state.section === 3) { drawContainerPort(theme); return; }
   const grad = ctx.createLinearGradient(0, 0, 0, 290);
   grad.addColorStop(0, theme.sky); grad.addColorStop(1, theme.far);
   ctx.fillStyle = grad; ctx.fillRect(0, 0, WIDTH, 300);
@@ -99,11 +118,6 @@ function drawSky(theme) {
     if (state.section > 0) { ctx.fillStyle = theme.light; ctx.fillRect(i * 82, 203 - h, 4, 13); ctx.fillStyle = theme.far; }
   }
   if (state.section === 0) drawHarborHorizon(theme);
-  if (state.section === 3) {
-    ctx.fillStyle = "#070d18"; ctx.fillRect(210, 178, 540, 68);
-    polygon([[250,178],[320,112],[650,112],[714,178]], "#101828", theme.light, 4);
-    text("STORM BARGE", 480, 148, 24, theme.light, "center");
-  }
 }
 
 function channelX(worldX, z) { return WIDTH / 2 + worldX * (170 + (1 - z) * 330); }
@@ -182,6 +196,12 @@ function drawChannel(theme) {
     ctx.strokeStyle="#2b5360";ctx.lineWidth=9;
     for(let y=260;y<540;y+=72){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(150,y+18);ctx.moveTo(960,y);ctx.lineTo(810,y+18);ctx.stroke();}
   }
+  if (state.section === 3) {
+    const waterLine = 505 - state.tideLevel * 118;
+    ctx.fillStyle="rgba(82,221,222,.16)";ctx.fillRect(0,waterLine,960,540-waterLine);
+    ctx.strokeStyle="#80fff0aa";ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(0,waterLine);ctx.quadraticCurveTo(240,waterLine-10,480,waterLine);ctx.quadraticCurveTo(720,waterLine+10,960,waterLine);ctx.stroke();
+    for(const [x,y,c] of [[34,290,"#b7473e"],[125,352,"#315b70"],[770,300,"#d58c3a"],[842,382,"#b7473e"]]){ctx.save();ctx.translate(x,y);ctx.rotate(x<480?-.12:.12);ctx.fillStyle=c;ctx.fillRect(0,0,126,38);ctx.strokeStyle="#090f19";ctx.lineWidth=4;ctx.strokeRect(0,0,126,38);ctx.restore();}
+  }
 }
 
 function drawEntity(entity) {
@@ -225,10 +245,32 @@ function drawEntity(entity) {
     ctx.strokeStyle="#ef6152";ctx.lineWidth=7;ctx.beginPath();ctx.arc(0,-5,48,0,Math.PI*2);ctx.stroke();
     for(let i=0;i<8;i++){ctx.save();ctx.rotate(i*Math.PI/4+state.time*2);ctx.fillStyle="#6c8790";ctx.fillRect(5,-5,39,10);ctx.restore();}
     text("SURFACE",0,61,13,"#ffe26a","center");
+  } else if (entity.type === "containerFall") {
+    const high = entity.tide === "high";
+    const swing = Math.sin(state.time * 2.8 + entity.id) * 10;
+    ctx.save();ctx.translate(swing, high ? 18 : -42);ctx.rotate(high ? -.08 : .08);
+    polygon([[-62,-25],[62,-25],[62,25],[-62,25]], high?"#315b70":"#b7473e", "#ffd45b", 5);
+    ctx.strokeStyle="#ffffff55";ctx.lineWidth=3;for(let bx=-42;bx<=42;bx+=28){ctx.beginPath();ctx.moveTo(bx,-20);ctx.lineTo(bx,20);ctx.stroke();}
+    ctx.restore();
+    ctx.fillStyle="#08111de8";ctx.fillRect(-76,-91,152,43);
+    text(entity.warning,0,-78,12,"#ffd45b","center");
+    text(high?"▲ HIGH WATER":"▼ LOW WATER",0,-59,12,high?"#7effea":"#ffdd63","center");
   } else {
     polygon([[-62,20],[-45,-38],[35,-38],[61,20]], "#111826", "#e9c85c", 5);
     ctx.fillStyle = "#e64c42"; ctx.fillRect(entity.type === "bargeLeft" ? 5 : -35, -28, 30, 14);
   }
+  ctx.restore();
+}
+
+function drawEscort() {
+  if (!state.escortActive || state.section !== 3) return;
+  const x=channelX(state.escortX,.24),y=channelY(.24);
+  ctx.save();ctx.translate(x,y);ctx.scale(.72,.72);
+  ctx.fillStyle="#06101a99";ctx.beginPath();ctx.ellipse(0,10,82,17,0,0,Math.PI*2);ctx.fill();
+  polygon([[-73,10],[-60,-22],[-37,-34],[42,-34],[68,-10],[76,10]],"#ded9bd","#091522",5);
+  polygon([[-38,-34],[-18,-61],[32,-61],[47,-34]],"#d4483e","#762a31",3);
+  ctx.fillStyle="#17384b";ctx.fillRect(-8,-55,28,13);ctx.fillStyle="#ffe05a";ctx.fillRect(-58,-16,18,9);ctx.fillRect(45,-16,18,9);
+  text("RESCUE FERRY",4,-76,12,"#fff0a8","center");
   ctx.restore();
 }
 
@@ -298,6 +340,8 @@ function drawEffects() {
       for(let i=0;i<11;i++){ const a=i*.73; ctx.save();ctx.translate(x+Math.cos(a)*progress*92,y+Math.sin(a)*progress*62);ctx.rotate(a+progress*2);ctx.fillRect(-7,-3,14,6);ctx.restore(); }
     }
     if (effect.type === "hit") { ctx.strokeStyle = "#ff544b"; ctx.lineWidth = 10; ctx.beginPath(); ctx.arc(x,y,25+progress*70,0,Math.PI*2); ctx.stroke(); }
+    if (effect.type === "containerClear") { ctx.strokeStyle="#8dfff1";ctx.lineWidth=11;ctx.beginPath();ctx.arc(x,y,28+progress*105,0,Math.PI*2);ctx.stroke();text("PASSAGE OPEN",x,y-55-progress*25,23,"#ffdd63","center"); }
+    if (effect.type === "escortHit") { ctx.strokeStyle="#ff544b";ctx.lineWidth=12;ctx.beginPath();ctx.moveTo(x-70-progress*35,y-50);ctx.lineTo(x+70+progress*35,y+25);ctx.moveTo(x+70+progress*35,y-50);ctx.lineTo(x-70-progress*35,y+25);ctx.stroke(); }
     ctx.restore();
   }
 }
@@ -321,6 +365,12 @@ function drawHud(theme) {
     text("DEPTH",748,101,13,"#9cfff4");ctx.fillStyle="#173642";ctx.fillRect(806,94,96,13);ctx.fillStyle="#62e7eb";ctx.fillRect(809,97,90*state.depth,7);
     text(state.depth>=.58?"DEEP — ↑ SURFACE":"SURFACE — ↓ DIVE",910,123,12,state.depth>=.58?"#69efff":"#ffe26a","right");
   }
+  if (state.section === 3) {
+    ctx.fillStyle="#07111be8";ctx.fillRect(684,86,238,66);
+    text(`FERRY ${"◆".repeat(Math.max(0,state.escortIntegrity))}${"◇".repeat(Math.max(0,3-state.escortIntegrity))}`,704,102,14,state.escortIntegrity===1?"#ff665d":"#fff1b0");
+    text("TIDE",704,128,13,"#9cfff4");ctx.fillStyle="#173642";ctx.fillRect(758,120,140,15);ctx.fillStyle=state.tideTarget==="high"?"#62e7eb":"#ffcf55";ctx.fillRect(761,123,134*state.tideLevel,9);
+    text(state.tideTarget==="high"?"↑ HIGH":"↓ LOW",910,146,12,state.tideTarget==="high"?"#79fff0":"#ffdc63","right");
+  }
 }
 
 function drawTitle() {
@@ -335,7 +385,7 @@ function drawTitle() {
   text(`${displayCode(settings.controls.left)} ${displayCode(settings.controls.right)}  STEER`,300,457,18,"#fff","center"); text(`${displayCode(settings.controls.surge)}  SURGE`,510,457,18,"#fff","center");
   text("↑ ↓  SURFACE / DIVE",720,457,16,"#9de8e2","center");
   text("S  SETTINGS",480,490,15,"#9de8e2","center");
-  text("v14.0 M3 UNDERFLOW",480,520,13,"#76a6af","center");
+  text("v14.0 M3 CONTAINER CONVOY",480,520,13,"#76a6af","center");
 }
 
 const settingRows = ["volume", "motion", "left", "right", "surge", "back"];
@@ -374,7 +424,7 @@ function render() {
   if (state.mode === "title") { drawTitle(); return; }
   const theme = palette[state.section];
   ctx.save(); if (state.shake > 0 && !settings.reducedMotion) ctx.translate((Math.random()-.5)*12,(Math.random()-.5)*8);
-  drawSky(theme); drawChannel(theme); [...state.entities].filter(entity => !entity.hit).sort((a,b)=>b.z-a.z).forEach(drawEntity); drawBoat(); drawEffects(); drawHud(theme); ctx.restore();
+  drawSky(theme); drawChannel(theme); [...state.entities].filter(entity => !entity.hit).sort((a,b)=>b.z-a.z).forEach(drawEntity); drawEscort(); drawBoat(); drawEffects(); drawHud(theme); ctx.restore();
   if (paused) {
     ctx.fillStyle="#06101adc";ctx.fillRect(0,0,WIDTH,HEIGHT);text(pauseReason ? "RESCUE HOLD" : "PAUSED",480,235,54,"#fff","center");
     if (pauseReason) text("WINDOW FOCUS LOST — CONTROLS RELEASED",480,286,17,"#ffdb66","center");
@@ -434,9 +484,9 @@ function frame(now) {
     frameStats.elapsedMs += rawMs; frameStats.samples += 1; frameStats.sumMs += rawMs;
     frameStats.maxMs = Math.max(frameStats.maxMs, rawMs); if (rawMs > 20) frameStats.overBudget += 1;
   }
-  const beforeRescue=state.rescued,beforeHull=state.integrity;
+  const beforeRescue=state.rescued,beforeHull=state.integrity,beforeEscort=state.escortIntegrity;
   if (!paused) updateGame(state,keys,dt);
-  if(state.rescued>beforeRescue)audio.rescue(); if(state.integrity<beforeHull)audio.hit();
+  if(state.rescued>beforeRescue)audio.rescue(); if(state.integrity<beforeHull||state.escortIntegrity<beforeEscort)audio.hit();
   audio.update(dt,state.mode==="playing"&&!paused,state.section,state.boatV,state.surgeTime,state.depth); render(); requestAnimationFrame(frame);
 }
 

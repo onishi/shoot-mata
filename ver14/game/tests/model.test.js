@@ -44,6 +44,7 @@ test("unprotected collision damages the hull", () => {
 test("the vertical slice reaches its authored ending", () => {
   const state = startGame(createGame());
   state.integrity = 99;
+  state.escortIntegrity = 99;
   while (state.time < STAGE_SECONDS && state.mode === "playing") updateGame(state, {}, 0.05);
   assert.equal(state.mode, "cleared");
   assert.equal(state.section, 3);
@@ -122,4 +123,42 @@ test("rescuing one flooded arcade branch closes its alternative", () => {
   assert.equal(state.routeChoices[0].route, "MARKET");
   assert.equal(state.entities.find(entity => entity.id === 91)?.hit, true);
   assert.match(state.message, /MARKET ROUTE/);
+});
+
+test("container convoy clears only at the warned tide while holding formation", () => {
+  const safe = startGame(createGame());
+  safe.time = 79;
+  safe.section = 3;
+  safe.escortActive = true;
+  safe.tideLevel = 0.8;
+  safe.tideTarget = "high";
+  safe.escortX = safe.boatX;
+  safe.entities.push({ id: 94, type: "containerFall", tide: "high", x: 0.2, z: 0.101, hit: false });
+  updateGame(safe, { surface: true }, 1 / 60);
+  assert.equal(safe.escortIntegrity, 3);
+  assert.equal(safe.containerClears.length, 1);
+  assert.match(safe.message, /CONVOY CLEAR/);
+
+  const wrongTide = startGame(createGame());
+  wrongTide.time = 79;
+  wrongTide.section = 3;
+  wrongTide.escortActive = true;
+  wrongTide.tideLevel = 0.2;
+  wrongTide.escortX = wrongTide.boatX;
+  wrongTide.entities.push({ id: 95, type: "containerFall", tide: "high", x: 0, z: 0.101, hit: false });
+  updateGame(wrongTide, { dive: true }, 1 / 60);
+  assert.equal(wrongTide.escortIntegrity, 2);
+  assert.equal(wrongTide.containerClears.length, 0);
+  assert.equal(wrongTide.message, "HIGH WATER REQUIRED");
+});
+
+test("the rescue ferry follows the hydrofoil with a readable formation gap", () => {
+  const state = startGame(createGame());
+  state.time = 76;
+  state.section = 3;
+  state.escortActive = true;
+  state.boatX = 0.6;
+  state.escortX = 0;
+  updateGame(state, {}, 0.05);
+  assert.ok(state.escortX > 0 && state.escortX < state.boatX);
 });
