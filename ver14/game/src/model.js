@@ -1,6 +1,6 @@
 export const WIDTH = 960;
 export const HEIGHT = 540;
-export const STAGE_SECONDS = 94;
+export const STAGE_SECONDS = 121;
 
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 
@@ -27,7 +27,12 @@ export const ROUTE_EVENTS = [
   [82.6, "survivor", -0.18],
   [83.5, "containerFall", -0.34, { tide: "high", warning: "SUNKEN STACK" }],
   [86.7, "containerFall", 0.32, { tide: "low", warning: "HANGING STACK" }],
-  [89.0, "containerFall", 0, { tide: "high", warning: "FINAL STACK" }]
+  [89.0, "containerFall", 0, { tide: "high", warning: "FINAL STACK" }],
+  [97.4, "wallGate", -0.54, { side: "left", control: "surface", warning: "LIFT WEST GATE" }],
+  [102.0, "wallGate", 0.54, { side: "right", control: "dive", warning: "DROP EAST GATE" }],
+  [106.6, "wallGate", -0.50, { side: "left", control: "dive", warning: "DROP WEST GATE" }],
+  [111.2, "wallGate", 0.50, { side: "right", control: "surface", warning: "LIFT EAST GATE" }],
+  [116.0, "wallGate", -0.46, { side: "left", control: "surface", warning: "FINAL FLOODLOCK" }]
 ];
 
 export function routeProfile(time) {
@@ -47,6 +52,14 @@ export function routeProfile(time) {
       current: Math.sin(phase * Math.PI * 2 + 2.4) * -0.12
     };
   }
+  if (time >= 94) {
+    const phase = (time - 94) / 27;
+    return {
+      center: Math.sin(phase * Math.PI * 2.5) * 0.08,
+      halfWidth: 0.60 - Math.sin(phase * Math.PI) * 0.035,
+      current: Math.sin(phase * Math.PI * 5) * 0.09
+    };
+  }
   return { center: 0, halfWidth: 0.72, current: 0 };
 }
 
@@ -58,7 +71,8 @@ export function createGame() {
     routeCenter: 0, routeHalfWidth: 0.72, crosscurrent: 0, routeChoices: [],
     depth: 0, depthV: 0, maxDepth: 0, surfacedAfterDive: false, underflowRescues: [],
     tideLevel: 0.5, tideTarget: "low", escortActive: false, escortX: 0,
-    escortIntegrity: 3, containerClears: [], tideSwitches: 0
+    escortIntegrity: 3, containerClears: [], tideSwitches: 0,
+    stormLevel: 0, wallRideSide: null, wallRideTime: 0, wallGateClears: [], gateControl: null
   };
 }
 
@@ -77,6 +91,7 @@ function spawnScheduled(state) {
 }
 
 function sectionFor(time) {
+  if (time >= 94) return 4;
   if (time >= 75) return 3;
   if (time >= 50) return 2;
   if (time >= 25) return 1;
@@ -88,6 +103,14 @@ export function activateSurge(state) {
   state.surge -= 0.34;
   state.surgeTime = 0.56;
   state.cooldown = 0.72;
+  if (state.section === 4) {
+    const leftDistance = Math.abs(state.boatX - (state.routeCenter - state.routeHalfWidth));
+    const rightDistance = Math.abs(state.boatX - (state.routeCenter + state.routeHalfWidth));
+    if (Math.min(leftDistance, rightDistance) <= 0.18) {
+      state.wallRideSide = leftDistance < rightDistance ? "left" : "right";
+      state.wallRideTime = 1.35;
+    }
+  }
   state.effects.push({ type: "surge", x: state.boatX, life: 0.58, max: 0.58 });
   return true;
 }
@@ -157,6 +180,27 @@ function resolveEntity(state, entity) {
       state.effects.push({ type: "escortHit", x: state.escortX, life: 0.75, max: 0.75 });
     }
     state.messageTime = 1.2;
+  } else if (entity.type === "wallGate") {
+    const edge = state.routeCenter + (entity.side === "left" ? -state.routeHalfWidth : state.routeHalfWidth);
+    const sideReady = Math.abs(state.boatX - edge) <= 0.17;
+    const rideReady = state.wallRideSide === entity.side && state.wallRideTime > 0;
+    const controlReady = state.gateControl === entity.control;
+    if (sideReady && rideReady && controlReady) {
+      state.wallGateClears.push({ side: entity.side, control: entity.control, time: state.time });
+      state.score += 1200;
+      state.surge = clamp(state.surge + 0.18, 0, 1);
+      state.stormLevel = Math.max(0, state.stormLevel - 0.16);
+      state.message = `${entity.side.toUpperCase()} FLOODGATE OPEN`;
+      state.effects.push({ type: "gateOpen", x: entity.x, life: 0.9, max: 0.9 });
+    } else {
+      state.integrity -= 1;
+      state.combo = 0;
+      state.shake = 0.65;
+      state.stormLevel = clamp(state.stormLevel + 0.18, 0, 1);
+      state.message = !rideReady ? `SURGE-RIDE ${entity.side.toUpperCase()} WALL` : `${entity.control === "surface" ? "UP" : "DOWN"} LEVER REQUIRED`;
+      state.effects.push({ type: "hit", x: state.boatX, life: 0.75, max: 0.75 });
+    }
+    state.messageTime = 1.3;
   } else {
     const width = entity.type.startsWith("barge") ? 0.30 : 0.20;
     if (distance < width) {
@@ -217,6 +261,16 @@ export function updateGame(state, input, dt) {
     state.tideLevel += clamp(targetLevel - state.tideLevel, -dt * 0.78, dt * 0.78);
     state.escortX += clamp(state.boatX - state.escortX, -dt * 0.42, dt * 0.42);
   }
+  if (state.section === 4) {
+    state.gateControl = input.surface ? "surface" : input.dive ? "dive" : null;
+    state.stormLevel = clamp(state.stormLevel + dt * 0.014, 0, 1);
+    state.wallRideTime = Math.max(0, state.wallRideTime - dt);
+    if (state.wallRideTime <= 0) state.wallRideSide = null;
+  } else {
+    state.gateControl = null;
+    state.wallRideSide = null;
+    state.wallRideTime = 0;
+  }
   state.surgeTime = Math.max(0, state.surgeTime - dt);
   state.cooldown = Math.max(0, state.cooldown - dt);
   state.surge = clamp(state.surge + dt * 0.028, 0, 1);
@@ -225,13 +279,14 @@ export function updateGame(state, input, dt) {
   const nextSection = sectionFor(state.time);
   if (nextSection !== state.section) {
     state.section = nextSection;
-    state.message = ["", "FLOODED ARCADE", "UNDERFLOW — DIVE", "CONTAINER CONVOY"][nextSection];
+    state.message = ["", "FLOODED ARCADE", "UNDERFLOW — DIVE", "CONTAINER CONVOY", "STORMWALL — RIDE THE FACE"][nextSection];
     state.messageTime = 2.2;
     if (nextSection === 3) {
       state.escortActive = true;
       state.escortX = state.boatX;
       state.tideTarget = "low";
     }
+    if (nextSection === 4) state.escortActive = false;
   }
   spawnScheduled(state);
   const pace = 0.28 + state.section * 0.018;
@@ -248,7 +303,7 @@ export function updateGame(state, input, dt) {
   } else if (state.time >= STAGE_SECONDS) {
     state.mode = "cleared";
     state.score += state.integrity * 2000 + state.rescued * 500;
-    state.message = "HARBOR LINE SECURED";
+    state.message = "STORMWALL SECURED";
   }
   return state;
 }

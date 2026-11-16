@@ -47,8 +47,8 @@ test("the vertical slice reaches its authored ending", () => {
   state.escortIntegrity = 99;
   while (state.time < STAGE_SECONDS && state.mode === "playing") updateGame(state, {}, 0.05);
   assert.equal(state.mode, "cleared");
-  assert.equal(state.section, 3);
-  assert.equal(state.spawned, 36);
+  assert.equal(state.section, 4);
+  assert.equal(state.spawned, 41);
 });
 
 test("the underflow requires diving below ceilings and surfacing above intakes", () => {
@@ -161,4 +161,42 @@ test("the rescue ferry follows the hydrofoil with a readable formation gap", () 
   state.escortX = 0;
   updateGame(state, {}, 0.05);
   assert.ok(state.escortX > 0 && state.escortX < state.boatX);
+});
+
+test("stormwall gates require the warned wall ride and lever direction", () => {
+  const safe = startGame(createGame());
+  safe.time = 100;
+  safe.section = 4;
+  safe.routeCenter = 0;
+  safe.routeHalfWidth = 0.6;
+  safe.boatX = -0.6;
+  safe.surge = 1;
+  activateSurge(safe);
+  safe.entities.push({ id: 96, type: "wallGate", side: "left", control: "surface", x: -0.54, z: 0.101, hit: false });
+  updateGame(safe, { left: true, surface: true }, 1 / 60);
+  assert.equal(safe.integrity, 3);
+  assert.equal(safe.wallGateClears.length, 1);
+  assert.match(safe.message, /FLOODGATE OPEN/);
+
+  const wrongLever = startGame(createGame());
+  wrongLever.time = 100;
+  wrongLever.section = 4;
+  wrongLever.routeCenter = 0;
+  wrongLever.routeHalfWidth = 0.6;
+  wrongLever.boatX = -0.6;
+  wrongLever.surge = 1;
+  activateSurge(wrongLever);
+  wrongLever.entities.push({ id: 97, type: "wallGate", side: "left", control: "surface", x: -0.54, z: 0.101, hit: false });
+  updateGame(wrongLever, { left: true, dive: true }, 1 / 60);
+  assert.equal(wrongLever.integrity, 2);
+  assert.equal(wrongLever.wallGateClears.length, 0);
+  assert.equal(wrongLever.message, "UP LEVER REQUIRED");
+});
+
+test("stormwall route narrows and bends independently of the container port", () => {
+  const entry = routeProfile(94);
+  const crest = routeProfile(108);
+  assert.ok(entry.halfWidth < routeProfile(80).halfWidth);
+  assert.notEqual(crest.center, 0);
+  assert.notEqual(crest.current, 0);
 });

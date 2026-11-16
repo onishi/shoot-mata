@@ -33,7 +33,8 @@ const palette = [
   { sky: "#ef8b56", far: "#542e58", water: "#086078", edge: "#172f46", light: "#ffdb79" },
   { sky: "#594684", far: "#1e3159", water: "#0b6474", edge: "#342747", light: "#f28a67" },
   { sky: "#173b62", far: "#0d223a", water: "#075464", edge: "#17233d", light: "#79e0dd" },
-  { sky: "#13233d", far: "#090f20", water: "#074452", edge: "#181a2f", light: "#f3d054" }
+  { sky: "#13233d", far: "#090f20", water: "#074452", edge: "#181a2f", light: "#f3d054" },
+  { sky: "#0b1a30", far: "#07101f", water: "#09566b", edge: "#293847", light: "#ffb84d" }
 ];
 
 function text(value, x, y, size, color = "#fff", align = "left", weight = 800) {
@@ -104,9 +105,24 @@ function drawContainerPort(theme) {
   ctx.fillStyle="#08101bd9";ctx.fillRect(330,112,300,47);text("COLLAPSE QUAY 9",480,137,22,"#ffd458","center");
 }
 
+function drawStormwall(theme) {
+  const lightning = Math.max(0, Math.sin(state.time * 3.7) - .92) * 5;
+  const sky = ctx.createLinearGradient(0, 0, 0, 280);
+  sky.addColorStop(0, `rgba(118,151,174,${.16 + lightning})`); sky.addColorStop(1, "#07101f");
+  ctx.fillStyle = "#07101f"; ctx.fillRect(0, 0, WIDTH, 300); ctx.fillStyle = sky; ctx.fillRect(0, 0, WIDTH, 300);
+  polygon([[0,224],[0,95],[108,73],[205,119],[294,84],[384,126],[480,88],[579,122],[674,79],[771,117],[865,72],[960,101],[960,224]], "#182738", "#52697a", 5);
+  ctx.strokeStyle="#ffb84d";ctx.lineWidth=4;
+  for(let x=44;x<960;x+=116){ctx.beginPath();ctx.moveTo(x,112+(x%3)*7);ctx.lineTo(x,217);ctx.stroke();ctx.fillStyle="#ffb84d";ctx.fillRect(x-9,126,18,8);}
+  ctx.fillStyle="#07101fd9";ctx.fillRect(325,116,310,48);text("STORMWALL 95",480,141,23,"#ffd063","center");
+  const surgeY=222-state.stormLevel*85;
+  ctx.fillStyle="rgba(44,151,177,.42)";ctx.fillRect(0,surgeY,960,235-surgeY);
+  ctx.strokeStyle="#b8ffffbb";ctx.lineWidth=6;ctx.beginPath();ctx.moveTo(0,surgeY);for(let x=0;x<=960;x+=80)ctx.lineTo(x,surgeY+Math.sin(x*.025+state.time*5)*8);ctx.stroke();
+}
+
 function drawSky(theme) {
   if (state.section === 2) { drawUnderflowSky(theme); return; }
   if (state.section === 3) { drawContainerPort(theme); return; }
+  if (state.section === 4) { drawStormwall(theme); return; }
   const grad = ctx.createLinearGradient(0, 0, 0, 290);
   grad.addColorStop(0, theme.sky); grad.addColorStop(1, theme.far);
   ctx.fillStyle = grad; ctx.fillRect(0, 0, WIDTH, 300);
@@ -202,6 +218,16 @@ function drawChannel(theme) {
     ctx.strokeStyle="#80fff0aa";ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(0,waterLine);ctx.quadraticCurveTo(240,waterLine-10,480,waterLine);ctx.quadraticCurveTo(720,waterLine+10,960,waterLine);ctx.stroke();
     for(const [x,y,c] of [[34,290,"#b7473e"],[125,352,"#315b70"],[770,300,"#d58c3a"],[842,382,"#b7473e"]]){ctx.save();ctx.translate(x,y);ctx.rotate(x<480?-.12:.12);ctx.fillStyle=c;ctx.fillRect(0,0,126,38);ctx.strokeStyle="#090f19";ctx.lineWidth=4;ctx.strokeRect(0,0,126,38);ctx.restore();}
   }
+  if (state.section === 4) {
+    const surgeY=520-state.stormLevel*145;
+    ctx.fillStyle="rgba(33,176,198,.24)";ctx.fillRect(0,surgeY,960,540-surgeY);
+    ctx.strokeStyle="#b9ffff88";ctx.lineWidth=7;ctx.beginPath();ctx.moveTo(0,surgeY);ctx.bezierCurveTo(230,surgeY-18,410,surgeY+16,610,surgeY-8);ctx.bezierCurveTo(760,surgeY-24,865,surgeY+12,960,surgeY-4);ctx.stroke();
+    for(const side of [-1,1]){
+      const nearX=channelX(state.routeCenter+side*state.routeHalfWidth,0),farX=channelX(projectedRoute(state.time,1).center+side*projectedRoute(state.time,1).halfWidth,1);
+      polygon([[farX,214],[farX+side*38,214],[nearX+side*120,540],[nearX,540]],side<0?"#344756":"#2d4050","#7f9baa",5);
+      ctx.strokeStyle="#ffbd4c";ctx.lineWidth=6;ctx.setLineDash([22,18]);ctx.beginPath();ctx.moveTo(farX+side*16,220);ctx.lineTo(nearX+side*58,540);ctx.stroke();ctx.setLineDash([]);
+    }
+  }
 }
 
 function drawEntity(entity) {
@@ -255,6 +281,13 @@ function drawEntity(entity) {
     ctx.fillStyle="#08111de8";ctx.fillRect(-76,-91,152,43);
     text(entity.warning,0,-78,12,"#ffd45b","center");
     text(high?"▲ HIGH WATER":"▼ LOW WATER",0,-59,12,high?"#7effea":"#ffdd63","center");
+  } else if (entity.type === "wallGate") {
+    const left=entity.side==="left", lift=entity.control==="surface";
+    ctx.fillStyle="#101b28";ctx.fillRect(left?-88:-18,-76,106,116);
+    ctx.strokeStyle="#91a8b2";ctx.lineWidth=6;ctx.strokeRect(left?-88:-18,-76,106,116);
+    ctx.fillStyle="#ffb84d";for(let y=-62;y<30;y+=24)ctx.fillRect(left?-76:-6,y,82,8);
+    ctx.fillStyle="#07101fe8";ctx.fillRect(-91,-121,182,43);text(entity.warning,0,-108,13,"#ffd063","center");
+    text(`${left?"◀ WEST":"EAST ▶"}  ${lift?"↑ LIFT":"↓ DROP"}`,0,-87,12,lift?"#9dfff2":"#ffcc58","center");
   } else {
     polygon([[-62,20],[-45,-38],[35,-38],[61,20]], "#111826", "#e9c85c", 5);
     ctx.fillStyle = "#e64c42"; ctx.fillRect(entity.type === "bargeLeft" ? 5 : -35, -28, 30, 14);
@@ -275,13 +308,15 @@ function drawEscort() {
 }
 
 function drawBoat() {
-  const x = channelX(state.boatX, 0), y = 472 + state.depth * 36;
+  const wallLift = state.section === 4 && state.wallRideTime > 0 ? 42 : 0;
+  const x = channelX(state.boatX, 0), y = 472 + state.depth * 36 - wallLift;
   if (state.surgeTime > 0) {
     const pulse = 64 + Math.sin(state.time * 38) * 8;
     ctx.strokeStyle = "#9cfff4"; ctx.lineWidth = 10; ctx.globalAlpha = .65;
     ctx.beginPath(); ctx.ellipse(x, y + 15, pulse * 1.65, pulse * .55, 0, 0, Math.PI * 2); ctx.stroke(); ctx.globalAlpha = 1;
   }
-  const roll = Math.max(-0.18, Math.min(0.18, state.boatV * .16));
+  const wallRoll = state.wallRideSide === "left" ? -.36 : state.wallRideSide === "right" ? .36 : 0;
+  const roll = wallRoll || Math.max(-0.18, Math.min(0.18, state.boatV * .16));
   const lift = state.surgeTime > 0 ? 6 + Math.sin(state.time * 35) * 2 : 0;
   ctx.save(); ctx.translate(x, y - lift); ctx.rotate(roll);
   ctx.fillStyle = "#09182799"; ctx.beginPath(); ctx.ellipse(0, 28, 59, 18, 0, 0, Math.PI * 2); ctx.fill();
@@ -342,6 +377,7 @@ function drawEffects() {
     if (effect.type === "hit") { ctx.strokeStyle = "#ff544b"; ctx.lineWidth = 10; ctx.beginPath(); ctx.arc(x,y,25+progress*70,0,Math.PI*2); ctx.stroke(); }
     if (effect.type === "containerClear") { ctx.strokeStyle="#8dfff1";ctx.lineWidth=11;ctx.beginPath();ctx.arc(x,y,28+progress*105,0,Math.PI*2);ctx.stroke();text("PASSAGE OPEN",x,y-55-progress*25,23,"#ffdd63","center"); }
     if (effect.type === "escortHit") { ctx.strokeStyle="#ff544b";ctx.lineWidth=12;ctx.beginPath();ctx.moveTo(x-70-progress*35,y-50);ctx.lineTo(x+70+progress*35,y+25);ctx.moveTo(x+70+progress*35,y-50);ctx.lineTo(x-70-progress*35,y+25);ctx.stroke(); }
+    if (effect.type === "gateOpen") { ctx.strokeStyle="#ffcf5d";ctx.lineWidth=12;ctx.beginPath();ctx.arc(x,y,35+progress*120,-Math.PI*.85,-Math.PI*.15);ctx.stroke();text("FLOODLOCK OPEN",x,y-52-progress*32,22,"#9dfff2","center"); }
     ctx.restore();
   }
 }
@@ -371,6 +407,12 @@ function drawHud(theme) {
     text("TIDE",704,128,13,"#9cfff4");ctx.fillStyle="#173642";ctx.fillRect(758,120,140,15);ctx.fillStyle=state.tideTarget==="high"?"#62e7eb":"#ffcf55";ctx.fillRect(761,123,134*state.tideLevel,9);
     text(state.tideTarget==="high"?"↑ HIGH":"↓ LOW",910,146,12,state.tideTarget==="high"?"#79fff0":"#ffdc63","right");
   }
+  if (state.section === 4) {
+    ctx.fillStyle="#07111be8";ctx.fillRect(684,86,238,66);
+    text("STORM",704,103,13,"#9cfff4");ctx.fillStyle="#173642";ctx.fillRect(765,95,133,15);ctx.fillStyle=state.stormLevel>.72?"#ff5c52":"#4fd9e2";ctx.fillRect(768,98,127*state.stormLevel,9);
+    text(state.wallRideSide?`${state.wallRideSide.toUpperCase()} WALL LOCK` : "EDGE + SPACE TO RIDE",910,129,12,state.wallRideSide?"#ffcf5d":"#d5eef0","right");
+    text(`${state.wallGateClears.length}/5 FLOODGATES`,910,146,12,"#fff1ad","right");
+  }
 }
 
 function drawTitle() {
@@ -385,7 +427,7 @@ function drawTitle() {
   text(`${displayCode(settings.controls.left)} ${displayCode(settings.controls.right)}  STEER`,300,457,18,"#fff","center"); text(`${displayCode(settings.controls.surge)}  SURGE`,510,457,18,"#fff","center");
   text("↑ ↓  SURFACE / DIVE",720,457,16,"#9de8e2","center");
   text("S  SETTINGS",480,490,15,"#9de8e2","center");
-  text("v14.0 M3 CONTAINER CONVOY",480,520,13,"#76a6af","center");
+  text("v14.0 M3 STORMWALL",480,520,13,"#76a6af","center");
 }
 
 const settingRows = ["volume", "motion", "left", "right", "surge", "back"];
@@ -413,7 +455,7 @@ function drawSettings() {
 
 function drawEnd(theme) {
   ctx.fillStyle = "#06101ad9"; ctx.fillRect(145,118,670,315);
-  text(state.mode === "cleared" ? "HARBOR LINE SECURED" : "RESCUE LINE BROKEN",480,175,38,state.mode === "cleared"?theme.light:"#ff665d","center");
+  text(state.mode === "cleared" ? "STORMWALL SECURED" : "RESCUE LINE BROKEN",480,175,38,state.mode === "cleared"?theme.light:"#ff665d","center");
   text(`RESCUED  ${state.rescued}`,480,244,27,"#fff","center"); text(`SCORE  ${state.score}`,480,283,27,"#fff","center");
   const rank = state.rescued >= 8 && state.integrity >= 2 ? "A" : state.rescued >= 5 ? "B" : "C";
   text(`RESCUE RANK ${rank}`,480,338,31,"#ffdf57","center"); text("R  RETRY",480,393,20,"#91e8e1","center");
