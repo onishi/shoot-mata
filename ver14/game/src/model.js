@@ -1,10 +1,10 @@
 export const WIDTH = 960;
 export const HEIGHT = 540;
 export const HARBOR_END = 180;
-export const STREET_END = 205;
-export const UNDERFLOW_END = 230;
-export const CONVOY_END = 249;
-export const STAGE_SECONDS = 276;
+export const STREET_END = 360;
+export const UNDERFLOW_END = 385;
+export const CONVOY_END = 404;
+export const STAGE_SECONDS = 431;
 
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 
@@ -37,36 +37,94 @@ export const ROUTE_EVENTS = [
   [187.5, "routeSurvivor", -0.28, { choice: "market", route: "MARKET" }],
   [187.5, "routeSurvivor", 0.28, { choice: "market", route: "ARCADE" }],
   [189, "concrete", -0.20], [192, "survivor", 0.12],
-  [195, "driftwood", -0.52], [198, "driftwood", 0.48], [201, "survivor", -0.40],
-  [201.8, "routeSurvivor", -0.26, { choice: "station", route: "CLINIC" }],
-  [201.8, "routeSurvivor", 0.26, { choice: "station", route: "STATION" }],
-  [204, "gate", 0],
-  [207, "lowCeiling", 0], [209.5, "tunnelSurvivor", -0.24, { layer: "deep", route: "DIVE TEAM" }],
-  [212, "intake", 0.32], [214.5, "tunnelSurvivor", 0.24, { layer: "surface", route: "AIR POCKET" }],
-  [217, "lowCeiling", 0], [219.5, "tunnelSurvivor", 0.18, { layer: "deep", route: "VALVE CREW" }],
-  [222, "intake", -0.30], [224, "gate", 0.22],
-  [226.5, "tunnelSurvivor", -0.25, { choice: "floodway", layer: "surface", route: "UPPER CREW" }],
-  [226.5, "tunnelSurvivor", 0.25, { choice: "floodway", layer: "deep", route: "LOWER CREW" }],
-  [231.2, "containerFall", -0.28, { tide: "low", warning: "HANGING STACK" }],
-  [234.4, "containerFall", 0.30, { tide: "high", warning: "SUNKEN STACK" }],
-  [237.6, "survivor", -0.18],
-  [238.5, "containerFall", -0.34, { tide: "high", warning: "SUNKEN STACK" }],
-  [241.7, "containerFall", 0.32, { tide: "low", warning: "HANGING STACK" }],
-  [244.0, "containerFall", 0, { tide: "high", warning: "FINAL STACK" }],
-  [252.4, "wallGate", -0.54, { side: "left", control: "surface", warning: "LIFT WEST GATE" }],
-  [257.0, "wallGate", 0.54, { side: "right", control: "dive", warning: "DROP EAST GATE" }],
-  [261.6, "wallGate", -0.50, { side: "left", control: "dive", warning: "DROP WEST GATE" }],
-  [266.2, "wallGate", 0.50, { side: "right", control: "surface", warning: "LIFT EAST GATE" }],
-  [271.0, "wallGate", -0.46, { side: "left", control: "surface", warning: "FINAL FLOODLOCK" }]
+  [198, "driftwood", 0.48], [204, "survivor", -0.40], [210, "gate", 0.22],
+  [218, "concrete", -0.34, { requiresRoute: "MARKET" }],
+  [218, "driftwood", 0.34, { requiresRoute: "ARCADE" }],
+  [225, "survivor", 0.22, { requiresRoute: "MARKET" }],
+  [225, "survivor", -0.22, { requiresRoute: "ARCADE" }],
+  [232, "driftwood", -0.42, { requiresRoute: "MARKET" }],
+  [232, "concrete", 0.42, { requiresRoute: "ARCADE" }],
+  [240, "gate", 0.28, { requiresRoute: "MARKET" }],
+  [240, "gate", -0.28, { requiresRoute: "ARCADE" }],
+  [248, "concrete", 0.08, { requiresRoute: "MARKET" }],
+  [248, "driftwood", -0.08, { requiresRoute: "ARCADE" }],
+  [256, "survivor", -0.34], [262, "driftwood", 0.36],
+  [268, "routeSurvivor", -0.27, { choice: "station", route: "CLINIC" }],
+  [268, "routeSurvivor", 0.27, { choice: "station", route: "STATION" }],
+  [276, "gate", -0.30, { requiresRoute: "CLINIC" }],
+  [276, "driftwood", 0.30, { requiresRoute: "STATION" }],
+  [284, "concrete", 0.34, { requiresRoute: "CLINIC" }],
+  [284, "concrete", -0.34, { requiresRoute: "STATION" }],
+  [292, "survivor", -0.18, { requiresRoute: "CLINIC" }],
+  [292, "survivor", 0.18, { requiresRoute: "STATION" }],
+  [300, "driftwood", 0.38, { requiresRoute: "CLINIC" }],
+  [300, "gate", -0.38, { requiresRoute: "STATION" }],
+  [308, "concrete", -0.08, { requiresRoute: "CLINIC" }],
+  [308, "driftwood", 0.08, { requiresRoute: "STATION" }],
+  [316, "survivor", 0.32], [322, "gate", -0.20], [329, "driftwood", -0.36],
+  [336, "survivor", -0.28, { requiresRoute: "CLINIC" }],
+  [336, "survivor", 0.28, { requiresRoute: "STATION" }],
+  [343, "concrete", 0.30], [350, "driftwood", -0.25], [357, "gate", 0],
+  [362, "lowCeiling", 0], [364.5, "tunnelSurvivor", -0.24, { layer: "deep", route: "DIVE TEAM" }],
+  [367, "intake", 0.32], [369.5, "tunnelSurvivor", 0.24, { layer: "surface", route: "AIR POCKET" }],
+  [372, "lowCeiling", 0], [374.5, "tunnelSurvivor", 0.18, { layer: "deep", route: "VALVE CREW" }],
+  [377, "intake", -0.30], [379, "gate", 0.22],
+  [381.5, "tunnelSurvivor", -0.25, { choice: "floodway", layer: "surface", route: "UPPER CREW" }],
+  [381.5, "tunnelSurvivor", 0.25, { choice: "floodway", layer: "deep", route: "LOWER CREW" }],
+  [386.2, "containerFall", -0.28, { tide: "low", warning: "HANGING STACK" }],
+  [389.4, "containerFall", 0.30, { tide: "high", warning: "SUNKEN STACK" }],
+  [392.6, "survivor", -0.18],
+  [393.5, "containerFall", -0.34, { tide: "high", warning: "SUNKEN STACK" }],
+  [396.7, "containerFall", 0.32, { tide: "low", warning: "HANGING STACK" }],
+  [399.0, "containerFall", 0, { tide: "high", warning: "FINAL STACK" }],
+  [407.4, "wallGate", -0.54, { side: "left", control: "surface", warning: "LIFT WEST GATE" }],
+  [412.0, "wallGate", 0.54, { side: "right", control: "dive", warning: "DROP EAST GATE" }],
+  [416.6, "wallGate", -0.50, { side: "left", control: "dive", warning: "DROP WEST GATE" }],
+  [421.2, "wallGate", 0.50, { side: "right", control: "surface", warning: "LIFT EAST GATE" }],
+  [426.0, "wallGate", -0.46, { side: "left", control: "surface", warning: "FINAL FLOODLOCK" }]
 ];
 
-export function routeProfile(time) {
+function selectedRoute(routeChoices, choice) {
+  if (typeof routeChoices === "string") return routeChoices;
+  return routeChoices?.find(item => item.choice === choice)?.route ?? null;
+}
+
+export function routeProfile(time, routeChoices = []) {
   if (time >= HARBOR_END && time < STREET_END) {
-    const phase = (time - HARBOR_END) / 25;
+    const elapsed = time - HARBOR_END;
+    const district = selectedRoute(routeChoices, "market");
+    const relay = selectedRoute(routeChoices, "station");
+    if (elapsed < 32) {
+      const phase = elapsed / 32;
+      return {
+        center: Math.sin(phase * Math.PI * 2) * 0.27,
+        halfWidth: 0.47 - Math.sin(phase * Math.PI) * 0.035,
+        current: Math.sin(phase * Math.PI * 4 + 0.65) * 0.34
+      };
+    }
+    if (elapsed < 92) {
+      const phase = (elapsed - 32) / 60;
+      const market = district !== "ARCADE";
+      return {
+        center: (market ? -0.13 : 0.13) + Math.sin(phase * Math.PI * (market ? 5 : 2.5)) * (market ? 0.22 : 0.30),
+        halfWidth: market ? 0.43 - Math.sin(phase * Math.PI * 3) * 0.035 : 0.51 - Math.sin(phase * Math.PI * 2) * 0.025,
+        current: Math.sin(phase * Math.PI * (market ? 6 : 10) + 0.4) * (market ? 0.23 : 0.38)
+      };
+    }
+    if (elapsed < 142) {
+      const phase = (elapsed - 92) / 50;
+      const clinic = relay !== "STATION";
+      return {
+        center: (clinic ? -0.10 : 0.10) + Math.sin(phase * Math.PI * (clinic ? 3 : 6)) * (clinic ? 0.18 : 0.25),
+        halfWidth: clinic ? 0.45 : 0.50 - Math.sin(phase * Math.PI * 3) * 0.04,
+        current: Math.sin(phase * Math.PI * (clinic ? 4 : 9) + 1.1) * (clinic ? 0.20 : 0.36)
+      };
+    }
+    const phase = (elapsed - 142) / 38;
     return {
-      center: Math.sin(phase * Math.PI * 2) * 0.27,
-      halfWidth: 0.47 - Math.sin(phase * Math.PI) * 0.035,
-      current: Math.sin(phase * Math.PI * 4 + 0.65) * 0.34
+      center: Math.sin(phase * Math.PI * 3) * 0.16 * (relay === "STATION" ? -1 : 1),
+      halfWidth: 0.48 + phase * 0.06,
+      current: Math.sin(phase * Math.PI * 5) * 0.24 * (district === "ARCADE" ? -1 : 1)
     };
   }
   if (time >= STREET_END && time < UNDERFLOW_END) {
@@ -110,7 +168,8 @@ export function startGame(state) {
 function spawnScheduled(state) {
   while (state.spawned < ROUTE_EVENTS.length && ROUTE_EVENTS[state.spawned][0] <= state.time) {
     const [time, type, laneX, metadata = {}] = ROUTE_EVENTS[state.spawned++];
-    const profile = routeProfile(time + 3.2);
+    if (metadata.requiresRoute && !state.routeChoices.some(choice => choice.route === metadata.requiresRoute)) continue;
+    const profile = routeProfile(time + 3.2, state.routeChoices);
     const x = clamp(profile.center + laneX, profile.center - profile.halfWidth * 0.82, profile.center + profile.halfWidth * 0.82);
     state.entities.push({ id: state.spawned, type, x, laneX, z: 1, hit: false, born: time, ...metadata });
   }
@@ -278,7 +337,7 @@ export function updateGame(state, input, dt) {
   if (state.mode !== "playing") return state;
   dt = Math.min(dt, 0.05);
   state.time += dt;
-  const profile = routeProfile(state.time);
+  const profile = routeProfile(state.time, state.routeChoices);
   state.routeCenter = profile.center;
   state.routeHalfWidth = profile.halfWidth;
   state.crosscurrent = profile.current;

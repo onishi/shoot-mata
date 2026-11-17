@@ -141,7 +141,7 @@ function channelY(z) { return 214 + Math.pow(1 - z, 1.45) * 326; }
 
 function projectedRoute(time, z) {
   const lookAhead = Math.max(0, z) * 3.2;
-  return routeProfile(time + lookAhead);
+  return routeProfile(time + lookAhead, state.routeChoices);
 }
 
 function drawFloodedArcade(theme) {
@@ -410,8 +410,11 @@ function drawHud(theme) {
   }
   if (state.section === 1) {
     const arrow=state.crosscurrent>0.03?"→":state.crosscurrent<-.03?"←":"·";
-    ctx.fillStyle="#07111bdc";ctx.fillRect(728,86,194,27);
-    text(`CURRENT ${arrow} ${Math.round(Math.abs(state.crosscurrent)*100)}`,910,100,13,"#9cfff4","right");
+    const district=state.routeChoices.find(choice=>choice.choice==="market")?.route??"CHOOSE DISTRICT";
+    const relay=state.routeChoices.find(choice=>choice.choice==="station")?.route;
+    ctx.fillStyle="#07111bdc";ctx.fillRect(684,86,238,48);
+    text(`${district}${relay?` → ${relay}`:""}`,910,99,12,"#ffdf57","right");
+    text(`CURRENT ${arrow} ${Math.round(Math.abs(state.crosscurrent)*100)}`,910,121,13,"#9cfff4","right");
   }
   if (state.section === 2) {
     ctx.fillStyle="#07111bdc";ctx.fillRect(728,86,194,49);

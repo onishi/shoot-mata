@@ -101,12 +101,43 @@ test("a gradual return to the surface is recorded after a deep dive", () => {
 
 test("the flooded arcade bends, narrows, and pushes across the route", () => {
   const entrance = routeProfile(HARBOR_END);
-  const eastBend = routeProfile(HARBOR_END + 6.25);
-  const westBend = routeProfile(HARBOR_END + 18.75);
+  const eastBend = routeProfile(HARBOR_END + 8);
+  const westBend = routeProfile(HARBOR_END + 24);
   assert.equal(entrance.center, 0);
   assert.ok(eastBend.center > 0.25 && westBend.center < -0.25);
   assert.ok(eastBend.halfWidth < routeProfile(10).halfWidth);
   assert.notEqual(eastBend.current, 0);
+});
+
+test("the first district rescue changes the following waterway and hazards", () => {
+  const marketChoices = [{ choice: "market", route: "MARKET" }];
+  const arcadeChoices = [{ choice: "market", route: "ARCADE" }];
+  const market = routeProfile(HARBOR_END + 54, marketChoices);
+  const arcade = routeProfile(HARBOR_END + 54, arcadeChoices);
+  assert.notEqual(market.center, arcade.center);
+  assert.ok(market.halfWidth < arcade.halfWidth, "market is the tighter service canyon");
+  assert.ok(Math.abs(market.current) < Math.abs(arcade.current), "arcade route carries the stronger crosscurrent");
+
+  const marketState = startGame(createGame());
+  marketState.time = HARBOR_END + 7.5;
+  marketState.boatX = -0.28;
+  marketState.surgeTime = 0.5;
+  marketState.entities.push({ id: 90, type: "routeSurvivor", x: -0.28, route: "MARKET", choice: "market", z: 0.101, hit: false });
+  updateGame(marketState, {}, 1 / 60);
+  assert.equal(marketState.routeChoices[0].route, "MARKET");
+  const routed = routeProfile(HARBOR_END + 54, marketState.routeChoices);
+  assert.deepEqual(routed, market);
+});
+
+test("the relay rescue creates a second linked street profile", () => {
+  const clinic = routeProfile(HARBOR_END + 118, [
+    { choice: "market", route: "MARKET" }, { choice: "station", route: "CLINIC" }
+  ]);
+  const station = routeProfile(HARBOR_END + 118, [
+    { choice: "market", route: "MARKET" }, { choice: "station", route: "STATION" }
+  ]);
+  assert.notEqual(clinic.center, station.center);
+  assert.notEqual(clinic.current, station.current);
 });
 
 test("rescuing one flooded arcade branch closes its alternative", () => {
@@ -236,7 +267,7 @@ test("stormwall gates require the warned wall ride and lever direction", () => {
 test("stormwall route narrows and bends independently of the container port", () => {
   const entry = routeProfile(CONVOY_END);
   const crest = routeProfile(CONVOY_END + 14);
-  assert.ok(entry.halfWidth < routeProfile(240).halfWidth);
+  assert.ok(entry.halfWidth < routeProfile(UNDERFLOW_END + 10).halfWidth);
   assert.notEqual(crest.center, 0);
   assert.notEqual(crest.current, 0);
 });
