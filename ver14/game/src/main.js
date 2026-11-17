@@ -234,7 +234,7 @@ function drawEntity(entity) {
   const z = Math.max(0, entity.z);
   const x = channelX(entity.x, z), y = channelY(z), scale = .25 + (1 - z) * 1.25;
   ctx.save(); ctx.translate(x, y); ctx.scale(scale, scale);
-  if (entity.type === "survivor" || entity.type === "routeSurvivor" || entity.type === "tunnelSurvivor") {
+  if (entity.type === "survivor" || entity.type === "prioritySurvivor" || entity.type === "routeSurvivor" || entity.type === "tunnelSurvivor") {
     const wave = Math.sin(state.time * 8 + entity.id) * .28;
     ctx.fillStyle = "#ffdf57"; ctx.beginPath(); ctx.ellipse(0, 7, 31, 14, 0, 0, Math.PI * 2); ctx.fill();
     ctx.fillStyle = "#202f42"; ctx.beginPath(); ctx.ellipse(0, 7, 20, 7, 0, 0, Math.PI * 2); ctx.fill();
@@ -245,13 +245,25 @@ function drawEntity(entity) {
     ctx.strokeStyle="#ff594f"; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(31,-43);ctx.lineTo(31,-83);ctx.stroke();
     polygon([[31,-83],[64,-74],[31,-62]], "#ff594f", "#fff1c7", 2);
     text("SOS", 47, -73, 12, "#fff", "center");
-    if (entity.type === "routeSurvivor" || entity.type === "tunnelSurvivor") {
+    if (entity.type === "prioritySurvivor" || entity.type === "routeSurvivor" || entity.type === "tunnelSurvivor") {
       ctx.fillStyle="#10243ddd";ctx.fillRect(-50,22,100,24);text(entity.route,-0,35,12,"#ffe263","center");
+    }
+    if (entity.type === "prioritySurvivor") {
+      ctx.fillStyle="#ffcf55";ctx.beginPath();ctx.arc(-33,-62,17,0,Math.PI*2);ctx.fill();
+      text(`×${entity.passengers}`, -33, -62, 13, "#172337", "center");
     }
     if (entity.type === "tunnelSurvivor") {
       ctx.strokeStyle=entity.layer==="deep"?"#69efff":"#ffe26a";ctx.lineWidth=4;ctx.beginPath();ctx.arc(0,0,43,0,Math.PI*2);ctx.stroke();
       text(entity.layer==="deep"?"▼ DIVE":"▲ SURFACE",0,61,11,entity.layer==="deep"?"#69efff":"#ffe26a","center");
     }
+  } else if (entity.type === "forkBreak") {
+    ctx.rotate(-.12);polygon([[-76,-15],[-42,-31],[-5,-20],[24,-37],[72,-18],[65,17],[19,21],[-20,32],[-70,18]],"#693b2a","#ffd05b",6);
+    ctx.strokeStyle="#2b211d";ctx.lineWidth=6;ctx.beginPath();ctx.moveTo(-48,-19);ctx.lineTo(44,15);ctx.moveTo(7,-25);ctx.lineTo(-16,23);ctx.stroke();
+    ctx.fillStyle="#08111de8";ctx.fillRect(-82,-83,164,35);text("SPACE — BREAK",0,-66,13,"#ffdb62","center");
+  } else if (entity.type === "forkGate") {
+    ctx.strokeStyle="#77f0df";ctx.lineWidth=10;ctx.beginPath();ctx.arc(0,-5,55,Math.PI,0);ctx.stroke();
+    ctx.fillStyle="#ffce52";ctx.fillRect(-60,-9,13,45);ctx.fillRect(47,-9,13,45);
+    ctx.fillStyle="#08111de8";ctx.fillRect(-70,-82,140,32);text("SAFE BYPASS",0,-66,13,"#9cfff4","center");
   } else if (entity.type === "gate") {
     ctx.strokeStyle = "#7effdf"; ctx.lineWidth = 9; ctx.beginPath(); ctx.arc(0, -8, 48, Math.PI, 0); ctx.stroke();
     ctx.fillStyle = "#ffce52"; ctx.fillRect(-52, -12, 12, 38); ctx.fillRect(40, -12, 12, 38);
@@ -391,6 +403,11 @@ function drawHud(theme) {
   text("SURGE",745,37,17,"#9cfff4"); ctx.fillStyle="#15313c"; ctx.fillRect(815,27,105,18); ctx.fillStyle=theme.light; ctx.fillRect(818,30,99*state.surge,12);
   text(state.surge>=.34?"SPACE READY":"RECHARGING",920,63,14,state.surge>=.34?"#fff16b":"#7ba6ae","right");
   if (state.messageTime > 0) text(state.message,480,115,30,theme.light,"center");
+  if (state.section === 0 && state.time >= 50) {
+    ctx.fillStyle="#07111bdc";ctx.fillRect(684,86,238,46);
+    text(`PRIORITY ${state.harborPriorities.length}/4`,704,101,12,"#ffdf57");
+    text(`ROUTES ${state.harborRoutes.length}/3`,704,121,12,"#9cfff4");
+  }
   if (state.section === 1) {
     const arrow=state.crosscurrent>0.03?"→":state.crosscurrent<-.03?"←":"·";
     ctx.fillStyle="#07111bdc";ctx.fillRect(728,86,194,27);
@@ -427,7 +444,7 @@ function drawTitle() {
   text(`${displayCode(settings.controls.left)} ${displayCode(settings.controls.right)}  STEER`,300,457,18,"#fff","center"); text(`${displayCode(settings.controls.surge)}  SURGE`,510,457,18,"#fff","center");
   text("↑ ↓  SURFACE / DIVE",720,457,16,"#9de8e2","center");
   text("S  SETTINGS",480,490,15,"#9de8e2","center");
-  text("v14.0 M3 STORMWALL",480,520,13,"#76a6af","center");
+  text("v14.0 M3 HARBOR RUN",480,520,13,"#76a6af","center");
 }
 
 const settingRows = ["volume", "motion", "left", "right", "surge", "back"];

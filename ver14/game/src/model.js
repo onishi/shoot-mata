@@ -1,59 +1,84 @@
 export const WIDTH = 960;
 export const HEIGHT = 540;
-export const STAGE_SECONDS = 121;
+export const HARBOR_END = 180;
+export const STREET_END = 205;
+export const UNDERFLOW_END = 230;
+export const CONVOY_END = 249;
+export const STAGE_SECONDS = 276;
 
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 
 export const ROUTE_EVENTS = [
-  [4, "survivor", -0.35], [7, "driftwood", 0.30], [10, "survivor", 0.28],
-  [13, "gate", -0.18], [16, "driftwood", -0.48], [19, "survivor", 0.50],
-  [22, "concrete", 0.05], [25, "survivor", -0.20], [28, "driftwood", 0.36],
-  [31, "gate", 0.12],
-  [32.5, "routeSurvivor", -0.28, { choice: "market", route: "MARKET" }],
-  [32.5, "routeSurvivor", 0.28, { choice: "market", route: "ARCADE" }],
-  [34, "concrete", -0.20], [37, "survivor", 0.12],
-  [40, "driftwood", -0.52], [43, "driftwood", 0.48], [46, "survivor", -0.40],
-  [46.8, "routeSurvivor", -0.26, { choice: "station", route: "CLINIC" }],
-  [46.8, "routeSurvivor", 0.26, { choice: "station", route: "STATION" }],
-  [49, "gate", 0],
-  [52, "lowCeiling", 0], [54.5, "tunnelSurvivor", -0.24, { layer: "deep", route: "DIVE TEAM" }],
-  [57, "intake", 0.32], [59.5, "tunnelSurvivor", 0.24, { layer: "surface", route: "AIR POCKET" }],
-  [62, "lowCeiling", 0], [64.5, "tunnelSurvivor", 0.18, { layer: "deep", route: "VALVE CREW" }],
-  [67, "intake", -0.30], [69, "gate", 0.22],
-  [71.5, "tunnelSurvivor", -0.25, { choice: "floodway", layer: "surface", route: "UPPER CREW" }],
-  [71.5, "tunnelSurvivor", 0.25, { choice: "floodway", layer: "deep", route: "LOWER CREW" }],
-  [76.2, "containerFall", -0.28, { tide: "low", warning: "HANGING STACK" }],
-  [79.4, "containerFall", 0.30, { tide: "high", warning: "SUNKEN STACK" }],
-  [82.6, "survivor", -0.18],
-  [83.5, "containerFall", -0.34, { tide: "high", warning: "SUNKEN STACK" }],
-  [86.7, "containerFall", 0.32, { tide: "low", warning: "HANGING STACK" }],
-  [89.0, "containerFall", 0, { tide: "high", warning: "FINAL STACK" }],
-  [97.4, "wallGate", -0.54, { side: "left", control: "surface", warning: "LIFT WEST GATE" }],
-  [102.0, "wallGate", 0.54, { side: "right", control: "dive", warning: "DROP EAST GATE" }],
-  [106.6, "wallGate", -0.50, { side: "left", control: "dive", warning: "DROP WEST GATE" }],
-  [111.2, "wallGate", 0.50, { side: "right", control: "surface", warning: "LIFT EAST GATE" }],
-  [116.0, "wallGate", -0.46, { side: "left", control: "surface", warning: "FINAL FLOODLOCK" }]
+  [4, "survivor", -0.35], [8, "driftwood", 0.30], [12, "survivor", 0.28],
+  [16, "gate", -0.18], [20, "driftwood", -0.48], [24, "survivor", 0.50],
+  [28, "concrete", 0.05], [33, "survivor", -0.20], [38, "driftwood", 0.36],
+  [43, "gate", 0.12], [48, "survivor", -0.50], [53, "concrete", 0.25],
+  [58, "prioritySurvivor", -0.30, { choice: "pier-a", route: "FAMILY", passengers: 3 }],
+  [58, "prioritySurvivor", 0.30, { choice: "pier-a", route: "DECKHAND", passengers: 1 }],
+  [64, "driftwood", -0.40], [68, "gate", 0.28],
+  [73, "forkBreak", -0.34, { choice: "channel-a", route: "BREAK" }],
+  [73, "forkGate", 0.34, { choice: "channel-a", route: "BYPASS" }],
+  [80, "survivor", 0.15], [85, "concrete", -0.35], [90, "driftwood", 0.42],
+  [95, "prioritySurvivor", 0.32, { choice: "pier-b", route: "MEDICS", passengers: 2 }],
+  [95, "prioritySurvivor", -0.32, { choice: "pier-b", route: "WATCHMAN", passengers: 1 }],
+  [102, "gate", -0.25],
+  [108, "forkBreak", 0.35, { choice: "channel-b", route: "BREAK" }],
+  [108, "forkGate", -0.35, { choice: "channel-b", route: "BYPASS" }],
+  [115, "survivor", -0.45], [120, "driftwood", 0.10],
+  [126, "prioritySurvivor", -0.30, { choice: "pier-c", route: "CHILDREN", passengers: 4 }],
+  [126, "prioritySurvivor", 0.30, { choice: "pier-c", route: "SKIPPER", passengers: 1 }],
+  [133, "concrete", 0.40], [139, "gate", 0],
+  [145, "forkBreak", -0.35, { choice: "channel-c", route: "BREAK" }],
+  [145, "forkGate", 0.35, { choice: "channel-c", route: "BYPASS" }],
+  [152, "survivor", 0.38], [157, "driftwood", -0.32], [163, "gate", 0.25],
+  [169, "prioritySurvivor", 0.30, { choice: "pier-d", route: "EVAC TEAM", passengers: 3 }],
+  [169, "prioritySurvivor", -0.30, { choice: "pier-d", route: "RADIO CREW", passengers: 2 }],
+  [175, "concrete", -0.10],
+  [187.5, "routeSurvivor", -0.28, { choice: "market", route: "MARKET" }],
+  [187.5, "routeSurvivor", 0.28, { choice: "market", route: "ARCADE" }],
+  [189, "concrete", -0.20], [192, "survivor", 0.12],
+  [195, "driftwood", -0.52], [198, "driftwood", 0.48], [201, "survivor", -0.40],
+  [201.8, "routeSurvivor", -0.26, { choice: "station", route: "CLINIC" }],
+  [201.8, "routeSurvivor", 0.26, { choice: "station", route: "STATION" }],
+  [204, "gate", 0],
+  [207, "lowCeiling", 0], [209.5, "tunnelSurvivor", -0.24, { layer: "deep", route: "DIVE TEAM" }],
+  [212, "intake", 0.32], [214.5, "tunnelSurvivor", 0.24, { layer: "surface", route: "AIR POCKET" }],
+  [217, "lowCeiling", 0], [219.5, "tunnelSurvivor", 0.18, { layer: "deep", route: "VALVE CREW" }],
+  [222, "intake", -0.30], [224, "gate", 0.22],
+  [226.5, "tunnelSurvivor", -0.25, { choice: "floodway", layer: "surface", route: "UPPER CREW" }],
+  [226.5, "tunnelSurvivor", 0.25, { choice: "floodway", layer: "deep", route: "LOWER CREW" }],
+  [231.2, "containerFall", -0.28, { tide: "low", warning: "HANGING STACK" }],
+  [234.4, "containerFall", 0.30, { tide: "high", warning: "SUNKEN STACK" }],
+  [237.6, "survivor", -0.18],
+  [238.5, "containerFall", -0.34, { tide: "high", warning: "SUNKEN STACK" }],
+  [241.7, "containerFall", 0.32, { tide: "low", warning: "HANGING STACK" }],
+  [244.0, "containerFall", 0, { tide: "high", warning: "FINAL STACK" }],
+  [252.4, "wallGate", -0.54, { side: "left", control: "surface", warning: "LIFT WEST GATE" }],
+  [257.0, "wallGate", 0.54, { side: "right", control: "dive", warning: "DROP EAST GATE" }],
+  [261.6, "wallGate", -0.50, { side: "left", control: "dive", warning: "DROP WEST GATE" }],
+  [266.2, "wallGate", 0.50, { side: "right", control: "surface", warning: "LIFT EAST GATE" }],
+  [271.0, "wallGate", -0.46, { side: "left", control: "surface", warning: "FINAL FLOODLOCK" }]
 ];
 
 export function routeProfile(time) {
-  if (time >= 25 && time < 50) {
-    const phase = (time - 25) / 25;
+  if (time >= HARBOR_END && time < STREET_END) {
+    const phase = (time - HARBOR_END) / 25;
     return {
       center: Math.sin(phase * Math.PI * 2) * 0.27,
       halfWidth: 0.47 - Math.sin(phase * Math.PI) * 0.035,
       current: Math.sin(phase * Math.PI * 4 + 0.65) * 0.34
     };
   }
-  if (time >= 50 && time < 75) {
-    const phase = (time - 50) / 25;
+  if (time >= STREET_END && time < UNDERFLOW_END) {
+    const phase = (time - STREET_END) / 25;
     return {
       center: Math.sin(phase * Math.PI * 3) * 0.11,
       halfWidth: 0.54 - Math.sin(phase * Math.PI) * 0.025,
       current: Math.sin(phase * Math.PI * 2 + 2.4) * -0.12
     };
   }
-  if (time >= 94) {
-    const phase = (time - 94) / 27;
+  if (time >= CONVOY_END) {
+    const phase = (time - CONVOY_END) / 27;
     return {
       center: Math.sin(phase * Math.PI * 2.5) * 0.08,
       halfWidth: 0.60 - Math.sin(phase * Math.PI) * 0.035,
@@ -69,6 +94,7 @@ export function createGame() {
     score: 0, combo: 0, surge: 1, surgeTime: 0, cooldown: 0, spawned: 0,
     entities: [], effects: [], shake: 0, section: 0, message: "", messageTime: 0,
     routeCenter: 0, routeHalfWidth: 0.72, crosscurrent: 0, routeChoices: [],
+    harborPriorities: [], harborRoutes: [],
     depth: 0, depthV: 0, maxDepth: 0, surfacedAfterDive: false, underflowRescues: [],
     tideLevel: 0.5, tideTarget: "low", escortActive: false, escortX: 0,
     escortIntegrity: 3, containerClears: [], tideSwitches: 0,
@@ -91,10 +117,10 @@ function spawnScheduled(state) {
 }
 
 function sectionFor(time) {
-  if (time >= 94) return 4;
-  if (time >= 75) return 3;
-  if (time >= 50) return 2;
-  if (time >= 25) return 1;
+  if (time >= CONVOY_END) return 4;
+  if (time >= UNDERFLOW_END) return 3;
+  if (time >= STREET_END) return 2;
+  if (time >= HARBOR_END) return 1;
   return 0;
 }
 
@@ -118,28 +144,51 @@ export function activateSurge(state) {
 function resolveEntity(state, entity) {
   const distance = Math.abs(entity.x - state.boatX);
   const protectedByWake = state.surgeTime > 0;
-  if (entity.type === "survivor" || entity.type === "routeSurvivor" || entity.type === "tunnelSurvivor") {
+  if (entity.type === "survivor" || entity.type === "prioritySurvivor" || entity.type === "routeSurvivor" || entity.type === "tunnelSurvivor") {
     const layerReady = entity.type !== "tunnelSurvivor" || (entity.layer === "deep" ? state.depth >= 0.58 : state.depth <= 0.34);
     if (distance < (protectedByWake ? 0.31 : 0.12) && layerReady) {
-      state.rescued += 1;
+      const passengers = entity.passengers ?? 1;
+      state.rescued += passengers;
       state.combo += 1;
-      state.score += 1000 * state.combo;
+      state.score += 1000 * state.combo * passengers;
       state.surge = clamp(state.surge + 0.22, 0, 1);
       state.message = entity.type === "tunnelSurvivor" ? `${entity.route} RESCUED` : state.combo > 1 ? `RESCUE CHAIN ×${state.combo}` : "RESCUE!";
       state.messageTime = 1.2;
       state.effects.push({ type: "rescue", x: entity.x, targetX: state.boatX, life: 0.9, max: 0.9 });
       if (entity.type === "tunnelSurvivor") state.underflowRescues.push({ route: entity.route, layer: entity.layer, time: state.time });
+      if (entity.type === "prioritySurvivor") state.harborPriorities.push({ route: entity.route, passengers, time: state.time });
       if (entity.choice) {
-        state.routeChoices.push({ choice: entity.choice, route: entity.route, time: state.time });
+        if (entity.type !== "prioritySurvivor") state.routeChoices.push({ choice: entity.choice, route: entity.route, time: state.time });
         for (const alternative of state.entities) {
           if (alternative !== entity && alternative.choice === entity.choice && !alternative.hit) alternative.hit = true;
         }
-        state.message = `${entity.route} ROUTE — RESCUE!`;
+        state.message = entity.type === "prioritySurvivor" ? `${entity.route} PRIORITY — ${passengers} SAVED` : `${entity.route} ROUTE — RESCUE!`;
       }
     } else {
       state.combo = 0;
       state.message = entity.type === "tunnelSurvivor" && !layerReady ? (entity.layer === "deep" ? "DIVE TO REACH THEM" : "SURFACE TO REACH THEM") : "SIGNAL LOST";
       state.messageTime = 0.8;
+    }
+  } else if (entity.type === "forkBreak" || entity.type === "forkGate") {
+    const breakRoute = entity.type === "forkBreak";
+    const routeReady = distance < 0.20 && (!breakRoute || protectedByWake);
+    if (routeReady) {
+      state.harborRoutes.push({ route: entity.route, time: state.time });
+      state.score += breakRoute ? 1200 : 450;
+      state.surge = clamp(state.surge + (breakRoute ? 0.08 : 0.28), 0, 1);
+      state.message = breakRoute ? "DEBRIS LINE SHATTERED" : "SAFE CHANNEL — +CHARGE";
+      state.messageTime = 1.2;
+      state.effects.push({ type: breakRoute ? "break" : "gateOpen", x: entity.x, life: 0.7, max: 0.7 });
+      for (const alternative of state.entities) {
+        if (alternative !== entity && alternative.choice === entity.choice && !alternative.hit) alternative.hit = true;
+      }
+    } else if (distance < 0.20 && breakRoute) {
+      state.integrity -= 1;
+      state.combo = 0;
+      state.shake = 0.45;
+      state.message = "SURGE REQUIRED TO BREAK THROUGH";
+      state.messageTime = 1.1;
+      state.effects.push({ type: "hit", x: state.boatX, life: 0.65, max: 0.65 });
     }
   } else if (entity.type === "gate") {
     if (distance < 0.24) {

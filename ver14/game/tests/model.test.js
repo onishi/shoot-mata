@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { activateSurge, createGame, routeProfile, startGame, STAGE_SECONDS, updateGame } from "../src/model.js";
+import { activateSurge, CONVOY_END, createGame, HARBOR_END, ROUTE_EVENTS, routeProfile, startGame, STREET_END, STAGE_SECONDS, UNDERFLOW_END, updateGame } from "../src/model.js";
 
 test("steering has momentum and stays inside the flood channel", () => {
   const state = startGame(createGame());
@@ -48,12 +48,12 @@ test("the vertical slice reaches its authored ending", () => {
   while (state.time < STAGE_SECONDS && state.mode === "playing") updateGame(state, {}, 0.05);
   assert.equal(state.mode, "cleared");
   assert.equal(state.section, 4);
-  assert.equal(state.spawned, 41);
+  assert.equal(state.spawned, ROUTE_EVENTS.length);
 });
 
 test("the underflow requires diving below ceilings and surfacing above intakes", () => {
   const deep = startGame(createGame());
-  deep.time = 55;
+  deep.time = STREET_END + 5;
   deep.section = 2;
   deep.depth = 0.72;
   deep.entities.push({ id: 90, type: "lowCeiling", x: 0, z: 0.101, hit: false });
@@ -62,7 +62,7 @@ test("the underflow requires diving below ceilings and surfacing above intakes",
   assert.equal(deep.message, "DIVE CLEAR");
 
   const surface = startGame(createGame());
-  surface.time = 58;
+  surface.time = STREET_END + 8;
   surface.section = 2;
   surface.depth = 0.15;
   surface.entities.push({ id: 91, type: "intake", x: 0, z: 0.101, hit: false });
@@ -73,7 +73,7 @@ test("the underflow requires diving below ceilings and surfacing above intakes",
 
 test("underflow rescue access follows the boat layer", () => {
   const state = startGame(createGame());
-  state.time = 55;
+  state.time = STREET_END + 5;
   state.section = 2;
   state.depth = 0.75;
   state.entities.push({ id: 92, type: "tunnelSurvivor", layer: "deep", route: "DIVE TEAM", x: 0, z: 0.101, hit: false });
@@ -91,7 +91,7 @@ test("underflow rescue access follows the boat layer", () => {
 
 test("a gradual return to the surface is recorded after a deep dive", () => {
   const state = startGame(createGame());
-  state.time = 55;
+  state.time = STREET_END + 5;
   state.section = 2;
   while (state.depth < 0.7) updateGame(state, { dive: true }, 1 / 60);
   while (state.depth > 0.3) updateGame(state, { surface: true }, 1 / 60);
@@ -100,9 +100,9 @@ test("a gradual return to the surface is recorded after a deep dive", () => {
 });
 
 test("the flooded arcade bends, narrows, and pushes across the route", () => {
-  const entrance = routeProfile(25);
-  const eastBend = routeProfile(31.25);
-  const westBend = routeProfile(43.75);
+  const entrance = routeProfile(HARBOR_END);
+  const eastBend = routeProfile(HARBOR_END + 6.25);
+  const westBend = routeProfile(HARBOR_END + 18.75);
   assert.equal(entrance.center, 0);
   assert.ok(eastBend.center > 0.25 && westBend.center < -0.25);
   assert.ok(eastBend.halfWidth < routeProfile(10).halfWidth);
@@ -125,9 +125,49 @@ test("rescuing one flooded arcade branch closes its alternative", () => {
   assert.match(state.message, /MARKET ROUTE/);
 });
 
+test("harbor priority rescues count passengers and close the competing signal", () => {
+  const state = startGame(createGame());
+  state.time = 58;
+  state.boatX = -0.30;
+  state.surgeTime = 0.5;
+  state.entities.push(
+    { id: 90, type: "prioritySurvivor", x: -0.30, route: "FAMILY", passengers: 3, choice: "pier-a", z: 0.101, hit: false },
+    { id: 91, type: "prioritySurvivor", x: 0.30, route: "DECKHAND", passengers: 1, choice: "pier-a", z: 0.101, hit: false }
+  );
+  updateGame(state, {}, 1 / 60);
+  assert.equal(state.rescued, 3);
+  assert.deepEqual(state.harborPriorities.map(choice => [choice.route, choice.passengers]), [["FAMILY", 3]]);
+  assert.equal(state.entities.find(entity => entity.id === 91)?.hit, true);
+});
+
+test("harbor debris forks support a charged break route and a safe recharge route", () => {
+  const breaker = startGame(createGame());
+  breaker.time = 73;
+  breaker.boatX = -0.34;
+  breaker.surge = 1;
+  activateSurge(breaker);
+  breaker.entities.push(
+    { id: 92, type: "forkBreak", x: -0.34, route: "BREAK", choice: "channel-a", z: 0.101, hit: false },
+    { id: 93, type: "forkGate", x: 0.34, route: "BYPASS", choice: "channel-a", z: 0.101, hit: false }
+  );
+  updateGame(breaker, {}, 1 / 60);
+  assert.equal(breaker.integrity, 3);
+  assert.deepEqual(breaker.harborRoutes.map(choice => choice.route), ["BREAK"]);
+  assert.equal(breaker.entities.find(entity => entity.id === 93)?.hit, true);
+
+  const bypass = startGame(createGame());
+  bypass.time = 73;
+  bypass.boatX = 0.34;
+  bypass.surge = 0;
+  bypass.entities.push({ id: 94, type: "forkGate", x: 0.34, route: "BYPASS", choice: "channel-a", z: 0.101, hit: false });
+  updateGame(bypass, {}, 1 / 60);
+  assert.deepEqual(bypass.harborRoutes.map(choice => choice.route), ["BYPASS"]);
+  assert.ok(bypass.surge >= 0.28);
+});
+
 test("container convoy clears only at the warned tide while holding formation", () => {
   const safe = startGame(createGame());
-  safe.time = 79;
+  safe.time = UNDERFLOW_END + 4;
   safe.section = 3;
   safe.escortActive = true;
   safe.tideLevel = 0.8;
@@ -140,7 +180,7 @@ test("container convoy clears only at the warned tide while holding formation", 
   assert.match(safe.message, /CONVOY CLEAR/);
 
   const wrongTide = startGame(createGame());
-  wrongTide.time = 79;
+  wrongTide.time = UNDERFLOW_END + 4;
   wrongTide.section = 3;
   wrongTide.escortActive = true;
   wrongTide.tideLevel = 0.2;
@@ -154,7 +194,7 @@ test("container convoy clears only at the warned tide while holding formation", 
 
 test("the rescue ferry follows the hydrofoil with a readable formation gap", () => {
   const state = startGame(createGame());
-  state.time = 76;
+  state.time = UNDERFLOW_END + 1;
   state.section = 3;
   state.escortActive = true;
   state.boatX = 0.6;
@@ -165,7 +205,7 @@ test("the rescue ferry follows the hydrofoil with a readable formation gap", () 
 
 test("stormwall gates require the warned wall ride and lever direction", () => {
   const safe = startGame(createGame());
-  safe.time = 100;
+  safe.time = CONVOY_END + 6;
   safe.section = 4;
   safe.routeCenter = 0;
   safe.routeHalfWidth = 0.6;
@@ -179,7 +219,7 @@ test("stormwall gates require the warned wall ride and lever direction", () => {
   assert.match(safe.message, /FLOODGATE OPEN/);
 
   const wrongLever = startGame(createGame());
-  wrongLever.time = 100;
+  wrongLever.time = CONVOY_END + 6;
   wrongLever.section = 4;
   wrongLever.routeCenter = 0;
   wrongLever.routeHalfWidth = 0.6;
@@ -194,9 +234,9 @@ test("stormwall gates require the warned wall ride and lever direction", () => {
 });
 
 test("stormwall route narrows and bends independently of the container port", () => {
-  const entry = routeProfile(94);
-  const crest = routeProfile(108);
-  assert.ok(entry.halfWidth < routeProfile(80).halfWidth);
+  const entry = routeProfile(CONVOY_END);
+  const crest = routeProfile(CONVOY_END + 14);
+  assert.ok(entry.halfWidth < routeProfile(240).halfWidth);
   assert.notEqual(crest.center, 0);
   assert.notEqual(crest.current, 0);
 });
