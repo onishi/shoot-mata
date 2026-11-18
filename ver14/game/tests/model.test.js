@@ -99,6 +99,40 @@ test("a gradual return to the surface is recorded after a deep dive", () => {
   assert.equal(state.surfacedAfterDive, true);
 });
 
+test("deep underflow valves lock one route and change later water geometry", () => {
+  const state = startGame(createGame());
+  state.time = STREET_END + 29;
+  state.section = 2;
+  state.depth = 0.72;
+  state.spawned = ROUTE_EVENTS.length;
+  state.boatX = -0.30;
+  state.entities.push(
+    { id: 190, type: "tunnelValve", choice: "sluice-a", route: "DRAIN", x: -0.30, z: 0.101, hit: false },
+    { id: 191, type: "tunnelValve", choice: "sluice-a", route: "FLOOD", x: 0.30, z: 0.101, hit: false }
+  );
+  updateGame(state, { dive: true }, 1 / 60);
+  assert.deepEqual(state.underflowValves.map(choice => choice.route), ["DRAIN"]);
+  assert.equal(state.entities.find(entity => entity.id === 191)?.hit, true);
+  assert.match(state.message, /DRAIN VALVE/);
+
+  const drain = routeProfile(STREET_END + 60, state.routeChoices);
+  const flood = routeProfile(STREET_END + 60, [{ choice: "sluice-a", route: "FLOOD" }]);
+  assert.ok(drain.halfWidth < flood.halfWidth, "draining exposes the narrower lower works");
+  assert.notEqual(drain.center, flood.center);
+});
+
+test("underflow valve decisions select later hazards and rescue layers", () => {
+  const firstConditional = ROUTE_EVENTS.findIndex(event => event[0] === 400);
+  const state = startGame(createGame());
+  state.time = 399.99;
+  state.section = 2;
+  state.spawned = firstConditional;
+  state.underflowValves.push({ choice: "sluice-a", route: "DRAIN", time: 393 });
+  updateGame(state, {}, 0.02);
+  assert.ok(state.entities.some(entity => entity.type === "lowCeiling"));
+  assert.ok(!state.entities.some(entity => entity.type === "intake"));
+});
+
 test("the flooded arcade bends, narrows, and pushes across the route", () => {
   const entrance = routeProfile(HARBOR_END);
   const eastBend = routeProfile(HARBOR_END + 8);

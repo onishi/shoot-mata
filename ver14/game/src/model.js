@@ -2,9 +2,9 @@ export const WIDTH = 960;
 export const HEIGHT = 540;
 export const HARBOR_END = 180;
 export const STREET_END = 360;
-export const UNDERFLOW_END = 385;
-export const CONVOY_END = 404;
-export const STAGE_SECONDS = 431;
+export const UNDERFLOW_END = 540;
+export const CONVOY_END = 559;
+export const STAGE_SECONDS = 586;
 
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 
@@ -71,17 +71,40 @@ export const ROUTE_EVENTS = [
   [377, "intake", -0.30], [379, "gate", 0.22],
   [381.5, "tunnelSurvivor", -0.25, { choice: "floodway", layer: "surface", route: "UPPER CREW" }],
   [381.5, "tunnelSurvivor", 0.25, { choice: "floodway", layer: "deep", route: "LOWER CREW" }],
-  [386.2, "containerFall", -0.28, { tide: "low", warning: "HANGING STACK" }],
-  [389.4, "containerFall", 0.30, { tide: "high", warning: "SUNKEN STACK" }],
-  [392.6, "survivor", -0.18],
-  [393.5, "containerFall", -0.34, { tide: "high", warning: "SUNKEN STACK" }],
-  [396.7, "containerFall", 0.32, { tide: "low", warning: "HANGING STACK" }],
-  [399.0, "containerFall", 0, { tide: "high", warning: "FINAL STACK" }],
-  [407.4, "wallGate", -0.54, { side: "left", control: "surface", warning: "LIFT WEST GATE" }],
-  [412.0, "wallGate", 0.54, { side: "right", control: "dive", warning: "DROP EAST GATE" }],
-  [416.6, "wallGate", -0.50, { side: "left", control: "dive", warning: "DROP WEST GATE" }],
-  [421.2, "wallGate", 0.50, { side: "right", control: "surface", warning: "LIFT EAST GATE" }],
-  [426.0, "wallGate", -0.46, { side: "left", control: "surface", warning: "FINAL FLOODLOCK" }]
+  [390, "tunnelValve", -0.30, { choice: "sluice-a", route: "DRAIN", warning: "DRAIN LOWER WORKS" }],
+  [390, "tunnelValve", 0.30, { choice: "sluice-a", route: "FLOOD", warning: "FLOOD UPPER SPILLWAY" }],
+  [400, "lowCeiling", -0.18, { requiresValveRoute: "DRAIN" }],
+  [400, "intake", 0.18, { requiresValveRoute: "FLOOD" }],
+  [408, "tunnelSurvivor", 0.28, { layer: "deep", route: "SUMP CREW", requiresValveRoute: "DRAIN" }],
+  [408, "tunnelSurvivor", -0.28, { layer: "surface", route: "SPILLWAY CREW", requiresValveRoute: "FLOOD" }],
+  [417, "intake", -0.30, { requiresValveRoute: "DRAIN" }],
+  [417, "lowCeiling", 0.30, { requiresValveRoute: "FLOOD" }],
+  [426, "gate", 0.24], [434, "tunnelSurvivor", -0.22, { layer: "surface", route: "GAUGE TEAM" }],
+  [442, "lowCeiling", 0.18, { requiresValveRoute: "DRAIN" }],
+  [442, "intake", -0.18, { requiresValveRoute: "FLOOD" }],
+  [450, "tunnelValve", 0.30, { choice: "sluice-b", route: "RELIEF", warning: "OPEN RELIEF SHAFT" }],
+  [450, "tunnelValve", -0.30, { choice: "sluice-b", route: "BYPASS", warning: "SEAL BYPASS SHAFT" }],
+  [460, "tunnelSurvivor", -0.26, { layer: "surface", route: "RELIEF CREW", requiresValveRoute: "RELIEF" }],
+  [460, "tunnelSurvivor", 0.26, { layer: "deep", route: "BYPASS CREW", requiresValveRoute: "BYPASS" }],
+  [469, "intake", 0.28, { requiresValveRoute: "RELIEF" }],
+  [469, "lowCeiling", -0.28, { requiresValveRoute: "BYPASS" }],
+  [478, "gate", -0.20], [486, "lowCeiling", 0.26],
+  [494, "tunnelSurvivor", 0.22, { layer: "deep", route: "TURBINE CREW" }],
+  [502, "intake", -0.28], [510, "tunnelSurvivor", -0.22, { layer: "surface", route: "VENT CREW" }],
+  [518, "lowCeiling", -0.24, { requiresValveRoute: "RELIEF" }],
+  [518, "intake", 0.24, { requiresValveRoute: "BYPASS" }],
+  [527, "gate", 0.18], [535, "tunnelSurvivor", 0, { layer: "surface", route: "OUTFLOW WATCH" }],
+  [541.2, "containerFall", -0.28, { tide: "low", warning: "HANGING STACK" }],
+  [544.4, "containerFall", 0.30, { tide: "high", warning: "SUNKEN STACK" }],
+  [547.6, "survivor", -0.18],
+  [548.5, "containerFall", -0.34, { tide: "high", warning: "SUNKEN STACK" }],
+  [551.7, "containerFall", 0.32, { tide: "low", warning: "HANGING STACK" }],
+  [554.0, "containerFall", 0, { tide: "high", warning: "FINAL STACK" }],
+  [562.4, "wallGate", -0.54, { side: "left", control: "surface", warning: "LIFT WEST GATE" }],
+  [567.0, "wallGate", 0.54, { side: "right", control: "dive", warning: "DROP EAST GATE" }],
+  [571.6, "wallGate", -0.50, { side: "left", control: "dive", warning: "DROP WEST GATE" }],
+  [576.2, "wallGate", 0.50, { side: "right", control: "surface", warning: "LIFT EAST GATE" }],
+  [581.0, "wallGate", -0.46, { side: "left", control: "surface", warning: "FINAL FLOODLOCK" }]
 ];
 
 function selectedRoute(routeChoices, choice) {
@@ -128,11 +151,16 @@ export function routeProfile(time, routeChoices = []) {
     };
   }
   if (time >= STREET_END && time < UNDERFLOW_END) {
-    const phase = (time - STREET_END) / 25;
+    const elapsed = time - STREET_END;
+    const phase = elapsed / 180;
+    const sluiceA = selectedRoute(routeChoices, "sluice-a");
+    const sluiceB = selectedRoute(routeChoices, "sluice-b");
+    const branchBias = sluiceA === "FLOOD" ? 1 : -1;
+    const reliefBias = sluiceB === "BYPASS" ? -1 : 1;
     return {
-      center: Math.sin(phase * Math.PI * 3) * 0.11,
-      halfWidth: 0.54 - Math.sin(phase * Math.PI) * 0.025,
-      current: Math.sin(phase * Math.PI * 2 + 2.4) * -0.12
+      center: Math.sin(phase * Math.PI * 6) * 0.10 + (elapsed > 35 ? branchBias * 0.06 : 0) + (elapsed > 95 ? reliefBias * 0.04 : 0),
+      halfWidth: 0.54 - Math.sin(phase * Math.PI * 3) * 0.035 - (sluiceA === "DRAIN" && elapsed > 35 && elapsed < 90 ? 0.045 : 0),
+      current: Math.sin(phase * Math.PI * 9 + 2.4) * 0.13 + (elapsed > 35 ? branchBias * 0.06 : 0)
     };
   }
   if (time >= CONVOY_END) {
@@ -153,7 +181,7 @@ export function createGame() {
     entities: [], effects: [], shake: 0, section: 0, message: "", messageTime: 0,
     routeCenter: 0, routeHalfWidth: 0.72, crosscurrent: 0, routeChoices: [],
     harborPriorities: [], harborRoutes: [],
-    depth: 0, depthV: 0, maxDepth: 0, surfacedAfterDive: false, underflowRescues: [],
+    depth: 0, depthV: 0, maxDepth: 0, surfacedAfterDive: false, underflowRescues: [], underflowValves: [], underflowWater: 0.5,
     tideLevel: 0.5, tideTarget: "low", escortActive: false, escortX: 0,
     escortIntegrity: 3, containerClears: [], tideSwitches: 0,
     stormLevel: 0, wallRideSide: null, wallRideTime: 0, wallGateClears: [], gateControl: null
@@ -169,6 +197,7 @@ function spawnScheduled(state) {
   while (state.spawned < ROUTE_EVENTS.length && ROUTE_EVENTS[state.spawned][0] <= state.time) {
     const [time, type, laneX, metadata = {}] = ROUTE_EVENTS[state.spawned++];
     if (metadata.requiresRoute && !state.routeChoices.some(choice => choice.route === metadata.requiresRoute)) continue;
+    if (metadata.requiresValveRoute && !state.underflowValves.some(choice => choice.route === metadata.requiresValveRoute)) continue;
     const profile = routeProfile(time + 3.2, state.routeChoices);
     const x = clamp(profile.center + laneX, profile.center - profile.halfWidth * 0.82, profile.center + profile.halfWidth * 0.82);
     state.entities.push({ id: state.spawned, type, x, laneX, z: 1, hit: false, born: time, ...metadata });
@@ -227,6 +256,22 @@ function resolveEntity(state, entity) {
       state.combo = 0;
       state.message = entity.type === "tunnelSurvivor" && !layerReady ? (entity.layer === "deep" ? "DIVE TO REACH THEM" : "SURFACE TO REACH THEM") : "SIGNAL LOST";
       state.messageTime = 0.8;
+    }
+  } else if (entity.type === "tunnelValve") {
+    if (distance < 0.18 && state.depth >= 0.58) {
+      state.underflowValves.push({ choice: entity.choice, route: entity.route, time: state.time });
+      state.routeChoices.push({ choice: entity.choice, route: entity.route, time: state.time });
+      state.score += 1400;
+      state.surge = clamp(state.surge + 0.22, 0, 1);
+      state.message = `${entity.route} VALVE LOCKED`;
+      state.messageTime = 1.4;
+      state.effects.push({ type: "gateOpen", x: entity.x, life: 0.9, max: 0.9 });
+      for (const alternative of state.entities) {
+        if (alternative !== entity && alternative.choice === entity.choice && !alternative.hit) alternative.hit = true;
+      }
+    } else {
+      state.message = state.depth < 0.58 ? "DIVE TO OPERATE VALVE" : "VALVE MISSED";
+      state.messageTime = 1.1;
     }
   } else if (entity.type === "forkBreak" || entity.type === "forkGate") {
     const breakRoute = entity.type === "forkBreak";
@@ -357,6 +402,10 @@ export function updateGame(state, input, dt) {
     if (state.depth === 0 || state.depth === 1) state.depthV *= -0.12;
     state.maxDepth = Math.max(state.maxDepth, state.depth);
     if (state.maxDepth >= 0.65 && state.depth <= 0.32) state.surfacedAfterDive = true;
+    const sluiceA = state.underflowValves.find(choice => choice.choice === "sluice-a")?.route;
+    const sluiceB = state.underflowValves.find(choice => choice.choice === "sluice-b")?.route;
+    const waterTarget = (sluiceA === "FLOOD" ? 0.72 : sluiceA === "DRAIN" ? 0.28 : 0.5) + (sluiceB === "RELIEF" ? -0.12 : sluiceB === "BYPASS" ? 0.12 : 0);
+    state.underflowWater += clamp(waterTarget - state.underflowWater, -dt * 0.18, dt * 0.18);
   } else {
     state.depth = Math.max(0, state.depth - dt * 2.4);
     state.depthV = 0;

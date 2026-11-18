@@ -206,7 +206,10 @@ function drawChannel(theme) {
     }
   }
   if (state.section === 2) {
+    const tunnelWaterline=510-state.underflowWater*118;
     ctx.fillStyle="#0a2733aa";ctx.fillRect(0,205,960,335);
+    ctx.fillStyle="rgba(39,177,190,.16)";ctx.fillRect(0,tunnelWaterline,960,540-tunnelWaterline);
+    ctx.strokeStyle="#86fff077";ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(0,tunnelWaterline);ctx.quadraticCurveTo(240,tunnelWaterline-7,480,tunnelWaterline);ctx.quadraticCurveTo(720,tunnelWaterline+7,960,tunnelWaterline);ctx.stroke();
     ctx.strokeStyle = "#8de8dd66"; ctx.lineWidth = 12;
     ctx.beginPath(); ctx.moveTo(270,255); ctx.quadraticCurveTo(520,350,700,510); ctx.stroke();
     ctx.strokeStyle="#2b5360";ctx.lineWidth=9;
@@ -283,6 +286,11 @@ function drawEntity(entity) {
     ctx.strokeStyle="#ef6152";ctx.lineWidth=7;ctx.beginPath();ctx.arc(0,-5,48,0,Math.PI*2);ctx.stroke();
     for(let i=0;i<8;i++){ctx.save();ctx.rotate(i*Math.PI/4+state.time*2);ctx.fillStyle="#6c8790";ctx.fillRect(5,-5,39,10);ctx.restore();}
     text("SURFACE",0,61,13,"#ffe26a","center");
+  } else if (entity.type === "tunnelValve") {
+    ctx.fillStyle="#182937";ctx.beginPath();ctx.arc(0,-5,56,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle=entity.route==="FLOOD"||entity.route==="BYPASS"?"#69efff":"#ffcf55";ctx.lineWidth=9;ctx.beginPath();ctx.arc(0,-5,45,0,Math.PI*2);ctx.stroke();
+    ctx.strokeStyle="#dbe9df";ctx.lineWidth=7;for(let i=0;i<6;i++){ctx.save();ctx.rotate(i*Math.PI/3);ctx.beginPath();ctx.moveTo(0,-5);ctx.lineTo(0,-43);ctx.stroke();ctx.restore();}
+    ctx.fillStyle="#07101fe8";ctx.fillRect(-92,-112,184,42);text(entity.warning,0,-98,12,"#ffe169","center");text("▼ DIVE + STEER",0,-79,12,"#83fff2","center");
   } else if (entity.type === "containerFall") {
     const high = entity.tide === "high";
     const swing = Math.sin(state.time * 2.8 + entity.id) * 10;
@@ -417,9 +425,11 @@ function drawHud(theme) {
     text(`CURRENT ${arrow} ${Math.round(Math.abs(state.crosscurrent)*100)}`,910,121,13,"#9cfff4","right");
   }
   if (state.section === 2) {
-    ctx.fillStyle="#07111bdc";ctx.fillRect(728,86,194,49);
+    ctx.fillStyle="#07111bdc";ctx.fillRect(678,86,244,67);
     text("DEPTH",748,101,13,"#9cfff4");ctx.fillStyle="#173642";ctx.fillRect(806,94,96,13);ctx.fillStyle="#62e7eb";ctx.fillRect(809,97,90*state.depth,7);
     text(state.depth>=.58?"DEEP — ↑ SURFACE":"SURFACE — ↓ DIVE",910,123,12,state.depth>=.58?"#69efff":"#ffe26a","right");
+    const valves=state.underflowValves.map(choice=>choice.route).join(" → ")||"VALVES AHEAD";
+    text(`${valves}  WATER ${Math.round(state.underflowWater*100)}`,910,144,11,"#ffdc66","right");
   }
   if (state.section === 3) {
     ctx.fillStyle="#07111be8";ctx.fillRect(684,86,238,66);

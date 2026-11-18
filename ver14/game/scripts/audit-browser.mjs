@@ -156,6 +156,8 @@ if (process.argv.includes("--small-only")) {
 }
 await send("Emulation.setDeviceMetricsOverride", { width: 1280, height: 720, deviceScaleFactor: 1, mobile: false });
 await send("Page.navigate", { url: "http://127.0.0.1:4314/" });
+await send("Page.bringToFront");
+await send("Emulation.setFocusEmulationEnabled", { enabled: true });
 await sleep(900);
 const title = await evaluate("document.title");
 if (title !== "TIDEBREAK 95 v14.0") throw new Error(`Wrong target: ${title}`);
@@ -184,6 +186,7 @@ let capturedStreetBend = false;
 let capturedStreetChoice = false;
 let capturedUnderflowDive = false;
 let capturedUnderflowSurface = false;
+let capturedUnderflowValve = false;
 let capturedConvoyLow = false;
 let capturedConvoyHigh = false;
 let capturedWallLeft = false;
@@ -222,17 +225,17 @@ async function changeDepth(direction) {
 // Chrome can halve requestAnimationFrame cadence while its audit window is in
 // the background. Keep a wall-clock guard without mistaking that throttling
 // for an authored early ending.
-const deadline = Date.now() + 600000;
+const deadline = Date.now() + 900000;
 while (observed.mode === "playing" && Date.now() < deadline) {
   const next = observed.entities.filter(entity => !entity.hit && entity.z > 0 && entity.z < 0.58).sort((a, b) => a.z - b.z)[0];
   let targetX = 0;
   if (next) {
     const canBreakDriftwood = (next.type === "driftwood" || next.type === "forkBreak") && (observed.surgeTime > 0 || (observed.cooldown <= 0 && observed.surge >= 0.34));
-    if (next.type === "survivor" || next.type === "prioritySurvivor" || next.type === "routeSurvivor" || next.type === "tunnelSurvivor" || next.type === "gate" || next.type === "forkGate" || next.type === "lowCeiling" || next.type === "wallGate" || canBreakDriftwood) targetX = next.x;
+    if (next.type === "survivor" || next.type === "prioritySurvivor" || next.type === "routeSurvivor" || next.type === "tunnelSurvivor" || next.type === "tunnelValve" || next.type === "gate" || next.type === "forkGate" || next.type === "lowCeiling" || next.type === "wallGate" || canBreakDriftwood) targetX = next.x;
     else targetX = next.x > 0 ? -0.46 : 0.46;
     if ((next.type === "survivor" || next.type === "prioritySurvivor" || next.type === "routeSurvivor" || next.type === "tunnelSurvivor" || next.type === "driftwood" || next.type === "forkBreak") && next.z < 0.25 && observed.cooldown <= 0 && observed.surge >= 0.34) await key(" ", "Space");
     if (observed.section === 2 && next.z < .72) {
-      const needsDeep = next.type === "lowCeiling" || (next.type === "tunnelSurvivor" && next.layer === "deep");
+      const needsDeep = next.type === "lowCeiling" || next.type === "tunnelValve" || (next.type === "tunnelSurvivor" && next.layer === "deep");
       const needsSurface = next.type === "intake" || (next.type === "tunnelSurvivor" && next.layer === "surface");
       await changeDepth(needsDeep ? 1 : needsSurface ? -1 : 0);
     } else if (observed.section === 3 && next.type === "containerFall" && next.z < .78) {
@@ -282,6 +285,10 @@ while (observed.mode === "playing" && Date.now() < deadline) {
     capturedUnderflowSurface = true;
     await screenshot(`${artifactPrefix}-underflow-surface-1280x720.png`);
   }
+  if (!capturedUnderflowValve && observed.section === 2 && observed.entities.some(entity => !entity.hit && entity.type === "tunnelValve" && entity.z < .58)) {
+    capturedUnderflowValve = true;
+    await screenshot(`${artifactPrefix}-underflow-valve-1280x720.png`);
+  }
   if (!capturedStreetBend && observed.section === 1 && Math.abs(observed.routeCenter) > 0.22) {
     capturedStreetBend = true;
     await screenshot(`${artifactPrefix}-street-bend-1280x720.png`);
@@ -321,11 +328,12 @@ audioSamples.push({ moment: "result", ...audio });
 if (!capturedStreetBend || !capturedStreetChoice) throw new Error(`Flooded arcade evidence missing: ${JSON.stringify({capturedStreetBend,capturedStreetChoice})}`);
 if (!capturedHarborPriority || !capturedHarborFork || observed.harborPriorities.length !== 4 || observed.harborRoutes.length !== 3) throw new Error(`Harbor progression evidence missing: ${JSON.stringify({capturedHarborPriority,capturedHarborFork,harborPriorities:observed.harborPriorities,harborRoutes:observed.harborRoutes})}`);
 if (!capturedUnderflowDive || !capturedUnderflowSurface) throw new Error(`Underflow transition evidence missing: ${JSON.stringify({capturedUnderflowDive,capturedUnderflowSurface,maxDepth:observed.maxDepth})}`);
+if (!capturedUnderflowValve || observed.underflowValves.length !== 2) throw new Error(`Underflow valve chain evidence missing: ${JSON.stringify({capturedUnderflowValve,underflowValves:observed.underflowValves})}`);
 const rescueLayers = new Set(observed.underflowRescues.map(rescue => rescue.layer));
 if (!rescueLayers.has("deep") || !rescueLayers.has("surface")) throw new Error(`Both underflow rescue layers were not completed: ${JSON.stringify(observed.underflowRescues)}`);
 if (!capturedConvoyLow || !capturedConvoyHigh || observed.escortIntegrity !== 3 || observed.containerClears.length < 4 || observed.tideSwitches < 3) throw new Error(`Container convoy evidence missing: ${JSON.stringify({capturedConvoyLow,capturedConvoyHigh,escortIntegrity:observed.escortIntegrity,containerClears:observed.containerClears,tideSwitches:observed.tideSwitches})}`);
 if (!capturedWallLeft || !capturedWallRight || observed.wallGateClears.length !== 5 || observed.integrity !== 3) throw new Error(`Stormwall evidence missing: ${JSON.stringify({capturedWallLeft,capturedWallRight,integrity:observed.integrity,wallGateClears:observed.wallGateClears})}`);
-const audit = { title, mode: observed.mode, time: observed.time, section: observed.section, spawned: observed.spawned, integrity: observed.integrity, rescued: observed.rescued, score: observed.score, harborPriorities: observed.harborPriorities, harborRoutes: observed.harborRoutes, routeChoices: observed.routeChoices, underflowRescues: observed.underflowRescues, maxDepth: observed.maxDepth, surfacedAfterDive: observed.surfacedAfterDive, escortIntegrity: observed.escortIntegrity, containerClears: observed.containerClears, tideSwitches: observed.tideSwitches, wallGateClears: observed.wallGateClears, stormLevel: observed.stormLevel, capturedSurvivor, capturedBreak, capturedHarborPriority, capturedHarborFork, capturedStreetBend, capturedStreetChoice, capturedUnderflowDive, capturedUnderflowSurface, capturedConvoyLow, capturedConvoyHigh, capturedWallLeft, capturedWallRight, streetSamples, underflowSamples, convoySamples, stormwallSamples, audioSamples };
+const audit = { title, mode: observed.mode, time: observed.time, section: observed.section, spawned: observed.spawned, integrity: observed.integrity, rescued: observed.rescued, score: observed.score, harborPriorities: observed.harborPriorities, harborRoutes: observed.harborRoutes, routeChoices: observed.routeChoices, underflowRescues: observed.underflowRescues, underflowValves: observed.underflowValves, underflowWater: observed.underflowWater, maxDepth: observed.maxDepth, surfacedAfterDive: observed.surfacedAfterDive, escortIntegrity: observed.escortIntegrity, containerClears: observed.containerClears, tideSwitches: observed.tideSwitches, wallGateClears: observed.wallGateClears, stormLevel: observed.stormLevel, capturedSurvivor, capturedBreak, capturedHarborPriority, capturedHarborFork, capturedStreetBend, capturedStreetChoice, capturedUnderflowDive, capturedUnderflowSurface, capturedUnderflowValve, capturedConvoyLow, capturedConvoyHigh, capturedWallLeft, capturedWallRight, streetSamples, underflowSamples, convoySamples, stormwallSamples, audioSamples };
 await writeFile(new URL(`../../docs/${artifactPrefix}-browser-audit.json`, import.meta.url), `${JSON.stringify(audit, null, 2)}\n`);
 console.log(JSON.stringify(audit));
 socket.close();

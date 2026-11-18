@@ -2,6 +2,7 @@
 
 | 開始時刻 | Agent | Script | Run | 作業・結果 | 検証 | Commit subject |
 | --- | --- | --- | ---: | --- | --- | --- |
+| 2026-11-18T21:45:22+0900 | Codex | run-codex-loop.sh | 1 | 地下放水路を180秒へ拡張し、深層の2基の排水弁が後続の水位・水路形状・上下障害・救助層を変える連鎖分岐と監査focus固定を実装 | 23/23、構文、隔離Chrome 586.016秒・127イベント・船体3・救助40・DRAIN→RELIEF弁2/2・深層/表層・5/5護送・5/5防壁、1280×720と640×360目視合格 | feat(ver14): chain underflow sluice routes |
 | 2026-11-17T22:10:50+0900 | Codex | run-codex-loop.sh | 2 | 商業区を180秒へ拡張し、MARKET/ARCADEとCLINIC/STATIONの救助選択が後続の水路形状・交差流・条件付き障害を変える二段階連鎖分岐を実装 | 21/21、構文、隔離Chrome 431.016秒・100イベント・船体3・救助34・MARKET→CLINIC・深層/表層・5/5崩落・5/5門、1280×720と640×360目視合格 | feat(ver14): chain flooded district routes |
 | 2026-11-17T21:02:02+0900 | Codex | run-codex-loop.sh | 1 | 外港を180秒へ拡張し、4組の人数優先救助、3組のサージ破砕／安全迂回、選択履歴、専用HUDと造形を実装 | 19/19、構文、隔離Chrome 276.006秒・71イベント・船体3・救助29・優先4/4・破砕3/3・後続4区間非退行、1280×720と640×360目視合格 | feat(ver14): expand outer harbor decisions |
 | 2026-11-17T00:38:36+0900 | Codex | run-codex-loop.sh | 2 | M3高潮防壁へ上昇波、左右のサージ壁走行、上下門レバー、5門、固有景観とHUDを実装 | 17/17、構文、隔離Chrome 121.001秒・41イベント・船体3・救助13・フェリー3・5/5崩落・5/5門・左右壁捕捉、1280×720と640×360目視合格 | feat(ver14): ride the rising stormwall |
