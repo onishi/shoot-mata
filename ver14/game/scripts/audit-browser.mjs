@@ -189,6 +189,8 @@ let capturedUnderflowSurface = false;
 let capturedUnderflowValve = false;
 let capturedConvoyLow = false;
 let capturedConvoyHigh = false;
+let capturedConvoyLoad = false;
+let capturedConvoyRoute = false;
 let capturedWallLeft = false;
 let capturedWallRight = false;
 let capturedHarborPriority = false;
@@ -231,16 +233,20 @@ while (observed.mode === "playing" && Date.now() < deadline) {
   let targetX = 0;
   if (next) {
     const canBreakDriftwood = (next.type === "driftwood" || next.type === "forkBreak") && (observed.surgeTime > 0 || (observed.cooldown <= 0 && observed.surge >= 0.34));
-    if (next.type === "survivor" || next.type === "prioritySurvivor" || next.type === "routeSurvivor" || next.type === "tunnelSurvivor" || next.type === "tunnelValve" || next.type === "gate" || next.type === "forkGate" || next.type === "lowCeiling" || next.type === "wallGate" || canBreakDriftwood) targetX = next.x;
+    if (next.type === "survivor" || next.type === "prioritySurvivor" || next.type === "routeSurvivor" || next.type === "tunnelSurvivor" || next.type === "tunnelValve" || next.type === "convoyPickup" || next.type === "convoyFork" || next.type === "gate" || next.type === "forkGate" || next.type === "lowCeiling" || next.type === "wallGate" || canBreakDriftwood) targetX = next.x;
     else targetX = next.x > 0 ? -0.46 : 0.46;
     if ((next.type === "survivor" || next.type === "prioritySurvivor" || next.type === "routeSurvivor" || next.type === "tunnelSurvivor" || next.type === "driftwood" || next.type === "forkBreak") && next.z < 0.25 && observed.cooldown <= 0 && observed.surge >= 0.34) await key(" ", "Space");
     if (observed.section === 2 && next.z < .72) {
       const needsDeep = next.type === "lowCeiling" || next.type === "tunnelValve" || (next.type === "tunnelSurvivor" && next.layer === "deep");
       const needsSurface = next.type === "intake" || (next.type === "tunnelSurvivor" && next.layer === "surface");
       await changeDepth(needsDeep ? 1 : needsSurface ? -1 : 0);
-    } else if (observed.section === 3 && next.type === "containerFall" && next.z < .78) {
+    } else if (observed.section === 3 && (next.type === "containerFall" || next.type === "convoyFork") && next.z < .78) {
       await changeDepth(next.tide === "low" ? 1 : -1);
-      targetX = observed.escortX;
+      if (next.type === "containerFall") targetX = observed.escortX;
+      if (next.z < .42 && Math.abs(observed.boatX-observed.escortX) > .12 && observed.cooldown <= 0 && observed.surge >= .34) await key(" ", "Space");
+    } else if (observed.section === 3 && next.type === "convoyPickup" && next.z < .62) {
+      await changeDepth(0);
+      if (next.z < .42 && observed.cooldown <= 0 && observed.surge >= .34) await key(" ", "Space");
     } else if (observed.section === 4 && next.type === "wallGate" && next.z < .72) {
       await changeDepth(next.control === "dive" ? 1 : -1);
       targetX = observed.routeCenter + (next.side === "left" ? -observed.routeHalfWidth : observed.routeHalfWidth);
@@ -260,7 +266,7 @@ while (observed.mode === "playing" && Date.now() < deadline) {
     underflowSamples.push({ time: observed.time, depth: observed.depth, depthV: observed.depthV, boatX: observed.boatX });
   }
   if (observed.section === 3 && (!convoySamples.length || observed.time - convoySamples.at(-1).time >= 0.24)) {
-    convoySamples.push({ time: observed.time, tideLevel: observed.tideLevel, tideTarget: observed.tideTarget, boatX: observed.boatX, escortX: observed.escortX, escortIntegrity: observed.escortIntegrity, clears: observed.containerClears.length });
+    convoySamples.push({ time: observed.time, tideLevel: observed.tideLevel, tideTarget: observed.tideTarget, boatX: observed.boatX, escortX: observed.escortX, escortIntegrity: observed.escortIntegrity, escortLoad: observed.escortLoad, rally: observed.escortRallyTime, pickups: observed.escortPickups.length, routes: observed.convoyRoutes.length, clears: observed.containerClears.length });
   }
   if (observed.section === 4 && (!stormwallSamples.length || observed.time - stormwallSamples.at(-1).time >= 0.20)) {
     stormwallSamples.push({ time: observed.time, stormLevel: observed.stormLevel, boatX: observed.boatX, wallRideSide: observed.wallRideSide, gateControl: observed.gateControl, clears: observed.wallGateClears.length });
@@ -276,6 +282,12 @@ while (observed.mode === "playing" && Date.now() < deadline) {
   }
   if (!capturedConvoyHigh && observed.section === 3 && observed.tideLevel > .7 && observed.entities.some(entity => !entity.hit && entity.type === "containerFall" && entity.tide === "high" && entity.z > .28 && entity.z < .58)) {
     capturedConvoyHigh = true; await screenshot(`${artifactPrefix}-convoy-high-1280x720.png`);
+  }
+  if (!capturedConvoyLoad && observed.section === 3 && observed.entities.some(entity => !entity.hit && entity.type === "convoyPickup" && entity.z > .18 && entity.z < .58)) {
+    capturedConvoyLoad = true; await screenshot(`${artifactPrefix}-convoy-load-1280x720.png`);
+  }
+  if (!capturedConvoyRoute && observed.section === 3 && observed.entities.some(entity => !entity.hit && entity.type === "convoyFork" && entity.z > .18 && entity.z < .58)) {
+    capturedConvoyRoute = true; await screenshot(`${artifactPrefix}-convoy-route-1280x720.png`);
   }
   if (!capturedUnderflowDive && observed.section === 2 && observed.depth > .68) {
     capturedUnderflowDive = true;
@@ -331,9 +343,9 @@ if (!capturedUnderflowDive || !capturedUnderflowSurface) throw new Error(`Underf
 if (!capturedUnderflowValve || observed.underflowValves.length !== 2) throw new Error(`Underflow valve chain evidence missing: ${JSON.stringify({capturedUnderflowValve,underflowValves:observed.underflowValves})}`);
 const rescueLayers = new Set(observed.underflowRescues.map(rescue => rescue.layer));
 if (!rescueLayers.has("deep") || !rescueLayers.has("surface")) throw new Error(`Both underflow rescue layers were not completed: ${JSON.stringify(observed.underflowRescues)}`);
-if (!capturedConvoyLow || !capturedConvoyHigh || observed.escortIntegrity !== 3 || observed.containerClears.length < 4 || observed.tideSwitches < 3) throw new Error(`Container convoy evidence missing: ${JSON.stringify({capturedConvoyLow,capturedConvoyHigh,escortIntegrity:observed.escortIntegrity,containerClears:observed.containerClears,tideSwitches:observed.tideSwitches})}`);
+if (!capturedConvoyLow || !capturedConvoyHigh || !capturedConvoyLoad || !capturedConvoyRoute || observed.escortIntegrity !== 3 || observed.containerClears.length < 11 || observed.escortPickups.length !== 2 || observed.convoyRoutes.length !== 2 || observed.tideSwitches < 6) throw new Error(`Container convoy evidence missing: ${JSON.stringify({capturedConvoyLow,capturedConvoyHigh,capturedConvoyLoad,capturedConvoyRoute,escortIntegrity:observed.escortIntegrity,escortLoad:observed.escortLoad,escortPickups:observed.escortPickups,convoyRoutes:observed.convoyRoutes,containerClears:observed.containerClears,tideSwitches:observed.tideSwitches})}`);
 if (!capturedWallLeft || !capturedWallRight || observed.wallGateClears.length !== 5 || observed.integrity !== 3) throw new Error(`Stormwall evidence missing: ${JSON.stringify({capturedWallLeft,capturedWallRight,integrity:observed.integrity,wallGateClears:observed.wallGateClears})}`);
-const audit = { title, mode: observed.mode, time: observed.time, section: observed.section, spawned: observed.spawned, integrity: observed.integrity, rescued: observed.rescued, score: observed.score, harborPriorities: observed.harborPriorities, harborRoutes: observed.harborRoutes, routeChoices: observed.routeChoices, underflowRescues: observed.underflowRescues, underflowValves: observed.underflowValves, underflowWater: observed.underflowWater, maxDepth: observed.maxDepth, surfacedAfterDive: observed.surfacedAfterDive, escortIntegrity: observed.escortIntegrity, containerClears: observed.containerClears, tideSwitches: observed.tideSwitches, wallGateClears: observed.wallGateClears, stormLevel: observed.stormLevel, capturedSurvivor, capturedBreak, capturedHarborPriority, capturedHarborFork, capturedStreetBend, capturedStreetChoice, capturedUnderflowDive, capturedUnderflowSurface, capturedUnderflowValve, capturedConvoyLow, capturedConvoyHigh, capturedWallLeft, capturedWallRight, streetSamples, underflowSamples, convoySamples, stormwallSamples, audioSamples };
+const audit = { title, mode: observed.mode, time: observed.time, section: observed.section, spawned: observed.spawned, integrity: observed.integrity, rescued: observed.rescued, score: observed.score, harborPriorities: observed.harborPriorities, harborRoutes: observed.harborRoutes, routeChoices: observed.routeChoices, underflowRescues: observed.underflowRescues, underflowValves: observed.underflowValves, underflowWater: observed.underflowWater, maxDepth: observed.maxDepth, surfacedAfterDive: observed.surfacedAfterDive, escortIntegrity: observed.escortIntegrity, escortLoad: observed.escortLoad, escortPickups: observed.escortPickups, convoyRoutes: observed.convoyRoutes, containerClears: observed.containerClears, tideSwitches: observed.tideSwitches, wallGateClears: observed.wallGateClears, stormLevel: observed.stormLevel, capturedSurvivor, capturedBreak, capturedHarborPriority, capturedHarborFork, capturedStreetBend, capturedStreetChoice, capturedUnderflowDive, capturedUnderflowSurface, capturedUnderflowValve, capturedConvoyLow, capturedConvoyHigh, capturedConvoyLoad, capturedConvoyRoute, capturedWallLeft, capturedWallRight, streetSamples, underflowSamples, convoySamples, stormwallSamples, audioSamples };
 await writeFile(new URL(`../../docs/${artifactPrefix}-browser-audit.json`, import.meta.url), `${JSON.stringify(audit, null, 2)}\n`);
 console.log(JSON.stringify(audit));
 socket.close();

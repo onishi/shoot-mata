@@ -3,8 +3,8 @@ export const HEIGHT = 540;
 export const HARBOR_END = 180;
 export const STREET_END = 360;
 export const UNDERFLOW_END = 540;
-export const CONVOY_END = 559;
-export const STAGE_SECONDS = 586;
+export const CONVOY_END = 720;
+export const STAGE_SECONDS = 747;
 
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 
@@ -94,17 +94,32 @@ export const ROUTE_EVENTS = [
   [518, "lowCeiling", -0.24, { requiresValveRoute: "RELIEF" }],
   [518, "intake", 0.24, { requiresValveRoute: "BYPASS" }],
   [527, "gate", 0.18], [535, "tunnelSurvivor", 0, { layer: "surface", route: "OUTFLOW WATCH" }],
-  [541.2, "containerFall", -0.28, { tide: "low", warning: "HANGING STACK" }],
-  [544.4, "containerFall", 0.30, { tide: "high", warning: "SUNKEN STACK" }],
-  [547.6, "survivor", -0.18],
-  [548.5, "containerFall", -0.34, { tide: "high", warning: "SUNKEN STACK" }],
-  [551.7, "containerFall", 0.32, { tide: "low", warning: "HANGING STACK" }],
-  [554.0, "containerFall", 0, { tide: "high", warning: "FINAL STACK" }],
-  [562.4, "wallGate", -0.54, { side: "left", control: "surface", warning: "LIFT WEST GATE" }],
-  [567.0, "wallGate", 0.54, { side: "right", control: "dive", warning: "DROP EAST GATE" }],
-  [571.6, "wallGate", -0.50, { side: "left", control: "dive", warning: "DROP WEST GATE" }],
-  [576.2, "wallGate", 0.50, { side: "right", control: "surface", warning: "LIFT EAST GATE" }],
-  [581.0, "wallGate", -0.46, { side: "left", control: "surface", warning: "FINAL FLOODLOCK" }]
+  [542, "containerFall", -0.28, { tide: "low", warning: "HANGING STACK" }],
+  [552, "containerFall", 0.30, { tide: "high", warning: "SUNKEN STACK" }],
+  [563, "containerFall", -0.12, { tide: "low", warning: "CRANE SHADOW" }],
+  [574, "convoyPickup", -0.30, { choice: "manifest-a", route: "HOSPITAL", passengers: 4 }],
+  [574, "convoyPickup", 0.30, { choice: "manifest-a", route: "ENGINEERS", passengers: 2 }],
+  [586, "containerFall", 0.34, { tide: "high", warning: "FLOODED BERTH" }],
+  [598, "convoyFork", -0.32, { choice: "basin-a", route: "SERVICE", tide: "low", warning: "LOW SERVICE CUT" }],
+  [598, "convoyFork", 0.32, { choice: "basin-a", route: "LOCK", tide: "high", warning: "HIGH LOCK" }],
+  [611, "containerFall", -0.30, { tide: "low", warning: "NARROW GANTRY", requiresConvoyRoute: "SERVICE" }],
+  [611, "containerFall", 0.30, { tide: "high", warning: "LOCK DEBRIS", requiresConvoyRoute: "LOCK" }],
+  [624, "containerFall", 0.18, { tide: "high", warning: "LOOSE TWISTLOCK" }],
+  [638, "containerFall", -0.34, { tide: "low", warning: "DROPPED BOOM" }],
+  [651, "convoyPickup", 0.30, { choice: "manifest-b", route: "SHELTER", passengers: 5 }],
+  [651, "convoyPickup", -0.30, { choice: "manifest-b", route: "TUG CREW", passengers: 2 }],
+  [663, "containerFall", 0.32, { tide: "high", warning: "SINKING APRON" }],
+  [676, "convoyFork", 0.32, { choice: "basin-b", route: "CANAL", tide: "high", warning: "HIGH CANAL" }],
+  [676, "convoyFork", -0.32, { choice: "basin-b", route: "DOCK", tide: "low", warning: "LOW DRYDOCK" }],
+  [689, "containerFall", 0.28, { tide: "high", warning: "CANAL CRANE", requiresConvoyRoute: "CANAL" }],
+  [689, "containerFall", -0.28, { tide: "low", warning: "DOCK BRIDGE", requiresConvoyRoute: "DOCK" }],
+  [701, "containerFall", -0.24, { tide: "low", warning: "HANGING STACK" }],
+  [713, "containerFall", 0.18, { tide: "high", warning: "FINAL STACK" }],
+  [723.4, "wallGate", -0.54, { side: "left", control: "surface", warning: "LIFT WEST GATE" }],
+  [728.0, "wallGate", 0.54, { side: "right", control: "dive", warning: "DROP EAST GATE" }],
+  [732.6, "wallGate", -0.50, { side: "left", control: "dive", warning: "DROP WEST GATE" }],
+  [737.2, "wallGate", 0.50, { side: "right", control: "surface", warning: "LIFT EAST GATE" }],
+  [742.0, "wallGate", -0.46, { side: "left", control: "surface", warning: "FINAL FLOODLOCK" }]
 ];
 
 function selectedRoute(routeChoices, choice) {
@@ -163,11 +178,23 @@ export function routeProfile(time, routeChoices = []) {
       current: Math.sin(phase * Math.PI * 9 + 2.4) * 0.13 + (elapsed > 35 ? branchBias * 0.06 : 0)
     };
   }
+  if (time >= UNDERFLOW_END && time < CONVOY_END) {
+    const elapsed = time - UNDERFLOW_END;
+    const basinA = selectedRoute(routeChoices, "basin-a");
+    const basinB = selectedRoute(routeChoices, "basin-b");
+    const firstBias = basinA === "LOCK" ? 1 : basinA === "SERVICE" ? -1 : 0;
+    const secondBias = basinB === "CANAL" ? 1 : basinB === "DOCK" ? -1 : 0;
+    return {
+      center: Math.sin(elapsed / 180 * Math.PI * 7) * 0.10 + (elapsed > 60 ? firstBias * 0.08 : 0) + (elapsed > 138 ? secondBias * 0.07 : 0),
+      halfWidth: 0.60 - Math.sin(elapsed / 180 * Math.PI * 4) * 0.035 - (basinA === "SERVICE" && elapsed > 60 && elapsed < 105 ? 0.05 : 0),
+      current: Math.sin(elapsed / 180 * Math.PI * 11 + 0.4) * 0.11 + (elapsed > 138 ? secondBias * 0.05 : 0)
+    };
+  }
   if (time >= CONVOY_END) {
     const phase = (time - CONVOY_END) / 27;
     return {
       center: Math.sin(phase * Math.PI * 2.5) * 0.08,
-      halfWidth: 0.60 - Math.sin(phase * Math.PI) * 0.035,
+      halfWidth: 0.54 - Math.sin(phase * Math.PI) * 0.035,
       current: Math.sin(phase * Math.PI * 5) * 0.09
     };
   }
@@ -183,7 +210,8 @@ export function createGame() {
     harborPriorities: [], harborRoutes: [],
     depth: 0, depthV: 0, maxDepth: 0, surfacedAfterDive: false, underflowRescues: [], underflowValves: [], underflowWater: 0.5,
     tideLevel: 0.5, tideTarget: "low", escortActive: false, escortX: 0,
-    escortIntegrity: 3, containerClears: [], tideSwitches: 0,
+    escortIntegrity: 3, escortLoad: 0, escortPickups: [], convoyRoutes: [], escortRallyTime: 0,
+    containerClears: [], tideSwitches: 0,
     stormLevel: 0, wallRideSide: null, wallRideTime: 0, wallGateClears: [], gateControl: null
   };
 }
@@ -198,6 +226,7 @@ function spawnScheduled(state) {
     const [time, type, laneX, metadata = {}] = ROUTE_EVENTS[state.spawned++];
     if (metadata.requiresRoute && !state.routeChoices.some(choice => choice.route === metadata.requiresRoute)) continue;
     if (metadata.requiresValveRoute && !state.underflowValves.some(choice => choice.route === metadata.requiresValveRoute)) continue;
+    if (metadata.requiresConvoyRoute && !state.convoyRoutes.some(choice => choice.route === metadata.requiresConvoyRoute)) continue;
     const profile = routeProfile(time + 3.2, state.routeChoices);
     const x = clamp(profile.center + laneX, profile.center - profile.halfWidth * 0.82, profile.center + profile.halfWidth * 0.82);
     state.entities.push({ id: state.spawned, type, x, laneX, z: 1, hit: false, born: time, ...metadata });
@@ -217,6 +246,11 @@ export function activateSurge(state) {
   state.surge -= 0.34;
   state.surgeTime = 0.56;
   state.cooldown = 0.72;
+  if (state.section === 3) {
+    state.escortRallyTime = 1.5;
+    state.message = "FERRY RALLY — HOLD FORMATION";
+    state.messageTime = 1;
+  }
   if (state.section === 4) {
     const leftDistance = Math.abs(state.boatX - (state.routeCenter - state.routeHalfWidth));
     const rightDistance = Math.abs(state.boatX - (state.routeCenter + state.routeHalfWidth));
@@ -318,7 +352,8 @@ function resolveEntity(state, entity) {
     }
   } else if (entity.type === "containerFall") {
     const tideReady = entity.tide === "high" ? state.tideLevel >= 0.62 : state.tideLevel <= 0.38;
-    const formationReady = Math.abs(state.boatX - state.escortX) <= 0.38;
+    const formationLimit = clamp(0.38 - state.escortLoad * 0.018 + (state.escortRallyTime > 0 ? 0.12 : 0), 0.22, 0.5);
+    const formationReady = Math.abs(state.boatX - state.escortX) <= formationLimit;
     if (tideReady && formationReady) {
       state.score += 900;
       state.surge = clamp(state.surge + 0.14, 0, 1);
@@ -331,6 +366,36 @@ function resolveEntity(state, entity) {
       state.shake = 0.55;
       state.message = tideReady ? "FERRY OUT OF FORMATION" : `${entity.tide.toUpperCase()} WATER REQUIRED`;
       state.effects.push({ type: "escortHit", x: state.escortX, life: 0.75, max: 0.75 });
+    }
+    state.messageTime = 1.2;
+  } else if (entity.type === "convoyPickup") {
+    const formationReady = Math.abs(state.boatX - state.escortX) <= 0.30;
+    if (distance < 0.18 && formationReady) {
+      state.escortLoad += entity.passengers;
+      state.rescued += entity.passengers;
+      state.escortPickups.push({ route: entity.route, passengers: entity.passengers, time: state.time });
+      state.score += entity.passengers * 1200;
+      state.message = `${entity.route} ABOARD — LOAD ${state.escortLoad}`;
+      state.effects.push({ type: "rescue", x: entity.x, targetX: state.escortX, life: 0.9, max: 0.9 });
+      for (const alternative of state.entities) if (alternative !== entity && alternative.choice === entity.choice && !alternative.hit) alternative.hit = true;
+    } else {
+      state.message = formationReady ? "FERRY MISSED EVAC PIER" : "CLOSE FORMATION FOR TRANSFER";
+    }
+    state.messageTime = 1.2;
+  } else if (entity.type === "convoyFork") {
+    const tideReady = entity.tide === "high" ? state.tideLevel >= 0.62 : state.tideLevel <= 0.38;
+    const formationReady = Math.abs(state.boatX - state.escortX) <= 0.30;
+    if (distance < 0.20 && tideReady && formationReady) {
+      state.convoyRoutes.push({ choice: entity.choice, route: entity.route, tide: entity.tide, time: state.time });
+      state.routeChoices.push({ choice: entity.choice, route: entity.route, time: state.time });
+      state.score += 1600;
+      state.message = `${entity.route} ROUTE — CONVOY COMMITTED`;
+      state.effects.push({ type: "gateOpen", x: entity.x, life: 0.9, max: 0.9 });
+      for (const alternative of state.entities) if (alternative !== entity && alternative.choice === entity.choice && !alternative.hit) alternative.hit = true;
+    } else {
+      state.escortIntegrity -= 1;
+      state.shake = 0.55;
+      state.message = !tideReady ? `${entity.tide.toUpperCase()} WATER FOR ${entity.route}` : "FERRY OUT OF FORMATION";
     }
     state.messageTime = 1.2;
   } else if (entity.type === "wallGate") {
@@ -416,7 +481,9 @@ export function updateGame(state, input, dt) {
     state.tideTarget = requestedTide;
     const targetLevel = requestedTide === "high" ? 1 : 0;
     state.tideLevel += clamp(targetLevel - state.tideLevel, -dt * 0.78, dt * 0.78);
-    state.escortX += clamp(state.boatX - state.escortX, -dt * 0.42, dt * 0.42);
+    const followRate = Math.max(0.20, 0.48 - state.escortLoad * 0.022) + (state.escortRallyTime > 0 ? 0.62 : 0);
+    state.escortX += clamp(state.boatX - state.escortX, -dt * followRate, dt * followRate);
+    state.escortRallyTime = Math.max(0, state.escortRallyTime - dt);
   }
   if (state.section === 4) {
     state.gateControl = input.surface ? "surface" : input.dive ? "dive" : null;

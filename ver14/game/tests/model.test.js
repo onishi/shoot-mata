@@ -268,6 +268,45 @@ test("the rescue ferry follows the hydrofoil with a readable formation gap", () 
   assert.ok(state.escortX > 0 && state.escortX < state.boatX);
 });
 
+test("loading evacuees slows the ferry while surge rallies the formation", () => {
+  const state = startGame(createGame());
+  state.time = UNDERFLOW_END + 30;
+  state.section = 3;
+  state.escortActive = true;
+  state.boatX = -0.3;
+  state.escortX = -0.3;
+  state.entities.push({ id: 98, type: "convoyPickup", choice: "manifest-a", route: "HOSPITAL", passengers: 4, x: -0.3, z: 0.101, hit: false });
+  updateGame(state, {}, 1 / 60);
+  assert.equal(state.escortLoad, 4);
+  assert.equal(state.rescued, 4);
+  state.boatX = 0.5;
+  const before = state.escortX;
+  updateGame(state, {}, 0.05);
+  const normalGain = state.escortX - before;
+  state.surge = 1;
+  activateSurge(state);
+  const ralliedBefore = state.escortX;
+  updateGame(state, {}, 0.05);
+  assert.ok(state.escortX - ralliedBefore > normalGain);
+});
+
+test("convoy route commits only at the matching tide and closes its alternative", () => {
+  const state = startGame(createGame());
+  state.time = UNDERFLOW_END + 58;
+  state.section = 3;
+  state.escortActive = true;
+  state.tideLevel = 0.1;
+  state.boatX = state.escortX = -0.32;
+  state.entities.push(
+    { id: 99, type: "convoyFork", choice: "basin-a", route: "SERVICE", tide: "low", x: -0.32, z: 0.101, hit: false },
+    { id: 100, type: "convoyFork", choice: "basin-a", route: "LOCK", tide: "high", x: 0.32, z: 0.101, hit: false }
+  );
+  updateGame(state, { dive: true }, 1 / 60);
+  assert.deepEqual(state.convoyRoutes.map(item => item.route), ["SERVICE"]);
+  assert.equal(state.entities.find(entity => entity.id === 100)?.hit, true);
+  assert.equal(state.escortIntegrity, 3);
+});
+
 test("stormwall gates require the warned wall ride and lever direction", () => {
   const safe = startGame(createGame());
   safe.time = CONVOY_END + 6;

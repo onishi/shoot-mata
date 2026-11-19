@@ -237,7 +237,7 @@ function drawEntity(entity) {
   const z = Math.max(0, entity.z);
   const x = channelX(entity.x, z), y = channelY(z), scale = .25 + (1 - z) * 1.25;
   ctx.save(); ctx.translate(x, y); ctx.scale(scale, scale);
-  if (entity.type === "survivor" || entity.type === "prioritySurvivor" || entity.type === "routeSurvivor" || entity.type === "tunnelSurvivor") {
+  if (entity.type === "survivor" || entity.type === "prioritySurvivor" || entity.type === "routeSurvivor" || entity.type === "tunnelSurvivor" || entity.type === "convoyPickup") {
     const wave = Math.sin(state.time * 8 + entity.id) * .28;
     ctx.fillStyle = "#ffdf57"; ctx.beginPath(); ctx.ellipse(0, 7, 31, 14, 0, 0, Math.PI * 2); ctx.fill();
     ctx.fillStyle = "#202f42"; ctx.beginPath(); ctx.ellipse(0, 7, 20, 7, 0, 0, Math.PI * 2); ctx.fill();
@@ -248,12 +248,16 @@ function drawEntity(entity) {
     ctx.strokeStyle="#ff594f"; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(31,-43);ctx.lineTo(31,-83);ctx.stroke();
     polygon([[31,-83],[64,-74],[31,-62]], "#ff594f", "#fff1c7", 2);
     text("SOS", 47, -73, 12, "#fff", "center");
-    if (entity.type === "prioritySurvivor" || entity.type === "routeSurvivor" || entity.type === "tunnelSurvivor") {
+    if (entity.type === "prioritySurvivor" || entity.type === "routeSurvivor" || entity.type === "tunnelSurvivor" || entity.type === "convoyPickup") {
       ctx.fillStyle="#10243ddd";ctx.fillRect(-50,22,100,24);text(entity.route,-0,35,12,"#ffe263","center");
     }
     if (entity.type === "prioritySurvivor") {
       ctx.fillStyle="#ffcf55";ctx.beginPath();ctx.arc(-33,-62,17,0,Math.PI*2);ctx.fill();
       text(`×${entity.passengers}`, -33, -62, 13, "#172337", "center");
+    }
+    if (entity.type === "convoyPickup") {
+      ctx.strokeStyle="#ffcf55";ctx.lineWidth=5;ctx.strokeRect(-46,-60,92,100);
+      text(`FERRY +${entity.passengers}`,0,62,12,"#9cfff4","center");
     }
     if (entity.type === "tunnelSurvivor") {
       ctx.strokeStyle=entity.layer==="deep"?"#69efff":"#ffe26a";ctx.lineWidth=4;ctx.beginPath();ctx.arc(0,0,43,0,Math.PI*2);ctx.stroke();
@@ -301,6 +305,12 @@ function drawEntity(entity) {
     ctx.fillStyle="#08111de8";ctx.fillRect(-76,-91,152,43);
     text(entity.warning,0,-78,12,"#ffd45b","center");
     text(high?"▲ HIGH WATER":"▼ LOW WATER",0,-59,12,high?"#7effea":"#ffdd63","center");
+  } else if (entity.type === "convoyFork") {
+    const high=entity.tide==="high";
+    ctx.strokeStyle=high?"#70f4e7":"#ffd25b";ctx.lineWidth=11;ctx.beginPath();ctx.arc(0,-2,55,Math.PI,0);ctx.stroke();
+    ctx.fillStyle="#172738";ctx.fillRect(-60,-5,14,49);ctx.fillRect(46,-5,14,49);
+    ctx.fillStyle="#07101fe8";ctx.fillRect(-91,-105,182,50);text(entity.warning,0,-91,12,"#ffd063","center");
+    text(`${high?"▲ HIGH":"▼ LOW"} · ${entity.route}`,0,-70,12,high?"#8ffff1":"#ffdc63","center");
   } else if (entity.type === "wallGate") {
     const left=entity.side==="left", lift=entity.control==="surface";
     ctx.fillStyle="#101b28";ctx.fillRect(left?-88:-18,-76,106,116);
@@ -432,10 +442,12 @@ function drawHud(theme) {
     text(`${valves}  WATER ${Math.round(state.underflowWater*100)}`,910,144,11,"#ffdc66","right");
   }
   if (state.section === 3) {
-    ctx.fillStyle="#07111be8";ctx.fillRect(684,86,238,66);
+    ctx.fillStyle="#07111be8";ctx.fillRect(672,86,250,82);
     text(`FERRY ${"◆".repeat(Math.max(0,state.escortIntegrity))}${"◇".repeat(Math.max(0,3-state.escortIntegrity))}`,704,102,14,state.escortIntegrity===1?"#ff665d":"#fff1b0");
-    text("TIDE",704,128,13,"#9cfff4");ctx.fillStyle="#173642";ctx.fillRect(758,120,140,15);ctx.fillStyle=state.tideTarget==="high"?"#62e7eb":"#ffcf55";ctx.fillRect(761,123,134*state.tideLevel,9);
-    text(state.tideTarget==="high"?"↑ HIGH":"↓ LOW",910,146,12,state.tideTarget==="high"?"#79fff0":"#ffdc63","right");
+    text(`LOAD ${state.escortLoad}  ${state.escortRallyTime>0?"RALLY":"SPACE: RALLY"}`,910,102,12,state.escortRallyTime>0?"#9cfff4":"#ffdc63","right");
+    text("TIDE",692,128,13,"#9cfff4");ctx.fillStyle="#173642";ctx.fillRect(746,120,152,15);ctx.fillStyle=state.tideTarget==="high"?"#62e7eb":"#ffcf55";ctx.fillRect(749,123,146*state.tideLevel,9);
+    const route=state.convoyRoutes.map(item=>item.route).join(" → ")||"ROUTES AHEAD";
+    text(`${state.tideTarget==="high"?"↑ HIGH":"↓ LOW"}  ${route}`,910,155,11,state.tideTarget==="high"?"#79fff0":"#ffdc63","right");
   }
   if (state.section === 4) {
     ctx.fillStyle="#07111be8";ctx.fillRect(684,86,238,66);
