@@ -311,13 +311,18 @@ function drawEntity(entity) {
     ctx.fillStyle="#172738";ctx.fillRect(-60,-5,14,49);ctx.fillRect(46,-5,14,49);
     ctx.fillStyle="#07101fe8";ctx.fillRect(-91,-105,182,50);text(entity.warning,0,-91,12,"#ffd063","center");
     text(`${high?"▲ HIGH":"▼ LOW"} · ${entity.route}`,0,-70,12,high?"#8ffff1":"#ffdc63","center");
-  } else if (entity.type === "wallGate") {
+  } else if (entity.type === "wallGate" || entity.type === "stormFork") {
     const left=entity.side==="left", lift=entity.control==="surface";
     ctx.fillStyle="#101b28";ctx.fillRect(left?-88:-18,-76,106,116);
     ctx.strokeStyle="#91a8b2";ctx.lineWidth=6;ctx.strokeRect(left?-88:-18,-76,106,116);
     ctx.fillStyle="#ffb84d";for(let y=-62;y<30;y+=24)ctx.fillRect(left?-76:-6,y,82,8);
     ctx.fillStyle="#07101fe8";ctx.fillRect(-91,-121,182,43);text(entity.warning,0,-108,13,"#ffd063","center");
     text(`${left?"◀ WEST":"EAST ▶"}  ${lift?"↑ LIFT":"↓ DROP"}`,0,-87,12,lift?"#9dfff2":"#ffcc58","center");
+    if(entity.type==="stormFork")text(entity.route,0,56,13,"#9dfff2","center",900);
+  } else if (entity.type === "stormShelter") {
+    ctx.fillStyle="#102b36";ctx.fillRect(-116,-57,232,97);ctx.strokeStyle="#8ffff1";ctx.lineWidth=8;ctx.strokeRect(-116,-57,232,97);
+    ctx.fillStyle="#ffd063";ctx.fillRect(-93,-34,186,12);ctx.fillStyle="#07101fe8";ctx.fillRect(-105,-108,210,45);
+    text(entity.warning,0,-94,15,"#ffd063","center",900);text("FERRY FORMATION",0,-73,12,"#9dfff2","center");
   } else {
     polygon([[-62,20],[-45,-38],[35,-38],[61,20]], "#111826", "#e9c85c", 5);
     ctx.fillStyle = "#e64c42"; ctx.fillRect(entity.type === "bargeLeft" ? 5 : -35, -28, 30, 14);
@@ -326,7 +331,7 @@ function drawEntity(entity) {
 }
 
 function drawEscort() {
-  if (!state.escortActive || state.section !== 3) return;
+  if (!state.escortActive || (state.section !== 3 && state.section !== 4) || state.escortSecured) return;
   const x=channelX(state.escortX,.24),y=channelY(.24);
   ctx.save();ctx.translate(x,y);ctx.scale(.72,.72);
   ctx.fillStyle="#06101a99";ctx.beginPath();ctx.ellipse(0,10,82,17,0,0,Math.PI*2);ctx.fill();
@@ -450,10 +455,12 @@ function drawHud(theme) {
     text(`${state.tideTarget==="high"?"↑ HIGH":"↓ LOW"}  ${route}`,910,155,11,state.tideTarget==="high"?"#79fff0":"#ffdc63","right");
   }
   if (state.section === 4) {
-    ctx.fillStyle="#07111be8";ctx.fillRect(684,86,238,66);
+    ctx.fillStyle="#07111be8";ctx.fillRect(662,86,260,86);
     text("STORM",704,103,13,"#9cfff4");ctx.fillStyle="#173642";ctx.fillRect(765,95,133,15);ctx.fillStyle=state.stormLevel>.72?"#ff5c52":"#4fd9e2";ctx.fillRect(768,98,127*state.stormLevel,9);
     text(state.wallRideSide?`${state.wallRideSide.toUpperCase()} WALL LOCK` : "EDGE + SPACE TO RIDE",910,129,12,state.wallRideSide?"#ffcf5d":"#d5eef0","right");
-    text(`${state.wallGateClears.length}/5 FLOODGATES`,910,146,12,"#fff1ad","right");
+    const systems=state.stormRoutes.map(item=>item.route).join(" → ")||"SYSTEMS AHEAD";
+    text(`${state.wallGateClears.length}/12 GATES · FERRY ${"◆".repeat(Math.max(0,state.escortIntegrity))}`,910,146,11,"#fff1ad","right");
+    text(systems,910,164,11,"#9cfff4","right");
   }
 }
 

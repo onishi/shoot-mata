@@ -45,6 +45,7 @@ test("the vertical slice reaches its authored ending", () => {
   const state = startGame(createGame());
   state.integrity = 99;
   state.escortIntegrity = 99;
+  state.escortSecured = true;
   while (state.time < STAGE_SECONDS && state.mode === "playing") updateGame(state, {}, 0.05);
   assert.equal(state.mode, "cleared");
   assert.equal(state.section, 4);
@@ -339,8 +340,46 @@ test("stormwall gates require the warned wall ride and lever direction", () => {
 
 test("stormwall route narrows and bends independently of the container port", () => {
   const entry = routeProfile(CONVOY_END);
-  const crest = routeProfile(CONVOY_END + 14);
+  const crest = routeProfile(CONVOY_END + 74, [{ choice: "wall-a", route: "PUMPS" }]);
+  const beacon = routeProfile(CONVOY_END + 74, [{ choice: "wall-a", route: "BEACONS" }]);
   assert.ok(entry.halfWidth < routeProfile(UNDERFLOW_END + 10).halfWidth);
   assert.notEqual(crest.center, 0);
   assert.notEqual(crest.current, 0);
+  assert.ok(crest.halfWidth < beacon.halfWidth, "the pump cut is narrower than the beacon channel");
+  assert.notEqual(crest.center, beacon.center);
+});
+
+test("stormwall equipment commits one wall system and closes its alternative", () => {
+  const state = startGame(createGame());
+  state.time = CONVOY_END + 44;
+  state.section = 4;
+  state.routeCenter = 0;
+  state.routeHalfWidth = 0.54;
+  state.boatX = -0.54;
+  state.surge = 1;
+  activateSurge(state);
+  state.entities.push(
+    { id: 198, type: "stormFork", choice: "wall-a", route: "PUMPS", side: "left", control: "surface", x: -0.50, z: 0.101, hit: false },
+    { id: 199, type: "stormFork", choice: "wall-a", route: "BEACONS", side: "right", control: "dive", x: 0.50, z: 0.101, hit: false }
+  );
+  updateGame(state, { left: true, surface: true }, 1 / 60);
+  assert.deepEqual(state.stormRoutes.map(item => item.route), ["PUMPS"]);
+  assert.equal(state.entities.find(entity => entity.id === 199)?.hit, true);
+  assert.match(state.message, /PUMPS SYSTEM/);
+});
+
+test("the rescue ferry enters the safe basin only after both systems and full formation", () => {
+  const state = startGame(createGame());
+  state.time = STAGE_SECONDS - 9;
+  state.section = 4;
+  state.spawned = ROUTE_EVENTS.length;
+  state.boatX = state.escortX = 0;
+  state.escortLoad = 9;
+  state.wallGateClears = Array.from({ length: 12 }, (_, index) => ({ time: 730 + index }));
+  state.stormRoutes = [{ choice: "wall-a", route: "PUMPS" }, { choice: "wall-b", route: "RELIEF" }];
+  state.entities.push({ id: 200, type: "stormShelter", x: 0, z: 0.101, hit: false });
+  updateGame(state, {}, 1 / 60);
+  assert.equal(state.escortSecured, true);
+  assert.equal(state.escortIntegrity, 3);
+  assert.match(state.message, /FERRY SAFE/);
 });

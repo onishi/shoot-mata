@@ -193,6 +193,8 @@ let capturedConvoyLoad = false;
 let capturedConvoyRoute = false;
 let capturedWallLeft = false;
 let capturedWallRight = false;
+let capturedWallSystem = false;
+let capturedSafeBasin = false;
 let capturedHarborPriority = false;
 let capturedHarborFork = false;
 const streetSamples = [];
@@ -233,7 +235,7 @@ while (observed.mode === "playing" && Date.now() < deadline) {
   let targetX = 0;
   if (next) {
     const canBreakDriftwood = (next.type === "driftwood" || next.type === "forkBreak") && (observed.surgeTime > 0 || (observed.cooldown <= 0 && observed.surge >= 0.34));
-    if (next.type === "survivor" || next.type === "prioritySurvivor" || next.type === "routeSurvivor" || next.type === "tunnelSurvivor" || next.type === "tunnelValve" || next.type === "convoyPickup" || next.type === "convoyFork" || next.type === "gate" || next.type === "forkGate" || next.type === "lowCeiling" || next.type === "wallGate" || canBreakDriftwood) targetX = next.x;
+    if (next.type === "survivor" || next.type === "prioritySurvivor" || next.type === "routeSurvivor" || next.type === "tunnelSurvivor" || next.type === "tunnelValve" || next.type === "convoyPickup" || next.type === "convoyFork" || next.type === "gate" || next.type === "forkGate" || next.type === "lowCeiling" || next.type === "wallGate" || next.type === "stormFork" || next.type === "stormShelter" || canBreakDriftwood) targetX = next.x;
     else targetX = next.x > 0 ? -0.46 : 0.46;
     if ((next.type === "survivor" || next.type === "prioritySurvivor" || next.type === "routeSurvivor" || next.type === "tunnelSurvivor" || next.type === "driftwood" || next.type === "forkBreak") && next.z < 0.25 && observed.cooldown <= 0 && observed.surge >= 0.34) await key(" ", "Space");
     if (observed.section === 2 && next.z < .72) {
@@ -247,11 +249,15 @@ while (observed.mode === "playing" && Date.now() < deadline) {
     } else if (observed.section === 3 && next.type === "convoyPickup" && next.z < .62) {
       await changeDepth(0);
       if (next.z < .42 && observed.cooldown <= 0 && observed.surge >= .34) await key(" ", "Space");
-    } else if (observed.section === 4 && next.type === "wallGate" && next.z < .72) {
+    } else if (observed.section === 4 && (next.type === "wallGate" || next.type === "stormFork") && next.z < .72) {
       await changeDepth(next.control === "dive" ? 1 : -1);
       targetX = observed.routeCenter + (next.side === "left" ? -observed.routeHalfWidth : observed.routeHalfWidth);
       const atWall = Math.abs(observed.boatX - targetX) < .16;
       if (atWall && next.z < .34 && observed.cooldown <= 0 && observed.surge >= .34) await key(" ", "Space");
+    } else if (observed.section === 4 && next.type === "stormShelter" && next.z < .72) {
+      await changeDepth(0);
+      targetX = next.x;
+      if (next.z < .42 && Math.abs(observed.boatX-observed.escortX) > .10 && observed.cooldown <= 0 && observed.surge >= .34) await key(" ", "Space");
     } else if (observed.section !== 2) await changeDepth(0);
   }
   const desiredV = Math.max(-1.1, Math.min(1.1, (targetX - observed.boatX) * 2.5));
@@ -269,13 +275,19 @@ while (observed.mode === "playing" && Date.now() < deadline) {
     convoySamples.push({ time: observed.time, tideLevel: observed.tideLevel, tideTarget: observed.tideTarget, boatX: observed.boatX, escortX: observed.escortX, escortIntegrity: observed.escortIntegrity, escortLoad: observed.escortLoad, rally: observed.escortRallyTime, pickups: observed.escortPickups.length, routes: observed.convoyRoutes.length, clears: observed.containerClears.length });
   }
   if (observed.section === 4 && (!stormwallSamples.length || observed.time - stormwallSamples.at(-1).time >= 0.20)) {
-    stormwallSamples.push({ time: observed.time, stormLevel: observed.stormLevel, boatX: observed.boatX, wallRideSide: observed.wallRideSide, gateControl: observed.gateControl, clears: observed.wallGateClears.length });
+    stormwallSamples.push({ time: observed.time, stormLevel: observed.stormLevel, boatX: observed.boatX, escortX: observed.escortX, wallRideSide: observed.wallRideSide, gateControl: observed.gateControl, clears: observed.wallGateClears.length, routes: observed.stormRoutes.length, secured: observed.escortSecured });
   }
   if (!capturedWallLeft && observed.section === 4 && observed.wallRideSide === "left" && observed.entities.some(entity => !entity.hit && entity.type === "wallGate" && entity.side === "left" && entity.z < .4)) {
     capturedWallLeft = true; await screenshot(`${artifactPrefix}-stormwall-left-1280x720.png`);
   }
   if (!capturedWallRight && observed.section === 4 && observed.wallRideSide === "right" && observed.entities.some(entity => !entity.hit && entity.type === "wallGate" && entity.side === "right" && entity.z < .4)) {
     capturedWallRight = true; await screenshot(`${artifactPrefix}-stormwall-right-1280x720.png`);
+  }
+  if (!capturedWallSystem && observed.section === 4 && observed.entities.some(entity => !entity.hit && entity.type === "stormFork" && entity.z > .16 && entity.z < .54)) {
+    capturedWallSystem = true; await screenshot(`${artifactPrefix}-stormwall-system-1280x720.png`);
+  }
+  if (!capturedSafeBasin && observed.section === 4 && observed.entities.some(entity => !entity.hit && entity.type === "stormShelter" && entity.z > .16 && entity.z < .54)) {
+    capturedSafeBasin = true; await screenshot(`${artifactPrefix}-stormwall-basin-1280x720.png`);
   }
   if (!capturedConvoyLow && observed.section === 3 && observed.tideLevel < .3 && observed.entities.some(entity => !entity.hit && entity.type === "containerFall" && entity.tide === "low" && entity.z > .12 && entity.z < .58)) {
     capturedConvoyLow = true; await screenshot(`${artifactPrefix}-convoy-low-1280x720.png`);
@@ -344,8 +356,8 @@ if (!capturedUnderflowValve || observed.underflowValves.length !== 2) throw new 
 const rescueLayers = new Set(observed.underflowRescues.map(rescue => rescue.layer));
 if (!rescueLayers.has("deep") || !rescueLayers.has("surface")) throw new Error(`Both underflow rescue layers were not completed: ${JSON.stringify(observed.underflowRescues)}`);
 if (!capturedConvoyLow || !capturedConvoyHigh || !capturedConvoyLoad || !capturedConvoyRoute || observed.escortIntegrity !== 3 || observed.containerClears.length < 11 || observed.escortPickups.length !== 2 || observed.convoyRoutes.length !== 2 || observed.tideSwitches < 6) throw new Error(`Container convoy evidence missing: ${JSON.stringify({capturedConvoyLow,capturedConvoyHigh,capturedConvoyLoad,capturedConvoyRoute,escortIntegrity:observed.escortIntegrity,escortLoad:observed.escortLoad,escortPickups:observed.escortPickups,convoyRoutes:observed.convoyRoutes,containerClears:observed.containerClears,tideSwitches:observed.tideSwitches})}`);
-if (!capturedWallLeft || !capturedWallRight || observed.wallGateClears.length !== 5 || observed.integrity !== 3) throw new Error(`Stormwall evidence missing: ${JSON.stringify({capturedWallLeft,capturedWallRight,integrity:observed.integrity,wallGateClears:observed.wallGateClears})}`);
-const audit = { title, mode: observed.mode, time: observed.time, section: observed.section, spawned: observed.spawned, integrity: observed.integrity, rescued: observed.rescued, score: observed.score, harborPriorities: observed.harborPriorities, harborRoutes: observed.harborRoutes, routeChoices: observed.routeChoices, underflowRescues: observed.underflowRescues, underflowValves: observed.underflowValves, underflowWater: observed.underflowWater, maxDepth: observed.maxDepth, surfacedAfterDive: observed.surfacedAfterDive, escortIntegrity: observed.escortIntegrity, escortLoad: observed.escortLoad, escortPickups: observed.escortPickups, convoyRoutes: observed.convoyRoutes, containerClears: observed.containerClears, tideSwitches: observed.tideSwitches, wallGateClears: observed.wallGateClears, stormLevel: observed.stormLevel, capturedSurvivor, capturedBreak, capturedHarborPriority, capturedHarborFork, capturedStreetBend, capturedStreetChoice, capturedUnderflowDive, capturedUnderflowSurface, capturedUnderflowValve, capturedConvoyLow, capturedConvoyHigh, capturedConvoyLoad, capturedConvoyRoute, capturedWallLeft, capturedWallRight, streetSamples, underflowSamples, convoySamples, stormwallSamples, audioSamples };
+if (!capturedWallLeft || !capturedWallRight || !capturedWallSystem || !capturedSafeBasin || observed.wallGateClears.length !== 12 || observed.stormRoutes.length !== 2 || !observed.escortSecured || observed.escortIntegrity !== 3 || observed.integrity !== 3) throw new Error(`Stormwall evidence missing: ${JSON.stringify({capturedWallLeft,capturedWallRight,capturedWallSystem,capturedSafeBasin,integrity:observed.integrity,escortIntegrity:observed.escortIntegrity,escortSecured:observed.escortSecured,stormRoutes:observed.stormRoutes,wallGateClears:observed.wallGateClears})}`);
+const audit = { title, mode: observed.mode, time: observed.time, section: observed.section, spawned: observed.spawned, integrity: observed.integrity, rescued: observed.rescued, score: observed.score, harborPriorities: observed.harborPriorities, harborRoutes: observed.harborRoutes, routeChoices: observed.routeChoices, underflowRescues: observed.underflowRescues, underflowValves: observed.underflowValves, underflowWater: observed.underflowWater, maxDepth: observed.maxDepth, surfacedAfterDive: observed.surfacedAfterDive, escortIntegrity: observed.escortIntegrity, escortLoad: observed.escortLoad, escortPickups: observed.escortPickups, convoyRoutes: observed.convoyRoutes, containerClears: observed.containerClears, tideSwitches: observed.tideSwitches, wallGateClears: observed.wallGateClears, stormRoutes: observed.stormRoutes, escortSecured: observed.escortSecured, stormLevel: observed.stormLevel, capturedSurvivor, capturedBreak, capturedHarborPriority, capturedHarborFork, capturedStreetBend, capturedStreetChoice, capturedUnderflowDive, capturedUnderflowSurface, capturedUnderflowValve, capturedConvoyLow, capturedConvoyHigh, capturedConvoyLoad, capturedConvoyRoute, capturedWallLeft, capturedWallRight, capturedWallSystem, capturedSafeBasin, streetSamples, underflowSamples, convoySamples, stormwallSamples, audioSamples };
 await writeFile(new URL(`../../docs/${artifactPrefix}-browser-audit.json`, import.meta.url), `${JSON.stringify(audit, null, 2)}\n`);
 console.log(JSON.stringify(audit));
 socket.close();
