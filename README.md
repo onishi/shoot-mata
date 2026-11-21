@@ -192,6 +192,7 @@ verNN[.x]/
 - `SHOOT_MATA_AGENT_SCRIPT`: 起動したシェルスクリプト名
 - `SHOOT_MATA_AGENT_RUN_NUMBER`: そのループ内の実行番号
 - `SHOOT_MATA_AGENT_RUN_STARTED_AT`: 実行開始時刻
+- `SHOOT_MATA_AGENT_TARGET_MAJOR`: ループ起動時に固定した終了対象メジャー（例: `v14`）
 
 各実行は対象版の`docs/agent-history.md`へ次の形式で1行を追加し、同じ内容の要約を`docs/log.md`にも残す。
 
@@ -325,14 +326,14 @@ M6でREADMEを更新することは、過去作品のコードや素材を次作
 
 ## ループの実行
 
-CodexまたはClaude Codeを使い、既定で12回、30分間隔で進める。
+CodexまたはClaude Codeを使い、起動時の現行メジャーが`Major Closed`になるまで、既定で60分間隔で進める。実行回数は固定しない。各実行後、対象メジャーのいずれかの`docs/status.md`で`- 段階:`行が`Major Closed`で終わり、その状態がGitの`HEAD`へコミット済みなら、M6、振り返り、ループ改善、最終コミットまで一回りしたものとして停止する。起動時に対象メジャーを固定するため、停止前に次メジャーへ進めてはならない。
 
 ```sh
-./run-codex-loop.sh [run-count] [wait-minutes]
-./run-claude-loop.sh [run-count] [wait-minutes]
+./run-codex-loop.sh [wait-minutes]
+./run-claude-loop.sh [wait-minutes]
 ```
 
-例: `./run-codex-loop.sh 5 10`。各回は独立したエージェント実行で、失敗時は後続を止める。引数と環境は`--help`で確認できる。
+例: `./run-codex-loop.sh 10`。各回は独立したエージェント実行で、失敗時は後続を止める。すでに対象メジャーが`Major Closed`なら新たな実行は行わない。引数と環境は`--help`で確認できる。
 
 ## AIが止まってよい条件
 
