@@ -161,9 +161,44 @@ await send("Emulation.setFocusEmulationEnabled", { enabled: true });
 await sleep(900);
 const title = await evaluate("document.title");
 if (title !== "TIDEBREAK 95 v14.0") throw new Error(`Wrong target: ${title}`);
-await screenshot(`${artifactPrefix}-title-1280x720.png`);
+if (!process.argv.includes("--skim-only")) await screenshot(`${artifactPrefix}-title-1280x720.png`);
 await key("Enter", "Enter");
 await sleep(450);
+if (process.argv.includes("--skim-only")) {
+  let observed = await evaluate("window.__TIDEBREAK__.getState()");
+  let steering = 0;
+  async function steerSkim(direction) {
+    if (direction === steering) return;
+    if (steering) {
+      const name = steering < 0 ? "ArrowLeft" : "ArrowRight";
+      await send("Input.dispatchKeyEvent", { type: "keyUp", key: name, code: name, windowsVirtualKeyCode: steering < 0 ? 37 : 39 });
+    }
+    steering = direction;
+    if (steering) {
+      const name = steering < 0 ? "ArrowLeft" : "ArrowRight";
+      await send("Input.dispatchKeyEvent", { type: "rawKeyDown", key: name, code: name, windowsVirtualKeyCode: steering < 0 ? 37 : 39 });
+    }
+  }
+  const deadline = Date.now() + 65000;
+  while (observed.mode === "playing" && observed.nearMisses === 0 && Date.now() < deadline) {
+    const concrete = observed.entities.find(entity => !entity.hit && entity.type === "concrete" && entity.z > 0);
+    const offset = concrete && concrete.x + 0.28 <= observed.routeCenter + observed.routeHalfWidth ? 0.28 : -0.28;
+    const targetX = concrete ? concrete.x + offset : 0;
+    const desiredV = Math.max(-1.1, Math.min(1.1, (targetX - observed.boatX) * 2.7));
+    const deltaV = desiredV - observed.boatV;
+    await steerSkim(Math.abs(deltaV) < 0.10 ? 0 : deltaV < 0 ? -1 : 1);
+    await sleep(60);
+    observed = await evaluate("window.__TIDEBREAK__.getState()");
+  }
+  await steerSkim(0);
+  if (observed.nearMisses !== 1 || observed.integrity !== 3 || !observed.effects.some(effect => effect.type === "nearMiss")) {
+    throw new Error(`Wake-skim feedback was not captured safely: ${JSON.stringify(observed)}`);
+  }
+  await screenshot(`${artifactPrefix}-wake-skim-1280x720.png`);
+  const audit = { title, mode: observed.mode, time: observed.time, integrity: observed.integrity, score: observed.score, nearMisses: observed.nearMisses, nearMissChain: observed.nearMissChain, bestNearMissChain: observed.bestNearMissChain, message: observed.message, audio: await evaluate("window.__TIDEBREAK__.getAudioState()") };
+  await writeFile(new URL(`../../docs/${artifactPrefix}-wake-skim-audit.json`, import.meta.url), `${JSON.stringify(audit, null, 2)}\n`);
+  console.log(JSON.stringify(audit)); socket.close(); process.exit(0);
+}
 const audioSamples = [{ moment: "cruise", ...(await evaluate("window.__TIDEBREAK__.getAudioState()")) }];
 await screenshot(`${artifactPrefix}-wake-idle-1280x720.png`);
 await key(" ", "Space");

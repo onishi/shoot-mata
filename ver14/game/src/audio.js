@@ -48,6 +48,7 @@ export class ArcadeAudio {
   }
   surge() { this.ensure(); this.tone(120, .28, "sawtooth", .08, 4.2); this.tone(70, .38, "triangle", .09, 1.8); }
   rescue() { this.tone(520, .12, "square", .055, 1.5); setTimeout(() => this.tone(780, .18, "square", .045, 1.25), 85); }
+  nearMiss(chain = 1) { this.tone(880 + Math.min(5, chain) * 75, .11, "square", .045, 1.35); this.tone(190, .16, "triangle", .035, .72); }
   hit() { this.tone(100, .32, "sawtooth", .1, .45); }
   update(dt, playing, section, boatV = 0, surgeTime = 0, depth = 0) {
     if (!this.context) return;

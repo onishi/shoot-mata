@@ -448,6 +448,12 @@ function drawEffects() {
       for(let i=0;i<11;i++){ const a=i*.73; ctx.save();ctx.translate(x+Math.cos(a)*progress*92,y+Math.sin(a)*progress*62);ctx.rotate(a+progress*2);ctx.fillRect(-7,-3,14,6);ctx.restore(); }
     }
     if (effect.type === "hit") { ctx.strokeStyle = "#ff544b"; ctx.lineWidth = 10; ctx.beginPath(); ctx.arc(x,y,25+progress*70,0,Math.PI*2); ctx.stroke(); }
+    if (effect.type === "nearMiss") {
+      const side = effect.side ?? 1;
+      ctx.strokeStyle = "#9cfff4"; ctx.lineWidth = 7;
+      ctx.beginPath(); ctx.moveTo(x + side * 12, y + 24); ctx.quadraticCurveTo(x + side * (42 + progress * 55), y - 14, x + side * (70 + progress * 85), y - 62); ctx.stroke();
+      text("SKIM", x + side * (48 + progress * 35), y - 78 - progress * 18, 21, "#fff16b", "center");
+    }
     if (effect.type === "containerClear") { ctx.strokeStyle="#8dfff1";ctx.lineWidth=11;ctx.beginPath();ctx.arc(x,y,28+progress*105,0,Math.PI*2);ctx.stroke();text("PASSAGE OPEN",x,y-55-progress*25,23,"#ffdd63","center"); }
     if (effect.type === "escortHit") { ctx.strokeStyle="#ff544b";ctx.lineWidth=12;ctx.beginPath();ctx.moveTo(x-70-progress*35,y-50);ctx.lineTo(x+70+progress*35,y+25);ctx.moveTo(x+70+progress*35,y-50);ctx.lineTo(x-70-progress*35,y+25);ctx.stroke(); }
     if (effect.type === "gateOpen") { ctx.strokeStyle="#ffcf5d";ctx.lineWidth=12;ctx.beginPath();ctx.arc(x,y,35+progress*120,-Math.PI*.85,-Math.PI*.15);ctx.stroke();text("FLOODLOCK OPEN",x,y-52-progress*32,22,"#9dfff2","center"); }
@@ -459,6 +465,7 @@ function drawHud(theme) {
   ctx.fillStyle = "#07111bdc"; ctx.fillRect(18,16,924,64);
   text(`HULL ${"◆".repeat(Math.max(0,state.integrity))}${"◇".repeat(Math.max(0,3-state.integrity))}`,38,39,21,state.integrity===1?"#ff5f54":"#e8f5e9");
   text(`RESCUE ${String(state.rescued).padStart(2,"0")}`,38,65,18,"#ffdf57");
+  if (state.nearMissChain > 0) text(`SKIM ×${Math.min(5,state.nearMissChain)}`,198,65,15,"#9cfff4");
   text(String(state.score).padStart(8,"0"),480,41,30,"#fff","center");
   text(`${Math.min(100,Math.floor(state.time/STAGE_SECONDS*100))}%`,480,67,15,"#83dce4","center");
   text("SURGE",745,37,17,"#9cfff4"); ctx.fillStyle="#15313c"; ctx.fillRect(815,27,105,18); ctx.fillStyle=theme.light; ctx.fillRect(818,30,99*state.surge,12);
@@ -551,7 +558,7 @@ function drawSettings() {
 function drawEnd(theme) {
   ctx.fillStyle = "#06101ad9"; ctx.fillRect(145,118,670,315);
   text(state.mode === "cleared" ? "LEVIATHAN BREAKER SUNK" : "RESCUE LINE BROKEN",480,175,38,state.mode === "cleared"?theme.light:"#ff665d","center");
-  text(`RESCUED  ${state.rescued}`,480,244,27,"#fff","center"); text(`SCORE  ${state.score}`,480,283,27,"#fff","center");
+  text(`RESCUED  ${state.rescued}    SKIMS  ${state.nearMisses}`,480,244,24,"#fff","center"); text(`SCORE  ${state.score}`,480,283,27,"#fff","center");
   const rank = state.rescued >= 8 && state.integrity >= 2 ? "A" : state.rescued >= 5 ? "B" : "C";
   text(`RESCUE RANK ${rank}`,480,338,31,"#ffdf57","center"); text("R  RETRY",480,393,20,"#91e8e1","center");
 }
@@ -621,9 +628,9 @@ function frame(now) {
     frameStats.elapsedMs += rawMs; frameStats.samples += 1; frameStats.sumMs += rawMs;
     frameStats.maxMs = Math.max(frameStats.maxMs, rawMs); if (rawMs > 20) frameStats.overBudget += 1;
   }
-  const beforeRescue=state.rescued,beforeHull=state.integrity,beforeEscort=state.escortIntegrity;
+  const beforeRescue=state.rescued,beforeNearMiss=state.nearMisses,beforeHull=state.integrity,beforeEscort=state.escortIntegrity;
   if (!paused) updateGame(state,keys,dt);
-  if(state.rescued>beforeRescue)audio.rescue(); if(state.integrity<beforeHull||state.escortIntegrity<beforeEscort)audio.hit();
+  if(state.rescued>beforeRescue)audio.rescue(); if(state.nearMisses>beforeNearMiss)audio.nearMiss(state.nearMissChain); if(state.integrity<beforeHull||state.escortIntegrity<beforeEscort)audio.hit();
   audio.update(dt,state.mode==="playing"&&!paused,state.section,state.boatV,state.surgeTime,state.depth); render(); requestAnimationFrame(frame);
 }
 

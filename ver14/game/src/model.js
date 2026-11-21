@@ -243,6 +243,7 @@ export function createGame() {
   return {
     mode: "title", time: 0, boatX: 0, boatV: 0, integrity: 3, rescued: 0,
     score: 0, combo: 0, surge: 1, surgeTime: 0, cooldown: 0, spawned: 0,
+    nearMisses: 0, nearMissChain: 0, bestNearMissChain: 0,
     entities: [], effects: [], shake: 0, section: 0, message: "", messageTime: 0,
     routeCenter: 0, routeHalfWidth: 0.72, crosscurrent: 0, routeChoices: [],
     harborPriorities: [], harborRoutes: [],
@@ -556,6 +557,7 @@ function resolveEntity(state, entity) {
       } else {
         state.integrity -= 1;
         state.combo = 0;
+        state.nearMissChain = 0;
         state.shake = 0.45;
         state.boatV += entity.x < state.boatX ? 0.75 : -0.75;
         state.message = "HULL HIT";
@@ -563,8 +565,15 @@ function resolveEntity(state, entity) {
         state.effects.push({ type: "hit", x: state.boatX, life: 0.65, max: 0.65 });
       }
     } else if (distance < width + 0.10) {
-      state.score += 150;
-      state.surge = clamp(state.surge + 0.08, 0, 1);
+      state.nearMisses += 1;
+      state.nearMissChain += 1;
+      state.bestNearMissChain = Math.max(state.bestNearMissChain, state.nearMissChain);
+      const multiplier = Math.min(5, state.nearMissChain);
+      state.score += 150 * multiplier;
+      state.surge = clamp(state.surge + 0.08 + multiplier * 0.01, 0, 1);
+      state.message = `WAKE SKIM ×${multiplier}`;
+      state.messageTime = 0.9;
+      state.effects.push({ type: "nearMiss", x: entity.x, side: entity.x < state.boatX ? -1 : 1, life: 0.55, max: 0.55 });
     }
   }
   entity.hit = true;

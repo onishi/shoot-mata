@@ -41,6 +41,34 @@ test("unprotected collision damages the hull", () => {
   assert.equal(state.message, "HULL HIT");
 });
 
+test("successive near misses build a capped wake-skim chain without hull damage", () => {
+  const state = startGame(createGame());
+  state.spawned = ROUTE_EVENTS.length;
+  for (let index = 0; index < 6; index++) {
+    state.boatX = 0.29;
+    state.entities.push({ id: 400 + index, type: "concrete", x: 0, z: 0.101, hit: false });
+    updateGame(state, {}, 1 / 60);
+  }
+  assert.equal(state.integrity, 3);
+  assert.equal(state.nearMisses, 6);
+  assert.equal(state.nearMissChain, 6);
+  assert.equal(state.bestNearMissChain, 6);
+  assert.equal(state.score, 150 * (1 + 2 + 3 + 4 + 5 + 5));
+  assert.match(state.message, /WAKE SKIM ×5/);
+  assert.ok(state.effects.some(effect => effect.type === "nearMiss"));
+});
+
+test("a collision breaks the wake-skim chain", () => {
+  const state = startGame(createGame());
+  state.spawned = ROUTE_EVENTS.length;
+  state.nearMissChain = 4;
+  state.boatX = 0;
+  state.entities.push({ id: 410, type: "concrete", x: 0, z: 0.101, hit: false });
+  updateGame(state, {}, 1 / 60);
+  assert.equal(state.integrity, 2);
+  assert.equal(state.nearMissChain, 0);
+});
+
 test("the vertical slice reaches its authored ending", () => {
   const state = startGame(createGame());
   state.integrity = 99;

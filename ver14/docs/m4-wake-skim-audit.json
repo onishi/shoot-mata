@@ -1,0 +1,21 @@
+{
+  "title": "TIDEBREAK 95 v14.0",
+  "mode": "playing",
+  "time": 11.215700000000005,
+  "integrity": 3,
+  "score": 150,
+  "nearMisses": 1,
+  "nearMissChain": 1,
+  "bestNearMissChain": 1,
+  "message": "WAKE SKIM ×1",
+  "audio": {
+    "active": true,
+    "state": "running",
+    "masterVolume": 0.8,
+    "playing": true,
+    "engineHz": 85.32,
+    "engineGain": 0.017856,
+    "waterGain": 0.013200000000000002,
+    "depth": 0
+  }
+}
