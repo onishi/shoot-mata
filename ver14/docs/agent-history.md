@@ -2,6 +2,7 @@
 
 | 開始時刻 | Agent | Script | Run | 作業・結果 | 検証 | Commit subject |
 | --- | --- | --- | ---: | --- | --- | --- |
+| 2026-11-22T01:05:03+0900 | Codex | run-codex-loop.sh | 1 | 未コミットの最終ボス実装を復元し、アンカー切断、船腹壁走行、内部排水、コア破砕を完成。対象メジャーがMajor Closedになるまで継続するループ停止条件も保存 | 30/30、構文、隔離Chrome 1020.009秒・162イベント・船体/フェリー3・救助48・アンカー2/2・船腹3/3・排水2/2・コア撃破、2 viewport目視合格、shell構文/help合格 | chore(agent-loop): stop after major closure / feat(ver14): break the leviathan |
 | 2026-11-21T10:38:12+0900 | Codex | run-codex-loop.sh | 1 | 高潮防壁を180秒へ拡張し、12門、2段階設備分岐、選択依存水路、積載フェリーの隊形回復と安全区画収容を実装 | 27/27、構文、隔離Chrome 900.001秒・154イベント・船体/フェリー3・救助48・積載9・崩落11/11・門12/12・設備2/2・収容true、1280×720と640×360目視合格 | feat(ver14): expand stormwall rescue finale |
 | 2026-11-19T22:30:43+0900 | Codex | run-codex-loop.sh | 1 | 倒壊コンテナ港を180秒へ拡張し、積載で変わるフェリー追従、Space隊形回復、2組の救助桟橋、潮位別の二段階航路と条件付き障害を実装 | 25/25、構文、隔離Chrome 747.003秒・142イベント・船体/フェリー3・救助48・積載9・桟橋2/2・SERVICE→CANAL航路2/2・崩落11/11・防壁5/5、1280×720と640×360目視合格 | feat(ver14): deepen convoy rescue routes |
 | 2026-11-18T21:45:22+0900 | Codex | run-codex-loop.sh | 1 | 地下放水路を180秒へ拡張し、深層の2基の排水弁が後続の水位・水路形状・上下障害・救助層を変える連鎖分岐と監査focus固定を実装 | 23/23、構文、隔離Chrome 586.016秒・127イベント・船体3・救助40・DRAIN→RELIEF弁2/2・深層/表層・5/5護送・5/5防壁、1280×720と640×360目視合格 | feat(ver14): chain underflow sluice routes |

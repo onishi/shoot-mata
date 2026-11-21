@@ -4,7 +4,8 @@ export const HARBOR_END = 180;
 export const STREET_END = 360;
 export const UNDERFLOW_END = 540;
 export const CONVOY_END = 720;
-export const STAGE_SECONDS = 900;
+export const BOSS_START = 900;
+export const STAGE_SECONDS = 1020;
 
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 
@@ -131,7 +132,15 @@ export const ROUTE_EVENTS = [
   [847, "wallGate", 0.46, { side: "right", control: "dive", warning: "DROP SURGE BAFFLE" }],
   [861, "wallGate", -0.46, { side: "left", control: "surface", warning: "LIFT SHELTER CUT" }],
   [875, "wallGate", 0.44, { side: "right", control: "surface", warning: "FINAL FLOODLOCK" }],
-  [891, "stormShelter", 0, { warning: "SAFE BASIN 95" }]
+  [891, "stormShelter", 0, { warning: "SAFE BASIN 95" }],
+  [908, "bossAnchor", -0.34, { side: "left", warning: "CUT PORT ANCHOR" }],
+  [922, "bossAnchor", 0.34, { side: "right", warning: "CUT STARBOARD ANCHOR" }],
+  [946, "bossHull", -0.50, { side: "left", warning: "RIDE PORT ARMOR" }],
+  [960, "bossHull", 0.50, { side: "right", warning: "RIDE STARBOARD ARMOR" }],
+  [974, "bossHull", -0.48, { side: "left", warning: "BREACH ENGINE SEAM" }],
+  [990, "bossDrain", -0.24, { layer: "deep", warning: "DIVE: OPEN LOWER DRAIN" }],
+  [1000, "bossDrain", 0.24, { layer: "surface", warning: "SURFACE: VENT UPPER LINE" }],
+  [1010, "bossCore", 0, { warning: "SURGE THE FLOOD CORE" }]
 ];
 
 function selectedRoute(routeChoices, choice) {
@@ -202,6 +211,18 @@ export function routeProfile(time, routeChoices = []) {
       current: Math.sin(elapsed / 180 * Math.PI * 11 + 0.4) * 0.11 + (elapsed > 138 ? secondBias * 0.05 : 0)
     };
   }
+  if (time >= BOSS_START) {
+    const elapsed = time - BOSS_START;
+    if (elapsed < 36) {
+      return { center: Math.sin(elapsed / 36 * Math.PI) * 0.05, halfWidth: 0.66, current: Math.sin(elapsed * 0.42) * 0.08 };
+    }
+    if (elapsed < 78) {
+      const phase = (elapsed - 36) / 42;
+      return { center: Math.sin(phase * Math.PI * 3) * 0.12, halfWidth: 0.50, current: Math.sin(phase * Math.PI * 5) * 0.12 };
+    }
+    const phase = (elapsed - 78) / 42;
+    return { center: Math.sin(phase * Math.PI * 4) * 0.08, halfWidth: 0.43, current: Math.sin(phase * Math.PI * 6) * 0.07 };
+  }
   if (time >= CONVOY_END) {
     const elapsed = time - CONVOY_END;
     const phase = elapsed / 180;
@@ -230,7 +251,8 @@ export function createGame() {
     escortIntegrity: 3, escortLoad: 0, escortPickups: [], convoyRoutes: [], escortRallyTime: 0,
     containerClears: [], tideSwitches: 0,
     stormLevel: 0, wallRideSide: null, wallRideTime: 0, wallGateClears: [], stormRoutes: [], gateControl: null,
-    escortSecured: false
+    escortSecured: false,
+    bossPhase: 0, bossAnchors: [], bossHullBreaches: [], bossDrains: [], bossDefeated: false
   };
 }
 
@@ -253,6 +275,7 @@ function spawnScheduled(state) {
 }
 
 function sectionFor(time) {
+  if (time >= BOSS_START) return 5;
   if (time >= CONVOY_END) return 4;
   if (time >= UNDERFLOW_END) return 3;
   if (time >= STREET_END) return 2;
@@ -272,6 +295,14 @@ export function activateSurge(state) {
   }
   if (state.section === 4) {
     state.escortRallyTime = 1.5;
+    const leftDistance = Math.abs(state.boatX - (state.routeCenter - state.routeHalfWidth));
+    const rightDistance = Math.abs(state.boatX - (state.routeCenter + state.routeHalfWidth));
+    if (Math.min(leftDistance, rightDistance) <= 0.18) {
+      state.wallRideSide = leftDistance < rightDistance ? "left" : "right";
+      state.wallRideTime = 1.35;
+    }
+  }
+  if (state.section === 5 && state.bossPhase === 2) {
     const leftDistance = Math.abs(state.boatX - (state.routeCenter - state.routeHalfWidth));
     const rightDistance = Math.abs(state.boatX - (state.routeCenter + state.routeHalfWidth));
     if (Math.min(leftDistance, rightDistance) <= 0.18) {
@@ -459,6 +490,62 @@ function resolveEntity(state, entity) {
       state.effects.push({ type: "escortHit", x: state.escortX, life: 0.75, max: 0.75 });
     }
     state.messageTime = 1.5;
+  } else if (entity.type === "bossAnchor") {
+    if (distance < 0.20 && protectedByWake) {
+      state.bossAnchors.push({ side: entity.side, time: state.time });
+      state.score += 2400;
+      state.surge = clamp(state.surge + 0.28, 0, 1);
+      state.message = `${entity.side.toUpperCase()} ANCHOR SEVERED`;
+      state.effects.push({ type: "break", x: entity.x, life: 0.9, max: 0.9 });
+    } else {
+      state.integrity -= 1;
+      state.message = protectedByWake ? "STRIKE THE ANCHOR" : "SURGE TO CUT THE CHAIN";
+      state.effects.push({ type: "hit", x: state.boatX, life: 0.75, max: 0.75 });
+    }
+    state.messageTime = 1.3;
+  } else if (entity.type === "bossHull") {
+    const edge = state.routeCenter + (entity.side === "left" ? -state.routeHalfWidth : state.routeHalfWidth);
+    const ready = Math.abs(state.boatX - edge) <= 0.17 && state.wallRideSide === entity.side && state.wallRideTime > 0;
+    if (ready && state.bossAnchors.length === 2) {
+      state.bossHullBreaches.push({ side: entity.side, time: state.time });
+      state.score += 2600;
+      state.surge = clamp(state.surge + 0.24, 0, 1);
+      state.message = `${entity.side.toUpperCase()} ARMOR TORN OPEN`;
+      state.effects.push({ type: "gateOpen", x: entity.x, life: 1, max: 1 });
+    } else {
+      state.integrity -= 1;
+      state.message = state.bossAnchors.length < 2 ? "CUT BOTH ANCHORS FIRST" : `SURGE-RIDE ${entity.side.toUpperCase()} HULL`;
+      state.effects.push({ type: "hit", x: state.boatX, life: 0.75, max: 0.75 });
+    }
+    state.messageTime = 1.3;
+  } else if (entity.type === "bossDrain") {
+    const layerReady = entity.layer === "deep" ? state.depth >= 0.58 : state.depth <= 0.34;
+    if (distance < 0.18 && layerReady && state.bossHullBreaches.length === 3) {
+      state.bossDrains.push({ layer: entity.layer, time: state.time });
+      state.score += 2200;
+      state.surge = clamp(state.surge + 0.30, 0, 1);
+      state.message = `${entity.layer.toUpperCase()} DRAIN OPEN`;
+      state.effects.push({ type: "gateOpen", x: entity.x, life: 0.9, max: 0.9 });
+    } else {
+      state.integrity -= 1;
+      state.message = entity.layer === "deep" ? "DIVE INTO LOWER DRAIN" : "SURFACE INTO UPPER VENT";
+      state.effects.push({ type: "hit", x: state.boatX, life: 0.75, max: 0.75 });
+    }
+    state.messageTime = 1.2;
+  } else if (entity.type === "bossCore") {
+    const ready = distance < 0.22 && protectedByWake && state.bossDrains.length === 2;
+    if (ready) {
+      state.bossDefeated = true;
+      state.score += 10000;
+      state.stormLevel = 0;
+      state.message = "LEVIATHAN FLOOD CORE SHATTERED";
+      state.effects.push({ type: "break", x: entity.x, life: 1.4, max: 1.4 });
+    } else {
+      state.integrity -= 1;
+      state.message = state.bossDrains.length < 2 ? "OPEN BOTH INTERNAL DRAINS" : "SURGE THE EXPOSED CORE";
+      state.effects.push({ type: "hit", x: state.boatX, life: 0.9, max: 0.9 });
+    }
+    state.messageTime = 1.8;
   } else {
     const width = entity.type.startsWith("barge") ? 0.30 : 0.20;
     if (distance < width) {
@@ -499,7 +586,7 @@ export function updateGame(state, input, dt) {
   const rightEdge = state.routeCenter + state.routeHalfWidth;
   state.boatX = clamp(state.boatX + state.boatV * dt, leftEdge, rightEdge);
   if (state.boatX <= leftEdge + 0.001 || state.boatX >= rightEdge - 0.001) state.boatV *= -0.3;
-  if (state.section === 2) {
+  if (state.section === 2 || (state.section === 5 && state.bossPhase === 3)) {
     const depthForce = input.dive ? 3.4 : input.surface ? -4.2 : -1.25;
     state.depthV += depthForce * dt;
     state.depthV *= Math.pow(0.035, dt);
@@ -533,10 +620,18 @@ export function updateGame(state, input, dt) {
     state.escortRallyTime = Math.max(0, state.escortRallyTime - dt);
     state.wallRideTime = Math.max(0, state.wallRideTime - dt);
     if (state.wallRideTime <= 0) state.wallRideSide = null;
-  } else {
+  } else if (!(state.section === 5 && state.bossPhase === 2)) {
     state.gateControl = null;
     state.wallRideSide = null;
     state.wallRideTime = 0;
+  }
+  if (state.section === 5) {
+    const elapsed = state.time - BOSS_START;
+    state.bossPhase = elapsed < 36 ? 1 : elapsed < 78 ? 2 : 3;
+    if (state.bossPhase === 2) {
+      state.wallRideTime = Math.max(0, state.wallRideTime - dt);
+      if (state.wallRideTime <= 0) state.wallRideSide = null;
+    }
   }
   state.surgeTime = Math.max(0, state.surgeTime - dt);
   state.cooldown = Math.max(0, state.cooldown - dt);
@@ -546,7 +641,7 @@ export function updateGame(state, input, dt) {
   const nextSection = sectionFor(state.time);
   if (nextSection !== state.section) {
     state.section = nextSection;
-    state.message = ["", "FLOODED ARCADE", "UNDERFLOW — DIVE", "CONTAINER CONVOY", "STORMWALL — RIDE THE FACE"][nextSection];
+    state.message = ["", "FLOODED ARCADE", "UNDERFLOW — DIVE", "CONTAINER CONVOY", "STORMWALL — RIDE THE FACE", "LEVIATHAN BREAKER — CUT THE ANCHORS"][nextSection];
     state.messageTime = 2.2;
     if (nextSection === 3) {
       state.escortActive = true;
@@ -559,7 +654,7 @@ export function updateGame(state, input, dt) {
     }
   }
   spawnScheduled(state);
-  const pace = 0.28 + state.section * 0.018;
+  const pace = 0.28 + Math.min(state.section, 4) * 0.018;
   for (const entity of state.entities) {
     entity.z -= dt * pace;
     if (!entity.hit && entity.z <= 0.10) resolveEntity(state, entity);
@@ -576,9 +671,14 @@ export function updateGame(state, input, dt) {
       state.message = "SAFE BASIN MISSED";
       return state;
     }
+    if (!state.bossDefeated) {
+      state.mode = "gameover";
+      state.message = "LEVIATHAN FLOOD CORE ACTIVE";
+      return state;
+    }
     state.mode = "cleared";
     state.score += state.integrity * 2000 + state.rescued * 500;
-    state.message = "STORMWALL SECURED";
+    state.message = "LEVIATHAN BREAKER SUNK";
   }
   return state;
 }

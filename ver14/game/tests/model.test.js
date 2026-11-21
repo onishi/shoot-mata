@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { activateSurge, CONVOY_END, createGame, HARBOR_END, ROUTE_EVENTS, routeProfile, startGame, STREET_END, STAGE_SECONDS, UNDERFLOW_END, updateGame } from "../src/model.js";
+import { activateSurge, BOSS_START, CONVOY_END, createGame, HARBOR_END, ROUTE_EVENTS, routeProfile, startGame, STREET_END, STAGE_SECONDS, UNDERFLOW_END, updateGame } from "../src/model.js";
 
 test("steering has momentum and stays inside the flood channel", () => {
   const state = startGame(createGame());
@@ -46,10 +46,79 @@ test("the vertical slice reaches its authored ending", () => {
   state.integrity = 99;
   state.escortIntegrity = 99;
   state.escortSecured = true;
+  state.bossDefeated = true;
   while (state.time < STAGE_SECONDS && state.mode === "playing") updateGame(state, {}, 0.05);
   assert.equal(state.mode, "cleared");
-  assert.equal(state.section, 4);
+  assert.equal(state.section, 5);
   assert.equal(state.spawned, ROUTE_EVENTS.length);
+});
+
+test("the leviathan fight changes from anchor cuts to hull rides and internal drains", () => {
+  const anchor = startGame(createGame());
+  anchor.time = BOSS_START + 8;
+  anchor.section = 5;
+  anchor.bossPhase = 1;
+  anchor.surge = 1;
+  anchor.boatX = -0.34;
+  activateSurge(anchor);
+  anchor.entities.push({ id: 300, type: "bossAnchor", side: "left", x: -0.34, z: 0.101, hit: false });
+  updateGame(anchor, {}, 1 / 60);
+  assert.deepEqual(anchor.bossAnchors.map(item => item.side), ["left"]);
+  assert.match(anchor.message, /ANCHOR SEVERED/);
+
+  const hull = startGame(createGame());
+  hull.time = BOSS_START + 46;
+  hull.section = 5;
+  hull.bossPhase = 2;
+  hull.routeCenter = 0;
+  hull.routeHalfWidth = 0.5;
+  hull.boatX = -0.5;
+  hull.bossAnchors = [{ side: "left" }, { side: "right" }];
+  hull.surge = 1;
+  activateSurge(hull);
+  hull.entities.push({ id: 301, type: "bossHull", side: "left", x: -0.5, z: 0.101, hit: false });
+  updateGame(hull, { left: true }, 1 / 60);
+  assert.equal(hull.bossHullBreaches.length, 1);
+  assert.equal(hull.integrity, 3);
+
+  const drain = startGame(createGame());
+  drain.time = BOSS_START + 90;
+  drain.section = 5;
+  drain.bossPhase = 3;
+  drain.depth = 0.7;
+  drain.boatX = -0.24;
+  drain.bossHullBreaches = [{}, {}, {}];
+  drain.entities.push({ id: 302, type: "bossDrain", layer: "deep", x: -0.24, z: 0.101, hit: false });
+  updateGame(drain, { dive: true }, 1 / 60);
+  assert.deepEqual(drain.bossDrains.map(item => item.layer), ["deep"]);
+});
+
+test("the exposed flood core requires both drains and a surge", () => {
+  const state = startGame(createGame());
+  state.time = STAGE_SECONDS - 10;
+  state.section = 5;
+  state.bossPhase = 3;
+  state.bossDrains = [{ layer: "deep" }, { layer: "surface" }];
+  state.surge = 1;
+  activateSurge(state);
+  state.entities.push({ id: 303, type: "bossCore", x: 0, z: 0.101, hit: false });
+  updateGame(state, {}, 1 / 60);
+  assert.equal(state.bossDefeated, true);
+  assert.match(state.message, /CORE SHATTERED/);
+});
+
+test("a surge activated at the boss approach marker lasts through impact", () => {
+  const state = startGame(createGame());
+  state.time = BOSS_START + 8;
+  state.section = 5;
+  state.bossPhase = 1;
+  state.surge = 1;
+  state.boatX = -0.34;
+  state.entities.push({ id: 304, type: "bossAnchor", side: "left", x: -0.34, z: 0.25, hit: false });
+  activateSurge(state);
+  while (!state.entities[0].hit) updateGame(state, {}, 1 / 60);
+  assert.deepEqual(state.bossAnchors.map(item => item.side), ["left"]);
+  assert.equal(state.integrity, 3);
 });
 
 test("the underflow requires diving below ceilings and surfacing above intakes", () => {

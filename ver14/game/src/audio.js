@@ -63,7 +63,7 @@ export class ArcadeAudio {
     if (!playing) return;
     this.timer -= dt;
     if (this.timer <= 0) {
-      const sequences = [[110,165,220,165],[110,220,247,196],[98,196,294,247],[82,165,247,330],[73,147,220,294]];
+      const sequences = [[110,165,220,165],[110,220,247,196],[98,196,294,247],[82,165,247,330],[73,147,220,294],[65,98,131,196]];
       const note = sequences[section][this.beat++ % 4];
       this.tone(note, .18, "square", .018, 1);
       this.tone(note / 2, .11, "triangle", .025, .98);
