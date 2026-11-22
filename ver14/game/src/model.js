@@ -569,7 +569,7 @@ function resolveEntity(state, entity) {
       state.nearMissChain += 1;
       state.bestNearMissChain = Math.max(state.bestNearMissChain, state.nearMissChain);
       const multiplier = Math.min(5, state.nearMissChain);
-      state.score += 150 * multiplier;
+      state.score += 500 * multiplier;
       state.surge = clamp(state.surge + 0.08 + multiplier * 0.01, 0, 1);
       state.message = `WAKE SKIM ×${multiplier}`;
       state.messageTime = 0.9;

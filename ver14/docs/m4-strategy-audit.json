@@ -1,0 +1,172 @@
+{
+  "generatedBy": "deterministic 60 Hz product-input policy audit",
+  "caveat": "This compares repeatable policies in the production model; browser rendering and human first-play timing remain separate gates.",
+  "runs": [
+    {
+      "strategy": "novice",
+      "outcome": "gameover",
+      "time": 88.217,
+      "integrity": 0,
+      "escortIntegrity": 3,
+      "rescued": 0,
+      "score": 2900,
+      "nearMisses": 0,
+      "bestNearMissChain": 0,
+      "harborPriorities": [],
+      "harborRoutes": [],
+      "routeChoices": [],
+      "underflowRescues": [],
+      "escortLoad": 0,
+      "containerClears": 0,
+      "wallGateClears": 0,
+      "escortSecured": false,
+      "boss": {
+        "anchors": 0,
+        "hullBreaches": 0,
+        "drains": 0,
+        "defeated": false
+      }
+    },
+    {
+      "strategy": "rescue",
+      "outcome": "cleared",
+      "time": 1020.017,
+      "integrity": 3,
+      "escortIntegrity": 3,
+      "rescued": 48,
+      "score": 696450,
+      "nearMisses": 1,
+      "bestNearMissChain": 1,
+      "harborPriorities": [
+        "FAMILY",
+        "MEDICS",
+        "CHILDREN",
+        "EVAC TEAM"
+      ],
+      "harborRoutes": [
+        "BYPASS",
+        "BYPASS",
+        "BYPASS"
+      ],
+      "routeChoices": [
+        "market:MARKET",
+        "station:CLINIC",
+        "floodway:UPPER CREW",
+        "sluice-a:DRAIN",
+        "sluice-b:RELIEF",
+        "basin-a:SERVICE",
+        "basin-b:CANAL",
+        "wall-a:PUMPS",
+        "wall-b:RELIEF"
+      ],
+      "underflowRescues": [
+        "DIVE TEAM:deep",
+        "AIR POCKET:surface",
+        "VALVE CREW:deep",
+        "UPPER CREW:surface",
+        "SUMP CREW:deep",
+        "GAUGE TEAM:surface",
+        "RELIEF CREW:surface",
+        "TURBINE CREW:deep",
+        "VENT CREW:surface",
+        "OUTFLOW WATCH:surface"
+      ],
+      "escortLoad": 9,
+      "containerClears": 11,
+      "wallGateClears": 12,
+      "escortSecured": true,
+      "boss": {
+        "anchors": 2,
+        "hullBreaches": 3,
+        "drains": 2,
+        "defeated": true
+      }
+    },
+    {
+      "strategy": "direct",
+      "outcome": "cleared",
+      "time": 1020.017,
+      "integrity": 3,
+      "escortIntegrity": 3,
+      "rescued": 16,
+      "score": 112400,
+      "nearMisses": 0,
+      "bestNearMissChain": 0,
+      "harborPriorities": [
+        "DECKHAND",
+        "WATCHMAN",
+        "SKIPPER",
+        "RADIO CREW"
+      ],
+      "harborRoutes": [
+        "BYPASS",
+        "BYPASS",
+        "BYPASS"
+      ],
+      "routeChoices": [
+        "market:ARCADE",
+        "station:STATION",
+        "sluice-a:FLOOD",
+        "sluice-b:BYPASS",
+        "basin-a:SERVICE",
+        "basin-b:CANAL",
+        "wall-a:PUMPS",
+        "wall-b:RELIEF"
+      ],
+      "underflowRescues": [],
+      "escortLoad": 9,
+      "containerClears": 11,
+      "wallGateClears": 12,
+      "escortSecured": true,
+      "boss": {
+        "anchors": 2,
+        "hullBreaches": 3,
+        "drains": 2,
+        "defeated": true
+      }
+    },
+    {
+      "strategy": "skim",
+      "outcome": "cleared",
+      "time": 1020.017,
+      "integrity": 1,
+      "escortIntegrity": 1,
+      "rescued": 11,
+      "score": 125550,
+      "nearMisses": 10,
+      "bestNearMissChain": 10,
+      "harborPriorities": [
+        "DECKHAND",
+        "WATCHMAN",
+        "SKIPPER",
+        "RADIO CREW"
+      ],
+      "harborRoutes": [
+        "BREAK",
+        "BREAK",
+        "BREAK"
+      ],
+      "routeChoices": [
+        "market:MARKET",
+        "station:STATION",
+        "sluice-a:DRAIN",
+        "sluice-b:BYPASS",
+        "basin-a:LOCK",
+        "basin-b:DOCK",
+        "wall-a:BEACONS",
+        "wall-b:LOCKS"
+      ],
+      "underflowRescues": [],
+      "escortLoad": 4,
+      "containerClears": 11,
+      "wallGateClears": 12,
+      "escortSecured": true,
+      "boss": {
+        "anchors": 2,
+        "hullBreaches": 3,
+        "drains": 2,
+        "defeated": true
+      }
+    }
+  ]
+}

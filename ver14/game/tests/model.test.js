@@ -53,7 +53,7 @@ test("successive near misses build a capped wake-skim chain without hull damage"
   assert.equal(state.nearMisses, 6);
   assert.equal(state.nearMissChain, 6);
   assert.equal(state.bestNearMissChain, 6);
-  assert.equal(state.score, 150 * (1 + 2 + 3 + 4 + 5 + 5));
+  assert.equal(state.score, 500 * (1 + 2 + 3 + 4 + 5 + 5));
   assert.match(state.message, /WAKE SKIM ×5/);
   assert.ok(state.effects.some(effect => effect.type === "nearMiss"));
 });
