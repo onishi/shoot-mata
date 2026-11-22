@@ -122,6 +122,23 @@ function drawStormwall(theme) {
 
 function drawLeviathan(theme) {
   ctx.fillStyle="#080a14";ctx.fillRect(0,0,960,300);
+  if(state.bossDefeated){
+    const t=state.bossCollapseTime,sink=Math.min(1,Math.max(0,(t-1.4)/4.2)),roll=Math.sin(Math.min(1,t/5.5)*Math.PI)*-.055;
+    const pressure=Math.min(1,t/2.8),split=Math.min(1,t/1.6);
+    ctx.fillStyle="#102c3c";ctx.fillRect(0,205,960,335);
+    ctx.save();ctx.translate(480,154+sink*138);ctx.rotate(roll);
+    polygon([[-376,70],[-324,-36],[-202,-84],[-26,-61],[0,-30],[26,-61],[202,-84],[324,-36],[376,70]],"#242737","#8995a0",8);
+    polygon([[-220,57],[-184,-55],[-68,-88],[-18,-41],[-10,75]],"#343746","#b5bdc0",6);
+    polygon([[10,75],[18,-41],[68,-88],[184,-55],[220,57]],"#30333f","#9fa8ad",6);
+    ctx.strokeStyle="#ff6a55";ctx.lineWidth=10;ctx.beginPath();ctx.moveTo(-8,-82);ctx.lineTo(-18+split*-42,92);ctx.stroke();
+    for(const side of [-1,1]){ctx.save();ctx.translate(side*(42+split*84),-15+split*24);ctx.rotate(side*split*.17);polygon([[-70,-35],[65,-42],[82,47],[-63,53]],"#353846","#737f88",5);ctx.restore();}
+    ctx.restore();
+    ctx.strokeStyle=`rgba(145,255,247,${.28+pressure*.55})`;ctx.lineWidth=8+pressure*12;
+    for(const side of [-1,1]){ctx.beginPath();ctx.moveTo(480+side*(28+split*28),205+sink*98);ctx.quadraticCurveTo(480+side*(170+pressure*80),265,480+side*(330+pressure*90),392+sink*36);ctx.stroke();}
+    ctx.fillStyle=`rgba(117,255,242,${.08+pressure*.16})`;ctx.beginPath();ctx.ellipse(480,270+sink*110,170+pressure*250,35+pressure*54,0,0,Math.PI*2);ctx.fill();
+    text(["CORE RUPTURE","PRESSURE BREAK","LEVIATHAN SINKING","ESCAPE CORRIDOR OPEN"][state.bossCollapseStage]??"CORE RUPTURE",480,109,24,state.bossCollapseStage===3?"#9cfff4":"#ff8068","center",900);
+    return;
+  }
   if(state.bossPhase<3){
     polygon([[104,223],[156,117],[278,70],[480,92],[682,70],[804,117],[856,223]],"#242737","#788493",8);
     polygon([[250,211],[285,104],[405,76],[480,40],[555,76],[675,104],[710,211]],"#343746","#a4adb0",6);
@@ -369,8 +386,10 @@ function drawEntity(entity) {
 }
 
 function drawEscort() {
-  if (!state.escortActive || (state.section !== 3 && state.section !== 4) || state.escortSecured) return;
-  const x=channelX(state.escortX,.24),y=channelY(.24);
+  const escaping=state.section===5&&state.bossDefeated&&state.bossCollapseTime>=3.2;
+  if (!escaping && (!state.escortActive || (state.section !== 3 && state.section !== 4) || state.escortSecured)) return;
+  const escape=Math.max(0,state.bossCollapseTime-3.2);
+  const x=escaping?channelX(state.boatX-.18-Math.sin(escape*1.4)*.04,.24):channelX(state.escortX,.24),y=escaping?channelY(.24)-Math.min(46,escape*16):channelY(.24);
   ctx.save();ctx.translate(x,y);ctx.scale(.72,.72);
   ctx.fillStyle="#06101a99";ctx.beginPath();ctx.ellipse(0,10,82,17,0,0,Math.PI*2);ctx.fill();
   polygon([[-73,10],[-60,-22],[-37,-34],[42,-34],[68,-10],[76,10]],"#ded9bd","#091522",5);
@@ -382,7 +401,8 @@ function drawEscort() {
 
 function drawBoat() {
   const wallLift = (state.section === 4 || (state.section === 5 && state.bossPhase === 2)) && state.wallRideTime > 0 ? 42 : 0;
-  const x = channelX(state.boatX, 0), y = 472 + state.depth * 36 - wallLift;
+  const escapeLift=state.bossDefeated?Math.max(0,state.bossCollapseTime-4.2)*14:0;
+  const x = channelX(state.boatX, 0), y = 472 + state.depth * 36 - wallLift - Math.min(48,escapeLift);
   if (state.surgeTime > 0) {
     const pulse = 64 + Math.sin(state.time * 38) * 8;
     ctx.strokeStyle = "#9cfff4"; ctx.lineWidth = 10; ctx.globalAlpha = .65;
@@ -474,7 +494,10 @@ function drawHud(theme) {
   text(`${Math.min(100,Math.floor(state.time/STAGE_SECONDS*100))}%`,480,67,15,"#83dce4","center");
   text("SURGE",745,37,17,"#9cfff4"); ctx.fillStyle="#15313c"; ctx.fillRect(815,27,105,18); ctx.fillStyle=theme.light; ctx.fillRect(818,30,99*state.surge,12);
   text(state.surge>=.34?"SPACE READY":"RECHARGING",920,63,14,state.surge>=.34?"#fff16b":"#7ba6ae","right");
-  if (state.messageTime > 0) text(state.message,480,115,30,theme.light,"center");
+  // The collapse scene carries a persistent phase title in the world layer.
+  // Suppress the transient event banner so both messages never occupy the
+  // same focal line during the seven-second finale.
+  if (state.messageTime > 0 && !state.bossDefeated) text(state.message,480,115,30,theme.light,"center");
   if (state.section === 0 && state.time < 90 && state.messageTime <= 0) {
     const cue = state.trainingCue;
     const prompt = state.time < 12 ? "STEER INTO SIGNALS" : state.time < 28 ? "SPACE: SURGE THROUGH DEBRIS" : "AMBER GATES PATCH EARLY HULL DAMAGE";
@@ -524,6 +547,7 @@ function drawHud(theme) {
     text(`ANCHORS ${state.bossAnchors.length}/2 · ARMOR ${state.bossHullBreaches.length}/3`,908,126,11,"#ffdc63","right");
     text(`DRAINS ${state.bossDrains.length}/2 · CORE ${state.bossDefeated?"DOWN":"LIVE"}`,908,149,11,state.bossDefeated?"#8ffff1":"#fff","right");
     if(state.bossPhase===2)text(state.wallRideSide?`${state.wallRideSide.toUpperCase()} HULL LOCK`:"EDGE + SPACE TO RIDE",908,168,11,"#9cfff4","right");
+    if(state.bossDefeated){text(`BREAKAWAY ${Math.min(100,Math.round(state.bossCollapseTime/6.8*100))}%`,908,168,11,"#9cfff4","right");}
   }
 }
 
@@ -638,9 +662,11 @@ function frame(now) {
     frameStats.elapsedMs += rawMs; frameStats.samples += 1; frameStats.sumMs += rawMs;
     frameStats.maxMs = Math.max(frameStats.maxMs, rawMs); if (rawMs > 20) frameStats.overBudget += 1;
   }
-  const beforeRescue=state.rescued,beforeNearMiss=state.nearMisses,beforeHull=state.integrity,beforeEscort=state.escortIntegrity;
+  const beforeRescue=state.rescued,beforeNearMiss=state.nearMisses,beforeHull=state.integrity,beforeEscort=state.escortIntegrity,beforeBoss=state.bossDefeated,beforeCollapseStage=state.bossCollapseStage;
   if (!paused) updateGame(state,keys,dt);
   if(state.rescued>beforeRescue)audio.rescue(); if(state.nearMisses>beforeNearMiss)audio.nearMiss(state.nearMissChain); if(state.integrity<beforeHull||state.escortIntegrity<beforeEscort)audio.hit();
+  if(!beforeBoss&&state.bossDefeated)audio.coreBreak();
+  if(state.bossCollapseStage>beforeCollapseStage&&state.bossCollapseStage>0)audio.collapse(state.bossCollapseStage);
   audio.update(dt,state.mode==="playing"&&!paused,state.section,state.boatV,state.surgeTime,state.depth); render(); requestAnimationFrame(frame);
 }
 

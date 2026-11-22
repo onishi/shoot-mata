@@ -50,6 +50,16 @@ export class ArcadeAudio {
   rescue() { this.tone(520, .12, "square", .055, 1.5); setTimeout(() => this.tone(780, .18, "square", .045, 1.25), 85); }
   nearMiss(chain = 1) { this.tone(880 + Math.min(5, chain) * 75, .11, "square", .045, 1.35); this.tone(190, .16, "triangle", .035, .72); }
   hit() { this.tone(100, .32, "sawtooth", .1, .45); }
+  coreBreak() {
+    this.tone(58, 1.25, "sawtooth", .14, .42);
+    this.tone(860, .42, "square", .07, .18);
+    setTimeout(() => this.tone(170, .9, "triangle", .1, .5), 210);
+  }
+  collapse(stage) {
+    if (stage === 1) { this.tone(74, 1.1, "sawtooth", .11, .45); this.tone(310, .7, "triangle", .06, 1.7); }
+    if (stage === 2) { this.tone(92, 1.35, "sawtooth", .12, .38); this.tone(48, 1.5, "triangle", .1, .72); }
+    if (stage === 3) { [262, 392, 523, 784].forEach((note, index) => setTimeout(() => this.tone(note, .34, "square", .055, 1.08), index * 135)); }
+  }
   update(dt, playing, section, boatV = 0, surgeTime = 0, depth = 0) {
     if (!this.context) return;
     const now = this.context.currentTime;

@@ -254,7 +254,8 @@ export function createGame() {
     containerClears: [], tideSwitches: 0,
     stormLevel: 0, wallRideSide: null, wallRideTime: 0, wallGateClears: [], stormRoutes: [], gateControl: null,
     escortSecured: false,
-    bossPhase: 0, bossAnchors: [], bossHullBreaches: [], bossDrains: [], bossDefeated: false
+    bossPhase: 0, bossAnchors: [], bossHullBreaches: [], bossDrains: [], bossDefeated: false,
+    bossCollapseTime: 0, bossCollapseStage: -1
   };
 }
 
@@ -545,6 +546,8 @@ function resolveEntity(state, entity) {
     const ready = distance < 0.22 && protectedByWake && state.bossDrains.length === 2;
     if (ready) {
       state.bossDefeated = true;
+      state.bossCollapseTime = 0;
+      state.bossCollapseStage = 0;
       state.score += 10000;
       state.stormLevel = 0;
       state.message = "LEVIATHAN FLOOD CORE SHATTERED";
@@ -697,6 +700,16 @@ export function updateGame(state, input, dt) {
   state.entities = state.entities.filter(entity => entity.z > -0.12);
   for (const effect of state.effects) effect.life -= dt;
   state.effects = state.effects.filter(effect => effect.life > 0);
+  if (state.bossDefeated) {
+    state.bossCollapseTime += dt;
+    const collapseStage = state.bossCollapseTime < 1.5 ? 0 : state.bossCollapseTime < 3.2 ? 1 : state.bossCollapseTime < 5.2 ? 2 : 3;
+    if (collapseStage !== state.bossCollapseStage) {
+      state.bossCollapseStage = collapseStage;
+      state.message = ["LEVIATHAN FLOOD CORE SHATTERED", "FLOOD PRESSURE RELEASED", "BREAKER LOSING BUOYANCY", "RESCUE FERRY — BREAK AWAY"][collapseStage];
+      state.messageTime = collapseStage === 3 ? 2.4 : 1.6;
+      state.shake = collapseStage < 3 ? 0.34 : 0.12;
+    }
+  }
   if (state.integrity <= 0 || state.escortIntegrity <= 0) {
     state.mode = "gameover";
     state.message = state.escortIntegrity <= 0 ? "RESCUE FERRY LOST" : "SWALLOWED BY THE SURGE";
@@ -711,6 +724,7 @@ export function updateGame(state, input, dt) {
       state.message = "LEVIATHAN FLOOD CORE ACTIVE";
       return state;
     }
+    if (state.bossCollapseTime < 6.8) return state;
     state.mode = "cleared";
     state.score += state.integrity * 2000 + state.rescued * 500;
     state.message = "LEVIATHAN BREAKER SUNK";

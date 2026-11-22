@@ -166,6 +166,28 @@ test("the exposed flood core requires both drains and a surge", () => {
   assert.match(state.message, /CORE SHATTERED/);
 });
 
+test("core destruction plays a timed collapse before the result", () => {
+  const state = startGame(createGame());
+  state.time = STAGE_SECONDS - 7.1;
+  state.section = 5;
+  state.bossPhase = 3;
+  state.spawned = ROUTE_EVENTS.length;
+  state.escortSecured = true;
+  state.bossDrains = [{ layer: "deep" }, { layer: "surface" }];
+  state.surge = 1;
+  activateSurge(state);
+  state.entities.push({ id: 305, type: "bossCore", x: 0, z: 0.101, hit: false });
+  updateGame(state, {}, 1 / 60);
+  assert.equal(state.bossCollapseStage, 0);
+  while (state.bossCollapseTime < 3.3) updateGame(state, {}, 0.05);
+  assert.equal(state.mode, "playing");
+  assert.equal(state.bossCollapseStage, 2);
+  assert.match(state.message, /LOSING BUOYANCY/);
+  while (state.mode === "playing") updateGame(state, {}, 0.05);
+  assert.equal(state.mode, "cleared");
+  assert.ok(state.bossCollapseTime >= 6.8);
+});
+
 test("a surge activated at the boss approach marker lasts through impact", () => {
   const state = startGame(createGame());
   state.time = BOSS_START + 8;
