@@ -244,6 +244,7 @@ export function createGame() {
     mode: "title", time: 0, boatX: 0, boatV: 0, integrity: 3, rescued: 0,
     score: 0, combo: 0, surge: 1, surgeTime: 0, cooldown: 0, spawned: 0,
     nearMisses: 0, nearMissChain: 0, bestNearMissChain: 0,
+    harborRepairs: 0, trainingCue: null,
     entities: [], effects: [], shake: 0, section: 0, message: "", messageTime: 0,
     routeCenter: 0, routeHalfWidth: 0.72, crosscurrent: 0, routeChoices: [],
     harborPriorities: [], harborRoutes: [],
@@ -384,7 +385,14 @@ function resolveEntity(state, entity) {
     if (distance < 0.24) {
       state.score += 500;
       state.surge = clamp(state.surge + 0.3, 0, 1);
-      state.message = "CURRENT GATE +CHARGE";
+      if (state.time <= 90 && state.integrity < 3) {
+        state.integrity += 1;
+        state.harborRepairs += 1;
+        state.message = "CURRENT GATE — HULL PATCH";
+        state.effects.push({ type: "repair", x: entity.x, life: 0.8, max: 0.8 });
+      } else {
+        state.message = "CURRENT GATE +CHARGE";
+      }
       state.messageTime = 1;
     }
   } else if (entity.type === "lowCeiling" || entity.type === "intake") {
@@ -667,6 +675,24 @@ export function updateGame(state, input, dt) {
   for (const entity of state.entities) {
     entity.z -= dt * pace;
     if (!entity.hit && entity.z <= 0.10) resolveEntity(state, entity);
+  }
+  if (state.time <= 90) {
+    const threat = state.entities
+      .filter(entity => !entity.hit && (entity.type === "concrete" || entity.type === "driftwood") && entity.z >= 0.18 && entity.z <= 0.62)
+      .sort((a, b) => a.z - b.z)[0];
+    if (threat) {
+      const leftRoom = threat.x - (state.routeCenter - state.routeHalfWidth);
+      const rightRoom = state.routeCenter + state.routeHalfWidth - threat.x;
+      state.trainingCue = {
+        type: threat.type,
+        direction: leftRoom > rightRoom ? "left" : "right",
+        urgency: clamp((0.62 - threat.z) / 0.44, 0, 1)
+      };
+    } else {
+      state.trainingCue = null;
+    }
+  } else {
+    state.trainingCue = null;
   }
   state.entities = state.entities.filter(entity => entity.z > -0.12);
   for (const effect of state.effects) effect.life -= dt;

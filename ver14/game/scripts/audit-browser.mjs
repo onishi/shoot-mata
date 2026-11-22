@@ -164,6 +164,50 @@ if (title !== "TIDEBREAK 95 v14.0") throw new Error(`Wrong target: ${title}`);
 if (!process.argv.includes("--skim-only")) await screenshot(`${artifactPrefix}-title-1280x720.png`);
 await key("Enter", "Enter");
 await sleep(450);
+if (process.argv.includes("--training-only")) {
+  let observed = await evaluate("window.__TIDEBREAK__.getState()");
+  let steering = 0;
+  let capturedCue = false;
+  let hullAfterImpact = null;
+  async function steerTraining(direction) {
+    if (direction === steering) return;
+    if (steering) {
+      const name = steering < 0 ? "ArrowLeft" : "ArrowRight";
+      await send("Input.dispatchKeyEvent", { type: "keyUp", key: name, code: name, windowsVirtualKeyCode: steering < 0 ? 37 : 39 });
+    }
+    steering = direction;
+    if (steering) {
+      const name = steering < 0 ? "ArrowLeft" : "ArrowRight";
+      await send("Input.dispatchKeyEvent", { type: "rawKeyDown", key: name, code: name, windowsVirtualKeyCode: steering < 0 ? 37 : 39 });
+    }
+  }
+  const deadline = Date.now() + 45000;
+  while (observed.mode === "playing" && observed.time < 22 && Date.now() < deadline) {
+    const next = observed.entities.filter(entity => !entity.hit && entity.z > 0 && entity.z < .72).sort((a,b) => a.z-b.z)[0];
+    const targetX = next?.x ?? 0;
+    const desired = Math.max(-1.1, Math.min(1.1, (targetX-observed.boatX)*2.4));
+    const delta = desired-observed.boatV;
+    await steerTraining(Math.abs(delta)<.10?0:delta<0?-1:1);
+    if (!capturedCue && observed.trainingCue?.type === "driftwood") {
+      capturedCue = true;
+      await screenshot(`${artifactPrefix}-danger-cue-1280x720.png`);
+    }
+    if (hullAfterImpact === null && observed.integrity < 3) hullAfterImpact = observed.integrity;
+    if (observed.harborRepairs > 0) break;
+    await sleep(70);
+    observed = await evaluate("window.__TIDEBREAK__.getState()");
+  }
+  await steerTraining(0);
+  await screenshot(`${artifactPrefix}-hull-patch-1280x720.png`);
+  await send("Emulation.setDeviceMetricsOverride", { width: 640, height: 360, deviceScaleFactor: 1, mobile: false });
+  await screenshot(`${artifactPrefix}-hull-patch-640x360.png`);
+  const audio = await evaluate("window.__TIDEBREAK__.getAudioState()");
+  if (!capturedCue || hullAfterImpact !== 2 || observed.harborRepairs !== 1 || observed.integrity !== 3) throw new Error(`Training recovery audit failed: ${JSON.stringify({capturedCue,hullAfterImpact,observed})}`);
+  const audit = { title, capturedCue, hullAfterImpact, final: observed, audio };
+  await writeFile(new URL(`../../docs/${artifactPrefix}-training-audit.json`, import.meta.url), `${JSON.stringify(audit,null,2)}\n`);
+  console.log(JSON.stringify({title,capturedCue,hullAfterImpact,time:observed.time,integrity:observed.integrity,harborRepairs:observed.harborRepairs,audioActive:audio.active}));
+  socket.close(); process.exit(0);
+}
 if (process.argv.includes("--skim-only")) {
   let observed = await evaluate("window.__TIDEBREAK__.getState()");
   let steering = 0;

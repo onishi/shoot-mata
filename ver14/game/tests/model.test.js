@@ -41,6 +41,37 @@ test("unprotected collision damages the hull", () => {
   assert.equal(state.message, "HULL HIT");
 });
 
+test("early current gates patch one hull point without erasing collision risk", () => {
+  const state = startGame(createGame());
+  state.spawned = ROUTE_EVENTS.length;
+  state.time = 40;
+  state.integrity = 1;
+  state.entities.push({ id: 100, type: "gate", x: 0, z: 0.101, hit: false });
+  updateGame(state, {}, 1 / 60);
+  assert.equal(state.integrity, 2);
+  assert.equal(state.harborRepairs, 1);
+  assert.equal(state.message, "CURRENT GATE — HULL PATCH");
+  assert.ok(state.effects.some(effect => effect.type === "repair"));
+
+  state.time = 91;
+  state.entities.push({ id: 101, type: "gate", x: 0, z: 0.101, hit: false });
+  updateGame(state, {}, 1 / 60);
+  assert.equal(state.integrity, 2);
+  assert.equal(state.harborRepairs, 1);
+});
+
+test("the first ninety seconds expose an imminent hazard direction cue", () => {
+  const state = startGame(createGame());
+  state.spawned = ROUTE_EVENTS.length;
+  state.entities.push({ id: 102, type: "concrete", x: 0.35, z: 0.5, hit: false });
+  updateGame(state, {}, 1 / 60);
+  assert.equal(state.trainingCue.type, "concrete");
+  assert.equal(state.trainingCue.direction, "left");
+  state.time = 90;
+  updateGame(state, {}, 1 / 60);
+  assert.equal(state.trainingCue, null);
+});
+
 test("successive near misses build a capped wake-skim chain without hull damage", () => {
   const state = startGame(createGame());
   state.spawned = ROUTE_EVENTS.length;

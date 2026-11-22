@@ -448,6 +448,10 @@ function drawEffects() {
       for(let i=0;i<11;i++){ const a=i*.73; ctx.save();ctx.translate(x+Math.cos(a)*progress*92,y+Math.sin(a)*progress*62);ctx.rotate(a+progress*2);ctx.fillRect(-7,-3,14,6);ctx.restore(); }
     }
     if (effect.type === "hit") { ctx.strokeStyle = "#ff544b"; ctx.lineWidth = 10; ctx.beginPath(); ctx.arc(x,y,25+progress*70,0,Math.PI*2); ctx.stroke(); }
+    if (effect.type === "repair") {
+      ctx.strokeStyle = "#8ffff1"; ctx.lineWidth = 8; ctx.beginPath(); ctx.arc(x,y,24+progress*78,0,Math.PI*2); ctx.stroke();
+      text("HULL +1",x,y-48-progress*24,22,"#fff16b","center");
+    }
     if (effect.type === "nearMiss") {
       const side = effect.side ?? 1;
       ctx.strokeStyle = "#9cfff4"; ctx.lineWidth = 7;
@@ -471,6 +475,12 @@ function drawHud(theme) {
   text("SURGE",745,37,17,"#9cfff4"); ctx.fillStyle="#15313c"; ctx.fillRect(815,27,105,18); ctx.fillStyle=theme.light; ctx.fillRect(818,30,99*state.surge,12);
   text(state.surge>=.34?"SPACE READY":"RECHARGING",920,63,14,state.surge>=.34?"#fff16b":"#7ba6ae","right");
   if (state.messageTime > 0) text(state.message,480,115,30,theme.light,"center");
+  if (state.section === 0 && state.time < 90 && state.messageTime <= 0) {
+    const cue = state.trainingCue;
+    const prompt = state.time < 12 ? "STEER INTO SIGNALS" : state.time < 28 ? "SPACE: SURGE THROUGH DEBRIS" : "AMBER GATES PATCH EARLY HULL DAMAGE";
+    ctx.fillStyle="#07111be8";ctx.fillRect(238,86,484,42);
+    text(cue ? `DANGER ${cue.direction === "left" ? "←" : "→"}  STEER ${cue.direction.toUpperCase()}${cue.type === "driftwood" ? " OR SURGE" : ""}` : prompt,480,107,15,cue ? (cue.urgency>.55?"#ff685f":"#ffcf55") : "#9cfff4","center",800);
+  }
   if (state.section === 0 && state.time >= 50) {
     ctx.fillStyle="#07111bdc";ctx.fillRect(684,86,238,46);
     text(`PRIORITY ${state.harborPriorities.length}/4`,704,101,12,"#ffdf57");

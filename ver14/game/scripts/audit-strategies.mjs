@@ -101,6 +101,7 @@ function summarize(name, state) {
     outcome: state.mode,
     time: Number(state.time.toFixed(3)),
     integrity: state.integrity,
+    harborRepairs: state.harborRepairs,
     escortIntegrity: state.escortIntegrity,
     rescued: state.rescued,
     score: state.score,
