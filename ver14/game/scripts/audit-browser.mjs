@@ -460,6 +460,15 @@ if (observed.mode === "playing") throw new Error(`Audit timed out at authored ti
 await screenshot(`${artifactPrefix}-result-1280x720.png`);
 const audio = await evaluate("window.__TIDEBREAK__.getAudioState()");
 audioSamples.push({ moment: "result", ...audio });
+const sectionAudio = audioSamples.filter(sample => sample.moment === "cruise" || sample.moment.startsWith("section-"));
+const expectedProfiles = ["open-harbor", "flooded-arcade", "underflow", "convoy", "stormwall", "leviathan"];
+if (sectionAudio.length !== expectedProfiles.length || sectionAudio.some((sample, index) => sample.profile !== expectedProfiles[index] || sample.transitionCount !== index + 1)) {
+  throw new Error(`Section audio identities missing: ${JSON.stringify(sectionAudio)}`);
+}
+if (new Set(sectionAudio.map(sample => `${sample.tempo}:${sample.rhythm}`)).size !== 6 || new Set(sectionAudio.map(sample => `${sample.waterHz}:${sample.droneHz}`)).size !== 6) {
+  throw new Error(`Section audio profiles are not distinct: ${JSON.stringify(sectionAudio)}`);
+}
+if (audio.playing || audio.engineGain !== 0 || audio.waterGain !== 0 || audio.droneGain !== 0) throw new Error(`Continuous audio did not stop at result: ${JSON.stringify(audio)}`);
 if (!capturedStreetBend || !capturedStreetChoice) throw new Error(`Flooded arcade evidence missing: ${JSON.stringify({capturedStreetBend,capturedStreetChoice})}`);
 if (!capturedHarborPriority || !capturedHarborFork || observed.harborPriorities.length !== 4 || observed.harborRoutes.length !== 3) throw new Error(`Harbor progression evidence missing: ${JSON.stringify({capturedHarborPriority,capturedHarborFork,harborPriorities:observed.harborPriorities,harborRoutes:observed.harborRoutes})}`);
 if (!capturedUnderflowDive || !capturedUnderflowSurface) throw new Error(`Underflow transition evidence missing: ${JSON.stringify({capturedUnderflowDive,capturedUnderflowSurface,maxDepth:observed.maxDepth})}`);

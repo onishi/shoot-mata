@@ -8,7 +8,7 @@
 | TB-PACE-01 | 90秒に成功、危機、構図転換、小山場がある | M1 | 4区間・94秒 | `m1-section-1..3`; `m1-browser-audit.json` | M1合格 |
 | TB-ONBOARD-01 | 初見が危険方向を読み、被弾後に操作を続けて立て直せる | M4 | 序盤90秒の動的危険方向・段階操作提示、安全ゲートの1点修復、専用画面効果 | 34/34 tests; `m4-strategy-audit.json`: 初見相当88.217秒→192.017秒・修復2回; `m4-training-training-audit.json`: 実キー19.275秒・船体2→3; `m4-training-danger-cue/hull-patch-1280x720.png`, `m4-training-hull-patch-640x360.png` | M4局所合格。最初の180秒区間を越えたが外部初見は未確認 |
 | TB-ART-01 | 主役、SOS、危険、航跡が遠目で判別できる | M1/M2 | 固有艇、ロール、速度連動飛沫、三層外港、SOS旗、流木二分、店舗峡谷、地下施設、倒壊岸壁、救助フェリー、高潮防壁、巨大船外殻と内部排水路 | `m2-harbor-*`, `m3-street-street-*`, `m3-underflow-underflow-*`, `m3-convoy-convoy-*`, `m3-boss-chain-boss-*` | M3全区間・ボス代表画面合格 |
-| TB-AUDIO-01 | 操作、救助、被害、区間を音で区別する | M1/M2 | `audio.js`短音＋連続エンジン・水音 | `m2-browser-audit.json`: cruise/surge/3区間/result | M2代表合格 |
+| TB-AUDIO-01 | 操作、救助、被害、区間を音で区別する | M1/M2/M4 | 操作短音、連続エンジン・水音に加え、6空間固有のテンポ・拍・波形・水音帯域・低音ドローン・転換ジングル | 37/37 tests; `m4-audio-browser-audit.json`: 1020.000秒・6 profile・tempo 0.205〜0.46・water 420〜1880Hz・drone 33〜73Hz・転換1〜6・結果3連続層停止 | M4全編音響差合格 |
 | TB-SCALE-01 | 初見20〜30分、習熟16〜22分の5区間＋ボス | M3/M4 | 5区間各180秒＋構造攻略ボス120秒 | `m3-boss-chain-browser-audit.json`: 習熟方針1020.009秒 | 習熟17分合格、外部初見実測はM4未確認 |
 | TB-VARIETY-01 | 5区間とボスが空間・目的・操作・攻略で異なる | M3/M4 | 外港の人数優先と破砕分岐、選択が地形へ波及する商業区、排水弁で後続上下層を変える地下、積載・隊形回復・潮位航路を結ぶ護送、壁走行・設備分岐・フェリー収容、巨大船外殻から内部への構造転換 | `m3-boss-chain-browser-audit.json`; 全区間・ボスの動作中画面 | M3本編合格、M4比較批評待ち |
 | TB-HARBOR-01 | 外港が基本救助から人数優先と破砕／迂回の資源判断へ段階発展する | M3 | `prioritySurvivor`, `forkBreak`, `forkGate`, 選択履歴・専用HUD | 19/19 tests; Chrome 276.006秒・71イベント・船体3・優先救助4/4・破砕3/3、`m3-harbor-harbor-priority/fork` | M3製品尺合格 |

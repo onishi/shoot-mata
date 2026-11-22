@@ -144,7 +144,7 @@ function drawLeviathan(theme) {
     polygon([[250,211],[285,104],[405,76],[480,40],[555,76],[675,104],[710,211]],"#343746","#a4adb0",6);
     ctx.fillStyle="#ff5d4d";for(const [x,y] of [[310,116],[390,91],[480,69],[570,91],[650,116]]){ctx.beginPath();ctx.arc(x,y,7,0,Math.PI*2);ctx.fill();}
     ctx.strokeStyle="#d9c25c";ctx.lineWidth=9;ctx.beginPath();ctx.moveTo(214,154);ctx.lineTo(116,258);ctx.moveTo(746,154);ctx.lineTo(844,258);ctx.stroke();
-    text("LEVIATHAN BREAKER",480,151,25,"#ff705d","center",900);
+    if (state.messageTime <= 0) text("LEVIATHAN BREAKER",480,151,25,"#ff705d","center",900);
   }else{
     ctx.fillStyle="#171d29";ctx.fillRect(0,120,960,420);ctx.strokeStyle="#596473";ctx.lineWidth=13;
     for(let x=35;x<960;x+=105){ctx.beginPath();ctx.moveTo(x,120);ctx.lineTo(x+35,540);ctx.stroke();}
