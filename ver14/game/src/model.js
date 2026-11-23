@@ -36,7 +36,7 @@ export const ROUTE_EVENTS = [
   [169, "prioritySurvivor", -0.30, { choice: "pier-d", route: "RADIO CREW", passengers: 2 }],
   [175, "concrete", -0.10],
   [187.5, "routeSurvivor", -0.28, { choice: "market", route: "MARKET" }],
-  [187.5, "routeSurvivor", 0.28, { choice: "market", route: "ARCADE" }],
+  [187.5, "routeSurvivor", 0.28, { choice: "market", route: "ARCADE", shortcutSeconds: 12 }],
   [189, "concrete", -0.20], [192, "survivor", 0.12],
   [198, "driftwood", 0.48], [204, "survivor", -0.40], [210, "gate", 0.22],
   [218, "concrete", -0.34, { requiresRoute: "MARKET" }],
@@ -51,7 +51,7 @@ export const ROUTE_EVENTS = [
   [248, "driftwood", -0.08, { requiresRoute: "ARCADE" }],
   [256, "survivor", -0.34], [262, "driftwood", 0.36],
   [268, "routeSurvivor", -0.27, { choice: "station", route: "CLINIC" }],
-  [268, "routeSurvivor", 0.27, { choice: "station", route: "STATION" }],
+  [268, "routeSurvivor", 0.27, { choice: "station", route: "STATION", shortcutSeconds: 15 }],
   [276, "gate", -0.30, { requiresRoute: "CLINIC" }],
   [276, "driftwood", 0.30, { requiresRoute: "STATION" }],
   [284, "concrete", 0.34, { requiresRoute: "CLINIC" }],
@@ -73,7 +73,7 @@ export const ROUTE_EVENTS = [
   [381.5, "tunnelSurvivor", -0.25, { choice: "floodway", layer: "surface", route: "UPPER CREW" }],
   [381.5, "tunnelSurvivor", 0.25, { choice: "floodway", layer: "deep", route: "LOWER CREW" }],
   [390, "tunnelValve", -0.30, { choice: "sluice-a", route: "DRAIN", warning: "DRAIN LOWER WORKS" }],
-  [390, "tunnelValve", 0.30, { choice: "sluice-a", route: "FLOOD", warning: "FLOOD UPPER SPILLWAY" }],
+  [390, "tunnelValve", 0.30, { choice: "sluice-a", route: "FLOOD", warning: "FLOOD UPPER SPILLWAY", shortcutSeconds: 18 }],
   [400, "lowCeiling", -0.18, { requiresValveRoute: "DRAIN" }],
   [400, "intake", 0.18, { requiresValveRoute: "FLOOD" }],
   [408, "tunnelSurvivor", 0.28, { layer: "deep", route: "SUMP CREW", requiresValveRoute: "DRAIN" }],
@@ -84,7 +84,7 @@ export const ROUTE_EVENTS = [
   [442, "lowCeiling", 0.18, { requiresValveRoute: "DRAIN" }],
   [442, "intake", -0.18, { requiresValveRoute: "FLOOD" }],
   [450, "tunnelValve", 0.30, { choice: "sluice-b", route: "RELIEF", warning: "OPEN RELIEF SHAFT" }],
-  [450, "tunnelValve", -0.30, { choice: "sluice-b", route: "BYPASS", warning: "SEAL BYPASS SHAFT" }],
+  [450, "tunnelValve", -0.30, { choice: "sluice-b", route: "BYPASS", warning: "SEAL BYPASS SHAFT", shortcutSeconds: 15 }],
   [460, "tunnelSurvivor", -0.26, { layer: "surface", route: "RELIEF CREW", requiresValveRoute: "RELIEF" }],
   [460, "tunnelSurvivor", 0.26, { layer: "deep", route: "BYPASS CREW", requiresValveRoute: "BYPASS" }],
   [469, "intake", 0.28, { requiresValveRoute: "RELIEF" }],
@@ -244,7 +244,7 @@ export function createGame() {
     mode: "title", time: 0, boatX: 0, boatV: 0, integrity: 3, rescued: 0,
     score: 0, combo: 0, surge: 1, surgeTime: 0, cooldown: 0, spawned: 0,
     nearMisses: 0, nearMissChain: 0, bestNearMissChain: 0,
-    harborRepairs: 0, trainingCue: null,
+    harborRepairs: 0, trainingCue: null, shortcutSeconds: 0, shortcuts: [],
     entities: [], effects: [], shake: 0, section: 0, message: "", messageTime: 0,
     routeCenter: 0, routeHalfWidth: 0.72, crosscurrent: 0, routeChoices: [],
     harborPriorities: [], harborRoutes: [],
@@ -257,6 +257,17 @@ export function createGame() {
     bossPhase: 0, bossAnchors: [], bossHullBreaches: [], bossDrains: [], bossDefeated: false,
     bossCollapseTime: 0, bossCollapseStage: -1
   };
+}
+
+export function missionTime(state) {
+  return Math.max(0, state.time - state.shortcutSeconds);
+}
+
+function claimShortcut(state, entity) {
+  if (!entity.shortcutSeconds) return;
+  state.shortcutSeconds += entity.shortcutSeconds;
+  state.shortcuts.push({ route: entity.route, seconds: entity.shortcutSeconds, time: state.time });
+  state.effects.push({ type: "shortcut", x: entity.x, seconds: entity.shortcutSeconds, life: 1.1, max: 1.1 });
 }
 
 export function startGame(state) {
@@ -335,10 +346,11 @@ function resolveEntity(state, entity) {
       if (entity.type === "prioritySurvivor") state.harborPriorities.push({ route: entity.route, passengers, time: state.time });
       if (entity.choice) {
         if (entity.type !== "prioritySurvivor") state.routeChoices.push({ choice: entity.choice, route: entity.route, time: state.time });
+        claimShortcut(state, entity);
         for (const alternative of state.entities) {
           if (alternative !== entity && alternative.choice === entity.choice && !alternative.hit) alternative.hit = true;
         }
-        state.message = entity.type === "prioritySurvivor" ? `${entity.route} PRIORITY — ${passengers} SAVED` : `${entity.route} ROUTE — RESCUE!`;
+        state.message = entity.type === "prioritySurvivor" ? `${entity.route} PRIORITY — ${passengers} SAVED` : entity.shortcutSeconds ? `${entity.route} FLOOD CUT — −${entity.shortcutSeconds}s` : `${entity.route} ROUTE — RESCUE!`;
       }
     } else {
       state.combo = 0;
@@ -349,9 +361,10 @@ function resolveEntity(state, entity) {
     if (distance < 0.18 && state.depth >= 0.58) {
       state.underflowValves.push({ choice: entity.choice, route: entity.route, time: state.time });
       state.routeChoices.push({ choice: entity.choice, route: entity.route, time: state.time });
+      claimShortcut(state, entity);
       state.score += 1400;
       state.surge = clamp(state.surge + 0.22, 0, 1);
-      state.message = `${entity.route} VALVE LOCKED`;
+      state.message = entity.shortcutSeconds ? `${entity.route} FLOOD CUT — −${entity.shortcutSeconds}s` : `${entity.route} VALVE LOCKED`;
       state.messageTime = 1.4;
       state.effects.push({ type: "gateOpen", x: entity.x, life: 0.9, max: 0.9 });
       for (const alternative of state.entities) {

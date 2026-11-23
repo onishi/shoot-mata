@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { activateSurge, BOSS_START, CONVOY_END, createGame, HARBOR_END, ROUTE_EVENTS, routeProfile, startGame, STREET_END, STAGE_SECONDS, UNDERFLOW_END, updateGame } from "../src/model.js";
+import { activateSurge, BOSS_START, CONVOY_END, createGame, HARBOR_END, missionTime, ROUTE_EVENTS, routeProfile, startGame, STREET_END, STAGE_SECONDS, UNDERFLOW_END, updateGame } from "../src/model.js";
 
 test("steering has momentum and stays inside the flood channel", () => {
   const state = startGame(createGame());
@@ -339,6 +339,30 @@ test("rescuing one flooded arcade branch closes its alternative", () => {
   assert.equal(state.routeChoices[0].route, "MARKET");
   assert.equal(state.entities.find(entity => entity.id === 91)?.hit, true);
   assert.match(state.message, /MARKET ROUTE/);
+});
+
+test("flood-cut choices reduce the official route clock without skipping authored encounters", () => {
+  const state = startGame(createGame());
+  state.spawned = ROUTE_EVENTS.length;
+  state.time = HARBOR_END + 7.5;
+  state.boatX = 0.28;
+  state.surgeTime = 0.5;
+  state.entities.push({ id: 92, type: "routeSurvivor", x: 0.28, route: "ARCADE", choice: "market", shortcutSeconds: 12, z: 0.101, hit: false });
+  updateGame(state, {}, 1 / 60);
+  assert.equal(state.shortcutSeconds, 12);
+  assert.equal(state.shortcuts[0].route, "ARCADE");
+  assert.equal(Number((state.time - missionTime(state)).toFixed(3)), 12);
+  assert.match(state.message, /FLOOD CUT/);
+  assert.ok(state.effects.some(effect => effect.type === "shortcut"));
+
+  state.time = STREET_END + 30;
+  state.section = 2;
+  state.depth = 0.72;
+  state.boatX = 0.30;
+  state.entities.push({ id: 93, type: "tunnelValve", x: 0.30, route: "FLOOD", choice: "sluice-a", shortcutSeconds: 18, z: 0.101, hit: false });
+  updateGame(state, { dive: true }, 1 / 60);
+  assert.equal(state.shortcutSeconds, 30);
+  assert.equal(state.shortcuts.length, 2);
 });
 
 test("harbor priority rescues count passengers and close the competing signal", () => {

@@ -1,4 +1,4 @@
-import { activateSurge, createGame, HEIGHT, routeProfile, startGame, STAGE_SECONDS, updateGame, WIDTH } from "./model.js";
+import { activateSurge, createGame, HEIGHT, missionTime, routeProfile, startGame, STAGE_SECONDS, updateGame, WIDTH } from "./model.js";
 import { ArcadeAudio } from "./audio.js";
 import { canBind, displayCode, loadSettings, saveSettings } from "./settings.js";
 
@@ -478,6 +478,10 @@ function drawEffects() {
       ctx.beginPath(); ctx.moveTo(x + side * 12, y + 24); ctx.quadraticCurveTo(x + side * (42 + progress * 55), y - 14, x + side * (70 + progress * 85), y - 62); ctx.stroke();
       text("SKIM", x + side * (48 + progress * 35), y - 78 - progress * 18, 21, "#fff16b", "center");
     }
+    if (effect.type === "shortcut") {
+      ctx.strokeStyle = "#ffdf57"; ctx.lineWidth = 8; ctx.beginPath(); ctx.arc(x,y,28+progress*92,0,Math.PI*2); ctx.stroke();
+      text(`−${effect.seconds}s`, x, y-112-progress*24, 22, "#9cfff4", "center");
+    }
     if (effect.type === "containerClear") { ctx.strokeStyle="#8dfff1";ctx.lineWidth=11;ctx.beginPath();ctx.arc(x,y,28+progress*105,0,Math.PI*2);ctx.stroke();text("PASSAGE OPEN",x,y-55-progress*25,23,"#ffdd63","center"); }
     if (effect.type === "escortHit") { ctx.strokeStyle="#ff544b";ctx.lineWidth=12;ctx.beginPath();ctx.moveTo(x-70-progress*35,y-50);ctx.lineTo(x+70+progress*35,y+25);ctx.moveTo(x+70+progress*35,y-50);ctx.lineTo(x-70-progress*35,y+25);ctx.stroke(); }
     if (effect.type === "gateOpen") { ctx.strokeStyle="#ffcf5d";ctx.lineWidth=12;ctx.beginPath();ctx.arc(x,y,35+progress*120,-Math.PI*.85,-Math.PI*.15);ctx.stroke();text("FLOODLOCK OPEN",x,y-52-progress*32,22,"#9dfff2","center"); }
@@ -491,7 +495,8 @@ function drawHud(theme) {
   text(`RESCUE ${String(state.rescued).padStart(2,"0")}`,38,65,18,"#ffdf57");
   if (state.nearMissChain > 0) text(`SKIM ×${Math.min(5,state.nearMissChain)}`,198,65,15,"#9cfff4");
   text(String(state.score).padStart(8,"0"),480,41,30,"#fff","center");
-  text(`${Math.min(100,Math.floor(state.time/STAGE_SECONDS*100))}%`,480,67,15,"#83dce4","center");
+  const routeClock = missionTime(state), minutes = Math.floor(routeClock / 60), seconds = Math.floor(routeClock % 60);
+  text(`${minutes}:${String(seconds).padStart(2,"0")}${state.shortcutSeconds ? `  CUT −${state.shortcutSeconds}s` : ""}`,480,67,15,"#83dce4","center");
   text("SURGE",745,37,17,"#9cfff4"); ctx.fillStyle="#15313c"; ctx.fillRect(815,27,105,18); ctx.fillStyle=theme.light; ctx.fillRect(818,30,99*state.surge,12);
   text(state.surge>=.34?"SPACE READY":"RECHARGING",920,63,14,state.surge>=.34?"#fff16b":"#7ba6ae","right");
   // The collapse scene carries a persistent phase title in the world layer.
@@ -592,9 +597,11 @@ function drawSettings() {
 function drawEnd(theme) {
   ctx.fillStyle = "#06101ad9"; ctx.fillRect(145,118,670,315);
   text(state.mode === "cleared" ? "LEVIATHAN BREAKER SUNK" : "RESCUE LINE BROKEN",480,175,38,state.mode === "cleared"?theme.light:"#ff665d","center");
-  text(`RESCUED  ${state.rescued}    SKIMS  ${state.nearMisses}`,480,244,24,"#fff","center"); text(`SCORE  ${state.score}`,480,283,27,"#fff","center");
+  const routeClock = missionTime(state), minutes = Math.floor(routeClock / 60), seconds = Math.floor(routeClock % 60);
+  text(`RESCUED  ${state.rescued}    SKIMS  ${state.nearMisses}`,480,234,24,"#fff","center");
+  text(`ROUTE TIME  ${minutes}:${String(seconds).padStart(2,"0")}    CUT  −${state.shortcutSeconds}s`,480,273,22,"#9cfff4","center"); text(`SCORE  ${state.score}`,480,310,25,"#fff","center");
   const rank = state.rescued >= 8 && state.integrity >= 2 ? "A" : state.rescued >= 5 ? "B" : "C";
-  text(`RESCUE RANK ${rank}`,480,338,31,"#ffdf57","center"); text("R  RETRY",480,393,20,"#91e8e1","center");
+  text(`RESCUE RANK ${rank}`,480,352,30,"#ffdf57","center"); text("R  RETRY",480,397,20,"#91e8e1","center");
 }
 
 function render() {

@@ -56,6 +56,8 @@ async function screenshot(name) {
 
 await send("Page.enable");
 await send("Runtime.enable");
+await send("Network.enable");
+await send("Network.setCacheDisabled", { cacheDisabled: true });
 if (process.argv.includes("--product-only")) {
   await send("Emulation.setDeviceMetricsOverride", { width: 1280, height: 720, deviceScaleFactor: 1, mobile: false });
   await send("Page.navigate", { url: "http://127.0.0.1:4314/" }); await sleep(700);
@@ -164,6 +166,47 @@ if (title !== "TIDEBREAK 95 v14.0") throw new Error(`Wrong target: ${title}`);
 if (!process.argv.includes("--skim-only")) await screenshot(`${artifactPrefix}-title-1280x720.png`);
 await key("Enter", "Enter");
 await sleep(450);
+if (process.argv.includes("--shortcut-only")) {
+  let observed = await evaluate("window.__TIDEBREAK__.getState()");
+  let steering = 0;
+  async function steerShortcut(direction) {
+    if (direction === steering) return;
+    if (steering) {
+      const name = steering < 0 ? "ArrowLeft" : "ArrowRight";
+      await send("Input.dispatchKeyEvent", { type: "keyUp", key: name, code: name, windowsVirtualKeyCode: steering < 0 ? 37 : 39 });
+    }
+    steering = direction;
+    if (steering) {
+      const name = steering < 0 ? "ArrowLeft" : "ArrowRight";
+      await send("Input.dispatchKeyEvent", { type: "rawKeyDown", key: name, code: name, windowsVirtualKeyCode: steering < 0 ? 37 : 39 });
+    }
+  }
+  const deadline = Date.now() + 250000;
+  while (observed.mode === "playing" && observed.shortcutSeconds === 0 && Date.now() < deadline) {
+    const entities = observed.entities.filter(entity => !entity.hit && entity.z > 0 && entity.z < .66).sort((a,b) => a.z-b.z);
+    const next = entities[0];
+    let targetX = observed.routeCenter;
+    if (next) {
+      const alternatives = next.choice ? entities.filter(entity => entity.choice === next.choice && Math.abs(entity.z-next.z)<.04) : [];
+      const selected = alternatives.find(entity => entity.shortcutSeconds) ?? next;
+      const breakable = selected.type === "driftwood" && (observed.surgeTime > 0 || (observed.cooldown <= 0 && observed.surge >= .34));
+      const collectible = ["survivor","prioritySurvivor","routeSurvivor","gate","forkGate"].includes(selected.type) || breakable;
+      targetX = collectible ? selected.x : selected.x > observed.routeCenter ? observed.routeCenter-observed.routeHalfWidth*.58 : observed.routeCenter+observed.routeHalfWidth*.58;
+      if (["survivor","prioritySurvivor","routeSurvivor","driftwood"].includes(selected.type) && selected.z < .25 && observed.cooldown <= 0 && observed.surge >= .34) await key(" ", "Space");
+    }
+    const desired = Math.max(-1.1, Math.min(1.1, (targetX-observed.boatX)*2.6));
+    const delta = desired-observed.boatV;
+    await steerShortcut(Math.abs(delta)<.11?0:delta<0?-1:1);
+    await sleep(75);
+    observed = await evaluate("window.__TIDEBREAK__.getState()");
+  }
+  await steerShortcut(0);
+  await screenshot(`${artifactPrefix}-flood-cut-1280x720.png`);
+  if (observed.mode !== "playing" || observed.shortcutSeconds !== 12 || observed.shortcuts[0]?.route !== "ARCADE") throw new Error(`Shortcut audit failed: ${JSON.stringify(observed)}`);
+  const audit = { title, time: observed.time, missionTime: observed.time-observed.shortcutSeconds, shortcutSeconds: observed.shortcutSeconds, shortcuts: observed.shortcuts, integrity: observed.integrity, rescued: observed.rescued, score: observed.score, audio: await evaluate("window.__TIDEBREAK__.getAudioState()") };
+  await writeFile(new URL(`../../docs/${artifactPrefix}-shortcut-audit.json`, import.meta.url), `${JSON.stringify(audit,null,2)}\n`);
+  console.log(JSON.stringify(audit)); socket.close(); process.exit(0);
+}
 if (process.argv.includes("--training-only")) {
   let observed = await evaluate("window.__TIDEBREAK__.getState()");
   let steering = 0;

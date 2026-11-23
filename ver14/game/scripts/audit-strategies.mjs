@@ -1,5 +1,5 @@
 import { writeFile } from "node:fs/promises";
-import { activateSurge, createGame, startGame, updateGame } from "../src/model.js";
+import { activateSurge, createGame, missionTime, startGame, updateGame } from "../src/model.js";
 
 const DT = 1 / 60;
 const requiredTypes = new Set([
@@ -100,6 +100,9 @@ function summarize(name, state) {
     strategy: name,
     outcome: state.mode,
     time: Number(state.time.toFixed(3)),
+    missionTime: Number(missionTime(state).toFixed(3)),
+    shortcutSeconds: state.shortcutSeconds,
+    shortcuts: state.shortcuts.map(item => `${item.route}:${item.seconds}`),
     integrity: state.integrity,
     harborRepairs: state.harborRepairs,
     escortIntegrity: state.escortIntegrity,
