@@ -1,0 +1,19 @@
+{
+  "name": "tidebreak-95",
+  "version": "14.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "serve": "python3 -m http.server 4315 --bind 127.0.0.1",
+    "test": "node --test",
+    "audit:browser": "node scripts/audit-browser.mjs",
+    "audit:strategies": "node scripts/audit-strategies.mjs",
+    "audit:training": "node scripts/audit-browser.mjs --training-only",
+    "audit:handling": "node scripts/audit-browser.mjs --handling-only",
+    "audit:shortcut": "node scripts/audit-browser.mjs --shortcut-only",
+    "audit:small": "node scripts/audit-browser.mjs --small-only",
+    "audit:product": "node scripts/audit-browser.mjs --product-only",
+    "check": "node --check src/model.js && node --check src/settings.js && node --check src/audio.js && node --check src/main.js && node --check scripts/audit-browser.mjs && node --check scripts/audit-strategies.mjs",
+    "verify": "npm run test && npm run check"
+  }
+}

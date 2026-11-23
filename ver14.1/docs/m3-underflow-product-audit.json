@@ -1,0 +1,207 @@
+{
+  "title": "TIDEBREAK 95 v14.0",
+  "beforeBlur": {
+    "state": {
+      "mode": "playing",
+      "time": 0.4166999999999999,
+      "boatX": -0.019329125355978638,
+      "boatV": -0.32013719096504967,
+      "integrity": 3,
+      "rescued": 0,
+      "score": 0,
+      "combo": 0,
+      "surge": 1,
+      "surgeTime": 0,
+      "cooldown": 0,
+      "spawned": 0,
+      "entities": [],
+      "effects": [],
+      "shake": 0,
+      "section": 0,
+      "message": "BREAK THE TIDE",
+      "messageTime": 1.7833000000000017,
+      "routeCenter": 0,
+      "routeHalfWidth": 0.72,
+      "crosscurrent": 0,
+      "routeChoices": [],
+      "depth": 0,
+      "depthV": 0,
+      "maxDepth": 0,
+      "surfacedAfterDive": false,
+      "underflowRescues": []
+    },
+    "inputs": {
+      "left": true,
+      "right": false,
+      "dive": true,
+      "surface": false
+    }
+  },
+  "onHold": {
+    "state": {
+      "mode": "playing",
+      "time": 0.4333,
+      "boatX": -0.025402904901335985,
+      "boatV": -0.3658903340576685,
+      "integrity": 3,
+      "rescued": 0,
+      "score": 0,
+      "combo": 0,
+      "surge": 1,
+      "surgeTime": 0,
+      "cooldown": 0,
+      "spawned": 0,
+      "entities": [],
+      "effects": [],
+      "shake": 0,
+      "section": 0,
+      "message": "BREAK THE TIDE",
+      "messageTime": 1.7667000000000015,
+      "routeCenter": 0,
+      "routeHalfWidth": 0.72,
+      "crosscurrent": 0,
+      "routeChoices": [],
+      "depth": 0,
+      "depthV": 0,
+      "maxDepth": 0,
+      "surfacedAfterDive": false,
+      "underflowRescues": []
+    },
+    "inputs": {
+      "left": false,
+      "right": false,
+      "dive": false,
+      "surface": false
+    },
+    "runtime": {
+      "paused": true,
+      "pauseReason": "blur",
+      "frameStats": {
+        "elapsedMs": 433.30000000000007,
+        "samples": 25,
+        "sumMs": 433.30000000000007,
+        "maxMs": 33.30000000000007,
+        "overBudget": 1,
+        "averageMs": 17.332000000000004
+      }
+    },
+    "audio": {
+      "active": true,
+      "state": "running",
+      "masterVolume": 0.8,
+      "playing": false,
+      "engineHz": 72,
+      "engineGain": 0,
+      "waterGain": 0,
+      "depth": 0
+    }
+  },
+  "resumed": {
+    "state": {
+      "mode": "playing",
+      "time": 0.720299999856949,
+      "boatX": -0.09842082140248792,
+      "boatV": -0.1772302144763943,
+      "integrity": 3,
+      "rescued": 0,
+      "score": 0,
+      "combo": 0,
+      "surge": 1,
+      "surgeTime": 0,
+      "cooldown": 0,
+      "spawned": 0,
+      "entities": [],
+      "effects": [],
+      "shake": 0,
+      "section": 0,
+      "message": "BREAK THE TIDE",
+      "messageTime": 1.4797000001430536,
+      "routeCenter": 0,
+      "routeHalfWidth": 0.72,
+      "crosscurrent": 0,
+      "routeChoices": [],
+      "depth": 0,
+      "depthV": 0,
+      "maxDepth": 0,
+      "surfacedAfterDive": false,
+      "underflowRescues": []
+    },
+    "inputs": {
+      "left": false,
+      "right": false,
+      "dive": false,
+      "surface": false
+    },
+    "runtime": {
+      "paused": false,
+      "pauseReason": null,
+      "frameStats": {
+        "elapsedMs": 720.2999998569488,
+        "samples": 42,
+        "sumMs": 720.2999998569488,
+        "maxMs": 33.30000000000007,
+        "overBudget": 2,
+        "averageMs": 17.14999999659402
+      }
+    }
+  },
+  "after60Seconds": {
+    "mode": "playing",
+    "time": 60.76789999985846,
+    "boatX": -0.06720898392717822,
+    "boatV": 0.02194943766567187,
+    "integrity": 2,
+    "rescued": 7,
+    "score": 19700,
+    "combo": 0,
+    "surge": 1,
+    "surgeTime": 0,
+    "cooldown": 0,
+    "spawned": 24,
+    "entities": [
+      {
+        "id": 24,
+        "type": "tunnelSurvivor",
+        "x": 0.13031252097133247,
+        "laneX": 0.24,
+        "z": 0.5944772000000007,
+        "hit": false,
+        "born": 59.5,
+        "layer": "surface",
+        "route": "AIR POCKET"
+      }
+    ],
+    "effects": [],
+    "shake": 0,
+    "section": 2,
+    "message": "SURFACE CLEAR",
+    "messageTime": 0,
+    "routeCenter": -0.08737002707907666,
+    "routeHalfWidth": 0.5155898755072046,
+    "crosscurrent": 0.11081126122540125,
+    "routeChoices": [
+      {
+        "choice": "market",
+        "route": "ARCADE",
+        "time": 35.5188999998568
+      }
+    ],
+    "depth": 0,
+    "depthV": 0.0021287670113950387,
+    "maxDepth": 0,
+    "surfacedAfterDive": false,
+    "underflowRescues": []
+  },
+  "runtime": {
+    "paused": false,
+    "pauseReason": null,
+    "frameStats": {
+      "elapsedMs": 60767.89999985695,
+      "samples": 3645,
+      "sumMs": 60767.89999985695,
+      "maxMs": 33.30000000000007,
+      "overBudget": 2,
+      "averageMs": 16.67157750339011
+    }
+  }
+}
