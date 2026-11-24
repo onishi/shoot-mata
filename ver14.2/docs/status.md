@@ -5,7 +5,7 @@
 ## 現在状態
 
 - 現在版: v14.2 (`ver14.2/`)
-- 段階: M0〜M4完了、M5第2回独立批評・改善実装、完成監査継続
+- 段階: M0〜M4完了、M5第2回独立批評・改善完了、Release Candidate
 - 作品: TIDEBREAK 95 — 前進型レスキューレーサー
 - 過去版: 変更せず保持
 
@@ -16,6 +16,13 @@
 - `npm run verify`は40/40 testsと全ソース・監査スクリプト構文に合格した。固定60 Hzの4方針は、初見相当192.017秒失敗、救助48名・17:00、直行16名・4 CUT・16:00、WAKE SKIM 11名・10回・16:30を維持した。
 - 状態注入なしChromeは190.576秒でARCADE 12秒短縮を取得し、CURRENT SLING残4.450秒、船体3、救助21、音声稼働、水音980→1391.6Hz、`cutRush=true`を記録した。初回目視で旧イベント文との二重表示を発見して抑止し、仮想時刻を止めた完成フレームで艇、走路、速度線、HUD、残秒に切れ・重なりがないことを確認した。
 - 製品横断監査はフォーカス停止差0.0166秒、入力・連続音停止、明示復帰、復帰後60.752秒・3,644 frames・平均16.672ms・最大34msで予算内だった。
+
+## M5クリーン配布候補
+
+- `npm ci`後に40/40 testsと全ソース・監査・公開スクリプト構文を再検証し、空の`dist`へ7ファイル108,246 bytesを生成してSHA-256 manifestへ固定した。
+- rootと`/v14.2/`へ同一候補を置き、`/v14.1/`、`/v14.0/`、v13.2以下を含む17経路を組み立てた。14 hash応答、JS/CSS/SVG対象、外部runtime URLなし、RINGWARD v13.2保持をローカル検査した。
+- クリーン配布物を状態注入なしChromeで起動し、`TIDEBREAK 95 v14.2`の版assert、640×360タイトル、Enter開始、フォーカス安全停止、明示復帰、60.334秒・平均16.667ms・最大32.2msを確認した。1280×720停止画面は艇、走路、HUD、復帰指示に切れや意図しない重なりがない。
+- 公開URLは未確認のためPublished ProductではなくRelease Candidateとする。Pages成功、commit/hash一致、17経路、旧版、本番開始導線を確認するまでM5を完了しない。
 
 ## M5第1回独立批評・改善達成
 
@@ -180,7 +187,7 @@
 
 ## 証拠
 
-- 自動: `cd ver14.1/game && npm run verify`
+- 自動: `cd ver14.2/game && npm run verify`
 - ブラウザ: `m1-browser-audit.json`
 - 代表画面: `m1-title-1280x720.png`, `m1-surge-1280x720.png`, `m1-rescue-route-1280x720.png`, `m1-section-1-1280x720.png`, `m1-section-2-1280x720.png`, `m1-section-3-1280x720.png`, `m1-result-1280x720.png`, `m1-playing-640x360.png`, `m1-result-640x360.png`
 - M2ブラウザ: `m2-browser-audit.json`（94.013秒、30/30イベント、4/4局面、船体3、救助10、68,500点、RANK A）
@@ -219,12 +226,15 @@
 - M4製品横断: `m4-product-audit.json`（停止差0秒・入力/連続音停止・60.726秒・平均8.332ms・最大10.8ms）、`m4-product-focus-hold-1280x720.png`
 - M5第1回操舵: `m5-handling-handling-audit.json`（左右の速度・pan・bank・roll符号一致、サージ`rush 2.247`・船体3）、`m5-handling-neutral/left/right/surge-turn-1280x720.png`
 - M5第1回製品横断: `m5-product-audit.json`（停止差0秒・入力/連続音停止・60.715秒・平均8.333ms・最大10.6ms）、`m5-product-focus-hold-1280x720.png`
+- M5第2回CURRENT SLING: `m5-cut-rush-shortcut-audit.json`（190.576秒・残4.450秒・水音1391.6Hz・船体3）、`m5-cut-rush-flood-cut-1280x720.png`
+- M5第2回製品横断: `m5-cut-product-audit.json`（停止差0.0166秒・60.752秒・平均16.672ms・最大34ms）、`m5-cut-product-focus-hold-1280x720.png`
+- M5配布候補: `m5-release-manifest.json`（7ファイル108,246 bytes）、`m5-release-local-audit.json`（60.334秒・平均16.667ms・最大32.2ms）、`m5-release-local-playing-640x360.png`, `m5-release-local-focus-hold-1280x720.png`
 
 ## 未解決課題
 
 - 規則を知らない外部プレイヤーの初見20〜30分は未実測。入力制限した決定的方針は序盤改善後に192.017秒まで進んだが、商業区入口で失敗しており、人間計測の代替でもない。
-- CURRENT SLINGによりFLOOD CUT取得直後の速度・空間・音は転換したが、4 CUTを含む状態注入なし全編、クリーン配布物hash、公開URL、旧版保持は未確認である。
+- CURRENT SLINGによりFLOOD CUT取得直後の速度・空間・音は転換し、決定的4 CUT全編とクリーン配布物は合格した。公開URL、公開commitとのhash一致、本番runtimeは未確認である。
 
 ## 次の最優先作業
 
-状態注入なしChrome全編で4 CUT・ボス・結果を非退行確認する。その後クリーン配布物、hash、公開URL、旧版保持を監査し、M5完了後だけM6へ進む。
+Release CandidateをPagesへ公開し、公開commit、17経路、14 hash応答、旧版保持、本番Chromeのタイトル→開始→プレイを確認する。M5完了後だけM6へ進む。

@@ -13,11 +13,14 @@ PC版Chromeで `http://127.0.0.1:4315` を開く。Enterで開始、左右矢印
 
 ## 現在地
 
-M5第2回独立批評で、FLOOD CUTがHUDの計時差に留まり走行中の短縮として弱いことを最大欠陥とした。取得直後の4.5秒をCURRENT SLINGへ変え、イベント接近速度1.58倍、透視線トンネル、残秒表示、エンジン負荷、水音帯域、拍テンポを同期した。40/40 testsと4方針監査は合格し、状態注入なしChromeでARCADE取得、船体3、救助21、水音980→1391.6Hz、加速音響の稼働を確認した。完成監査は継続中で、次は状態注入なし全編、配布・公開・旧版保持を確認する。
+M5第2回独立批評でFLOOD CUTを4.5秒のCURRENT SLINGへ変え、イベント接近速度、透視線、残秒、エンジン、水音、拍を同期した。40/40 tests、4方針、製品横断監査に合格した。クリーン配布候補は7ファイル108,246 bytesとしてSHA-256を固定し、rootと`/v14.2/`、v14.1以下を含む17経路、14 hash応答、旧版保持をローカル確認済み。現在はRelease Candidateで、Pages公開と本番runtime確認を継続する。
 
 ## 検証
 
 ```sh
 cd ver14.2/game
 npm run verify
+npm run build:clean
+npm run package:release
+npm run verify:release
 ```

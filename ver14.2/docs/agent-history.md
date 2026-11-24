@@ -2,6 +2,7 @@
 
 | 開始時刻 | Agent | Script | Run | 作業・結果 | 検証 | Commit subject |
 | --- | --- | --- | ---: | --- | --- | --- |
+| 2026-11-24T23:34:48+0900 | Codex | run-codex-loop.sh | 2 | v14.2のclean build、SHA-256 manifest、17経路のPages packaging、commit/hash/MIME/旧版検証を追加しRelease Candidate化 | 40/40、構文、7ファイル108,246 bytes、17経路・14 hash応答・v13.2保持、クリーンChrome開始・停止・復帰・60.334秒・平均16.667ms | release(ver14.2): prepare published candidate |
 | 2026-11-24T22:18:36+0900 | Codex | run-codex-loop.sh | 1 | v14.1のM5第2回批評でFLOOD CUTの弱い走行中体感を最大欠陥とし、CURRENT SLINGの速度・透視線・残秒・エンジン・水音・拍を同期したv14.2へ改善 | 40/40、構文、4方針非退行、状態注入なしChrome 190.559秒・残4.467秒・水音1391.6Hz、製品監査60.752秒・平均16.672ms・最大34ms | feat(ver14.2): turn flood cuts into current slings |
 | 2026-11-23T22:45:23+0900 | Codex | run-codex-loop.sh | 1 | v14.0のM5第1回独立批評で主要操作の弱い即時反応を最大欠陥とし、艇ロール、走路バンク、流線、荷重側飛沫、水音パンを同期したv14.1へ改善 | 39/39、構文、4方針非退行、状態注入なしChrome左右反転・サージ旋回、製品監査60.715秒・平均8.333ms・最大10.6ms | feat(ver14.1): deepen hydrofoil handling |
 | 2026-11-23T09:43:07+0900 | Codex | run-codex-loop.sh | 1 | 商業区・地下の4分岐へFLOOD CUTを追加し、救助・短縮・WAKE SKIMを公式時間、救助数、被害、得点で分離。表示重なりとChrome cacheによる古い監査表示も修正しM4を完了 | 38/38、構文、4方針（救助17:00・直行16:00・SKIM 16:30）、状態注入なしChrome 190.523秒・ARCADE 12秒・船体3・救助21、製品監査60.726秒・平均8.332ms | feat(ver14): make flood cuts count |

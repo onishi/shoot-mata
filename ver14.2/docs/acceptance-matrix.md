@@ -6,7 +6,7 @@
 | TB-CORE-02 | サージが救助拡大・流木破砕・充電判断を結ぶ | M1 | `activateSurge`, `resolveEntity` | model tests; `m1-surge`・`m1-rescue-route` | M1合格 |
 | TB-CORE-03 | 最初の10秒に操舵、サージ、最初の成功がある | M1 | 4/7/10秒イベント | 状態注入なし7.68秒で最初の救助 | M1合格 |
 | TB-HANDLING-01 | 操舵入力の荷重が艇・走路・飛沫・水音へ即時かつ同方向に返る | M5 | `motionFeedback`、艇ロール、走路バンク、速度連動流線、荷重側飛沫、ステレオ水音 | 39/39 tests; `m5-handling-handling-audit.json`; 中立・左右・サージ旋回1280×720; 左右のvelocity/pan/bank/roll符号一致、surge `rush 2.247`・船体3 | M5第1回改善合格 |
-| TB-CUT-01 | FLOOD CUT取得が計時だけでなく速度・空間・音の短い転換として感じられる | M5 | 4.5秒`cutRushTime`、イベント接近1.58倍、透視線、残秒、水音帯域1.42倍、拍間隔0.62倍 | 40/40 tests; `m5-cut-rush-shortcut-audit.json`: 190.576秒・残4.450秒・水音1391.6Hz・`cutRush=true`; `m5-cut-rush-flood-cut-1280x720.png` | 局所実キー・動的画面合格、4 CUT全編は監査継続 |
+| TB-CUT-01 | FLOOD CUT取得が計時だけでなく速度・空間・音の短い転換として感じられる | M5 | 4.5秒`cutRushTime`、イベント接近1.58倍、透視線、残秒、水音帯域1.42倍、拍間隔0.62倍 | 40/40 tests; `m5-cut-rush-shortcut-audit.json`: 190.576秒・残4.450秒・水音1391.6Hz・`cutRush=true`; `m5-cut-rush-flood-cut-1280x720.png`; 4方針で直行4 CUT・16:00 | M5第2回改善合格 |
 | TB-PACE-01 | 90秒に成功、危機、構図転換、小山場がある | M1 | 4区間・94秒 | `m1-section-1..3`; `m1-browser-audit.json` | M1合格 |
 | TB-ONBOARD-01 | 初見が危険方向を読み、被弾後に操作を続けて立て直せる | M4 | 序盤90秒の動的危険方向・段階操作提示、安全ゲートの1点修復、専用画面効果 | 34/34 tests; `m4-strategy-audit.json`: 初見相当88.217秒→192.017秒・修復2回; `m4-training-training-audit.json`: 実キー19.275秒・船体2→3; `m4-training-danger-cue/hull-patch-1280x720.png`, `m4-training-hull-patch-640x360.png` | M4局所合格。最初の180秒区間を越えたが外部初見は未確認 |
 | TB-ART-01 | 主役、SOS、危険、航跡が遠目で判別できる | M1/M2 | 固有艇、ロール、速度連動飛沫、三層外港、SOS旗、流木二分、店舗峡谷、地下施設、倒壊岸壁、救助フェリー、高潮防壁、巨大船外殻と内部排水路 | `m2-harbor-*`, `m3-street-street-*`, `m3-underflow-underflow-*`, `m3-convoy-convoy-*`, `m3-boss-chain-boss-*` | M3全区間・ボス代表画面合格 |
@@ -21,4 +21,4 @@
 | TB-BOSS-01 | 走路生成・壁走行・内部進入と、破砕から脱出まで動く最終決着 | M3/M4 | アンカー2、船腹装甲3、上下排水2、サージコア、専用走路・背景・HUD、外殻破断・圧力解放・沈降・2艇脱出 | 35/35 tests; `m4-collapse-final-browser-audit.json`: 1020.009秒、162/162、船体3、2/2・3/3・2/2・撃破、決着7.466秒・4段階; `m4-collapse-final-boss-*` | M4構造攻略・決着演出合格 |
 | TB-REPLAY-01 | 救助・最短・ニアミスの3戦略が成立する | M4 | 既存の救助・分岐にWAKE SKIM連鎖と4つのFLOOD CUT、公式ルート時間、専用画面・音を追加 | 38/38 tests; `m4-strategy-audit.json`: 救助17:00・48名・無傷・696,450点、直行16:00・16名・4 CUT・無傷・112,400点、WAKE SKIM 16:30・11名・10回・船体/フェリー1・125,550点; `m4-shortcut-shortcut-audit.json`: 実キーARCADE 12秒; `m4-shortcut-flood-cut-1280x720.png` | M4三戦略分離合格。壁時間は各17分であることをM5の体感批評へ引き継ぐ |
 | TB-PRODUCT-01 | 設定、保存、ポーズ、失敗復帰、結果 | M2/M4/M5 | 音量・動き軽減・キー変更、破損復旧、フォーカス安全停止、ポーズ・再試行・結果 | 40/40 tests; `m5-cut-product-audit.json`: 停止差0.0166秒・入力/連続音停止・60.752秒・3,644 frames・平均16.672ms・最大34ms | M5第2回横断合格 |
-| TB-RELEASE-01 | クリーン配布物、hash、公開URL、旧版保持 | M5 | 未実装 | release/deployment監査 | 第2回改善後に実施 |
+| TB-RELEASE-01 | クリーン配布物、hash、公開URL、旧版保持 | M5 | clean build、Pages packaging、release metadata、deployment verifier | `m5-release-manifest.json`: 7ファイル108,246 bytes; `npm run verify:release`: 17経路・14 hash応答・v13.2保持; `m5-release-local-audit.json`: Chrome開始・停止・復帰・60.334秒 | ローカルRelease Candidate合格、公開監査待ち |

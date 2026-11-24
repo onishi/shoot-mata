@@ -1,18 +1,18 @@
-name: Verify and deploy RINGWARD v13.2
+name: Verify and deploy TIDEBREAK 95 v14.2
 
 on:
   push:
     branches: [main]
     paths:
-      - "ver13/game/**"
-      - "ver13.1/game/**"
-      - "ver13.2/game/**"
+      - "ver14/game/**"
+      - "ver14.1/game/**"
+      - "ver14.2/game/**"
       - ".github/workflows/pages.yml"
   pull_request:
     paths:
-      - "ver13/game/**"
-      - "ver13.1/game/**"
-      - "ver13.2/game/**"
+      - "ver14/game/**"
+      - "ver14.1/game/**"
+      - "ver14.2/game/**"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
 
@@ -36,6 +36,7 @@ jobs:
           cache: npm
           cache-dependency-path: |
             ver13.2/game/package-lock.json
+            ver14.2/game/package-lock.json
             ver12.2/game/package-lock.json
             ver05.1/game/package-lock.json
             ver04.2/game/package-lock.json
@@ -50,6 +51,14 @@ jobs:
       - name: Install the v13.2 locked dependency tree
         working-directory: ver13.2/game
         run: npm ci
+
+      - name: Install the v14.2 locked dependency tree
+        working-directory: ver14.2/game
+        run: npm ci
+
+      - name: Verify the v14.2 release candidate
+        working-directory: ver14.2/game
+        run: npm run verify
 
       - name: Verify the v13.2 release candidate
         working-directory: ver13.2/game
@@ -111,14 +120,20 @@ jobs:
           RELEASE_COMMIT: ${{ github.sha }}
         run: npm run build:clean && npm run package:release && npm run verify:release
 
+      - name: Assemble and inspect the v14.2 Pages artifact
+        working-directory: ver14.2/game
+        env:
+          RELEASE_COMMIT: ${{ github.sha }}
+        run: npm run build:clean && npm run package:release && npm run verify:release
+
       - uses: actions/configure-pages@v6
         if: github.event_name != 'pull_request'
 
-      - name: Upload verified v13.2 with preserved v13.1, v13.0, v12.2, v5, v4, and v3 routes
+      - name: Upload verified v14.2 with preserved historical routes
         if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v5
         with:
-          path: ver13.2/game/dist
+          path: ver14.2/game/dist
 
   deploy:
     environment:
@@ -135,4 +150,4 @@ jobs:
         uses: actions/deploy-pages@v5
 
       - name: Verify the live release and preserved routes
-        run: node ver13.2/game/scripts/verify-deployment.mjs "${{ steps.deployment.outputs.page_url }}" "${{ github.sha }}"
+        run: node ver14.2/game/scripts/verify-deployment.mjs "${{ steps.deployment.outputs.page_url }}" "${{ github.sha }}"

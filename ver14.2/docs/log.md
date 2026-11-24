@@ -1,5 +1,12 @@
 # Development log
 
+## 2026-11-24 — M5クリーン配布候補・Pages公開経路
+
+- 実行元: Codex / `run-codex-loop.sh` / run 2 / 開始 `2026-11-24T23:34:48+0900`。`SHOOT_MATA_AGENT_TARGET_MAJOR=v14`を対象とした。
+- v14.2を空の`dist`へ7ファイル108,246 bytesとして生成し、SHA-256 manifestを固定した。rootと`/v14.2/`へ同一候補を置き、v14.1、v14.0、v13.2以下を含む17経路を保持するPages packagingと、commit・hash・MIMEを追跡するローカル／本番検証を追加した。
+- `npm ci`、40/40 tests、全ソース・監査・公開スクリプト構文、17経路、root/`v14.2`の14 hash応答、外部runtime URLなし、v13.2保持、`git diff --check`に合格した。
+- クリーン配布物の状態注入なしChromeは版assert、640×360タイトル、Enter開始、フォーカス安全停止、明示復帰、60.334秒・平均16.667ms・最大32.2msに合格した。1280×720停止画面も切れ・重なりなし。公開前のためRelease Candidateとし、次はPagesと本番runtimeを監査する。
+
 ## 2026-11-24 — M5第2回独立批評・FLOOD CUT CURRENT SLING
 
 - 実行元: Codex / `run-codex-loop.sh` / run 1 / 開始 `2026-11-24T22:18:36+0900`。`SHOOT_MATA_AGENT_TARGET_MAJOR=v14`を対象とし、v14.1を固定して`ver14.2/`へ分離した。

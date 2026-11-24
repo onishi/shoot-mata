@@ -1,0 +1,46 @@
+{
+  "schema": 1,
+  "product": "TIDEBREAK 95",
+  "version": "v14.2",
+  "buildCommand": "npm run build:clean",
+  "cleanBuild": true,
+  "fileCount": 7,
+  "totalBytes": 108246,
+  "files": [
+    {
+      "path": "favicon.svg",
+      "bytes": 314,
+      "sha256": "cb30ba1792de8ce8248307f6ffdca266698f0e2e7f7e9f6a8ee7d4720c8d5d29"
+    },
+    {
+      "path": "index.html",
+      "bytes": 623,
+      "sha256": "71483ff5d50168f4fdf2203a92309313e369ab60d1a67a73eefae41d9b5863b0"
+    },
+    {
+      "path": "src/audio.js",
+      "bytes": 9646,
+      "sha256": "474481f0c5409cd4ad46322f520ec37feb2db30095622cfef39b46e477e52ab3"
+    },
+    {
+      "path": "src/main.js",
+      "bytes": 52174,
+      "sha256": "1e8df7dd14c450bb6f19b181b6443d770f525a87cef32fb8502f5d5f91b1ffd1"
+    },
+    {
+      "path": "src/model.js",
+      "bytes": 42212,
+      "sha256": "6c7bd7f04dec52ce9a632d6abaedb8b5e9ca271871ea6efdef78108823dda7e1"
+    },
+    {
+      "path": "src/settings.js",
+      "bytes": 2588,
+      "sha256": "1c4039d001ece957c8bf58a0494a1da3267bdefc24a7077083e7eee3972a7f71"
+    },
+    {
+      "path": "src/style.css",
+      "bytes": 689,
+      "sha256": "f3f7f8b522d636b9dbe015f4106777206e5a2b70b0228013e508a84db6551e4a"
+    }
+  ]
+}
