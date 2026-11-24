@@ -1,0 +1,40 @@
+{
+  "title": "TIDEBREAK 95 v14.2",
+  "time": 190.5758000000289,
+  "missionTime": 178.5758000000289,
+  "shortcutSeconds": 12,
+  "shortcuts": [
+    {
+      "route": "ARCADE",
+      "seconds": 12,
+      "time": 190.52570000002888
+    }
+  ],
+  "cutRushTime": 4.449899999999994,
+  "cutRushRoute": "ARCADE",
+  "integrity": 3,
+  "rescued": 21,
+  "score": 159800,
+  "audio": {
+    "active": true,
+    "state": "running",
+    "masterVolume": 0.8,
+    "playing": true,
+    "section": 1,
+    "profile": "flooded-arcade",
+    "label": "FLOODED ARCADE",
+    "tempo": 0.24,
+    "rhythm": "1/0.38/0/0.72/0/0.42",
+    "wave": "sawtooth",
+    "engineHz": 124.56712871309722,
+    "engineGain": 0.026222822585019817,
+    "waterGain": 0.02191544019272898,
+    "waterPan": -0.012517467965435727,
+    "waterHz": 1391.6,
+    "droneHz": 73,
+    "droneGain": 0.005600000000000001,
+    "depth": 0,
+    "cutRush": true,
+    "transitionCount": 2
+  }
+}

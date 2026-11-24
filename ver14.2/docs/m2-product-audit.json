@@ -1,0 +1,162 @@
+{
+  "title": "TIDEBREAK 95 v14.0",
+  "beforeBlur": {
+    "state": {
+      "mode": "playing",
+      "time": 0.4165999999999999,
+      "boatX": -0.019329125383192303,
+      "boatV": -0.32013804449069044,
+      "integrity": 3,
+      "rescued": 0,
+      "score": 0,
+      "combo": 0,
+      "surge": 1,
+      "surgeTime": 0,
+      "cooldown": 0,
+      "spawned": 0,
+      "entities": [],
+      "effects": [],
+      "shake": 0,
+      "section": 0,
+      "message": "BREAK THE TIDE",
+      "messageTime": 1.7834000000000019
+    },
+    "inputs": {
+      "left": true,
+      "right": false
+    }
+  },
+  "onHold": {
+    "state": {
+      "mode": "playing",
+      "time": 0.4165999999999999,
+      "boatX": -0.019329125383192303,
+      "boatV": -0.32013804449069044,
+      "integrity": 3,
+      "rescued": 0,
+      "score": 0,
+      "combo": 0,
+      "surge": 1,
+      "surgeTime": 0,
+      "cooldown": 0,
+      "spawned": 0,
+      "entities": [],
+      "effects": [],
+      "shake": 0,
+      "section": 0,
+      "message": "BREAK THE TIDE",
+      "messageTime": 1.7834000000000019
+    },
+    "inputs": {
+      "left": false,
+      "right": false
+    },
+    "runtime": {
+      "paused": true,
+      "pauseReason": "blur",
+      "frameStats": {
+        "elapsedMs": 416.5999999999999,
+        "samples": 25,
+        "sumMs": 416.5999999999999,
+        "maxMs": 16.700000000000045,
+        "overBudget": 0,
+        "averageMs": 16.663999999999998
+      }
+    },
+    "audio": {
+      "active": true,
+      "state": "running",
+      "masterVolume": 0.8,
+      "playing": false,
+      "engineHz": 72,
+      "engineGain": 0,
+      "waterGain": 0
+    }
+  },
+  "resumed": {
+    "state": {
+      "mode": "playing",
+      "time": 0.6874,
+      "boatX": -0.08077730472710506,
+      "boatV": -0.16154519923449076,
+      "integrity": 3,
+      "rescued": 0,
+      "score": 0,
+      "combo": 0,
+      "surge": 1,
+      "surgeTime": 0,
+      "cooldown": 0,
+      "spawned": 0,
+      "entities": [],
+      "effects": [],
+      "shake": 0,
+      "section": 0,
+      "message": "BREAK THE TIDE",
+      "messageTime": 1.512600000000003
+    },
+    "inputs": {
+      "left": false,
+      "right": false
+    },
+    "runtime": {
+      "paused": false,
+      "pauseReason": null,
+      "frameStats": {
+        "elapsedMs": 687.3999999999999,
+        "samples": 42,
+        "sumMs": 687.3999999999999,
+        "maxMs": 20.700000000000045,
+        "overBudget": 1,
+        "averageMs": 16.366666666666664
+      }
+    }
+  },
+  "after60Seconds": {
+    "mode": "playing",
+    "time": 60.73500000000136,
+    "boatX": -0.20658954815984648,
+    "boatV": -0.022364482337507242,
+    "integrity": 3,
+    "rescued": 7,
+    "score": 31250,
+    "combo": 7,
+    "surge": 0.4768875999999635,
+    "surgeTime": 0.22669999999999696,
+    "cooldown": 0.38669999999999727,
+    "spawned": 19,
+    "entities": [
+      {
+        "id": 19,
+        "type": "driftwood",
+        "x": -0.22,
+        "z": 0.13103159999999917,
+        "hit": false,
+        "born": 58
+      }
+    ],
+    "effects": [
+      {
+        "type": "surge",
+        "x": -0.19514045169790814,
+        "life": 0.24669999999999687,
+        "max": 0.58
+      }
+    ],
+    "shake": 0,
+    "section": 2,
+    "message": "RESCUE CHAIN ×7",
+    "messageTime": 0
+  },
+  "runtime": {
+    "paused": false,
+    "pauseReason": null,
+    "frameStats": {
+      "elapsedMs": 60735,
+      "samples": 3645,
+      "sumMs": 60735,
+      "maxMs": 20.700000000000045,
+      "overBudget": 1,
+      "averageMs": 16.662551440329217
+    }
+  }
+}
