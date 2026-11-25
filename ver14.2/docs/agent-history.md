@@ -2,6 +2,7 @@
 
 | 開始時刻 | Agent | Script | Run | 作業・結果 | 検証 | Commit subject |
 | --- | --- | --- | ---: | --- | --- | --- |
+| 2026-11-25T21:15:05+0900 | Codex | run-codex-loop.sh | 2 | v14.2をv4.2・v12.2・v13.2と比較してM6振り返りを完了。総合基準を維持し、公開追跡基準をv14.2へ更新、M1手触り比較とM4戦略体感のループ条件を改善してMajor Closed化 | 40/40、構文、代表6画像比較、README・status・log追跡、diff検査 | docs(ver14.2): close major retrospective |
 | 2026-11-25T20:06:53+0900 | Codex | run-codex-loop.sh | 1 | v14.2をPagesへ公開し、再実行可能な本番Chrome監査を追加してM5をPublished Productとして完了 | 40/40、構文、Actions run 45601757853成功、17経路・14 hash・MIME・v13.2保持、title→playing・操舵・サージ・console error 0 | release(ver14.2): audit production runtime / docs(ver14.2): record published product |
 | 2026-11-24T23:34:48+0900 | Codex | run-codex-loop.sh | 2 | v14.2のclean build、SHA-256 manifest、17経路のPages packaging、commit/hash/MIME/旧版検証を追加しRelease Candidate化 | 40/40、構文、7ファイル108,246 bytes、17経路・14 hash応答・v13.2保持、クリーンChrome開始・停止・復帰・60.334秒・平均16.667ms | release(ver14.2): prepare published candidate |
 | 2026-11-24T22:18:36+0900 | Codex | run-codex-loop.sh | 1 | v14.1のM5第2回批評でFLOOD CUTの弱い走行中体感を最大欠陥とし、CURRENT SLINGの速度・透視線・残秒・エンジン・水音・拍を同期したv14.2へ改善 | 40/40、構文、4方針非退行、状態注入なしChrome 190.559秒・残4.467秒・水音1391.6Hz、製品監査60.752秒・平均16.672ms・最大34ms | feat(ver14.2): turn flood cuts into current slings |
