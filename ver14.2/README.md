@@ -13,7 +13,7 @@ PC版Chromeで `http://127.0.0.1:4315` を開く。Enterで開始、左右矢印
 
 ## 現在地
 
-M5第2回独立批評でFLOOD CUTを4.5秒のCURRENT SLINGへ変え、イベント接近速度、透視線、残秒、エンジン、水音、拍を同期した。40/40 tests、4方針、製品横断監査に合格した。クリーン配布候補は7ファイル108,246 bytesとしてSHA-256を固定し、rootと`/v14.2/`、v14.1以下を含む17経路、14 hash応答、旧版保持をローカル確認済み。現在はRelease Candidateで、Pages公開と本番runtime確認を継続する。
+M5第2回独立批評でFLOOD CUTを4.5秒のCURRENT SLINGへ変え、イベント接近速度、透視線、残秒、エンジン、水音、拍を同期した。40/40 tests、4方針、製品横断監査に合格した。7ファイル108,246 bytesの配布物をGitHub Pagesへ公開し、commit `737c03322e9f6f28eb0804b4efd4bd35bd141627`、17経路、14 hash応答、旧版保持、新規Chromeのタイトル→開始→操舵→サージを確認した。現在はPublished Productで、次は独立したM6振り返りを行う。
 
 ## 検証
 

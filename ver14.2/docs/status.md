@@ -1,11 +1,11 @@
 # v14.2 Status
 
-最終更新: 2026-11-24
+最終更新: 2026-11-25
 
 ## 現在状態
 
 - 現在版: v14.2 (`ver14.2/`)
-- 段階: M0〜M4完了、M5第2回独立批評・改善完了、Release Candidate
+- 段階: M0〜M5完了、Published Product
 - 作品: TIDEBREAK 95 — 前進型レスキューレーサー
 - 過去版: 変更せず保持
 
@@ -17,12 +17,13 @@
 - 状態注入なしChromeは190.576秒でARCADE 12秒短縮を取得し、CURRENT SLING残4.450秒、船体3、救助21、音声稼働、水音980→1391.6Hz、`cutRush=true`を記録した。初回目視で旧イベント文との二重表示を発見して抑止し、仮想時刻を止めた完成フレームで艇、走路、速度線、HUD、残秒に切れ・重なりがないことを確認した。
 - 製品横断監査はフォーカス停止差0.0166秒、入力・連続音停止、明示復帰、復帰後60.752秒・3,644 frames・平均16.672ms・最大34msで予算内だった。
 
-## M5クリーン配布候補
+## M5公開完了
 
 - `npm ci`後に40/40 testsと全ソース・監査・公開スクリプト構文を再検証し、空の`dist`へ7ファイル108,246 bytesを生成してSHA-256 manifestへ固定した。
 - rootと`/v14.2/`へ同一候補を置き、`/v14.1/`、`/v14.0/`、v13.2以下を含む17経路を組み立てた。14 hash応答、JS/CSS/SVG対象、外部runtime URLなし、RINGWARD v13.2保持をローカル検査した。
 - クリーン配布物を状態注入なしChromeで起動し、`TIDEBREAK 95 v14.2`の版assert、640×360タイトル、Enter開始、フォーカス安全停止、明示復帰、60.334秒・平均16.667ms・最大32.2msを確認した。1280×720停止画面は艇、走路、HUD、復帰指示に切れや意図しない重なりがない。
-- 公開URLは未確認のためPublished ProductではなくRelease Candidateとする。Pages成功、commit/hash一致、17経路、旧版、本番開始導線を確認するまでM5を完了しない。
+- GitHub Actions run 45601757853はcommit `737c03322e9f6f28eb0804b4efd4bd35bd141627`のbuild、deploy、本番検証に成功した。`npm run verify:deployment -- https://onishi.github.io/shoot-mata/ 737c03322e9f6f28eb0804b4efd4bd35bd141627`も17経路、14 hash応答、JS/CSS/SVG MIME、v13.2保持に合格した。
+- 新規Chromeで公開rootを開き、`TIDEBREAK 95 v14.2`、タイトル→Enter開始→プレイ、右操舵`boatV 0.406`、サージ残時間`0.260`、console error 0を確認した。`m5-production-runtime-audit.json`と`m5-production-start-1280x720.png`へ固定し、M5をPublished Productとして完了する。
 
 ## M5第1回独立批評・改善達成
 
@@ -229,12 +230,13 @@
 - M5第2回CURRENT SLING: `m5-cut-rush-shortcut-audit.json`（190.576秒・残4.450秒・水音1391.6Hz・船体3）、`m5-cut-rush-flood-cut-1280x720.png`
 - M5第2回製品横断: `m5-cut-product-audit.json`（停止差0.0166秒・60.752秒・平均16.672ms・最大34ms）、`m5-cut-product-focus-hold-1280x720.png`
 - M5配布候補: `m5-release-manifest.json`（7ファイル108,246 bytes）、`m5-release-local-audit.json`（60.334秒・平均16.667ms・最大32.2ms）、`m5-release-local-playing-640x360.png`, `m5-release-local-focus-hold-1280x720.png`
+- M5公開: GitHub Actions run 45601757853、commit `737c03322e9f6f28eb0804b4efd4bd35bd141627`、`npm run verify:deployment`（17経路・14 hash応答）、`m5-production-runtime-audit.json`（title→playing・操舵・サージ・console error 0）、`m5-production-start-1280x720.png`
 
 ## 未解決課題
 
 - 規則を知らない外部プレイヤーの初見20〜30分は未実測。入力制限した決定的方針は序盤改善後に192.017秒まで進んだが、商業区入口で失敗しており、人間計測の代替でもない。
-- CURRENT SLINGによりFLOOD CUT取得直後の速度・空間・音は転換し、決定的4 CUT全編とクリーン配布物は合格した。公開URL、公開commitとのhash一致、本番runtimeは未確認である。
+- 外部人間の初見計測以外にM5を阻害する未達はない。公開commit、hash、旧版保持、本番runtimeは確認済みである。
 
 ## 次の最優先作業
 
-Release CandidateをPagesへ公開し、公開commit、17経路、14 hash応答、旧版保持、本番Chromeのタイトル→開始→プレイを確認する。M5完了後だけM6へ進む。
+独立したM6実行で、v14.2を総合基準v4.2、公開追跡基準v13.2、直近完成版v12.2・v13.2と同一軸で比較し、`05-major-retrospective.md`とルートREADMEを改善する。M6最終コミットでのみ段階をMajor Closedへ更新する。

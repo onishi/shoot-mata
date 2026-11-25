@@ -1,5 +1,12 @@
 # Development log
 
+## 2026-11-25 — M5 Pages公開・本番runtime
+
+- 実行元: Codex / `run-codex-loop.sh` / run 1 / 開始 `2026-11-25T20:06:53+0900`。`SHOOT_MATA_AGENT_TARGET_MAJOR=v14`を対象とした。
+- 先行候補commit `cef1d5e`のGitHub Actions成功と公開rootを確認後、公開URLを新規Chromeで再実行できる`audit:deployment`を追加した。タイトル、Enter開始、右操舵、サージ、作者時間進行、console error 0を検査し、1280×720証拠を保存する。
+- 40/40 tests、全ソース・監査・公開スクリプト構文に合格し、監査追加commit `737c03322e9f6f28eb0804b4efd4bd35bd141627`を公開した。GitHub Actions run 45601757853はbuild、deploy、本番検証に成功した。
+- 最終の`verify:deployment`は17経路、commit一致、rootと`/v14.2/`の14 hash応答、JS/CSS/SVG MIME、v13.2保持に合格した。新規Chromeは`TIDEBREAK 95 v14.2`からtitle→playing、1.667秒、右操舵`0.406`、サージ`0.260`、console error 0を記録した。M5をPublished Productとして完了し、次は独立したM6振り返りとルートREADME改善を行う。
+
 ## 2026-11-24 — M5クリーン配布候補・Pages公開経路
 
 - 実行元: Codex / `run-codex-loop.sh` / run 2 / 開始 `2026-11-24T23:34:48+0900`。`SHOOT_MATA_AGENT_TARGET_MAJOR=v14`を対象とした。
