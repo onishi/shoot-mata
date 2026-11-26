@@ -90,3 +90,30 @@ test('the preview and throw hit the nearer blocker before the foreman', () => {
   assert.equal(foreman.hp, 3);
   assert.ok(!game.enemies.includes(blocker));
 });
+
+test('the roller holds its warned lane, punishing a stand and allowing a sidestep', () => {
+  function run(sidestep) {
+    const game = createGame();
+    game.wave = 1;
+    const roller = { kind: 'roller', hp: 1, x: game.x + 56, y: game.y, clock: 1.54, flight: 0 };
+    game.enemies.push(roller);
+    step(game, idle, tick);
+    const destination = roller.chargeEndX;
+    assert.ok(destination < game.x);
+
+    for (let frame = 0; frame < 61; frame++) {
+      step(game, { ...idle, down: sidestep && frame < 12 }, tick);
+    }
+    assert.ok(Math.abs(roller.x - destination) < 1e-8);
+    assert.equal(roller.y, 280);
+    if (sidestep) {
+      step(game, { ...idle, grab: true }, tick);
+      assert.equal(game.grab, roller);
+      assert.equal(roller.chargeEndX, null);
+    }
+    return game.hp;
+  }
+
+  assert.equal(run(false), 4);
+  assert.equal(run(true), 5);
+});

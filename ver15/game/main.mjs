@@ -1,4 +1,4 @@
-import { createGame, firstThrowContact, step, gameLength, grabTarget, impactRadius, throwLane } from './rules.mjs';
+import { createGame, firstThrowContact, step, gameLength, grabTarget, impactRadius, rollerContactRadius, throwLane } from './rules.mjs';
 
 const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
@@ -105,6 +105,18 @@ function draw() {
     rect(x + 35, 143, 8, 12, '#f2a74f');
   }
   for (let y = 177; y < 399; y += 42) rect(0, y, 800, 2, '#776273');
+  for (const actor of game.enemies) {
+    if (actor.chargeEndX == null || actor === game.grab) continue;
+    const left = Math.min(actor.x, actor.chargeEndX) - rollerContactRadius;
+    const right = Math.max(actor.x, actor.chargeEndX) + rollerContactRadius;
+    rect(left, actor.y - rollerContactRadius, right - left, rollerContactRadius * 2, '#ff655947');
+    rect(left, actor.y - rollerContactRadius, right - left, 2, '#ff8875');
+    rect(left, actor.y + rollerContactRadius - 2, right - left, 2, '#ff8875');
+    if (Math.abs(actor.chargeEndX - actor.x) > 5) {
+      const direction = actor.chargeEndX < actor.x ? '‹' : '›';
+      label(direction, (actor.x + actor.chargeEndX) / 2 - 5, actor.y + 6, 21, '#ffd7a6');
+    }
+  }
   const target = game.grab ? null : grabTarget(game);
   const lane = game.grab ? throwLane(game) : null;
   const foreman = game.enemies.find(actor => actor.kind === 'foreman' && actor.hp > 0);

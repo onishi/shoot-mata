@@ -22,6 +22,11 @@ const throwSpeed = 570;
 const throwDuration = 0.78;
 export const impactRadius = kind => kind === 'foreman' ? 48 : 33;
 const shiftDuration = 0.60;
+const windupStart = 1.55;
+const chargeStart = 2.15;
+const chargeEnd = 2.55;
+const chargeSpeed = 156;
+export const rollerContactRadius = 25;
 
 export function firstThrowContact(game, payload, start, end, y) {
   const direction = Math.sign(end - start);
@@ -114,6 +119,7 @@ export function step(game, input, dt, emit = () => {}) {
       const target = grabTarget(game);
       if (target) {
         game.grab = target;
+        target.chargeEndX = null;
         emit('grab', target);
       } else {
         emit('miss', game);
@@ -171,13 +177,29 @@ export function step(game, input, dt, emit = () => {}) {
     if (enemy.shift) continue;
     const gap = distance(enemy, game);
     enemy.clock = (enemy.clock + dt) % 3;
-    const charging = enemy.kind !== 'runner' && enemy.clock >= 2.15 && enemy.clock < 2.55;
-    const speed = enemy.kind === 'runner' ? 36 : enemy.clock < 1.55 ? 31 : charging ? 156 : 0;
-    if (gap > 1) {
-      enemy.x += (game.x - enemy.x) * speed * dt / gap;
-      enemy.y += (game.y - enemy.y) * speed * dt / gap;
+    const charging = enemy.kind !== 'runner' && enemy.clock >= chargeStart && enemy.clock < chargeEnd;
+    const rollerCharge = enemy.kind === 'roller' && enemy.clock >= windupStart && enemy.clock - dt < chargeEnd;
+    if (rollerCharge) {
+      if (enemy.chargeEndX == null) {
+        const direction = game.x < enemy.x ? -1 : 1;
+        enemy.chargeEndX = clamp(enemy.x + direction * chargeSpeed * (chargeEnd - chargeStart), 42, 758);
+      }
+      if (enemy.clock >= chargeStart) {
+        const remaining = enemy.chargeEndX - enemy.x;
+        enemy.x += Math.sign(remaining) * Math.min(Math.abs(remaining),
+          chargeSpeed * (Math.min(enemy.clock, chargeEnd) - Math.max(enemy.clock - dt, chargeStart)));
+      }
+    } else {
+      enemy.chargeEndX = null;
+      const speed = enemy.kind === 'runner' ? 36 : enemy.clock < windupStart ? 31 : charging ? chargeSpeed : 0;
+      if (gap > 1) {
+        enemy.x += (game.x - enemy.x) * speed * dt / gap;
+        enemy.y += (game.y - enemy.y) * speed * dt / gap;
+      }
     }
-    if ((charging || enemy.kind === 'runner') && gap < 25 && !game.invulnerable && game.dodge <= 0.10) {
+    const contactGap = rollerCharge ? distance(enemy, game) : gap;
+    const canDamage = rollerCharge ? enemy.clock >= chargeStart : charging;
+    if ((canDamage || enemy.kind === 'runner') && contactGap < rollerContactRadius && !game.invulnerable && game.dodge <= 0.10) {
       game.hp--;
       game.invulnerable = 1.15;
       emit('hit', game);
