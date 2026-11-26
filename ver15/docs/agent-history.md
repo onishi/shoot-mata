@@ -11,3 +11,4 @@
 | 2026-11-27T05:17:16+0900 | Codex (codex) | run-codex-loop.sh | 6 | 投擲照準と衝突で最初に当たる敵機を共有し、遮られた際に表示を切り替え | 構文2件、回帰5件、Chrome実時間で監督機500→1000点、手前の敵機200点、実行時例外0件 | fix(ver15): show the first throw contact |
 | 2026-11-27T06:19:20+0900 | Codex (codex) | run-codex-loop.sh | 7 | 圧延機の突進を予告レーンに固定し、床に危険帯を表示 | 構文2件、回帰6件、Chrome固定60 Hzで突進の3場面、鎮圧成功1700点・耐久4、再挑戦 | feat(ver15): telegraph fixed roller charges |
 | 2026-11-27T07:21:27+0900 | Codex (codex) | run-codex-loop.sh | 8 | 圧延機の突進中の掴みを無効にし、停止直後の掴みを案内 | 構文2件、回帰6件、Chrome固定60 Hzで鎮圧成功1700点・耐久3、再挑戦 | feat(ver15): reward sidestepping roller charges |
+| 2026-11-27T08:22:49+0900 | Codex (codex) | run-codex-loop.sh | 9 | v15の所持中の被弾で機体を落とし、画面で通知 | 構文2件、回帰7件、Chrome固定60 Hzで鎮圧成功1700点・耐久3、再挑戦と落下表示 | feat(ver15): drop carried machines on hit |

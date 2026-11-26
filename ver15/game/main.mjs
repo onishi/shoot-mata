@@ -63,7 +63,7 @@ window.addEventListener('keyup', event => keys.delete(event.code));
 
 function effect(kind, entity) {
   const sounds = { grab: [230, 510], throw: [350, 100], impact: [120, 43], land: [95, 61], brake: [74, 39], scrap: [180, 95], hit: [210, 55], dodge: [270, 140], miss: [90, 70] };
-  if (audio?.state === 'running') {
+  if (audio?.state === 'running' && sounds[kind]) {
     const [start, end] = sounds[kind];
     const oscillator = audio.createOscillator();
     const gain = audio.createGain();
@@ -77,9 +77,9 @@ function effect(kind, entity) {
     oscillator.start();
     oscillator.stop(at + 0.18);
   }
-  if (['grab', 'throw', 'impact', 'land', 'brake', 'scrap', 'hit'].includes(kind)) {
+  if (['grab', 'throw', 'impact', 'land', 'brake', 'scrap', 'hit', 'drop'].includes(kind)) {
     const color = kind === 'hit' ? '#ff6858' : kind === 'scrap' ? '#a69d96' : '#ffdd80';
-    sparks.push({ x: entity.x, y: entity.y - (kind === 'land' || kind === 'brake' ? 0 : 18), age: 0, color, strong: kind === 'impact' });
+    sparks.push({ x: entity.x, y: entity.y - (kind === 'land' || kind === 'brake' ? 0 : 18), age: 0, color, strong: kind === 'impact', dropped: kind === 'drop' });
   }
 }
 
@@ -211,6 +211,10 @@ function draw() {
     ctx.restore();
   }
   for (const spark of sparks) {
+    if (spark.dropped) {
+      label('落とした', spark.x - 29, spark.y - 27 - spark.age * 50, 15, '#ffdd80');
+      continue;
+    }
     for (let n = 0; n < 8; n++) {
       const angle = (n / 8) * Math.PI * 2;
       const radius = 9 + spark.age * (spark.strong ? 180 : 115);

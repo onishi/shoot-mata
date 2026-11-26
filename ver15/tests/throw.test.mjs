@@ -122,3 +122,27 @@ test('the roller holds its warned lane, punishing a stand and allowing a sideste
   assert.equal(run(false), 4);
   assert.equal(run(true), 5);
 });
+
+test('a close hit dislodges a carried machine, while a sidestep keeps it', () => {
+  for (const sidestep of [false, true]) {
+    const game = carryingGame();
+    const payload = game.grab;
+    const attacker = { kind: 'runner', hp: 1, x: game.x - 24, y: game.y, clock: 0, flight: 0 };
+    game.enemies.push(attacker);
+    const events = [];
+    step(game, { ...idle, down: sidestep, dodge: sidestep }, tick, kind => events.push(kind));
+
+    assert.equal(game.hp, sidestep ? 5 : 4);
+    assert.equal(game.grab, sidestep ? payload : null);
+    assert.deepEqual(events, sidestep ? ['dodge'] : ['drop', 'hit']);
+    assert.equal(payload.flight, 0);
+    assert.equal(game.score, 0);
+    assert.ok(game.enemies.includes(payload));
+    if (!sidestep) {
+      game.enemies = [payload];
+      assert.equal(grabTarget(game), null);
+      for (let frame = 0; frame < 14; frame++) step(game, idle, tick);
+      assert.equal(grabTarget(game), payload);
+    }
+  }
+});

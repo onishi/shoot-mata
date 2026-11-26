@@ -77,7 +77,7 @@ export function grabTarget(game) {
   let target = null;
   let nearest = 74;
   for (const enemy of game.enemies) {
-    if (enemy.kind === 'foreman' || enemy.chargeEndX != null || enemy.flight || enemy.hp <= 0) continue;
+    if (enemy.kind === 'foreman' || enemy.chargeEndX != null || enemy.flight || enemy.recoil > 0 || enemy.hp <= 0) continue;
     const gap = distance(enemy, game);
     if (gap >= nearest) continue;
     target = enemy;
@@ -204,6 +204,15 @@ export function step(game, input, dt, emit = () => {}) {
     if ((canDamage || enemy.kind === 'runner') && contactGap < rollerContactRadius && !game.invulnerable && game.dodge <= 0.10) {
       game.hp--;
       game.invulnerable = 1.15;
+      if (game.grab) {
+        const dropped = game.grab;
+        game.grab = null;
+        dropped.x = throwLane(game).start;
+        dropped.y = game.y;
+        dropped.recoil = 0.22;
+        dropped.recoilDirection = game.facing;
+        emit('drop', dropped);
+      }
       emit('hit', game);
     }
   }
