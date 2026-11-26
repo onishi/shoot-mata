@@ -1,4 +1,4 @@
-import { createGame, step, gameLength, grabTarget, impactRadius, laneDistance, throwLane } from './rules.mjs';
+import { canReceiveThrow, createGame, step, gameLength, grabTarget, impactRadius, laneDistance, throwLane } from './rules.mjs';
 
 const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
@@ -101,6 +101,13 @@ function draw() {
     rect(x + 35, 143, 8, 12, '#f2a74f');
   }
   for (let y = 177; y < 399; y += 42) rect(0, y, 800, 2, '#776273');
+  for (const actor of game.enemies) {
+    if (!actor.shift) continue;
+    const landing = actor.shift.to;
+    rect(actor.x - 2, Math.min(actor.y, landing), 4, Math.abs(actor.y - landing), '#ffa76a');
+    rect(actor.x - 25, landing - 8, 50, 3, '#ffa76a');
+    rect(actor.x - 25, landing + 8, 50, 3, '#ffa76a');
+  }
   const target = game.grab ? null : grabTarget(game);
   const lane = game.grab ? throwLane(game) : null;
   if (lane) {
@@ -121,7 +128,7 @@ function draw() {
     const flash = player ? game.invulnerable && Math.floor(game.time * 18) % 2 : actor.clock >= 1.55 && actor.clock < 2.55 && actor.kind !== 'runner';
     const width = boss ? 67 : player ? 42 : 29;
     const height = boss ? 57 : player ? 38 : 25;
-    const inLane = lane && !player && actor !== game.grab && !actor.flight &&
+    const inLane = lane && !player && actor !== game.grab && canReceiveThrow(actor) &&
       laneDistance(actor, lane.start, lane.end, game.y) < impactRadius(actor.kind);
     ctx.save();
     ctx.translate(actor.x, actor.y);
@@ -137,7 +144,9 @@ function draw() {
     ctx.translate(0, actor.flight ? -18 : 0);
     if (actor.flight) ctx.rotate(actor.flight * Math.PI * 4);
     if (actor.recoil > 0) ctx.rotate(actor.recoil * actor.recoilDirection);
-    rect(-width / 2, -height, width, height - 4, actor.recoil > 0 || flash ? '#fff0be' : player ? '#49cfc6' : boss ? '#bd684b' : '#b58c6c');
+    const bodyColor = actor.shift ? '#c59177' : actor.recoil > 0 || flash ? '#fff0be'
+      : player ? '#49cfc6' : boss ? '#bd684b' : '#b58c6c';
+    rect(-width / 2, -height, width, height - 4, bodyColor);
     rect(-width / 2 - 5, -height + 9, 10, 15, '#242b34');
     rect(width / 2 - 5, -height + 9, 10, 15, '#242b34');
     rect(-width / 4, -height + 5, width / 2, 7, player ? '#14363d' : '#672b2d');
