@@ -23,13 +23,24 @@ const throwDuration = 0.78;
 export const impactRadius = kind => kind === 'foreman' ? 48 : 33;
 const shiftDuration = 0.60;
 
-export function canReceiveThrow(actor) {
-  return actor.hp > 0 && !actor.flight && !actor.shift;
-}
+export function firstThrowContact(game, payload, start, end, y) {
+  const direction = Math.sign(end - start);
+  const length = Math.abs(end - start);
+  let first = null;
+  for (const actor of game.enemies) {
+    if (actor === payload || actor === game.grab || actor.hp <= 0 || actor.flight || actor.shift) continue;
+    const radius = impactRadius(actor.kind);
+    const depth = Math.abs(actor.y - y);
+    if (depth >= radius) continue;
 
-export function laneDistance(actor, start, end, y) {
-  const closest = clamp(actor.x, Math.min(start, end), Math.max(start, end));
-  return Math.hypot(actor.x - closest, actor.y - y);
+    const reach = Math.sqrt(radius ** 2 - depth ** 2);
+    const along = direction ? (actor.x - start) * direction : Math.abs(actor.x - start);
+    if (along + reach <= 0 || along - reach >= length) continue;
+
+    const distance = Math.max(0, along - reach);
+    if (!first || distance < first.distance) first = { actor, distance };
+  }
+  return first;
 }
 
 export function throwLane(game) {
@@ -121,8 +132,7 @@ export function step(game, input, dt, emit = () => {}) {
       const start = enemy.x;
       enemy.x = clamp(start + enemy.velocity * Math.min(dt, enemy.flight), 30, 770);
       enemy.flight -= dt;
-      const target = game.enemies.find(other => other !== enemy && other !== game.grab &&
-        canReceiveThrow(other) && laneDistance(other, start, enemy.x, enemy.y) < impactRadius(other.kind));
+      const target = firstThrowContact(game, enemy, start, enemy.x, enemy.y)?.actor;
       if (target) {
         target.hp--;
         target.recoil = 0.22;

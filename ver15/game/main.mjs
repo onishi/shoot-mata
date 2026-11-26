@@ -1,4 +1,4 @@
-import { canReceiveThrow, createGame, step, gameLength, grabTarget, impactRadius, laneDistance, throwLane } from './rules.mjs';
+import { createGame, firstThrowContact, step, gameLength, grabTarget, impactRadius, throwLane } from './rules.mjs';
 
 const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
@@ -108,10 +108,10 @@ function draw() {
   const target = game.grab ? null : grabTarget(game);
   const lane = game.grab ? throwLane(game) : null;
   const foreman = game.enemies.find(actor => actor.kind === 'foreman' && actor.hp > 0);
-  const isInLane = actor => lane && actor !== game.grab && canReceiveThrow(actor) &&
-    laneDistance(actor, lane.start, lane.end, game.y) < impactRadius(actor.kind);
+  const contact = lane && firstThrowContact(game, game.grab, lane.start, lane.end, game.y);
   if (lane) {
-    const { start, end } = lane;
+    const { start } = lane;
+    const end = contact ? start + game.facing * contact.distance : lane.end;
     const width = Math.abs(end - start);
     rect(Math.min(start, end), game.y - impactRadius('runner'), width, impactRadius('runner') * 2, '#ffe0a126');
     ctx.strokeStyle = '#ffe0a1';
@@ -154,7 +154,7 @@ function draw() {
     ctx.beginPath();
     ctx.ellipse(0, 0, width * 0.65, 7, 0, 0, Math.PI * 2);
     ctx.fill();
-    if (actor === target || (!player && isInLane(actor))) {
+    if (actor === target) {
       ctx.strokeStyle = '#ffe0a1';
       ctx.lineWidth = 2;
       ctx.stroke();
@@ -183,6 +183,16 @@ function draw() {
     }
     ctx.restore();
   }
+  if (contact) {
+    const { actor } = contact;
+    ctx.save();
+    ctx.strokeStyle = '#ffe0a1';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.ellipse(actor.x, actor.y + 5, actor.kind === 'foreman' ? 40 : 20, 7, 0, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.restore();
+  }
   for (const spark of sparks) {
     for (let n = 0; n < 8; n++) {
       const angle = (n / 8) * Math.PI * 2;
@@ -195,7 +205,10 @@ function draw() {
   label('得点 ' + game.score, 650, 35, 20);
   label(practice ? '練習 · 監督機区画' : game.time < 23 ? '搬入口' : game.time < 64 ? '圧延床' : '監督機区画', 24, 431, 19, '#e8af77');
   if (mode === 'play' && foreman && (foreman.shift || lane)) {
-    const cue = foreman.shift ? '着地を待つ' : isInLane(foreman) ? 'Zで投げる' : '監督機に射線を合わせる';
+    let cue = '監督機に射線を合わせる';
+    if (foreman.shift) cue = '着地を待つ';
+    else if (contact?.actor === foreman) cue = 'Zで投げる';
+    else if (contact) cue = '手前に敵機 · 位置を変える';
     ctx.textAlign = 'center';
     label(cue, 470, 431, 19, foreman.shift ? '#ffc079' : '#ffedca');
     ctx.textAlign = 'left';

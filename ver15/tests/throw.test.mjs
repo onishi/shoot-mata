@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { createGame, step, throwLane } from '../game/rules.mjs';
+import { createGame, firstThrowContact, step, throwLane } from '../game/rules.mjs';
 
 const tick = 1 / 60;
 const idle = { left: false, right: false, up: false, down: false };
@@ -73,4 +73,20 @@ test('foreman practice starts with three throwable runners and keeps later reinf
   assert.equal(practice.enemies.filter(enemy => enemy.kind === 'foreman').length, 1);
   assert.deepEqual(createGame().enemies, []);
   assert.equal(createGame().time, 0);
+});
+
+test('the preview and throw hit the nearer blocker before the foreman', () => {
+  const game = carryingGame();
+  const { start, end } = throwLane(game);
+  const foreman = { kind: 'foreman', hp: 3, x: start + 55, y: game.y, clock: 2, flight: 0 };
+  const blocker = { kind: 'runner', hp: 1, x: start + 35, y: game.y, clock: 0, flight: 0 };
+  game.enemies.unshift(foreman, blocker);
+
+  assert.deepEqual(firstThrowContact(game, game.grab, start, end, game.y), {
+    actor: blocker, distance: 2,
+  });
+  step(game, { ...idle, grab: true }, tick);
+  assert.equal(game.score, 200);
+  assert.equal(foreman.hp, 3);
+  assert.ok(!game.enemies.includes(blocker));
 });
