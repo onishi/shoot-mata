@@ -35,7 +35,8 @@ test('a foreman hit interrupts its charge and forces a new throw lane', () => {
 
   const followUp = { kind: 'runner', hp: 1, x: foreman.x - 12, y: foreman.y, clock: 0, flight: 0.20, velocity: 570 };
   game.enemies.unshift(followUp);
-  for (let i = 0; i < 36; i++) step(game, idle, tick);
+  for (let i = 0; i < 36; i++) step(game, idle, tick, kind => events.push(kind));
+  assert.equal(events.filter(kind => kind === 'land').length, 1);
   assert.equal(foreman.hp, 2);
   assert.equal(game.score, 500);
   assert.equal(foreman.y, 365);

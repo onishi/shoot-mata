@@ -58,7 +58,7 @@ window.addEventListener('keydown', event => {
 window.addEventListener('keyup', event => keys.delete(event.code));
 
 function effect(kind, entity) {
-  const sounds = { grab: [230, 510], throw: [350, 100], impact: [120, 43], scrap: [180, 95], hit: [210, 55], dodge: [270, 140], miss: [90, 70] };
+  const sounds = { grab: [230, 510], throw: [350, 100], impact: [120, 43], land: [95, 61], scrap: [180, 95], hit: [210, 55], dodge: [270, 140], miss: [90, 70] };
   if (audio?.state === 'running') {
     const [start, end] = sounds[kind];
     const oscillator = audio.createOscillator();
@@ -73,9 +73,9 @@ function effect(kind, entity) {
     oscillator.start();
     oscillator.stop(at + 0.18);
   }
-  if (['grab', 'throw', 'impact', 'scrap', 'hit'].includes(kind)) {
+  if (['grab', 'throw', 'impact', 'land', 'scrap', 'hit'].includes(kind)) {
     const color = kind === 'hit' ? '#ff6858' : kind === 'scrap' ? '#a69d96' : '#ffdd80';
-    sparks.push({ x: entity.x, y: entity.y - 18, age: 0, color, strong: kind === 'impact' });
+    sparks.push({ x: entity.x, y: entity.y - (kind === 'land' ? 0 : 18), age: 0, color, strong: kind === 'impact' });
   }
 }
 
@@ -101,13 +101,6 @@ function draw() {
     rect(x + 35, 143, 8, 12, '#f2a74f');
   }
   for (let y = 177; y < 399; y += 42) rect(0, y, 800, 2, '#776273');
-  for (const actor of game.enemies) {
-    if (!actor.shift) continue;
-    const landing = actor.shift.to;
-    rect(actor.x - 2, Math.min(actor.y, landing), 4, Math.abs(actor.y - landing), '#ffa76a');
-    rect(actor.x - 25, landing - 8, 50, 3, '#ffa76a');
-    rect(actor.x - 25, landing + 8, 50, 3, '#ffa76a');
-  }
   const target = game.grab ? null : grabTarget(game);
   const lane = game.grab ? throwLane(game) : null;
   if (lane) {
@@ -121,6 +114,26 @@ function draw() {
     ctx.lineTo(end, game.y);
     ctx.stroke();
     ctx.setLineDash([]);
+  }
+  for (const actor of game.enemies) {
+    if (!actor.shift) continue;
+    const { from, to, progress } = actor.shift;
+    const direction = Math.sign(to - from);
+    ctx.strokeStyle = '#ffc079';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.ellipse(actor.x, to, 34, 9, 0, 0, Math.PI * 2);
+    ctx.stroke();
+    for (let index = 1; index <= 3; index++) {
+      const y = actor.y + (to - actor.y) * index / 4;
+      ctx.beginPath();
+      ctx.moveTo(actor.x - 8, y - 5 * direction);
+      ctx.lineTo(actor.x, y);
+      ctx.lineTo(actor.x + 8, y - 5 * direction);
+      ctx.stroke();
+    }
+    rect(actor.x - 26, to + 14, 52, 4, '#302630');
+    rect(actor.x - 26, to + 14, 52 * progress, 4, '#ffc079');
   }
   for (const actor of [...game.enemies, game].sort((a, b) => a.y - b.y)) {
     const player = actor === game;
@@ -141,7 +154,8 @@ function draw() {
       ctx.lineWidth = 2;
       ctx.stroke();
     }
-    ctx.translate(0, actor.flight ? -18 : 0);
+    const lift = actor.shift ? 28 * Math.sin(Math.PI * actor.shift.progress) : 0;
+    ctx.translate(0, actor.flight ? -18 : -lift);
     if (actor.flight) ctx.rotate(actor.flight * Math.PI * 4);
     if (actor.recoil > 0) ctx.rotate(actor.recoil * actor.recoilDirection);
     const bodyColor = actor.shift ? '#c59177' : actor.recoil > 0 || flash ? '#fff0be'
@@ -154,7 +168,14 @@ function draw() {
       const claw = game.facing * 23;
       rect(claw - 7, -21, 14, 14, game.grab ? '#ffdb78' : '#bce7d8');
     }
-    if (boss) for (let n = 0; n < actor.hp; n++) rect(-20 + n * 15, -67, 11, 4, '#ffbe70');
+    if (boss) {
+      for (let n = 0; n < actor.hp; n++) rect(-20 + n * 15, -67, 11, 4, '#ffbe70');
+      if (actor.shift) {
+        ctx.textAlign = 'center';
+        rect(-41, -88, 82, 18, '#161a20');
+        label('投擲無効', 0, -74, 14, '#ffc079');
+      }
+    }
     ctx.restore();
   }
   for (const spark of sparks) {

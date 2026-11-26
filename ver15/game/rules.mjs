@@ -119,7 +119,7 @@ export function step(game, input, dt, emit = () => {}) {
         if (target.kind === 'foreman') {
           if (target.hp) {
             target.clock = 1.55;
-            target.shift = { time: shiftDuration, from: target.y, to: target.y < 285 ? 365 : 205 };
+            target.shift = { progress: 0, from: target.y, to: target.y < 285 ? 365 : 205 };
           } else {
             game.foremanDefeated = true;
           }
@@ -135,9 +135,12 @@ export function step(game, input, dt, emit = () => {}) {
     }
     if (enemy.shift) {
       const shift = enemy.shift;
-      shift.time = Math.max(0, shift.time - dt);
-      enemy.y = shift.to + (shift.from - shift.to) * shift.time / shiftDuration;
-      if (!shift.time) enemy.shift = null;
+      shift.progress = Math.min(1, shift.progress + dt / shiftDuration);
+      enemy.y = shift.from + (shift.to - shift.from) * shift.progress;
+      if (shift.progress === 1) {
+        enemy.shift = null;
+        emit('land', enemy);
+      }
     }
     if (enemy.recoil > 0) {
       enemy.recoil -= dt;
