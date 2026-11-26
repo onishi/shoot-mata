@@ -38,11 +38,22 @@ export function throwLane(game) {
   return { start, end };
 }
 
-export function createGame() {
-  return {
+export function createGame(practice = false) {
+  const game = {
     x: 245, y: 280, facing: 1, time: 0, wave: 0, hp: 5, score: 0,
     grab: null, dodge: 0, invulnerable: 0, enemies: [], over: null, foremanDefeated: false,
   };
+  if (practice) {
+    game.time = 64;
+    game.wave = waves.findIndex(([at]) => at > game.time);
+    game.enemies = [
+      { x: 420, y: 280, kind: 'foreman', hp: 3, clock: 0, flight: 0 },
+      ...[[300, 280], [220, 365], [220, 205]].map(([x, y]) => ({
+        x, y, kind: 'runner', hp: 1, clock: 0, flight: 0,
+      })),
+    ];
+  }
+  return game;
 }
 
 export function grabTarget(game) {

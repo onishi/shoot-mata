@@ -3,10 +3,12 @@ import { canReceiveThrow, createGame, step, gameLength, grabTarget, impactRadius
 const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
 const button = document.querySelector('button');
+const practiceControl = document.querySelector('#practice');
 const status = document.querySelector('#status');
 const keys = new Set();
 let game = createGame();
 let mode = 'title';
+let practice = false;
 let grab = false;
 let dodge = false;
 let sparks = [];
@@ -17,6 +19,7 @@ const tick = 1 / 60;
 
 function setMode(next) {
   mode = next;
+  practiceControl.disabled = next === 'play' || next === 'pause';
   button.textContent = next === 'play' ? '一時停止' : next === 'pause' ? '再開' : next === 'result' ? '再挑戦' : '開始';
   status.textContent = next === 'result' ? game.over + ' · ' + game.score + ' 点'
     : next === 'pause' ? '一時停止中'
@@ -33,7 +36,8 @@ function toggle() {
   audio ??= new AudioContext();
   audio.resume().catch(() => {});
   if (mode !== 'pause') {
-    game = createGame();
+    practice = practiceControl.checked;
+    game = createGame(practice);
     sparks = [];
     remainder = 0;
   }
@@ -188,7 +192,7 @@ function draw() {
   label('耐久 ' + game.hp, 24, 35, 20);
   label(String(Math.max(0, Math.ceil(gameLength - game.time))), 386, 35, 20);
   label('得点 ' + game.score, 650, 35, 20);
-  label(game.time < 23 ? '搬入口' : game.time < 64 ? '圧延床' : '監督機区画', 24, 431, 19, '#e8af77');
+  label(practice ? '練習 · 監督機区画' : game.time < 23 ? '搬入口' : game.time < 64 ? '圧延床' : '監督機区画', 24, 431, 19, '#e8af77');
   if (mode !== 'play') {
     rect(100, 175, 600, 106, '#161a20');
     const heading = mode === 'title' ? 'FOUNDRY CLAMP' : mode === 'pause' ? '一時停止' : game.over;

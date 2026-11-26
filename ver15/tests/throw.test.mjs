@@ -60,3 +60,17 @@ test('a throw into the wall ends without a hit or points', () => {
   assert.equal(game.score, 0);
   assert.equal(game.enemies.length, 0);
 });
+
+test('foreman practice starts with three throwable runners and keeps later reinforcements', () => {
+  const practice = createGame(true);
+  assert.equal(practice.time, 64);
+  assert.equal(practice.enemies.filter(enemy => enemy.kind === 'foreman').length, 1);
+  assert.equal(practice.enemies.filter(enemy => enemy.kind === 'runner').length, 3);
+  step(practice, { ...idle, grab: true }, tick);
+  assert.equal(practice.grab.kind, 'runner');
+  for (let index = 0; index < 60; index++) step(practice, idle, tick);
+  assert.equal(practice.enemies.filter(enemy => enemy.kind === 'runner').length, 4);
+  assert.equal(practice.enemies.filter(enemy => enemy.kind === 'foreman').length, 1);
+  assert.deepEqual(createGame().enemies, []);
+  assert.equal(createGame().time, 0);
+});
