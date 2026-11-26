@@ -17,6 +17,20 @@ export const waves = [
 
 const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
 const distance = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
+const carryOffset = 29;
+const throwSpeed = 570;
+const throwDuration = 0.78;
+export const impactRadius = kind => kind === 'foreman' ? 48 : 33;
+export function laneDistance(actor, start, end, y) {
+  const closest = clamp(actor.x, Math.min(start, end), Math.max(start, end));
+  return Math.hypot(actor.x - closest, actor.y - y);
+}
+
+export function throwLane(game) {
+  const start = clamp(game.x + game.facing * carryOffset, 30, 770);
+  const end = clamp(start + game.facing * throwSpeed * throwDuration, 30, 770);
+  return { start, end };
+}
 
 export function createGame() {
   return {
@@ -62,8 +76,10 @@ export function step(game, input, dt, emit = () => {}) {
 
   if (input.grab) {
     if (game.grab) {
-      game.grab.flight = 0.78;
-      game.grab.velocity = game.facing * 570;
+      game.grab.x = throwLane(game).start;
+      game.grab.y = game.y;
+      game.grab.flight = throwDuration;
+      game.grab.velocity = game.facing * throwSpeed;
       emit('throw', game.grab);
       game.grab = null;
     } else {
@@ -80,25 +96,33 @@ export function step(game, input, dt, emit = () => {}) {
   for (const enemy of game.enemies) {
     if (enemy.hp <= 0) continue;
     if (enemy === game.grab) {
-      enemy.x = game.x + game.facing * 29;
+      enemy.x = game.x + game.facing * carryOffset;
       enemy.y = game.y;
       continue;
     }
     if (enemy.flight) {
-      enemy.x += enemy.velocity * dt;
+      const start = enemy.x;
+      enemy.x = clamp(start + enemy.velocity * Math.min(dt, enemy.flight), 30, 770);
       enemy.flight -= dt;
       const target = game.enemies.find(other => other !== enemy && other !== game.grab &&
-        other.hp > 0 && !other.flight && distance(other, enemy) < (other.kind === 'foreman' ? 48 : 33));
+        other.hp > 0 && !other.flight && laneDistance(other, start, enemy.x, enemy.y) < impactRadius(other.kind));
       if (target) {
         target.hp--;
+        target.recoil = 0.22;
+        target.recoilDirection = Math.sign(enemy.velocity);
         if (target.kind === 'foreman' && !target.hp) game.foremanDefeated = true;
         game.score += target.kind === 'foreman' ? 500 : 200;
         emit('impact', target);
       }
-      if (target || enemy.flight <= 0 || enemy.x < 30 || enemy.x > 770) {
+      if (target || enemy.flight <= 0 || enemy.x === 30 || enemy.x === 770) {
         enemy.hp = 0;
-        if (!target) emit('impact', enemy);
+        if (!target) emit('scrap', enemy);
       }
+      continue;
+    }
+    if (enemy.recoil > 0) {
+      enemy.recoil -= dt;
+      enemy.x = clamp(enemy.x + enemy.recoilDirection * 145 * dt, 42, 758);
       continue;
     }
     const gap = distance(enemy, game);

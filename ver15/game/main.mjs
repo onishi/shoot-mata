@@ -1,4 +1,4 @@
-import { createGame, step, gameLength, grabTarget } from './rules.mjs';
+import { createGame, step, gameLength, grabTarget, impactRadius, laneDistance, throwLane } from './rules.mjs';
 
 const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
@@ -58,7 +58,7 @@ window.addEventListener('keydown', event => {
 window.addEventListener('keyup', event => keys.delete(event.code));
 
 function effect(kind, entity) {
-  const sounds = { grab: [230, 510], throw: [350, 100], impact: [120, 43], hit: [210, 55], dodge: [270, 140], miss: [90, 70] };
+  const sounds = { grab: [230, 510], throw: [350, 100], impact: [120, 43], scrap: [180, 95], hit: [210, 55], dodge: [270, 140], miss: [90, 70] };
   if (audio?.state === 'running') {
     const [start, end] = sounds[kind];
     const oscillator = audio.createOscillator();
@@ -73,8 +73,9 @@ function effect(kind, entity) {
     oscillator.start();
     oscillator.stop(at + 0.18);
   }
-  if (['grab', 'throw', 'impact', 'hit'].includes(kind)) {
-    sparks.push({ x: entity.x, y: entity.y - 18, age: 0, color: kind === 'hit' ? '#ff6858' : '#ffdd80' });
+  if (['grab', 'throw', 'impact', 'scrap', 'hit'].includes(kind)) {
+    const color = kind === 'hit' ? '#ff6858' : kind === 'scrap' ? '#a69d96' : '#ffdd80';
+    sparks.push({ x: entity.x, y: entity.y - 18, age: 0, color, strong: kind === 'impact' });
   }
 }
 
@@ -101,12 +102,15 @@ function draw() {
   }
   for (let y = 177; y < 399; y += 42) rect(0, y, 800, 2, '#776273');
   const target = game.grab ? null : grabTarget(game);
-  if (game.grab) {
-    const end = Math.max(30, Math.min(770, game.x + 470 * game.facing));
+  const lane = game.grab ? throwLane(game) : null;
+  if (lane) {
+    const { start, end } = lane;
+    const width = Math.abs(end - start);
+    rect(Math.min(start, end), game.y - impactRadius('runner'), width, impactRadius('runner') * 2, '#ffe0a126');
     ctx.strokeStyle = '#ffe0a1';
     ctx.setLineDash([8, 9]);
     ctx.beginPath();
-    ctx.moveTo(game.x, game.y);
+    ctx.moveTo(start, game.y);
     ctx.lineTo(end, game.y);
     ctx.stroke();
     ctx.setLineDash([]);
@@ -117,20 +121,23 @@ function draw() {
     const flash = player ? game.invulnerable && Math.floor(game.time * 18) % 2 : actor.clock >= 1.55 && actor.clock < 2.55 && actor.kind !== 'runner';
     const width = boss ? 67 : player ? 42 : 29;
     const height = boss ? 57 : player ? 38 : 25;
+    const inLane = lane && !player && actor !== game.grab && !actor.flight &&
+      laneDistance(actor, lane.start, lane.end, game.y) < impactRadius(actor.kind);
     ctx.save();
     ctx.translate(actor.x, actor.y);
     ctx.fillStyle = '#322832';
     ctx.beginPath();
     ctx.ellipse(0, 0, width * 0.65, 7, 0, 0, Math.PI * 2);
     ctx.fill();
-    if (actor === target) {
+    if (actor === target || inLane) {
       ctx.strokeStyle = '#ffe0a1';
       ctx.lineWidth = 2;
       ctx.stroke();
     }
     ctx.translate(0, actor.flight ? -18 : 0);
     if (actor.flight) ctx.rotate(actor.flight * Math.PI * 4);
-    rect(-width / 2, -height, width, height - 4, flash ? '#fff0be' : player ? '#49cfc6' : boss ? '#bd684b' : '#b58c6c');
+    if (actor.recoil > 0) ctx.rotate(actor.recoil * actor.recoilDirection);
+    rect(-width / 2, -height, width, height - 4, actor.recoil > 0 || flash ? '#fff0be' : player ? '#49cfc6' : boss ? '#bd684b' : '#b58c6c');
     rect(-width / 2 - 5, -height + 9, 10, 15, '#242b34');
     rect(width / 2 - 5, -height + 9, 10, 15, '#242b34');
     rect(-width / 4, -height + 5, width / 2, 7, player ? '#14363d' : '#672b2d');
@@ -144,8 +151,8 @@ function draw() {
   for (const spark of sparks) {
     for (let n = 0; n < 8; n++) {
       const angle = (n / 8) * Math.PI * 2;
-      const radius = 9 + spark.age * 115;
-      rect(spark.x + Math.cos(angle) * radius, spark.y + Math.sin(angle) * radius, 5, 3, spark.color);
+      const radius = 9 + spark.age * (spark.strong ? 180 : 115);
+      rect(spark.x + Math.cos(angle) * radius, spark.y + Math.sin(angle) * radius, spark.strong ? 8 : 5, spark.strong ? 5 : 3, spark.color);
     }
   }
   label('耐久 ' + game.hp, 24, 35, 20);
