@@ -1,4 +1,4 @@
-import { createGame, firstThrowContact, step, gameLength, grabTarget, impactRadius, rollerContactRadius, throwLane } from './rules.mjs';
+import { createGame, firstThrowContact, step, gameLength, grabTarget, impactRadius, rollerContactRadius, rollerRecovering, throwLane } from './rules.mjs';
 
 const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
@@ -62,7 +62,7 @@ window.addEventListener('keydown', event => {
 window.addEventListener('keyup', event => keys.delete(event.code));
 
 function effect(kind, entity) {
-  const sounds = { grab: [230, 510], throw: [350, 100], impact: [120, 43], land: [95, 61], scrap: [180, 95], hit: [210, 55], dodge: [270, 140], miss: [90, 70] };
+  const sounds = { grab: [230, 510], throw: [350, 100], impact: [120, 43], land: [95, 61], brake: [74, 39], scrap: [180, 95], hit: [210, 55], dodge: [270, 140], miss: [90, 70] };
   if (audio?.state === 'running') {
     const [start, end] = sounds[kind];
     const oscillator = audio.createOscillator();
@@ -77,9 +77,9 @@ function effect(kind, entity) {
     oscillator.start();
     oscillator.stop(at + 0.18);
   }
-  if (['grab', 'throw', 'impact', 'land', 'scrap', 'hit'].includes(kind)) {
+  if (['grab', 'throw', 'impact', 'land', 'brake', 'scrap', 'hit'].includes(kind)) {
     const color = kind === 'hit' ? '#ff6858' : kind === 'scrap' ? '#a69d96' : '#ffdd80';
-    sparks.push({ x: entity.x, y: entity.y - (kind === 'land' ? 0 : 18), age: 0, color, strong: kind === 'impact' });
+    sparks.push({ x: entity.x, y: entity.y - (kind === 'land' || kind === 'brake' ? 0 : 18), age: 0, color, strong: kind === 'impact' });
   }
 }
 
@@ -170,6 +170,11 @@ function draw() {
       ctx.strokeStyle = '#ffe0a1';
       ctx.lineWidth = 2;
       ctx.stroke();
+    }
+    if (actor.chargeEndX != null || (actor === target && rollerRecovering(actor))) {
+      ctx.textAlign = 'center';
+      rect(-40, -56, 80, 20, '#161a20');
+      label(actor === target ? 'Zでつかむ' : '掴み不可', 0, -41, 14, actor === target ? '#ffedca' : '#ffab91');
     }
     const lift = actor.shift ? 28 * Math.sin(Math.PI * actor.shift.progress) : 0;
     ctx.translate(0, actor.flight ? -18 : -lift);

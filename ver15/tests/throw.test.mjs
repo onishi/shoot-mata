@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { createGame, firstThrowContact, step, throwLane } from '../game/rules.mjs';
+import { createGame, firstThrowContact, grabTarget, rollerRecovering, step, throwLane } from '../game/rules.mjs';
 
 const tick = 1 / 60;
 const idle = { left: false, right: false, up: false, down: false };
@@ -100,10 +100,15 @@ test('the roller holds its warned lane, punishing a stand and allowing a sideste
     step(game, idle, tick);
     const destination = roller.chargeEndX;
     assert.ok(destination < game.x);
+    assert.equal(grabTarget(game), null);
+    const events = [];
 
     for (let frame = 0; frame < 61; frame++) {
-      step(game, { ...idle, down: sidestep && frame < 12 }, tick);
+      step(game, { ...idle, down: sidestep && frame < 12, grab: frame === 0 }, tick, kind => events.push(kind));
     }
+    assert.equal(events[0], 'miss');
+    assert.equal(events.filter(kind => kind === 'brake').length, 1);
+    assert.equal(rollerRecovering(roller), true);
     assert.ok(Math.abs(roller.x - destination) < 1e-8);
     assert.equal(roller.y, 280);
     if (sidestep) {

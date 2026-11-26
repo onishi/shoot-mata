@@ -27,6 +27,7 @@ const chargeStart = 2.15;
 const chargeEnd = 2.55;
 const chargeSpeed = 156;
 export const rollerContactRadius = 25;
+export const rollerRecovering = enemy => enemy.kind === 'roller' && enemy.chargeEndX == null && enemy.clock >= chargeEnd;
 
 export function firstThrowContact(game, payload, start, end, y) {
   const direction = Math.sign(end - start);
@@ -76,7 +77,7 @@ export function grabTarget(game) {
   let target = null;
   let nearest = 74;
   for (const enemy of game.enemies) {
-    if (enemy.kind === 'foreman' || enemy.flight || enemy.hp <= 0) continue;
+    if (enemy.kind === 'foreman' || enemy.chargeEndX != null || enemy.flight || enemy.hp <= 0) continue;
     const gap = distance(enemy, game);
     if (gap >= nearest) continue;
     target = enemy;
@@ -190,6 +191,7 @@ export function step(game, input, dt, emit = () => {}) {
           chargeSpeed * (Math.min(enemy.clock, chargeEnd) - Math.max(enemy.clock - dt, chargeStart)));
       }
     } else {
+      if (enemy.chargeEndX != null) emit('brake', enemy);
       enemy.chargeEndX = null;
       const speed = enemy.kind === 'runner' ? 36 : enemy.clock < windupStart ? 31 : charging ? chargeSpeed : 0;
       if (gap > 1) {
