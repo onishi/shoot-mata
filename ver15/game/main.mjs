@@ -127,10 +127,14 @@ function draw() {
     rect(x + 35, 143, 8, 12, '#f2a74f');
   }
   for (let y = 177; y < 399; y += 42) rect(0, y, 800, 2, '#776273');
+  let inChargeLane = false;
   for (const actor of game.enemies) {
     if (actor.chargeEndX == null || actor === game.grab) continue;
     const left = Math.min(actor.x, actor.chargeEndX) - rollerContactRadius;
     const right = Math.max(actor.x, actor.chargeEndX) + rollerContactRadius;
+    if (game.x > left && game.x < right && Math.abs(game.y - actor.y) < rollerContactRadius) {
+      inChargeLane = true;
+    }
     rect(left, actor.y - rollerContactRadius, right - left, rollerContactRadius * 2, '#ff655947');
     rect(left, actor.y - rollerContactRadius, right - left, 2, '#ff8875');
     rect(left, actor.y + rollerContactRadius - 2, right - left, 2, '#ff8875');
@@ -286,7 +290,9 @@ function draw() {
   label('得点 ' + game.score, 650, 35, 20);
   label(practice ? '練習 · 監督機区画' : game.time < 23 ? '搬入口' : game.time < 64 ? '圧延床' : '監督機区画', 24, 431, 19, '#e8af77');
   let cue;
-  if (foreman && (foreman.shift || lane)) {
+  if (inChargeLane) {
+    cue = '突進に注意 · ↑↓で帯から出る';
+  } else if (foreman && (foreman.shift || lane)) {
     cue = '監督機に射線を合わせる';
     if (foreman.shift) cue = '着地を待つ';
     else if (contact?.actor === foreman) cue = 'Zで投げる';
@@ -297,7 +303,7 @@ function draw() {
   }
   if (mode === 'play' && cue) {
     ctx.textAlign = 'center';
-    label(cue, 470, 431, 19, foreman?.shift ? '#ffc079' : '#ffedca');
+    label(cue, 470, 431, 19, inChargeLane || foreman?.shift ? '#ffc079' : '#ffedca');
     ctx.textAlign = 'left';
   }
   if (mode !== 'play') {
