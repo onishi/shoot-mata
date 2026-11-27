@@ -182,8 +182,8 @@ export function step(game, input, dt, emit = () => {}) {
     const rollerCharge = enemy.kind === 'roller' && enemy.clock >= windupStart && enemy.clock - dt < chargeEnd;
     if (rollerCharge) {
       if (enemy.chargeEndX == null) {
-        const direction = game.x < enemy.x ? -1 : 1;
-        enemy.chargeEndX = clamp(enemy.x + direction * chargeSpeed * (chargeEnd - chargeStart), 42, 758);
+        enemy.chargeFacing = game.x < enemy.x ? -1 : 1;
+        enemy.chargeEndX = clamp(enemy.x + enemy.chargeFacing * chargeSpeed * (chargeEnd - chargeStart), 42, 758);
       }
       if (enemy.clock >= chargeStart) {
         const remaining = enemy.chargeEndX - enemy.x;

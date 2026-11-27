@@ -178,9 +178,10 @@ function draw() {
   for (const actor of [...game.enemies, game].sort((a, b) => a.y - b.y)) {
     const player = actor === game;
     const boss = actor.kind === 'foreman';
+    const roller = actor.kind === 'roller';
     const flash = player ? game.invulnerable && Math.floor(game.time * 18) % 2 : actor.clock >= 1.55 && actor.clock < 2.55 && actor.kind !== 'runner';
-    const width = boss ? 67 : player ? 42 : 29;
-    const height = boss ? 57 : player ? 38 : 25;
+    const width = boss ? 67 : player ? 42 : roller ? 48 : 29;
+    const height = boss ? 57 : player ? 38 : roller ? 24 : 32;
     ctx.save();
     ctx.translate(actor.x, actor.y);
     ctx.fillStyle = '#322832';
@@ -217,10 +218,31 @@ function draw() {
     if (actor.recoil > 0) ctx.rotate(actor.recoil * actor.recoilDirection);
     const bodyColor = actor.shift ? '#c59177' : actor.recoil > 0 || flash ? '#fff0be'
       : player ? '#49cfc6' : boss ? '#bd684b' : '#b58c6c';
-    rect(-width / 2, -height, width, height - 4, bodyColor);
-    rect(-width / 2 - 5, -height + 9, 10, 15, '#242b34');
-    rect(width / 2 - 5, -height + 9, 10, 15, '#242b34');
-    rect(-width / 4, -height + 5, width / 2, 7, player ? '#14363d' : '#672b2d');
+    if (roller) {
+      const direction = actor.chargeEndX != null ? actor.chargeFacing : Math.sign(game.x - actor.x) || 1;
+      ctx.scale(direction, 1);
+      rect(-24, -14, 48, 12, '#242b34');
+      rect(-22, -24, 35, 14, bodyColor);
+      ctx.fillStyle = bodyColor;
+      ctx.beginPath();
+      ctx.arc(17, -13, 13, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#242b34';
+      ctx.beginPath();
+      ctx.arc(17, -13, 6, 0, Math.PI * 2);
+      ctx.fill();
+      rect(-17, -20, 21, 4, '#672b2d');
+    } else {
+      rect(-width / 2, -height, width, height - (player || boss ? 4 : 8), bodyColor);
+      rect(-width / 2 - 5, -height + 9, 10, 15, '#242b34');
+      rect(width / 2 - 5, -height + 9, 10, 15, '#242b34');
+      rect(-width / 4, -height + 5, width / 2, 7, player ? '#14363d' : '#672b2d');
+      if (!player && !boss) {
+        const stride = Math.round(Math.sin(actor.clock * Math.PI * 8) * 3);
+        rect(-11, -9, 7, 7 + stride, bodyColor);
+        rect(4, -9, 7, 7 - stride, bodyColor);
+      }
+    }
     if (player) {
       const claw = game.facing * 23;
       rect(claw - 7, -21, 14, 14, game.grab ? '#ffdb78' : '#bce7d8');
