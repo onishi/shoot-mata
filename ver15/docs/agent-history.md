@@ -12,3 +12,4 @@
 | 2026-11-27T06:19:20+0900 | Codex (codex) | run-codex-loop.sh | 7 | 圧延機の突進を予告レーンに固定し、床に危険帯を表示 | 構文2件、回帰6件、Chrome固定60 Hzで突進の3場面、鎮圧成功1700点・耐久4、再挑戦 | feat(ver15): telegraph fixed roller charges |
 | 2026-11-27T07:21:27+0900 | Codex (codex) | run-codex-loop.sh | 8 | 圧延機の突進中の掴みを無効にし、停止直後の掴みを案内 | 構文2件、回帰6件、Chrome固定60 Hzで鎮圧成功1700点・耐久3、再挑戦 | feat(ver15): reward sidestepping roller charges |
 | 2026-11-27T08:22:49+0900 | Codex (codex) | run-codex-loop.sh | 9 | v15の所持中の被弾で機体を落とし、画面で通知 | 構文2件、回帰7件、Chrome固定60 Hzで鎮圧成功1700点・耐久3、再挑戦と落下表示 | feat(ver15): drop carried machines on hit |
+| 2026-11-27T09:24:33+0900 | Codex (codex) | run-codex-loop.sh | 10 | v15の走行方向と回避加速を姿勢・床跡・連続音に反映 | 構文2件、回帰7件、Chrome実時間で左右反転・回避・停止、固定60 Hzで鎮圧成功1700点・耐久3と再挑戦 | feat(ver15): show and sound robot drive motion |

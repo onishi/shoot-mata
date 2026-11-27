@@ -13,6 +13,8 @@ let grab = false;
 let dodge = false;
 let sparks = [];
 let audio;
+let driveAudio;
+let motion = { x: 0, y: 0 };
 let previous = 0;
 let remainder = 0;
 const tick = 1 / 60;
@@ -39,6 +41,7 @@ function toggle() {
     practice = practiceControl.checked;
     game = createGame(practice);
     sparks = [];
+    motion = { x: 0, y: 0 };
     remainder = 0;
   }
   setMode('play');
@@ -81,6 +84,24 @@ function effect(kind, entity) {
     const color = kind === 'hit' ? '#ff6858' : kind === 'scrap' ? '#a69d96' : '#ffdd80';
     sparks.push({ x: entity.x, y: entity.y - (kind === 'land' || kind === 'brake' ? 0 : 18), age: 0, color, strong: kind === 'impact', dropped: kind === 'drop' });
   }
+}
+
+function updateDriveAudio(speed) {
+  if (audio?.state !== 'running' || driveAudio?.speed === speed) return;
+  const at = audio.currentTime;
+  if (!driveAudio) {
+    if (speed === 0) return;
+    const motor = audio.createOscillator();
+    const gain = audio.createGain();
+    motor.type = 'triangle';
+    gain.gain.value = 0;
+    motor.connect(gain).connect(audio.destination);
+    motor.start();
+    driveAudio = { motor, gain };
+  }
+  driveAudio.speed = speed;
+  driveAudio.motor.frequency.setTargetAtTime(48 + speed * 0.19, at, 0.035);
+  driveAudio.gain.gain.setTargetAtTime(Math.min(0.035, speed * 0.00012), at, 0.03);
 }
 
 function rect(x, y, w, h, color) {
@@ -171,6 +192,19 @@ function draw() {
       ctx.lineWidth = 2;
       ctx.stroke();
     }
+    if (player) {
+      const speed = Math.hypot(motion.x, motion.y);
+      if (speed > 0) {
+        ctx.strokeStyle = speed > 200 ? '#ffcb82' : '#8abba9';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        for (const tread of [-13, 13]) {
+          ctx.moveTo(tread, 2);
+          ctx.lineTo(tread - motion.x * 0.09, 2 - motion.y * 0.09);
+        }
+        ctx.stroke();
+      }
+    }
     if (actor.chargeEndX != null || (actor === target && rollerRecovering(actor))) {
       ctx.textAlign = 'center';
       rect(-40, -56, 80, 20, '#161a20');
@@ -178,6 +212,7 @@ function draw() {
     }
     const lift = actor.shift ? 28 * Math.sin(Math.PI * actor.shift.progress) : 0;
     ctx.translate(0, actor.flight ? -18 : -lift);
+    if (player) ctx.transform(1, 0, -motion.x / 1100, 1 + motion.y / 2400, 0, 0);
     if (actor.flight) ctx.rotate(actor.flight * Math.PI * 4);
     if (actor.recoil > 0) ctx.rotate(actor.recoil * actor.recoilDirection);
     const bodyColor = actor.shift ? '#c59177' : actor.recoil > 0 || flash ? '#fff0be'
@@ -248,10 +283,12 @@ function frame(now) {
   if (mode === 'play' && previous) {
     remainder += Math.min(0.1, (now - previous) / 1000);
     while (remainder >= tick && mode === 'play') {
+      const { x, y } = game;
       step(game, {
         left: keys.has('ArrowLeft'), right: keys.has('ArrowRight'),
         up: keys.has('ArrowUp'), down: keys.has('ArrowDown'), grab, dodge,
       }, tick, effect);
+      motion = { x: (game.x - x) / tick, y: (game.y - y) / tick };
       for (const spark of sparks) spark.age += tick;
       sparks = sparks.filter(spark => spark.age < 0.23);
       grab = false;
@@ -260,6 +297,7 @@ function frame(now) {
       if (game.over) setMode('result');
     }
   }
+  updateDriveAudio(mode === 'play' ? Math.round(Math.hypot(motion.x, motion.y)) : 0);
   previous = now;
   draw();
   requestAnimationFrame(frame);
