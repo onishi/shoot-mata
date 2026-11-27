@@ -15,3 +15,4 @@
 | 2026-11-27T09:24:33+0900 | Codex (codex) | run-codex-loop.sh | 10 | v15の走行方向と回避加速を姿勢・床跡・連続音に反映 | 構文2件、回帰7件、Chrome実時間で左右反転・回避・停止、固定60 Hzで鎮圧成功1700点・耐久3と再挑戦 | feat(ver15): show and sound robot drive motion |
 | 2026-11-27T19:20:54+0900 | Codex (codex) | run-codex-loop.sh | 1 | v15の小型機と圧延機の形・動きを描き分け | 構文2件、回帰7件、Chrome固定60 Hzで突進前後の採取、1700点で鎮圧成功、再挑戦 | feat(ver15): distinguish rollers from runners |
 | 2026-11-27T20:22:18+0900 | Codex (codex) | run-codex-loop.sh | 2 | 搬入口の最初の10秒で、掴み・射線調整・投擲の案内を追加 | 構文2件、回帰7件、Chrome固定60 Hzで案内3種、開幕200点、鎮圧成功・再挑戦、例外0件 | feat(ver15): cue the opening grab and throw |
+| 2026-11-27T21:23:48+0900 | Codex (codex) | run-codex-loop.sh | 3 | 掴み失敗と投擲不発を操作した場所と投擲の終点に表示 | 構文2件、回帰7件、Chrome固定60 Hzで1700点で鎮圧成功・再挑戦・失敗表示2種、例外0件 | feat(ver15): show failed grabs and throws |

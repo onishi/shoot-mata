@@ -80,9 +80,10 @@ function effect(kind, entity) {
     oscillator.start();
     oscillator.stop(at + 0.18);
   }
-  if (['grab', 'throw', 'impact', 'land', 'brake', 'scrap', 'hit', 'drop'].includes(kind)) {
+  if (['grab', 'throw', 'impact', 'land', 'brake', 'scrap', 'hit', 'drop', 'miss'].includes(kind)) {
     const color = kind === 'hit' ? '#ff6858' : kind === 'scrap' ? '#a69d96' : '#ffdd80';
-    sparks.push({ x: entity.x, y: entity.y - (kind === 'land' || kind === 'brake' ? 0 : 18), age: 0, color, strong: kind === 'impact', dropped: kind === 'drop' });
+    const message = { drop: '落とした', miss: 'つかめない', scrap: '命中なし' }[kind];
+    sparks.push({ x: entity.x, y: entity.y - (kind === 'land' || kind === 'brake' ? 0 : 18), age: 0, color, strong: kind === 'impact', message, showBurst: kind !== 'miss' && kind !== 'drop' });
   }
 }
 
@@ -268,10 +269,12 @@ function draw() {
     ctx.restore();
   }
   for (const spark of sparks) {
-    if (spark.dropped) {
-      label('落とした', spark.x - 29, spark.y - 27 - spark.age * 50, 15, '#ffdd80');
-      continue;
+    if (spark.message) {
+      ctx.textAlign = 'center';
+      label(spark.message, Math.max(50, Math.min(750, spark.x)), spark.y - 27 - spark.age * 35, 15);
+      ctx.textAlign = 'left';
     }
+    if (!spark.showBurst || spark.age >= 0.23) continue;
     for (let n = 0; n < 8; n++) {
       const angle = (n / 8) * Math.PI * 2;
       const radius = 9 + spark.age * (spark.strong ? 180 : 115);
@@ -318,7 +321,7 @@ function frame(now) {
       }, tick, effect);
       motion = { x: (game.x - x) / tick, y: (game.y - y) / tick };
       for (const spark of sparks) spark.age += tick;
-      sparks = sparks.filter(spark => spark.age < 0.23);
+      sparks = sparks.filter(spark => spark.age < (spark.message ? 0.65 : 0.23));
       grab = false;
       dodge = false;
       remainder -= tick;
