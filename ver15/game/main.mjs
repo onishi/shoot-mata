@@ -71,9 +71,10 @@ function effect(kind, entity) {
     const oscillator = audio.createOscillator();
     const gain = audio.createGain();
     const at = audio.currentTime;
+    const pitch = kind === 'throw' && entity.kind === 'roller' ? 0.48 : 1;
     oscillator.type = kind === 'impact' ? 'sawtooth' : 'triangle';
-    oscillator.frequency.setValueAtTime(start, at);
-    oscillator.frequency.exponentialRampToValueAtTime(end, at + 0.15);
+    oscillator.frequency.setValueAtTime(start * pitch, at);
+    oscillator.frequency.exponentialRampToValueAtTime(end * pitch, at + 0.15);
     gain.gain.setValueAtTime(0.10, at);
     gain.gain.exponentialRampToValueAtTime(0.001, at + 0.17);
     oscillator.connect(gain).connect(audio.destination);
@@ -151,7 +152,9 @@ function draw() {
     const { start } = lane;
     const end = contact ? start + game.facing * contact.distance : lane.end;
     const width = Math.abs(end - start);
-    rect(Math.min(start, end), game.y - impactRadius('runner'), width, impactRadius('runner') * 2, '#ffe0a126');
+    const radius = impactRadius('runner', game.grab);
+    const heavy = game.grab.kind === 'roller';
+    rect(Math.min(start, end), game.y - radius, width, radius * 2, heavy ? '#ffab6140' : '#ffe0a126');
     ctx.strokeStyle = '#ffe0a1';
     ctx.setLineDash([8, 9]);
     ctx.beginPath();

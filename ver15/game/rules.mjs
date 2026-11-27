@@ -20,7 +20,8 @@ const distance = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
 const carryOffset = 29;
 const throwSpeed = 570;
 const throwDuration = 0.78;
-export const impactRadius = kind => kind === 'foreman' ? 48 : 33;
+export const impactRadius = (kind, payload) =>
+  (kind === 'foreman' ? 48 : 33) + (payload?.kind === 'roller' ? 16 : 0);
 const shiftDuration = 0.60;
 const windupStart = 1.55;
 const chargeStart = 2.15;
@@ -40,7 +41,7 @@ export function firstThrowContact(game, payload, start, end, y) {
   let first = null;
   for (const actor of game.enemies) {
     if (actor === payload || actor === game.grab || actor.hp <= 0 || actor.flight || actor.shift) continue;
-    const radius = impactRadius(actor.kind);
+    const radius = impactRadius(actor.kind, payload);
     const depth = Math.abs(actor.y - y);
     if (depth >= radius) continue;
 
@@ -108,7 +109,8 @@ export function step(game, input, dt, emit = () => {}) {
     game.dodge = 0.26;
     emit('dodge', game);
   }
-  const speed = game.dodge > 0.10 ? 430 : game.grab ? 105 : 170;
+  const carrySpeed = game.grab?.kind === 'roller' ? 78 : 105;
+  const speed = game.dodge > 0.10 ? 430 : game.grab ? carrySpeed : 170;
   const norm = Math.hypot(dx, dy) || 1;
   game.x = clamp(game.x + (dx || (game.dodge > 0.10 && !dy ? game.facing : 0)) * speed * dt / norm, 42, 758);
   game.y = clamp(game.y + dy * speed * dt / norm, 191, 378);

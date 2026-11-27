@@ -157,3 +157,23 @@ test('a close hit dislodges a carried machine, while a sidestep keeps it', () =>
     }
   }
 });
+
+test('the roller trades carry speed for an off-lane hit shown by the preview', () => {
+  function throwFromLane(kind) {
+    const game = carryingGame();
+    game.grab.kind = kind;
+    const origin = game.x;
+    step(game, { ...idle, right: true }, tick);
+    assert.ok(Math.abs(game.x - origin - (kind === 'roller' ? 78 : 105) * tick) < 1e-8);
+    const { start, end } = throwLane(game);
+    const target = { kind: 'runner', hp: 1, x: start + 35, y: game.y + 40, clock: 0, flight: 0 };
+    game.enemies.push(target);
+    assert.equal(firstThrowContact(game, game.grab, start, end, game.y)?.actor,
+      kind === 'roller' ? target : undefined);
+    step(game, { ...idle, grab: true }, tick);
+    return game.score;
+  }
+
+  assert.equal(throwFromLane('runner'), 0);
+  assert.equal(throwFromLane('roller'), 200);
+});
