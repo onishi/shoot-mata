@@ -1,4 +1,4 @@
-import { createGame, firstThrowContact, step, gameLength, grabTarget, impactRadius, rollerContactRadius, rollerRecovering, rollerWindupRemaining, throwLane } from './rules.mjs';
+import { createGame, firstThrowContact, step, gameLength, grabTarget, impactRadius, rollerContactRadius, rollerRecoveryRemaining, rollerWindupRemaining, throwLane } from './rules.mjs';
 
 const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
@@ -211,12 +211,17 @@ function draw() {
         ctx.stroke();
       }
     }
-    if (actor.chargeEndX != null || (actor === target && rollerRecovering(actor))) {
+    const recovery = actor !== game.grab && !actor.flight && !(actor.recoil > 0)
+      ? rollerRecoveryRemaining(actor) : 0;
+    if (recovery || actor.chargeEndX != null) {
+      const windup = actor.chargeEndX != null ? rollerWindupRemaining(actor) : 0;
+      const caption = recovery ? (actor === target ? 'Zでつかむ' : '停止中')
+        : windup ? '突進予告' : '突進中';
+      const color = recovery ? '#ffedca' : '#ffab91';
       ctx.textAlign = 'center';
-      const remaining = actor.chargeEndX != null ? rollerWindupRemaining(actor) : 0;
       rect(-40, -56, 80, 20, '#161a20');
-      label(actor === target ? 'Zでつかむ' : remaining ? '突進予告' : '突進中', 0, -41, 14, actor === target ? '#ffedca' : '#ffab91');
-      if (remaining) rect(-40, -36, 80 * remaining, 3, '#ffab91');
+      label(caption, 0, -41, 14, color);
+      if (windup || recovery) rect(-40, -36, 80 * (windup || recovery), 3, color);
     }
     const lift = actor.shift ? 28 * Math.sin(Math.PI * actor.shift.progress) : 0;
     ctx.translate(0, actor.flight ? -18 : -lift);

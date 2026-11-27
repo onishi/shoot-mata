@@ -18,3 +18,4 @@
 | 2026-11-27T21:23:48+0900 | Codex (codex) | run-codex-loop.sh | 3 | 掴み失敗と投擲不発を操作した場所と投擲の終点に表示 | 構文2件、回帰7件、Chrome固定60 Hzで1700点で鎮圧成功・再挑戦・失敗表示2種、例外0件 | feat(ver15): show failed grabs and throws |
 | 2026-11-27T22:25:15+0900 | Codex (codex) | run-codex-loop.sh | 4 | v15の圧延機の危険帯で奥行きへの退避を案内 | 構文2件、回帰7件、Chrome固定60 Hzで耐久3対4、両回1700点で鎮圧・再挑戦 | feat(ver15): cue sidesteps from roller charge lanes |
 | 2026-11-27T23:26:49+0900 | Codex (codex) | run-codex-loop.sh | 5 | 圧延機の予告に残り時間ゲージと上昇音を追加 | 構文2件、回帰7件、Chrome固定60 Hzで予告と突進を採取、1700点で鎮圧・再挑戦 | feat(ver15): show roller windup timing |
+| 2026-11-28T00:28:17+0900 | Codex (codex) | run-codex-loop.sh | 6 | v15の圧延機に突進後の停止と再始動までの残り時間を表示 | 構文2件、回帰7件、Chrome固定60 Hzで停止前後3フレーム、鎮圧成功1700点・耐久3、再挑戦 | feat(ver15): show roller recovery timing |
