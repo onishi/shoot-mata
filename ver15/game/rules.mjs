@@ -28,6 +28,7 @@ const chargeEnd = 2.55;
 const chargeSpeed = 156;
 export const rollerContactRadius = 25;
 export const rollerRecovering = enemy => enemy.kind === 'roller' && enemy.chargeEndX == null && enemy.clock >= chargeEnd;
+export const rollerWindupRemaining = enemy => clamp((chargeStart - enemy.clock) / (chargeStart - windupStart), 0, 1);
 
 export function firstThrowContact(game, payload, start, end, y) {
   const direction = Math.sign(end - start);
@@ -184,6 +185,7 @@ export function step(game, input, dt, emit = () => {}) {
       if (enemy.chargeEndX == null) {
         enemy.chargeFacing = game.x < enemy.x ? -1 : 1;
         enemy.chargeEndX = clamp(enemy.x + enemy.chargeFacing * chargeSpeed * (chargeEnd - chargeStart), 42, 758);
+        emit('windup', enemy);
       }
       if (enemy.clock >= chargeStart) {
         const remaining = enemy.chargeEndX - enemy.x;

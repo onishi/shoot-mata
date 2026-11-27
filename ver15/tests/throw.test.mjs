@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { createGame, firstThrowContact, grabTarget, rollerRecovering, step, throwLane } from '../game/rules.mjs';
+import { createGame, firstThrowContact, grabTarget, rollerRecovering, rollerWindupRemaining, step, throwLane } from '../game/rules.mjs';
 
 const tick = 1 / 60;
 const idle = { left: false, right: false, up: false, down: false };
@@ -97,16 +97,20 @@ test('the roller holds its warned lane, punishing a stand and allowing a sideste
     game.wave = 1;
     const roller = { kind: 'roller', hp: 1, x: game.x + 56, y: game.y, clock: 1.54, flight: 0 };
     game.enemies.push(roller);
-    step(game, idle, tick);
+    const events = [];
+    step(game, idle, tick, kind => events.push(kind));
     const destination = roller.chargeEndX;
     assert.ok(destination < game.x);
     assert.equal(grabTarget(game), null);
-    const events = [];
+    assert.ok(rollerWindupRemaining(roller) > 0.98);
 
     for (let frame = 0; frame < 61; frame++) {
       step(game, { ...idle, down: sidestep && frame < 12, grab: frame === 0 }, tick, kind => events.push(kind));
+      if (frame === 17) assert.ok(Math.abs(rollerWindupRemaining(roller) - 0.5) < 0.02);
     }
-    assert.equal(events[0], 'miss');
+    assert.deepEqual(events.slice(0, 2), ['windup', 'miss']);
+    assert.equal(events.filter(kind => kind === 'windup').length, 1);
+    assert.equal(rollerWindupRemaining(roller), 0);
     assert.equal(events.filter(kind => kind === 'brake').length, 1);
     assert.equal(rollerRecovering(roller), true);
     assert.ok(Math.abs(roller.x - destination) < 1e-8);

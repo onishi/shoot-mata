@@ -1,4 +1,4 @@
-import { createGame, firstThrowContact, step, gameLength, grabTarget, impactRadius, rollerContactRadius, rollerRecovering, throwLane } from './rules.mjs';
+import { createGame, firstThrowContact, step, gameLength, grabTarget, impactRadius, rollerContactRadius, rollerRecovering, rollerWindupRemaining, throwLane } from './rules.mjs';
 
 const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
@@ -65,7 +65,7 @@ window.addEventListener('keydown', event => {
 window.addEventListener('keyup', event => keys.delete(event.code));
 
 function effect(kind, entity) {
-  const sounds = { grab: [230, 510], throw: [350, 100], impact: [120, 43], land: [95, 61], brake: [74, 39], scrap: [180, 95], hit: [210, 55], dodge: [270, 140], miss: [90, 70] };
+  const sounds = { grab: [230, 510], throw: [350, 100], impact: [120, 43], land: [95, 61], windup: [155, 310], brake: [74, 39], scrap: [180, 95], hit: [210, 55], dodge: [270, 140], miss: [90, 70] };
   if (audio?.state === 'running' && sounds[kind]) {
     const [start, end] = sounds[kind];
     const oscillator = audio.createOscillator();
@@ -213,8 +213,10 @@ function draw() {
     }
     if (actor.chargeEndX != null || (actor === target && rollerRecovering(actor))) {
       ctx.textAlign = 'center';
+      const remaining = actor.chargeEndX != null ? rollerWindupRemaining(actor) : 0;
       rect(-40, -56, 80, 20, '#161a20');
-      label(actor === target ? 'Zでつかむ' : '掴み不可', 0, -41, 14, actor === target ? '#ffedca' : '#ffab91');
+      label(actor === target ? 'Zでつかむ' : remaining ? '突進予告' : '突進中', 0, -41, 14, actor === target ? '#ffedca' : '#ffab91');
+      if (remaining) rect(-40, -36, 80 * remaining, 3, '#ffab91');
     }
     const lift = actor.shift ? 28 * Math.sin(Math.PI * actor.shift.progress) : 0;
     ctx.translate(0, actor.flight ? -18 : -lift);
