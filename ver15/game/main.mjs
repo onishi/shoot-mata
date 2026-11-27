@@ -282,13 +282,19 @@ function draw() {
   label(String(Math.max(0, Math.ceil(gameLength - game.time))), 386, 35, 20);
   label('得点 ' + game.score, 650, 35, 20);
   label(practice ? '練習 · 監督機区画' : game.time < 23 ? '搬入口' : game.time < 64 ? '圧延床' : '監督機区画', 24, 431, 19, '#e8af77');
-  if (mode === 'play' && foreman && (foreman.shift || lane)) {
-    let cue = '監督機に射線を合わせる';
+  let cue;
+  if (foreman && (foreman.shift || lane)) {
+    cue = '監督機に射線を合わせる';
     if (foreman.shift) cue = '着地を待つ';
     else if (contact?.actor === foreman) cue = 'Zで投げる';
     else if (contact) cue = '手前に敵機 · 位置を変える';
+  } else if (game.time < 10) {
+    if (lane) cue = contact ? 'Zで投げる' : '敵機に射線を合わせる';
+    else if (target) cue = '輪の付いた敵機を Z でつかむ';
+  }
+  if (mode === 'play' && cue) {
     ctx.textAlign = 'center';
-    label(cue, 470, 431, 19, foreman.shift ? '#ffc079' : '#ffedca');
+    label(cue, 470, 431, 19, foreman?.shift ? '#ffc079' : '#ffedca');
     ctx.textAlign = 'left';
   }
   if (mode !== 'play') {
