@@ -1,4 +1,4 @@
-import { createGame, firstThrowContact, step, gameLength, grabTarget, impactRadius, rollerContactRadius, rollerRecoveryRemaining, rollerWindupRemaining, throwLane } from './rules.mjs';
+import { createGame, firstThrowContact, step, gameLength, grabTarget, impactRadius, rollerContactRadius, rollerRecoveryRemaining, rollerWindupRemaining, runnerThreatening, throwLane } from './rules.mjs';
 
 const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
@@ -187,6 +187,7 @@ function draw() {
     const player = actor === game;
     const boss = actor.kind === 'foreman';
     const roller = actor.kind === 'roller';
+    const runnerWarning = runnerThreatening(actor, game);
     const flash = player ? game.invulnerable && Math.floor(game.time * 18) % 2 : actor.clock >= 1.55 && actor.clock < 2.55 && actor.kind !== 'runner';
     const width = boss ? 67 : player ? 42 : roller ? 48 : 29;
     const height = boss ? 57 : player ? 38 : roller ? 24 : 32;
@@ -199,6 +200,13 @@ function draw() {
     if (actor === target) {
       ctx.strokeStyle = '#ffe0a1';
       ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+    if (runnerWarning) {
+      ctx.strokeStyle = '#ff9a74';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, width * 0.78, 10, 0, 0, Math.PI * 2);
       ctx.stroke();
     }
     if (player) {
@@ -251,7 +259,8 @@ function draw() {
       rect(-width / 2, -height, width, height - (player || boss ? 4 : 8), bodyColor);
       rect(-width / 2 - 5, -height + 9, 10, 15, '#242b34');
       rect(width / 2 - 5, -height + 9, 10, 15, '#242b34');
-      rect(-width / 4, -height + 5, width / 2, 7, player ? '#14363d' : '#672b2d');
+      const lamp = player ? '#14363d' : runnerWarning ? '#ff9a74' : '#672b2d';
+      rect(-width / 4, -height + 5, width / 2, 7, lamp);
       if (!player && !boss) {
         const stride = Math.round(Math.sin(actor.clock * Math.PI * 8) * 3);
         rect(-11, -9, 7, 7 + stride, bodyColor);

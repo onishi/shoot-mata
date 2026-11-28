@@ -29,6 +29,10 @@ const chargeEnd = 2.55;
 const chargeSpeed = 156;
 const attackCycle = 3;
 export const rollerContactRadius = 25;
+const runnerWarningRadius = 46;
+export const runnerThreatening = (enemy, game) => enemy.kind === 'runner'
+  && enemy !== game.grab && !enemy.flight && !(enemy.recoil > 0)
+  && distance(enemy, game) < runnerWarningRadius;
 export const rollerRecovering = enemy => enemy.kind === 'roller' && enemy.chargeEndX == null && enemy.clock >= chargeEnd;
 export const rollerRecoveryRemaining = enemy => rollerRecovering(enemy)
   ? (attackCycle - enemy.clock) / (attackCycle - chargeEnd)

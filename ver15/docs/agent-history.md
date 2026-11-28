@@ -20,3 +20,4 @@
 | 2026-11-27T23:26:49+0900 | Codex (codex) | run-codex-loop.sh | 5 | 圧延機の予告に残り時間ゲージと上昇音を追加 | 構文2件、回帰7件、Chrome固定60 Hzで予告と突進を採取、1700点で鎮圧・再挑戦 | feat(ver15): show roller windup timing |
 | 2026-11-28T00:28:17+0900 | Codex (codex) | run-codex-loop.sh | 6 | v15の圧延機に突進後の停止と再始動までの残り時間を表示 | 構文2件、回帰7件、Chrome固定60 Hzで停止前後3フレーム、鎮圧成功1700点・耐久3、再挑戦 | feat(ver15): show roller recovery timing |
 | 2026-11-28T08:13:03+0900 | Codex (codex) | run-codex-loop.sh | 1 | 圧延機の運搬を遅くし、投擲の横幅を広げた | 構文2件、回帰8件、Chrome固定60 Hzで鎮圧成功1700点・耐久3、再挑戦 | feat(ver15): give roller throws a wider lane |
+| 2026-11-28T12:14:25+0900 | Codex (codex) | run-codex-loop.sh | 1 | 小型機が接触圏に入る手前で機体灯と足元の輪を表示 | 構文2件、回帰9件、Chrome固定60 Hzで所持中の被弾と回避を比較、鎮圧成功・再挑戦 | feat(ver15): signal approaching runners |

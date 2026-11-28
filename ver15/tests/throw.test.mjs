@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { createGame, firstThrowContact, grabTarget, rollerRecovering, rollerRecoveryRemaining, rollerWindupRemaining, step, throwLane } from '../game/rules.mjs';
+import { createGame, firstThrowContact, grabTarget, rollerRecovering, rollerRecoveryRemaining, rollerWindupRemaining, runnerThreatening, step, throwLane } from '../game/rules.mjs';
 
 const tick = 1 / 60;
 const idle = { left: false, right: false, up: false, down: false };
@@ -176,4 +176,21 @@ test('the roller trades carry speed for an off-lane hit shown by the preview', (
 
   assert.equal(throwFromLane('runner'), 0);
   assert.equal(throwFromLane('roller'), 200);
+});
+
+test('a nearby runner warns before contacting a carrier', () => {
+  const game = carryingGame();
+  const runner = { kind: 'runner', hp: 1, x: game.x + 48, y: game.y, clock: 0, flight: 0 };
+  game.enemies.push(runner);
+  assert.equal(runnerThreatening(game.grab, game), false);
+  assert.equal(runnerThreatening(runner, game), false);
+  for (let frame = 0; frame < 5; frame++) step(game, idle, tick);
+  assert.equal(runnerThreatening(runner, game), true);
+  assert.equal(game.hp, 5);
+  for (let frame = 0; frame < 8; frame++) {
+    step(game, { ...idle, down: true, dodge: frame === 0 }, tick);
+  }
+  assert.equal(runnerThreatening(runner, game), false);
+  assert.equal(game.hp, 5);
+  assert.ok(game.grab);
 });
